@@ -1,0 +1,2 @@
+2013-01-01: gWaei 3.6.2
+Bugfix release. Various windows compilation fixes.  Morphology was made less obtrusive because it is a bit greedy.  Fixes to a segfault in waei if no dictionaries are installed and a search is carried out.  Fixes to localization.

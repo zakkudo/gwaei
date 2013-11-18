@@ -1,0 +1,249 @@
+<schemalist>
+  <schema id="org.gnome.gwaei" path="/org/gnome/gwaei/">
+    <key name="version" type="s">
+      <default>'0.0.0'</default>
+      <summary>The program version</summary>
+      <description>Used to determine if data migration is required.</description>
+    </key>
+
+    <key name="window-size" type="s">
+      <default>''</default>
+      <summary>Stores the size of the window type when last closed.</summary>
+      <description>Stores the size of the window type when last closed.</description>
+    </key>
+
+    <key name="tabbar-show" type="b">
+      <default>false</default>
+      <summary>Tabbar show status when there are no tabs</summary>
+      <description>Determines if the tabbar is hidden or not.</description>
+    </key>
+
+    <key name="menubar-show" type="b">
+      <default>false</default>
+      <summary>Menubar show status</summary>
+      <description>Determines if the menubar is hidden or not.</description>
+    </key>
+
+    <key name="toolbar-show" type="b">
+      <default>false</default>
+      <summary>Toolbar show status</summary>
+      <description>Determines if the toolbar is hidden or not.</description>
+    </key>
+
+    <key name="statusbar-show" type="b">
+      <default>false</default>
+      <summary>Toolbar show status</summary>
+      <description>Determines if the statusbar is hidden or not.</description>
+    </key>
+
+    <key name="query-furigana-insensitive" type="b">
+      <default>true</default>
+      <summary>All katakana is treated as hiragana.</summary>
+      <description>All katakana is treated as hiragana.</description>
+    </key>
+
+    <key name="query-case-insensitive" type="b">
+      <default>true</default>
+      <summary>Case is ignored for english searches.</summary>
+      <description>Caes is ignored for english searches.</description>
+    </key>
+
+    <key name="query-stem-insensitive" type="b">
+      <default>true</default>
+      <summary>All words are attempted to be converted to their root form.</summary>
+      <description>All words are attempted to be converted to their root form.</description>
+    </key>
+
+    <key name="query-romaji-to-furigana" type="i">
+      <default>2</default>
+      <summary>All words are attempted to be converted to their root form.</summary>
+      <description>All words are attempted to be converted to their root form.</description>
+    </key>
+
+    <key name="index-results" type="b">
+      <default>true</default>
+      <summary>Dictionaries are indexed for faster searches.</summary>
+      <description>Dictionaries are indexed for faster searches.</description>
+    </key>
+
+    <key name="query-spellcheck" type="b">
+      <default>true</default>
+      <summary>Check the spelling of queries as they are typed</summary>
+      <description>Checks the spelling of search queries as the user types them in.</description>
+    </key>
+
+    <key name="spellcheck-dictionary" type="s">
+      <default>'auto'</default>
+      <summary>The dictionary to use for spellcheck or 'auto'</summary>
+      <description>Sets the default language for spellchecking.  It is usually en_US or some varient by default.</description>
+    </key>
+
+    <key name="search-as-you-type" type="b">
+      <default>false</default>
+      <summary>The search updates as you type</summary>
+      <description>Searches dynamically update as you type.</description>
+    </key>
+
+    <child schema="org.gnome.gwaei.vocabulary" name="vocabulary"/>
+    <child schema="org.gnome.gwaei.dictionary" name="dictionary"/>
+    <child schema="org.gnome.gwaei.fonts" name="fonts"/>
+    <child schema="org.gnome.gwaei.highlighting" name="highlighting"/>
+  </schema>
+
+  <!-- Vocabulary settings -->
+  <schema id="org.gnome.gwaei.vocabulary" path="/org/gnome/gwaei/vocabulary/">
+
+    <key name="menubar-show" type="b">
+      <default>true</default>
+      <summary>Toolbar show status</summary>
+      <description>Determines if the toolbar is hidden or not.</description>
+    </key>
+
+    <key name="toolbar-show" type="b">
+      <default>false</default>
+      <summary>Toolbar show status</summary>
+      <description>Determines if the toolbar is hidden or not.</description>
+    </key>
+
+    <key name="list-order" type="s">
+      <default>''</default>
+      <summary>Used for the styling of some titles</summary>
+      <description>Used as a separator for the "Other results" section. Is not always used.</description>
+    </key>
+
+    <key name="shuffle-flashcards" type="b">
+      <default>true</default>
+      <summary>Whether the generated flashchard decks should be shuffled</summary>
+      <description>The newly created flashcard decks will be shulled.</description>
+    </key>
+
+    <key name="trim-flashcards" type="b">
+      <default>true</default>
+      <summary>Whether the generated flashchard decks should be trimmed.</summary>
+      <description>The newly created flashcard decks will be trimmed to the flashcard-deck-size.</description>
+    </key>
+
+    <key name="flashcard-deck-size" type="i">
+      <default>20</default>
+      <summary>The maximium size of a generate flashcard deck.</summary>
+      <description>This is number of cards that should be taken from a vocabulary list when the list has more than 20 entries.</description>
+    </key>
+
+    <key name="track-results" type="b">
+      <default>false</default>
+      <summary>Whether the generated flashchard results should be saved</summary>
+      <description>Whether the generated flashchard results should be saved.</description>
+    </key>
+
+    <key name="position-column-show" type="b">
+      <default>true</default>
+      <summary>Column</summary>
+      <description>Column.</description>
+    </key>
+
+    <key name="score-column-show" type="b">
+      <default>false</default>
+      <summary>Column</summary>
+      <description>Column.</description>
+    </key>
+
+    <key name="timestamp-column-show" type="b">
+      <default>false</default>
+      <summary>Column</summary>
+      <description>Column.</description>
+    </key>
+
+
+  </schema>
+
+  <!-- Dictionary settings -->
+  <schema id="org.gnome.gwaei.dictionary" path="/org/gnome/gwaei/dictionary/">
+    <key name="load-order" type="s">
+      <default>'e/English;kanji/Kanji;e/Names;e/Places;example/Examples'</default>
+      <summary>Used for the styling of some titles</summary>
+      <description>Used as a separator for the "Other results" section. Is not always used.</description>
+    </key>
+
+    <key name="english-source" type="s">
+      <default>'ftp://ftp.monash.edu.au/pub/nihongo/edict.gz'</default>
+      <summary>English dictionary install source</summary>
+      <description>Used for determining the path to install and update the English dictionary from.</description>
+    </key>
+
+    <key name="kanji-source" type="s">
+      <default>'ftp://ftp.monash.edu.au/pub/nihongo/kanjidic.gz;ftp://ftp.monash.edu.au/pub/nihongo/kradfile.gz'</default>
+      <summary>Kanji dictionary install source</summary>
+      <description>Used for determining the path to install and update the Kanji dictionary from.</description>
+    </key>
+
+    <key name="names-places-source" type="s">
+      <default>'ftp://ftp.monash.edu.au/pub/nihongo/enamdict.gz'</default>
+      <summary>Names dictionary install source</summary>
+      <description>Used for determining the path to install and update the Names dictionary from.</description>
+    </key>
+
+    <key name="examples-source" type="s">
+      <default>'http://www.csse.monash.edu.au/~jwb/examples.gz'</default>
+      <summary>Examples dictionary install source</summary>
+      <description>Used for determining the path to install and update the Radicals dictionary from.</description>
+    </key>
+  </schema>
+
+  <!-- Font settings -->
+  <schema id="org.gnome.gwaei.fonts" path="/org/gnome/gwaei/fonts/">
+    <key name="use-global-document-font" type="b">
+      <default>true</default>
+      <summary>Use the global document font</summary>
+      <description>Makes the program use the global document font instead of the custom one.</description>
+    </key>
+
+    <key name="custom-document-font" type="s">
+      <default>'Sans 10'</default>
+      <summary>Custom document font</summary>
+      <description>A document font to use instead of the global one.</description>
+    </key>
+
+    <key name="magnification" type="i">
+      <default>0</default>
+      <summary>Results font size</summary>
+      <description>Enlarges the document font by the step given here.</description>
+    </key>
+  </schema>
+
+  <!-- Highlighting settings -->
+  <schema id="org.gnome.gwaei.highlighting" path="/org/gnome/gwaei/highlighting/">
+    <key name="comment-foreground" type="s">
+      <default>'#2222DD'</default>
+      <summary>Color for comments in dictionary files</summary>
+      <description>Is used to make the definitions stand out more from the comments.</description>
+    </key>
+
+    <key name="match-foreground" type="s">
+      <default>'#002200'</default>
+      <summary>Color used for query matches</summary>
+      <description>Is used to make the matched portions of results more visible.</description>
+    </key>
+
+    <key name="match-background" type="s">
+      <default>'#CCEECC'</default>
+      <summary>Color used for query matches</summary>
+      <description>Is used to make the matched portions of results more visible.</description>
+    </key>
+
+    <key name="header-foreground" type="s">
+      <default>'#EE1111'</default>
+      <summary>Used for the styling of some titles</summary>
+      <description>Used as a separator for the "Other results" section.</description>
+    </key>
+
+    <key name="header-background" type="s">
+      <default>'#FFDEDE'</default>
+      <summary>Used for the styling of some titles</summary>
+      <description>Used as a separator for the "Other results" section. Is not always used.</description>
+    </key>
+
+  </schema>
+
+</schemalist>
+
+

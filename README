@@ -1,0 +1,126 @@
+gWaei README 
+*******************************
+Welcome to the README file.  This file is GPL licensed. If you plan on
+redistributing this software you should read the COPYING file. For more help
+than is written here, go to the projects webpage at
+http://gwaei.sourceforge.net/
+
+
+
+TABLE OF CONTENTS
+
+  1.0 PREREQUISITES
+  2.0 CONFIGURATION AND INSTALLATION
+  3.0 COMPILING ON WINDOWS
+
+
+1.0 PREREQUISITES:
+
+  To run gWaei 3.6.x, an environment with at least gtk+-3.3.x/glib-2.31.x,
+  curl 7.20.0, gnome-doc-utils-0.14.0, and gsettings-desktop-schemas are
+  required. Additionally, you will want to have hunspell, mecab, and
+  ttf-kanjistrokeorders available.
+
+  * curl <http://curl.haxx.se/>
+  * ttf-kanjistrokeorders <http://sites.google.com/site/nihilistorguk/>
+  * hunspell <http://hunspell.sourceforge.net/>
+  * mecab <http://code.google.com/p/mecab/>
+  * gtk/gnome <http://www.gtk.org/> or <ftp://ftp.gnome.org/pub/gnome/sources/>
+
+  To compile the program, you will have to have the dev files for GTK+, CURL3,
+  hunspell and mecab available. Users with binary based distributions should install the 
+  approprate "dev" or "devel" files for the above dependencies using their
+  package manager. Automake and GCC will come in handy too, as they are 
+  standard build tools for GNU systems.
+
+  Debian/Ubuntu build Depandancies:
+    sudo apt-get install gcc autoconf automake make intltool gettext \
+    rarian-compat gnome-doc-utils dconf gsettings-desktop-schemas \
+    imagemagick libcurl4-gnutls-dev libhunspell-dev libmecab-dev libgtk-3-dev libtool
+
+  Debian/Ubuntu optional runtime dependancies:
+    sudo apt-get install hunspell-en-us mecab-ipadic fonts-kanjistrokeorders \
+    gnome-icon-theme-symbolic
+
+  Fedora build dependancies:
+    sudo yum install gcc autoconf automake make intltool gettext rarian-compat \
+    gnome-doc-utils dconf gsettings-desktop-schemas libcurl-devel hunspell-devel \
+    mecab-devel gtk3-devel libstdc++-devel libtool
+
+  Fedora optional runtime dependancies:
+    sudo yum install hunspell-en-US mecab-ipadic kanjistrokeorders-fonts \
+    gnome-icon-theme-symbolic
+
+  Arch build depandancies:
+    sudo pacman -S gcc autoconf automake make intltool gettext rarian \
+    gnome-doc-utils pkg-config dconf gsettings-desktop-schemas curl hunspell \
+    mecab gtk3 libtool
+
+  Arch optional runtime depandancies (other packages must be installed from AUR)
+    sudo pacman -S hunspell-en gnome-icon-theme-symbolic
+
+  For inputing Japanese queries, installing some software for Japanese
+  conversion is highly recommended.  Currently, the three main linux methods are
+  UIM or SCIM using the ANTHY engine or iBus.  For emergency situations where
+  users can't install either, gWaei has internal support for converting romanji
+  searches to hiragana/katakana automatically.  (This conversion is disabled
+  for Japanese locals by default in the preferences.)
+
+  Hunpsell and mecab require the approriate dictionaries to be installed. Hunspell will usually
+  use the myspell dictionaries.  mecab will use ipadict from
+  <http://sourceforge.net/projects/mecab/files/mecab-ipadic/>
+
+
+2.0 CONFIGURATION AND INSTALLATION:
+
+  When configuring, the most important variable for this program is the  
+  prefix.  Most users will install using steps similar to below.
+
+  2.2 CREATION OF MISSING FILES FOR A FRESH DOWNLOAD FROM THE GIT REPO
+    $ ./autogen.sh
+
+  2.3 BUILDING AND INSTALLING FROM THE SOURCE CODE:
+    $ ./configure 
+    $ make
+    $ sudo make install
+
+  2.3 UNINSTALL:
+    $ sudo make uninstall
+
+
+3.0 COMPILING ON WINDOWS:
+
+  gWaei has been tested and built on Windows with some success through MinGW.
+  Since I do not have a Windows PC of my own handy, I only get to test and
+  maintain builds sporadically through Wine.  Your success will largely depend
+  on how well you have your MinGW environment set up.
+
+  I currently test using MinGW cross compilation and Wine on Fedora. 
+  You will have to install the correct MinGW packages through yum, and
+  download a binary of gzip and the source to gnome-doc-utils manually.
+
+  yum install mingw32-gtk3 mingw32-curl mingw32-libxslt mingw32-libxml2 \
+  mingw32-hunspell
+
+  ftp://ftp.gnome.org/pub/gnome/sources/gnome-doc-utils/
+  ftp://ftp.gnome.org/pub/gnome/sources/gsettings-desktop-schemas/
+  http://icon-theme.freedesktop.org/wiki/HicolorTheme
+
+  1. Install the source files with the commands
+
+       mingw32-configure --disable-scrollkeeper
+       mingw32-make
+       sudo mingw32-make install
+
+  2. Build gwaei by doing
+    
+      mingw32-configure --disable-scrollkeeper --without-mecab
+      mingw32-make
+      sudo mingw32-make install
+
+  The mingw32-configure script will take care of PKG_CONFIG_PATH and such for
+  you.
+
+
+END
+

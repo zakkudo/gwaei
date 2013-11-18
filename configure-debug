@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./configure CFLAGS="-DGTK_DISABLE_DEPRECATED -DG_SEAL_ENABLE -DDEBUG -g" $@
+#./configure CFLAGS="-DGTK_DISABLE_DEPRECATED -DG_SEAL_ENABLE -DDEBUG -Wall -g" $@

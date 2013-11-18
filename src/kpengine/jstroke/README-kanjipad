@@ -1,0 +1,44 @@
+This directory consists of files from Robert Well's Jstoke,
+available from:
+
+  http://www.wellscs.com/pilot/
+
+I've deleted some Pilot specific files, and applied the patch
+at the bottom. Otherwise everything is as in Jstroke.1.2
+
+Owen Taylor
+October 27, 1997
+
+diff -c -r jstrok12/jstroke.h jstroke/jstroke.h
+*** jstrok12/jstroke.h	Mon Sep 22 22:07:04 1997
+--- jstroke/jstroke.h	Mon Oct 27 20:01:03 1997
+***************
+*** 40,46 ****
+  #define __JSTROKE_H__
+  
+  #ifdef FOR_PILOT_COMPAT
+! #include "../pilotcompat.h"
+  #endif /*FOR_PILOT_COMPAT*/
+  
+  #ifdef FOR_PILOT_GCC
+--- 40,46 ----
+  #define __JSTROKE_H__
+  
+  #ifdef FOR_PILOT_COMPAT
+! #include "pilotcompat.h"
+  #endif /*FOR_PILOT_COMPAT*/
+  
+  #ifdef FOR_PILOT_GCC
+diff -c -r jstrok12/pilotcompat.h jstroke/pilotcompat.h
+*** jstrok12/pilotcompat.h	Mon Sep 22 22:07:06 1997
+--- jstroke/pilotcompat.h	Mon Oct 27 20:01:43 1997
+***************
+*** 47,52 ****
+--- 47,53 ----
+  #define MemPtrFree free
+  #define StrLen strlen
+  #define StrIToA(str, n) sprintf((str),"%ld",(long)(n))
++ #define StrIToH(str, n) sprintf((str),"%lx",(long)(n))
+  #define false 0
+  #define true 1
+  

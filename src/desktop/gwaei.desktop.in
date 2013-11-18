@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=gWaei
+_GenericName=Japanese-English Dictionary
+_X-GNOME-FullName=gWaei Japanese-English Dictionary
+_Comment=Enter a Japanese or English word to easily get translations
+Exec=gwaei
+Icon=gwaei
+Terminal=false
+StartupNotify=false
+Categories=GNOME;GTK;Utility;Dictionary;
