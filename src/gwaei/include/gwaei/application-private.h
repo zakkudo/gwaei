@@ -14,29 +14,30 @@ typedef enum {
   TOTAL_GW_APPLICATION_SIGNALIDS
 } GwApplicationSignalId;
 
-struct _GwApplicationPrivate {
-  gint* argc;
-  gchar*** argv;
-
-  GError *error;
-
-  LwPreferences *preferences;
-  LgwDictionaryList *installed_dictionarylist;
-  LgwDictionaryList *installable_dictionarylist;
-
-  guint signalid[TOTAL_GW_APPLICATION_SIGNALIDS];
-
+struct _Config {
   GOptionContext *context;
+  gint block_new_searches;
   gchar   *arg_dictionary;
   gchar   *arg_query;
   gboolean arg_version_switch;
   gboolean arg_new_vocabulary_window_switch;
+};
 
+struct _Data {
   LwMorphologyEngine *morphologyengine;
-
   GtkListStore *vocabularyliststore;
+  LgwDictionaryList *installed_dictionarylist;
+  LgwDictionaryList *installable_dictionarylist;
+  LwPreferences *preferences;
+};
 
-  gint block_new_searches;
+struct _GwApplicationPrivate {
+  gint* argc;
+  gchar*** argv;
+
+  guint signalid[TOTAL_GW_APPLICATION_SIGNALIDS];
+  struct _Data data;
+  struct _Config config;
 };
 
 #define GW_APPLICATION_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GW_TYPE_APPLICATION, GwApplicationPrivate))
