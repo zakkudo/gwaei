@@ -118,7 +118,7 @@ lgw_dictionaryview_constructed (GObject *object)
     {
       GtkWidget *toolbar = gtk_toolbar_new ();
       priv->ui.toolbar = GTK_TOOLBAR (toolbar);
-      gtk_toolbar_set_icon_size (priv->ui.toolbar, GTK_ICON_SIZE_SMALL_TOOLBAR);
+      gtk_toolbar_set_icon_size (priv->ui.toolbar, GTK_ICON_SIZE_MENU);
       gtk_widget_show (toolbar);
       gtk_box_pack_start (priv->ui.box, toolbar, FALSE, FALSE, 0);
 

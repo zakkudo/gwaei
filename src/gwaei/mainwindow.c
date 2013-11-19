@@ -194,7 +194,7 @@ gw_mainwindow_initialize_header (GwMainWindow *window)
         gtk_header_bar_pack_end (priv->ui.header_bar, menu_button);
         {
           gchar* icon_name = lgw_get_symbolic_icon_name_if_exists ("emblem-system");
-          GtkWidget *image = gtk_image_new_from_icon_name ("emblem-system-symbolic", GTK_ICON_SIZE_BUTTON);
+          GtkWidget *image = gtk_image_new_from_icon_name ("emblem-system-symbolic", GTK_ICON_SIZE_MENU);
           gtk_button_set_image (GTK_BUTTON (menu_button), image);
           if (icon_name != NULL) g_free (icon_name); icon_name = NULL;
         }
