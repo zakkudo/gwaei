@@ -1,0 +1,10 @@
+#ifndef GW_MAINWINDOW_CALLBACKS_INCLUDED
+#define GW_MAINWINDOW_CALLBACKS_INCLUDED
+
+G_BEGIN_DECLS
+
+void gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window, GParamSpec *pspec, gpointer data);
+
+G_END_DECLS
+
+#endif

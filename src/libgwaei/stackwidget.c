@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file libgwaei.c
+//! @file stackwidget.c
 //!
 //! @brief To be written
 //!
@@ -37,36 +37,19 @@
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
 
+G_DEFINE_INTERFACE (LgwStackWidget, lgw_stackwidget, 0);
 
-gchar*
-lgw_get_symbolic_icon_name_if_exists (const gchar* ICON_NAME) {
-    //Sanity checks
-    g_return_val_if_fail (ICON_NAME != NULL, NULL);
 
-    //Delcarations
-    GtkIconTheme *theme = NULL;
-    gchar* symbolic_name = NULL;
-    gchar *icon_name = NULL;
-
-    //Initializations
-    theme = gtk_icon_theme_get_default (); if (theme == NULL) goto errored;
-    symbolic_name = g_strjoin ("-", ICON_NAME, "symbolic"); if (symbolic_name == NULL) goto errored;
-
-    if (gtk_icon_theme_has_icon (theme, symbolic_name)) {
-      icon_name = symbolic_name;
-      symbolic_name = NULL;
-    }
-    else {
-      icon_name = g_strdup (ICON_NAME);
-    }
-
-errored:
-
-    g_free (symbolic_name); symbolic_name = NULL;
-
-    return icon_name;
+static void
+lgw_stackwidget_default_init (LgwStackWidgetInterface *class)
+{
+        /* add properties and signals to the interface here */
 }
 
 
-
+void
+lgw_stackwidget_get_menu_model (LgwStackWidget *self)
+{
+      LGW_STACKWIDGET_GET_INTERFACE (self)->get_menu_model (self);
+}
 

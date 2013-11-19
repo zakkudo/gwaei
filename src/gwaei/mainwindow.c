@@ -38,7 +38,9 @@
 
 #include <gwaei/gettext.h>
 #include <gwaei/gwaei.h>
+
 #include <gwaei/mainwindow-private.h>
+#include <gwaei/mainwindow-callbacks.h>
 
 
 //Static declarations
@@ -68,7 +70,7 @@ gw_mainwindow_new (GtkApplication *application)
     //Initializations
     window = GW_MAINWINDOW (g_object_new (GW_TYPE_MAINWINDOW,
                                             "type",        GTK_WINDOW_TOPLEVEL,
-                                            "application", GW_APPLICATION (application),
+                                            "application", application,
                                             NULL));
 
     return GTK_WINDOW (window);
@@ -104,9 +106,12 @@ gw_mainwindow_finalize (GObject *object)
 static void 
 gw_mainwindow_constructed (GObject *object)
 {
+    //Sanity checks
+    g_return_if_fail (object != NULL);
+
     //Declarations
-    GwMainWindow *window;
-    GwMainWindowPrivate *priv;
+    GwMainWindow *window = NULL;
+    GwMainWindowPrivate *priv = NULL;
 
     //Chain the parent class
     {
@@ -236,6 +241,8 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
 {
     //Sanity checks
     g_return_if_fail (window != NULL);
+
+    //Declarations
     GwMainWindowPrivate *priv = window->priv;
 
     {
@@ -243,6 +250,7 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
       priv->ui.stack = GTK_STACK (stack);
       gtk_box_pack_start (priv->ui.box, stack, TRUE, TRUE, 0); 
       gtk_stack_switcher_set_stack (priv->ui.stack_switcher, priv->ui.stack);
+      gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
 
       {
         {
@@ -264,11 +272,43 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
 
 static void
 gw_mainwindow_connect_signals (GwMainWindow *window) {
+    //Sanity checks
+    g_return_if_fail (window != NULL);
+
+    //Declarations
+    GwMainWindowClass *klass = NULL;
+
+    //Initializations
+    klass = GW_MAINWINDOW_GET_CLASS (window);
+
+    klass->signalid[GW_MAINWINDOW_APPLICATION_PROPERTY_CHANGED] = g_signal_connect (
+        window, 
+        "notify::application",
+        G_CALLBACK (gw_mainwindow_application_property_changed_cb),
+        NULL
+    );
 }
 
 
 static void
 gw_mainwindow_disconnect_signals (GwMainWindow *window) {
+    //Sanity checks
+    g_return_if_fail (window != NULL);
+
+    //Declarations
+    GwMainWindowClass *klass = NULL;
+    gint i = 0;
+
+    //Initializations
+    klass = GW_MAINWINDOW_GET_CLASS (window);
+
+    for (i = 0; i < G_N_ELEMENTS(klass->signalid); i++)
+    {
+        if (klass->signalid[i] != 0) {
+            g_signal_handler_disconnect (window, klass->signalid[i]);
+            klass->signalid[i] = 0;
+        }
+    }
 }
 
 

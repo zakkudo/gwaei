@@ -794,6 +794,7 @@ gw_application_remove_accelerators (GwApplication *application, GMenuModel *menu
 void
 gw_application_set_win_menubar (GwApplication *application, GMenuModel *menumodel)
 {
+    /*
     //Sanity checks
     g_return_if_fail (application != NULL);
     g_return_if_fail (menumodel != NULL);
@@ -821,12 +822,14 @@ gw_application_set_win_menubar (GwApplication *application, GMenuModel *menumode
       }
       gw_application_add_accelerators (application, menubar);
     }
+    */
 }
 
 
 void
 gw_application_initialize_accelerators (GwApplication *application)
 {
+    /*TODO
     //Sanity checks
     g_return_if_fail (application != NULL);
 
@@ -853,5 +856,69 @@ gw_application_initialize_accelerators (GwApplication *application)
       if (action != NULL) g_free (action); action = NULL;
       if (detail != NULL) g_free (detail); detail = NULL;
     }
+    */
+}
+
+
+LgwDictionaryList* 
+gw_application_get_installed_dictionarylist (GwApplication *application)
+{
+    //Sanity checks
+    g_return_val_if_fail (application != NULL, NULL);
+
+    //Declarations
+    GwApplicationPrivate *priv = NULL;
+    LwPreferences *preferences = NULL;
+    LwMorphologyEngine *morphologyengine = NULL;
+    LgwDictionaryList *dictionarylist = NULL;
+    gpointer *pointer = NULL;
+
+    //Initializations;
+    priv = application->priv;
+
+    if (priv->data.dictionarylist.installed == NULL)
+    {
+      dictionarylist = lgw_dictionarylist_new ();
+      preferences = gw_application_get_preferences (application);
+      morphologyengine = gw_application_get_morphologyengine (application);
+      lw_dictionarylist_load_installed (LW_DICTIONARYLIST (dictionarylist), morphologyengine);
+      lw_dictionarylist_load_order (LW_DICTIONARYLIST (dictionarylist), preferences);
+      
+      priv->data.dictionarylist.installed = dictionarylist;
+      pointer = (gpointer*) &(priv->data.dictionarylist.installed);
+      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionarylist.installed), pointer);
+    }
+
+    return priv->data.dictionarylist.installed;
+}
+
+
+LgwDictionaryList* 
+gw_application_get_installable_dictionarylist (GwApplication *application)
+{
+    //Sanity checks
+    g_return_val_if_fail (application != NULL, NULL);
+
+    //Declarations
+    GwApplicationPrivate *priv = NULL;
+    LwPreferences *preferences = NULL;
+    LgwDictionaryList *dictionarylist = NULL;
+    gpointer *pointer = NULL;
+
+    //Initializations
+    priv = application->priv;
+
+    if (priv->data.dictionarylist.installable == NULL)
+    {
+      dictionarylist = lgw_dictionarylist_new ();
+      preferences = gw_application_get_preferences (application);
+      lw_dictionarylist_load_installable (LW_DICTIONARYLIST (dictionarylist), preferences);
+
+      priv->data.dictionarylist.installable = dictionarylist;
+      pointer = (gpointer*) &(priv->data.dictionarylist.installable);
+      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionarylist.installable), pointer);
+    }
+
+    return priv->data.dictionarylist.installable;
 }
 

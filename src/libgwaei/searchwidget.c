@@ -46,12 +46,12 @@
 static void lgw_searchwidget_attach_signals (LgwSearchWidget*);
 static void lgw_searchwidget_remove_signals (LgwSearchWidget*);
 
-static GMenuModel* lgw_searchwidget_get_menu_model (LgwWidgetMenuModel *widget);
-static void lgw_searchwidget_initialize_interface (LgwWidgetMenuModelInterface *iface);
+static GMenuModel* lgw_searchwidget_get_menu_model (LgwStackWidget *widget);
+static void lgw_searchwidget_initialize_interface (LgwStackWidgetInterface *iface);
 
 
 G_DEFINE_TYPE_WITH_CODE (LgwSearchWidget, lgw_searchwidget, GTK_TYPE_BOX,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_WIDGETMENUMODEL, lgw_searchwidget_initialize_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_STACKWIDGET, lgw_searchwidget_initialize_interface));
 
 
 //!
@@ -64,7 +64,7 @@ lgw_searchwidget_new ()
     LgwSearchWidget *widget = NULL;
 
     //Initializations
-    widget = LGW_SEARCHWIDGET (g_object_new (LGW_TYPE_SEARCHWIDGET, "orientation", GTK_ORIENTATION_VERTICAL, NULL));
+    widget = LGW_SEARCHWIDGET (g_object_new (LGW_TYPE_SEARCHWIDGET, "orientation", GTK_ORIENTATION_VERTICAL, "spacing", 0, NULL));
 
     return GTK_WIDGET (widget);
 }
@@ -177,7 +177,7 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
 
 
 static void
-lgw_searchwidget_initialize_interface (LgwWidgetMenuModelInterface *iface) {
+lgw_searchwidget_initialize_interface (LgwStackWidgetInterface *iface) {
     iface->get_menu_model = lgw_searchwidget_get_menu_model;
 }
 
@@ -239,7 +239,7 @@ lgw_searchwidget_set_dictionarylist (LgwSearchWidget   *search_widget,
 }
 
 static GMenuModel*
-lgw_searchwidget_get_menu_model (LgwWidgetMenuModel *widget)
+lgw_searchwidget_get_menu_model (LgwStackWidget *widget)
 {
     return NULL;
 }

@@ -3,7 +3,7 @@
 
 #include <libwaei/libwaei.h>
 
-#include <libgwaei/widgetwithmenumodel.h>
+#include <libgwaei/stackwidget.h>
 
 #include <libgwaei/dictionarylist.h>
 

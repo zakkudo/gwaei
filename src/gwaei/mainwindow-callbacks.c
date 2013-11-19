@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file libgwaei.c
+//! @file mainwindow-callbacks.c
 //!
 //! @brief To be written
 //!
@@ -32,41 +32,37 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <gdk/gdk.h>
+#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#include <libgwaei/gettext.h>
-#include <libgwaei/libgwaei.h>
+#include <gwaei/gettext.h>
+#include <gwaei/gwaei.h>
+#include <gwaei/mainwindow-private.h>
 
+void
+gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
+                                               GParamSpec *pspec,
+                                               gpointer data)
+{
+    //Declarations
+    GwMainWindowPrivate *priv = NULL;
+    GtkApplication *application = NULL;
+    LgwDictionaryList *dictionarylist = NULL;
 
-gchar*
-lgw_get_symbolic_icon_name_if_exists (const gchar* ICON_NAME) {
-    //Sanity checks
-    g_return_val_if_fail (ICON_NAME != NULL, NULL);
+    priv = main_window->priv;
+    if (priv == NULL) goto errored;
+    g_object_get (G_OBJECT (main_window), "application", &application, NULL);
+    if (application == NULL) goto errored;
+    dictionarylist = gw_application_get_installed_dictionarylist (GW_APPLICATION (application));
 
-    //Delcarations
-    GtkIconTheme *theme = NULL;
-    gchar* symbolic_name = NULL;
-    gchar *icon_name = NULL;
-
-    //Initializations
-    theme = gtk_icon_theme_get_default (); if (theme == NULL) goto errored;
-    symbolic_name = g_strjoin ("-", ICON_NAME, "symbolic"); if (symbolic_name == NULL) goto errored;
-
-    if (gtk_icon_theme_has_icon (theme, symbolic_name)) {
-      icon_name = symbolic_name;
-      symbolic_name = NULL;
-    }
-    else {
-      icon_name = g_strdup (ICON_NAME);
-    }
+    lgw_searchwidget_set_dictionarylist (priv->ui.search_widget, dictionarylist);
 
 errored:
 
-    g_free (symbolic_name); symbolic_name = NULL;
+    if (application != NULL) g_object_unref (application);
 
-    return icon_name;
+    return;
 }
-
-
 
 
