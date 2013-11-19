@@ -125,15 +125,14 @@ gw_application_finalize (GObject *object)
 
     gw_application_remove_signals (application);
 
-    if (priv->error != NULL) g_error_free (priv->error); 
-    if (priv->installable_dictionarylist != NULL) g_object_unref (priv->installable_dictionarylist); 
-    if (priv->installed_dictionarylist != NULL) g_object_unref (priv->installed_dictionarylist); 
-    if (priv->vocabularyliststore != NULL) g_object_unref (priv->vocabularyliststore); 
+    if (priv->data.dictionarylist.installable != NULL) g_object_unref (priv->data.dictionarylist.installable); 
+    if (priv->data.dictionarylist.installed != NULL) g_object_unref (priv->data.dictionarylist.installed); 
+    if (priv->data.vocabularyliststore != NULL) g_object_unref (priv->data.vocabularyliststore); 
 
-    if (priv->context != NULL) g_option_context_free (priv->context); 
-    if (priv->arg_query != NULL) g_free(priv->arg_query); 
-    if (priv->preferences != NULL) lw_preferences_free (priv->preferences); 
-    if (priv->morphologyengine != NULL) g_object_unref (priv->morphologyengine); 
+    if (priv->config.context != NULL) g_option_context_free (priv->config.context); 
+    if (priv->config.arguments.query != NULL) g_free(priv->config.arguments.query); 
+    if (priv->config.preferences != NULL) lw_preferences_free (priv->config.preferences); 
+    if (priv->data.morphologyengine != NULL) g_object_unref (priv->data.morphologyengine); 
 
     lw_regex_free ();
 
@@ -207,28 +206,28 @@ gw_application_parse_args (GwApplication *application, int *argc, char** argv[])
     priv = application->priv;
 
     //Reset the switches to their default state
-    if (priv->arg_dictionary != NULL) g_free (priv->arg_dictionary);
-    priv->arg_dictionary = NULL;
-    if (priv->arg_query != NULL) g_free (priv->arg_query);
-    priv->arg_query = NULL;
-    priv->arg_version_switch = FALSE;
-    priv->arg_new_vocabulary_window_switch = FALSE;
+    g_free (priv->config.arguments.dictionary);
+    priv->config.arguments.dictionary = NULL;
+    g_free (priv->config.arguments.query);
+    priv->config.arguments.query = NULL;
+    priv->config.arguments.version_switch = FALSE;
+    priv->config.arguments.new_vocabulary_window_switch = FALSE;
 
     GOptionEntry entries[] =
     {
-      { "dictionary", 'd', 0, G_OPTION_ARG_STRING, &(priv->arg_dictionary), gettext("Choose the dictionary to use"), "English" },
-      { "word", 'o', 0, G_OPTION_ARG_NONE, &(priv->arg_new_vocabulary_window_switch), gettext("Open the vocabulary manager window"), NULL },
-      { "version", 'v', 0, G_OPTION_ARG_NONE, &(priv->arg_version_switch), gettext("Check the gWaei version information"), NULL },
+      { "dictionary", 'd', 0, G_OPTION_ARG_STRING, &(priv->config.arguments.dictionary), gettext("Choose the dictionary to use"), "English" },
+      { "word", 'o', 0, G_OPTION_ARG_NONE, &(priv->config.arguments.new_vocabulary_window_switch), gettext("Open the vocabulary manager window"), NULL },
+      { "version", 'v', 0, G_OPTION_ARG_NONE, &(priv->config.arguments.version_switch), gettext("Check the gWaei version information"), NULL },
       { NULL }
     };
 
     //Program flags setup
     GError *error = NULL;
-    if (priv->context != NULL) g_option_context_free (priv->context);
-    priv->context = g_option_context_new (gettext("- A dictionary program for Japanese-English translation."));
-    g_option_context_add_main_entries (priv->context, entries, PACKAGE);
-    g_option_context_set_ignore_unknown_options (priv->context, TRUE);
-    g_option_context_parse (priv->context, argc, argv, &error);
+    if (priv->config.context != NULL) g_option_context_free (priv->config.context);
+    priv->config.context = g_option_context_new (gettext("- A dictionary program for Japanese-English translation."));
+    g_option_context_add_main_entries (priv->config.context, entries, PACKAGE);
+    g_option_context_set_ignore_unknown_options (priv->config.context, TRUE);
+    g_option_context_parse (priv->config.context, argc, argv, &error);
 
     //g_log_set_always_fatal (G_LOG_LEVEL_WARNING);
 
@@ -239,7 +238,7 @@ gw_application_parse_args (GwApplication *application, int *argc, char** argv[])
     }
 
     //Get the query after the flags have been parsed out
-    priv->arg_query = lw_util_get_query_from_args (*argc, *argv);
+    priv->config.arguments.query = lw_util_get_query_from_args (*argc, *argv);
 }
 
 
@@ -349,35 +348,45 @@ gw_application_get_window_by_type (GwApplication *application, const GType TYPE)
 LwPreferences* 
 gw_application_get_preferences (GwApplication *application)
 {
-    GwApplicationPrivate *priv;
+    //Sanity checks
+    g_return_val_if_fail (application != NULL, NULL);
 
+    //Declarations
+    GwApplicationPrivate *priv = NULL;
+
+    //Initializations
     priv = application->priv;
 
-    if (priv->preferences == NULL)
+    if (priv->config.preferences == NULL)
     {
-      priv->preferences = lw_preferences_new (NULL);
+      priv->config.preferences = lw_preferences_new (NULL);
     }
 
-    return priv->preferences;
+    return priv->config.preferences;
 }
 
 
 LwMorphologyEngine*
 gw_application_get_morphologyengine (GwApplication *application)
 {
-  GwApplicationPrivate *priv;
-  gpointer* pointer;
+  //Sanity checks
+  g_return_val_if_fail (application != NULL, NULL);
 
+  //Declarations
+  GwApplicationPrivate *priv = NULL;
+  gpointer* pointer = NULL;
+
+  //Initializations
   priv = application->priv;
 
-  if (priv->morphologyengine == NULL)
+  if (priv->data.morphologyengine == NULL)
   {
-    priv->morphologyengine = lw_morphologyengine_new ("en_US");
-    pointer = (gpointer*) &(priv->morphologyengine);
-    g_object_add_weak_pointer (G_OBJECT (priv->morphologyengine), pointer);
+    priv->data.morphologyengine = lw_morphologyengine_new ("en_US");
+    pointer = (gpointer*) &(priv->data.morphologyengine);
+    g_object_add_weak_pointer (G_OBJECT (priv->data.morphologyengine), pointer);
   }
 
-  return priv->morphologyengine;
+  return priv->data.morphologyengine;
 }
 
 
@@ -525,13 +534,13 @@ gw_application_load_app_menu (GwApplication *application)
     g_return_if_fail (application != NULL);
 
     //Declarations
-    GtkBuilder *builder;
-    GMenuModel *model;
-    GtkSettings *settings;
-    gboolean loaded;
-    gboolean os_shows_app_menu;
-    gboolean os_shows_win_menu;
-    const gchar *filename;
+    GtkBuilder *builder = NULL;
+    GMenuModel *model = NULL;
+    GtkSettings *settings = NULL;
+    gboolean loaded = NULL;
+    gboolean os_shows_app_menu = NULL;
+    gboolean os_shows_win_menu = NULL;
+    const gchar *FILENAME = NULL;
 
     //Initializations
     builder = NULL;
@@ -544,23 +553,23 @@ gw_application_load_app_menu (GwApplication *application)
     gw_application_map_actions (G_ACTION_MAP (application), application);
 
     if (os_shows_app_menu && os_shows_win_menu) //Mac OS X style
-      filename = "application-menumodel-macosx.ui";
+      FILENAME = "application-menumodel-macosx.ui";
     else if (os_shows_app_menu != os_shows_win_menu) //Gnome 3 style
-      filename = "application-menumodel-gnome.ui";
+      FILENAME = "application-menumodel-gnome.ui";
     else //Windows style
-      filename = NULL;
+      FILENAME = NULL;
 
-
-    if (filename == NULL) goto errored;
+    if (FILENAME == NULL) goto errored;
 
     builder = gtk_builder_new (); if (builder == NULL) goto errored;
-    loaded = gw_application_load_xml (builder, filename); if (loaded == FALSE) goto errored;
+    loaded = gw_application_load_xml (builder, FILENAME); if (loaded == FALSE) goto errored;
     model = G_MENU_MODEL (gtk_builder_get_object (builder, "menu")); if (model == NULL) goto errored;
 
     gtk_application_set_app_menu (GTK_APPLICATION (application), model);
     gw_application_initialize_menumodel_links (application);
 
 errored:
+
     if (builder != NULL) g_object_unref (builder);
 }
 
@@ -568,8 +577,15 @@ errored:
 static void
 gw_application_load_menubar (GwApplication *application)
 {
-    GMenuModel *menumodel;
+    //Sanity checks
+    g_return_if_fail (application != NULL);
+
+    //Declarations
+    GMenuModel *menumodel = NULL;
+
+    //Initializations
     menumodel = G_MENU_MODEL (g_menu_new ());
+
     gtk_application_set_menubar (GTK_APPLICATION (application), menumodel);
 }
 
@@ -577,9 +593,13 @@ gw_application_load_menubar (GwApplication *application)
 gboolean
 gw_application_load_xml (GtkBuilder *builder, const gchar *FILENAME)
 {
+    //Sanity checks
+    g_return_val_if_fail (builder != NULL, FALSE);
+    g_return_val_if_fail (FILENAME != NULL, FALSE);
+
     //Declarations
-    gchar *path;
-    GError *error;
+    gchar *path = NULL;
+    GError *error = NULL;
 
     //Initializations
     error = NULL;
@@ -647,12 +667,12 @@ gw_menumodel_set_links (GMenuModel *menumodel, const gchar *LABEL, const gchar *
     g_return_if_fail (LINK_TYPE != NULL);
 
     //Declarations
-    gint total_items;
-    gint index;
-    gchar *label;
-    gboolean valid;
-    GMenuItem *menuitem;
-    GMenuModel *sublink;
+    gint total_items = 0;
+    gint index = 0;
+    gchar *label = NULL;
+    gboolean valid = FALSE;
+    GMenuItem *menuitem = NULL;
+    GMenuModel *sublink = NULL;
 
     //Initializations
     total_items = g_menu_model_get_n_items (menumodel);
@@ -683,15 +703,16 @@ gw_menumodel_set_links (GMenuModel *menumodel, const gchar *LABEL, const gchar *
 
 
 void
-gw_application_add_accelerators (GwApplication *application, GMenuModel *menumodel)
+gw_application_add_accelerators (GwApplication *application,
+                                 GMenuModel    *menumodel)
 {
     //Sanity checks
     g_return_if_fail (application != NULL);
     g_return_if_fail (menumodel != NULL);
 
     //Declarations
-    gint total_items;
-    gint index;
+    gint total_items = 0;
+    gint index = 0;
     gchar *accel = NULL;
     gchar *action = NULL;
     gchar *detail = NULL;
@@ -734,8 +755,8 @@ gw_application_remove_accelerators (GwApplication *application, GMenuModel *menu
     g_return_if_fail (menumodel != NULL);
 
     //Declarations
-    gint total_items;
-    gint index;
+    gint total_items = 0;
+    gint index = 0;
     gchar *accel = NULL;
     gchar *action = NULL;
     gchar *detail = NULL;
@@ -810,10 +831,10 @@ gw_application_initialize_accelerators (GwApplication *application)
     g_return_if_fail (application != NULL);
 
     //Declarations
-    gchar *accel;
-    gchar *action;
-    gchar *detail;
-    gint index;
+    gchar *accel = NULL;
+    gchar *action = NULL;
+    gchar *detail = NULL;
+    gint index = 0;
 
     //Initializations
     index = 1;

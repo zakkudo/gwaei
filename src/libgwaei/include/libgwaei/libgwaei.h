@@ -1,7 +1,9 @@
-#ifndef LW_LIBGWAEI_INCLUDED
-#define LW_LIBGWAEI_INCLUDED
+#ifndef LGW_LIBGWAEI_INCLUDED
+#define LGW_LIBGWAEI_INCLUDED
 
 #include <libwaei/libwaei.h>
+
+#include <libgwaei/widgetwithmenumodel.h>
 
 #include <libgwaei/dictionarylist.h>
 

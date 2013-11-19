@@ -5,37 +5,36 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
-  GW_APPLICATION_SIGNALID_MATCH_FG,
-  GW_APPLICATION_SIGNALID_MATCH_BG,
-  GW_APPLICATION_SIGNALID_HEADER_FG,
-  GW_APPLICATION_SIGNALID_HEADER_BG,
-  GW_APPLICATION_SIGNALID_COMMENT_FG,
-  TOTAL_GW_APPLICATION_SIGNALIDS
-} GwApplicationSignalId;
+
+struct _Arguments {
+  gchar   *dictionary;
+  gchar   *query;
+  gboolean version_switch;
+  gboolean new_vocabulary_window_switch;
+};
 
 struct _Config {
   GOptionContext *context;
   gint block_new_searches;
-  gchar   *arg_dictionary;
-  gchar   *arg_query;
-  gboolean arg_version_switch;
-  gboolean arg_new_vocabulary_window_switch;
+  struct _Arguments arguments;
+  LwPreferences *preferences;
+};
+
+struct _DictionaryList {
+  LgwDictionaryList *installed;
+  LgwDictionaryList *installable;
 };
 
 struct _Data {
   LwMorphologyEngine *morphologyengine;
   GtkListStore *vocabularyliststore;
-  LgwDictionaryList *installed_dictionarylist;
-  LgwDictionaryList *installable_dictionarylist;
-  LwPreferences *preferences;
+  struct _DictionaryList dictionarylist;
 };
 
 struct _GwApplicationPrivate {
   gint* argc;
   gchar*** argv;
 
-  guint signalid[TOTAL_GW_APPLICATION_SIGNALIDS];
   struct _Data data;
   struct _Config config;
 };

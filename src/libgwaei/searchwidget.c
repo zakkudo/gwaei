@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <glib-object.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
@@ -45,7 +46,12 @@
 static void lgw_searchwidget_attach_signals (LgwSearchWidget*);
 static void lgw_searchwidget_remove_signals (LgwSearchWidget*);
 
-G_DEFINE_TYPE (LgwSearchWidget, lgw_searchwidget, GTK_TYPE_BOX)
+static GMenuModel* lgw_searchwidget_get_menu_model (LgwWidgetMenuModel *widget);
+static void lgw_searchwidget_initialize_interface (LgwWidgetMenuModelInterface *iface);
+
+
+G_DEFINE_TYPE_WITH_CODE (LgwSearchWidget, lgw_searchwidget, GTK_TYPE_BOX,
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_WIDGETMENUMODEL, lgw_searchwidget_initialize_interface));
 
 
 //!
@@ -169,6 +175,13 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
 */
 }
 
+
+static void
+lgw_searchwidget_initialize_interface (LgwWidgetMenuModelInterface *iface) {
+    iface->get_menu_model = lgw_searchwidget_get_menu_model;
+}
+
+
 gboolean
 lgw_searchwidget_get_search_mode (LgwSearchWidget *widget)
 {
@@ -223,6 +236,12 @@ lgw_searchwidget_set_dictionarylist (LgwSearchWidget   *search_widget,
         priv = search_widget->priv;
         lgw_dictionaryview_set_dictionarylist (priv->ui.dictionary_view, dictionary_list);
     }
+}
+
+static GMenuModel*
+lgw_searchwidget_get_menu_model (LgwWidgetMenuModel *widget)
+{
+    return NULL;
 }
 
 

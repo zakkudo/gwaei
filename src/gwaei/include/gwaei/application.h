@@ -29,6 +29,15 @@ struct _GwSearchWindow; //Forward declaration
 #define GW_APPLICATION_DEFAULT_FONT "Sans 12"
 
 typedef enum {
+  GW_APPLICATION_SIGNALID_MATCH_FG,
+  GW_APPLICATION_SIGNALID_MATCH_BG,
+  GW_APPLICATION_SIGNALID_HEADER_FG,
+  GW_APPLICATION_SIGNALID_HEADER_BG,
+  GW_APPLICATION_SIGNALID_COMMENT_FG,
+  TOTAL_GW_APPLICATION_SIGNALIDS
+} GwApplicationSignalId;
+
+typedef enum {
   GW_APP_RESOLUTION_NO_ERRORS,
   GW_APP_RESOLUTION_OUT_OF_MEMORY
 } GwApplicationResolution;
@@ -41,6 +50,7 @@ struct _GwApplication {
 
 struct _GwApplicationClass {
   GtkApplicationClass parent_class;
+  guint signalid[TOTAL_GW_APPLICATION_SIGNALIDS];
 };
 
 //Methods
