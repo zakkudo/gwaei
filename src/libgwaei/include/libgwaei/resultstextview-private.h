@@ -3,6 +3,10 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+  TOTAL_LGW_RESULTSTEXTVIEW_CLASS_SIGNALIDS
+} LgwResultsTextViewClassSignalId;
+
 struct _UI {
     GtkBox *box;
     GtkTextView *text_view;
@@ -11,6 +15,11 @@ struct _UI {
 
 struct _LgwResultsTextViewPrivate {
     struct _UI ui;
+};
+
+struct _LgwResultsTextViewClassPrivate {
+  GtkTextTagTable *text_tag_table;
+  guint signalid[TOTAL_LGW_RESULTSTEXTVIEW_CLASS_SIGNALIDS];
 };
 
 #define LGW_RESULTSTEXTVIEW_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_RESULTSTEXTVIEW, LgwResultsTextViewPrivate));

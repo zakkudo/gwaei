@@ -57,12 +57,14 @@ typedef enum
 
 
 GtkTextTagTable*
-lgw_texttagtable_new (LwPreferences *preferences)
+lgw_texttagtable_new ()
 {
     //Declarations
     LgwTextTagTable *tagtable = NULL;
+    LwPreferences *preferences = NULL;
 
     //Initializations
+    preferences = lw_preferences_get_default ();
     tagtable = LGW_TEXTTAGTABLE (g_object_new (LGW_TYPE_TEXTTAGTABLE, "preferences", preferences, NULL));
 
     return GTK_TEXT_TAG_TABLE (tagtable);
@@ -263,7 +265,7 @@ static void
 lgw_texttagtable_connect_signals (LgwTextTagTable *tagtable)
 {
     //Sanity checks
-    g_return_if_fail (tagtabe != NULL);
+    g_return_if_fail (tagtable != NULL);
 
     //Declarations
     LgwTextTagTablePrivate *priv = NULL;

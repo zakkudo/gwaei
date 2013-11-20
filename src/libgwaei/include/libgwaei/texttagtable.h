@@ -25,8 +25,10 @@ struct _LgwTextTagTableClass {
 };
 
 //Methods
-GtkTextTagTable* lgw_texttagtable_new (LwPreferences* preferences);
+GtkTextTagTable* lgw_texttagtable_new (void);
 GType lgw_texttagtable_get_type (void) G_GNUC_CONST;
+
+void lgw_texttagtable_set_preferences (LgwTextTagTable *tagtable, LwPreferences *preferences);
 
 G_END_DECLS
 

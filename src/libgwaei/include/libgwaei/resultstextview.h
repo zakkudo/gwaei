@@ -3,15 +3,11 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
-  TOTAL_LGW_RESULTSTEXTVIEW_CLASS_SIGNALIDS
-} LgwResultsTextViewClassSignalId;
-
-
 //Boilerplate
 typedef struct _LgwResultsTextView LgwResultsTextView;
 typedef struct _LgwResultsTextViewClass LgwResultsTextViewClass;
 typedef struct _LgwResultsTextViewPrivate LgwResultsTextViewPrivate;
+typedef struct _LgwResultsTextViewClassPrivate LgwResultsTextViewClassPrivate;
 
 #define LGW_TYPE_RESULTSTEXTVIEW              (lgw_resultstextview_get_type())
 #define LGW_RESULTSTEXTVIEW(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LGW_TYPE_RESULTSTEXTVIEW, LgwResultsTextView))
@@ -27,8 +23,7 @@ struct _LgwResultsTextView {
 
 struct _LgwResultsTextViewClass {
   GtkBoxClass parent_class;
-  GtkTextTagTable *text_tag_table;
-  guint signalid[TOTAL_LGW_RESULTSTEXTVIEW_CLASS_SIGNALIDS];
+  LgwResultsTextViewClassPrivate *priv;
 };
 
 GtkWidget* lgw_resultstextview_new (void);

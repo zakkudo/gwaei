@@ -3,6 +3,8 @@
 
 #include <libwaei/libwaei.h>
 
+#include <libgwaei/texttagtable.h>
+
 #include <libgwaei/stackwidget.h>
 
 #include <libgwaei/dictionarylist.h>

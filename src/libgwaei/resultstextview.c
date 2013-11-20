@@ -42,8 +42,8 @@
 
 
 //Static declarations
-static void lgw_resultstextview_attach_signals (LgwResultsTextView*);
-static void lgw_resultstextview_remove_signals (LgwResultsTextView*);
+static void lgw_resultstextview_connect_signals (LgwResultsTextView*);
+static void lgw_resultstextview_disconnect_signals (LgwResultsTextView*);
 
 G_DEFINE_TYPE (LgwResultsTextView, lgw_resultstextview, GTK_TYPE_BOX)
 
@@ -98,6 +98,7 @@ lgw_resultstextview_constructed (GObject *object)
     LgwResultsTextView *view = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
     LgwResultsTextViewClass *klass = NULL;
+    LgwResultsTextViewClassPrivate *klasspriv = NULL;
 
     //Chain the parent class
     {
@@ -109,7 +110,8 @@ lgw_resultstextview_constructed (GObject *object)
     priv = view->priv;
     priv->ui.box = GTK_BOX (view);
     klass = LGW_RESULTSTEXTVIEW_GET_CLASS (view);
-    g_return_if_fail (klass->text_tag_table != NULL);
+    klasspriv = klass->priv;
+    g_return_if_fail (klasspriv->text_tag_table != NULL);
 
     {
         GtkWidget *text_view = gtk_text_view_new ();
@@ -117,7 +119,7 @@ lgw_resultstextview_constructed (GObject *object)
         gtk_box_pack_start (priv->ui.box, text_view, TRUE, TRUE, 0);
         gtk_widget_show (text_view);
 
-        GtkTextBuffer *text_buffer = gtk_text_buffer_new (klass->text_tag_table);
+        GtkTextBuffer *text_buffer = gtk_text_buffer_new (klasspriv->text_tag_table);
         priv->ui.text_buffer = GTK_TEXT_BUFFER (text_buffer);
         gtk_text_view_set_buffer (priv->ui.text_view, text_buffer);
         g_object_unref (text_buffer);
@@ -133,16 +135,19 @@ lgw_resultstextview_class_init (LgwResultsTextViewClass *klass)
 
     //Declarations
     GObjectClass *object_class = NULL;
+    LgwResultsTextViewClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
     object_class->constructed = lgw_resultstextview_constructed;
     object_class->finalize = lgw_resultstextview_finalize;
+    klasspriv = g_new0 (LgwResultsTextViewClassPrivate, 1);
 
-    klass->text_tag_table = lgw_texttagtable_new ();
-    lgw_texttagtable_set_preferences (klass->text_tag_table, lw_preferences_get_default ());
+    klasspriv->text_tag_table = lgw_texttagtable_new ();
+    lgw_texttagtable_set_preferences (klasspriv->text_tag_table, lw_preferences_get_default ());
 
     g_type_class_add_private (object_class, sizeof (LgwResultsTextViewPrivate));
+    klass->priv = klasspriv;
 
 /*
     klass->signalid[GW_ADDVOCABULARYWINDOW_CLASS_SIGNALID_WORD_ADDED] = g_signal_new (

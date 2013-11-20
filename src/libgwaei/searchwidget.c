@@ -136,6 +136,7 @@ lgw_searchwidget_constructed (GObject *object)
 
       {
         GtkWidget *dictionary_view = lgw_dictionaryview_new ();
+        gtk_container_set_border_width (GTK_CONTAINER (dictionary_view), 6);
         priv->ui.dictionary_view = LGW_DICTIONARYVIEW (dictionary_view);
         gtk_paned_pack1 (priv->ui.paned, dictionary_view, FALSE, FALSE);
         gtk_widget_show (dictionary_view);
@@ -143,6 +144,7 @@ lgw_searchwidget_constructed (GObject *object)
 
       {
         GtkWidget *results_view = lgw_resultstextview_new ();
+        gtk_container_set_border_width (GTK_CONTAINER (results_view), 6);
         priv->ui.results_view = LGW_RESULTSTEXTVIEW (results_view);
         gtk_paned_pack2 (priv->ui.paned, results_view, TRUE, TRUE);
         gtk_widget_show (results_view);
