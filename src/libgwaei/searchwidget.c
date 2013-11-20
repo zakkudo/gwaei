@@ -142,8 +142,8 @@ lgw_searchwidget_constructed (GObject *object)
       }
 
       {
-        GtkWidget *results_view = lgw_resultsview_new ();
-        priv->ui.results_view = LGW_RESULTSVIEW (results_view);
+        GtkWidget *results_view = lgw_resultstextview_new ();
+        priv->ui.results_view = LGW_RESULTSTEXTVIEW (results_view);
         gtk_paned_pack2 (priv->ui.paned, results_view, TRUE, TRUE);
         gtk_widget_show (results_view);
       }

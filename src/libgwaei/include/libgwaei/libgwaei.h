@@ -9,6 +9,7 @@
 
 #include <libgwaei/dictionaryview.h>
 #include <libgwaei/resultsview.h>
+#include <libgwaei/resultstextview.h>
 #include <libgwaei/searchentry.h>
 
 #include <libgwaei/searchwidget.h>

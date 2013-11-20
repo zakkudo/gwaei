@@ -8,7 +8,7 @@ struct _UI {
     GtkPaned *paned;
     LgwSearchEntry *search_entry;
     GtkSearchBar *search_bar;
-    LgwResultsView *results_view;
+    LgwResultsTextView *results_view;
     LgwDictionaryView *dictionary_view;
 };
 

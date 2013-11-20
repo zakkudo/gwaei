@@ -35,6 +35,19 @@
 #include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
 
+static LwPreferences *_preferences = NULL;
+
+LwPreferences*
+lw_preferences_get_default ()
+{
+    if (_preferences == NULL)
+    {
+      _preferences = lw_preferences_new (NULL);
+    }
+
+    return _preferences;
+}
+
 
 //!
 //! @brief Creates a new LwDictInfo object
