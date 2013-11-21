@@ -72,48 +72,36 @@ G_BEGIN_DECLS
 #define LW_KEY_EXAMPLES_SOURCE     "examples-source"
 #define LW_KEY_LOAD_ORDER          "load-order"
 
-#define LW_PREFMANAGER(object) (LwPreferences*) object
+
+//Boilerplate
+typedef struct _LwPreferences LwPreferences;
+typedef struct _LwPreferencesClass LwPreferencesClass;
+typedef struct _LwPreferencesPrivate LwPreferencesPrivate;
+
+#define LW_TYPE_PREFERENCES              (lw_preferences_get_type())
+#define LW_PREFERENCES(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_PREFERENCES, LwPreferences))
+#define LW_PREFERENCES_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_PREFERENCES, LwPreferencesClass))
+#define LW_IS_PREFERENCES(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_PREFERENCES))
+#define LW_IS_PREFERENCES_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_PREFERENCES))
+#define LW_PREFERENCES_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_PREFERENCES, LwPreferencesClass))
+
 
 struct _LwPreferences {
-  GList *settingslist;
-  GMutex mutex;
-  GSettingsBackend *backend;
-
-  gboolean toolbar_show; 
-  gboolean statusbar_show;
-  gboolean query_katakana_to_hiragana;
-  gboolean query_hiragana_to_katakana;
-  gint query_romaji_to_kana;
-  gboolean query_spellcheck;
-  gboolean search_as_you_type;
-  gchar* window_positions;
-
-  gchar *dictionary_load_order;
-  gchar *dictionary_english_source;
-  gchar *dictionary_kanji_source;
-  gchar *dictionary_names_places_source;
-  gchar *dictionary_examples_source;
-
-  gboolean use_global_document_font;
-  gchar *custom_document_font;
-  gint magnification;
-  
-  gchar *comment_foreground;
-  gchar *comment_background;
-  gchar *match_foreground;
-  gchar *match_background;
-  gchar *header_foreground;
-  gchar *header_background;
+  GObject object;
+  LwPreferencesPrivate *priv;
 };
-typedef struct _LwPreferences LwPreferences;
+
+
+struct _LwPreferencesClass {
+  GObjectClass parent_class;
+};
 
 
 LwPreferences* lw_preferences_new (GSettingsBackend*);
-void lw_preferences_free (LwPreferences*);
-void lw_preferences_init (LwPreferences*, GSettingsBackend*);
-void lw_preferences_deinit (LwPreferences*);
+LwPreferences* lw_preferences_get_default (void);
+GType lw_preferences_get_type (void) G_GNUC_CONST;
 
-void lw_preferences_free_settings (LwPreferences*);
+//Methods
 
 gboolean lw_preferences_schema_is_installed (const char*);
 GSettings* lw_preferences_get_settings_object (LwPreferences*, const char*);

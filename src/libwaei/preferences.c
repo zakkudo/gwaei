@@ -34,19 +34,17 @@
 
 #include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
+#include <libwaei/preferences-private.h>
 
 static LwPreferences *_preferences = NULL;
 
-LwPreferences*
-lw_preferences_get_default ()
-{
-    if (_preferences == NULL)
-    {
-      _preferences = lw_preferences_new (NULL);
-    }
+G_DEFINE_ABSTRACT_TYPE (LwPreferences, lw_preferences, G_TYPE_OBJECT)
 
-    return _preferences;
-}
+typedef enum
+{
+  PROP_0,
+  PROP_BACKEND,
+} LwPreferencesProps;
 
 
 //!
@@ -56,89 +54,155 @@ lw_preferences_get_default ()
 LwPreferences* 
 lw_preferences_new (GSettingsBackend *backend)
 {
-  LwPreferences *temp;
+  LwPreferences *preferences;
 
-  temp = (LwPreferences*) malloc(sizeof(LwPreferences));
+  preferences = LW_PREFERENCES (g_object_new (LW_TYPE_PREFERENCES, "backend", backend, NULL));
 
-  if (temp != NULL)
-  {
-    lw_preferences_init (temp, backend);
-  }
-
-  return temp;
+  return preferences;
 }
 
 
-//!
-//! @brief Releases a LwPreferences object from memory.
-//! @param preferences A LwPreferences object created by lw_preferences_new.
-//!
-void 
-lw_preferences_free (LwPreferences *preferences)
+LwPreferences*
+lw_preferences_get_default ()
 {
-    lw_preferences_deinit (preferences);
-
-    free (preferences);
-}
-
-
-//!
-//! @brief Used to initialize the memory inside of a new LwPreferences
-//!        object.  Usually lw_preferences_new calls this for you.  It is also 
-//!        used in class implimentations that extends LwPreferences.
-//! @param preferences The LwPreferences object to have it's inner memory initialized.
-//!
-void 
-lw_preferences_init (LwPreferences *preferences, GSettingsBackend *backend)
-{
-    preferences->settingslist = NULL;
-    preferences->backend = backend;
-    g_mutex_init (&preferences->mutex);
-}
-
-
-//!
-//! @brief Used to free the memory inside of a LwPreferences object.
-//!         Usually lw_preferences_free calls this for you.  It is also used
-//!         in class implimentations that extends LwPreferences.
-//! @param preferences The LwPreferences object to have it's inner memory freed.
-//!
-void 
-lw_preferences_deinit (LwPreferences *preferences)
-{
-    lw_preferences_free_settings (preferences);
-    g_mutex_clear (&preferences->mutex); 
-    if (preferences->backend != NULL) g_object_unref (preferences->backend); preferences->backend = NULL;
-}
-
-
-//!
-//! @brief Frees the GSettings objects held by LwPreferences
-//! @param preferences The instance of LwPreferences to free
-//!
-void 
-lw_preferences_free_settings (LwPreferences *preferences)
-{
-    GList *iter;
-    GSettings *settings;
-
-    for (iter = preferences->settingslist; iter != NULL; iter = iter->next)
+    if (_preferences == NULL)
     {
-      settings = (GSettings*) iter->data;
-      g_object_unref (settings);
-      iter->data = NULL;
+      LwPreferences *preferences = lw_preferences_new (NULL);
+      g_object_add_weak_pointer (G_OBJECT (preferences), (gpointer*) &_preferences);
+    }
+    else
+    {
+        g_object_ref (_preferences);
     }
 
-    g_list_free (preferences->settingslist);
-    preferences->settingslist = NULL;
+    return _preferences;
+}
 
-    if (preferences->backend != NULL)
+
+static void 
+lw_preferences_init (LwPreferences *preferences)
+{
+    preferences->priv = LW_PREFERENCES_GET_PRIVATE (preferences);
+    memset(preferences->priv, 0, sizeof(LwPreferencesPrivate));
+}
+
+
+static void 
+lw_preferences_finalize (GObject *object)
+{
+    //Declarations
+    LwPreferences *preferences = NULL;
+    LwPreferencesPrivate *priv = NULL;
+
+    //Initalizations
+    preferences = LW_PREFERENCES (object);
+    priv = preferences->priv;
+
     {
-      g_object_unref (preferences->backend);
-      preferences->backend = NULL;
+      GList *iter = NULL;
+      GSettings *settings = NULL;
+      for (iter = priv->settingslist; iter != NULL; iter = iter->next)
+      {
+        settings = (GSettings*) iter->data;
+        g_object_unref (settings);
+        iter->data = NULL;
+      }
+        g_list_free (priv->settingslist);
+        priv->settingslist = NULL;
+    }
+
+    if (priv->backend != NULL)
+    {
+      g_object_unref (priv->backend);
+      priv->backend = NULL;
+    }
+
+    memset(preferences->priv, 0, sizeof(LwPreferencesPrivate));
+
+    G_OBJECT_CLASS (lw_preferences_parent_class)->finalize (object);
+}
+
+
+static void 
+lw_preferences_set_property (GObject      *object,
+                             guint         property_id,
+                             const GValue *value,
+                             GParamSpec   *pspec)
+{
+    //Declarations
+    LwPreferences *preferences;
+    LwPreferencesPrivate *priv;
+
+    //Initializations
+    preferences = LW_PREFERENCES (object);
+    priv = preferences->priv;
+
+    switch (property_id)
+    {
+      case PROP_BACKEND:
+        if (priv->backend != NULL) g_object_unref (priv->backend);
+        priv->backend = g_value_dup_object (value);
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
     }
 }
 
+
+static void 
+lw_preferences_get_property (GObject    *object,
+                             guint       property_id,
+                             GValue     *value,
+                             GParamSpec *pspec)
+{
+    //Declarations
+    LwPreferences *preferences = NULL;
+    LwPreferencesPrivate *priv = NULL;
+
+    //Initializations
+    preferences = LW_PREFERENCES (object);
+    priv = preferences->priv;
+
+    switch (property_id)
+    {
+      case PROP_BACKEND:
+        g_value_set_object (value, priv->backend);
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void
+lw_preferences_class_init (LwPreferencesClass *klass)
+{
+    //Declarations
+    GParamSpec *pspec = NULL;
+    GObjectClass *object_class = NULL;
+    LwPreferencesClass *preferences_class = NULL;
+
+    //Initializations
+    object_class = G_OBJECT_CLASS (klass);
+    object_class->set_property = lw_preferences_set_property;
+    object_class->get_property = lw_preferences_get_property;
+    object_class->finalize = lw_preferences_finalize;
+
+    preferences_class = LW_PREFERENCES_CLASS (klass);
+
+    g_type_class_add_private (object_class, sizeof (LwPreferencesPrivate));
+
+    pspec = g_param_spec_object ("backend",
+                                 "The backend used by GSettings",
+                                 "Set the preferences's backend",
+                                 G_TYPE_SETTINGS_BACKEND,
+                                 G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_BACKEND, pspec);
+}
+ 
 
 gboolean 
 lw_preferences_schema_is_installed (const char *SCHEMA)
@@ -174,31 +238,38 @@ lw_preferences_schema_is_installed (const char *SCHEMA)
 GSettings* 
 lw_preferences_get_settings_object (LwPreferences *preferences, const char *SCHEMA)
 {
+    //Sanity checks
+    g_return_val_if_fail (preferences != NULL, NULL);
+    g_return_val_if_fail (SCHEMA != NULL, NULL);
+
     //Declarations
-    GList *iter;
-    char *schema;
-    GSettings *settings;
+    LwPreferencesPrivate *priv = NULL;
+    char *schema = NULL;
+    GSettings *settings = NULL;
 
     //Initializations
-    settings = NULL;
+    priv = preferences->priv;
 
     //Look for an already created gsetting object
-    for (iter = preferences->settingslist; iter != NULL; iter = iter->next)
     {
-      settings = (GSettings*) iter->data;
-      g_object_get (G_OBJECT (settings), "schema", &schema, NULL);
-      if (schema != NULL && strcmp(schema, SCHEMA) == 0)
-        break;
-      if (schema != NULL)
+      GList *iter = NULL;
+      for (iter = priv->settingslist; iter != NULL; iter = iter->next)
+      {
+        settings = (GSettings*) iter->data;
+        g_object_get (G_OBJECT (settings), "schema", &schema, NULL);
+        if (schema != NULL && strcmp(schema, SCHEMA) == 0)
+          break;
+        if (schema != NULL)
+          g_free (schema);
+        settings = NULL;
+      }
+      if (settings != NULL) 
+      {
         g_free (schema);
-      settings = NULL;
-    }
-    if (settings != NULL) 
-    {
-      g_free (schema);
-    }
-    else
-    {
+      }
+      else
+      {
+      }
     }
 
     //If not found, create our own and add it to the list
@@ -206,13 +277,13 @@ lw_preferences_get_settings_object (LwPreferences *preferences, const char *SCHE
     {
       g_assert (lw_preferences_schema_is_installed (SCHEMA));
 
-      if (preferences->backend == NULL)
+      if (priv->backend == NULL)
         settings = g_settings_new (SCHEMA);
       else
-        settings = g_settings_new_with_backend (SCHEMA, preferences->backend);
+        settings = g_settings_new_with_backend (SCHEMA, priv->backend);
       if (settings != NULL)
       {
-        preferences->settingslist = g_list_append (preferences->settingslist, settings);
+        priv->settingslist = g_list_append (priv->settingslist, settings);
       }
     }
 

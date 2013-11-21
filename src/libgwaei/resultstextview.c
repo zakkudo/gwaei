@@ -144,7 +144,6 @@ lgw_resultstextview_class_init (LgwResultsTextViewClass *klass)
     klasspriv = g_new0 (LgwResultsTextViewClassPrivate, 1);
 
     klasspriv->text_tag_table = lgw_texttagtable_new ();
-    lgw_texttagtable_set_preferences (klasspriv->text_tag_table, lw_preferences_get_default ());
 
     g_type_class_add_private (object_class, sizeof (LgwResultsTextViewPrivate));
     klass->priv = klasspriv;
