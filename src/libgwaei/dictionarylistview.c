@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file dictionaryview.c
+//! @file dictionarylistview.c
 //!
 //! @brief To be written
 //!
@@ -38,79 +38,81 @@
 
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
-#include <libgwaei/dictionaryview-private.h>
+#include <libgwaei/dictionarylistview-private.h>
 
 
 //Static declarations
-static void lgw_dictionaryview_attach_signals (LgwDictionaryView*);
-static void lgw_dictionaryview_remove_signals (LgwDictionaryView*);
+static void lgw_dictionarylistview_attach_signals (LgwDictionaryListView*);
+static void lgw_dictionarylistview_remove_signals (LgwDictionaryListView*);
 
-G_DEFINE_TYPE (LgwDictionaryView, lgw_dictionaryview, GTK_TYPE_BOX)
+G_DEFINE_TYPE (LgwDictionaryListView, lgw_dictionarylistview, GTK_TYPE_BOX)
 
 
 //!
 //! @brief Sets up the variables in main-interface.c and main-callbacks.c for use
 //!
 GtkWidget* 
-lgw_dictionaryview_new ()
+lgw_dictionarylistview_new ()
 {
     //Declarations
-    LgwDictionaryView *widget = NULL;
+    LgwDictionaryListView *widget = NULL;
 
     //Initializations
-    widget = LGW_DICTIONARYVIEW (g_object_new (LGW_TYPE_DICTIONARYVIEW, "orientation", GTK_ORIENTATION_VERTICAL, "spacing", 0, NULL));
+    widget = LGW_DICTIONARYLISTVIEW (g_object_new (LGW_TYPE_DICTIONARYLISTVIEW, "orientation", GTK_ORIENTATION_VERTICAL, "spacing", 0, NULL));
 
     return GTK_WIDGET (widget);
 }
 
 
 static void 
-lgw_dictionaryview_init (LgwDictionaryView *widget)
+lgw_dictionarylistview_init (LgwDictionaryListView *widget)
 {
-    widget->priv = LGW_DICTIONARYVIEW_GET_PRIVATE (widget);
-    memset(widget->priv, 0, sizeof(LgwDictionaryViewPrivate));
+    widget->priv = LGW_DICTIONARYLISTVIEW_GET_PRIVATE (widget);
+    memset(widget->priv, 0, sizeof(LgwDictionaryListViewPrivate));
 
-    LgwDictionaryViewPrivate *priv;
+    LgwDictionaryListViewPrivate *priv;
     priv = widget->priv;
 }
 
 
 static void 
-lgw_dictionaryview_finalize (GObject *object)
+lgw_dictionarylistview_finalize (GObject *object)
 {
-    LgwDictionaryView *widget;
-    LgwDictionaryViewPrivate *priv;
+    LgwDictionaryListView *widget;
+    LgwDictionaryListViewPrivate *priv;
 
-    widget = LGW_DICTIONARYVIEW (object);
+    widget = LGW_DICTIONARYLISTVIEW (object);
     priv = widget->priv;
 
-    G_OBJECT_CLASS (lgw_dictionaryview_parent_class)->finalize (object);
+    G_OBJECT_CLASS (lgw_dictionarylistview_parent_class)->finalize (object);
 }
 
 
 static void 
-lgw_dictionaryview_constructed (GObject *object)
+lgw_dictionarylistview_constructed (GObject *object)
 {
     //Sanity checks
     g_return_if_fail (object != NULL);
 
     //Declarations
-    LgwDictionaryView *widget = NULL;
-    LgwDictionaryViewPrivate *priv = NULL;
+    LgwDictionaryListView *widget = NULL;
+    LgwDictionaryListViewPrivate *priv = NULL;
 
     //Chain the parent class
     {
-      G_OBJECT_CLASS (lgw_dictionaryview_parent_class)->constructed (object);
+      G_OBJECT_CLASS (lgw_dictionarylistview_parent_class)->constructed (object);
     }
 
     //Initializations
-    widget = LGW_DICTIONARYVIEW (object);
+    widget = LGW_DICTIONARYLISTVIEW (object);
     priv = widget->priv;
     priv->ui.box = GTK_BOX (widget);
 
     {
       GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
       priv->ui.scrolled_window = GTK_SCROLLED_WINDOW (scrolled_window);
+      gtk_scrolled_window_set_shadow_type (priv->ui.scrolled_window, GTK_SHADOW_IN);
+      gtk_scrolled_window_set_policy (priv->ui.scrolled_window, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
       gtk_box_pack_start (priv->ui.box, scrolled_window, TRUE, TRUE, 0);
       gtk_widget_show (scrolled_window);
 
@@ -227,16 +229,16 @@ lgw_dictionaryview_constructed (GObject *object)
 
 
 static void
-lgw_dictionaryview_class_init (LgwDictionaryViewClass *klass)
+lgw_dictionarylistview_class_init (LgwDictionaryListViewClass *klass)
 {
     GObjectClass *object_class;
 
     object_class = G_OBJECT_CLASS (klass);
 
-    object_class->constructed = lgw_dictionaryview_constructed;
-    object_class->finalize = lgw_dictionaryview_finalize;
+    object_class->constructed = lgw_dictionarylistview_constructed;
+    object_class->finalize = lgw_dictionarylistview_finalize;
 
-    g_type_class_add_private (object_class, sizeof (LgwDictionaryViewPrivate));
+    g_type_class_add_private (object_class, sizeof (LgwDictionaryListViewPrivate));
 /* TODO
     klass->signalid[GW_ADDVOCABULARYWINDOW_CLASS_SIGNALID_WORD_ADDED] = g_signal_new (
         "word-added",
@@ -252,7 +254,7 @@ lgw_dictionaryview_class_init (LgwDictionaryViewClass *klass)
 
 
 void
-lgw_dictionaryview_set_dictionarylist (LgwDictionaryView *view, 
+lgw_dictionarylistview_set_dictionarylist (LgwDictionaryListView *view, 
                                        LgwDictionaryList *dictionary_list)
 {
     //Sanity checks
@@ -260,7 +262,7 @@ lgw_dictionaryview_set_dictionarylist (LgwDictionaryView *view,
 
     //Declarations
     GtkTreeModel *model = NULL;
-    LgwDictionaryViewPrivate *priv = NULL;
+    LgwDictionaryListViewPrivate *priv = NULL;
 
     //Initializations
     priv = view->priv;
@@ -280,13 +282,13 @@ lgw_dictionaryview_set_dictionarylist (LgwDictionaryView *view,
 
 
 LgwDictionaryList*
-lgw_dictionaryview_get_dictionarylist (LgwDictionaryView *view)
+lgw_dictionarylistview_get_dictionarylist (LgwDictionaryListView *view)
 {
     //Sanity checks
     g_return_val_if_fail (view != NULL, NULL);
 
     //Declarations
-    LgwDictionaryViewPrivate *priv = NULL;
+    LgwDictionaryListViewPrivate *priv = NULL;
     LgwDictionaryList *dictionary_list = NULL;
 
     if (view->priv != NULL)

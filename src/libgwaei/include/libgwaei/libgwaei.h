@@ -9,7 +9,7 @@
 
 #include <libgwaei/dictionarylist.h>
 
-#include <libgwaei/dictionaryview.h>
+#include <libgwaei/dictionarylistview.h>
 #include <libgwaei/resultsview.h>
 #include <libgwaei/resultstextview.h>
 #include <libgwaei/searchentry.h>

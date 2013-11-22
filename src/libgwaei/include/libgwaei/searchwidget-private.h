@@ -9,7 +9,7 @@ struct _UI {
     LgwSearchEntry *search_entry;
     GtkSearchBar *search_bar;
     LgwResultsTextView *results_view;
-    LgwDictionaryView *dictionary_view;
+    LgwDictionaryListView *dictionary_list_view;
 };
 
 struct _LgwSearchWidgetPrivate {

@@ -132,14 +132,15 @@ lgw_searchwidget_constructed (GObject *object)
       GtkWidget *paned = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);    
       priv->ui.paned = GTK_PANED (paned);
       gtk_box_pack_start (priv->ui.box, paned, TRUE, TRUE, 0);
+      gtk_container_set_border_width (GTK_CONTAINER (paned), 6);
       gtk_widget_show (paned);
 
       {
-        GtkWidget *dictionary_view = lgw_dictionaryview_new ();
-        gtk_container_set_border_width (GTK_CONTAINER (dictionary_view), 6);
-        priv->ui.dictionary_view = LGW_DICTIONARYVIEW (dictionary_view);
-        gtk_paned_pack1 (priv->ui.paned, dictionary_view, FALSE, FALSE);
-        gtk_widget_show (dictionary_view);
+        GtkWidget *dictionary_list_view = lgw_dictionarylistview_new ();
+        gtk_container_set_border_width (GTK_CONTAINER (dictionary_list_view), 6);
+        priv->ui.dictionary_list_view = LGW_DICTIONARYLISTVIEW (dictionary_list_view);
+        gtk_paned_pack1 (priv->ui.paned, dictionary_list_view, FALSE, FALSE);
+        gtk_widget_show (dictionary_list_view);
       }
 
       {
@@ -236,7 +237,7 @@ lgw_searchwidget_set_dictionarylist (LgwSearchWidget   *search_widget,
     if (search_widget->priv != NULL)
     {
         priv = search_widget->priv;
-        lgw_dictionaryview_set_dictionarylist (priv->ui.dictionary_view, dictionary_list);
+        lgw_dictionarylistview_set_dictionarylist (priv->ui.dictionary_list_view, dictionary_list);
     }
 }
 

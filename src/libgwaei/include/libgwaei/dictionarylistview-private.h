@@ -1,5 +1,5 @@
-#ifndef LGW_DICTIONARYVIEW_PRIVATE_INCLUDED
-#define LGW_DICTIONARYVIEW_PRIVATE_INCLUDED
+#ifndef LGW_DICTIONARYLISTVIEW_PRIVATE_INCLUDED
+#define LGW_DICTIONARYLISTVIEW_PRIVATE_INCLUDED
 
 G_BEGIN_DECLS
 
@@ -20,13 +20,13 @@ struct _Data {
     LgwDictionaryList *dictionary_list;
 };
 
-struct _LgwDictionaryViewPrivate {
+struct _LgwDictionaryListViewPrivate {
     struct _UI ui;
     struct _Config config;
     struct _Data data;
 };
 
-#define LGW_DICTIONARYVIEW_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_DICTIONARYVIEW, LgwDictionaryViewPrivate));
+#define LGW_DICTIONARYLISTVIEW_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_DICTIONARYLISTVIEW, LgwDictionaryListViewPrivate));
 
 G_END_DECLS
 
