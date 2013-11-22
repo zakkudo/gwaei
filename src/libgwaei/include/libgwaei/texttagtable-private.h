@@ -19,6 +19,10 @@ struct _LgwTextTagTablePrivate {
 
 #define LGW_TEXTTAGTABLE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_TEXTTAGTABLE, LgwTextTagTablePrivate))
 
+struct _LgwTextTagTableClassPrivate {
+    gchar unused;
+};
+
 G_END_DECLS
 
 #endif

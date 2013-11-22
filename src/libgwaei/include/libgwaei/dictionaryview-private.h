@@ -7,6 +7,7 @@ struct _UI {
     GtkBox *box;
     GtkTreeView *tree_view;
     GtkToolbar *toolbar;
+    GtkScrolledWindow *scrolled_window;
 };
 
 struct _Config {

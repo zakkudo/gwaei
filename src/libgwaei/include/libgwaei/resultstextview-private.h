@@ -11,6 +11,7 @@ struct _UI {
     GtkBox *box;
     GtkTextView *text_view;
     GtkTextBuffer *text_buffer;
+    GtkScrolledWindow *scrolled_window;
 };
 
 struct _LgwResultsTextViewPrivate {

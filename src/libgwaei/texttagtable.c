@@ -72,7 +72,8 @@ lgw_texttagtable_new ()
 
 
 void
-lgw_texttagtable_set_preferences (LgwTextTagTable *tagtable, LwPreferences *preferences)
+lgw_texttagtable_set_preferences (LgwTextTagTable *tagtable,
+                                  LwPreferences   *preferences)
 {
     //Sanity checks
     g_return_if_fail (tagtable != NULL);
@@ -92,8 +93,10 @@ lgw_texttagtable_init (LgwTextTagTable *tagtable)
 static void 
 lgw_texttagtable_finalize (GObject *object)
 {
-    LgwTextTagTable *tagtable;
+    //Declarations
+    LgwTextTagTable *tagtable = NULL;
 
+    //Initializations
     tagtable = LGW_TEXTTAGTABLE (object);
 
     lgw_texttagtable_disconnect_signals (tagtable);
@@ -141,7 +144,7 @@ lgw_texttagtable_set_property (GObject      *object,
         lgw_texttagtable_disconnect_signals (tagtable);
         if (priv->preferences != NULL) g_object_unref (priv->preferences);
         priv->preferences = LW_PREFERENCES (g_value_get_object (value));
-        connect new signals
+        lgw_texttagtable_connect_signals (tagtable);
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -180,8 +183,8 @@ static void
 lgw_texttagtable_class_init (LgwTextTagTableClass *klass)
 {
     //Declarations
-    GParamSpec *pspec;
-    GObjectClass *object_class;
+    GParamSpec *pspec = NULL;
+    GObjectClass *object_class = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
@@ -206,7 +209,7 @@ static void
 lgw_texttagtable_init_base_tags (LgwTextTagTable *tagtable)
 {
     //Declarations
-    GtkTextTag *tag;
+    GtkTextTag *tag = NULL;
 
     tag = gtk_text_tag_new ("entry-grand-header");
     g_object_set (tag, "scale", 5.0, "family", "KanjiStrokeOrders", NULL);
@@ -337,13 +340,16 @@ lgw_texttagtable_disconnect_signals (LgwTextTagTable *tagtable)
     preferences = priv->preferences;
     if (preferences == NULL) goto errored;
 
-    
-    for (i = 0; i < G_N_ELEMENTS (priv->signalid); i++) {
+    {
+      gint i = 0;
+      for (i = 0; i < G_N_ELEMENTS (priv->signalid); i++) {
         lw_preferences_remove_change_listener_by_schema (
-            preferences, 
-            LW_SCHEMA_HIGHLIGHT, 
-            priv->signalid[i]
+          preferences, 
+          LW_SCHEMA_HIGHLIGHT, 
+          priv->signalid[i]
         );
+        priv->signalid[i] = 0;
+      }
     }
 
 errored:
@@ -361,9 +367,9 @@ lgw_texttagtable_sync_tag_cb (GSettings *settings, gchar *key, gpointer data)
     //Declarations
     gchar hex[20];
     GdkRGBA color;
-    gchar **pair;
-    GtkTextTag *tag;
-    GtkTextTagTable *tagtable;
+    gchar **pair = NULL;
+    GtkTextTag *tag = NULL;
+    GtkTextTagTable *tagtable = NULL;
 
     tagtable = GTK_TEXT_TAG_TABLE (data);
 

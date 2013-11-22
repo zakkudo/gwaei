@@ -78,11 +78,19 @@ lgw_resultstextview_init (LgwResultsTextView *widget)
 static void 
 lgw_resultstextview_finalize (GObject *object)
 {
-    LgwResultsTextView *widget;
+    LgwResultsTextView *view;
     LgwResultsTextViewPrivate *priv;
+    LgwResultsTextViewClass *klass = NULL;
+    LgwResultsTextViewClassPrivate *klasspriv = NULL;
 
-    widget = LGW_RESULTSTEXTVIEW (object);
-    priv = widget->priv;
+    view = LGW_RESULTSTEXTVIEW (object);
+    priv = view->priv;
+    klass = LGW_RESULTSTEXTVIEW_GET_CLASS (view);
+    klasspriv = klass->priv;
+
+    if (klasspriv->text_tag_table != NULL) {
+        g_object_ref (klasspriv->text_tag_table);
+    }
 
     G_OBJECT_CLASS (lgw_resultstextview_parent_class)->finalize (object);
 }
@@ -111,18 +119,34 @@ lgw_resultstextview_constructed (GObject *object)
     priv->ui.box = GTK_BOX (view);
     klass = LGW_RESULTSTEXTVIEW_GET_CLASS (view);
     klasspriv = klass->priv;
-    g_return_if_fail (klasspriv->text_tag_table != NULL);
+
+    if (klasspriv->text_tag_table == NULL)
+    {
+        klasspriv->text_tag_table = lgw_texttagtable_new ();
+        g_object_add_weak_pointer (G_OBJECT (klasspriv->text_tag_table), (gpointer*) &(klasspriv->text_tag_table));
+    }
+    else
+    {
+        g_object_ref (klasspriv->text_tag_table);
+    }
 
     {
+      GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+      priv->ui.scrolled_window = GTK_SCROLLED_WINDOW (scrolled_window);
+      gtk_box_pack_start (priv->ui.box, scrolled_window, TRUE, TRUE, 0);
+      gtk_widget_show (scrolled_window);
+
+      {
         GtkWidget *text_view = gtk_text_view_new ();
         priv->ui.text_view = GTK_TEXT_VIEW (text_view);
-        gtk_box_pack_start (priv->ui.box, text_view, TRUE, TRUE, 0);
+        gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
         gtk_widget_show (text_view);
 
         GtkTextBuffer *text_buffer = gtk_text_buffer_new (klasspriv->text_tag_table);
         priv->ui.text_buffer = GTK_TEXT_BUFFER (text_buffer);
         gtk_text_view_set_buffer (priv->ui.text_view, text_buffer);
         g_object_unref (text_buffer);
+      }
     }
 }
 
@@ -142,8 +166,6 @@ lgw_resultstextview_class_init (LgwResultsTextViewClass *klass)
     object_class->constructed = lgw_resultstextview_constructed;
     object_class->finalize = lgw_resultstextview_finalize;
     klasspriv = g_new0 (LgwResultsTextViewClassPrivate, 1);
-
-    klasspriv->text_tag_table = lgw_texttagtable_new ();
 
     g_type_class_add_private (object_class, sizeof (LgwResultsTextViewPrivate));
     klass->priv = klasspriv;

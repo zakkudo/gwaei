@@ -7,6 +7,7 @@ G_BEGIN_DECLS
 typedef struct _LgwTextTagTable LgwTextTagTable;
 typedef struct _LgwTextTagTableClass LgwTextTagTableClass;
 typedef struct _LgwTextTagTablePrivate LgwTextTagTablePrivate;
+typedef struct _LgwTextTagTableClassPrivate LgwTextTagTableClassPrivate;
 
 #define LGW_TYPE_TEXTTAGTABLE              (lgw_texttagtable_get_type())
 #define LGW_TEXTTAGTABLE(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LGW_TYPE_TEXTTAGTABLE, LgwTextTagTable))
@@ -22,6 +23,7 @@ struct _LgwTextTagTable {
 
 struct _LgwTextTagTableClass {
   GtkTextTagTableClass parent_class;
+  LgwTextTagTableClassPrivate *priv;
 };
 
 //Methods

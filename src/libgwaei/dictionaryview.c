@@ -109,10 +109,17 @@ lgw_dictionaryview_constructed (GObject *object)
     priv->ui.box = GTK_BOX (widget);
 
     {
-      GtkWidget *tree_view = gtk_tree_view_new ();
-      priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
-      gtk_widget_show (tree_view);
-      gtk_box_pack_start (priv->ui.box, tree_view, TRUE, TRUE, 0);
+      GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+      priv->ui.scrolled_window = GTK_SCROLLED_WINDOW (scrolled_window);
+      gtk_box_pack_start (priv->ui.box, scrolled_window, TRUE, TRUE, 0);
+      gtk_widget_show (scrolled_window);
+
+      {
+        GtkWidget *tree_view = gtk_tree_view_new ();
+        priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
+        gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
+        gtk_widget_show (tree_view);
+      }
     }
 
     {
