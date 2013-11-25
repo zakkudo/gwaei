@@ -221,7 +221,7 @@ lw_history_clear_forward_list (LwHistory *history)
     //Declarations
     LwHistoryPrivate *priv;
     LwHistoryClass *klass;
-    LwSearchResultIterator *iterator;
+    LwSearchIterator *iterator;
     GList *iter;
 
     //Initializations
@@ -231,9 +231,9 @@ lw_history_clear_forward_list (LwHistory *history)
     //Free the data of the history
     for (iter = priv->forward; iter != NULL; iter = iter->next)
     {
-      iterator = LW_SEARCHRESULTITERATOR (iter->data);
+      iterator = LW_SEARCHITERATOR (iter->data);
       if (iterator != NULL)
-        lw_searchresultiterator_free_full (iterator);
+        lw_searchiterator_free_full (iterator);
       iter->data = NULL;
     }
 
@@ -257,7 +257,7 @@ lw_history_clear_back_list (LwHistory *history)
     //Declarations
     LwHistoryPrivate *priv;
     LwHistoryClass *klass;
-    LwSearchResultIterator *iterator;
+    LwSearchIterator *iterator;
     GList *iter;
 
     //Initializations
@@ -267,9 +267,9 @@ lw_history_clear_back_list (LwHistory *history)
     //Free the data of the history
     for (iter = priv->back; iter != NULL; iter = iter->next)
     {
-      iterator = LW_SEARCHRESULTITERATOR (iter->data);
+      iterator = LW_SEARCHITERATOR (iter->data);
       if (iterator != NULL)
-        lw_searchresultiterator_free_full (iterator);
+        lw_searchiterator_free_full (iterator);
       iter->data = NULL;
     }
 
@@ -339,7 +339,7 @@ lw_history_get_combined_list (LwHistory *history)
 //!
 void 
 lw_history_add_search (LwHistory              *history, 
-                       LwSearchResultIterator *iterator)
+                       LwSearchIterator *iterator)
 { 
     //Declarations
     LwHistoryPrivate *priv;
@@ -356,7 +356,7 @@ lw_history_add_search (LwHistory              *history,
     if (g_list_length (priv->back) >= priv->max)
     {
       link = g_list_last (priv->back); 
-      lw_searchresultiterator_free_full (LW_SEARCHRESULTITERATOR (link->data));
+      lw_searchiterator_free_full (LW_SEARCHITERATOR (link->data));
       priv->back = g_list_delete_link (priv->back, link);
     }
 
@@ -393,9 +393,9 @@ lw_history_has_back (LwHistory *history)
 //!
 //! @brief Go back 1 in history
 //!
-LwSearchResultIterator* 
+LwSearchIterator* 
 lw_history_go_back (LwHistory              *history, 
-                    LwSearchResultIterator *pushed)
+                    LwSearchIterator *pushed)
 { 
     //Sanity check
     if (!lw_history_has_back (history)) return pushed;
@@ -404,7 +404,7 @@ lw_history_go_back (LwHistory              *history,
     LwHistoryPrivate *priv;
     LwHistoryClass *klass;
     GList *link;
-    LwSearchResultIterator *popped;
+    LwSearchIterator *popped;
 
     priv = history->priv;
     klass = LW_HISTORY_CLASS (G_OBJECT_GET_CLASS (history));
@@ -415,7 +415,7 @@ lw_history_go_back (LwHistory              *history,
     }
 
     link = g_list_last (priv->back); 
-    popped = LW_SEARCHRESULTITERATOR (link->data);
+    popped = LW_SEARCHITERATOR (link->data);
     priv->back = g_list_delete_link (priv->back, link);
 
     g_signal_emit (history,
@@ -435,8 +435,8 @@ lw_history_go_back (LwHistory              *history,
 //!
 //! @brief Go forward 1 in history
 //!
-LwSearchResultIterator* 
-lw_history_go_forward (LwHistory *history, LwSearchResultIterator *pushed)
+LwSearchIterator* 
+lw_history_go_forward (LwHistory *history, LwSearchIterator *pushed)
 { 
     //Sanity check
     if (!lw_history_has_forward (history)) return pushed;
@@ -445,7 +445,7 @@ lw_history_go_forward (LwHistory *history, LwSearchResultIterator *pushed)
     LwHistoryPrivate *priv;
     LwHistoryClass *klass;
     GList *link;
-    LwSearchResultIterator *popped;
+    LwSearchIterator *popped;
 
     priv = history->priv;
     klass = LW_HISTORY_CLASS (G_OBJECT_GET_CLASS (history));
@@ -456,7 +456,7 @@ lw_history_go_forward (LwHistory *history, LwSearchResultIterator *pushed)
     }
 
     link = g_list_last (priv->forward); 
-    popped = LW_SEARCHRESULTITERATOR (link->data);
+    popped = LW_SEARCHITERATOR (link->data);
     priv->forward = g_list_delete_link (priv->forward, link);
 
     g_signal_emit (history,
@@ -481,7 +481,7 @@ lw_history_go_forward (LwHistory *history, LwSearchResultIterator *pushed)
 //!
 gboolean 
 lw_history_has_relevance (LwHistory              *history, 
-                          LwSearchResultIterator *iterator, 
+                          LwSearchIterator *iterator, 
                           gboolean                check_timestamp)
 {
     //Sanity checks
@@ -499,7 +499,7 @@ lw_history_has_relevance (LwHistory              *history,
     //Initializations
     priv = history->priv;
     search = iterator->search;
-    has_results = !lw_searchresultiterator_empty (iterator);
+    has_results = !lw_searchiterator_empty (iterator);
     timestamp = g_get_monotonic_time ();
     delta = timestamp - search->progress->start_time;
     enough_time_since_last_search = (delta > priv->time_delta);

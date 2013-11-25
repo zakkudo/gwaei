@@ -287,7 +287,7 @@ w_console_search (WApplication *application,
     //Declarations
     WSearchData *sdata;
     LwSearch *search;
-    LwSearchResultIterator *searchresultiterator;
+    LwSearchIterator *searchiterator;
     LwDictionaryList *dictionarylist;
     LwPreferences* preferences;
 
@@ -328,7 +328,7 @@ w_console_search (WApplication *application,
     }
 
     search = lw_search_new (dictionary, w_application_get_morphologyengine (application), query_text_data, flags);
-    searchresultiterator = lw_searchresultiterator_new (search, "raw");
+    searchiterator = lw_searchiterator_new (search, "raw");
 
     if (search == NULL)
     {
@@ -354,7 +354,7 @@ w_console_search (WApplication *application,
         G_PRIORITY_LOW,
         100,
         (GSourceFunc) w_console_append_result_timeout,
-        searchresultiterator,
+        searchiterator,
         NULL
     );
 
@@ -363,7 +363,7 @@ w_console_search (WApplication *application,
     //Print final header
     if (quiet_switch == FALSE)
     {
-      total_results = lw_searchresultiterator_count (searchresultiterator);
+      total_results = lw_searchiterator_count (searchiterator);
       message_total = ngettext("Found %d result", "Found %d results", total_results);
       printf(message_total, total_results);
 

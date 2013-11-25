@@ -46,4 +46,6 @@ struct _LwDictionaryInstall {
 
 G_END_DECLS
 
+#include <libwaei/dictionary-callbacks.h>
+
 #endif

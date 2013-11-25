@@ -95,7 +95,7 @@ w_application_finalize (GObject *object)
     if (priv->installable_dictionarylist != NULL) g_object_unref (priv->installable_dictionarylist); priv->installable_dictionarylist = NULL;
     if (priv->context != NULL) g_option_context_free (priv->context); priv->context = NULL;
     if (priv->arg_query_text_data != NULL) g_free(priv->arg_query_text_data); priv->arg_query_text_data = NULL;
-    if (priv->preferences != NULL) lw_preferences_free (priv->preferences); priv->preferences = NULL;
+    if (priv->preferences != NULL) g_object_unref (priv->preferences);
 
     lw_regex_free ();
 
@@ -252,6 +252,7 @@ w_application_get_preferences (WApplication *application)
     {
       g_io_extension_point_register ("gsettings-backend");
       priv->preferences = lw_preferences_new (g_memory_settings_backend_new ());
+      g_object_add_weak_pointer (G_OBJECT (priv->preferences), (gpointer*) &(priv->preferences));
     }
 
     return priv->preferences;
@@ -275,12 +276,15 @@ w_application_get_morphologyengine (WApplication *application)
 LwDictionaryList* 
 w_application_get_installed_dictionarylist (WApplication *application)
 {
+    //Sanity checks
     g_return_val_if_fail (application != NULL, NULL);
 
-    WApplicationPrivate *priv;
-    LwPreferences *preferences;
-    LwMorphologyEngine *morphologyengine;
+    //Declarations
+    WApplicationPrivate *priv = NULL;
+    LwPreferences *preferences = NULL;
+    LwMorphologyEngine *morphologyengine = NULL;
 
+    //Initializations
     priv = application->priv;
     preferences = w_application_get_preferences (application);
     morphologyengine = w_application_get_morphologyengine (application);

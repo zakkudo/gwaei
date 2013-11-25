@@ -38,12 +38,9 @@
 
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
+
 #include <libgwaei/searchentry-private.h>
 
-
-//Static declarations
-static void lgw_searchentry_attach_signals (LgwSearchEntry*);
-static void lgw_searchentry_remove_signals (LgwSearchEntry*);
 
 G_DEFINE_TYPE (LgwSearchEntry, lgw_searchentry, GTK_TYPE_BOX)
 
@@ -78,9 +75,11 @@ lgw_searchentry_init (LgwSearchEntry *entry)
 static void 
 lgw_searchentry_finalize (GObject *object)
 {
-    LgwSearchEntry *entry;
-    LgwSearchEntryPrivate *priv;
+    //Declarations
+    LgwSearchEntry *entry = NULL;
+    LgwSearchEntryPrivate *priv = NULL;
 
+    //Initializations
     entry = LGW_SEARCHENTRY (object);
     priv = entry->priv;
 
@@ -114,30 +113,74 @@ lgw_searchentry_constructed (GObject *object)
         gtk_widget_set_size_request (search_entry, 300, -1);
         gtk_widget_show (search_entry);
     }
+
+    lgw_searchentry_connect_signals (entry);
+}
+
+
+static void
+lgw_searchentry_dispose (GObject *object)
+{
+    //Declarations
+    LgwSearchEntry *entry = NULL;
+
+    //Initializations
+    entry = LGW_SEARCHENTRY (object);
+
+    lgw_searchentry_disconnect_signals (entry);
+
+    G_OBJECT_CLASS (lgw_searchentry_parent_class)->dispose (object);
 }
 
 
 static void
 lgw_searchentry_class_init (LgwSearchEntryClass *klass)
 {
+    //Declarations
     GObjectClass *object_class;
 
+    //Initializations
     object_class = G_OBJECT_CLASS (klass);
 
     object_class->constructed = lgw_searchentry_constructed;
     object_class->finalize = lgw_searchentry_finalize;
+    object_class->dispose = lgw_searchentry_dispose;
 
     g_type_class_add_private (object_class, sizeof (LgwSearchEntryPrivate));
-/*
-    klass->signalid[GW_ADDVOCABULARYWINDOW_CLASS_SIGNALID_WORD_ADDED] = g_signal_new (
-        "word-added",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (GwAddVocabularyWindowClass, word_added),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-*/
 }
+
+
+void
+lgw_searchentry_set_search_as_you_typea (LgwSearchEntry *entry,
+                                         gboolean        mode)
+{
+    /*
+    //Sanity checks
+    g_return_if_fail (entry != NULL);
+
+    //Declarations
+    LgwSearchEntryClass *klass = NULL;
+    LgwSearchEntryClassPrivate *klasspriv = NULL;
+
+    //Initializations
+    klass = LGW_SEARCHENTRY_GET_CLASS (entry);
+    klasspriv = klass->priv;
+    */
+}
+
+
+void
+lgw_searchentry_set_dictionarylistview (LgwSearchEntry        *search_entry,
+                                        LgwDictionaryListView *dictionary_list_view)
+{
+
+}
+
+
+void
+lgw_searchentry_set_resultsview (LgwSearchEntry *search_entry,
+                                 LgwResultsView *results_view)
+{
+}
+
 

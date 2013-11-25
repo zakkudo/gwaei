@@ -131,7 +131,7 @@ gw_application_finalize (GObject *object)
 
     if (priv->config.context != NULL) g_option_context_free (priv->config.context); 
     if (priv->config.arguments.query != NULL) g_free(priv->config.arguments.query); 
-    if (priv->config.preferences != NULL) lw_preferences_free (priv->config.preferences); 
+    if (priv->config.preferences != NULL) g_object_unref (priv->config.preferences); 
     if (priv->data.morphologyengine != NULL) g_object_unref (priv->data.morphologyengine); 
 
     lw_regex_free ();
@@ -172,7 +172,7 @@ gw_application_attach_signals (GwApplication *application)
     g_return_if_fail (application != NULL);
 
     //Declarations
-    LwPreferences *preferences;
+    LwPreferences *preferences = NULL;
 
     //Initializations
     preferences = gw_application_get_preferences (application);
@@ -360,6 +360,7 @@ gw_application_get_preferences (GwApplication *application)
     if (priv->config.preferences == NULL)
     {
       priv->config.preferences = lw_preferences_new (NULL);
+      g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
     }
 
     return priv->config.preferences;

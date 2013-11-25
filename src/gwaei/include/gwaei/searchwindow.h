@@ -5,12 +5,6 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
-  GW_SEARCHWINDOW_CLASS_SIGNALID_WORD_ADDED,
-  TOTAL_GW_SEARCHWINDOW_CLASS_SIGNALIDS
-} GwSearchWindowClassSignalId;
-
-
 //Boilerplate
 typedef struct _GwSearchWindow GwSearchWindow;
 typedef struct _GwSearchWindowClass GwSearchWindowClass;
@@ -23,8 +17,6 @@ typedef struct _GwSearchWindowPrivate GwSearchWindowPrivate;
 #define GW_IS_SEARCHWINDOW_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), GW_TYPE_SEARCHWINDOW))
 #define GW_SEARCHWINDOW_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), GW_TYPE_SEARCHWINDOW, GwSearchWindowClass))
 
-#define GW_SEARCHWINDOW_KEEP_SEARCHING_MAX_DELAY 3
-
 struct _GwSearchWindow {
   GwWindow window;
   GwSearchWindowPrivate *priv;
@@ -32,10 +24,6 @@ struct _GwSearchWindow {
 
 struct _GwSearchWindowClass {
   GwWindowClass parent_class;
-  guint signalid[TOTAL_GW_SEARCHWINDOW_CLASS_SIGNALIDS];
-  void (*word_added) (GwSearchWindow* window, LwResult *result);
-  GtkSizeGroup *tablabel_sizegroup;
-  GtkCssProvider *tablabel_cssprovider;
 };
 
 GtkWindow* gw_searchwindow_new (GtkApplication *application);

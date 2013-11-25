@@ -18,7 +18,7 @@
 #include <libwaei/dictionarylist.h>
 #include <libwaei/result.h>
 #include <libwaei/search.h>
-#include <libwaei/searchresultiterator.h>
+#include <libwaei/searchiterator.h>
 #include <libwaei/history.h>
 
 

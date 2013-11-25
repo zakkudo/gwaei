@@ -16,4 +16,6 @@ struct _LgwDictionaryListPrivate {
 
 G_END_DECLS
 
+#include <libgwaei/dictionarylist-callbacks.h>
+
 #endif

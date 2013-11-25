@@ -38,14 +38,15 @@
 
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
+
 #include <libgwaei/resultstextview-private.h>
 
+static void lgw_resultstextview_init_interface (LgwResultsViewInterface *iface);
 
-//Static declarations
-static void lgw_resultstextview_connect_signals (LgwResultsTextView*);
-static void lgw_resultstextview_disconnect_signals (LgwResultsTextView*);
 
-G_DEFINE_TYPE (LgwResultsTextView, lgw_resultstextview, GTK_TYPE_BOX)
+G_DEFINE_TYPE_WITH_CODE (LgwResultsTextView, lgw_resultstextview, GTK_TYPE_BOX,
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_RESULTSVIEW, lgw_resultstextview_init_interface));
+
 
 
 //!
@@ -61,6 +62,13 @@ lgw_resultstextview_new ()
     widget = LGW_RESULTSTEXTVIEW (g_object_new (LGW_TYPE_RESULTSTEXTVIEW, NULL));
 
     return GTK_WIDGET (widget);
+}
+
+
+static void
+lgw_resultstextview_init_interface (LgwResultsViewInterface *iface)
+{
+    iface->set_search = lgw_resultstextview_set_searchlist;
 }
 
 
@@ -170,17 +178,154 @@ lgw_resultstextview_class_init (LgwResultsTextViewClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LgwResultsTextViewPrivate));
     klass->priv = klasspriv;
-
-/*
-    klass->signalid[GW_ADDVOCABULARYWINDOW_CLASS_SIGNALID_WORD_ADDED] = g_signal_new (
-        "word-added",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (GwAddVocabularyWindowClass, word_added),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-*/
 }
+
+
+void
+lgw_resultstextview_add_search (LgwResultsView *view,
+                                LwSearch       *search)
+{
+    //Sanity checks
+    g_return_if_fail (view != NULL);
+
+    //Declarations
+    LgwResultsTextView *text_view = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+    gboolean found = FALSE;
+
+    //Initializations
+    text_view = LGW_RESULTSTEXTVIEW (view);
+    priv = text_view->priv;
+
+    {
+      GList *link = priv->data.searchlist;
+      while (link != NULL)
+      {
+        if (lw_search_is_equal (LW_SEARCH (link->data), search)) {
+          found = TRUE;
+        }
+        link = link->next;
+      }
+      
+    }
+
+    if (!found)
+    {
+      priv->data.searchlist = g_list_append (priv->data.searchlist, search);
+      priv->data.searchiteratorlist = g_list_append (priv->data.searchiteratorlist, lw_searchiterator_new (search, "raw"));
+    }
+
+    printf("set search\n");
+}
+
+
+void
+lgw_resultstextview_clear_searchlist (LgwResultsView *view)
+{
+    //Sanity checks
+    g_return_if_fail (view != NULL);
+
+    //Declarations
+    LgwResultsTextView *text_view = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    text_view = LGW_RESULTSTEXTVIEW (view);
+    priv = text_view->priv;
+
+    g_list_free_full (priv->data.searchiteratorlist, (GDestroyNotify) lw_searchiterator_free);
+    g_list_free_full (priv->data.searchlist, (GDestroyNotify) lw_search_free);
+
+    priv->data.searchiteratorlist = NULL;
+    priv->data.searchlist = NULL;
+}
+
+
+void
+lgw_resultstextview_set_searchlist (LgwResultsView *view,
+                                    GList          *searchlist)
+{
+    //Sanity checks
+    g_return_if_fail (view != NULL);
+
+    //Declarations
+    LgwResultsTextView *text_view = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    text_view = LGW_RESULTSTEXTVIEW (view);
+    priv = text_view->priv;
+
+    lgw_resultstextview_clear_searchlist (view);
+
+    {
+      GList *link = searchlist;
+      while (link != NULL)
+      {
+        LwSearch *search = LW_SEARCH (link->data);
+        lgw_resultstextview_add_search (view, search);
+        link = link->next;
+      }
+    }
+    
+    printf("set search\n");
+}
+
+
+GList*
+lgw_resultstextview_get_searchlist (LgwResultsView *view)
+{
+    //Sanity checks
+    g_return_if_fail (view != NULL);
+
+    //Declarations
+    LgwResultsTextView *text_view = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    text_view = LGW_RESULTSTEXTVIEW (view);
+    priv = text_view->priv;
+}
+
+static gboolean
+_load_results (LgwResultsView *view)
+{
+    //Sanity checks
+    g_return_if_fail (view != NULL);
+
+    //Declarations
+    LgwResultsTextView *text_view = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    text_view = LGW_RESULTSTEXTVIEW (view);
+    priv = text_view->priv;
+
+    priv->data.timeoutid = 0;
+    return FALSE;
+}
+
+
+static void
+lgw_resultstextview_set_timeout (LgwResultsView *view,
+                                 guint           milliseconds)
+{
+    //Sanity checks
+    g_return_if_fail (view != NULL);
+
+    //Declarations
+    LgwResultsTextView *text_view = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    text_view = LGW_RESULTSTEXTVIEW (view);
+    priv = text_view->priv;
+
+    if (priv->data.timeoutid != 0)
+    {
+      priv->data.timeoutid = g_timeout_add (milliseconds, (GSourceFunc) _load_results, view);
+    }
+}
+
+
 

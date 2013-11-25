@@ -54,14 +54,14 @@ GList* lw_history_get_combined_list (LwHistory*);
 void lw_history_clear_forward_list (LwHistory*);
 void lw_history_clear_back_list (LwHistory*);
 
-void lw_history_add_search (LwHistory*, LwSearchResultIterator*);
+void lw_history_add_search (LwHistory*, LwSearchIterator*);
 
 gboolean lw_history_has_back (LwHistory*);
 gboolean lw_history_has_forward (LwHistory*);
-LwSearchResultIterator* lw_history_go_back (LwHistory*, LwSearchResultIterator*);
-LwSearchResultIterator* lw_history_go_forward (LwHistory*, LwSearchResultIterator*);
+LwSearchIterator* lw_history_go_back (LwHistory*, LwSearchIterator*);
+LwSearchIterator* lw_history_go_forward (LwHistory*, LwSearchIterator*);
 
-gboolean lw_history_has_relevance (LwHistory*, LwSearchResultIterator*, gboolean);
+gboolean lw_history_has_relevance (LwHistory*, LwSearchIterator*, gboolean);
 
 G_END_DECLS
 

@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file searchresultiterator.c
+//! @file searchiterator.c
 //!
 
 #ifdef HAVE_CONFIG_H
@@ -37,8 +37,8 @@
 #include <libwaei/gettext.h>
 
 
-LwSearchResultIterator*
-lw_searchresultiterator_new (LwSearch    *search, 
+LwSearchIterator*
+lw_searchiterator_new (LwSearch    *search, 
                              const gchar *CATEGORY)
 {
     //Sanity checks
@@ -46,10 +46,10 @@ lw_searchresultiterator_new (LwSearch    *search,
     g_return_val_if_fail (CATEGORY != NULL, NULL);
 
     //Declarations
-    LwSearchResultIterator *iterator = NULL;
+    LwSearchIterator *iterator = NULL;
 
     //Initializations
-    iterator = g_new0 (LwSearchResultIterator, 1); if (iterator == NULL) goto errored;
+    iterator = g_new0 (LwSearchIterator, 1); if (iterator == NULL) goto errored;
     iterator->search = search;
     iterator->category = g_strdup (CATEGORY);
     iterator->count = 0;
@@ -59,7 +59,7 @@ lw_searchresultiterator_new (LwSearch    *search,
 
 errored:
 
-    if (iterator != NULL) lw_searchresultiterator_free (iterator);
+    if (iterator != NULL) lw_searchiterator_free (iterator);
 
     lw_search_unlock (search);
 
@@ -68,7 +68,7 @@ errored:
 
 
 LwResult*
-lw_searchresultiterator_get_result (LwSearchResultIterator* iterator)
+lw_searchiterator_get_result (LwSearchIterator* iterator)
 {
     //Sanity checks
     g_return_val_if_fail (iterator != NULL, NULL);
@@ -93,7 +93,7 @@ errored:
 
 
 gboolean
-lw_searchresultiterator_next (LwSearchResultIterator* iterator)
+lw_searchiterator_next (LwSearchIterator* iterator)
 {
     gboolean can_have_more_results = FALSE;
     LwSearch *search = iterator->search;
@@ -152,7 +152,7 @@ lw_searchresultiterator_next (LwSearchResultIterator* iterator)
 
 
 void
-lw_searchresultiterator_rewind (LwSearchResultIterator* iterator)
+lw_searchiterator_rewind (LwSearchIterator* iterator)
 {
     //Sanity checks
     g_return_if_fail (iterator != NULL);
@@ -164,30 +164,30 @@ lw_searchresultiterator_rewind (LwSearchResultIterator* iterator)
 
 
 void
-lw_searchresultiterator_free_full (LwSearchResultIterator *iterator)
+lw_searchiterator_free_full (LwSearchIterator *iterator)
 {
     if (iterator == NULL) return;
 
     if (iterator->search != NULL) lw_search_free (iterator->search);
 
-    lw_searchresultiterator_free (iterator);
+    lw_searchiterator_free (iterator);
 }
 
 
 void
-lw_searchresultiterator_free (LwSearchResultIterator *iterator)
+lw_searchiterator_free (LwSearchIterator *iterator)
 {
     if (iterator == NULL) return;
     g_hash_table_unref (iterator->historytable);
 
-    memset (iterator, 0, sizeof(LwSearchResultIterator));
+    memset (iterator, 0, sizeof(LwSearchIterator));
 
     g_free (iterator);
 }
 
 
 gint
-lw_searchresultiterator_count (LwSearchResultIterator *iterator)
+lw_searchiterator_count (LwSearchIterator *iterator)
 {
     //Sanity checks
     g_return_val_if_fail (iterator != NULL, 0);
@@ -196,7 +196,7 @@ lw_searchresultiterator_count (LwSearchResultIterator *iterator)
 }
 
 gint
-lw_searchresultiterator_length (LwSearchResultIterator *iterator)
+lw_searchiterator_length (LwSearchIterator *iterator)
 {
     //Sanity checks
     g_return_val_if_fail (iterator != NULL, 0);
@@ -214,7 +214,7 @@ lw_searchresultiterator_length (LwSearchResultIterator *iterator)
 
 
 gboolean
-lw_searchresultiterator_finished (LwSearchResultIterator *iterator)
+lw_searchiterator_finished (LwSearchIterator *iterator)
 {
     //Sanity checks
     g_return_val_if_fail (iterator != NULL, FALSE);
@@ -228,7 +228,7 @@ lw_searchresultiterator_finished (LwSearchResultIterator *iterator)
 
 
 gboolean
-lw_searchresultiterator_empty (LwSearchResultIterator *iterator)
+lw_searchiterator_empty (LwSearchIterator *iterator)
 {
     return (iterator->list == NULL);
 }

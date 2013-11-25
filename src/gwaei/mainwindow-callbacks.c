@@ -38,12 +38,78 @@
 
 #include <gwaei/gettext.h>
 #include <gwaei/gwaei.h>
+
 #include <gwaei/mainwindow-private.h>
+
+
+void
+gw_mainwindow_connect_signals (GwMainWindow *window) {
+    //Sanity checks
+    g_return_if_fail (window != NULL);
+
+    //Declarations
+    GwMainWindowPrivate *priv = NULL;
+
+    //Initializations
+    priv = window->priv;
+
+    if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] == 0)
+    {
+      priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = g_signal_connect (
+          window, 
+          "notify::application",
+          G_CALLBACK (gw_mainwindow_application_property_changed_cb),
+          NULL
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] == 0)
+    {
+      priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] = g_signal_connect_swapped (
+          priv->ui.stack,
+          "notify::visible-child",
+          G_CALLBACK (gw_mainwindow_application_visible_child_property_changed_cb),
+          window
+      );
+    }
+}
+
+
+void
+gw_mainwindow_disconnect_signals (GwMainWindow *window) {
+    //Sanity checks
+    g_return_if_fail (window != NULL);
+
+    //Declarations
+    GwMainWindowPrivate *priv = NULL;
+
+    //Initializations
+    priv = window->priv;
+
+    {
+      guint signalid = priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED];
+      if (signalid != 0)
+      {
+        g_signal_handler_disconnect (window, signalid);
+      }
+    }
+
+    {
+      guint signalid = priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED];
+      if (signalid != 0)
+      {
+        g_signal_handler_disconnect (priv->ui.stack, signalid);
+      }
+    }
+
+    memset(priv->data.signalid, 0, sizeof(guint) * TOTAL_SIGNALIDS);
+}
+
 
 void
 gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
-                                               GParamSpec *pspec,
-                                               gpointer data)
+                                               GParamSpec   *pspec,
+                                               gpointer      data)
 {
     //Declarations
     GwMainWindowPrivate *priv = NULL;
@@ -65,4 +131,28 @@ errored:
     return;
 }
 
+
+void
+gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_window,
+                                                             GParamSpec   *pspec,
+                                                             gpointer      data)
+{
+    //Declarations
+    GwMainWindowPrivate *priv = NULL;
+    GtkApplication *application = NULL;
+    LgwDictionaryList *dictionarylist = NULL;
+    GObject *widget = NULL;
+
+    priv = main_window->priv;
+    if (priv == NULL) goto errored;
+    g_object_get (G_OBJECT (priv->ui.stack), "visible-child", &widget, NULL);
+
+    if (widget != NULL && LGW_IS_STACKWIDGET (widget)) {
+      printf("visible child changed\n");
+    }
+
+errored:
+
+    return;
+}
 

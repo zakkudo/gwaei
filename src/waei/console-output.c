@@ -41,14 +41,14 @@
 #include <waei/waei.h>
 
 
-static void w_console_append_edict_result (WApplication*, LwSearchResultIterator*);
-static void w_console_append_kanjidict_result (WApplication*, LwSearchResultIterator*);
-static void w_console_append_examplesdict_result (WApplication*, LwSearchResultIterator*);
-static void w_console_append_unknowndict_result (WApplication*, LwSearchResultIterator*);
+static void w_console_append_edict_result (WApplication*, LwSearchIterator*);
+static void w_console_append_kanjidict_result (WApplication*, LwSearchIterator*);
+static void w_console_append_examplesdict_result (WApplication*, LwSearchIterator*);
+static void w_console_append_unknowndict_result (WApplication*, LwSearchIterator*);
 
 
 static gchar*
-w_add_match_highlights (LwSearchResultIterator *iterator, 
+w_add_match_highlights (LwSearchIterator *iterator, 
                         const gchar            *TEXT, 
                         const gchar            *ORIGINAL_COLOR)
 {
@@ -81,7 +81,7 @@ errored:
 
 
 static void
-lw_printf_highlighted (LwSearchResultIterator *iterator, 
+lw_printf_highlighted (LwSearchIterator *iterator, 
                        const gchar            *FORMATTED, 
                        const gchar            *CONTENT, 
                        const gchar            *ORIGINAL_COLOR)
@@ -103,7 +103,7 @@ errored:
 
 void 
 w_console_append_result (WApplication           *application, 
-                         LwSearchResultIterator *iterator)
+                         LwSearchIterator *iterator)
 {
     //Sanity checks
     g_return_if_fail (application != NULL);
@@ -136,7 +136,7 @@ w_console_append_result (WApplication           *application,
 //!
 static void 
 w_console_append_edict_result (WApplication           *application, 
-                               LwSearchResultIterator *iterator)
+                               LwSearchIterator *iterator)
 {
     //Sanity checks
     g_return_if_fail (application != NULL);
@@ -149,7 +149,7 @@ w_console_append_edict_result (WApplication           *application,
     gint cont;
 
     //Initializations
-    result = lw_searchresultiterator_get_result (iterator); if (result == NULL) return;
+    result = lw_searchiterator_get_result (iterator); if (result == NULL) return;
     search = iterator->search;
     color_switch = w_application_get_color_switch (application);
     cont = 0;
@@ -224,7 +224,7 @@ w_console_append_edict_result (WApplication           *application,
 //!
 static void 
 w_console_append_kanjidict_result (WApplication           *application, 
-                                   LwSearchResultIterator *iterator)
+                                   LwSearchIterator *iterator)
 {
     //Sanity checks
     g_return_if_fail (application != NULL);
@@ -237,7 +237,7 @@ w_console_append_kanjidict_result (WApplication           *application,
     gboolean line_started = FALSE;
 
     //Initializations
-    result = lw_searchresultiterator_get_result (iterator); if (result == NULL) return;
+    result = lw_searchiterator_get_result (iterator); if (result == NULL) return;
     search = iterator->search;
     color_switch = w_application_get_color_switch (application);
     line_started = FALSE;
@@ -309,7 +309,7 @@ w_console_append_kanjidict_result (WApplication           *application,
 //!
 static void 
 w_console_append_examplesdict_result (WApplication           *application, 
-                                      LwSearchResultIterator *iterator)
+                                      LwSearchIterator *iterator)
 {
     //Sanity checks
     g_return_if_fail (application != NULL);
@@ -321,7 +321,7 @@ w_console_append_examplesdict_result (WApplication           *application,
     gboolean color_switch;
 
     //Initializations
-    result = lw_searchresultiterator_get_result (iterator); if (result == NULL) return;
+    result = lw_searchiterator_get_result (iterator); if (result == NULL) return;
     search = iterator->search;
     color_switch = w_application_get_color_switch (application);
 
@@ -364,7 +364,7 @@ w_console_append_examplesdict_result (WApplication           *application,
 //!
 static void 
 w_console_append_unknowndict_result (WApplication           *application, 
-                                     LwSearchResultIterator *iterator)
+                                     LwSearchIterator *iterator)
 {
     //Sanity checks
     g_return_if_fail (application != NULL);
@@ -374,7 +374,7 @@ w_console_append_unknowndict_result (WApplication           *application,
     LwResult *result;
 
     //Initializations
-    result = lw_searchresultiterator_get_result (iterator); if (result == NULL) return;
+    result = lw_searchiterator_get_result (iterator); if (result == NULL) return;
 
     printf("%s\n", result->text);
 
@@ -388,7 +388,7 @@ w_console_append_unknowndict_result (WApplication           *application,
 //!
 void 
 w_console_no_result (WApplication           *application, 
-                     LwSearchResultIterator *iterator)
+                     LwSearchIterator *iterator)
 {
     //Sanity checks
     if (application == NULL || iterator == NULL) return;

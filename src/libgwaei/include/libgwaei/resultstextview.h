@@ -30,6 +30,8 @@ GtkWidget* lgw_resultstextview_new (void);
 GType lgw_resultstextview_get_type (void) G_GNUC_CONST;
 
 
+void lgw_resultstextview_set_searchlist (LgwResultsView *view, GList *searchlist);
+
 G_END_DECLS
 
 #endif

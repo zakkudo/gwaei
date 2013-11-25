@@ -39,7 +39,6 @@
 
 G_DEFINE_INTERFACE (LgwResultsView, lgw_resultsview, 0);
 
-
 static void
 lgw_resultsview_default_init (LgwResultsViewInterface *class)
 {
@@ -48,9 +47,9 @@ lgw_resultsview_default_init (LgwResultsViewInterface *class)
 
 
 void
-lgw_resultsview_set_search (LgwResultsView *self, LwSearch *search)
+lgw_resultsview_set_searchlist (LgwResultsView *self, GList* searchlist)
 {
-      LGW_RESULTSVIEW_GET_INTERFACE (self)->set_search (self, search);
+    LGW_RESULTSVIEW_GET_INTERFACE (self)->set_search (self, searchlist);
 }
 
 

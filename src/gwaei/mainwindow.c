@@ -40,13 +40,9 @@
 #include <gwaei/gwaei.h>
 
 #include <gwaei/mainwindow-private.h>
-#include <gwaei/mainwindow-callbacks.h>
 
 
 //Static declarations
-static void gw_mainwindow_connect_signals (GwMainWindow*);
-static void gw_mainwindow_disconnect_signals (GwMainWindow*);
-
 static void gw_mainwindow_initialize_box (GwMainWindow *window);
 static void gw_mainwindow_initialize_header (GwMainWindow *window);
 static void gw_mainwindow_initialize_vocabularywidget (GwMainWindow *window);
@@ -267,48 +263,6 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
     }
 
     lgw_searchwidget_set_search_mode (priv->ui.search_widget, TRUE);
-}
-
-
-static void
-gw_mainwindow_connect_signals (GwMainWindow *window) {
-    //Sanity checks
-    g_return_if_fail (window != NULL);
-
-    //Declarations
-    GwMainWindowClass *klass = NULL;
-
-    //Initializations
-    klass = GW_MAINWINDOW_GET_CLASS (window);
-
-    klass->signalid[GW_MAINWINDOW_APPLICATION_PROPERTY_CHANGED] = g_signal_connect (
-        window, 
-        "notify::application",
-        G_CALLBACK (gw_mainwindow_application_property_changed_cb),
-        NULL
-    );
-}
-
-
-static void
-gw_mainwindow_disconnect_signals (GwMainWindow *window) {
-    //Sanity checks
-    g_return_if_fail (window != NULL);
-
-    //Declarations
-    GwMainWindowClass *klass = NULL;
-    gint i = 0;
-
-    //Initializations
-    klass = GW_MAINWINDOW_GET_CLASS (window);
-
-    for (i = 0; i < G_N_ELEMENTS(klass->signalid); i++)
-    {
-        if (klass->signalid[i] != 0) {
-            g_signal_handler_disconnect (window, klass->signalid[i]);
-            klass->signalid[i] = 0;
-        }
-    }
 }
 
 

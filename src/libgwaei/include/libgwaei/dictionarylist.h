@@ -60,8 +60,6 @@ GMenuModel* lgw_dictionarylist_get_menumodel (LgwDictionaryList*);
 GtkListStore* lgw_dictionarylist_get_liststore (LgwDictionaryList*);
 void lgw_dictionarylist_sync_treestore (LgwDictionaryList*);
 
-#include <libgwaei/dictionarylist-callbacks.h>
-
 G_END_DECLS
 
 #endif

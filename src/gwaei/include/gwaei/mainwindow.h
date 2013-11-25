@@ -5,16 +5,11 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
-  GW_MAINWINDOW_APPLICATION_PROPERTY_CHANGED,
-  TOTAL_GW_MAINWINDOW_CLASS_SIGNALIDS
-} GwMainWindowClassSignalId;
-
-
 //Boilerplate
 typedef struct _GwMainWindow GwMainWindow;
 typedef struct _GwMainWindowClass GwMainWindowClass;
 typedef struct _GwMainWindowPrivate GwMainWindowPrivate;
+typedef struct _GwMainWindowClassPrivate GwMainWindowClassPrivate;
 
 #define GW_TYPE_MAINWINDOW              (gw_mainwindow_get_type())
 #define GW_MAINWINDOW(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), GW_TYPE_MAINWINDOW, GwMainWindow))
@@ -30,7 +25,7 @@ struct _GwMainWindow {
 
 struct _GwMainWindowClass {
   GtkWindowClass parent_class;
-  guint signalid[TOTAL_GW_MAINWINDOW_CLASS_SIGNALIDS];
+  GwMainWindowClassPrivate *priv;
 };
 
 GtkWindow* gw_mainwindow_new (GtkApplication *application);

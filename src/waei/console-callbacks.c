@@ -82,21 +82,21 @@ w_console_append_result_timeout (gpointer data)
   g_return_val_if_fail (data != NULL, FALSE);
 
   //Declarations
-  LwSearchResultIterator *iterator = NULL;
+  LwSearchIterator *iterator = NULL;
   LwSearch *search = NULL;
   LwSearchStatus status = 0;
   WSearchData *sdata = NULL;
   gboolean keep_appending = TRUE;
 
   //Initializations
-  iterator = LW_SEARCHRESULTITERATOR (data);
+  iterator = LW_SEARCHITERATOR (data);
   search = iterator->search;
   status = lw_search_get_status (search);
   sdata = W_SEARCHDATA (lw_search_get_data (search));
 
-  if (lw_searchresultiterator_finished (iterator))
+  if (lw_searchiterator_finished (iterator))
   {
-    if (lw_searchresultiterator_empty (iterator))
+    if (lw_searchiterator_empty (iterator))
     {
       w_console_no_result (sdata->application, iterator);
     }
@@ -105,7 +105,7 @@ w_console_append_result_timeout (gpointer data)
   }
   else
   {
-    while (lw_searchresultiterator_next (iterator))
+    while (lw_searchiterator_next (iterator))
     {
       w_console_append_result (sdata->application, iterator);
     }

@@ -4,23 +4,37 @@
 G_BEGIN_DECLS
 
 typedef enum {
-  TOTAL_LGW_RESULTSTEXTVIEW_CLASS_SIGNALIDS
-} LgwResultsTextViewClassSignalId;
+  TOTAL_SIGNALIDS
+} SignalId;
 
 struct _UI {
-    GtkBox *box;
-    GtkTextView *text_view;
-    GtkTextBuffer *text_buffer;
-    GtkScrolledWindow *scrolled_window;
+  GtkBox *box;
+  GtkTextView *text_view;
+  GtkTextBuffer *text_buffer;
+  GtkScrolledWindow *scrolled_window;
+};
+
+struct _Config {
+  gint scale_percent;
+  gint max_results;
+};
+
+struct _Data {
+  guint signalid[TOTAL_SIGNALIDS];
+  LwSearch *search;
+  GList *searchlist;
+  GList *searchiteratorlist;
+  guint timeoutid;
 };
 
 struct _LgwResultsTextViewPrivate {
-    struct _UI ui;
+  struct _UI ui;
+  struct _Data data;
+  struct _Config config;
 };
 
 struct _LgwResultsTextViewClassPrivate {
   GtkTextTagTable *text_tag_table;
-  guint signalid[TOTAL_LGW_RESULTSTEXTVIEW_CLASS_SIGNALIDS];
 };
 
 #define LGW_RESULTSTEXTVIEW_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_RESULTSTEXTVIEW, LgwResultsTextViewPrivate));
