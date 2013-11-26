@@ -21,7 +21,7 @@ struct _Config {
 
 struct _Data {
     guint signalid[TOTAL_SIGNALIDS];
-    LgwDictionaryListView *dictionary_list_view;
+    LgwDictionaryListBox *dictionary_list_box;
     LgwResultsView *results_view;
 };
 

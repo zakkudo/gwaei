@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file stackwidget.c
+//! @file dictionarylistbox-callbacks.c
 //!
 //! @brief To be written
 //!
@@ -32,31 +32,34 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <gdk/gdk.h>
+#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
 
-G_DEFINE_INTERFACE (LgwStackWidget, lgw_stackwidget, 0);
-
-
-static void
-lgw_stackwidget_default_init (LgwStackWidgetInterface *class)
-{
-        /* add properties and signals to the interface here */
-}
+#include <libgwaei/dictionarylistbox-private.h>
 
 
 void
-lgw_stackwidget_get_button_menu_model (LgwStackWidget *self)
+lgw_dictionarylistbox_dictionarylist_property_changed_cb (LgwDictionaryListBox *box,
+                                                          GParamSpec           *pspec,
+                                                          gpointer              data)
 {
-      LGW_STACKWIDGET_GET_INTERFACE (self)->get_button_menu_model (self);
-}
+    //Declarations
+    LgwDictionaryListBoxPrivate *priv = NULL;
+    LwDictionaryList *dictionary_list = NULL;
 
+    priv = box->priv;
+    if (priv == NULL) goto errored;
+    g_object_get (G_OBJECT (box), "dictionarylist", &dictionary_list, NULL);
+    if (dictionary_list == NULL) goto errored;
 
-void
-lgw_stackwidget_get_window_menu_model (LgwStackWidget *self)
-{
-      LGW_STACKWIDGET_GET_INTERFACE (self)->get_window_menu_model (self);
+errored:
+
+    if (dictionary_list != NULL) g_object_unref (dictionary_list);
+
+    return;
 }
 

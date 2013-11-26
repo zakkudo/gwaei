@@ -13,12 +13,14 @@ typedef struct _LgwStackWidgetInterface LgwStackWidgetInterface;
 
 struct _LgwStackWidgetInterface {
       GTypeInterface parent;
-      GMenuModel* (*get_menu_model) (LgwStackWidget *self);
+      GMenuModel* (*get_button_menu_model) (LgwStackWidget *self);
+      GMenuModel* (*get_window_menu_model) (LgwStackWidget *self);
 };
 
 GType lgw_stackwidget_get_type (void);
 
-void lgw_stackwidget_get_menu_model (LgwStackWidget *self);
+void lgw_stackwidget_get_button_menu_model (LgwStackWidget *self);
+void lgw_stackwidget_get_window_menu_model (LgwStackWidget *self);
 
 
 #endif

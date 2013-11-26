@@ -8,12 +8,18 @@ struct _UI {
     GtkPaned *paned;
     LgwSearchEntry *search_entry;
     GtkSearchBar *search_bar;
-    LgwResultsTextView *results_view;
-    LgwDictionaryListView *dictionary_list_view;
+    LgwResultsView *results_view;
+    LgwDictionaryListBox *dictionary_list_box;
+};
+
+struct _Data {
+    GMenuModel *button_menu_model;
+    GMenuModel *window_menu_model;
 };
 
 struct _LgwSearchWidgetPrivate {
     struct _UI ui;
+    struct _Data data;
 };
 
 #define LGW_SEARCHWIDGET_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_SEARCHWIDGET, LgwSearchWidgetPrivate));

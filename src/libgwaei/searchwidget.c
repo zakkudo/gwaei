@@ -46,12 +46,13 @@
 static void lgw_searchwidget_attach_signals (LgwSearchWidget*);
 static void lgw_searchwidget_remove_signals (LgwSearchWidget*);
 
-static GMenuModel* lgw_searchwidget_get_menu_model (LgwStackWidget *widget);
-static void lgw_searchwidget_initialize_interface (LgwStackWidgetInterface *iface);
+static GMenuModel* lgw_searchwidget_get_button_menu_model (LgwStackWidget *widget);
+static GMenuModel* lgw_searchwidget_get_window_menu_model (LgwStackWidget *widget);
+static void lgw_searchwidget_init_interface (LgwStackWidgetInterface *iface);
 
 
 G_DEFINE_TYPE_WITH_CODE (LgwSearchWidget, lgw_searchwidget, GTK_TYPE_BOX,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_STACKWIDGET, lgw_searchwidget_initialize_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_STACKWIDGET, lgw_searchwidget_init_interface));
 
 
 //!
@@ -121,10 +122,41 @@ lgw_searchwidget_constructed (GObject *object)
       gtk_widget_show (search_bar);
 
       {
-        GtkWidget *entry = lgw_searchentry_new ();
-        priv->ui.search_entry = LGW_SEARCHENTRY (entry);
-        gtk_container_add (GTK_CONTAINER (priv->ui.search_bar), entry);
-        gtk_widget_show (entry);
+        GtkWidget *box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
+        gtk_container_add (GTK_CONTAINER (priv->ui.search_bar), box);
+        gtk_widget_show (box);
+
+        {
+          GtkWidget *entry = lgw_searchentry_new ();
+          priv->ui.search_entry = LGW_SEARCHENTRY (entry);
+          gtk_box_pack_start (GTK_BOX (box), entry, FALSE, FALSE, 0);
+          gtk_widget_show (entry);
+        }
+
+        {
+          GtkWidget *button = gtk_menu_button_new ();
+          gtk_button_set_label (GTK_BUTTON (button), "漢");
+          gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
+          gtk_widget_show (button);
+
+          {
+            GtkWidget *menu = gtk_menu_new ();
+            gtk_menu_button_set_popup (GTK_MENU_BUTTON (button), menu);
+            gtk_widget_show (menu);
+
+            {
+              GtkWidget *menu_item = gtk_separator_menu_item_new ();
+              gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+              gtk_widget_show (menu_item);
+
+              {
+                GtkWidget *label = gtk_label_new ("test");
+                gtk_container_add (GTK_CONTAINER (menu_item), label);
+                gtk_widget_show (label);
+              }
+            }
+          }
+        }
       }
     }
 
@@ -136,20 +168,25 @@ lgw_searchwidget_constructed (GObject *object)
       gtk_widget_show (paned);
 
       {
-        GtkWidget *dictionary_list_view = lgw_dictionarylistview_new ();
-        gtk_container_set_border_width (GTK_CONTAINER (dictionary_list_view), 6);
-        priv->ui.dictionary_list_view = LGW_DICTIONARYLISTVIEW (dictionary_list_view);
-        gtk_paned_pack1 (priv->ui.paned, dictionary_list_view, FALSE, FALSE);
-        gtk_widget_show (dictionary_list_view);
+        GtkWidget *dictionary_list_box = lgw_dictionarylistbox_new ();
+        gtk_container_set_border_width (GTK_CONTAINER (dictionary_list_box), 6);
+        priv->ui.dictionary_list_box = LGW_DICTIONARYLISTBOX (dictionary_list_box);
+        gtk_paned_pack1 (priv->ui.paned, dictionary_list_box, FALSE, FALSE);
+        gtk_widget_show (dictionary_list_box);
       }
 
       {
         GtkWidget *results_view = lgw_resultstextview_new ();
         gtk_container_set_border_width (GTK_CONTAINER (results_view), 6);
-        priv->ui.results_view = LGW_RESULTSTEXTVIEW (results_view);
+        priv->ui.results_view = LGW_RESULTSVIEW (results_view);
         gtk_paned_pack2 (priv->ui.paned, results_view, TRUE, TRUE);
         gtk_widget_show (results_view);
       }
+    }
+
+    {
+      GMenuModel *button_menu_model = lgw_load_menu_model ("searchwidget-menumodel-button.ui");
+      priv->data.button_menu_model = G_MENU_MODEL (button_menu_model);
     }
 }
 
@@ -180,8 +217,9 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
 
 
 static void
-lgw_searchwidget_initialize_interface (LgwStackWidgetInterface *iface) {
-    iface->get_menu_model = lgw_searchwidget_get_menu_model;
+lgw_searchwidget_init_interface (LgwStackWidgetInterface *iface) {
+    iface->get_window_menu_model = lgw_searchwidget_get_window_menu_model;
+    iface->get_button_menu_model = lgw_searchwidget_get_button_menu_model;
 }
 
 
@@ -224,8 +262,8 @@ lgw_searchwidget_set_search_mode (LgwSearchWidget *widget,
 
 
 void
-lgw_searchwidget_set_dictionarylist (LgwSearchWidget   *search_widget, 
-                                      LgwDictionaryList *dictionary_list)
+lgw_searchwidget_set_dictionarylist (LgwSearchWidget  *search_widget, 
+                                     LwDictionaryList *dictionary_list)
 {
     //Sanity checks
     g_return_if_fail (search_widget != NULL);
@@ -237,14 +275,41 @@ lgw_searchwidget_set_dictionarylist (LgwSearchWidget   *search_widget,
     if (search_widget->priv != NULL)
     {
         priv = search_widget->priv;
-        lgw_dictionarylistview_set_dictionarylist (priv->ui.dictionary_list_view, dictionary_list);
     }
 }
 
+
 static GMenuModel*
-lgw_searchwidget_get_menu_model (LgwStackWidget *widget)
+lgw_searchwidget_get_button_menu_model (LgwStackWidget *widget)
 {
-    return NULL;
+    //Sanity checks
+    g_return_if_fail (widget != NULL);
+
+    //Declarations
+    LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (widget);
+    LgwSearchWidgetPrivate *priv = NULL;
+
+    //Initializations
+    priv = search_widget->priv;
+
+    return priv->data.button_menu_model;
+}
+
+
+static GMenuModel*
+lgw_searchwidget_get_window_menu_model (LgwStackWidget *widget)
+{
+    //Sanity checks
+    g_return_if_fail (widget != NULL);
+
+    //Declarations
+    LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (widget);
+    LgwSearchWidgetPrivate *priv = NULL;
+
+    //Initializations
+    priv = search_widget->priv;
+
+    return priv->data.window_menu_model;
 }
 
 

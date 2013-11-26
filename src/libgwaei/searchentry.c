@@ -170,8 +170,8 @@ lgw_searchentry_set_search_as_you_typea (LgwSearchEntry *entry,
 
 
 void
-lgw_searchentry_set_dictionarylistview (LgwSearchEntry        *search_entry,
-                                        LgwDictionaryListView *dictionary_list_view)
+lgw_searchentry_set_dictionarylistbox (LgwSearchEntry       *search_entry,
+                                       LgwDictionaryListBox *dictionary_list_box)
 {
 
 }

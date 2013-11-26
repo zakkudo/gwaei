@@ -128,7 +128,7 @@ lgw_dictionarylist_attach_signals (LgwDictionaryList *dictionarylist)
 
 static void
 lgw_dictionarylist_menumodel_append (LgwDictionaryList *dictionarylist, 
-                                    LwDictionary     *dictionary)
+                                     LwDictionary     *dictionary)
 {
     //Sanity checks
     g_return_if_fail (dictionarylist != NULL);

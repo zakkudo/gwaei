@@ -68,5 +68,74 @@ errored:
 }
 
 
+gboolean
+lgw_load_xml (GtkBuilder *builder, const gchar *FILENAME)
+{
+    //Declarations
+    gchar *path = NULL;
+    gchar *prefix = NULL;
+    GError *error = NULL;
+
+    //Initializations
+    error = NULL;
+#ifndef G_OS_WIN32
+    path = g_build_filename (DATADIR2, PACKAGE, FILENAME, NULL);
+#else
+    prefix = g_win32_get_package_installation_directory_of_module (NULL);
+    path = g_build_filename (prefix, "share", PACKAGE, FILENAME, NULL);
+    g_free (prefix);
+#endif
+
+    //Search for the files
+    if (g_file_test (path, G_FILE_TEST_IS_REGULAR))
+    {
+      gtk_builder_add_from_file (builder, path,  &error);
+      if (error)
+      {
+        g_warning ("Problems loading xml from %s. %s\n", path, error->message);
+        g_error_free (error); error = NULL;
+      }
+      else
+      {
+        gtk_builder_connect_signals (builder, NULL);
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+}
+
+
+
+GMenuModel*
+lgw_load_menu_model (const gchar* FILENAME)
+{
+    //Sanity checks
+    g_return_val_if_fail (FILENAME != NULL, NULL);
+
+    //Declarations
+    GtkBuilder *builder = NULL;
+    gboolean loaded = FALSE;
+    GMenuModel *menu_model = NULL;
+    
+    //Initializations
+    loaded = FALSE;
+    builder = NULL;
+    builder = gtk_builder_new (); 
+    if (builder == NULL) goto errored;
+    loaded = lgw_load_xml (builder, FILENAME); 
+    if (loaded == FALSE) goto errored;
+    menu_model = G_MENU_MODEL (gtk_builder_get_object (builder, "menu")); 
+    if (menu_model == NULL) goto errored;
+
+errored:
+
+    if (builder != NULL) g_object_unref (builder); builder = NULL;
+    if (menu_model == NULL) {
+      g_warning ("Failed loading the file, '%s'\n", FILENAME);
+    }
+
+    return menu_model;
+}
 
 

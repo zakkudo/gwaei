@@ -38,7 +38,7 @@ GType lgw_searchwidget_get_type (void) G_GNUC_CONST;
 gboolean lgw_searchwidget_get_search_mode (LgwSearchWidget *widget);
 void lgw_searchwidget_set_search_mode (LgwSearchWidget *widget, gboolean search_mode);
 
-void lgw_searchwidget_set_dictionarylist (LgwSearchWidget *search_widget, LgwDictionaryList *dictionary_list);
+void lgw_searchwidget_set_dictionarylist (LgwSearchWidget *search_widget, LwDictionaryList *dictionary_list);
 
 
 G_END_DECLS
