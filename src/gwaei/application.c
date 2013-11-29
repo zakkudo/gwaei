@@ -861,7 +861,7 @@ gw_application_initialize_accelerators (GwApplication *application)
 }
 
 
-LgwDictionaryList* 
+LwDictionaryList* 
 gw_application_get_installed_dictionarylist (GwApplication *application)
 {
     //Sanity checks
@@ -871,7 +871,7 @@ gw_application_get_installed_dictionarylist (GwApplication *application)
     GwApplicationPrivate *priv = NULL;
     LwPreferences *preferences = NULL;
     LwMorphologyEngine *morphologyengine = NULL;
-    LgwDictionaryList *dictionarylist = NULL;
+    LwDictionaryList *dictionarylist = NULL;
     gpointer *pointer = NULL;
 
     //Initializations;
@@ -879,7 +879,7 @@ gw_application_get_installed_dictionarylist (GwApplication *application)
 
     if (priv->data.dictionarylist.installed == NULL)
     {
-      dictionarylist = lgw_dictionarylist_new ();
+      dictionarylist = lw_dictionarylist_new ();
       preferences = gw_application_get_preferences (application);
       morphologyengine = gw_application_get_morphologyengine (application);
       lw_dictionarylist_load_installed (LW_DICTIONARYLIST (dictionarylist), morphologyengine);
@@ -894,7 +894,7 @@ gw_application_get_installed_dictionarylist (GwApplication *application)
 }
 
 
-LgwDictionaryList* 
+LwDictionaryList* 
 gw_application_get_installable_dictionarylist (GwApplication *application)
 {
     //Sanity checks
@@ -903,7 +903,7 @@ gw_application_get_installable_dictionarylist (GwApplication *application)
     //Declarations
     GwApplicationPrivate *priv = NULL;
     LwPreferences *preferences = NULL;
-    LgwDictionaryList *dictionarylist = NULL;
+    LwDictionaryList *dictionarylist = NULL;
     gpointer *pointer = NULL;
 
     //Initializations
@@ -911,7 +911,7 @@ gw_application_get_installable_dictionarylist (GwApplication *application)
 
     if (priv->data.dictionarylist.installable == NULL)
     {
-      dictionarylist = lgw_dictionarylist_new ();
+      dictionarylist = lw_dictionarylist_new ();
       preferences = gw_application_get_preferences (application);
       lw_dictionarylist_load_installable (LW_DICTIONARYLIST (dictionarylist), preferences);
 

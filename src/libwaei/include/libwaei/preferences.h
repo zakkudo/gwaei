@@ -103,35 +103,35 @@ GType lw_preferences_get_type (void) G_GNUC_CONST;
 
 //Methods
 
-gboolean lw_preferences_schema_is_installed (const char*);
-GSettings* lw_preferences_get_settings_object (LwPreferences*, const char*);
+gboolean lw_preferences_schema_is_installed (const gchar*);
+GSettings* lw_preferences_get_settings_object (LwPreferences*, const gchar*);
 
-void lw_preferences_reset_value (GSettings*, const char*);
-void lw_preferences_reset_value_by_schema (LwPreferences*, const char*, const char*);
+void lw_preferences_reset_value (GSettings*, const gchar*);
+void lw_preferences_reset_value_by_schema (LwPreferences*, const gchar*, const gchar*);
 
-int lw_preferences_get_int (GSettings*, const char *);
-int lw_preferences_get_int_by_schema (LwPreferences*, const char*, const char *);
+int lw_preferences_get_int (GSettings*, const gchar *);
+int lw_preferences_get_int_by_schema (LwPreferences*, const gchar*, const gchar *);
 
-void lw_preferences_set_int (GSettings*, const char*, const int);
-void lw_preferences_set_int_by_schema (LwPreferences*, const char*, const char*, const int);
+void lw_preferences_set_int (GSettings*, const gchar*, const int);
+void lw_preferences_set_int_by_schema (LwPreferences*, const gchar*, const gchar*, const int);
 
-gboolean lw_preferences_get_boolean (GSettings*, const char *);
-gboolean lw_preferences_get_boolean_by_schema (LwPreferences*, const char*, const char*);
+gboolean lw_preferences_get_boolean (GSettings*, const gchar *);
+gboolean lw_preferences_get_boolean_by_schema (LwPreferences*, const gchar*, const gchar*);
 
-void lw_preferences_set_boolean (GSettings*, const char*, const gboolean);
-void lw_preferences_set_boolean_by_schema (LwPreferences*, const char*, const char*, const gboolean);
+void lw_preferences_set_boolean (GSettings*, const gchar*, const gboolean);
+void lw_preferences_set_boolean_by_schema (LwPreferences*, const gchar*, const gchar*, const gboolean);
 
-void lw_preferences_get_string (char*, GSettings*, const char*, const int);
-void lw_preferences_get_string_by_schema (LwPreferences*, char*, const char*, const char*, const int);
+gchar* lw_preferences_get_string (GSettings*, const gchar*);
+gchar* lw_preferences_get_string_by_schema (LwPreferences*, const gchar*, const gchar*);
 
-void lw_preferences_set_string (GSettings*, const char*, const char*);
-void lw_preferences_set_string_by_schema (LwPreferences*, const char*, const char*, const char*);
+void lw_preferences_set_string (GSettings*, const gchar*, const gchar*);
+void lw_preferences_set_string_by_schema (LwPreferences*, const gchar*, const gchar*, const gchar*);
 
-gulong lw_preferences_add_change_listener (GSettings*, const char*, void (*callback_function) (GSettings*, gchar*, gpointer), gpointer);
-gulong lw_preferences_add_change_listener_by_schema (LwPreferences*, const char*, const char*, void (*callback_function) (GSettings*, gchar*, gpointer), gpointer);
+gulong lw_preferences_add_change_listener (GSettings*, const gchar*, void (*callback_function) (GSettings*, gchar*, gpointer), gpointer);
+gulong lw_preferences_add_change_listener_by_schema (LwPreferences*, const gchar*, const gchar*, void (*callback_function) (GSettings*, gchar*, gpointer), gpointer);
 
 void lw_preferences_remove_change_listener (GSettings*, gulong);
-void lw_preferences_remove_change_listener_by_schema (LwPreferences*, const char*, gulong);
+void lw_preferences_remove_change_listener_by_schema (LwPreferences*, const gchar*, gulong);
 
 G_END_DECLS
 

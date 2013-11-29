@@ -22,8 +22,6 @@
 //!
 //! @file dictionarylist.c
 //!
-//! @brief To be written
-//!
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -31,72 +29,59 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-#include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 
-#include <libgwaei/gettext.h>
-#include <libgwaei/libgwaei.h>
-#include <libgwaei/dictionarylist-private.h>
+#include <libwaei/gettext.h>
+#include <libwaei/libwaei.h>
 
-static void lgw_dictionarylist_attach_signals (LgwDictionaryList*);
+#include <libwaei/dictionarylist-private.h>
 
-G_DEFINE_TYPE (LgwDictionaryList, lgw_dictionarylist, LW_TYPE_DICTIONARYLIST)
+
+G_DEFINE_TYPE (LgwDictionaryList, lgw_dictionarylist, G_TYPE_OBJECT)
+
+static gint lgw_dictionarylist_sort_compare_function (gconstpointer, gconstpointer, gpointer);
 
 //!
-//! @brief Sets up the dictionary manager.  This is the backbone of every portion of the GUI that allows editing dictionaries
+//! @brief Creates a new LgwDictionaryList object
+//! @param MAX The maximum items you want in the dictionary before old ones are deleted
+//! @return An allocated LgwDictionaryList that will be needed to be freed by lw_dictionary_free.
 //!
-LgwDictionaryList* lgw_dictionarylist_new ()
+LgwDictionaryList* 
+lgw_dictionarylist_new ()
 {
-    //Declarations
-    LgwDictionaryList *dictionarylist;
+    LgwDictionaryList *dictionary;
 
     //Initializations
-    dictionarylist = LGW_DICTIONARYLIST (g_object_new (LGW_TYPE_DICTIONARYLIST, NULL));
-
-    return LGW_DICTIONARYLIST (dictionarylist);
+    dictionary = LGW_DICTIONARYLIST (g_object_new (LGW_TYPE_DICTIONARYLIST, NULL));
+    return dictionary;
 }
 
 
-void static
+static void 
 lgw_dictionarylist_init (LgwDictionaryList *dictionarylist)
 {
     dictionarylist->priv = LGW_DICTIONARYLIST_GET_PRIVATE (dictionarylist);
     memset(dictionarylist->priv, 0, sizeof(LgwDictionaryListPrivate));
-
-    LgwDictionaryListPrivate *priv;
-
-    priv = dictionarylist->priv;
-
-    GType types[] = { 
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_IMAGE
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_POSITION
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_NAME
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_LONG_NAME
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_ENGINE
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_SHORTCUT
-        G_TYPE_BOOLEAN, //LGW_DICTIONARYLIST_COLUMN_SELECTED
-        G_TYPE_POINTER  //LGW_DICTIONARYLIST_COLUMN_DICT_POINTER
-    };
-
-    priv->data.liststore = gtk_list_store_newv (TOTAL_LGW_DICTIONARYLIST_COLUMNS, types);
-    priv->data.menumodel = G_MENU_MODEL (g_menu_new ());
-
-    lgw_dictionarylist_attach_signals (dictionarylist);
+    g_mutex_init (&dictionarylist->priv->mutex);
 }
 
 
 static void 
 lgw_dictionarylist_finalize (GObject *object)
 {
+    //Declarations
     LgwDictionaryList *dictionarylist;
     LgwDictionaryListPrivate *priv;
 
+    //Initalizations
     dictionarylist = LGW_DICTIONARYLIST (object);
     priv = dictionarylist->priv;
 
-    if (priv->data.menumodel != NULL) g_object_unref (priv->data.menumodel); priv->data.menumodel = NULL;
-    if (priv->data.liststore != NULL) g_object_unref (priv->data.liststore); priv->data.liststore = NULL;
+    lgw_dictionarylist_clear (dictionarylist);
+    g_mutex_clear (&priv->mutex);
 
     G_OBJECT_CLASS (lgw_dictionarylist_parent_class)->finalize (object);
 }
@@ -107,252 +92,113 @@ lgw_dictionarylist_class_init (LgwDictionaryListClass *klass)
 {
     //Declarations
     GObjectClass *object_class;
+    LgwDictionaryListClassPrivate *klasspriv;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
+    klass->priv = g_new0 (LgwDictionaryListClassPrivate, 1);
+    klasspriv = klass->priv;
     object_class->finalize = lgw_dictionarylist_finalize;
+
+    klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
+        "row-changed",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwDictionaryListClass, row_changed),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
+    );
+
+    klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
+        "row-inserted",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwDictionaryListClass, row_inserted),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
+    );
+
+    klasspriv->signalid[CLASS_SIGNALID_ROW_HAS_CHILD_TOGGLED] = g_signal_new (
+        "row-has-child-toggled",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwDictionaryListClass, row_has_child_toggled),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
+    );
+
+    klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
+        "row-deleted",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwDictionaryListClass, row_deleted),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
+    );
+
+    klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
+        "rows-reordered",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwDictionaryListClass, rows_reordered),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
+    );
 
     g_type_class_add_private (object_class, sizeof (LgwDictionaryListPrivate));
 }
 
-
-static void 
-lgw_dictionarylist_attach_signals (LgwDictionaryList *dictionarylist)
-{
-    //Sanity checks
-    g_return_if_fail (dictionarylist != NULL);    
-
-    g_signal_connect (dictionarylist, "changed", G_CALLBACK (lgw_dictionarylist_changed_cb), NULL);
-}
-
-
-static void
-lgw_dictionarylist_menumodel_append (LgwDictionaryList *dictionarylist, 
-                                     LwDictionary     *dictionary)
-{
-    //Sanity checks
-    g_return_if_fail (dictionarylist != NULL);
-    g_return_if_fail (dictionary != NULL);
-
-    //Declarations
-    GMenuModel *menumodel;
-    GMenuItem *menuitem;
-    gint index;
-    gchar *detailed_action;
-    const gchar *shortname;
-    gchar *longname;
-
-    //Initializations
-    menumodel = lgw_dictionarylist_get_menumodel (dictionarylist);
-    index = g_menu_model_get_n_items (menumodel) + 1;
-    longname = NULL;
-    detailed_action = NULL;
-    menuitem = NULL;
-    shortname = lw_dictionary_get_name (dictionary);
-
-    longname = g_strdup_printf (gettext("%s Dictionary"), shortname);
-    if (longname == NULL) goto errored;
-    detailed_action = g_strdup_printf ("win.set-dictionary::%d", index);
-    if (detailed_action == NULL) goto errored;
-
-    menuitem = g_menu_item_new (longname, detailed_action);
-    if (menuitem == NULL) goto errored;
-    g_menu_append_item (G_MENU (menumodel), menuitem);
-
-errored:
-    if (longname != NULL) g_free (longname); longname = NULL;
-    if (detailed_action != NULL) g_free (detailed_action); detailed_action = NULL;
-    if (menuitem != NULL) g_object_unref (menuitem); menuitem = NULL;
-}
-
-
-void
-lgw_dictionarylist_sync_menumodel (LgwDictionaryList *dictionarylist)
-{
-    //Sanity checks
-    g_return_if_fail (dictionarylist != NULL);
-
-    //Declarations
-    GMenuModel *menumodel;
-    GMenu *menu;
-    GList *link;
-    LwDictionary *dictionary;
-
-    //Initializations
-    menumodel = lgw_dictionarylist_get_menumodel (dictionarylist);
-    menu = G_MENU (menumodel);
-    link = lw_dictionarylist_get_list (LW_DICTIONARYLIST (dictionarylist));
-
-    while (g_menu_model_get_n_items (menumodel) > 0)
-    {
-      g_menu_remove (menu, 0);
-    }
-
-    while (link != NULL)
-    {
-      dictionary = LW_DICTIONARY (link->data);
-
-      lgw_dictionarylist_menumodel_append (dictionarylist, dictionary);
-
-      link = link->next;
-    }
-}
-
-
-static void
-lgw_dictionarylist_liststore_append (LgwDictionaryList *dictionarylist, LwDictionary *dictionary)
-{
-    //Sanity checks
-    g_return_if_fail (dictionarylist != NULL);
-    g_return_if_fail (dictionary != NULL);
-
-    //Declarations
-    GtkListStore *liststore;
-    GtkTreeModel *treemodel;
-    GtkTreeIter iter;
-    gchar shortcutname[10];
-    gchar ordernumber[10];
-    const gchar *iconname;
-    const static gchar *favoriteicon = "emblem-favorite";
-    const gchar *shortname;
-    gchar *longname;
-    gchar *directoryname;
-    gint index;
-    gboolean selected;
-
-    //Initializations
-    liststore = lgw_dictionarylist_get_liststore (dictionarylist);
-    treemodel = GTK_TREE_MODEL (liststore);
-    index = gtk_tree_model_iter_n_children (treemodel, NULL) + 1;
-    shortname = lw_dictionary_get_name (dictionary);
-    iconname = NULL;
-    *shortcutname = '\0';
-    *ordernumber = '\0';
-    longname = NULL;
-    directoryname = NULL;
-
-    longname = g_strdup_printf (gettext("%s Dictionary"), shortname);
-    if (longname == NULL) goto errored;
-    directoryname = lw_dictionary_get_directoryname (G_OBJECT_TYPE (dictionary));
-    if (directoryname == NULL) goto errored;
-    if (index == 1) iconname = favoriteicon;
-    if (index < 10) sprintf (shortcutname, "Alt-%d", index);
-    if (index < 1000) sprintf (ordernumber, "%d", index);
-    selected = lw_dictionary_is_selected (dictionary);
-
-    gtk_list_store_append (liststore, &iter);
-    gtk_list_store_set (liststore, &iter,
-        LGW_DICTIONARYLIST_COLUMN_IMAGE,        iconname,
-        LGW_DICTIONARYLIST_COLUMN_POSITION,     ordernumber,
-        LGW_DICTIONARYLIST_COLUMN_NAME,         shortname,
-        LGW_DICTIONARYLIST_COLUMN_LONG_NAME,    longname,
-        LGW_DICTIONARYLIST_COLUMN_ENGINE,       directoryname,
-        LGW_DICTIONARYLIST_COLUMN_SHORTCUT,     shortcutname,
-        LGW_DICTIONARYLIST_COLUMN_SELECTED,     selected,
-        LGW_DICTIONARYLIST_COLUMN_DICT_POINTER, dictionary,
-        -1
+    klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
+        "row-changed",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwDictionaryListClass, row_changed),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
     );
 
-errored:
-    if (longname != NULL) g_free (longname); longname = NULL;
-    if (directoryname != NULL) g_free (directoryname); directoryname = NULL;
-}
+    klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
+        "row-inserted",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwDictionaryListClass, row_inserted),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
+    );
 
+    klasspriv->signalid[CLASS_SIGNALID_ROW_HAS_CHILD_TOGGLED] = g_signal_new (
+        "row-has-child-toggled",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwDictionaryListClass, row_has_child_toggled),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
+    );
 
-void 
-lgw_dictionarylist_sync_treestore (LgwDictionaryList *dictionarylist)
-{
-    //Sanity checks
-    g_return_if_fail (dictionarylist != NULL);
+    klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
+        "row-deleted",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwDictionaryListClass, row_deleted),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
+    );
 
-    //Declarations
-    GtkListStore *liststore;
-    LwDictionary *dictionary;
-    GList *link;
-
-    liststore = lgw_dictionarylist_get_liststore (dictionarylist);
-    link = lw_dictionarylist_get_list (LW_DICTIONARYLIST (dictionarylist));
-
-    gtk_list_store_clear (liststore);
-
-    while (link != NULL)
-    {
-      dictionary = LW_DICTIONARY (link->data);
-      
-      lgw_dictionarylist_liststore_append (dictionarylist, dictionary);
-
-      link = link->next;
-    }
-}
-
-
-static gint
-lgw_dictionarylist_save_order_compare_func (gconstpointer a, gconstpointer b, gpointer data)
-{
-    //Declarations
-    GHashTable *hashtable;
-    gint a_index;
-    gint b_index;
-
-    //Initializations
-    hashtable = data;
-    a_index = GPOINTER_TO_INT (g_hash_table_lookup (hashtable, a));
-    b_index = GPOINTER_TO_INT (g_hash_table_lookup (hashtable, b));
-    
-    if (a_index < b_index) return -1;
-    else if (a_index > b_index) return 1;
-    else return 0;
-}
-
-
-void
-lgw_dictionarylist_save_order (LgwDictionaryList *dictionarylist, LwPreferences *preferences)
-{
-    //Declarations
-    GtkListStore *liststore;
-    GtkTreeModel *treemodel;
-    GtkTreeIter treeiter;
-    LwDictionary *dictionary;
-    gboolean valid;
-    GHashTable *hashtable;
-    gint index;
-
-    //Initializations
-    liststore = lgw_dictionarylist_get_liststore (dictionarylist);
-    treemodel = GTK_TREE_MODEL (liststore);
-    hashtable = g_hash_table_new (g_direct_hash, g_direct_equal);
-    index = 0;
-
-    //Fill the hashtable
-    valid = gtk_tree_model_get_iter_first (treemodel, &treeiter);
-    while (valid)
-    {
-      gtk_tree_model_get (treemodel, &treeiter, LGW_DICTIONARYLIST_COLUMN_DICT_POINTER, &dictionary, -1);
-      g_hash_table_insert (hashtable, dictionary, GINT_TO_POINTER (index));
-      valid = gtk_tree_model_iter_next (treemodel, &treeiter);
-      index++;
-    }
-
-    //Sort the LwDictionaryList and save the order
-    lw_dictionarylist_sort_with_data (LW_DICTIONARYLIST (dictionarylist), lgw_dictionarylist_save_order_compare_func, hashtable);
-    lw_dictionarylist_save_order (LW_DICTIONARYLIST (dictionarylist), preferences);
-
-    g_hash_table_unref (hashtable); hashtable = NULL;
-
-    lw_dictionarylist_load_order (LW_DICTIONARYLIST (dictionarylist), preferences);
-}
-
-
-GMenuModel*
-lgw_dictionarylist_get_menumodel (LgwDictionaryList *dictionarylist)
-{
-    return dictionarylist->priv->data.menumodel;
-}
-
-
-GtkListStore*
-lgw_dictionarylist_get_liststore (LgwDictionaryList *dictionarylist)
-{
-    return dictionarylist->priv->data.liststore;
-}
-
+    klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
+        "rows-reordered",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwDictionaryListClass, rows_reordered),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
+    );

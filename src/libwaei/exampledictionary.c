@@ -111,7 +111,7 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
     object_class->constructed = lw_exampledictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->parse_result = lw_exampledictionary_parse_result;
+    dictionary_class->priv->parse_result = lw_exampledictionary_parse_result;
 }
 
 

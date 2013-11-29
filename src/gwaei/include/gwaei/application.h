@@ -79,8 +79,8 @@ struct _GwSearchWindow* gw_application_get_last_focused_searchwindow (GwApplicat
 
 LwPreferences* gw_application_get_preferences (GwApplication*);
 GtkListStore* gw_application_get_dictionarystore (GwApplication*);
-LgwDictionaryList* gw_application_get_installed_dictionarylist (GwApplication*);
-LgwDictionaryList* gw_application_get_installable_dictionarylist (GwApplication*);
+LwDictionaryList* gw_application_get_installed_dictionarylist (GwApplication*);
+LwDictionaryList* gw_application_get_installable_dictionarylist (GwApplication*);
 GtkTextTagTable* gw_application_get_tagtable (GwApplication*);
 GtkListStore* gw_application_get_vocabularyliststore (GwApplication*);
 LwMorphologyEngine* gw_application_get_morphologyengine (GwApplication *application);

@@ -3,15 +3,11 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
-  LW_DICTIONARY_CLASS_SIGNALID_PROGRESS_CHANGED,
-  TOTAL_LW_DICTIONARY_CLASS_SIGNALIDS
-} LwDictionaryClassSignalId;
-
 //Boilerplate
 typedef struct _LwDictionary LwDictionary;
 typedef struct _LwDictionaryClass LwDictionaryClass;
 typedef struct _LwDictionaryPrivate LwDictionaryPrivate;
+typedef struct _LwDictionaryClassPrivate LwDictionaryClassPrivate;
 typedef struct _LwDictionaryInstall LwDictionaryInstall;
 
 G_END_DECLS
@@ -37,14 +33,7 @@ struct _LwDictionary {
 
 struct _LwDictionaryClass {
   GObjectClass parent_class;
-  guint signalid[TOTAL_LW_DICTIONARY_CLASS_SIGNALIDS];
-
-  //Signal ids
-  void (*progress_changed) (LwDictionary* dictionary, gpointer data);
-
-  //Virtual methods
-  gint (*parse_result) (LwDictionary *dictionary, LwResult *result, const gchar* TEXT);
-  gboolean (*installer_postprocess) (LwDictionary *dictionary, gchar** sourcelist, gchar** targetlist, LwProgress*);
+  LwDictionaryClassPrivate *priv;
 };
 
 //Methods

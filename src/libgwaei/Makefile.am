@@ -25,3 +25,5 @@ libgwaei_la_LDFLAGS +=$(MINGW_LIBS)
 libgwaei_la_CPPFLAGS +=$(MINGW_CFLAGS) $(MINGW_DEFS)
 endif
 
+pkgdata_DATA = searchwidget-menumodel-button.ui 
+EXTRA_DIST = searchwidget-menumodel-button.ui

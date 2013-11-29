@@ -3,6 +3,11 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+  CLASS_SIGNALID_PROGRESS_CHANGED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+
 struct _LwDictionaryPrivate {
     gchar *name;
     gchar *filename;
@@ -14,6 +19,17 @@ struct _LwDictionaryPrivate {
     GMutex mutex;
     LwDictionaryInstall *install;
     gboolean selected;
+};
+
+struct _LwDictionaryClassPrivate {
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+
+  //Signal ids
+  void (*progress_changed) (LwDictionary* dictionary, gpointer data);
+
+  //Virtual methods
+  gint (*parse_result) (LwDictionary *dictionary, LwResult *result, const gchar* TEXT);
+  gboolean (*installer_postprocess) (LwDictionary *dictionary, gchar** sourcelist, gchar** targetlist, LwProgress*);
 };
 
 struct _LwDictionaryInstall {

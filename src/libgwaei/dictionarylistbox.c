@@ -307,3 +307,9 @@ lgw_dictionarylistbox_class_init (LgwDictionaryListBoxClass *klass)
 }
 
 
+void
+lw_dictionarylistbox_set_dictionarylist (LgwDictionaryListBox *box,
+                                         LwDictionaryList* dictionarylist)
+{
+}
+

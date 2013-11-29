@@ -646,9 +646,9 @@ lw_dictionary_installer_postprocess (LwDictionary *dictionary,
     if (sourcelist != NULL && targetlist != NULL)
     {
       priv->install->index = 0;
-      if (klass->installer_postprocess != NULL)
+      if (klass->priv->installer_postprocess != NULL)
       {        
-        klass->installer_postprocess (dictionary, sourcelist, targetlist, progress);
+        klass->priv->installer_postprocess (dictionary, sourcelist, targetlist, progress);
         priv->install->index++;
       }
       else

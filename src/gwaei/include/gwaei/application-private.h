@@ -21,8 +21,8 @@ struct _Config {
 };
 
 struct _DictionaryList {
-  LgwDictionaryList *installed;
-  LgwDictionaryList *installable;
+  LwDictionaryList *installed;
+  LwDictionaryList *installable;
 };
 
 struct _Data {

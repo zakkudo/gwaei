@@ -277,9 +277,9 @@ static void
 lw_dictionary_class_init (LwDictionaryClass *klass)
 {
     //Declarations
-    GParamSpec *pspec;
-    GObjectClass *object_class;
-    LwDictionaryClass *dictionary_class;
+    GParamSpec *pspec = NULL;
+    GObjectClass *object_class = NULL;
+    LwDictionaryClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
@@ -287,14 +287,15 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
     object_class->get_property = lw_dictionary_get_property;
     object_class->finalize = lw_dictionary_finalize;
 
-    dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->parse_result = NULL;
+    klass->priv = g_new0 (LwDictionaryClassPrivate, 1);
+    klasspriv = klass->priv;
+    klasspriv->parse_result = NULL;
 
-    dictionary_class->signalid[LW_DICTIONARY_CLASS_SIGNALID_PROGRESS_CHANGED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED] = g_signal_new (
         "progress-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST | G_SIGNAL_DETAILED,
-        G_STRUCT_OFFSET (LwDictionaryClass, progress_changed),
+        G_STRUCT_OFFSET (LwDictionaryClassPrivate, progress_changed),
         NULL, NULL,
         g_cclosure_marshal_VOID__VOID,
         G_TYPE_NONE, 0
@@ -472,14 +473,14 @@ lw_dictionary_parse_result (LwDictionary *dictionary,
     g_return_val_if_fail (TEXT != NULL, FALSE);
 
     //Declarations
-    LwDictionaryClass *klass;
+    LwDictionaryClass *klass = NULL;
 
     //Initializations
     klass = LW_DICTIONARY_CLASS (G_OBJECT_GET_CLASS (dictionary));
-    g_return_val_if_fail (klass->parse_result != NULL, FALSE);
+    g_return_val_if_fail (klass->priv->parse_result != NULL, FALSE);
     result->dictionary = dictionary;
 
-    return klass->parse_result (dictionary, result, TEXT);
+    return klass->priv->parse_result (dictionary, result, TEXT);
 }
 
 

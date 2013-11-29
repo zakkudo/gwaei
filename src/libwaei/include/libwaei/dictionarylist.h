@@ -5,18 +5,12 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
-  LW_DICTIONARYLIST_CLASS_SIGNALID_CHANGED,
-  LW_DICTIONARYLIST_CLASS_SIGNALID_ADDED,
-  LW_DICTIONARYLIST_CLASS_SIGNALID_REMOVED,
-  TOTAL_LW_DICTIONARYLIST_CLASS_SIGNALIDS
-} LwDictionaryListClassSignalId;
-
 
 //Boilerplate
 typedef struct _LwDictionaryList LwDictionaryList;
 typedef struct _LwDictionaryListClass LwDictionaryListClass;
 typedef struct _LwDictionaryListPrivate LwDictionaryListPrivate;
+typedef struct _LwDictionaryListClassPrivate LwDictionaryListClassPrivate;
 
 #define LW_TYPE_DICTIONARYLIST              (lw_dictionarylist_get_type())
 #define LW_DICTIONARYLIST(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARYLIST, LwDictionaryList))
@@ -33,12 +27,7 @@ struct _LwDictionaryList {
 
 struct _LwDictionaryListClass {
   GObjectClass parent_class;
-  guint signalid[TOTAL_LW_DICTIONARYLIST_CLASS_SIGNALIDS];
-
-  //Signal ids
-  void (*changed) (LwDictionaryList* dictionarylist, gpointer data);
-  void (*added) (LwDictionaryList* dictionarylist, gpointer data);
-  void (*removed) (LwDictionaryList* dictionarylist, gpointer data);
+  LwDictionaryListClassPrivate *priv;
 };
 
 

@@ -108,7 +108,7 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
     object_class->constructed = lw_unknowndictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->parse_result = lw_unknowndictionary_parse_result;
+    dictionary_class->priv->parse_result = lw_unknowndictionary_parse_result;
 }
 
 

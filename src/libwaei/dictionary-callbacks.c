@@ -58,16 +58,14 @@ lw_dictionary_sync_downloadlist_cb (GSettings *settings,
     LwDictionary *dictionary;
     LwDictionaryPrivate *priv;
     LwDictionaryInstall *install;
-    gchar downloads[200];
 
     //Initialiations
     dictionary = LW_DICTIONARY (data);
     priv = dictionary->priv;
     install = priv->install;
-    lw_preferences_get_string (downloads, settings, key, 200);
 
     if (install->downloads != NULL) g_free (install->downloads); install->downloads = NULL;
-    install->downloads = g_strdup (downloads);
+    install->downloads = lw_preferences_get_string (settings, key);
 }
 
 
@@ -84,7 +82,7 @@ lw_dictionary_sync_progress_cb (LwDictionary *dictionary,
     if (lw_progress_changed (progress))
     {
       priv->progress = lw_progress_get_fraction (progress);
-      g_signal_emit (G_OBJECT (dictionary), klass->signalid[LW_DICTIONARY_CLASS_SIGNALID_PROGRESS_CHANGED], 0);    
+      g_signal_emit (G_OBJECT (dictionary), klass->priv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 0);    
     }
 }
 

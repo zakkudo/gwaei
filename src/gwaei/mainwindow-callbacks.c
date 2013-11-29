@@ -114,7 +114,7 @@ gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
     //Declarations
     GwMainWindowPrivate *priv = NULL;
     GtkApplication *application = NULL;
-    LgwDictionaryList *dictionarylist = NULL;
+    LwDictionaryList *dictionarylist = NULL;
 
     priv = main_window->priv;
     if (priv == NULL) goto errored;
@@ -140,7 +140,7 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     //Declarations
     GwMainWindowPrivate *priv = NULL;
     GtkApplication *application = NULL;
-    LgwDictionaryList *dictionarylist = NULL;
+    LwDictionaryList *dictionarylist = NULL;
     GObject *widget = NULL;
 
     priv = main_window->priv;

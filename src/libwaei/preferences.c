@@ -208,7 +208,7 @@ lw_preferences_class_init (LwPreferencesClass *klass)
  
 
 gboolean 
-lw_preferences_schema_is_installed (const char *SCHEMA)
+lw_preferences_schema_is_installed (const gchar *SCHEMA)
 {
     //Sanity checks
     g_return_val_if_fail (SCHEMA != NULL, FALSE);
@@ -243,7 +243,7 @@ lw_preferences_schema_is_installed (const char *SCHEMA)
 //!
 GSettings* 
 lw_preferences_get_settings_object (LwPreferences *preferences,
-                                    const char    *SCHEMA)
+                                    const gchar    *SCHEMA)
 {
     //Sanity checks
     g_return_val_if_fail (preferences != NULL, NULL);
@@ -251,7 +251,7 @@ lw_preferences_get_settings_object (LwPreferences *preferences,
 
     //Declarations
     LwPreferencesPrivate *priv = NULL;
-    char *schema = NULL;
+    gchar *schema = NULL;
     GSettings *settings = NULL;
 
     //Initializations
@@ -305,7 +305,7 @@ lw_preferences_get_settings_object (LwPreferences *preferences,
 //!
 void 
 lw_preferences_reset_value (GSettings* settings,
-                            const char *KEY)
+                            const gchar *KEY)
 {
     //Sanity checks
     g_return_if_fail (settings != NULL);
@@ -323,8 +323,8 @@ lw_preferences_reset_value (GSettings* settings,
 //!
 void 
 lw_preferences_reset_value_by_schema (LwPreferences *preferences,
-                                      const char    *SCHEMA,
-                                      const char    *KEY)
+                                      const gchar    *SCHEMA,
+                                      const gchar    *KEY)
 {
     //Sanity checks
     g_return_if_fail (preferences != NULL);
@@ -353,7 +353,7 @@ errored:
 //!
 int 
 lw_preferences_get_int (GSettings  *settings,
-                        const char *KEY)
+                        const gchar *KEY)
 {
     //Sanity checks
     g_return_val_if_fail (settings != NULL, -1);
@@ -371,8 +371,8 @@ lw_preferences_get_int (GSettings  *settings,
 //!
 int 
 lw_preferences_get_int_by_schema (LwPreferences *preferences, 
-                                  const char    *SCHEMA,
-                                  const char    *KEY)
+                                  const gchar    *SCHEMA,
+                                  const gchar    *KEY)
 {
     //Sanity checks
     g_return_val_if_fail (preferences != NULL, 0);
@@ -402,7 +402,7 @@ errored:
 //!
 void 
 lw_preferences_set_int (GSettings  *settings,
-                        const char *KEY,
+                        const gchar *KEY,
                         const int   REQUEST)
 {
     //Sanity checks
@@ -422,8 +422,8 @@ lw_preferences_set_int (GSettings  *settings,
 //!
 void 
 lw_preferences_set_int_by_schema (LwPreferences *preferences,
-                                  const char    *SCHEMA,
-                                  const char    *KEY,
+                                  const gchar    *SCHEMA,
+                                  const gchar    *KEY,
                                   const int      REQUEST)
 {
     //Sanity checks
@@ -452,7 +452,7 @@ errored:
 //!
 gboolean 
 lw_preferences_get_boolean (GSettings  *settings,
-                            const char *KEY)
+                            const gchar *KEY)
 {
     //Sanity checks
     g_return_val_if_fail (settings != NULL, FALSE);
@@ -470,8 +470,8 @@ lw_preferences_get_boolean (GSettings  *settings,
 //!
 gboolean 
 lw_preferences_get_boolean_by_schema (LwPreferences *preferences,
-                                      const char    *SCHEMA,
-                                      const char    *KEY)
+                                      const gchar    *SCHEMA,
+                                      const gchar    *KEY)
 {
     //Sanity checks
     g_return_val_if_fail (preferences != NULL, FALSE);
@@ -501,7 +501,7 @@ errored:
 //!
 void 
 lw_preferences_set_boolean (GSettings     *settings,
-                            const char    *KEY,
+                            const gchar    *KEY,
                             const gboolean REQUEST)
 {
     //Sanity checks
@@ -521,8 +521,8 @@ lw_preferences_set_boolean (GSettings     *settings,
 //!
 void 
 lw_preferences_set_boolean_by_schema (LwPreferences *preferences,
-                                      const char    *SCHEMA,
-                                      const char    *KEY,
+                                      const gchar    *SCHEMA,
+                                      const gchar    *KEY,
                                       const gboolean REQUEST)
 {
     //Sanity checks
@@ -551,30 +551,21 @@ errored:
 //! @param key The key to use to look up the pref
 //! @param n The max characters to copy to output
 //!
-void 
-lw_preferences_get_string (char       *output,
-                           GSettings  *settings,
-                           const char *KEY,
-                           const int   N)
+gchar*
+lw_preferences_get_string (GSettings  *settings,
+                           const gchar *KEY)
 {
     //Sanity checks
-    g_return_if_fail (output != NULL);
-    g_return_if_fail (settings != NULL);
-    g_return_if_fail (KEY != NULL);
-    g_return_if_fail (N > 0);
+    g_return_val_if_fail (settings != NULL, NULL);
+    g_return_val_if_fail (KEY != NULL, NULL);
 
     //Declarations
-    gchar *value = NULL; 
+    gchar *text = NULL;
 
     //Initializations
-    value = g_settings_get_string (settings, KEY);
-    if (value == NULL) goto errored;
-    strncpy(output, value, N);
-    output[N - 1] = '\0';
+    text = g_settings_get_string (settings, KEY);
 
-errored:
-
-    g_free (value); value = NULL;
+    return text;
 }
 
 
@@ -586,31 +577,29 @@ errored:
 //! @param key The key to use to look up the pref
 //! @param n The max characters to copy to output
 //!
-void 
+gchar*
 lw_preferences_get_string_by_schema (LwPreferences *preferences,
-                                     char          *output,
-                                     const char    *SCHEMA,
-                                     const char    *KEY,
-                                     const int      N)
+                                     const gchar    *SCHEMA,
+                                     const gchar    *KEY)
 {
     //Sanity checks
     g_return_if_fail (preferences != NULL);
-    g_return_if_fail (output != NULL);
     g_return_if_fail (SCHEMA != NULL);
     g_return_if_fail (KEY != NULL);
 
     //Declarations
-    GSettings* settings = NULL;;
+    GSettings* settings = NULL;
+    gchar *text = NULL;
     
     //Initializations
     settings = lw_preferences_get_settings_object (preferences, SCHEMA);
     if (settings == NULL) goto errored;
 
-    lw_preferences_get_string (output, settings, KEY, N);
+    text = lw_preferences_get_string (settings, KEY);
 
 errored:
 
-    return;
+    return text;
 }
 
 
@@ -622,8 +611,8 @@ errored:
 //!
 void 
 lw_preferences_set_string (GSettings  *settings,
-                           const char *KEY,
-                           const char *REQUEST)
+                           const gchar *KEY,
+                           const gchar *REQUEST)
 {
     //Sanity checks
     g_return_if_fail (settings != NULL);
@@ -643,9 +632,9 @@ lw_preferences_set_string (GSettings  *settings,
 //!
 void 
 lw_preferences_set_string_by_schema (LwPreferences *preferences,
-                                     const char    *SCHEMA,
-                                     const char    *KEY,
-                                     const char    *REQUEST)
+                                     const gchar    *SCHEMA,
+                                     const gchar    *KEY,
+                                     const gchar    *REQUEST)
 {
     //Declarations
     GSettings *settings = NULL;
@@ -672,7 +661,7 @@ errored:
 //!
 gulong 
 lw_preferences_add_change_listener (GSettings  *settings,
-                                    const char *KEY,
+                                    const gchar *KEY,
                                     void (*callback_function) (GSettings*, gchar*, gpointer),
                                     gpointer    data)
 {
@@ -681,7 +670,7 @@ lw_preferences_add_change_listener (GSettings  *settings,
     g_return_val_if_fail (KEY != NULL, 0);
 
     //Declarations
-    char *signal_name = NULL;
+    gchar *signal_name = NULL;
     gulong id = 0;
     GVariant *value = NULL;
 
@@ -716,8 +705,8 @@ errored:
 //!
 gulong 
 lw_preferences_add_change_listener_by_schema (LwPreferences *preferences,
-                                              const char    *SCHEMA,
-                                              const char    *KEY,
+                                              const gchar    *SCHEMA,
+                                              const gchar    *KEY,
                                               void (*callback_function) (GSettings*, gchar*, gpointer),
                                               gpointer       data)
 {
@@ -768,7 +757,7 @@ lw_preferences_remove_change_listener (GSettings *settings,
 //!
 void 
 lw_preferences_remove_change_listener_by_schema (LwPreferences *preferences,
-                                                 const char    *SCHEMA,
+                                                 const gchar    *SCHEMA,
                                                  gulong         id)
 {
     //Sanity checks
