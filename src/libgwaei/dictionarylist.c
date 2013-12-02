@@ -31,18 +31,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <glib.h>
-#include <glib/gstdio.h>
+#include <glib-object.h>
+#include <gdk/gdk.h>
+#include <gdk/gdkkeysyms.h>
+#include <gtk/gtk.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
+#include <libgwaei/gettext.h>
+#include <libgwaei/libgwaei.h>
 
-#include <libwaei/dictionarylist-private.h>
+#include <libgwaei/dictionarylist-private.h>
 
-
-G_DEFINE_TYPE (LgwDictionaryList, lgw_dictionarylist, G_TYPE_OBJECT)
-
+static void lgw_dictionarylist_init_interface (GtkTreeModelIface *iface);
 static gint lgw_dictionarylist_sort_compare_function (gconstpointer, gconstpointer, gpointer);
+
+G_DEFINE_TYPE_WITH_CODE (LgwDictionaryList, lgw_dictionarylist, LW_TYPE_DICTIONARYLIST,
+                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_dictionarylist_init_interface));
+
 
 //!
 //! @brief Creates a new LgwDictionaryList object
@@ -52,10 +56,12 @@ static gint lgw_dictionarylist_sort_compare_function (gconstpointer, gconstpoint
 LgwDictionaryList* 
 lgw_dictionarylist_new ()
 {
-    LgwDictionaryList *dictionary;
+    //Declarations
+    LgwDictionaryList *dictionary = NULL;
 
     //Initializations
     dictionary = LGW_DICTIONARYLIST (g_object_new (LGW_TYPE_DICTIONARYLIST, NULL));
+
     return dictionary;
 }
 
@@ -65,7 +71,25 @@ lgw_dictionarylist_init (LgwDictionaryList *dictionarylist)
 {
     dictionarylist->priv = LGW_DICTIONARYLIST_GET_PRIVATE (dictionarylist);
     memset(dictionarylist->priv, 0, sizeof(LgwDictionaryListPrivate));
-    g_mutex_init (&dictionarylist->priv->mutex);
+}
+
+
+static void
+lgw_dictionarylist_init_interface (GtkTreeModelIface *iface)
+{
+    iface->get_flags = lgw_dictionarylist_get_flags;
+    iface->get_n_columns = lgw_dictionarylist_get_n_columns;
+    iface->get_column_type = lgw_dictionarylist_get_column_type;
+    iface->get_iter = lgw_dictionarylist_get_iter;
+    iface->get_path = lgw_dictionarylist_get_path;
+    iface->get_value = lgw_dictionarylist_get_value;
+    iface->iter_next = lgw_dictionarylist_iter_next;
+    iface->iter_previous = lgw_dictionarylist_iter_previous;
+    iface->iter_children = lgw_dictionarylist_iter_children;
+    iface->iter_has_child = lgw_dictionarylist_iter_has_child;
+    iface->iter_n_children = lgw_dictionarylist_iter_n_children;
+    iface->iter_nth_child = lgw_dictionarylist_iter_nth_child;
+    iface->iter_parent = lgw_dictionarylist_iter_parent;
 }
 
 
@@ -73,15 +97,14 @@ static void
 lgw_dictionarylist_finalize (GObject *object)
 {
     //Declarations
-    LgwDictionaryList *dictionarylist;
-    LgwDictionaryListPrivate *priv;
+    LgwDictionaryList *dictionarylist = NULL;
+    LgwDictionaryListPrivate *priv = NULL;
 
     //Initalizations
     dictionarylist = LGW_DICTIONARYLIST (object);
     priv = dictionarylist->priv;
 
-    lgw_dictionarylist_clear (dictionarylist);
-    g_mutex_clear (&priv->mutex);
+    lw_dictionarylist_clear (LW_DICTIONARYLIST (dictionarylist));
 
     G_OBJECT_CLASS (lgw_dictionarylist_parent_class)->finalize (object);
 }
@@ -91,8 +114,8 @@ static void
 lgw_dictionarylist_class_init (LgwDictionaryListClass *klass)
 {
     //Declarations
-    GObjectClass *object_class;
-    LgwDictionaryListClassPrivate *klasspriv;
+    GObjectClass *object_class = NULL;
+    LgwDictionaryListClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
@@ -100,105 +123,6 @@ lgw_dictionarylist_class_init (LgwDictionaryListClass *klass)
     klasspriv = klass->priv;
     object_class->finalize = lgw_dictionarylist_finalize;
 
-    klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
-        "row-changed",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwDictionaryListClass, row_changed),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
-        "row-inserted",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwDictionaryListClass, row_inserted),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROW_HAS_CHILD_TOGGLED] = g_signal_new (
-        "row-has-child-toggled",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwDictionaryListClass, row_has_child_toggled),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
-        "row-deleted",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwDictionaryListClass, row_deleted),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
-        "rows-reordered",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwDictionaryListClass, rows_reordered),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-
     g_type_class_add_private (object_class, sizeof (LgwDictionaryListPrivate));
 }
 
-    klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
-        "row-changed",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwDictionaryListClass, row_changed),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
-        "row-inserted",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwDictionaryListClass, row_inserted),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROW_HAS_CHILD_TOGGLED] = g_signal_new (
-        "row-has-child-toggled",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwDictionaryListClass, row_has_child_toggled),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
-        "row-deleted",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwDictionaryListClass, row_deleted),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
-        "rows-reordered",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwDictionaryListClass, rows_reordered),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );

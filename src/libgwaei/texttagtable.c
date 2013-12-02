@@ -365,7 +365,7 @@ static void
 lgw_texttagtable_sync_tag_cb (GSettings *settings, gchar *key, gpointer data)
 {
     //Declarations
-    gchar hex[20];
+    gchar *text = NULL;
     GdkRGBA color;
     gchar **pair = NULL;
     GtkTextTag *tag = NULL;
@@ -374,10 +374,10 @@ lgw_texttagtable_sync_tag_cb (GSettings *settings, gchar *key, gpointer data)
     tagtable = GTK_TEXT_TAG_TABLE (data);
 
     //Parse the color
-    lw_preferences_get_string (hex, settings, key, 20);
-    if (gdk_rgba_parse (&color, hex) == FALSE)
+    text = lw_preferences_get_string (settings, key);
+    if (gdk_rgba_parse (&color, text) == FALSE)
     {
-      fprintf(stderr, "Failed to set tag to the tag table: %s\n", hex);
+      fprintf(stderr, "Failed to set tag to the tag table: %s\n", text);
       lw_preferences_reset_value (settings, key);
       return;
     }
@@ -387,9 +387,13 @@ lgw_texttagtable_sync_tag_cb (GSettings *settings, gchar *key, gpointer data)
     if (pair != NULL && pair[0] != NULL && pair[1] != NULL)
     {
       tag = gtk_text_tag_table_lookup (tagtable, pair[0]);
-      g_object_set (G_OBJECT (tag), pair[1], hex, NULL);
-      g_strfreev (pair);
+      g_object_set (G_OBJECT (tag), pair[1], text, NULL);
     }
+
+errored:
+
+    if (pair != NULL) g_strfreev (pair);
+    pair = NULL;
 }
 
 

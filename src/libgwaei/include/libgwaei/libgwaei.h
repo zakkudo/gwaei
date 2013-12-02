@@ -7,6 +7,7 @@
 
 #include <libgwaei/stackwidget.h>
 
+#include <libgwaei/dictionarylist.h>
 #include <libgwaei/dictionarylistbox.h>
 
 #include <libgwaei/resultsview.h>

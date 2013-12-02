@@ -29,133 +29,436 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
-#include <glib.h>
-#include <glib/gstdio.h>
+#include <gtk/gtk.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
+#include <libgwaei/gettext.h>
+#include <libgwaei/libgwaei.h>
 
-#include <libwaei/dictionarylist-private.h>
+#include <libgwaei/dictionarylist-private.h>
 
+/*
 gchar* lw_dictionary_get_name
 gchar* lw_dictionary_get_dictionaryname
 gchar* lw_dictionary_build_id
 gboolean lw_dictionary_is_selected
 gchar*  lw_dictionary_get_length
 guint lw_dictiononay_get_position
+*/
 
 
-GtkTreeModelFlags lw_dictionarylist_get_flags (GtkTreeModel *tree_model)
+GtkTreeModelFlags
+lgw_dictionarylist_get_flags (GtkTreeModel *tree_model)
 {
     return GTK_TREE_MODEL_LIST_ONLY;
 }
 
-gint  lw_dictionarylist_get_n_columns (GtkTreeModel *tree_model)
+
+gint
+lgw_dictionarylist_get_n_columns (GtkTreeModel *tree_model)
 {
-    
+    return TOTAL_LGW_DICTIONARYLIST_COLUMNS;
 }
 
-GType lw_dictionarylist_get_column_type (GtkTreeModel *tree_model,
-                                         gint          index_)
+
+GType
+lgw_dictionarylist_get_column_type (GtkTreeModel *tree_model,
+                                   gint          index_)
 {
+    GType type = G_TYPE_INVALID;
+
+    switch (index_)
+    {
+      case LGW_DICTIONARYLIST_COLUMN_ICON_NAME:    //G_TYPE_STRING
+        type = G_TYPE_STRING;
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_POSITION:     //G_TYPE_STRING
+        type = G_TYPE_INT;
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_NAME:         //G_TYPE_STRING
+        type = G_TYPE_STRING;
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_LONG_NAME:    //G_TYPE_STRING
+        type = G_TYPE_STRING;
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_ENGINE:       //G_TYPE_STRING
+        type = G_TYPE_STRING;
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_SHORTCUT:     //G_TYPE_STRING
+        type = G_TYPE_STRING;
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_SELECTED:     //G_TYPE_BOOLEAN
+        type = G_TYPE_BOOLEAN;
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_DICTIONARY:   //G_TYPE_OBJECT
+        type = G_TYPE_OBJECT;
+        break;
+    }
+
+    return type;
 }
 
-gboolean lw_dictionarylist_get_iter (GtkTreeModel *tree_model,
-                                     GtkTreeIter  *iter,
-                                     GtkTreePath  *path)
+
+gboolean
+lgw_dictionarylist_get_iter (GtkTreeModel *tree_model,
+                             GtkTreeIter  *iter,
+                             GtkTreePath  *path)
 {
-    text = gtk_tree_path_to_string (path);
+    //Declarations
+    LwDictionaryList *dictionary_list = NULL;
+    gboolean is_valid = FALSE;
+    gint depth = 0;
+    gint index = 0;
+    gint* indicies = NULL;
+    gint total = 0;
+
+    if (tree_model == NULL) goto errored;
+    if (path == NULL) goto errored;
+    if (iter == NULL) goto errored;
+
+    //Initializations
+    dictionary_list = LW_DICTIONARYLIST (tree_model);
+    indicies = gtk_tree_path_get_indices_with_depth (path, &depth);
+    if (indicies != NULL)
+    {
+      index = indicies[0];
+    }
+    total = lw_dictionarylist_get_total (LW_DICTIONARYLIST (tree_model));
+    is_valid = (depth == 1 && index >= 0 && index < total);
+
+    if (iter != NULL && is_valid)
+    {
+      lgw_dictionarylist_initialize_tree_iter (LGW_DICTIONARYLIST (dictionary_list), iter, index);
+    }
+
+errored:
+
+    if (!lgw_dictionarylist_tree_iter_is_valid (LGW_DICTIONARYLIST (dictionary_list), iter))
+    {
+      lgw_dictionarylist_invalidate_tree_iter (iter);
+    }
+
+    return is_valid;
 }
 
-GtkTreePath * lw_dictionarylist_get_path (GtkTreeModel *tree_model,
-                                          GtkTreeIter  *iter)
+
+GtkTreePath*
+lgw_dictionarylist_get_path (GtkTreeModel *tree_model,
+                             GtkTreeIter  *iter)
 {
-    return gtk_tree_path_new_from_string (path);
+    //Sanity checks
+    g_return_val_if_fail (tree_model != NULL, NULL);
+    g_return_val_if_fail (iter != NULL, NULL);
+
+    //Declarations
+    GtkTreePath *path = NULL;
+    LgwDictionaryList *dictionary_list = NULL;
+
+    //Initializations
+    dictionary_list = LGW_DICTIONARYLIST (tree_model);
+
+    if (lgw_dictionarylist_tree_iter_is_valid (dictionary_list, iter))
+    {
+      path = gtk_tree_path_new_from_indices (GPOINTER_TO_INT (iter->user_data2), -1);
+    }
+
+    return path;
 }
 
-void lw_dictionarylist_get_value (GtkTreeModel *tree_model,
+
+void
+lgw_dictionarylist_get_value (GtkTreeModel *tree_model,
+                              GtkTreeIter  *iter,
+                              gint          column,
+                              GValue       *value)
+{
+    //Sanity checks
+    g_return_if_fail (tree_model != NULL);
+    g_return_if_fail (iter != NULL);
+    g_return_if_fail (value != NULL);
+
+    //Declarations
+    LwDictionaryList *dictionary_list = NULL;
+    GType type = G_TYPE_INVALID;
+    gint index = 0;
+    LwDictionary *dictionary = NULL;
+ 
+    //Initializations
+    dictionary_list = LW_DICTIONARYLIST (tree_model);
+    type = lgw_dictionarylist_get_column_type (tree_model, column);
+    index = GPOINTER_TO_INT (iter->user_data2);
+    dictionary = lw_dictionarylist_get_dictionary_by_position (LW_DICTIONARYLIST (tree_model), index);
+    g_value_unset (value);
+    g_value_init (value, type);
+
+    if (dictionary == NULL) goto errored;
+
+    switch (column)
+    {
+      case LGW_DICTIONARYLIST_COLUMN_ICON_NAME:    //G_TYPE_STRING
+        {
+          const gchar* ICON_NAME = NULL;
+          if (index == 0)
+          {
+            ICON_NAME = "emblem-favorite";
+          }
+          g_value_set_static_string (value, ICON_NAME);
+        }
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_POSITION:     //G_TYPE_STRING
+        {
+          g_value_set_int (value, index);
+        }
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_NAME:         //G_TYPE_STRING
+        {
+          const gchar *NAME = lw_dictionary_get_name(dictionary);
+          g_value_set_string (value, NAME);
+        }
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_LONG_NAME:    //G_TYPE_STRING
+        {
+          const gchar *NAME = lw_dictionary_get_name (dictionary);
+          gchar *long_name = g_strdup_printf(gettext("%s Dictionary"), NAME);
+          g_value_take_string (value, long_name);
+        }
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_ENGINE:       //G_TYPE_STRING
+        {
+          gchar *id = lw_dictionary_build_id (dictionary);
+          g_value_take_string (value, id);
+        }
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_SHORTCUT:     //G_TYPE_STRING
+        {
+          gchar *shortcut = g_strdup_printf ("Ctrl-%d", index);
+          g_value_take_string (value, shortcut);
+        }
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_SELECTED:     //G_TYPE_BOOLEAN
+        {
+          gboolean selected = lw_dictionary_is_selected (dictionary);
+          g_value_set_boolean (value, selected);
+        }
+        break;
+      case LGW_DICTIONARYLIST_COLUMN_DICTIONARY:   //G_TYPE_OBJECT
+        {
+          g_value_set_object (value, dictionary);
+        }
+        break;
+    }
+
+errored:
+
+    if (!lgw_dictionarylist_tree_iter_is_valid (LGW_DICTIONARYLIST (dictionary_list), iter))
+    {
+      lgw_dictionarylist_invalidate_tree_iter (iter);
+    }
+
+    return;
+}
+
+
+gboolean
+lgw_dictionarylist_iter_next (GtkTreeModel *tree_model,
+                              GtkTreeIter  *iter)
+{
+    //Sanity checks
+    g_return_val_if_fail (iter != NULL, FALSE);
+
+    //Declarations
+    LwDictionaryList *dictionary_list = NULL;
+    gint total = 0;
+    gboolean has_next = FALSE;
+    gint index = 0;
+
+    if (tree_model == NULL) goto errored;
+
+    //Initializations
+    dictionary_list = LW_DICTIONARYLIST (tree_model);
+    total = lw_dictionarylist_get_total (dictionary_list);
+    index = GPOINTER_TO_INT (iter->user_data2) + 1;
+    has_next = (index < total);
+    iter->user_data2 = GINT_TO_POINTER (index);
+
+errored:
+
+    if (!lgw_dictionarylist_tree_iter_is_valid (LGW_DICTIONARYLIST (dictionary_list), iter))
+    {
+      lgw_dictionarylist_invalidate_tree_iter (iter);
+    }
+
+    return has_next;
+}
+
+
+gboolean
+lgw_dictionarylist_iter_previous (GtkTreeModel *tree_model,
+                                  GtkTreeIter  *iter)
+{
+    //Sanity checks
+    g_return_val_if_fail (iter != NULL, FALSE);
+
+    //Declarations
+    LwDictionaryList *dictionary_list = NULL;
+    gint total = 0;
+    gboolean has_previous = FALSE;
+    gint index = 0;
+
+    if (tree_model == NULL) goto errored;
+
+    //Initializations
+    dictionary_list = LW_DICTIONARYLIST (tree_model);
+    total = lw_dictionarylist_get_total (dictionary_list);
+    index = GPOINTER_TO_INT (iter->user_data2) - 1;
+    has_previous = (total > 0 && index >= 0);
+    iter->user_data2 = GINT_TO_POINTER (index);
+
+errored:
+
+    if (!lgw_dictionarylist_tree_iter_is_valid (LGW_DICTIONARYLIST (dictionary_list), iter))
+    {
+      lgw_dictionarylist_invalidate_tree_iter (iter);
+    }
+
+    return has_previous;
+}
+
+
+gboolean
+lgw_dictionarylist_iter_children (GtkTreeModel *tree_model,
                                   GtkTreeIter  *iter,
-                                  gint          column,
-                                  GValue       *value)
+                                  GtkTreeIter  *parent)
 {
+    //Sanity checks
+    g_return_val_if_fail (iter != NULL, FALSE);
+
+    //Declarations
+    LwDictionaryList *dictionary_list = NULL;
+    gint total = 0;
+    gint index = 0;
+
+    if (tree_model == NULL) goto errored;
+
+    //Initializations
+    dictionary_list = LW_DICTIONARYLIST (tree_model);
+    total = lw_dictionarylist_get_total (dictionary_list);
+    index = GPOINTER_TO_INT (iter->user_data2) - 1;
+    iter->user_data2 = GINT_TO_POINTER (index);
+
+    if (parent == NULL && total > 0)
+    {
+      lgw_dictionarylist_initialize_tree_iter (LGW_DICTIONARYLIST (dictionary_list), iter, 0);
+    }
+
+errored:
+
+    if (!lgw_dictionarylist_tree_iter_is_valid (LGW_DICTIONARYLIST (dictionary_list), iter))
+    {
+      lgw_dictionarylist_invalidate_tree_iter (iter);
+    }
+
+    return (parent == NULL);
 }
 
-gboolean lw_dictionarylist_iter_next (GtkTreeModel *tree_model,
-                                      GtkTreeIter  *iter)
-{
-}
 
-gboolean lw_dictioanrylist_iter_previous (GtkTreeModel *tree_model,
-                                          GtkTreeIter  *iter)
+gboolean
+lgw_dictionarylist_iter_has_child (GtkTreeModel *tree_model,
+                                   GtkTreeIter  *iter)
 {
-}
-
-gboolean lw_dictionarylist_iter_children (GtkTreeModel *tree_model,
-                                          GtkTreeIter  *iter,
-                                          GtkTreeIter  *parent)
-{
-    iter = new invaliditer();
     return FALSE;
 }
 
-gboolean lw_dictionarylist_iter_has_child (GtkTreeModel *tree_model,
-                                           GtkTreeIter  *iter)
+
+gint
+lgw_dictionarylist_iter_n_children (GtkTreeModel *tree_model,
+                                    GtkTreeIter  *iter)
 {
-    gboolean hasChild = FALSE;
+    //Declarations
+    LwDictionaryList *dictionary_list = NULL;
+    gint total = 0;
+
+    //Initializations
+    dictionary_list = LW_DICTIONARYLIST (tree_model);
+    if (dictionary_list == NULL) goto errored;
 
     if (iter == NULL)
     {
-      hasChild = TRUE;
+      total = lw_dictionarylist_get_total (dictionary_list);
     }
 
-    return hasChild;
-}
+errored:
 
-gint lw_dictionarylist_iter_n_children (GtkTreeModel *tree_model,
-                                        GtkTreeIter  *iter)
-{
-    ginit total = 0;
-
-    if (iter == NULL)
+    if (!lgw_dictionarylist_tree_iter_is_valid (LGW_DICTIONARYLIST (dictionary_list), iter))
     {
-      total = lw_dictionarylist_get_total (tree_model);
+      lgw_dictionarylist_invalidate_tree_iter (iter);
     }
     
     return total;
 }
 
-gboolean lw_dictionarylist_iter_nth_child (GtkTreeModel *tree_model,
-                                           GtkTreeIter  *iter,
-                                           GtkTreeIter  *parent,
-                                           gint          n)
+
+gboolean
+lgw_dictionarylist_iter_nth_child (GtkTreeModel *tree_model,
+                                   GtkTreeIter  *iter,
+                                   GtkTreeIter  *parent,
+                                   gint          n)
 {
+    //Sanity checks
+    g_return_val_if_fail (iter != NULL, FALSE);
+
+    //Declarations
+    LwDictionaryList *dictionary_list = NULL;
+    gint total = 0;
+    gboolean exists = FALSE;
+
+    //Initializations
+    dictionary_list = LW_DICTIONARYLIST (tree_model);
+    if (dictionary_list == NULL) goto errored;
+
     if (parent == NULL)
     {
-      lw_dictionarylist_get_dictionary_by_position (tree_model, n);
+      total = lw_dictionarylist_get_total (dictionary_list);
     }
-    else
+    exists = (dictionary_list != NULL && parent == NULL && total > 0 && n >= 0 && n < total);
+
+errored:
+
+    if (exists)
     {
-      set invalid
+      lgw_dictionarylist_initialize_tree_iter (LGW_DICTIONARYLIST (dictionary_list), iter, n);
     }
+
+    if (!lgw_dictionarylist_tree_iter_is_valid (LGW_DICTIONARYLIST (dictionary_list), iter))
+    {
+      lgw_dictionarylist_invalidate_tree_iter (iter);
+      exists = FALSE;
+    }
+    
+    return exists;
 }
 
-gboolean lw_dictionarylist_iter_parent (GtkTreeModel *tree_model,
-                                        GtkTreeIter  *iter,
-                                        GtkTreeIter  *child)
+
+gboolean
+lgw_dictionarylist_iter_parent (GtkTreeModel *tree_model,
+                                GtkTreeIter  *iter,
+                                GtkTreeIter  *child)
 {
-  iter = new invaliditer();
+    return FALSE;
 }
 
-void lw_dictionarylist_ref_node (GtkTreeModel *tree_model,
-                                 GtkTreeIter  *iter)
+
+void
+lgw_dictionarylist_ref_node (GtkTreeModel *tree_model,
+                            GtkTreeIter  *iter)
 {
     //No-op
 }
 
-void lw_dictionarylist_unref_node (GtkTreeModel *tree_model,
-                                   GtkTreeIter  *iter)
+
+void
+lgw_dictionarylist_unref_node (GtkTreeModel *tree_model,
+                              GtkTreeIter  *iter)
 {
     //No-op
 }

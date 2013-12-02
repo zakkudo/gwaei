@@ -3,22 +3,16 @@
 
 G_BEGIN_DECLS
 
-/*
-typedef enum {
-  TOTAL_LGW_DICTIONARYLIST_SIGNALIDS
-} LgwDictionaryListSignalId;
-*/
-
 
 typedef enum { 
-  LGW_DICTIONARYLIST_COLUMN_IMAGE,
-  LGW_DICTIONARYLIST_COLUMN_POSITION,
-  LGW_DICTIONARYLIST_COLUMN_NAME, 
-  LGW_DICTIONARYLIST_COLUMN_LONG_NAME, 
-  LGW_DICTIONARYLIST_COLUMN_ENGINE,
-  LGW_DICTIONARYLIST_COLUMN_SHORTCUT,
-  LGW_DICTIONARYLIST_COLUMN_SELECTED,
-  LGW_DICTIONARYLIST_COLUMN_DICT_POINTER,
+  LGW_DICTIONARYLIST_COLUMN_ICON_NAME,    //G_TYPE_STRING
+  LGW_DICTIONARYLIST_COLUMN_POSITION,     //G_TYPE_STRING
+  LGW_DICTIONARYLIST_COLUMN_NAME,         //G_TYPE_STRING
+  LGW_DICTIONARYLIST_COLUMN_LONG_NAME,    //G_TYPE_STRING
+  LGW_DICTIONARYLIST_COLUMN_ENGINE,       //G_TYPE_STRING
+  LGW_DICTIONARYLIST_COLUMN_SHORTCUT,     //G_TYPE_STRING
+  LGW_DICTIONARYLIST_COLUMN_SELECTED,     //G_TYPE_BOOLEAN
+  LGW_DICTIONARYLIST_COLUMN_DICTIONARY,   //G_TYPE_POINTER
   TOTAL_LGW_DICTIONARYLIST_COLUMNS
 } LgwDictionaryListColumns;
 
@@ -27,6 +21,7 @@ typedef enum {
 typedef struct _LgwDictionaryList LgwDictionaryList;
 typedef struct _LgwDictionaryListClass LgwDictionaryListClass;
 typedef struct _LgwDictionaryListPrivate LgwDictionaryListPrivate;
+typedef struct _LgwDictionaryListClassPrivate LgwDictionaryListClassPrivate;
 
 #define LGW_TYPE_DICTIONARYLIST              (lgw_dictionarylist_get_type())
 #define LGW_DICTIONARYLIST(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LGW_TYPE_DICTIONARYLIST, LgwDictionaryList))
@@ -42,23 +37,15 @@ struct _LgwDictionaryList {
 
 struct _LgwDictionaryListClass {
   LwDictionaryListClass parent_class;
-//  guint signalid[TOTAL_LGW_DICTIONARYLIST_SIGNALIDS];
+  LgwDictionaryListClassPrivate *priv;
 };
 
 //Methods
 LgwDictionaryList* lgw_dictionarylist_new (void);
 GType lgw_dictionarylist_get_type (void) G_GNUC_CONST;
 
-void lgw_dictionarylist_reload (LgwDictionaryList*, LwPreferences*);
-LwDictionaryList* lgw_dictionarylist_get_dictionarylist (LgwDictionaryList*);
-void lgw_dictionarylist_save_order (LgwDictionaryList*, LwPreferences*);
-void lgw_dictionarylist_load_order (LgwDictionaryList*, LwPreferences*);
-void lgw_dictionarylist_update (LgwDictionaryList*);
-void lgw_dictionarylist_normalize (LgwDictionaryList*);
 void lgw_dictionarylist_sync_menumodel (LgwDictionaryList*);
 GMenuModel* lgw_dictionarylist_get_menumodel (LgwDictionaryList*);
-GtkListStore* lgw_dictionarylist_get_liststore (LgwDictionaryList*);
-void lgw_dictionarylist_sync_treestore (LgwDictionaryList*);
 
 G_END_DECLS
 

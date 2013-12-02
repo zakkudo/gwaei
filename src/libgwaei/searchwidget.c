@@ -42,10 +42,6 @@
 #include <libgwaei/searchwidget-private.h>
 
 
-//Static declarations
-static void lgw_searchwidget_attach_signals (LgwSearchWidget*);
-static void lgw_searchwidget_remove_signals (LgwSearchWidget*);
-
 static GMenuModel* lgw_searchwidget_get_button_menu_model (LgwStackWidget *widget);
 static GMenuModel* lgw_searchwidget_get_window_menu_model (LgwStackWidget *widget);
 static void lgw_searchwidget_init_interface (LgwStackWidgetInterface *iface);
