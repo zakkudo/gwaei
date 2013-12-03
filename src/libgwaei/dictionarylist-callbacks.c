@@ -37,14 +37,218 @@
 
 #include <libgwaei/dictionarylist-private.h>
 
-/*
-gchar* lw_dictionary_get_name
-gchar* lw_dictionary_get_dictionaryname
-gchar* lw_dictionary_build_id
-gboolean lw_dictionary_is_selected
-gchar*  lw_dictionary_get_length
-guint lw_dictiononay_get_position
-*/
+
+void
+lgw_dictionarylist_changed_cb (LgwDictionaryList *dictionary_list,
+                               gint               position,
+                               gpointer           data)
+{
+    //Sanity checks
+    g_return_if_fail (dictionary_list != NULL);
+
+    //Declarations
+    LgwDictionaryListPrivate *priv = NULL;
+    GtkTreeIter iter;
+    GtkTreePath *path = NULL;
+
+    //Initializations
+    priv = dictionary_list->priv;
+    path = gtk_tree_path_new_from_indices (position, -1);
+    if (path == NULL) goto errored;
+    lgw_dictionarylist_initialize_tree_iter (dictionary_list, &iter, position);
+    if (!lgw_dictionarylist_tree_iter_is_valid (dictionary_list, &iter)) goto errored;
+
+    g_signal_emit_by_name (G_OBJECT (dictionary_list),
+      "row-changed",
+      path,
+      &iter,
+      NULL
+    );
+
+errored:
+
+    if (path != NULL) gtk_tree_path_free (path); path = NULL;
+}
+
+
+void
+lgw_dictionarylist_inserted_cb (LgwDictionaryList *dictionary_list,
+                                gint               position,
+                                gpointer           data)
+{
+    //Sanity checks
+    g_return_if_fail (dictionary_list != NULL);
+
+    //Declarations
+    LgwDictionaryListPrivate *priv = NULL;
+    GtkTreeIter iter;
+    GtkTreePath *path = NULL;
+
+    //Initializations
+    priv = dictionary_list->priv;
+    path = gtk_tree_path_new_from_indices (position, -1);
+    if (path == NULL) goto errored;
+    lgw_dictionarylist_initialize_tree_iter (dictionary_list, &iter, position);
+    if (!lgw_dictionarylist_tree_iter_is_valid (dictionary_list, &iter)) goto errored;
+
+    g_signal_emit_by_name (G_OBJECT (dictionary_list),
+      "row-inserted",
+      path,
+      &iter,
+      NULL
+    );
+
+errored:
+
+    if (path != NULL) gtk_tree_path_free (path); path = NULL;
+}
+
+void
+lgw_dictionarylist_deleted_cb (LgwDictionaryList *dictionary_list,
+                               gint               position,
+                               gpointer           data)
+{
+    //Sanity checks
+    g_return_if_fail (dictionary_list != NULL);
+
+    //Declarations
+    LgwDictionaryListPrivate *priv = NULL;
+    GtkTreePath *path = NULL;
+
+    //Initializations
+    priv = dictionary_list->priv;
+    path = gtk_tree_path_new_from_indices (position, -1);
+    if (path == NULL) goto errored;
+
+    g_signal_emit_by_name (G_OBJECT (dictionary_list),
+      "row-deleted",
+      path,
+      NULL
+    );
+
+errored:
+
+    if (path != NULL) gtk_tree_path_free (path); path = NULL;
+}
+
+void
+lgw_dictionarylist_reordered_cb (LgwDictionaryList *dictionary_list,
+                                 gint              *new_order,
+                                 gpointer           data)
+{
+    //Sanity checks
+    g_return_if_fail (dictionary_list != NULL);
+
+    //Declarations
+    LgwDictionaryListPrivate *priv = NULL;
+    GtkTreePath *path = NULL;
+
+    //Initializations
+    priv = dictionary_list->priv;
+    path = gtk_tree_path_new_from_indices (-1);
+    if (path == NULL) goto errored;
+
+    g_signal_emit_by_name (G_OBJECT (dictionary_list),
+      "rows-reordered",
+      path,
+      NULL,
+      new_order,
+      NULL
+    );
+
+errored:
+
+    if (path != NULL) gtk_tree_path_free (path); path = NULL;
+}
+
+
+void
+lgw_dictionarylist_connect_signals (LgwDictionaryList *dictionary_list)
+{
+    //Sanity checks
+    g_return_if_fail (dictionary_list != NULL);
+
+    //Declarations
+    LgwDictionaryListPrivate *priv = NULL;
+
+    //Initializations
+    priv = dictionary_list->priv;
+
+    if (priv->data.signalid[SIGNALID_CHANGED] == 0)
+    {
+      priv->data.signalid[SIGNALID_CHANGED] = g_signal_connect (
+        G_OBJECT (dictionary_list),
+        "changed",
+        G_CALLBACK (lgw_dictionarylist_changed_cb),
+        NULL
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_INSERTED] == 0)
+    {
+      priv->data.signalid[SIGNALID_INSERTED] = g_signal_connect (
+        G_OBJECT (dictionary_list),
+        "inserted",
+        G_CALLBACK (lgw_dictionarylist_inserted_cb),
+        NULL
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_DELETED] == 0)
+    {
+      priv->data.signalid[SIGNALID_DELETED] = g_signal_connect (
+        G_OBJECT (dictionary_list),
+        "deleted",
+        G_CALLBACK (lgw_dictionarylist_deleted_cb),
+        NULL
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_REORDERED] == 0)
+    {
+      priv->data.signalid[SIGNALID_REORDERED] = g_signal_connect (
+        G_OBJECT (dictionary_list),
+        "reordered",
+        G_CALLBACK (lgw_dictionarylist_reordered_cb),
+        NULL
+      );
+    }
+}
+
+
+void
+lgw_dictionarylist_disconnect_signals (LgwDictionaryList *dictionary_list)
+{
+    //Sanity checks
+    g_return_if_fail (dictionary_list != NULL);
+
+    //Declarations
+    LgwDictionaryListPrivate *priv = NULL;
+    gint i = 0;
+
+    //Initializations
+    priv = dictionary_list->priv;
+
+    for (i = 0; i < TOTAL_SIGNALIDS; i++)
+    {
+      if (priv->data.signalid[i] != 0)
+      {
+        g_signal_handler_disconnect (G_OBJECT (dictionary_list), priv->data.signalid[i]);
+        priv->data.signalid[i] = 0;
+      }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 GtkTreeModelFlags

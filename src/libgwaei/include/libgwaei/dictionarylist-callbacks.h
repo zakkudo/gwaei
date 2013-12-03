@@ -1,6 +1,11 @@
 #ifndef LGW_DICTIONARYLIST_CALLBACKS_INCLUDED
 #define LGW_DICTIONARYLIST_CALLBACKS_INCLUDED
 
+
+void lgw_dictionarylist_connect_signals (LgwDictionaryList *dictionary_list);
+void lgw_dictionarylist_disconnect_signals (LgwDictionaryList *dictionarylist);
+
+
 GtkTreeModelFlags lgw_dictionarylist_get_flags (GtkTreeModel *tree_model);
 gint lgw_dictionarylist_get_n_columns (GtkTreeModel *tree_model);
 GType lgw_dictionarylist_get_column_type (GtkTreeModel *tree_model, gint index_);

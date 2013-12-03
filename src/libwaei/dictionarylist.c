@@ -99,7 +99,7 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
     klasspriv = klass->priv;
     object_class->finalize = lw_dictionarylist_finalize;
 
-    klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_INSERTED] = g_signal_new (
         "row-inserted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -109,7 +109,7 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
         G_TYPE_NONE, 0
     );
 
-    klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_DELETED] = g_signal_new (
         "row-deleted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -119,7 +119,7 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
         G_TYPE_NONE, 0
     );
 
-    klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_REORDERED] = g_signal_new (
         "rows-reordered",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -158,7 +158,7 @@ lw_dictionarylist_clear (LwDictionaryList *dictionarylist)
         g_object_unref (dictionary); link->data = NULL;
       }
       priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, 0);
+      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, 0);
     }
     priv->list = NULL;
 }
@@ -266,7 +266,7 @@ lw_dictionarylist_remove_by_position (LwDictionaryList *dictionarylist,
     {
       removed_dictionary = link->data;
       priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, position);
+      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
     }
 
     return removed_dictionary;
@@ -300,7 +300,7 @@ lw_dictionarylist_remove (LwDictionaryList *dictionarylist, LwDictionary *dictio
     {
       removed_dictionary = link->data;
       priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, position);
+      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_CHANGED], 0, position);
     }
         
     return removed_dictionary;
@@ -336,7 +336,7 @@ lw_dictionarylist_append (LwDictionaryList *dictionarylist,
 
     {
       gint index = g_list_index (priv->list, dictionary);
-      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, index);
+      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, index);
     }
 }
 
@@ -830,7 +830,7 @@ lw_dictionarylist_load_order (LwDictionaryList *dictionarylist,
     priv->list = g_list_sort_with_data (priv->list, lw_dictionarylist_sort_compare_function, order_map);
     if (priv->list == NULL) goto errored;
 
-    g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED], 0, new_order);
+    g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_REORDERED], 0, new_order);
 
 errored:
 
@@ -872,7 +872,7 @@ lw_dictionarylist_load_installable (LwDictionaryList   *dictionarylist,
         FALSE
       );
       priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, g_list_index (priv->list, dictionary));
+      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 
     {
@@ -887,7 +887,7 @@ lw_dictionarylist_load_installable (LwDictionaryList   *dictionarylist,
         TRUE
       );
       priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, g_list_index (priv->list, dictionary));
+      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 
     {
@@ -902,7 +902,7 @@ lw_dictionarylist_load_installable (LwDictionaryList   *dictionarylist,
         TRUE
       );
       priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, g_list_index (priv->list, dictionary));
+      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 
     {
@@ -918,7 +918,7 @@ lw_dictionarylist_load_installable (LwDictionaryList   *dictionarylist,
         TRUE
       );
       priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, g_list_index (priv->list, dictionary));
+      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 
 /*
@@ -936,7 +936,7 @@ lw_dictionarylist_load_installable (LwDictionaryList   *dictionarylist,
         FALSE
       );
       priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, g_list_index (priv->list, dictionary));
+      g_signal_emit (dictionarylist, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 */
 }

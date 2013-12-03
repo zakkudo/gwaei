@@ -71,6 +71,8 @@ lgw_dictionarylist_init (LgwDictionaryList *dictionarylist)
 {
     dictionarylist->priv = LGW_DICTIONARYLIST_GET_PRIVATE (dictionarylist);
     memset(dictionarylist->priv, 0, sizeof(LgwDictionaryListPrivate));
+
+    lgw_dictionarylist_connect_signals (dictionarylist);
 }
 
 
@@ -111,6 +113,21 @@ lgw_dictionarylist_finalize (GObject *object)
 
 
 static void
+lgw_dictionarylist_dispose (GObject *object)
+{
+    //Declarations
+    LgwDictionaryList *dictionary_list = NULL;
+
+    //Initializations
+    dictionary_list = LGW_DICTIONARYLIST (object);
+
+    lgw_dictionarylist_disconnect_signals (dictionary_list);
+
+    G_OBJECT_CLASS (lgw_dictionarylist_parent_class)->dispose (object);
+}
+
+
+static void
 lgw_dictionarylist_class_init (LgwDictionaryListClass *klass)
 {
     //Declarations
@@ -119,9 +136,11 @@ lgw_dictionarylist_class_init (LgwDictionaryListClass *klass)
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
+    object_class->dispose = lgw_dictionarylist_dispose;
+    object_class->finalize = lgw_dictionarylist_finalize;
+
     klass->priv = g_new0 (LgwDictionaryListClassPrivate, 1);
     klasspriv = klass->priv;
-    object_class->finalize = lgw_dictionarylist_finalize;
 
     g_type_class_add_private (object_class, sizeof (LgwDictionaryListPrivate));
 }
