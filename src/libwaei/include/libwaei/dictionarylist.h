@@ -63,6 +63,8 @@ gboolean lw_dictionarylist_installer_is_valid (LwDictionaryList*);
 GList* lw_dictionarylist_get_list (LwDictionaryList*);
 void lw_dictionarylist_sort_with_data (LwDictionaryList*, GCompareDataFunc, gpointer);
 
+GMenuModel* lw_dictionarylist_get_menumodel (LwDictionaryList *dictionary_list);
+
 G_END_DECLS
 
 
