@@ -133,6 +133,22 @@ gw_mainwindow_constructed (GObject *object)
 
 
 static void
+gw_mainwindow_dispose (GObject *object)
+{
+    //Declarations
+    GwMainWindow *mainwindow = NULL;
+
+    //Initializations
+    mainwindow = GW_MAINWINDOW (object);
+
+    gw_mainwindow_disconnect_signals (mainwindow);
+
+    G_OBJECT_CLASS (gw_mainwindow_parent_class)->dispose (object);
+}
+
+
+
+static void
 gw_mainwindow_class_init (GwMainWindowClass *klass)
 {
     GObjectClass *object_class;
@@ -140,6 +156,7 @@ gw_mainwindow_class_init (GwMainWindowClass *klass)
     object_class = G_OBJECT_CLASS (klass);
 
     object_class->constructed = gw_mainwindow_constructed;
+    object_class->dispose = gw_mainwindow_dispose;
     object_class->finalize = gw_mainwindow_finalize;
 
     g_type_class_add_private (object_class, sizeof (GwMainWindowPrivate));
@@ -244,9 +261,10 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
     {
       GtkWidget *stack = gtk_stack_new ();
       priv->ui.stack = GTK_STACK (stack);
+      gtk_stack_set_homogeneous (priv->ui.stack, TRUE);
       gtk_box_pack_start (priv->ui.box, stack, TRUE, TRUE, 0); 
       gtk_stack_switcher_set_stack (priv->ui.stack_switcher, priv->ui.stack);
-      gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
+      gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_CROSSFADE);
 
       {
         {
@@ -262,6 +280,8 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
       gtk_widget_show (stack);
     }
 
+    gtk_stack_set_visible_child (priv->ui.stack, GTK_WIDGET (priv->ui.search_widget));
+    g_object_notify (G_OBJECT (priv->ui.stack), "visible-child");
     lgw_searchwidget_set_search_mode (priv->ui.search_widget, TRUE);
 }
 

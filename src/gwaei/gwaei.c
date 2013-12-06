@@ -43,10 +43,10 @@
 #include <gwaei/gwaei.h>
 
 
-int main (int argc, char *argv[])
+gint main (gint argc, gchar *argv[])
 {    
-    GApplication *application;
-    int resolution;
+    GApplication *application = NULL;
+    int resolution = 0;
 
     setlocale(LC_ALL, "");
     bindtextdomain(GETTEXT_PACKAGE, GWAEI_LOCALEDIR);

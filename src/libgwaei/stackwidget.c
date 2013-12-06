@@ -47,16 +47,20 @@ lgw_stackwidget_default_init (LgwStackWidgetInterface *class)
 }
 
 
-void
+GMenuModel*
 lgw_stackwidget_get_button_menu_model (LgwStackWidget *self)
 {
-      LGW_STACKWIDGET_GET_INTERFACE (self)->get_button_menu_model (self);
+    g_return_val_if_fail (self != NULL, NULL);
+
+    return LGW_STACKWIDGET_GET_INTERFACE (self)->get_button_menu_model (self);
 }
 
 
-void
+GMenuModel*
 lgw_stackwidget_get_window_menu_model (LgwStackWidget *self)
 {
-      LGW_STACKWIDGET_GET_INTERFACE (self)->get_window_menu_model (self);
+    g_return_val_if_fail (self != NULL, NULL);
+
+    return LGW_STACKWIDGET_GET_INTERFACE (self)->get_window_menu_model (self);
 }
 

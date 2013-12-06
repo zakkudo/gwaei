@@ -70,7 +70,9 @@ gw_application_new ()
     flags = G_APPLICATION_FLAGS_NONE;
     application = g_object_new (GW_TYPE_APPLICATION, 
                                 "application-id", id, 
-                                "flags", flags, NULL);
+                                "flags", flags,
+                                "register-session", TRUE,
+                                NULL);
 
     return G_APPLICATION (application);
 }
@@ -248,10 +250,11 @@ gw_application_parse_args (GwApplication *application, int *argc, char** argv[])
 void 
 gw_application_print_about (GwApplication *application)
 {
-    const gchar *name;
-    name = gw_application_get_program_name (GW_APPLICATION (application));
+    const gchar *NAME = NULL; 
 
-    printf (gettext ("%s version %s"), name, VERSION);
+    NAME = gw_application_get_program_name (GW_APPLICATION (application));
+
+    printf (gettext ("%s version %s"), NAME, VERSION);
 
     printf ("\n\n");
 
@@ -479,7 +482,7 @@ gw_application_startup (GApplication *application)
     G_APPLICATION_CLASS (gw_application_parent_class)->startup (application);
 
     gw_application_load_app_menu (GW_APPLICATION (application));
-    gw_application_load_menubar (GW_APPLICATION (application));
+    //gw_application_load_menubar (GW_APPLICATION (application));
 
     gw_application_attach_signals (GW_APPLICATION (application));
 }
@@ -534,44 +537,50 @@ gw_application_load_app_menu (GwApplication *application)
     //Sanity checks
     g_return_if_fail (application != NULL);
 
+/*
     //Declarations
-    GtkBuilder *builder = NULL;
-    GMenuModel *model = NULL;
-    GtkSettings *settings = NULL;
-    gboolean loaded = NULL;
-    gboolean os_shows_app_menu = NULL;
-    gboolean os_shows_win_menu = NULL;
-    const gchar *FILENAME = NULL;
+    GMenuModel *menu_model = NULL;
 
     //Initializations
-    builder = NULL;
-    model = NULL;
-    loaded = FALSE;
-    settings = gtk_settings_get_default ();
-    g_object_get (settings, "gtk-shell-shows-app-menu", &os_shows_app_menu, NULL);
-    g_object_get (settings, "gtk-shell-shows-menubar", &os_shows_win_menu, NULL);
 
     gw_application_map_actions (G_ACTION_MAP (application), application);
 
-    if (os_shows_app_menu && os_shows_win_menu) //Mac OS X style
-      FILENAME = "application-menumodel-macosx.ui";
-    else if (os_shows_app_menu != os_shows_win_menu) //Gnome 3 style
-      FILENAME = "application-menumodel-gnome.ui";
-    else //Windows style
-      FILENAME = NULL;
+    menu_model = lgw_load_menu_model ("application-menumodel.ui");
+    gtk_application_set_app_menu (GTK_APPLICATION (application), menu_model);
 
-    if (FILENAME == NULL) goto errored;
-
-    builder = gtk_builder_new (); if (builder == NULL) goto errored;
-    loaded = gw_application_load_xml (builder, FILENAME); if (loaded == FALSE) goto errored;
-    model = G_MENU_MODEL (gtk_builder_get_object (builder, "menu")); if (model == NULL) goto errored;
-
-    gtk_application_set_app_menu (GTK_APPLICATION (application), model);
     gw_application_initialize_menumodel_links (application);
+*/
 
-errored:
 
-    if (builder != NULL) g_object_unref (builder);
+  GtkBuilder *builder = gtk_builder_new ();
+  gtk_builder_add_from_string (builder,
+                               "<interface>"
+                               "  <menu id='app-menu'>"
+                               "    <section>"
+                               "      <item>"
+                               "        <attribute name='label' translatable='yes'>_New Window</attribute>"
+                               "        <attribute name='action'>app.new</attribute>"
+                               "        <attribute name='accel'>&lt;Primary&gt;n</attribute>"
+                               "      </item>"
+                               "    </section>"
+                               "    <section>"
+                               "      <item>"
+                               "        <attribute name='label' translatable='yes'>_About Bloatpad</attribute>"
+                               "        <attribute name='action'>app.about</attribute>"
+                               "      </item>"
+                               "    </section>"
+                               "    <section>"
+                               "      <item>"
+                               "        <attribute name='label' translatable='yes'>_Quit</attribute>"
+                               "        <attribute name='action'>app.quit</attribute>"
+                               "        <attribute name='accel'>&lt;Primary&gt;q</attribute>"
+                               "      </item>"
+                               "    </section>"
+                               "  </menu>"
+                               "</interface>", -1, NULL);
+  gtk_application_set_app_menu (GTK_APPLICATION (application), G_MENU_MODEL (gtk_builder_get_object (builder, "app-menu")));
+  g_object_unref (builder);
+
 }
 
 
@@ -588,49 +597,6 @@ gw_application_load_menubar (GwApplication *application)
     menumodel = G_MENU_MODEL (g_menu_new ());
 
     gtk_application_set_menubar (GTK_APPLICATION (application), menumodel);
-}
-
-
-gboolean
-gw_application_load_xml (GtkBuilder *builder, const gchar *FILENAME)
-{
-    //Sanity checks
-    g_return_val_if_fail (builder != NULL, FALSE);
-    g_return_val_if_fail (FILENAME != NULL, FALSE);
-
-    //Declarations
-    gchar *path = NULL;
-    GError *error = NULL;
-
-    //Initializations
-    error = NULL;
-#ifndef G_OS_WIN32
-    path = g_build_filename (DATADIR2, PACKAGE, FILENAME, NULL);
-#else
-    gchar *prefix;
-
-    prefix = g_win32_get_package_installation_directory_of_module (NULL);
-    path = g_build_filename (prefix, "share", PACKAGE, FILENAME, NULL);
-    g_free (prefix);
-#endif
-
-    //Search for the files
-    if (g_file_test (path, G_FILE_TEST_IS_REGULAR))
-    {
-      gtk_builder_add_from_file (builder, path,  &error);
-      if (error)
-      {
-        g_warning ("Problems loading xml from %s. %s\n", path, error->message);
-        g_error_free (error); error = NULL;
-      }
-      else
-      {
-        gtk_builder_connect_signals (builder, NULL);
-        return TRUE;
-      }
-    }
-
-    return FALSE;
 }
 
 
@@ -830,7 +796,6 @@ gw_application_set_win_menubar (GwApplication *application, GMenuModel *menumode
 void
 gw_application_initialize_accelerators (GwApplication *application)
 {
-    /*TODO
     //Sanity checks
     g_return_if_fail (application != NULL);
 
@@ -857,7 +822,6 @@ gw_application_initialize_accelerators (GwApplication *application)
       if (action != NULL) g_free (action); action = NULL;
       if (detail != NULL) g_free (detail); detail = NULL;
     }
-    */
 }
 
 

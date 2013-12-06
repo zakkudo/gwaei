@@ -125,6 +125,7 @@ lgw_searchwidget_constructed (GObject *object)
         {
           GtkWidget *entry = lgw_searchentry_new ();
           priv->ui.search_entry = LGW_SEARCHENTRY (entry);
+          gtk_search_bar_connect_entry (priv->ui.search_bar, lgw_searchentry_get_entry (priv->ui.search_entry));
           gtk_box_pack_start (GTK_BOX (box), entry, FALSE, FALSE, 0);
           gtk_widget_show (entry);
         }

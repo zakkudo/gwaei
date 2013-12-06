@@ -24,7 +24,7 @@ gwaei_LDADD +=$(MINGW_LIBS) mingw/gwaei.res
 gwaei_CPPFLAGS +=$(MINGW_CFLAGS) $(MINGW_DEFS)
 endif
 
-#pkgdata_DATA = mainwindow.ui
-#EXTRA_DIST = mainwindow.ui
+pkgdata_DATA = application-menumodel.ui
+EXTRA_DIST = application-menumodel.ui
 
 

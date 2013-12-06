@@ -27,6 +27,7 @@ struct _LgwSearchEntryClass {
 GtkWidget* lgw_searchentry_new (void);
 GType lgw_searchentry_get_type (void) G_GNUC_CONST;
 
+GtkEntry* lgw_searchentry_get_entry (LgwSearchEntry *search_entry);
 
 G_END_DECLS
 

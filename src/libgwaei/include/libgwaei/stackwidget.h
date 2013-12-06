@@ -19,8 +19,8 @@ struct _LgwStackWidgetInterface {
 
 GType lgw_stackwidget_get_type (void);
 
-void lgw_stackwidget_get_button_menu_model (LgwStackWidget *self);
-void lgw_stackwidget_get_window_menu_model (LgwStackWidget *self);
+GMenuModel* lgw_stackwidget_get_button_menu_model (LgwStackWidget *self);
+GMenuModel* lgw_stackwidget_get_window_menu_model (LgwStackWidget *self);
 
 
 #endif

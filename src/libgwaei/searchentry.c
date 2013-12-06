@@ -184,3 +184,18 @@ lgw_searchentry_set_resultsview (LgwSearchEntry *search_entry,
 }
 
 
+GtkEntry*
+lgw_searchentry_get_entry (LgwSearchEntry *search_entry)
+{
+    //Sanity checks
+    g_return_val_if_fail (search_entry != NULL, NULL);
+
+    //Declarations
+    LgwSearchEntryPrivate *priv = NULL;
+
+    //Initializations
+    priv = search_entry->priv;
+
+    return GTK_ENTRY (priv->ui.search_entry);
+}
+

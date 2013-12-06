@@ -84,6 +84,7 @@ lgw_load_xml (GtkBuilder *builder, const gchar *FILENAME)
     prefix = g_win32_get_package_installation_directory_of_module (NULL);
     path = g_build_filename (prefix, "share", PACKAGE, FILENAME, NULL);
     g_free (prefix);
+    prefix = NULL;
 #endif
 
     //Search for the files
@@ -120,7 +121,6 @@ lgw_load_menu_model (const gchar* FILENAME)
     
     //Initializations
     loaded = FALSE;
-    builder = NULL;
     builder = gtk_builder_new (); 
     if (builder == NULL) goto errored;
     loaded = lgw_load_xml (builder, FILENAME); 

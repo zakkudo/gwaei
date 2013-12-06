@@ -86,23 +86,17 @@ gw_mainwindow_disconnect_signals (GwMainWindow *window) {
     //Initializations
     priv = window->priv;
 
+    if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] != 0)
     {
-      guint signalid = priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED];
-      if (signalid != 0)
-      {
-        g_signal_handler_disconnect (window, signalid);
-      }
+      g_signal_handler_disconnect (window, priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED]);
+      priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = 0;
     }
 
+    if (priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] != 0)
     {
-      guint signalid = priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED];
-      if (signalid != 0)
-      {
-        g_signal_handler_disconnect (priv->ui.stack, signalid);
-      }
+      g_signal_handler_disconnect (priv->ui.stack, priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED]);
+      priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] = 0;
     }
-
-    memset(priv->data.signalid, 0, sizeof(guint) * TOTAL_SIGNALIDS);
 }
 
 
@@ -148,7 +142,13 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     g_object_get (G_OBJECT (priv->ui.stack), "visible-child", &widget, NULL);
 
     if (widget != NULL && LGW_IS_STACKWIDGET (widget)) {
+      GMenuModel *menu_model = lgw_stackwidget_get_button_menu_model (LGW_STACKWIDGET (widget));
+      gtk_menu_button_set_menu_model (priv->ui.menu_button, menu_model);
       printf("visible child changed\n");
+    }
+    else
+    {
+      gtk_menu_button_set_menu_model (priv->ui.menu_button, NULL);
     }
 
 errored:

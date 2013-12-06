@@ -643,6 +643,9 @@ lw_dictionarylist_build_order_map (LwDictionaryList *dictionary_list)
     GHashTable *hashtable = NULL;
 
     //Initializations
+    hashtable = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+    if (hashtable == NULL) goto errored;
+
     preferences = lw_preferences_get_default ();
     if (preferences == NULL) goto errored;
 
@@ -651,9 +654,6 @@ lw_dictionarylist_build_order_map (LwDictionaryList *dictionary_list)
 
     atoms = g_strsplit_set (order, ";", -1);
     if (atoms == NULL) goto errored;
-
-    hashtable = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-    if (hashtable == NULL) goto errored;
 
     //Generate the hashtable
     for (i = 0; atoms[i] != NULL; i++)
