@@ -286,3 +286,29 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
 }
 
 
+GList*
+gw_mainwindow_get_actions (GwMainWindow *window)
+{
+    //Sanity checks
+    g_return_if_fail (window != NULL);
+
+    //Declarations
+    GwMainWindowPrivate *priv = NULL;
+    GtkWidget *widget = NULL;
+    GList *action_group_list = NULL;
+    LgwActionGroup *action_group = NULL;
+
+    //Initializations
+    priv = window->priv;
+    widget = GTK_WIDGET (window);
+
+    {
+      static GActionEntry entries[] = {
+        { "close", gw_mainwindow_close_cb, NULL, NULL, NULL },
+      };
+      action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+    }
+}
+
+
+

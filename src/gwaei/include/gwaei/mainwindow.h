@@ -32,6 +32,8 @@ GtkWindow* gw_mainwindow_new (GtkApplication *application);
 GType gw_mainwindow_get_type (void) G_GNUC_CONST;
 
 
+GList* gw_mainwindow_get_actions (GwMainWindow *window);
+
 G_END_DECLS
 
 #endif

@@ -23,7 +23,7 @@ struct _Config {
 };
 
 struct _Data {
-    LwDictionaryList *dictionary_list;
+    LgwDictionaryList *dictionary_list;
 };
 
 struct _LgwDictionaryListBoxPrivate {

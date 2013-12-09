@@ -887,3 +887,69 @@ gw_application_get_installable_dictionarylist (GwApplication *application)
     return priv->data.dictionarylist.installable;
 }
 
+
+void
+gw_application_add_actions (GwApplication *application,
+                            GList         *action_group_list)
+{
+    //Sanity checks
+    g_return_if_fail (application != NULL);
+    g_return_if_fail (action_group_list != NULL);
+
+    //Declarations
+    GList *link = NULL;
+    LgwActionGroup *action_group = NULL;
+    GActionMap *action_map = NULL;
+
+    //Initializations
+    action_map = G_ACTION_MAP (application);
+
+    for (link = action_group_list; link != NULL; link = link->next)
+    {
+      action_group = LGW_ACTIONGROUP (link->data);
+      if (action_group != NULL)
+      {
+        lgw_actiongroup_add_to_map (action_group, action_map);
+      }
+    }
+}
+
+
+void
+gw_application_clear_win_actions (GwApplication *application)
+{
+    //Sanity checks
+    g_return_if_fail (application != NULL);
+
+    //Declarations
+    gchar **action_names = NULL;
+    GActionGroup *action_group = NULL;
+    GActionMap *action_map = NULL;
+    gchar const * PREFIX = "win.";
+
+    //Initializations
+    action_group = G_ACTION_GROUP (application);
+    if (action_group == NULL) goto errored;
+    action_map = G_ACTION_MAP (application);
+    if (action_map == NULL) goto errored;
+    action_names = g_action_group_list_actions (action_group);
+    if (action_names == NULL) goto errored;
+    
+    {
+      gint i = 0;
+      for (i = 0; action_names[i] != NULL; i++)
+      {
+        if (action_names[i], PREFIX)
+        {
+          g_action_map_remove_action (action_map, action_names[i]);
+        }
+      }
+    }
+
+errored:
+
+    if (action_names != NULL) g_strfreev (action_names);
+    action_names = NULL;
+}
+
+

@@ -310,3 +310,24 @@ lgw_searchwidget_get_window_menu_model (LgwStackWidget *widget)
 }
 
 
+GList*
+lgw_searchwidget_get_actions (LgwStackWidget *widget)
+{
+    //Sanity checks
+    g_return_val_if_fail (widget != NULL, NULL);
+
+    //Declarations
+    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidgetPrivate *priv = NULL;
+    GList *list = NULL;
+    LgwActionGroup* action_group = NULL;
+
+    //Initializations
+    search_widget = LGW_SEARCHWIDGET (widget);
+    priv = search_widget->priv;
+    list = g_list_append (list, lgw_searchentry_get_actions (priv->ui.search_entry));
+    //list = g_list_append(list, lgw_resultsview_get_actions (priv->ui.results_view));
+
+    return list;
+}
+

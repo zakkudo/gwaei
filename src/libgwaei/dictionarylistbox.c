@@ -106,7 +106,7 @@ lgw_dictionarylistbox_set_property (GObject      *object,
     switch (property_id)
     {
       case PROP_DICTIONARYLIST:
-        priv->data.dictionary_list = LW_DICTIONARYLIST (g_value_get_object (value));
+        priv->data.dictionary_list = LGW_DICTIONARYLIST (g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -289,27 +289,29 @@ lgw_dictionarylistbox_class_init (LgwDictionaryListBoxClass *klass)
 
     object_class = G_OBJECT_CLASS (klass);
 
+    object_class->set_property = lgw_dictionarylistbox_set_property;
+    object_class->get_property = lgw_dictionarylistbox_get_property;
     object_class->constructed = lgw_dictionarylistbox_constructed;
     object_class->finalize = lgw_dictionarylistbox_finalize;
 
     g_type_class_add_private (object_class, sizeof (LgwDictionaryListBoxPrivate));
-/* TODO
-    klass->signalid[GW_ADDVOCABULARYWINDOW_CLASS_SIGNALID_WORD_ADDED] = g_signal_new (
-        "word-added",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (GwAddVocabularyWindowClass, word_added),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-*/
+
+    {
+      GParamSpec *pspec = g_param_spec_object (
+        "dictionarylist",
+        "Dictionary list used for the datamodel",
+        "Dictionarylist used for the datamodel",
+        LGW_TYPE_DICTIONARYLIST,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+      );
+      g_object_class_install_property (object_class, PROP_DICTIONARYLIST, pspec);
+    }
 }
 
 
 void
-lw_dictionarylistbox_set_dictionarylist (LgwDictionaryListBox *box,
-                                         LwDictionaryList* dictionarylist)
+lgw_dictionarylistbox_set_dictionarylist (LgwDictionaryListBox *box,
+                                          LwDictionaryList* dictionarylist)
 {
 }
 

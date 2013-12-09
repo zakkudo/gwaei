@@ -45,6 +45,13 @@
 G_DEFINE_TYPE (LgwSearchEntry, lgw_searchentry, GTK_TYPE_BOX)
 
 
+typedef enum
+{
+    PROP_0,
+    PROP_ACTIONS
+} LgwSearchEntryProps;
+
+
 //!
 //! @brief Sets up the variables in main-interface.c and main-callbacks.c for use
 //!
@@ -87,11 +94,51 @@ lgw_searchentry_finalize (GObject *object)
 }
 
 
+static void
+lgw_searchentry_set_property (GObject      *object,
+                              guint         property_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
+{
+    switch (property_id)
+    {
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void
+lgw_searchentry_get_property (GObject      *object,
+                              guint         property_id,
+                              GValue       *value,
+                              GParamSpec   *pspec)
+{
+    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntryPrivate *priv = NULL;
+
+    search_entry = LGW_SEARCHENTRY (object);
+    priv = search_entry->priv;
+
+    switch (property_id)
+    {
+      case PROP_ACTIONS:
+        g_value_set_pointer (value, priv->data.action_group_list);
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+
 static void 
 lgw_searchentry_constructed (GObject *object)
 {
     //Declarations
-    LgwSearchEntry *entry = NULL;
+    LgwSearchEntry *search_entry = NULL;
     LgwSearchEntryPrivate *priv = NULL;
     GtkWidget *widget = NULL;
 
@@ -101,9 +148,9 @@ lgw_searchentry_constructed (GObject *object)
     }
 
     //Initializations
-    entry = LGW_SEARCHENTRY (object);
-    priv = entry->priv;
-    priv->ui.box = GTK_BOX (entry);
+    search_entry = LGW_SEARCHENTRY (object);
+    priv = search_entry->priv;
+    priv->ui.box = GTK_BOX (search_entry);
     widget = GTK_WIDGET (object);
 
     {
@@ -114,7 +161,7 @@ lgw_searchentry_constructed (GObject *object)
         gtk_widget_show (search_entry);
     }
 
-    lgw_searchentry_connect_signals (entry);
+    lgw_searchentry_connect_signals (search_entry);
 }
 
 
@@ -137,16 +184,27 @@ static void
 lgw_searchentry_class_init (LgwSearchEntryClass *klass)
 {
     //Declarations
-    GObjectClass *object_class;
+    GObjectClass *object_class = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
-
+    object_class->set_property = lgw_searchentry_set_property;
+    object_class->get_property = lgw_searchentry_get_property;
     object_class->constructed = lgw_searchentry_constructed;
     object_class->finalize = lgw_searchentry_finalize;
     object_class->dispose = lgw_searchentry_dispose;
 
     g_type_class_add_private (object_class, sizeof (LgwSearchEntryPrivate));
+
+    {
+      GParamSpec *pspec = g_param_spec_pointer (
+        "actions",
+        "actions",
+        "A GList of LgwActionGroup items to be used iwth a GActionMap",
+        G_PARAM_READABLE
+      );
+      g_object_class_install_property (object_class, PROP_ACTIONS, pspec);
+    }
 }
 
 
@@ -198,4 +256,112 @@ lgw_searchentry_get_entry (LgwSearchEntry *search_entry)
 
     return GTK_ENTRY (priv->ui.search_entry);
 }
+
+
+LgwActionGroup*
+lgw_searchentry_get_actions (LgwSearchEntry *search_entry)
+{
+    //Sanity checks
+    g_return_val_if_fail (search_entry != NULL, NULL);
+
+    //Declarations
+    LgwSearchEntryPrivate *priv = NULL;
+    GtkWidget *widget = NULL;
+    gboolean has_focus = FALSE;
+    LgwActionGroup *action_group = NULL;
+
+    //Initializations
+    priv = search_entry->priv;
+    widget = GTK_WIDGET (search_entry);
+    has_focus = gtk_widget_is_focus (GTK_WIDGET (priv->ui.search_entry));
+
+    if (has_focus)
+    {
+      static GActionEntry entries[] = {
+        { "insert-unknown-character", lgw_searchentry_insert_unknown_character_cb, NULL, NULL, NULL },
+        { "insert-word-edge-character", lgw_searchentry_insert_word_edge_cb, NULL, NULL, NULL },
+        { "insert-not-word-edge-character", lgw_searchentry_insert_not_word_edge_cb, NULL, NULL, NULL },
+        { "insert-and-character", lgw_searchentry_insert_and_cb, NULL, NULL, NULL },
+        { "insert-or-character", lgw_searchentry_insert_or_cb, NULL, NULL, NULL },
+        { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
+      };
+      action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+    }
+    else 
+    {
+      static GActionEntry entries[] = {
+        { "insert-unknown-character", lgw_searchentry_insert_unknown_character_cb, NULL, NULL, NULL },
+        { "insert-word-edge-character", lgw_searchentry_insert_word_edge_cb, NULL, NULL, NULL },
+        { "insert-not-word-edge-character", lgw_searchentry_insert_not_word_edge_cb, NULL, NULL, NULL },
+        { "insert-and-character", lgw_searchentry_insert_and_cb, NULL, NULL, NULL },
+        { "insert-or-character", lgw_searchentry_insert_or_cb, NULL, NULL, NULL },
+        { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
+      };
+      action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+    }
+
+    return action_group;
+}
+
+
+void
+lgw_searchentry_insert_text (LgwSearchEntry *search_entry,
+                             const gchar    *TEXT)
+{
+    //Sanity checks
+    g_return_if_fail (search_entry != NULL);
+    if (TEXT == NULL) TEXT = "";
+
+    //Declarations
+    LgwSearchEntryPrivate *priv = NULL;
+    gint start = 0;
+    gint end = 0;
+    gint length = 0;
+    GtkEditable *editable = NULL;
+
+    //Initializations
+    priv = search_entry->priv;
+    editable = GTK_EDITABLE (priv->ui.search_entry);
+    if (editable == NULL) goto errored;
+    length = g_utf8_strlen (TEXT, -1);
+
+    gtk_editable_get_selection_bounds (editable, &start, &end);
+    gtk_editable_delete_text (editable, start, end);
+
+    gtk_editable_insert_text (editable, TEXT, -1, &start);
+    gtk_editable_set_position (editable, start);
+
+errored:
+
+    return;
+}
+
+
+void
+lgw_searchentry_set_text (LgwSearchEntry *search_entry,
+                          const gchar    *TEXT)
+{
+    //Sanity checks
+    g_return_if_fail (search_entry != NULL);
+    if (TEXT == NULL) TEXT = "";
+
+    //Declarations
+    LgwSearchEntryPrivate *priv = NULL;
+    GtkEntry *entry = NULL;
+    GtkEditable *editable = NULL;
+
+    //Initializations
+    priv = search_entry->priv;
+    entry = GTK_ENTRY (priv->ui.search_entry);
+    editable = GTK_EDITABLE (entry);
+
+    gtk_entry_set_text (entry, TEXT);
+    gtk_editable_set_position (editable, -1);
+
+errored:
+
+    return;
+}
+
+
 

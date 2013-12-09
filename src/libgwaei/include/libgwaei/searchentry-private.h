@@ -23,12 +23,17 @@ struct _Data {
     guint signalid[TOTAL_SIGNALIDS];
     LgwDictionaryListBox *dictionary_list_box;
     LgwResultsView *results_view;
+    GList *action_group_list;
 };
 
 struct _LgwSearchEntryPrivate {
     struct _UI ui;
     struct _Config config;
     struct _Data data;
+};
+
+struct _LgwSearchEntryClassPrivate {
+    gint unused;
 };
 
 #define LGW_SEARCHENTRY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_SEARCHENTRY, LgwSearchEntryPrivate));

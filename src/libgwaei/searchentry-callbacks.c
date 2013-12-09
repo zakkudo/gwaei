@@ -111,3 +111,167 @@ lgw_searchentry_changed_cb (GtkEditable *editable,
 {
     printf("BREAK changed\n");
 }
+
+
+//!
+//! @brief Inserts an unknown regex character into the entry
+//! @see lgw_searchentry_insert_word_edge_cb ()
+//! @see lgw_searchentry_insert_not_word_edge_cb ()
+//! @see lgw_searchentry_insert_and_cb ()
+//! @see lgw_searchentry_insert_or_cb ()
+//! @param widget Unused GtkWidget pointer
+//! @param data Unused gpointer
+//!
+void 
+lgw_searchentry_insert_unknown_character_cb (GSimpleAction *action,
+                                             GVariant      *parameter,
+                                             gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
+    //Declarations
+    LgwSearchEntry *search_entry = NULL;
+
+    //Initializations
+    search_entry = LGW_SEARCHENTRY (data);
+
+    lgw_searchentry_insert_text (search_entry, ".");
+}
+
+
+//!
+//! @brief Inserts an a word-boundary regex character into the entry
+//! @see lgw_searchentry_insert_unknown_character_cb ()
+//! @see lgw_searchentry_insert_not_word_edge_cb ()
+//! @see lgw_searchentry_insert_and_cb ()
+//! @see lgw_searchentry_insert_or_cb ()
+//! @param widget Unused GtkWidget pointer
+//! @param data Unused gpointer
+//!
+void 
+lgw_searchentry_insert_word_edge_cb (GSimpleAction *action, 
+                                     GVariant      *parameter,
+                                     gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
+    //Declarations
+    LgwSearchEntry *search_entry = NULL;
+
+    //Initializations
+    search_entry = LGW_SEARCHENTRY (data);
+
+    lgw_searchentry_insert_text (search_entry, "\\b");
+}
+
+
+//!
+//! @brief Inserts an a not-word-boundary regex character into the entry
+//! @see lgw_searchentry_insert_unknown_character_cb ()
+//! @see lgw_searchentry_insert_word_edge_cb ()
+//! @see lgw_searchentry_insert_and_cb ()
+//! @see lgw_searchentry_insert_or_cb ()
+//! @param widget Unused GtkWidget pointer
+//! @param data Unused gpointer
+//!
+void 
+lgw_searchentry_insert_not_word_edge_cb (GSimpleAction *action, 
+                                         GVariant      *parameter, 
+                                         gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
+    //Declarations
+    LgwSearchEntry *search_entry = NULL;
+
+    //Initializations
+    search_entry = LGW_SEARCHENTRY (data);
+
+    lgw_searchentry_insert_text (search_entry, "\\B");
+}
+
+
+//!
+//! @brief Inserts an an and regex character into the entry
+//! @see lgw_searchentry_insert_unknown_character_cb ()
+//! @see lgw_searchentry_insert_word_edge_cb ()
+//! @see lgw_searchentry_insert_not_word_edge_cb ()
+//! @see lgw_searchentry_insert_or_cb ()
+//! @param widget Unused GtkWidget pointer
+//! @param data Unused gpointer
+//!
+void 
+lgw_searchentry_insert_and_cb (GSimpleAction *action,
+                               GVariant      *parameter,
+                               gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
+    //Declarations
+    LgwSearchEntry *search_entry = NULL;
+
+    //Initializations
+    search_entry = LGW_SEARCHENTRY (data);
+
+    lgw_searchentry_insert_text (search_entry, "&");
+}
+
+
+//!
+//! @brief Inserts an an or regex character into the entry
+//! @see lgw_searchentry_insert_unknown_character_cb ()
+//! @see lgw_searchentry_insert_word_edge_cb ()
+//! @see lgw_searchentry_insert_not_word_edge_cb ()
+//! @see lgw_searchentry_insert_and_cb ()
+//! @param widget Unused GtkWidget pointer
+//! @param data Unused gpointer
+//!
+void 
+lgw_searchentry_insert_or_cb (GSimpleAction *action, 
+                              GVariant      *parameter,
+                              gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
+    //Declarations
+    LgwSearchEntry *search_entry = NULL;
+
+    //Initializations
+    search_entry = LGW_SEARCHENTRY (data);
+
+    lgw_searchentry_insert_text (search_entry, "|");
+}
+
+
+//!
+//! @brief Clears the search entry and moves the focus to it
+//! @param widget Unused GtkWidget pointer
+//! @param data Unused gpointer
+//!
+void 
+lgw_searchentry_clear_search_cb (GSimpleAction *action, 
+                                 GVariant      *parameter, 
+                                 gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
+    //Declarations
+    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntryPrivate *priv = NULL;
+    GtkEntry *entry = NULL;
+    
+    //Initializations
+    search_entry = LGW_SEARCHENTRY (data);
+    priv = search_entry->priv;
+    entry = GTK_ENTRY (priv->ui.search_entry);
+
+    gtk_entry_set_text (entry, "");
+    gtk_widget_grab_focus (GTK_WIDGET (entry));
+}
+

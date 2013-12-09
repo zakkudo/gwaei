@@ -29,6 +29,11 @@ GType lgw_searchentry_get_type (void) G_GNUC_CONST;
 
 GtkEntry* lgw_searchentry_get_entry (LgwSearchEntry *search_entry);
 
+void lgw_searchentry_set_text (LgwSearchEntry *search_entry, const gchar *TEXT);
+void lgw_searchentry_insert_text (LgwSearchEntry *search_entry, const gchar *TEXT);
+
+LgwActionGroup* lgw_searchentry_get_actions (LgwSearchEntry *search_entry);
+
 G_END_DECLS
 
 #endif

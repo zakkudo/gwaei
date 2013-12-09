@@ -42,6 +42,11 @@
 #include <gwaei/mainwindow-private.h>
 
 
+gboolean
+gw_mainwindow_focus_cb (GtkWidget        *widget,
+                        GdkEvent *event,
+                        gpointer          data);
+
 void
 gw_mainwindow_connect_signals (GwMainWindow *window) {
     //Sanity checks
@@ -72,6 +77,14 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
           window
       );
     }
+
+
+      /*priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] =*/ g_signal_connect (
+          window,
+          "move-focus",
+          G_CALLBACK (gw_mainwindow_focus_cb),
+          NULL
+      );
 }
 
 
@@ -150,6 +163,39 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     {
       gtk_menu_button_set_menu_model (priv->ui.menu_button, NULL);
     }
+
+errored:
+
+    return;
+}
+
+
+gboolean
+gw_mainwindow_focus_cb (GtkWidget *widget,
+                        GdkEvent  *event,
+                        gpointer   data)
+{
+    printf("focus changed\n");
+    return FALSE;
+}
+
+
+void
+gw_mainwindow_close_cb (GSimpleAction *action,
+                        GVariant      *parameter,
+                        gpointer       data)
+{
+    //Declarations
+    GwMainWindow *window = NULL;
+    GtkWidget *widget = NULL;
+
+    //Initializations
+    window = GW_MAINWINDOW (data);
+    if (window == NULL) goto errored;
+    widget = GTK_WIDGET (data);
+    if (widget == NULL) goto errored;
+
+    gtk_widget_destroy (widget);
 
 errored:
 

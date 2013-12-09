@@ -50,6 +50,7 @@ lgw_stackwidget_default_init (LgwStackWidgetInterface *class)
 GMenuModel*
 lgw_stackwidget_get_button_menu_model (LgwStackWidget *self)
 {
+    //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
 
     return LGW_STACKWIDGET_GET_INTERFACE (self)->get_button_menu_model (self);
@@ -59,8 +60,18 @@ lgw_stackwidget_get_button_menu_model (LgwStackWidget *self)
 GMenuModel*
 lgw_stackwidget_get_window_menu_model (LgwStackWidget *self)
 {
+    //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
 
     return LGW_STACKWIDGET_GET_INTERFACE (self)->get_window_menu_model (self);
+}
+
+
+GList* lgw_stackwidget_get_actions (LgwStackWidget *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+
+    return LGW_STACKWIDGET_GET_INTERFACE (self)->get_actions (self);
 }
 

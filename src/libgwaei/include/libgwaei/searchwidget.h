@@ -3,10 +3,6 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
-  TOTAL_LGW_SEARCHWIDGET_CLASS_SIGNALIDS
-} LgwSearchWidgetClassSignalId;
-
 
 //Boilerplate
 typedef struct _LgwSearchWidget LgwSearchWidget;
@@ -27,7 +23,6 @@ struct _LgwSearchWidget {
 
 struct _LgwSearchWidgetClass {
   GtkBoxClass parent_class;
-  guint signalid[TOTAL_LGW_SEARCHWIDGET_CLASS_SIGNALIDS];
 };
 
 GtkWidget* lgw_searchwidget_new (void);
