@@ -23,7 +23,5 @@ GType lgw_stackwidget_get_type (void);
 GMenuModel* lgw_stackwidget_get_button_menu_model (LgwStackWidget *self);
 GMenuModel* lgw_stackwidget_get_window_menu_model (LgwStackWidget *self);
 
-GList* lgw_stackwidget_get_actions (LgwStackWidget *self);
-
 
 #endif

@@ -45,10 +45,9 @@
 G_DEFINE_TYPE (LgwSearchEntry, lgw_searchentry, GTK_TYPE_BOX)
 
 
-typedef enum
-{
+typedef enum {
     PROP_0,
-    PROP_ACTIONS
+    PROP_UNUSED
 } LgwSearchEntryProps;
 
 
@@ -123,9 +122,6 @@ lgw_searchentry_get_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_ACTIONS:
-        g_value_set_pointer (value, priv->data.action_group_list);
-        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -195,16 +191,6 @@ lgw_searchentry_class_init (LgwSearchEntryClass *klass)
     object_class->dispose = lgw_searchentry_dispose;
 
     g_type_class_add_private (object_class, sizeof (LgwSearchEntryPrivate));
-
-    {
-      GParamSpec *pspec = g_param_spec_pointer (
-        "actions",
-        "actions",
-        "A GList of LgwActionGroup items to be used iwth a GActionMap",
-        G_PARAM_READABLE
-      );
-      g_object_class_install_property (object_class, PROP_ACTIONS, pspec);
-    }
 }
 
 

@@ -4,6 +4,7 @@
 #include <libwaei/libwaei.h>
 
 #include <libgwaei/actiongroup.h>
+#include <libgwaei/actionable.h>
 
 #include <libgwaei/texttagtable.h>
 
