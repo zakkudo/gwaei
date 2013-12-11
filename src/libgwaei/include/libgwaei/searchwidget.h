@@ -35,6 +35,9 @@ void lgw_searchwidget_set_search_mode (LgwSearchWidget *widget, gboolean search_
 
 void lgw_searchwidget_set_dictionarylist (LgwSearchWidget *search_widget, LwDictionaryList *dictionary_list);
 
+GList* lgw_searchwidget_get_actions (LgwActionable *widget);
+void lgw_searchwidget_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
+
 
 G_END_DECLS
 

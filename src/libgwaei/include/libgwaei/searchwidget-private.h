@@ -15,6 +15,8 @@ struct _UI {
 struct _Data {
     GMenuModel *button_menu_model;
     GMenuModel *window_menu_model;
+    LgwActionGroup *action_group;
+    GList *action_group_list;
 };
 
 struct _LgwSearchWidgetPrivate {

@@ -42,13 +42,15 @@
 #include <libgwaei/searchwidget-private.h>
 
 
-static GMenuModel* lgw_searchwidget_get_button_menu_model (LgwStackWidget *widget);
-static GMenuModel* lgw_searchwidget_get_window_menu_model (LgwStackWidget *widget);
-static void lgw_searchwidget_init_interface (LgwStackWidgetInterface *iface);
+static GMenuModel* lgw_searchwidget_get_button_menu_model (LgwMenuable *widget);
+static GMenuModel* lgw_searchwidget_get_window_menu_model (LgwMenuable *widget);
+static void lgw_searchwidget_init_menuable_interface (LgwMenuableInterface *iface);
+static void lgw_searchwidget_init_actionable_interface (LgwActionableInterface *iface);
 
 
 G_DEFINE_TYPE_WITH_CODE (LgwSearchWidget, lgw_searchwidget, GTK_TYPE_BOX,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_STACKWIDGET, lgw_searchwidget_init_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_MENUABLE, lgw_searchwidget_init_menuable_interface)
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_searchwidget_init_actionable_interface));
 
 
 //!
@@ -199,24 +201,19 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
     object_class->finalize = lgw_searchwidget_finalize;
 
     g_type_class_add_private (object_class, sizeof (LgwSearchWidgetPrivate));
-/*
-    klass->signalid[GW_ADDVOCABULARYWINDOW_CLASS_SIGNALID_WORD_ADDED] = g_signal_new (
-        "word-added",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (GwAddVocabularyWindowClass, word_added),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-*/
 }
 
 
 static void
-lgw_searchwidget_init_interface (LgwStackWidgetInterface *iface) {
+lgw_searchwidget_init_menuable_interface (LgwMenuableInterface *iface) {
     iface->get_window_menu_model = lgw_searchwidget_get_window_menu_model;
     iface->get_button_menu_model = lgw_searchwidget_get_button_menu_model;
+}
+
+static void
+lgw_searchwidget_init_actionable_interface (LgwActionableInterface *iface) {
+    iface->get_actions = lgw_searchwidget_get_actions;
+    iface->set_actiongroup = lgw_searchwidget_set_actiongroup;
 }
 
 
@@ -277,13 +274,13 @@ lgw_searchwidget_set_dictionarylist (LgwSearchWidget  *search_widget,
 
 
 static GMenuModel*
-lgw_searchwidget_get_button_menu_model (LgwStackWidget *widget)
+lgw_searchwidget_get_button_menu_model (LgwMenuable *menuable)
 {
     //Sanity checks
-    g_return_if_fail (widget != NULL);
+    g_return_if_fail (menuable != NULL);
 
     //Declarations
-    LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (widget);
+    LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (menuable);
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
@@ -294,13 +291,13 @@ lgw_searchwidget_get_button_menu_model (LgwStackWidget *widget)
 
 
 static GMenuModel*
-lgw_searchwidget_get_window_menu_model (LgwStackWidget *widget)
+lgw_searchwidget_get_window_menu_model (LgwMenuable *menuable)
 {
     //Sanity checks
-    g_return_if_fail (widget != NULL);
+    g_return_if_fail (menuable != NULL);
 
     //Declarations
-    LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (widget);
+    LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (menuable);
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
@@ -311,23 +308,63 @@ lgw_searchwidget_get_window_menu_model (LgwStackWidget *widget)
 
 
 GList*
-lgw_searchwidget_get_actions (LgwStackWidget *widget)
+lgw_searchwidget_get_actions (LgwActionable *actionable)
 {
     //Sanity checks
-    g_return_val_if_fail (widget != NULL, NULL);
+    g_return_val_if_fail (actionable != NULL, NULL);
+
+    //Declarations
+    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidgetPrivate *priv = NULL;
+
+    //Initializations
+    search_widget = LGW_SEARCHWIDGET (actionable);
+    priv = search_widget->priv;
+
+    return priv->data.action_group_list;
+}
+
+
+void
+lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
+                                  LgwActionGroup *action_group)
+{
+    //Sanity checks
+    g_return_val_if_fail (actionable != NULL, NULL);
 
     //Declarations
     LgwSearchWidget *search_widget = NULL;
     LgwSearchWidgetPrivate *priv = NULL;
     GList *list = NULL;
-    LgwActionGroup* action_group = NULL;
 
     //Initializations
-    search_widget = LGW_SEARCHWIDGET (widget);
+    search_widget = LGW_SEARCHWIDGET (actionable);
     priv = search_widget->priv;
-    list = g_list_append (list, lgw_searchentry_get_actions (priv->ui.search_entry));
-    //list = g_list_append(list, lgw_resultsview_get_actions (priv->ui.results_view));
 
-    return list;
+    if (priv->data.action_group_list != NULL)
+    {
+      g_list_free_full (priv->data.action_group_list, (GDestroyNotify) lgw_actiongroup_free);
+      priv->data.action_group_list = NULL;
+    }
+
+    priv->data.action_group = action_group;
+
+    if (action_group != NULL)
+    {
+      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
+    }
+}
+
+
+static void
+lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget)
+{
+    //Sanity checks
+    g_return_val_if_fail (search_widget != NULL, NULL);
+
+    //Declarations
+    LgwSearchWidgetPrivate *priv = NULL;
+    GtkWidget *widget = NULL;
+    gboolean has_focus = FALSE;
 }
 

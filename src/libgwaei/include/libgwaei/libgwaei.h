@@ -5,10 +5,9 @@
 
 #include <libgwaei/actiongroup.h>
 #include <libgwaei/actionable.h>
+#include <libgwaei/menuable.h>
 
 #include <libgwaei/texttagtable.h>
-
-#include <libgwaei/stackwidget.h>
 
 #include <libgwaei/dictionarylist.h>
 #include <libgwaei/dictionarylistbox.h>

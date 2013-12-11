@@ -4,6 +4,13 @@
 G_BEGIN_DECLS
 
 typedef enum {
+    PROP_0,
+    PROP_SEARCH_AS_YOU_TYPE,
+    PROP_ACTIONS,
+    TOTAL_PROPS
+} Props;
+
+typedef enum {
     SIGNALID_ACTIVATED,
     SIGNALID_CHANGED,
     TOTAL_SIGNALIDS 
@@ -24,6 +31,7 @@ struct _Data {
     LgwDictionaryListBox *dictionary_list_box;
     LgwResultsView *results_view;
     GList *action_group_list;
+    LgwActionGroup *action_group;
 };
 
 struct _LgwSearchEntryPrivate {
@@ -33,10 +41,13 @@ struct _LgwSearchEntryPrivate {
 };
 
 struct _LgwSearchEntryClassPrivate {
-    gint unused;
+    GParamSpec *param_spec[TOTAL_PROPS];
 };
 
 #define LGW_SEARCHENTRY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_SEARCHENTRY, LgwSearchEntryPrivate));
+
+static GList* lgw_searchentry_get_actions (LgwActionable *actionable);
+static void lgw_searchentry_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
 
 G_END_DECLS
 

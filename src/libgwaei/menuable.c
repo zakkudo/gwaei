@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file stackwidget.c
+//! @file menuable.c
 //!
 //! @brief To be written
 //!
@@ -37,41 +37,33 @@
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
 
-G_DEFINE_INTERFACE (LgwStackWidget, lgw_stackwidget, 0);
+G_DEFINE_INTERFACE (LgwMenuable, lgw_menuable, 0);
 
 
 static void
-lgw_stackwidget_default_init (LgwStackWidgetInterface *class)
+lgw_menuable_default_init (LgwMenuableInterface *class)
 {
         /* add properties and signals to the interface here */
 }
 
 
 GMenuModel*
-lgw_stackwidget_get_button_menu_model (LgwStackWidget *self)
+lgw_menuable_get_button_menu_model (LgwMenuable *self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
 
-    return LGW_STACKWIDGET_GET_INTERFACE (self)->get_button_menu_model (self);
+    return LGW_MENUABLE_GET_INTERFACE (self)->get_button_menu_model (self);
 }
 
 
 GMenuModel*
-lgw_stackwidget_get_window_menu_model (LgwStackWidget *self)
+lgw_menuable_get_window_menu_model (LgwMenuable *self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
 
-    return LGW_STACKWIDGET_GET_INTERFACE (self)->get_window_menu_model (self);
+    return LGW_MENUABLE_GET_INTERFACE (self)->get_window_menu_model (self);
 }
 
-
-GList* lgw_stackwidget_get_actions (LgwStackWidget *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    return LGW_STACKWIDGET_GET_INTERFACE (self)->get_actions (self);
-}
 

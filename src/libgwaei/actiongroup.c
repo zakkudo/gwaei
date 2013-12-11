@@ -122,3 +122,24 @@ lgw_actiongroup_remove_from_map (LgwActionGroup *action_group,
     }
 }
 
+
+gboolean
+lgw_actiongroup_contains_entries (LgwActionGroup *action_group,
+                                  GActionEntry   *other_entries,
+                                  gint            other_length)
+{
+    //Sanity checks
+    g_return_val_if_fail (action_group == NULL, FALSE);
+    g_return_val_if_fail (other_entries != NULL, FALSE);
+
+    //Declarations
+    GActionEntry *entries = NULL;
+    gint length = 0;
+
+    //Initializations
+    entries = (GActionEntry*) action_group->entries;
+    length = action_group->length;
+
+    return (entries == other_entries && length == other_length);
+}
+

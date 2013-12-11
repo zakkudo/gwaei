@@ -39,27 +39,29 @@
 
 G_DEFINE_INTERFACE (LgwActionable, lgw_actionable, 0);
 
+
 typedef enum {
     PROP_0,
     PROP_ACTIONS,
     TOTAL_PROPS
 } Props;
 
-static GParamSpec* param_spec[TOTAL_PROPS];
+GParamSpec* _param_spec[TOTAL_PROPS];
+
 
 static void
-lgw_actionable_default_init (LgwActionableInterface *klass)
+lgw_actionable_default_init (LgwActionableInterface *iface)
 {
-    memset(param_spec, 0, sizeof(GParamSpec*) * TOTAL_PROPS);
+    memset(_param_spec, 0, (sizeof(GParamSpec*) * TOTAL_PROPS));
 
-    param_spec[PROP_ACTIONS] = g_param_spec_pointer (
+    _param_spec[PROP_ACTIONS] = g_param_spec_pointer (
       "actions",
       "actions",
       "A GList of LgwActionGroup items to be used iwth a GActionMap",
       G_PARAM_READABLE
     );
 
-    g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_ACTIONS, param_spec[PROP_ACTIONS]);
+    g_object_interface_install_property (iface, _param_spec[PROP_ACTIONS]);
 }
 
 
@@ -74,61 +76,23 @@ lgw_actionable_get_actions (LgwActionable *self)
 
 
 void
-lgw_actionable_set_actions (LgwActionable *self,
-                            GList         *list)
+lgw_actionable_set_actiongroup (LgwActionable  *self,
+                                LgwActionGroup *action_group)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
 
-    LGW_ACTIONABLE_GET_INTERFACE (self)->set_actions (self, list);
-    g_object_notify_by_pspec (G_OBJECT (self), param_spec[PROP_ACTIONS]);
+    LGW_ACTIONABLE_GET_INTERFACE (self)->set_actiongroup (self, action_group);
 }
 
 
-static void
-lgw_actionable_set_property (GObject      *object,
-                             guint         property_id,
-                             const GValue *value,
-                             GParamSpec   *pspec)
+void
+lgw_actionable_notify_actions (LgwActionable *self)
 {
-    //Declarations
-    LgwActionable *actionable = NULL;
+    //Sanity checks
+    g_return_if_fail (self != NULL);
 
-    //Initializations
-    actionable = LGW_ACTIONABLE (object);
-
-    switch (property_id)
-    {
-      case PROP_ACTIONS:
-        lgw_actionable_set_actions (actionable, g_value_get_pointer (value));
-      default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-        break;
-    }
-}
-
-
-static void
-lgw_actionable_get_property (GObject      *object,
-                             guint         property_id,
-                             GValue       *value,
-                             GParamSpec   *pspec)
-{
-    //Declarations
-    LgwActionable *actionable = NULL;
-
-    //Initializations
-    actionable = LGW_ACTIONABLE (object);
-
-    switch (property_id)
-    {
-      case PROP_ACTIONS:
-        g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
-        break;
-      default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-        break;
-    }
+    g_object_notify_by_pspec (G_OBJECT (self), _param_spec[PROP_ACTIONS]);
 }
 
 

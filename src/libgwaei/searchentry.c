@@ -41,14 +41,11 @@
 
 #include <libgwaei/searchentry-private.h>
 
+static void lgw_searchentry_init_actionable_interface (LgwActionableInterface *iface);
 
-G_DEFINE_TYPE (LgwSearchEntry, lgw_searchentry, GTK_TYPE_BOX)
+G_DEFINE_TYPE_WITH_CODE (LgwSearchEntry, lgw_searchentry, GTK_TYPE_BOX,
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_searchentry_init_actionable_interface));
 
-
-typedef enum {
-    PROP_0,
-    PROP_UNUSED
-} LgwSearchEntryProps;
 
 
 //!
@@ -78,6 +75,14 @@ lgw_searchentry_init (LgwSearchEntry *entry)
 }
 
 
+static void
+lgw_searchentry_init_actionable_interface (LgwActionableInterface *iface)
+{
+    iface->get_actions = lgw_searchentry_get_actions;
+    iface->set_actiongroup = lgw_searchentry_set_actiongroup;
+}
+
+
 static void 
 lgw_searchentry_finalize (GObject *object)
 {
@@ -90,6 +95,7 @@ lgw_searchentry_finalize (GObject *object)
     priv = entry->priv;
 
     G_OBJECT_CLASS (lgw_searchentry_parent_class)->finalize (object);
+
 }
 
 
@@ -99,8 +105,21 @@ lgw_searchentry_set_property (GObject      *object,
                               const GValue *value,
                               GParamSpec   *pspec)
 {
+    //Declarations
+    LgwSearchEntry *search_entry = NULL;
+    LgwActionable *actionable = NULL;
+    LgwSearchEntryPrivate *priv = NULL;
+
+    //Initializations
+    search_entry = LGW_SEARCHENTRY (object);
+    actionable = LGW_ACTIONABLE (object);
+    priv = search_entry->priv;
+
     switch (property_id)
     {
+      case PROP_ACTIONS:
+        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -114,14 +133,21 @@ lgw_searchentry_get_property (GObject      *object,
                               GValue       *value,
                               GParamSpec   *pspec)
 {
+    //Declarations
     LgwSearchEntry *search_entry = NULL;
+    LgwActionable *actionable = NULL;
     LgwSearchEntryPrivate *priv = NULL;
 
+    //Initializations
     search_entry = LGW_SEARCHENTRY (object);
+    actionable = LGW_ACTIONABLE (object);
     priv = search_entry->priv;
 
     switch (property_id)
     {
+      case PROP_ACTIONS:
+        g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -166,11 +192,19 @@ lgw_searchentry_dispose (GObject *object)
 {
     //Declarations
     LgwSearchEntry *entry = NULL;
+    LgwSearchEntryPrivate *priv = NULL;
 
     //Initializations
     entry = LGW_SEARCHENTRY (object);
+    priv = entry->priv;
 
     lgw_searchentry_disconnect_signals (entry);
+
+    priv->data.action_group = NULL;
+    if (priv->data.action_group_list != NULL)
+    {
+      g_list_free_full (priv->data.action_group_list, (GDestroyNotify) lgw_actiongroup_free);
+    }
 
     G_OBJECT_CLASS (lgw_searchentry_parent_class)->dispose (object);
 }
@@ -191,6 +225,10 @@ lgw_searchentry_class_init (LgwSearchEntryClass *klass)
     object_class->dispose = lgw_searchentry_dispose;
 
     g_type_class_add_private (object_class, sizeof (LgwSearchEntryPrivate));
+
+    klass->priv = g_new0 (LgwSearchEntryClassPrivate, 1);
+
+    g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
 }
 
 
@@ -244,8 +282,45 @@ lgw_searchentry_get_entry (LgwSearchEntry *search_entry)
 }
 
 
-LgwActionGroup*
-lgw_searchentry_get_actions (LgwSearchEntry *search_entry)
+static void
+lgw_searchentry_set_actiongroup (LgwActionable  *actionable,
+                                 LgwActionGroup *action_group)
+{
+    //Sanity checks
+    g_return_val_if_fail (actionable != NULL, NULL);
+
+    //Declarations
+    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntryPrivate *priv = NULL;
+    LgwSearchEntryClass *klass = NULL;
+    LgwSearchEntryClassPrivate *klasspriv = NULL;
+    GList *list = NULL;
+
+    //Initializations
+    search_entry = LGW_SEARCHENTRY (actionable);
+    priv = search_entry->priv;
+    klass = LGW_SEARCHENTRY_GET_CLASS (search_entry);
+    klasspriv = klass->priv;
+
+    if (priv->data.action_group_list != NULL)
+    {
+      g_list_free_full (priv->data.action_group_list, (GDestroyNotify) lgw_actiongroup_free);
+      priv->data.action_group_list = NULL;
+    }
+
+    priv->data.action_group = action_group;
+
+    if (action_group != NULL)
+    {
+      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
+    }
+
+    lgw_actionable_notify_actions (actionable);
+}
+
+
+static void
+lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
 {
     //Sanity checks
     g_return_val_if_fail (search_entry != NULL, NULL);
@@ -254,7 +329,6 @@ lgw_searchentry_get_actions (LgwSearchEntry *search_entry)
     LgwSearchEntryPrivate *priv = NULL;
     GtkWidget *widget = NULL;
     gboolean has_focus = FALSE;
-    LgwActionGroup *action_group = NULL;
 
     //Initializations
     priv = search_entry->priv;
@@ -271,7 +345,11 @@ lgw_searchentry_get_actions (LgwSearchEntry *search_entry)
         { "insert-or-character", lgw_searchentry_insert_or_cb, NULL, NULL, NULL },
         { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
       };
-      action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+      if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
+      {
+        LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+        lgw_searchentry_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
+      }
     }
     else 
     {
@@ -283,10 +361,30 @@ lgw_searchentry_get_actions (LgwSearchEntry *search_entry)
         { "insert-or-character", lgw_searchentry_insert_or_cb, NULL, NULL, NULL },
         { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
       };
-      action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+      if (priv->data.action_group_list == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
+      {
+        LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+        lgw_searchentry_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
+      }
     }
+}
 
-    return action_group;
+
+static GList*
+lgw_searchentry_get_actions (LgwActionable *actionable)
+{
+    //Sanity checks
+    g_return_val_if_fail (actionable != NULL, NULL);
+
+    //Declarations
+    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntryPrivate *priv = NULL;
+
+    //Initializations
+    search_entry = LGW_SEARCHENTRY (actionable);
+    priv = search_entry->priv;
+
+    return priv->data.action_group_list;
 }
 
 
