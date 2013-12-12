@@ -184,6 +184,8 @@ lgw_searchentry_constructed (GObject *object)
     }
 
     lgw_searchentry_connect_signals (search_entry);
+
+    lgw_searchentry_sync_actions (search_entry);
 }
 
 
@@ -200,10 +202,16 @@ lgw_searchentry_dispose (GObject *object)
 
     lgw_searchentry_disconnect_signals (entry);
 
-    priv->data.action_group = NULL;
+    if (priv->data.action_group != NULL)
+    {
+      lgw_actiongroup_free (priv->data.action_group);
+      priv->data.action_group = NULL;
+    }
+
     if (priv->data.action_group_list != NULL)
     {
-      g_list_free_full (priv->data.action_group_list, (GDestroyNotify) lgw_actiongroup_free);
+      g_list_free (priv->data.action_group_list);
+      priv->data.action_group_list = NULL;
     }
 
     G_OBJECT_CLASS (lgw_searchentry_parent_class)->dispose (object);
@@ -304,10 +312,15 @@ lgw_searchentry_set_actiongroup (LgwActionable  *actionable,
 
     if (priv->data.action_group_list != NULL)
     {
-      g_list_free_full (priv->data.action_group_list, (GDestroyNotify) lgw_actiongroup_free);
+      g_list_free (priv->data.action_group_list);
       priv->data.action_group_list = NULL;
     }
 
+    if (priv->data.action_group != NULL)
+    {
+        lgw_actiongroup_free (priv->data.action_group);
+        priv->data.action_group = NULL;
+    }
     priv->data.action_group = action_group;
 
     if (action_group != NULL)
@@ -348,7 +361,7 @@ lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
       if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
       {
         LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-        lgw_searchentry_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
+        lgw_actionable_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
       }
     }
     else 
@@ -364,7 +377,7 @@ lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
       if (priv->data.action_group_list == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
       {
         LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-        lgw_searchentry_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
+        lgw_actionable_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
       }
     }
 }
@@ -373,6 +386,8 @@ lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
 static GList*
 lgw_searchentry_get_actions (LgwActionable *actionable)
 {
+    printf("BREAK searchentry get_actions\n");
+
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 

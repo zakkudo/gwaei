@@ -47,7 +47,7 @@ lgw_actiongroup_static_new (GActionEntry* const entries,
 {
     //Sanity checks
     g_return_val_if_fail (entries != NULL, NULL);
-    g_return_val_if_fail (length < 1, NULL);
+    g_return_val_if_fail (length > 0, NULL);
     g_return_val_if_fail (widget != NULL, NULL);
 
     //Declarations
@@ -91,6 +91,8 @@ lgw_actiongroup_add_to_map (LgwActionGroup *action_group,
     entries = (GActionEntry*) action_group->entries;
     length = action_group->length;
     widget = GTK_WIDGET (action_group->widget);
+
+    printf("BREAK length: %d %d %d\n", entries, length, widget);
 
     g_action_map_add_action_entries (action_map, entries, length, widget);
 }

@@ -150,13 +150,16 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     LwDictionaryList *dictionarylist = NULL;
     GObject *widget = NULL;
     GActionMap *action_map = NULL;
+    LgwActionable *actionable = NULL;
 
     priv = main_window->priv;
     if (priv == NULL) goto errored;
     g_object_get (G_OBJECT (priv->ui.stack), "visible-child", &widget, NULL);
     application = gtk_window_get_application (GTK_WINDOW (main_window));
-    action_map = G_ACTION_MAP (application);
+    action_map = G_ACTION_MAP (main_window);
+    actionable = LGW_ACTIONABLE (main_window);
 
+    //Assign the menus
     if (widget != NULL && LGW_IS_MENUABLE (widget)) {
       GMenuModel *menu_model = lgw_menuable_get_button_menu_model (LGW_MENUABLE (widget));
       gtk_menu_button_set_menu_model (priv->ui.menu_button, menu_model);
@@ -167,14 +170,17 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
       gtk_menu_button_set_menu_model (priv->ui.menu_button, NULL);
     }
 
+    //Assign the actions
     if (widget != NULL && LGW_IS_ACTIONABLE (widget)) {
-      GList *action_group_list = lgw_actionable_get_actions (LGW_ACTIONABLE (widget));
+      GList *action_group_list = lgw_actionable_get_actions (actionable);
       GList *link = NULL;
       for (link = action_group_list; link != NULL; link = link->next)
       {
+      printf("BREAk actionable\n");
           LgwActionGroup *action_group = LGW_ACTIONGROUP (link->data);
           if (action_group != NULL)
           {
+            printf("BREAK add to map\n");
             lgw_actiongroup_add_to_map (action_group, action_map);
           }
       }
@@ -183,7 +189,6 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     }
     else
     {
-      gtk_menu_button_set_menu_model (priv->ui.menu_button, NULL);
     }
 
 

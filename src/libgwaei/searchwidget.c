@@ -93,6 +93,62 @@ lgw_searchwidget_finalize (GObject *object)
 }
 
 
+static void
+lgw_searchwidget_set_property (GObject      *object,
+                               guint         property_id,
+                               const GValue *value,
+                               GParamSpec   *pspec)
+{
+    //Declarations
+    LgwSearchWidget *search_widget = NULL;
+    LgwActionable *actionable = NULL;
+    LgwSearchWidgetPrivate *priv = NULL;
+
+    //Initializations
+    search_widget = LGW_SEARCHWIDGET (object);
+    actionable = LGW_ACTIONABLE (object);
+    priv = search_widget->priv;
+
+    switch (property_id)
+    {
+      case PROP_ACTIONS:
+        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void
+lgw_searchwidget_get_property (GObject      *object,
+                               guint         property_id,
+                               GValue       *value,
+                               GParamSpec   *pspec)
+{
+    //Declarations
+    LgwSearchWidget *search_widget = NULL;
+    LgwActionable *actionable = NULL;
+    LgwSearchWidgetPrivate *priv = NULL;
+
+    //Initializations
+    search_widget = LGW_SEARCHWIDGET (object);
+    actionable = LGW_ACTIONABLE (object);
+    priv = search_widget->priv;
+
+    switch (property_id)
+    {
+      case PROP_ACTIONS:
+        g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
 static void 
 lgw_searchwidget_constructed (GObject *object)
 {
@@ -187,6 +243,8 @@ lgw_searchwidget_constructed (GObject *object)
       GMenuModel *button_menu_model = lgw_load_menu_model ("searchwidget-menumodel-button.ui");
       priv->data.button_menu_model = G_MENU_MODEL (button_menu_model);
     }
+
+    lgw_searchwidget_sync_actions (search_widget);
 }
 
 
@@ -198,9 +256,13 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
     object_class = G_OBJECT_CLASS (klass);
 
     object_class->constructed = lgw_searchwidget_constructed;
+    object_class->set_property = lgw_searchwidget_set_property;
+    object_class->get_property = lgw_searchwidget_get_property;
     object_class->finalize = lgw_searchwidget_finalize;
 
     g_type_class_add_private (object_class, sizeof (LgwSearchWidgetPrivate));
+
+    g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
 }
 
 
@@ -307,9 +369,11 @@ lgw_searchwidget_get_window_menu_model (LgwMenuable *menuable)
 }
 
 
-GList*
+static GList*
 lgw_searchwidget_get_actions (LgwActionable *actionable)
 {
+    printf("BREAK searchwidget get_actions\n");
+
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 
@@ -325,7 +389,7 @@ lgw_searchwidget_get_actions (LgwActionable *actionable)
 }
 
 
-void
+static void
 lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
                                   LgwActionGroup *action_group)
 {
@@ -343,8 +407,14 @@ lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
 
     if (priv->data.action_group_list != NULL)
     {
-      g_list_free_full (priv->data.action_group_list, (GDestroyNotify) lgw_actiongroup_free);
+      g_list_free (priv->data.action_group_list);
       priv->data.action_group_list = NULL;
+    }
+
+    if (priv->data.action_group != NULL)
+    {
+        lgw_actiongroup_free (priv->data.action_group);
+        priv->data.action_group = NULL;
     }
 
     priv->data.action_group = action_group;
@@ -365,6 +435,22 @@ lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget)
     //Declarations
     LgwSearchWidgetPrivate *priv = NULL;
     GtkWidget *widget = NULL;
-    gboolean has_focus = FALSE;
+    LgwActionable *actionable = NULL;
+
+    //Initializations
+    priv = search_widget->priv;
+    widget = GTK_WIDGET (search_widget);
+    actionable = LGW_ACTIONABLE (search_widget);
+/*
+    static GActionEntry entries[] = {
+    };
+    if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
+    {
+      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+      lgw_actionable_set_actiongroup (actionable, action_group);
+    }
+*/
+
+    lgw_actionable_set_actiongroup (actionable, NULL);
 }
 

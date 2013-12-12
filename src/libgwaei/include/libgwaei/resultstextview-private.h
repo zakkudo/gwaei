@@ -4,6 +4,12 @@
 G_BEGIN_DECLS
 
 typedef enum {
+    PROP_0,
+    PROP_ACTIONS,
+    TOTAL_PROPS
+} Props;
+
+typedef enum {
   TOTAL_SIGNALIDS
 } SignalId;
 

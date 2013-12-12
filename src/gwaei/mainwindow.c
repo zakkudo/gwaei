@@ -50,7 +50,10 @@ static void gw_mainwindow_initialize_body (GwMainWindow *window);
 
 static gchar* gw_mainwindow_get_symbolic_icon_name_if_exists (const gchar* ICON_NAME);
 
-G_DEFINE_TYPE (GwMainWindow, gw_mainwindow, GTK_TYPE_WINDOW)
+static void gw_mainwindow_init_actionable_interface (LgwActionableInterface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (GwMainWindow, gw_mainwindow, GTK_TYPE_APPLICATION_WINDOW,
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, gw_mainwindow_init_actionable_interface));
 
 //!
 //! @brief Sets up the variables in main-interface.c and main-callbacks.c for use
@@ -81,6 +84,70 @@ gw_mainwindow_init (GwMainWindow *window)
 
     GwMainWindowPrivate *priv;
     priv = window->priv;
+}
+
+
+static void
+gw_mainwindow_init_actionable_interface (LgwActionableInterface *iface)
+{
+    iface->get_actions = gw_mainwindow_get_actions;
+    iface->set_actiongroup = gw_mainwindow_set_actiongroup;
+}
+
+
+static void
+gw_mainwindow_set_property (GObject      *object,
+                            guint         property_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
+{
+    //Declarations
+    GwMainWindow *main_window = NULL;
+    LgwActionable *actionable = NULL;
+    GwMainWindowPrivate *priv = NULL;
+
+    //Initializations
+    main_window = GW_MAINWINDOW (object);
+    actionable = LGW_ACTIONABLE (object);
+    priv = main_window->priv;
+
+    switch (property_id)
+    {
+      case PROP_ACTIONS:
+        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void
+gw_mainwindow_get_property (GObject      *object,
+                            guint         property_id,
+                            GValue       *value,
+                            GParamSpec   *pspec)
+{
+    //Declarations
+    GwMainWindow *main_window = NULL;
+    LgwActionable *actionable = NULL;
+    GwMainWindowPrivate *priv = NULL;
+
+    //Initializations
+    main_window = GW_MAINWINDOW (object);
+    actionable = LGW_ACTIONABLE (object);
+    priv = main_window->priv;
+
+    switch (property_id)
+    {
+      case PROP_ACTIONS:
+        g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
 }
 
 
@@ -129,6 +196,9 @@ gw_mainwindow_constructed (GObject *object)
     gtk_window_set_icon_name (GTK_WINDOW (window), "gwaei");
 
     gw_mainwindow_connect_signals (window);
+
+printf("BREAK constructed\n");
+    gw_mainwindow_sync_actions (window);
 }
 
 
@@ -136,12 +206,26 @@ static void
 gw_mainwindow_dispose (GObject *object)
 {
     //Declarations
-    GwMainWindow *mainwindow = NULL;
+    GwMainWindow *main_window = NULL;
+    GwMainWindowPrivate *priv = NULL;
 
     //Initializations
-    mainwindow = GW_MAINWINDOW (object);
+    main_window = GW_MAINWINDOW (object);
+    priv = main_window->priv;
 
-    gw_mainwindow_disconnect_signals (mainwindow);
+    gw_mainwindow_disconnect_signals (main_window);
+
+    if (priv->data.action_group != NULL)
+    {
+      lgw_actiongroup_free (priv->data.action_group);
+      priv->data.action_group = NULL;
+    }
+
+    if (priv->data.action_group_list != NULL)
+    {
+      g_list_free (priv->data.action_group_list);
+      priv->data.action_group_list = NULL;
+    }
 
     G_OBJECT_CLASS (gw_mainwindow_parent_class)->dispose (object);
 }
@@ -156,10 +240,14 @@ gw_mainwindow_class_init (GwMainWindowClass *klass)
     object_class = G_OBJECT_CLASS (klass);
 
     object_class->constructed = gw_mainwindow_constructed;
+    object_class->set_property = gw_mainwindow_set_property;
+    object_class->get_property = gw_mainwindow_get_property;
     object_class->dispose = gw_mainwindow_dispose;
     object_class->finalize = gw_mainwindow_finalize;
 
     g_type_class_add_private (object_class, sizeof (GwMainWindowPrivate));
+
+    g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
 }
 
 
@@ -286,28 +374,115 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
 }
 
 
-GList*
-gw_mainwindow_get_actions (GwMainWindow *window)
+static void
+gw_mainwindow_set_actiongroup (LgwActionable *actionable,
+                               LgwActionGroup *action_group)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_val_if_fail (actionable != NULL, NULL);
+
+    //Declarations
+    GwMainWindow *main_window = NULL;
+    GwMainWindowPrivate *priv = NULL;
+    GwMainWindowClass *klass = NULL;
+    GwMainWindowClassPrivate *klasspriv = NULL;
+    GList *list = NULL;
+
+    //Initializations
+    main_window = GW_MAINWINDOW (actionable);
+    priv = main_window->priv;
+    klass = GW_MAINWINDOW_GET_CLASS (main_window);
+    klasspriv = klass->priv;
+
+    if (priv->data.action_group_list != NULL)
+    {
+      g_list_free (priv->data.action_group_list);
+      priv->data.action_group_list = NULL;
+    }
+
+    if (priv->data.action_group != NULL)
+    {
+        lgw_actiongroup_free (priv->data.action_group);
+        priv->data.action_group = NULL;
+    }
+
+    priv->data.action_group = action_group;
+
+    if (action_group != NULL)
+    {
+    printf("BREAK mainwindow set actiongroup\n");
+      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
+    }
+
+    lgw_actionable_notify_actions (actionable);
+}
+
+
+static void
+gw_mainwindow_sync_actions (GwMainWindow *main_window)
+{
+  printf("BREAK sync actions\n");
+    //Sanity checks
+    g_return_val_if_fail (main_window != NULL, NULL);
 
     //Declarations
     GwMainWindowPrivate *priv = NULL;
+    LgwActionable *actionable = NULL;
     GtkWidget *widget = NULL;
-    GList *action_group_list = NULL;
-    LgwActionGroup *action_group = NULL;
+    gboolean has_focus = FALSE;
 
     //Initializations
-    priv = window->priv;
-    widget = GTK_WIDGET (window);
+    priv = main_window->priv;
+    actionable = LGW_ACTIONABLE (main_window);
+    widget = GTK_WIDGET (main_window);
+    has_focus = gtk_widget_is_focus (widget);
 
+    if (has_focus)
     {
       static GActionEntry entries[] = {
-        { "close", gw_mainwindow_close_cb, NULL, NULL, NULL },
+        { "close", gw_mainwindow_close_cb, NULL, NULL, NULL }
       };
-      action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+      if (priv->data.action_group_list == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
+      {
+        printf("BREAK test\n");
+        LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+        lgw_actionable_set_actiongroup (actionable, action_group);
+      }
     }
+    else
+    {
+      static GActionEntry entries[] = {
+        { "close", gw_mainwindow_close_cb, NULL, NULL, NULL }
+      };
+      if (priv->data.action_group_list == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
+      {
+        printf("BREAK test\n");
+        LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+        lgw_actionable_set_actiongroup (actionable, action_group);
+      }
+    }
+}
+
+
+static GList*
+gw_mainwindow_get_actions (LgwActionable *actionable)
+{
+    printf("BREAK mainwindow get actions\n");
+
+    //Sanity checks
+    g_return_val_if_fail (actionable != NULL, NULL);
+
+    //Declarations
+    GwMainWindow *main_window = NULL;
+    GwMainWindowPrivate *priv = NULL;
+
+    //Initializations
+    main_window = GW_MAINWINDOW (actionable);
+    priv = main_window->priv;
+
+    g_assert(g_list_length (priv->data.action_group_list) > 0);
+
+    return priv->data.action_group_list;
 }
 
 

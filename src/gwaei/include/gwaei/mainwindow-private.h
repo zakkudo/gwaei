@@ -4,6 +4,12 @@
 G_BEGIN_DECLS
 
 typedef enum {
+    PROP_0,
+    PROP_ACTIONS,
+    TOTAL_PROPS
+} Props;
+
+typedef enum {
   SIGNALID_APPLICATION_PROPERTY_CHANGED,
   SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED,
   TOTAL_SIGNALIDS
@@ -34,6 +40,8 @@ struct _Data {
   gint mouse_button_press_root_y;
   gunichar mouse_button_character;
   gchar* mouse_hovered_word; 
+  LgwActionGroup *action_group;
+  GList *action_group_list;
 };
 
 struct _GwMainWindowPrivate {
@@ -46,6 +54,10 @@ struct _GwMainWindowClassPrivate {
 };
 
 #define GW_MAINWINDOW_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GW_TYPE_MAINWINDOW, GwMainWindowPrivate))
+
+static GList* gw_mainwindow_get_actions (LgwActionable *actionable);
+static void gw_mainwindow_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
+static void gw_mainwindow_sync_actions (GwMainWindow *main_window);
 
 G_END_DECLS
 

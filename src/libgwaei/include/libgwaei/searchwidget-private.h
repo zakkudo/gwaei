@@ -3,6 +3,12 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+    PROP_0,
+    PROP_ACTIONS,
+    TOTAL_PROPS
+} Props;
+
 struct _UI {
     GtkBox *box;
     GtkPaned *paned;
@@ -25,6 +31,10 @@ struct _LgwSearchWidgetPrivate {
 };
 
 #define LGW_SEARCHWIDGET_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_SEARCHWIDGET, LgwSearchWidgetPrivate));
+
+static GList* lgw_searchwidget_get_actions (LgwActionable *actionable);
+static void lgw_searchwidget_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
+static void lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget);
 
 G_END_DECLS
 

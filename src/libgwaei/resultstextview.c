@@ -41,11 +41,13 @@
 
 #include <libgwaei/resultstextview-private.h>
 
-static void lgw_resultstextview_init_interface (LgwResultsViewInterface *iface);
+static void lgw_resultstextview_init_resultsview_interface (LgwResultsViewInterface *iface);
+static void lgw_resultstextview_init_actionable_interface (LgwActionableInterface *iface);
 
 
 G_DEFINE_TYPE_WITH_CODE (LgwResultsTextView, lgw_resultstextview, GTK_TYPE_BOX,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_RESULTSVIEW, lgw_resultstextview_init_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_RESULTSVIEW, lgw_resultstextview_init_resultsview_interface)
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_resultstextview_init_actionable_interface));
 
 
 
@@ -66,9 +68,15 @@ lgw_resultstextview_new ()
 
 
 static void
-lgw_resultstextview_init_interface (LgwResultsViewInterface *iface)
+lgw_resultstextview_init_resultsview_interface (LgwResultsViewInterface *iface)
 {
     iface->set_search = lgw_resultstextview_set_searchlist;
+}
+
+
+static void
+lgw_resultstextview_init_actionable_interface (LgwActionableInterface *iface)
+{
 }
 
 
@@ -102,6 +110,63 @@ lgw_resultstextview_finalize (GObject *object)
 
     G_OBJECT_CLASS (lgw_resultstextview_parent_class)->finalize (object);
 }
+
+
+static void
+lgw_resultstextview_set_property (GObject      *object,
+                                  guint         property_id,
+                                  const GValue *value,
+                                  GParamSpec   *pspec)
+{
+    //Declarations
+    LgwResultsTextView *results_text_view = NULL;
+    LgwActionable *actionable = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    results_text_view = LGW_RESULTSTEXTVIEW (object);
+    actionable = LGW_ACTIONABLE (object);
+    priv = results_text_view->priv;
+
+    switch (property_id)
+    {
+      case PROP_ACTIONS:
+        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void
+lgw_resultstextview_get_property (GObject      *object,
+                                  guint         property_id,
+                                  GValue       *value,
+                                  GParamSpec   *pspec)
+{
+    //Declarations
+    LgwResultsTextView *results_text_view = NULL;
+    LgwActionable *actionable = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    results_text_view = LGW_RESULTSTEXTVIEW (object);
+    actionable = LGW_ACTIONABLE (object);
+    priv = results_text_view->priv;
+
+    switch (property_id)
+    {
+      case PROP_ACTIONS:
+        g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
 
 
 static void 
@@ -168,16 +233,18 @@ lgw_resultstextview_class_init (LgwResultsTextViewClass *klass)
 
     //Declarations
     GObjectClass *object_class = NULL;
-    LgwResultsTextViewClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
     object_class->constructed = lgw_resultstextview_constructed;
+    object_class->set_property = lgw_resultstextview_set_property;
+    object_class->get_property = lgw_resultstextview_get_property;
     object_class->finalize = lgw_resultstextview_finalize;
-    klasspriv = g_new0 (LgwResultsTextViewClassPrivate, 1);
+    klass->priv = g_new0 (LgwResultsTextViewClassPrivate, 1);
 
     g_type_class_add_private (object_class, sizeof (LgwResultsTextViewPrivate));
-    klass->priv = klasspriv;
+
+    g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
 }
 
 

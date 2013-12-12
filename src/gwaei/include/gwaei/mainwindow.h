@@ -19,20 +19,18 @@ typedef struct _GwMainWindowClassPrivate GwMainWindowClassPrivate;
 #define GW_MAINWINDOW_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), GW_TYPE_MAINWINDOW, GwMainWindowClass))
 
 struct _GwMainWindow {
-  GtkWindow window;
+  GtkApplicationWindow window;
   GwMainWindowPrivate *priv;
 };
 
 struct _GwMainWindowClass {
-  GtkWindowClass parent_class;
+  GtkApplicationWindowClass parent_class;
   GwMainWindowClassPrivate *priv;
 };
 
 GtkWindow* gw_mainwindow_new (GtkApplication *application);
 GType gw_mainwindow_get_type (void) G_GNUC_CONST;
 
-
-GList* gw_mainwindow_get_actions (GwMainWindow *window);
 
 G_END_DECLS
 
