@@ -19,12 +19,12 @@ typedef struct _GwMainWindowClassPrivate GwMainWindowClassPrivate;
 #define GW_MAINWINDOW_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), GW_TYPE_MAINWINDOW, GwMainWindowClass))
 
 struct _GwMainWindow {
-  GtkApplicationWindow window;
+  LgwWindow window;
   GwMainWindowPrivate *priv;
 };
 
 struct _GwMainWindowClass {
-  GtkApplicationWindowClass parent_class;
+  LgwWindowClass parent_class;
   GwMainWindowClassPrivate *priv;
 };
 

@@ -537,7 +537,6 @@ gw_application_load_app_menu (GwApplication *application)
     //Sanity checks
     g_return_if_fail (application != NULL);
 
-/*
     //Declarations
     GMenuModel *menu_model = NULL;
 
@@ -549,38 +548,6 @@ gw_application_load_app_menu (GwApplication *application)
     gtk_application_set_app_menu (GTK_APPLICATION (application), menu_model);
 
     gw_application_initialize_menumodel_links (application);
-*/
-
-
-  GtkBuilder *builder = gtk_builder_new ();
-  gtk_builder_add_from_string (builder,
-                               "<interface>"
-                               "  <menu id='app-menu'>"
-                               "    <section>"
-                               "      <item>"
-                               "        <attribute name='label' translatable='yes'>_New Window</attribute>"
-                               "        <attribute name='action'>app.new</attribute>"
-                               "        <attribute name='accel'>&lt;Primary&gt;n</attribute>"
-                               "      </item>"
-                               "    </section>"
-                               "    <section>"
-                               "      <item>"
-                               "        <attribute name='label' translatable='yes'>_About Bloatpad</attribute>"
-                               "        <attribute name='action'>app.about</attribute>"
-                               "      </item>"
-                               "    </section>"
-                               "    <section>"
-                               "      <item>"
-                               "        <attribute name='label' translatable='yes'>_Quit</attribute>"
-                               "        <attribute name='action'>app.quit</attribute>"
-                               "        <attribute name='accel'>&lt;Primary&gt;q</attribute>"
-                               "      </item>"
-                               "    </section>"
-                               "  </menu>"
-                               "</interface>", -1, NULL);
-  gtk_application_set_app_menu (GTK_APPLICATION (application), G_MENU_MODEL (gtk_builder_get_object (builder, "app-menu")));
-  g_object_unref (builder);
-
 }
 
 
@@ -699,6 +666,7 @@ gw_application_add_accelerators (GwApplication *application,
           gtk_application_add_accelerator (GTK_APPLICATION (application), accel, action, g_variant_new_string (detail));
         else
           gtk_application_add_accelerator (GTK_APPLICATION (application), accel, action, NULL);
+          printf("BREAK add accelerator\n");
       }
 
       if (accel != NULL) g_free (accel); accel = NULL;

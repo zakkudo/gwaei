@@ -152,6 +152,7 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     GActionMap *action_map = NULL;
     LgwActionable *actionable = NULL;
 
+    //Initializations
     priv = main_window->priv;
     if (priv == NULL) goto errored;
     g_object_get (G_OBJECT (priv->ui.stack), "visible-child", &widget, NULL);
@@ -159,10 +160,22 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     action_map = G_ACTION_MAP (main_window);
     actionable = LGW_ACTIONABLE (main_window);
 
+/*
+    {
+      GMenuModel *menu_model = gtk_menu_button_get_menu_model (priv->ui.menu_button);
+      if (menu_model != NULL)
+      {
+         gw_application_remove_accelerators (GW_APPLICATION (application), menu_model);
+      }
+    }
+    */
+
     //Assign the menus
     if (widget != NULL && LGW_IS_MENUABLE (widget)) {
-      GMenuModel *menu_model = lgw_menuable_get_button_menu_model (LGW_MENUABLE (widget));
-      gtk_menu_button_set_menu_model (priv->ui.menu_button, menu_model);
+      LgwMenuable *menuable = LGW_MENUABLE (widget);
+      gtk_application_set_menubar (application, lgw_menuable_get_button_menu_model (menuable));
+      gtk_menu_button_set_menu_model (priv->ui.menu_button, lgw_menuable_get_window_menu_model (menuable));
+      gtk_application_window_set_show_menubar (GTK_APPLICATION_WINDOW (main_window), TRUE);
       printf("visible child changed\n");
     }
     else
@@ -176,7 +189,7 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
       GList *link = NULL;
       for (link = action_group_list; link != NULL; link = link->next)
       {
-      printf("BREAk actionable\n");
+      printf("BREAK actionable\n");
           LgwActionGroup *action_group = LGW_ACTIONGROUP (link->data);
           if (action_group != NULL)
           {

@@ -240,8 +240,8 @@ lgw_searchwidget_constructed (GObject *object)
     }
 
     {
-      GMenuModel *button_menu_model = lgw_load_menu_model ("searchwidget-menumodel-button.ui");
-      priv->data.button_menu_model = G_MENU_MODEL (button_menu_model);
+      priv->data.button_menu_model = G_MENU_MODEL (lgw_load_menu_model ("searchwidget-menumodel-button.ui"));
+      priv->data.window_menu_model = G_MENU_MODEL (lgw_load_menu_model ("searchwidget-menumodel-window.ui"));
     }
 
     lgw_searchwidget_sync_actions (search_widget);

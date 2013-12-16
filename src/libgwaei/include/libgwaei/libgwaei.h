@@ -7,6 +7,8 @@
 #include <libgwaei/actionable.h>
 #include <libgwaei/menuable.h>
 
+#include <libgwaei/window.h>
+
 #include <libgwaei/texttagtable.h>
 
 #include <libgwaei/dictionarylist.h>

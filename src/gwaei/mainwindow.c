@@ -52,7 +52,7 @@ static gchar* gw_mainwindow_get_symbolic_icon_name_if_exists (const gchar* ICON_
 
 static void gw_mainwindow_init_actionable_interface (LgwActionableInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (GwMainWindow, gw_mainwindow, GTK_TYPE_APPLICATION_WINDOW,
+G_DEFINE_TYPE_WITH_CODE (GwMainWindow, gw_mainwindow, LGW_TYPE_WINDOW,
                          G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, gw_mainwindow_init_actionable_interface));
 
 //!
