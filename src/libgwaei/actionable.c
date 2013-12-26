@@ -68,8 +68,6 @@ lgw_actionable_default_init (LgwActionableInterface *iface)
 GList*
 lgw_actionable_get_actions (LgwActionable *self)
 {
-    printf("BREAK actionable get actions\n");
-
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
 
@@ -84,17 +82,7 @@ lgw_actionable_set_actiongroup (LgwActionable  *self,
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
 
-    printf("BREAK actionable set actiongroup\n");
-
     LGW_ACTIONABLE_GET_INTERFACE (self)->set_actiongroup (self, action_group);
-}
-
-
-void
-lgw_actionable_notify_actions (LgwActionable *self)
-{
-    //Sanity checks
-    g_return_if_fail (self != NULL);
 
     g_object_notify_by_pspec (G_OBJECT (self), _param_spec[PROP_ACTIONS]);
 }

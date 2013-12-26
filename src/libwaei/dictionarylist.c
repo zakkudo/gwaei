@@ -662,9 +662,14 @@ lw_dictionarylist_build_order_map (LwDictionaryList *dictionary_list)
     }
 
 errored:
-
     g_free (order); order = NULL;
-    if (atoms != NULL) g_strfreev (atoms); atoms = NULL;
+
+    if (atoms != NULL) {
+      if (hashtable != NULL) g_free (atoms);
+      else g_strfreev (atoms); 
+      atoms = NULL;
+    }
+    if (preferences != NULL) g_object_unref (preferences); preferences = NULL;
 
     return hashtable;
 }
@@ -807,7 +812,8 @@ lw_dictionarylist_load_order (LwDictionaryList *dictionary_list,
                               LwPreferences    *preferences)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL && preferences != NULL);
+    g_return_if_fail (dictionary_list != NULL);
+    g_return_if_fail (preferences != NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -837,7 +843,7 @@ lw_dictionarylist_load_order (LwDictionaryList *dictionary_list,
 errored:
 
     g_free (new_order); new_order = NULL;
-    g_hash_table_destroy (order_map); order_map = NULL;
+    if (order_map != NULL) g_hash_table_destroy (order_map); order_map = NULL;
 }
 
 

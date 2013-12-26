@@ -372,8 +372,6 @@ lgw_searchwidget_get_window_menu_model (LgwMenuable *menuable)
 static GList*
 lgw_searchwidget_get_actions (LgwActionable *actionable)
 {
-    printf("BREAK searchwidget get_actions\n");
-
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 

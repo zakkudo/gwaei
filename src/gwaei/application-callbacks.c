@@ -40,7 +40,7 @@
 
 
 /* TO BE REMOVED
-G_MODULE_EXPORT void 
+void 
 gw_application_open_searchwindow_cb (GSimpleAction *action, 
                                      GVariant      *parameter, 
                                      gpointer       data)
@@ -102,7 +102,7 @@ gw_application_open_settingswindow_cb (GSimpleAction *action,
 }
 
 
-G_MODULE_EXPORT void 
+void 
 gw_application_open_vocabularywindow_cb (GSimpleAction *action, 
                                          GVariant      *parameter,
                                          gpointer       data)
@@ -115,7 +115,7 @@ gw_application_open_vocabularywindow_cb (GSimpleAction *action,
 }
 
 
-G_MODULE_EXPORT void 
+void 
 gw_application_open_vocabularywindow_index_cb (GSimpleAction *action, 
                                                GVariant      *parameter,
                                                gpointer       data)
@@ -137,7 +137,7 @@ gw_application_open_vocabularywindow_index_cb (GSimpleAction *action,
 //! @param widget Unused GtkWidget pointer
 //! @param data Unused gpointer
 //!
-G_MODULE_EXPORT void 
+void 
 gw_application_open_aboutdialog_cb (GSimpleAction *action, 
                                     GVariant      *parameter,
                                     gpointer       data)
@@ -205,7 +205,7 @@ gw_application_open_aboutdialog_cb (GSimpleAction *action,
 //! @param widget Unused GtkWidget pointer
 //! @param data Unused gpointer
 //!
-G_MODULE_EXPORT void 
+void 
 gw_application_open_irc_channel_cb (GSimpleAction *action, 
                                     GVariant      *parameter,
                                     gpointer       data)
@@ -235,7 +235,7 @@ gw_application_open_irc_channel_cb (GSimpleAction *action,
 //! @param widget Unused GtkWidget pointer
 //! @param data Unused gpointer
 //!
-G_MODULE_EXPORT void 
+void 
 gw_application_open_homepage_cb (GSimpleAction *action, 
                                  GVariant      *parameter,
                                  gpointer       data)
@@ -265,7 +265,7 @@ gw_application_open_homepage_cb (GSimpleAction *action,
 //! @param widget Unused GtkWidget pointer
 //! @param data Unused gpointer
 //!
-G_MODULE_EXPORT void 
+void 
 gw_application_open_help_cb (GSimpleAction *action,
                              GVariant      *parameter,
                              gpointer       data)
@@ -279,7 +279,7 @@ gw_application_open_help_cb (GSimpleAction *action,
 //! @param widget Unused GtkWidget pointer
 //! @param data Unused gpointer
 //!
-G_MODULE_EXPORT void 
+void 
 gw_application_open_glossary_cb (GSimpleAction *action,
                                  GVariant      *parameter,
                                  gpointer       data)
@@ -316,13 +316,13 @@ gw_application_spellcheck_toggled_cb (GSimpleAction *action,
                                       gpointer       data)
 {
     //Declarations
-    GwApplication *application;
-    LwPreferences *preferences;
-    gboolean state;
+    GwApplication *application = NULL;
+    LwPreferences *preferences = NULL;
+    gboolean state = FALSE;
 
     //Initializations
     application = GW_APPLICATION (data);
-    preferences = gw_application_get_preferences (application);
+    preferences = lw_preferences_get_default ();
     state = lw_preferences_get_boolean_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_SPELLCHECK);
 
     lw_preferences_set_boolean_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_SPELLCHECK, !state);

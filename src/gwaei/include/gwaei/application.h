@@ -63,45 +63,13 @@ void gw_application_quit (GwApplication*);
 
 GtkWindow* gw_application_get_window_by_type (GwApplication *application, const GType TYPE);
 
-const char* gw_application_get_program_name (GwApplication*);
-void gw_application_cancel_all_searches (GwApplication*);
+const gchar* gw_application_get_program_name (GwApplication *application);
+void gw_application_map_actions (GActionMap *map, GwApplication *application);
 
-void gw_application_block_searches (GwApplication*);
-void gw_application_unblock_searches (GwApplication*);
-gboolean gw_application_can_start_search (GwApplication*);
-
-void gw_application_set_error (GwApplication*, GError*);
-gboolean gw_application_has_error (GwApplication*);
-void gw_application_handle_error (GwApplication*, GtkWindow*, gboolean, GError**);
-
-void gw_application_set_last_focused_searchwindow (GwApplication*, struct _GwSearchWindow*);
-struct _GwSearchWindow* gw_application_get_last_focused_searchwindow (GwApplication*);
-
-LwPreferences* gw_application_get_preferences (GwApplication*);
-GtkListStore* gw_application_get_dictionarystore (GwApplication*);
-LwDictionaryList* gw_application_get_installed_dictionarylist (GwApplication*);
-LwDictionaryList* gw_application_get_installable_dictionarylist (GwApplication*);
-GtkTextTagTable* gw_application_get_tagtable (GwApplication*);
-GtkListStore* gw_application_get_vocabularyliststore (GwApplication*);
-LwMorphologyEngine* gw_application_get_morphologyengine (GwApplication *application);
-
-gboolean gw_application_should_quit (GwApplication *application);
-
-gboolean gw_application_load_xml (GtkBuilder*, const gchar*);
-
-void gw_application_map_actions (GActionMap*, GwApplication*);
-void gw_menumodel_set_links (GMenuModel*, const gchar*, const gchar*, const gchar*, GMenuModel*);
-
-void gw_application_show_vocabularywindow (GwApplication*, gint);
-void gw_application_spellcheck_toggled_cb (GSimpleAction*, GVariant*, gpointer);
-
-void   gw_application_set_win_menubar (GwApplication*, GMenuModel*);
-void gw_application_initialize_accelerators (GwApplication*);
-void gw_application_add_accelerators (GwApplication*, GMenuModel*);
-void gw_application_remove_accelerators (GwApplication *application, GMenuModel *menumodel);
-
-#include "application-callbacks.h"
+LwDictionaryList* gw_application_get_installed_dictionarylist (GwApplication *application);
 
 G_END_DECLS
+
+#include "application-callbacks.h"
 
 #endif

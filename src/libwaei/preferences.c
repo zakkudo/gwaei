@@ -68,6 +68,7 @@ lw_preferences_get_default ()
     if (_preferences == NULL)
     {
       LwPreferences *preferences = lw_preferences_new (NULL);
+      _preferences = preferences;
       g_object_add_weak_pointer (G_OBJECT (preferences), (gpointer*) &_preferences);
     }
     else

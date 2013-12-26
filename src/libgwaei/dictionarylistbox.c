@@ -169,6 +169,12 @@ lgw_dictionarylistbox_constructed (GObject *object)
       gtk_widget_show (scrolled_window);
 
       {
+        GtkStyleContext *context = gtk_widget_get_style_context (scrolled_window);
+        gtk_style_context_set_junction_sides (context, GTK_JUNCTION_BOTTOM);
+        gtk_widget_reset_style (scrolled_window);
+      }
+
+      {
         GtkWidget *list_box = gtk_list_box_new ();
         priv->ui.list_box = GTK_LIST_BOX (list_box);
         gtk_container_add (GTK_CONTAINER (scrolled_window), list_box);
@@ -180,6 +186,7 @@ lgw_dictionarylistbox_constructed (GObject *object)
       GtkWidget *toolbar = gtk_toolbar_new ();
       priv->ui.toolbar = GTK_TOOLBAR (toolbar);
       gtk_toolbar_set_icon_size (priv->ui.toolbar, GTK_ICON_SIZE_MENU);
+      gtk_toolbar_set_show_arrow (priv->ui.toolbar, FALSE);
       gtk_widget_show (toolbar);
       gtk_box_pack_start (priv->ui.box, toolbar, FALSE, FALSE, 0);
 

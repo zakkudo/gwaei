@@ -7,7 +7,7 @@ datadir = @datadir@
 DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" 
 
 lib_LTLIBRARIES =libgwaei.la
-libgwaei_la_SOURCES =libgwaei.c actiongroup.c window.c window-callbacks.c dictionarylistbox.c dictionarylistbox-callbacks.c dictionarylist.c dictionarylist-iter.c dictionarylist-callbacks.c searchwidget.c searchentry.c searchentry-callbacks.c resultsview.c resultstextview.c texttagtable.c actionable.c menuable.c
+libgwaei_la_SOURCES =libgwaei.c actiongroup.c window.c window-callbacks.c dictionarylistbox.c dictionarylistbox-callbacks.c dictionarylist.c dictionarylist-iter.c dictionarylist-callbacks.c searchwidget.c searchentry.c searchentry-callbacks.c resultsview.c resultstextview.c texttagtable.c texttagtable-callbacks.c actionable.c menuable.c
 libgwaei_la_LDFLAGS =-no-undefined -version-info $(LIBRARY_VERSION)  $(GWAEI_LIBS) 
 libgwaei_la_CPPFLAGS =-I$(top_srcdir)/src/libwaei/include -I$(top_srcdir)/src/libgwaei/include $(GWAEI_CFLAGS) $(DEFINITIONS) 
 libgwaei_la_LIBADD =

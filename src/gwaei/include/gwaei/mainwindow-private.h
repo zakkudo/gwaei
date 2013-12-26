@@ -12,6 +12,7 @@ typedef enum {
 typedef enum {
   SIGNALID_APPLICATION_PROPERTY_CHANGED,
   SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED,
+  SIGNALID_SHOW_MENUBAR,
   TOTAL_SIGNALIDS
 } SignalId;
 
@@ -21,10 +22,7 @@ typedef enum {
 } ClassSignalId;
 
 struct _UI {
-    GtkBox *box;
-
     GtkStackSwitcher *stack_switcher;
-    GtkMenuButton *menu_button;
     GtkHeaderBar *header_bar;
     GtkStack *stack;
 
@@ -55,9 +53,9 @@ struct _GwMainWindowClassPrivate {
 
 #define GW_MAINWINDOW_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GW_TYPE_MAINWINDOW, GwMainWindowPrivate))
 
-static GList* gw_mainwindow_get_actions (LgwActionable *actionable);
-static void gw_mainwindow_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-static void gw_mainwindow_sync_actions (GwMainWindow *main_window);
+GList* gw_mainwindow_get_actions (LgwActionable *actionable);
+void gw_mainwindow_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
+void gw_mainwindow_sync_actions (GwMainWindow *main_window);
 
 G_END_DECLS
 

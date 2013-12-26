@@ -31,6 +31,11 @@ gchar* lgw_get_symbolic_icon_name_if_exists (const gchar* ICON_NAME);
 gboolean lgw_load_xml (GtkBuilder *builder, const gchar *FILENAME);
 GMenuModel* lgw_load_menu_model (const gchar* FILENAME);
 
+void lgw_menumodel_set_contents (GMenuModel *menu_model, GMenuModel *other_menu_model);
+
+void lgw_application_add_accelerators (GtkApplication *application, GMenuModel *menumodel);
+void lgw_application_remove_accelerators (GtkApplication *application, GMenuModel *menumodel);
+
 
 #endif
 

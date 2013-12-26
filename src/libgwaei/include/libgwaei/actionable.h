@@ -24,8 +24,6 @@ GType lgw_actionable_get_type (void);
 GList* lgw_actionable_get_actions (LgwActionable *self);
 void lgw_actionable_set_actiongroup (LgwActionable *self, LgwActionGroup *action_group);
 
-void lgw_actionable_notify_actions (LgwActionable *self);
-
 
 G_END_DECLS
     

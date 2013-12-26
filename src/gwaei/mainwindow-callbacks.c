@@ -42,11 +42,6 @@
 #include <gwaei/mainwindow-private.h>
 
 
-gboolean
-gw_mainwindow_focus_cb (GtkWidget        *widget,
-                        GdkEvent *event,
-                        gpointer          data);
-
 void
 gw_mainwindow_connect_signals (GwMainWindow *window) {
     //Sanity checks
@@ -54,9 +49,11 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
 
     //Declarations
     GwMainWindowPrivate *priv = NULL;
+    LwPreferences *preferences = NULL;
 
     //Initializations
     priv = window->priv;
+    preferences = lw_preferences_get_default ();
 
     if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] == 0)
     {
@@ -78,6 +75,18 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
       );
     }
 
+    if (priv->data.signalid[SIGNALID_SHOW_MENUBAR] == 0)
+    {
+      priv->data.signalid[SIGNALID_SHOW_MENUBAR] = lw_preferences_add_change_listener_by_schema (
+        preferences,
+        LW_SCHEMA_BASE,
+        LW_KEY_MENUBAR_SHOW,
+        gw_mainwindow_sync_show_menubar_cb,
+        window
+      );
+    }
+
+
 
       /*priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] =*/ g_signal_connect (
           window,
@@ -95,9 +104,11 @@ gw_mainwindow_disconnect_signals (GwMainWindow *window) {
 
     //Declarations
     GwMainWindowPrivate *priv = NULL;
+    LwPreferences *preferences = NULL;
 
     //Initializations
     priv = window->priv;
+    preferences = lw_preferences_get_default ();
 
     if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] != 0)
     {
@@ -109,6 +120,15 @@ gw_mainwindow_disconnect_signals (GwMainWindow *window) {
     {
       g_signal_handler_disconnect (priv->ui.stack, priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED]);
       priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_SHOW_MENUBAR] != 0) {
+      lw_preferences_remove_change_listener_by_schema (
+          preferences,
+          LW_SCHEMA_BASE,
+          priv->data.signalid[SIGNALID_SHOW_MENUBAR]
+      );
+      priv->data.signalid[SIGNALID_SHOW_MENUBAR] = 0;
     }
 }
 
@@ -125,15 +145,13 @@ gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
 
     priv = main_window->priv;
     if (priv == NULL) goto errored;
-    g_object_get (G_OBJECT (main_window), "application", &application, NULL);
+    application = gtk_window_get_application (GTK_WINDOW (main_window));
     if (application == NULL) goto errored;
     dictionarylist = gw_application_get_installed_dictionarylist (GW_APPLICATION (application));
 
     lgw_searchwidget_set_dictionarylist (priv->ui.search_widget, dictionarylist);
 
 errored:
-
-    if (application != NULL) g_object_unref (application);
 
     return;
 }
@@ -160,28 +178,7 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     action_map = G_ACTION_MAP (main_window);
     actionable = LGW_ACTIONABLE (main_window);
 
-/*
-    {
-      GMenuModel *menu_model = gtk_menu_button_get_menu_model (priv->ui.menu_button);
-      if (menu_model != NULL)
-      {
-         gw_application_remove_accelerators (GW_APPLICATION (application), menu_model);
-      }
-    }
-    */
-
-    //Assign the menus
-    if (widget != NULL && LGW_IS_MENUABLE (widget)) {
-      LgwMenuable *menuable = LGW_MENUABLE (widget);
-      gtk_application_set_menubar (application, lgw_menuable_get_button_menu_model (menuable));
-      gtk_menu_button_set_menu_model (priv->ui.menu_button, lgw_menuable_get_window_menu_model (menuable));
-      gtk_application_window_set_show_menubar (GTK_APPLICATION_WINDOW (main_window), TRUE);
-      printf("visible child changed\n");
-    }
-    else
-    {
-      gtk_menu_button_set_menu_model (priv->ui.menu_button, NULL);
-    }
+    gw_mainwindow_sync_actions (main_window);
 
     //Assign the actions
     if (widget != NULL && LGW_IS_ACTIONABLE (widget)) {
@@ -189,21 +186,30 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
       GList *link = NULL;
       for (link = action_group_list; link != NULL; link = link->next)
       {
-      printf("BREAK actionable\n");
           LgwActionGroup *action_group = LGW_ACTIONGROUP (link->data);
           if (action_group != NULL)
           {
-            printf("BREAK add to map\n");
             lgw_actiongroup_add_to_map (action_group, action_map);
           }
       }
-
-      printf("visible child changed\n");
     }
     else
     {
     }
 
+    //Assign the menus
+    if (widget != NULL && LGW_IS_MENUABLE (widget)) {
+      LgwMenuable *menuable = LGW_MENUABLE (widget);
+      lgw_window_set_window_menumodel (LGW_WINDOW (main_window), lgw_menuable_get_window_menu_model (menuable));
+      lgw_window_set_button_menumodel (LGW_WINDOW (main_window), lgw_menuable_get_button_menu_model (menuable));
+    }
+    else
+    {
+      lgw_window_set_window_menumodel (LGW_WINDOW (main_window), NULL);
+      lgw_window_set_button_menumodel (LGW_WINDOW (main_window), NULL);
+    }
+
+    printf("visible child changed\n");
 
 errored:
 
@@ -237,6 +243,61 @@ gw_mainwindow_close_cb (GSimpleAction *action,
     if (widget == NULL) goto errored;
 
     gtk_widget_destroy (widget);
+
+errored:
+
+    return;
+}
+
+
+//!
+//! @brief Sets the show menu boolean to match the widget
+//! @see gw_mainwindow_set_menu_show ()
+//! @param widget Unused GtkWidget pointer.
+//! @param data Unused gpointer
+//!
+void
+gw_mainwindow_menubar_show_toggled_cb (GSimpleAction *action, 
+                                       GVariant      *parameter, 
+                                       gpointer       data)
+{
+    //Declarations
+    GwMainWindow *window = NULL;
+    LwPreferences *preferences = NULL;
+    gboolean show = FALSE;
+
+    //Initializations
+    window = GW_MAINWINDOW (data);
+    preferences = lw_preferences_get_default ();
+    show = lw_preferences_get_boolean_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_MENUBAR_SHOW);
+
+    lw_preferences_set_boolean_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_MENUBAR_SHOW, !show);
+}
+
+
+//!
+//! @brief Syncs the gui to the preference settinging.  It should be attached to the gsettings object
+//!
+void
+gw_mainwindow_sync_show_menubar_cb (GSettings *settings,
+                                    gchar     *key,
+                                    gpointer   data)
+{
+    //Declarations
+    GwMainWindow *window = NULL;
+    GwMainWindowPrivate *priv = NULL;
+    gboolean show_menubar = FALSE;
+    GAction *action = NULL;
+
+    //Initializations
+    window = GW_MAINWINDOW (data);
+    if (window == NULL) goto errored;
+    priv = window->priv;
+    show_menubar = lw_preferences_get_boolean (settings, key);
+    action = g_action_map_lookup_action (G_ACTION_MAP (window), "toggle-menubar-show");
+    if (action == NULL) goto errored;
+
+    g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (show_menubar));
 
 errored:
 

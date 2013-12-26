@@ -43,17 +43,8 @@
 #include <libgwaei/gettext.h>
 
 static void lgw_texttagtable_init_base_tags (LgwTextTagTable*);
-static void lgw_texttagtable_connect_signals (LgwTextTagTable*);
-static void lgw_texttagtable_disconnect_signals (LgwTextTagTable*);
-static void lgw_texttagtable_sync_tag_cb (GSettings*, gchar*, gpointer);
 
 G_DEFINE_TYPE (LgwTextTagTable, lgw_texttagtable, GTK_TYPE_TEXT_TAG_TABLE)
-
-typedef enum
-{
-  PROP_0,
-  PROP_PREFERENCES,
-} LgwTextTagTableProps;
 
 
 GtkTextTagTable*
@@ -78,7 +69,31 @@ lgw_texttagtable_set_preferences (LgwTextTagTable *tagtable,
     //Sanity checks
     g_return_if_fail (tagtable != NULL);
 
-    g_object_set (G_OBJECT (tagtable), "preferences", preferences, NULL);
+    //Declarations
+    LgwTextTagTablePrivate *priv = NULL;
+    LgwTextTagTableClass *klass = NULL;
+    LgwTextTagTableClassPrivate* klasspriv = NULL;
+
+    //Initializations
+    priv = tagtable->priv;
+    klass = LGW_TEXTTAGTABLE_GET_CLASS (tagtable);
+    klasspriv = klass->priv;
+
+    lgw_texttagtable_disconnect_signals (tagtable);
+
+    if (priv->preferences != NULL)
+    {
+      g_object_unref (priv->preferences);
+    }
+    priv->preferences = NULL;
+
+    if (preferences != NULL)
+    {
+      priv->preferences = preferences;
+      lgw_texttagtable_connect_signals (tagtable);
+    }
+
+    g_object_notify_by_pspec (G_OBJECT (tagtable), klasspriv->pspec[PROP_PREFERENCES]);
 }
 
 
@@ -109,7 +124,7 @@ static void
 lgw_texttagtable_constructed (GObject *object)
 {
     //Declarations
-    LgwTextTagTable *tagtable;
+    LgwTextTagTable *tagtable = NULL;
 
     //Chain the parent class
     {
@@ -120,7 +135,6 @@ lgw_texttagtable_constructed (GObject *object)
     tagtable = LGW_TEXTTAGTABLE (object);
 
     lgw_texttagtable_init_base_tags (tagtable);
-    lgw_texttagtable_connect_signals (tagtable);
 }
 
 
@@ -141,10 +155,7 @@ lgw_texttagtable_set_property (GObject      *object,
     switch (property_id)
     {
       case PROP_PREFERENCES:
-        lgw_texttagtable_disconnect_signals (tagtable);
-        if (priv->preferences != NULL) g_object_unref (priv->preferences);
-        priv->preferences = LW_PREFERENCES (g_value_get_object (value));
-        lgw_texttagtable_connect_signals (tagtable);
+        lgw_texttagtable_set_preferences (tagtable, LW_PREFERENCES (g_value_get_object (value)));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -183,8 +194,8 @@ static void
 lgw_texttagtable_class_init (LgwTextTagTableClass *klass)
 {
     //Declarations
-    GParamSpec *pspec = NULL;
     GObjectClass *object_class = NULL;
+    LgwTextTagTableClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
@@ -193,15 +204,20 @@ lgw_texttagtable_class_init (LgwTextTagTableClass *klass)
     object_class->finalize = lgw_texttagtable_finalize;
     object_class->constructed = lgw_texttagtable_constructed;
 
+    klass->priv = g_new0 (LgwTextTagTableClassPrivate, 1);
+
+    klasspriv = klass->priv;
+
     g_type_class_add_private (object_class, sizeof (LgwTextTagTablePrivate));
 
-    pspec = g_param_spec_object ("preferences",
-                                 "Preferences construct prop",
-                                 "Set the preferences object",
-                                 LW_TYPE_PREFERENCES,
-                                 G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
+        "preferences",
+        "Preferences construct prop",
+        "Set the preferences object",
+        LW_TYPE_PREFERENCES,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_PREFERENCES, pspec);
+    g_object_class_install_property (object_class, PROP_PREFERENCES, klasspriv->pspec[PROP_PREFERENCES]);
 }
 
 
@@ -262,138 +278,4 @@ lgw_texttagtable_init_base_tags (LgwTextTagTable *tagtable)
     gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
     g_object_unref (tag);
 }
-
-
-static void
-lgw_texttagtable_connect_signals (LgwTextTagTable *tagtable)
-{
-    //Sanity checks
-    g_return_if_fail (tagtable != NULL);
-
-    //Declarations
-    LgwTextTagTablePrivate *priv = NULL;
-    LwPreferences *preferences = NULL;
-
-    //Initializations
-    priv = tagtable->priv;
-    preferences = priv->preferences;
-    if (preferences == NULL) goto errored;
-
-    priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_FG] = lw_preferences_add_change_listener_by_schema (
-        preferences, 
-        LW_SCHEMA_HIGHLIGHT, 
-        LW_KEY_MATCH_FG, 
-        lgw_texttagtable_sync_tag_cb, 
-        tagtable
-    );
-
-    priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_BG] = lw_preferences_add_change_listener_by_schema (
-        preferences, 
-        LW_SCHEMA_HIGHLIGHT, 
-        LW_KEY_MATCH_BG, 
-        lgw_texttagtable_sync_tag_cb, 
-        tagtable
-    );
-
-    priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_FG] = lw_preferences_add_change_listener_by_schema (
-        preferences, 
-        LW_SCHEMA_HIGHLIGHT, 
-        LW_KEY_HEADER_FG, 
-        lgw_texttagtable_sync_tag_cb, 
-        tagtable
-    );
-
-    priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_BG] = lw_preferences_add_change_listener_by_schema (
-        preferences, 
-        LW_SCHEMA_HIGHLIGHT, 
-        LW_KEY_HEADER_BG, 
-        lgw_texttagtable_sync_tag_cb, 
-        tagtable
-    );
-
-    priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_COMMENT_FG] = lw_preferences_add_change_listener_by_schema (
-        preferences, 
-        LW_SCHEMA_HIGHLIGHT, 
-        LW_KEY_COMMENT_FG, 
-        lgw_texttagtable_sync_tag_cb, 
-        tagtable
-    );
-
-errored:
-
-    return;
-}
-
-
-static void
-lgw_texttagtable_disconnect_signals (LgwTextTagTable *tagtable)
-{
-    //Sanity checks
-    g_return_if_fail (tagtable != NULL);
-
-    //Declarations
-    LgwTextTagTablePrivate *priv = NULL;
-    LwPreferences *preferences = NULL;
-
-    //Initializations
-    priv = tagtable->priv;
-    preferences = priv->preferences;
-    if (preferences == NULL) goto errored;
-
-    {
-      gint i = 0;
-      for (i = 0; i < G_N_ELEMENTS (priv->signalid); i++) {
-        lw_preferences_remove_change_listener_by_schema (
-          preferences, 
-          LW_SCHEMA_HIGHLIGHT, 
-          priv->signalid[i]
-        );
-        priv->signalid[i] = 0;
-      }
-    }
-
-errored:
-
-    return;
-}
-
-
-//!
-//! @brief Resets the color tags according to the preferences
-//!
-static void
-lgw_texttagtable_sync_tag_cb (GSettings *settings, gchar *key, gpointer data)
-{
-    //Declarations
-    gchar *text = NULL;
-    GdkRGBA color;
-    gchar **pair = NULL;
-    GtkTextTag *tag = NULL;
-    GtkTextTagTable *tagtable = NULL;
-
-    tagtable = GTK_TEXT_TAG_TABLE (data);
-
-    //Parse the color
-    text = lw_preferences_get_string (settings, key);
-    if (gdk_rgba_parse (&color, text) == FALSE)
-    {
-      fprintf(stderr, "Failed to set tag to the tag table: %s\n", text);
-      lw_preferences_reset_value (settings, key);
-      return;
-    }
-
-    //Update the tag 
-    pair = g_strsplit (key, "-", 2);
-    if (pair != NULL && pair[0] != NULL && pair[1] != NULL)
-    {
-      tag = gtk_text_tag_table_lookup (tagtable, pair[0]);
-      g_object_set (G_OBJECT (tag), pair[1], text, NULL);
-    }
-
-errored:
-
-    if (pair != NULL) g_strfreev (pair);
-    pair = NULL;
-}
-
 

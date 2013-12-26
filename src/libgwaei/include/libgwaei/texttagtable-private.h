@@ -3,6 +3,13 @@
 
 G_BEGIN_DECLS
 
+typedef enum
+{
+  PROP_0,
+  PROP_PREFERENCES,
+  TOTAL_PROPS
+} Props;
+
 typedef enum { 
   LGW_TEXTTAGTABLE_SIGNALID_MATCH_FG,
   LGW_TEXTTAGTABLE_SIGNALID_MATCH_BG,
@@ -20,10 +27,12 @@ struct _LgwTextTagTablePrivate {
 #define LGW_TEXTTAGTABLE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_TEXTTAGTABLE, LgwTextTagTablePrivate))
 
 struct _LgwTextTagTableClassPrivate {
-    gchar unused;
+    GParamSpec *pspec[TOTAL_PROPS];
 };
 
 G_END_DECLS
+
+#include <libgwaei/texttagtable-callbacks.h>
 
 #endif
 

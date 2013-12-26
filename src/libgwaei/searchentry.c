@@ -327,8 +327,6 @@ lgw_searchentry_set_actiongroup (LgwActionable  *actionable,
     {
       priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
     }
-
-    lgw_actionable_notify_actions (actionable);
 }
 
 

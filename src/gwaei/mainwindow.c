@@ -43,7 +43,6 @@
 
 
 //Static declarations
-static void gw_mainwindow_initialize_box (GwMainWindow *window);
 static void gw_mainwindow_initialize_header (GwMainWindow *window);
 static void gw_mainwindow_initialize_vocabularywidget (GwMainWindow *window);
 static void gw_mainwindow_initialize_body (GwMainWindow *window);
@@ -61,16 +60,18 @@ G_DEFINE_TYPE_WITH_CODE (GwMainWindow, gw_mainwindow, LGW_TYPE_WINDOW,
 GtkWindow* 
 gw_mainwindow_new (GtkApplication *application)
 {
-    g_assert (application != NULL);
+    //Sanity checks
+    g_return_val_if_fail (application != NULL, NULL);
 
     //Declarations
-    GwMainWindow *window;
+    GwMainWindow *window = NULL;
 
     //Initializations
     window = GW_MAINWINDOW (g_object_new (GW_TYPE_MAINWINDOW,
-                                            "type",        GTK_WINDOW_TOPLEVEL,
-                                            "application", application,
-                                            NULL));
+                                          "type",        GTK_WINDOW_TOPLEVEL,
+                                          "application", application,
+                                          "shows-menubar", TRUE,
+                                           NULL));
 
     return GTK_WINDOW (window);
 }
@@ -185,7 +186,6 @@ gw_mainwindow_constructed (GObject *object)
     window = GW_MAINWINDOW (object);
     priv = window->priv;
 
-    gw_mainwindow_initialize_box (window);
     gw_mainwindow_initialize_header (window);
     gw_mainwindow_initialize_vocabularywidget (window);
     gw_mainwindow_initialize_body (window);
@@ -196,9 +196,6 @@ gw_mainwindow_constructed (GObject *object)
     gtk_window_set_icon_name (GTK_WINDOW (window), "gwaei");
 
     gw_mainwindow_connect_signals (window);
-
-printf("BREAK constructed\n");
-    gw_mainwindow_sync_actions (window);
 }
 
 
@@ -252,23 +249,6 @@ gw_mainwindow_class_init (GwMainWindowClass *klass)
 
 
 static void
-gw_mainwindow_initialize_box (GwMainWindow *window)
-{
-    //Sanity checks
-    g_return_if_fail (window != NULL);
-    GwMainWindowPrivate *priv = window->priv;
-
-    //Setup header bar
-    {
-      GtkWidget *box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-      priv->ui.box = GTK_BOX (box);
-      gtk_container_add (GTK_CONTAINER (window), box);
-      gtk_widget_show (box);
-    }
-}
-
-
-static void
 gw_mainwindow_initialize_header (GwMainWindow *window)
 {
     //Sanity checks
@@ -290,8 +270,7 @@ gw_mainwindow_initialize_header (GwMainWindow *window)
 
       //Setup menu button
       {
-        GtkWidget *menu_button = gtk_menu_button_new ();
-        priv->ui.menu_button = GTK_MENU_BUTTON (menu_button);
+        GtkWidget *menu_button = lgw_window_get_menu_button (LGW_WINDOW (window));
         gtk_header_bar_pack_end (priv->ui.header_bar, menu_button);
         {
           gchar* icon_name = lgw_get_symbolic_icon_name_if_exists ("emblem-system");
@@ -350,7 +329,7 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
       GtkWidget *stack = gtk_stack_new ();
       priv->ui.stack = GTK_STACK (stack);
       gtk_stack_set_homogeneous (priv->ui.stack, TRUE);
-      gtk_box_pack_start (priv->ui.box, stack, TRUE, TRUE, 0); 
+      lgw_window_pack_start (LGW_WINDOW (window), stack, TRUE, TRUE, 0); 
       gtk_stack_switcher_set_stack (priv->ui.stack_switcher, priv->ui.stack);
       gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_CROSSFADE);
 
@@ -368,13 +347,14 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
       gtk_widget_show (stack);
     }
 
-    gtk_stack_set_visible_child (priv->ui.stack, GTK_WIDGET (priv->ui.search_widget));
-    g_object_notify (G_OBJECT (priv->ui.stack), "visible-child");
+    //HACK
+    gw_mainwindow_application_visible_child_property_changed_cb (window, NULL, NULL);
+
     lgw_searchwidget_set_search_mode (priv->ui.search_widget, TRUE);
 }
 
 
-static void
+void
 gw_mainwindow_set_actiongroup (LgwActionable *actionable,
                                LgwActionGroup *action_group)
 {
@@ -410,18 +390,14 @@ gw_mainwindow_set_actiongroup (LgwActionable *actionable,
 
     if (action_group != NULL)
     {
-    printf("BREAK mainwindow set actiongroup\n");
       priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
     }
-
-    lgw_actionable_notify_actions (actionable);
 }
 
 
-static void
+void
 gw_mainwindow_sync_actions (GwMainWindow *main_window)
 {
-  printf("BREAK sync actions\n");
     //Sanity checks
     g_return_val_if_fail (main_window != NULL, NULL);
 
@@ -437,26 +413,13 @@ gw_mainwindow_sync_actions (GwMainWindow *main_window)
     widget = GTK_WIDGET (main_window);
     has_focus = gtk_widget_is_focus (widget);
 
-    if (has_focus)
     {
       static GActionEntry entries[] = {
+        { "toggle-menubar-show", gw_mainwindow_menubar_show_toggled_cb, NULL, "false", NULL },
         { "close", gw_mainwindow_close_cb, NULL, NULL, NULL }
       };
       if (priv->data.action_group_list == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
       {
-        printf("BREAK test\n");
-        LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-        lgw_actionable_set_actiongroup (actionable, action_group);
-      }
-    }
-    else
-    {
-      static GActionEntry entries[] = {
-        { "close", gw_mainwindow_close_cb, NULL, NULL, NULL }
-      };
-      if (priv->data.action_group_list == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
-      {
-        printf("BREAK test\n");
         LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
         lgw_actionable_set_actiongroup (actionable, action_group);
       }
@@ -464,11 +427,9 @@ gw_mainwindow_sync_actions (GwMainWindow *main_window)
 }
 
 
-static GList*
+GList*
 gw_mainwindow_get_actions (LgwActionable *actionable)
 {
-    printf("BREAK mainwindow get actions\n");
-
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 
@@ -479,8 +440,6 @@ gw_mainwindow_get_actions (LgwActionable *actionable)
     //Initializations
     main_window = GW_MAINWINDOW (actionable);
     priv = main_window->priv;
-
-    g_assert(g_list_length (priv->data.action_group_list) > 0);
 
     return priv->data.action_group_list;
 }

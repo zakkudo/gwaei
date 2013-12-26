@@ -8,6 +8,7 @@ G_BEGIN_DECLS
 typedef struct _LgwWindow LgwWindow;
 typedef struct _LgwWindowClass LgwWindowClass;
 typedef struct _LgwWindowPrivate LgwWindowPrivate;
+typedef struct _LgwWindowClassPrivate LgwWindowClassPrivate;
 
 #define LGW_TYPE_WINDOW              (lgw_window_get_type())
 #define LGW_WINDOW(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LGW_TYPE_WINDOW, LgwWindow))
@@ -23,14 +24,33 @@ struct _LgwWindow {
 
 struct _LgwWindowClass {
   GtkApplicationWindowClass parent_class;
+  LgwWindowClassPrivate *priv;
 };
 
 //Methods
 GtkWindow* lgw_window_new (void);
 GType lgw_window_get_type (void) G_GNUC_CONST;
 
-G_END_DECLS
+GMenuModel* lgw_window_get_window_menumodel (LgwWindow *window);
+GMenuModel* lgw_window_get_button_menumodel (LgwWindow *window);
 
-#include "window-callbacks.h"
+void lgw_window_set_window_menumodel (LgwWindow *window, GMenuModel *menu_model);
+void lgw_window_set_button_menumodel (LgwWindow *window, GMenuModel *menu_model);
+
+gboolean lgw_window_is_closable (LgwWindow *window);
+
+GMenuModel* lgw_window_get_transient_for_menumodel (LgwWindow *window);
+
+void  lgw_window_show_menubar (LgwWindow *window, gboolean show);
+
+GtkWidget* lgw_window_get_menubar (LgwWindow *window);
+GtkWidget* lgw_window_get_menu_button (LgwWindow *window);
+
+void lgw_window_set_shows_menubar (LgwWindow *window, gboolean can_show_menubar);
+gboolean lgw_window_get_shows_menubar (LgwWindow *window);
+
+void lgw_window_pack_start (LgwWindow *window, GtkWidget *widget, gboolean expand, gboolean fill, guint padding);
+
+G_END_DECLS
 
 #endif

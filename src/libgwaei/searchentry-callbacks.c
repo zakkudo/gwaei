@@ -55,14 +55,14 @@ lgw_searchentry_connect_signals (LgwSearchEntry *entry)
     priv = entry->priv;
 
     priv->data.signalid[SIGNALID_CHANGED] = g_signal_connect (
-        GTK_EDITABLE (priv->ui.search_entry),
-        "changed",
+        G_OBJECT (priv->ui.search_entry),
+        "search-changed",
         G_CALLBACK (lgw_searchentry_changed_cb),
         NULL
     );
 
     priv->data.signalid[SIGNALID_ACTIVATED] = g_signal_connect (
-        GTK_ENTRY (priv->ui.search_entry),
+        G_OBJECT (priv->ui.search_entry),
         "activate",
         G_CALLBACK (lgw_searchentry_activated_cb),
         NULL
@@ -106,8 +106,8 @@ lgw_searchentry_activated_cb (GtkEntry *entry,
 
 
 void
-lgw_searchentry_changed_cb (GtkEditable *editable,
-                            gpointer     data)
+lgw_searchentry_changed_cb (GtkSearchEntry *search_entry,
+                            gpointer        data)
 {
     printf("BREAK changed\n");
 }

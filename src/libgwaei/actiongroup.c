@@ -92,8 +92,6 @@ lgw_actiongroup_add_to_map (LgwActionGroup *action_group,
     length = action_group->length;
     widget = GTK_WIDGET (action_group->widget);
 
-    printf("BREAK length: %d %d %d\n", entries, length, widget);
-
     g_action_map_add_action_entries (action_map, entries, length, widget);
 }
 
@@ -131,7 +129,7 @@ lgw_actiongroup_contains_entries (LgwActionGroup *action_group,
                                   gint            other_length)
 {
     //Sanity checks
-    g_return_val_if_fail (action_group == NULL, FALSE);
+    g_return_val_if_fail (action_group != NULL, FALSE);
     g_return_val_if_fail (other_entries != NULL, FALSE);
 
     //Declarations

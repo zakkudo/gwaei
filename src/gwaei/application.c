@@ -94,7 +94,7 @@ gw_application_constructed (GObject *object)
     }
 
     lw_regex_initialize ();
-    gw_application_initialize_accelerators (GW_APPLICATION (object));
+    //gw_application_initialize_accelerators (GW_APPLICATION (object));
 
 /*
 #ifdef OS_MINGW
@@ -177,8 +177,9 @@ gw_application_attach_signals (GwApplication *application)
     LwPreferences *preferences = NULL;
 
     //Initializations
-    preferences = gw_application_get_preferences (application);
+    preferences = lw_preferences_get_default ();
 
+/*
     lw_preferences_add_change_listener_by_schema (
         preferences,
         LW_SCHEMA_BASE,
@@ -186,6 +187,7 @@ gw_application_attach_signals (GwApplication *application)
         gw_application_sync_spellcheck_cb,
         application 
     );
+*/
 #endif
 }
 
@@ -298,7 +300,7 @@ gw_application_quit (GwApplication *application)
 //! @brief Returns the program name.  It should not be freed or modified
 //! @returns A constanst string representing the program name
 //!
-const char* 
+const gchar* 
 gw_application_get_program_name (GwApplication *application) 
 {
   return gettext("gWaei Japanese-English Dictionary");
@@ -345,28 +347,6 @@ gw_application_get_window_by_type (GwApplication *application, const GType TYPE)
     }
 
     return window;
-}
-
-
-LwPreferences* 
-gw_application_get_preferences (GwApplication *application)
-{
-    //Sanity checks
-    g_return_val_if_fail (application != NULL, NULL);
-
-    //Declarations
-    GwApplicationPrivate *priv = NULL;
-
-    //Initializations
-    priv = application->priv;
-
-    if (priv->config.preferences == NULL)
-    {
-      priv->config.preferences = lw_preferences_new (NULL);
-      g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
-    }
-
-    return priv->config.preferences;
 }
 
 
@@ -635,133 +615,7 @@ gw_menumodel_set_links (GMenuModel *menumodel, const gchar *LABEL, const gchar *
     }
 }
 
-
-void
-gw_application_add_accelerators (GwApplication *application,
-                                 GMenuModel    *menumodel)
-{
-    //Sanity checks
-    g_return_if_fail (application != NULL);
-    g_return_if_fail (menumodel != NULL);
-
-    //Declarations
-    gint total_items = 0;
-    gint index = 0;
-    gchar *accel = NULL;
-    gchar *action = NULL;
-    gchar *detail = NULL;
-    GMenuModel *sublink = NULL;
-
-    //Initializations
-    total_items = g_menu_model_get_n_items (menumodel);
-
-    for (index = 0; index < total_items; index++)
-    {
-      g_menu_model_get_item_attribute (menumodel, index, "accel", "s", &accel, NULL);
-      g_menu_model_get_item_attribute (menumodel, index, G_MENU_ATTRIBUTE_ACTION, "s", &action, NULL);
-      g_menu_model_get_item_attribute (menumodel, index, G_MENU_ATTRIBUTE_TARGET, "s", &detail, NULL);
-      if (accel != NULL && action != NULL)
-      {
-        if (detail != NULL)
-          gtk_application_add_accelerator (GTK_APPLICATION (application), accel, action, g_variant_new_string (detail));
-        else
-          gtk_application_add_accelerator (GTK_APPLICATION (application), accel, action, NULL);
-          printf("BREAK add accelerator\n");
-      }
-
-      if (accel != NULL) g_free (accel); accel = NULL;
-      if (action != NULL) g_free (action); action = NULL;
-      if (detail != NULL) g_free (detail); detail = NULL;
-
-      //Recursive work
-      sublink = g_menu_model_get_item_link (menumodel, index, G_MENU_LINK_SUBMENU);
-      if (sublink != NULL) gw_application_add_accelerators (application, sublink);
-      sublink = g_menu_model_get_item_link (menumodel, index, G_MENU_LINK_SECTION);
-      if (sublink != NULL) gw_application_add_accelerators (application, sublink);
-    }
-}
-
-
-void
-gw_application_remove_accelerators (GwApplication *application, GMenuModel *menumodel)
-{
-    //Sanity checks
-    g_return_if_fail (application != NULL);
-    g_return_if_fail (menumodel != NULL);
-
-    //Declarations
-    gint total_items = 0;
-    gint index = 0;
-    gchar *accel = NULL;
-    gchar *action = NULL;
-    gchar *detail = NULL;
-    GMenuModel *sublink = NULL;
-
-    //Initializations
-    total_items = g_menu_model_get_n_items (menumodel);
-
-    for (index = 0; index < total_items; index++)
-    {
-      g_menu_model_get_item_attribute (menumodel, index, "accel", "s", &accel, NULL);
-      g_menu_model_get_item_attribute (menumodel, index, G_MENU_ATTRIBUTE_ACTION, "s", &action, NULL);
-      g_menu_model_get_item_attribute (menumodel, index, G_MENU_ATTRIBUTE_TARGET, "s", &detail, NULL);
-      if (accel != NULL && action != NULL)
-      {
-        if (detail != NULL)
-          gtk_application_remove_accelerator (GTK_APPLICATION (application), action, g_variant_new_string (detail));
-        else
-          gtk_application_remove_accelerator (GTK_APPLICATION (application), action, NULL);
-      }
-
-      if (accel != NULL) g_free (accel); accel = NULL;
-      if (action != NULL) g_free (action); action = NULL;
-      if (detail != NULL) g_free (detail); detail = NULL;
-
-      //Recursive work
-      sublink = g_menu_model_get_item_link (menumodel, index, G_MENU_LINK_SUBMENU);
-      if (sublink != NULL) gw_application_remove_accelerators (application, sublink);
-      sublink = g_menu_model_get_item_link (menumodel, index, G_MENU_LINK_SECTION);
-      if (sublink != NULL) gw_application_remove_accelerators (application, sublink);
-    }
-}
-
-
-void
-gw_application_set_win_menubar (GwApplication *application, GMenuModel *menumodel)
-{
-    /*
-    //Sanity checks
-    g_return_if_fail (application != NULL);
-    g_return_if_fail (menumodel != NULL);
-    if (g_menu_model_get_n_items (menumodel) == 0) return;
-
-    //Declarations
-    GMenuModel *menubar;
-    gint length;
-
-    //Initializations
-    menubar = gtk_application_get_menubar (GTK_APPLICATION (application));
-    g_return_if_fail (menubar != NULL);
-    length = g_menu_model_get_n_items (menubar);
-
-    //Clear the menubar
-    while (length-- > 0) g_menu_remove (G_MENU (menubar), 0);
-
-    //Add the menuitem linking the menus 
-    {
-      GMenuItem *menuitem = g_menu_item_new_section (NULL, menumodel);
-      if (menuitem != NULL)
-      {
-        g_menu_append_item (G_MENU (menubar), menuitem);
-        g_object_unref (menuitem); menuitem = NULL;
-      }
-      gw_application_add_accelerators (application, menubar);
-    }
-    */
-}
-
-
-void
+static void
 gw_application_initialize_accelerators (GwApplication *application)
 {
     //Sanity checks
@@ -812,7 +666,7 @@ gw_application_get_installed_dictionarylist (GwApplication *application)
     if (priv->data.dictionarylist.installed == NULL)
     {
       dictionarylist = lw_dictionarylist_new ();
-      preferences = gw_application_get_preferences (application);
+      preferences = lw_preferences_get_default ();
       morphologyengine = gw_application_get_morphologyengine (application);
       lw_dictionarylist_load_installed (LW_DICTIONARYLIST (dictionarylist), morphologyengine);
       lw_dictionarylist_load_order (LW_DICTIONARYLIST (dictionarylist), preferences);
@@ -844,7 +698,7 @@ gw_application_get_installable_dictionarylist (GwApplication *application)
     if (priv->data.dictionarylist.installable == NULL)
     {
       dictionarylist = lw_dictionarylist_new ();
-      preferences = gw_application_get_preferences (application);
+      preferences = lw_preferences_get_default ();
       lw_dictionarylist_load_installable (LW_DICTIONARYLIST (dictionarylist), preferences);
 
       priv->data.dictionarylist.installable = dictionarylist;

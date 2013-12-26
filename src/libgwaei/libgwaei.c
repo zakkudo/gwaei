@@ -139,4 +139,136 @@ errored:
 }
 
 
+void
+lgw_menumodel_set_contents (GMenuModel *menu_model,
+                            GMenuModel *other_menu_model)
+{
+    //Sanity checks
+    g_return_if_fail (menu_model != NULL);
 
+    //Declarations
+    GMenu *menu = NULL;
+
+    //Initializations
+    menu = G_MENU (menu_model);
+    if (menu == NULL) goto errored;
+
+    //Clear the menubar
+    {
+      gint length = g_menu_model_get_n_items (menu_model);
+      while (length-- > 0) g_menu_remove (menu, 0);
+    }
+
+    //Add the menuitem linking the menus 
+    if (other_menu_model != NULL) {
+      GMenuItem *menuitem = g_menu_item_new_section (NULL, other_menu_model);
+      if (menuitem != NULL)
+      {
+        g_menu_append_item (menu, menuitem);
+        g_object_unref (menuitem);
+        menuitem = NULL;
+      }
+    }
+
+errored:
+
+    return;
+}
+
+
+void
+lgw_application_add_accelerators (GtkApplication *application,
+                                  GMenuModel     *menumodel)
+{
+    //Sanity checks
+    g_return_if_fail (application != NULL);
+    g_return_if_fail (menumodel != NULL);
+
+    //Declarations
+    gint total_items = 0;
+    gint index = 0;
+    gchar *accel = NULL;
+    gchar *action = NULL;
+    gchar *detail = NULL;
+    GMenuModel *sublink = NULL;
+
+    //Initializations
+    total_items = g_menu_model_get_n_items (menumodel);
+
+    for (index = 0; index < total_items; index++)
+    {
+      g_menu_model_get_item_attribute (menumodel, index, "accel", "s", &accel, NULL);
+      g_menu_model_get_item_attribute (menumodel, index, G_MENU_ATTRIBUTE_ACTION, "s", &action, NULL);
+      g_menu_model_get_item_attribute (menumodel, index, G_MENU_ATTRIBUTE_TARGET, "s", &detail, NULL);
+      if (accel != NULL && action != NULL)
+      {
+        if (detail != NULL)
+        {
+          gtk_application_add_accelerator (GTK_APPLICATION (application), accel, action, g_variant_new_string (detail));
+        }
+        else
+        {
+          gtk_application_add_accelerator (GTK_APPLICATION (application), accel, action, NULL);
+        }
+      }
+
+      if (accel != NULL) g_free (accel); accel = NULL;
+      if (action != NULL) g_free (action); action = NULL;
+      if (detail != NULL) g_free (detail); detail = NULL;
+
+      //Recursive work
+      sublink = g_menu_model_get_item_link (menumodel, index, G_MENU_LINK_SUBMENU);
+      if (sublink != NULL) lgw_application_add_accelerators (application, sublink);
+      sublink = g_menu_model_get_item_link (menumodel, index, G_MENU_LINK_SECTION);
+      if (sublink != NULL) lgw_application_add_accelerators (application, sublink);
+    }
+}
+
+
+void
+lgw_application_remove_accelerators (GtkApplication *application,
+                                     GMenuModel     *menumodel)
+{
+    //Sanity checks
+    g_return_if_fail (application != NULL);
+    g_return_if_fail (menumodel != NULL);
+
+    //Declarations
+    gint total_items = 0;
+    gint index = 0;
+    gchar *accel = NULL;
+    gchar *action = NULL;
+    gchar *detail = NULL;
+    GMenuModel *sublink = NULL;
+
+    //Initializations
+    total_items = g_menu_model_get_n_items (menumodel);
+
+    for (index = 0; index < total_items; index++)
+    {
+      g_menu_model_get_item_attribute (menumodel, index, "accel", "s", &accel, NULL);
+      g_menu_model_get_item_attribute (menumodel, index, G_MENU_ATTRIBUTE_ACTION, "s", &action, NULL);
+      g_menu_model_get_item_attribute (menumodel, index, G_MENU_ATTRIBUTE_TARGET, "s", &detail, NULL);
+      if (accel != NULL && action != NULL)
+      {
+        if (detail != NULL)
+        {
+          gtk_application_remove_accelerator (GTK_APPLICATION (application), action, g_variant_new_string (detail));
+        }
+        else
+        {
+          gtk_application_remove_accelerator (GTK_APPLICATION (application), action, NULL);
+        }
+      }
+
+      if (accel != NULL) g_free (accel); accel = NULL;
+      if (action != NULL) g_free (action); action = NULL;
+      if (detail != NULL) g_free (detail); detail = NULL;
+
+      //Recursive work
+      sublink = g_menu_model_get_item_link (menumodel, index, G_MENU_LINK_SUBMENU);
+      if (sublink != NULL) lgw_application_remove_accelerators (application, sublink);
+      sublink = g_menu_model_get_item_link (menumodel, index, G_MENU_LINK_SECTION);
+      if (sublink != NULL) lgw_application_remove_accelerators (application, sublink);
+    }
+}
