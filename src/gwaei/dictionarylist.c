@@ -35,99 +35,99 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#include <libgwaei/gettext.h>
-#include <libgwaei/libgwaei.h>
-#include <libgwaei/dictionarylist-private.h>
+#include <gwaei/gettext.h>
+#include <gwaei/gwaei.h>
+#include <gwaei/dictionarylist-private.h>
 
-static void lgw_dictionarylist_attach_signals (LgwDictionaryList*);
+static void gw_dictionarylist_attach_signals (GwDictionaryList*);
 
-G_DEFINE_TYPE (LgwDictionaryList, lgw_dictionarylist, LW_TYPE_DICTIONARYLIST)
+G_DEFINE_TYPE (GwDictionaryList, gw_dictionarylist, LW_TYPE_DICTIONARYLIST)
 
 //!
 //! @brief Sets up the dictionary manager.  This is the backbone of every portion of the GUI that allows editing dictionaries
 //!
-LgwDictionaryList* lgw_dictionarylist_new ()
+GwDictionaryList* gw_dictionarylist_new ()
 {
     //Declarations
-    LgwDictionaryList *dictionarylist;
+    GwDictionaryList *dictionarylist;
 
     //Initializations
-    dictionarylist = LGW_DICTIONARYLIST (g_object_new (LGW_TYPE_DICTIONARYLIST, NULL));
+    dictionarylist = GW_DICTIONARYLIST (g_object_new (GW_TYPE_DICTIONARYLIST, NULL));
 
-    return LGW_DICTIONARYLIST (dictionarylist);
+    return GW_DICTIONARYLIST (dictionarylist);
 }
 
 
 void static
-lgw_dictionarylist_init (LgwDictionaryList *dictionarylist)
+gw_dictionarylist_init (GwDictionaryList *dictionarylist)
 {
-    dictionarylist->priv = LGW_DICTIONARYLIST_GET_PRIVATE (dictionarylist);
-    memset(dictionarylist->priv, 0, sizeof(LgwDictionaryListPrivate));
+    dictionarylist->priv = GW_DICTIONARYLIST_GET_PRIVATE (dictionarylist);
+    memset(dictionarylist->priv, 0, sizeof(GwDictionaryListPrivate));
 
-    LgwDictionaryListPrivate *priv;
+    GwDictionaryListPrivate *priv;
 
     priv = dictionarylist->priv;
 
     GType types[] = { 
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_IMAGE
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_POSITION
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_NAME
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_LONG_NAME
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_ENGINE
-        G_TYPE_STRING,  //LGW_DICTIONARYLIST_COLUMN_SHORTCUT
-        G_TYPE_BOOLEAN, //LGW_DICTIONARYLIST_COLUMN_SELECTED
-        G_TYPE_POINTER  //LGW_DICTIONARYLIST_COLUMN_DICT_POINTER
+        G_TYPE_STRING,  //GW_DICTIONARYLIST_COLUMN_IMAGE
+        G_TYPE_STRING,  //GW_DICTIONARYLIST_COLUMN_POSITION
+        G_TYPE_STRING,  //GW_DICTIONARYLIST_COLUMN_NAME
+        G_TYPE_STRING,  //GW_DICTIONARYLIST_COLUMN_LONG_NAME
+        G_TYPE_STRING,  //GW_DICTIONARYLIST_COLUMN_ENGINE
+        G_TYPE_STRING,  //GW_DICTIONARYLIST_COLUMN_SHORTCUT
+        G_TYPE_BOOLEAN, //GW_DICTIONARYLIST_COLUMN_SELECTED
+        G_TYPE_POINTER  //GW_DICTIONARYLIST_COLUMN_DICT_POINTER
     };
 
-    priv->data.liststore = gtk_list_store_newv (TOTAL_LGW_DICTIONARYLIST_COLUMNS, types);
-    priv->data.menumodel = G_MENU_MODEL (g_menu_new ());
+    priv->liststore = gtk_list_store_newv (TOTAL_GW_DICTIONARYLIST_COLUMNS, types);
+    priv->menumodel = G_MENU_MODEL (g_menu_new ());
 
-    lgw_dictionarylist_attach_signals (dictionarylist);
+    gw_dictionarylist_attach_signals (dictionarylist);
 }
 
 
 static void 
-lgw_dictionarylist_finalize (GObject *object)
+gw_dictionarylist_finalize (GObject *object)
 {
-    LgwDictionaryList *dictionarylist;
-    LgwDictionaryListPrivate *priv;
+    GwDictionaryList *dictionarylist;
+    GwDictionaryListPrivate *priv;
 
-    dictionarylist = LGW_DICTIONARYLIST (object);
+    dictionarylist = GW_DICTIONARYLIST (object);
     priv = dictionarylist->priv;
 
-    if (priv->data.menumodel != NULL) g_object_unref (priv->data.menumodel); priv->data.menumodel = NULL;
-    if (priv->data.liststore != NULL) g_object_unref (priv->data.liststore); priv->data.liststore = NULL;
+    if (priv->menumodel != NULL) g_object_unref (priv->menumodel); priv->menumodel = NULL;
+    if (priv->liststore != NULL) g_object_unref (priv->liststore); priv->liststore = NULL;
 
-    G_OBJECT_CLASS (lgw_dictionarylist_parent_class)->finalize (object);
+    G_OBJECT_CLASS (gw_dictionarylist_parent_class)->finalize (object);
 }
 
 
 static void
-lgw_dictionarylist_class_init (LgwDictionaryListClass *klass)
+gw_dictionarylist_class_init (GwDictionaryListClass *klass)
 {
     //Declarations
     GObjectClass *object_class;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
-    object_class->finalize = lgw_dictionarylist_finalize;
+    object_class->finalize = gw_dictionarylist_finalize;
 
-    g_type_class_add_private (object_class, sizeof (LgwDictionaryListPrivate));
+    g_type_class_add_private (object_class, sizeof (GwDictionaryListPrivate));
 }
 
 
 static void 
-lgw_dictionarylist_attach_signals (LgwDictionaryList *dictionarylist)
+gw_dictionarylist_attach_signals (GwDictionaryList *dictionarylist)
 {
     //Sanity checks
     g_return_if_fail (dictionarylist != NULL);    
 
-    g_signal_connect (dictionarylist, "changed", G_CALLBACK (lgw_dictionarylist_changed_cb), NULL);
+    g_signal_connect (dictionarylist, "changed", G_CALLBACK (gw_dictionarylist_changed_cb), NULL);
 }
 
 
 static void
-lgw_dictionarylist_menumodel_append (LgwDictionaryList *dictionarylist, 
+gw_dictionarylist_menumodel_append (GwDictionaryList *dictionarylist, 
                                     LwDictionary     *dictionary)
 {
     //Sanity checks
@@ -143,7 +143,7 @@ lgw_dictionarylist_menumodel_append (LgwDictionaryList *dictionarylist,
     gchar *longname;
 
     //Initializations
-    menumodel = lgw_dictionarylist_get_menumodel (dictionarylist);
+    menumodel = gw_dictionarylist_get_menumodel (dictionarylist);
     index = g_menu_model_get_n_items (menumodel) + 1;
     longname = NULL;
     detailed_action = NULL;
@@ -167,7 +167,7 @@ errored:
 
 
 void
-lgw_dictionarylist_sync_menumodel (LgwDictionaryList *dictionarylist)
+gw_dictionarylist_sync_menumodel (GwDictionaryList *dictionarylist)
 {
     //Sanity checks
     g_return_if_fail (dictionarylist != NULL);
@@ -179,7 +179,7 @@ lgw_dictionarylist_sync_menumodel (LgwDictionaryList *dictionarylist)
     LwDictionary *dictionary;
 
     //Initializations
-    menumodel = lgw_dictionarylist_get_menumodel (dictionarylist);
+    menumodel = gw_dictionarylist_get_menumodel (dictionarylist);
     menu = G_MENU (menumodel);
     link = lw_dictionarylist_get_list (LW_DICTIONARYLIST (dictionarylist));
 
@@ -192,7 +192,7 @@ lgw_dictionarylist_sync_menumodel (LgwDictionaryList *dictionarylist)
     {
       dictionary = LW_DICTIONARY (link->data);
 
-      lgw_dictionarylist_menumodel_append (dictionarylist, dictionary);
+      gw_dictionarylist_menumodel_append (dictionarylist, dictionary);
 
       link = link->next;
     }
@@ -200,7 +200,7 @@ lgw_dictionarylist_sync_menumodel (LgwDictionaryList *dictionarylist)
 
 
 static void
-lgw_dictionarylist_liststore_append (LgwDictionaryList *dictionarylist, LwDictionary *dictionary)
+gw_dictionarylist_liststore_append (GwDictionaryList *dictionarylist, LwDictionary *dictionary)
 {
     //Sanity checks
     g_return_if_fail (dictionarylist != NULL);
@@ -221,7 +221,7 @@ lgw_dictionarylist_liststore_append (LgwDictionaryList *dictionarylist, LwDictio
     gboolean selected;
 
     //Initializations
-    liststore = lgw_dictionarylist_get_liststore (dictionarylist);
+    liststore = gw_dictionarylist_get_liststore (dictionarylist);
     treemodel = GTK_TREE_MODEL (liststore);
     index = gtk_tree_model_iter_n_children (treemodel, NULL) + 1;
     shortname = lw_dictionary_get_name (dictionary);
@@ -242,14 +242,14 @@ lgw_dictionarylist_liststore_append (LgwDictionaryList *dictionarylist, LwDictio
 
     gtk_list_store_append (liststore, &iter);
     gtk_list_store_set (liststore, &iter,
-        LGW_DICTIONARYLIST_COLUMN_IMAGE,        iconname,
-        LGW_DICTIONARYLIST_COLUMN_POSITION,     ordernumber,
-        LGW_DICTIONARYLIST_COLUMN_NAME,         shortname,
-        LGW_DICTIONARYLIST_COLUMN_LONG_NAME,    longname,
-        LGW_DICTIONARYLIST_COLUMN_ENGINE,       directoryname,
-        LGW_DICTIONARYLIST_COLUMN_SHORTCUT,     shortcutname,
-        LGW_DICTIONARYLIST_COLUMN_SELECTED,     selected,
-        LGW_DICTIONARYLIST_COLUMN_DICT_POINTER, dictionary,
+        GW_DICTIONARYLIST_COLUMN_IMAGE,        iconname,
+        GW_DICTIONARYLIST_COLUMN_POSITION,     ordernumber,
+        GW_DICTIONARYLIST_COLUMN_NAME,         shortname,
+        GW_DICTIONARYLIST_COLUMN_LONG_NAME,    longname,
+        GW_DICTIONARYLIST_COLUMN_ENGINE,       directoryname,
+        GW_DICTIONARYLIST_COLUMN_SHORTCUT,     shortcutname,
+        GW_DICTIONARYLIST_COLUMN_SELECTED,     selected,
+        GW_DICTIONARYLIST_COLUMN_DICT_POINTER, dictionary,
         -1
     );
 
@@ -260,7 +260,7 @@ errored:
 
 
 void 
-lgw_dictionarylist_sync_treestore (LgwDictionaryList *dictionarylist)
+gw_dictionarylist_sync_treestore (GwDictionaryList *dictionarylist)
 {
     //Sanity checks
     g_return_if_fail (dictionarylist != NULL);
@@ -270,7 +270,7 @@ lgw_dictionarylist_sync_treestore (LgwDictionaryList *dictionarylist)
     LwDictionary *dictionary;
     GList *link;
 
-    liststore = lgw_dictionarylist_get_liststore (dictionarylist);
+    liststore = gw_dictionarylist_get_liststore (dictionarylist);
     link = lw_dictionarylist_get_list (LW_DICTIONARYLIST (dictionarylist));
 
     gtk_list_store_clear (liststore);
@@ -279,7 +279,7 @@ lgw_dictionarylist_sync_treestore (LgwDictionaryList *dictionarylist)
     {
       dictionary = LW_DICTIONARY (link->data);
       
-      lgw_dictionarylist_liststore_append (dictionarylist, dictionary);
+      gw_dictionarylist_liststore_append (dictionarylist, dictionary);
 
       link = link->next;
     }
@@ -287,7 +287,7 @@ lgw_dictionarylist_sync_treestore (LgwDictionaryList *dictionarylist)
 
 
 static gint
-lgw_dictionarylist_save_order_compare_func (gconstpointer a, gconstpointer b, gpointer data)
+gw_dictionarylist_save_order_compare_func (gconstpointer a, gconstpointer b, gpointer data)
 {
     //Declarations
     GHashTable *hashtable;
@@ -306,7 +306,7 @@ lgw_dictionarylist_save_order_compare_func (gconstpointer a, gconstpointer b, gp
 
 
 void
-lgw_dictionarylist_save_order (LgwDictionaryList *dictionarylist, LwPreferences *preferences)
+gw_dictionarylist_save_order (GwDictionaryList *dictionarylist, LwPreferences *preferences)
 {
     //Declarations
     GtkListStore *liststore;
@@ -318,7 +318,7 @@ lgw_dictionarylist_save_order (LgwDictionaryList *dictionarylist, LwPreferences 
     gint index;
 
     //Initializations
-    liststore = lgw_dictionarylist_get_liststore (dictionarylist);
+    liststore = gw_dictionarylist_get_liststore (dictionarylist);
     treemodel = GTK_TREE_MODEL (liststore);
     hashtable = g_hash_table_new (g_direct_hash, g_direct_equal);
     index = 0;
@@ -327,14 +327,14 @@ lgw_dictionarylist_save_order (LgwDictionaryList *dictionarylist, LwPreferences 
     valid = gtk_tree_model_get_iter_first (treemodel, &treeiter);
     while (valid)
     {
-      gtk_tree_model_get (treemodel, &treeiter, LGW_DICTIONARYLIST_COLUMN_DICT_POINTER, &dictionary, -1);
+      gtk_tree_model_get (treemodel, &treeiter, GW_DICTIONARYLIST_COLUMN_DICT_POINTER, &dictionary, -1);
       g_hash_table_insert (hashtable, dictionary, GINT_TO_POINTER (index));
       valid = gtk_tree_model_iter_next (treemodel, &treeiter);
       index++;
     }
 
     //Sort the LwDictionaryList and save the order
-    lw_dictionarylist_sort_with_data (LW_DICTIONARYLIST (dictionarylist), lgw_dictionarylist_save_order_compare_func, hashtable);
+    lw_dictionarylist_sort_with_data (LW_DICTIONARYLIST (dictionarylist), gw_dictionarylist_save_order_compare_func, hashtable);
     lw_dictionarylist_save_order (LW_DICTIONARYLIST (dictionarylist), preferences);
 
     g_hash_table_unref (hashtable); hashtable = NULL;
@@ -344,15 +344,15 @@ lgw_dictionarylist_save_order (LgwDictionaryList *dictionarylist, LwPreferences 
 
 
 GMenuModel*
-lgw_dictionarylist_get_menumodel (LgwDictionaryList *dictionarylist)
+gw_dictionarylist_get_menumodel (GwDictionaryList *dictionarylist)
 {
-    return dictionarylist->priv->data.menumodel;
+    return dictionarylist->priv->menumodel;
 }
 
 
 GtkListStore*
-lgw_dictionarylist_get_liststore (LgwDictionaryList *dictionarylist)
+gw_dictionarylist_get_liststore (GwDictionaryList *dictionarylist)
 {
-    return dictionarylist->priv->data.liststore;
+    return dictionarylist->priv->liststore;
 }
 

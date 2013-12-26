@@ -1,6 +1,7 @@
 #ifndef GW_APPLICATION_INCLUDED
 #define GW_APPLICATION_INCLUDED
 
+#include <gwaei/dictionarylist.h>
 #include <gwaei/vocabularyliststore.h>
 
 G_BEGIN_DECLS
@@ -69,8 +70,8 @@ struct _GwSearchWindow* gw_application_get_last_focused_searchwindow (GwApplicat
 
 LwPreferences* gw_application_get_preferences (GwApplication*);
 GtkListStore* gw_application_get_dictionarystore (GwApplication*);
-LgwDictionaryList* gw_application_get_installed_dictionarylist (GwApplication*);
-LgwDictionaryList* gw_application_get_installable_dictionarylist (GwApplication*);
+GwDictionaryList* gw_application_get_installed_dictionarylist (GwApplication*);
+GwDictionaryList* gw_application_get_installable_dictionarylist (GwApplication*);
 GtkTextTagTable* gw_application_get_tagtable (GwApplication*);
 GtkListStore* gw_application_get_vocabularyliststore (GwApplication*);
 LwMorphologyEngine* gw_application_get_morphologyengine (GwApplication *application);

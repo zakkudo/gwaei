@@ -39,7 +39,6 @@
 #include <gwaei/application-private.h>
 
 
-/* TO BE REMOVED
 G_MODULE_EXPORT void 
 gw_application_open_searchwindow_cb (GSimpleAction *action, 
                                      GVariant      *parameter, 
@@ -56,7 +55,6 @@ gw_application_open_searchwindow_cb (GSimpleAction *action,
 
     gtk_widget_show (GTK_WIDGET (window));
 }
-*/
 
 
 void 
@@ -68,7 +66,6 @@ gw_application_quit_cb (GSimpleAction *action,
 }
 
 
-/*
 void 
 gw_application_open_settingswindow_cb (GSimpleAction *action,
                                        GVariant      *parameter,
@@ -76,12 +73,12 @@ gw_application_open_settingswindow_cb (GSimpleAction *action,
 {
     //Declarations
     GwApplication *application;
-    GwMainWindow *searchwindow;
+    GwSearchWindow *searchwindow;
     GtkWindow *settingswindow;
     GList *link;
 
     //Initializations
-    searchwindow = GW_MAINWINDOW (gw_application_get_last_focused_searchwindow (GW_APPLICATION (data)));
+    searchwindow = GW_SEARCHWINDOW (gw_application_get_last_focused_searchwindow (GW_APPLICATION (data)));
     application = gw_window_get_application (GW_WINDOW (searchwindow));
     link = gtk_application_get_windows (GTK_APPLICATION (application));
 
@@ -130,7 +127,7 @@ gw_application_open_vocabularywindow_index_cb (GSimpleAction *action,
 
     gw_application_show_vocabularywindow (application, index);
 }
-*/
+
 
 //!
 //! @brief Opens the gWaei about dialog
@@ -210,23 +207,21 @@ gw_application_open_irc_channel_cb (GSimpleAction *action,
                                     GVariant      *parameter,
                                     gpointer       data)
 {
-/*
     //Initializations
     GError *error;
-    GwMainWindow *window;
+    GwSearchWindow *window;
     GwApplication *application;
 
     //Declarations
     error = NULL;
-    window = GW_MAINWINDOW (gtk_widget_get_ancestor (GTK_WIDGET (data), GW_TYPE_MAINWINDOW));
+    window = GW_SEARCHWINDOW (gtk_widget_get_ancestor (GTK_WIDGET (data), GW_TYPE_SEARCHWINDOW));
     g_return_if_fail (window != NULL);
     application = gw_window_get_application (GW_WINDOW (window));
 
     gtk_show_uri (NULL, "irc://irc.freenode.net/gWaei", gtk_get_current_event_time (), &error);
 
     //Cleanup
-    //gw_application_handle_error (application, GTK_WINDOW (window), TRUE, &error);
-*/
+    gw_application_handle_error (application, GTK_WINDOW (window), TRUE, &error);
 }
 
 
@@ -240,23 +235,21 @@ gw_application_open_homepage_cb (GSimpleAction *action,
                                  GVariant      *parameter,
                                  gpointer       data)
 {
-/*
     //Declarations
     GError *error;
-    GwMainWindow *window;
+    GwSearchWindow *window;
     GwApplication *application;
 
     //Initializations
     error = NULL;
-    window = GW_MAINWINDOW (gtk_widget_get_ancestor (GTK_WIDGET (data), GW_TYPE_MAINWINDOW));
+    window = GW_SEARCHWINDOW (gtk_widget_get_ancestor (GTK_WIDGET (data), GW_TYPE_SEARCHWINDOW));
     g_return_if_fail (window != NULL);
     application = gw_window_get_application (GW_WINDOW (window));
 
     gtk_show_uri (NULL, "http://gwaei.sourceforge.net/", gtk_get_current_event_time (), &error);
 
     //Cleanup
-    //gw_application_handle_error (application, GTK_WINDOW (window), TRUE, &error);
-*/
+    gw_application_handle_error (application, GTK_WINDOW (window), TRUE, &error);
 }
 
 
@@ -300,7 +293,7 @@ gw_application_open_glossary_cb (GSimpleAction *action,
       g_free (uri); uri = NULL;
     }
 
-    //gw_application_handle_error (application, NULL, FALSE, &error);
+    gw_application_handle_error (application, NULL, FALSE, &error);
 }
 
 

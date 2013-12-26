@@ -137,8 +137,6 @@ void gw_searchwindow_insert_resultpopup_button (GwSearchWindow*, LwSearch*, LwRe
 
 void gw_searchwindow_append_to_buffer (GwSearchWindow*, LwSearch*, const char *, char*, char*, int*, int*);
 
-void gw_searchwindow_initialize_headerbar (GwSearchWindow *window);
-void gw_searchwindow_initialize_searchbar (GwSearchWindow *window);
 void gw_searchwindow_initialize_toolbar (GwSearchWindow*);
 void gw_searchwindow_initialize_search_toolbar (GwSearchWindow*);
 void gw_searchwindow_initialize_dictionary_menu (GwSearchWindow*);
