@@ -80,23 +80,6 @@ lgw_window_connect_signals (LgwWindow *window)
         window
       );
     }
-
-   if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] == 0)
-    {
-      priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = g_signal_connect (
-          window,
-          "notify::application",
-          G_CALLBACK (lgw_window_application_property_changed_cb),
-          NULL
-      );
-    }
-
-    if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] != 0)
-    {
-      g_signal_handler_disconnect (window, priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED]);
-      priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = 0;
-    }
-
 }
 
 
@@ -132,6 +115,7 @@ lgw_window_disconnect_signals (LgwWindow *window)
       );
       priv->data.signalid[SIGNALID_SHOW_MENUBAR] = 0;
     }
+
 
     if (preferences != NULL) g_object_unref (preferences);
 }

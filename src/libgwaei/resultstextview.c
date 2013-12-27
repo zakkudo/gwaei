@@ -77,6 +77,8 @@ lgw_resultstextview_init_resultsview_interface (LgwResultsViewInterface *iface)
 static void
 lgw_resultstextview_init_actionable_interface (LgwActionableInterface *iface)
 {
+    iface->get_actions = lgw_resultstextview_get_actions;
+    iface->set_actiongroup = lgw_resultstextview_set_actiongroup;
 }
 
 
@@ -222,7 +224,29 @@ lgw_resultstextview_constructed (GObject *object)
         g_object_unref (text_buffer);
       }
     }
+
+    lgw_resultstextview_sync_actions (view); //TEMP TODO
+
+    lgw_resultstextview_connect_signals (view);
 }
+
+
+static void
+lgw_resultstextview_dispose (GObject *object)
+{
+    //Declarations
+    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    results_text_view = LGW_RESULTSTEXTVIEW (object);
+    priv = results_text_view->priv;
+
+    lgw_resultstextview_disconnect_signals (results_text_view);
+
+    G_OBJECT_CLASS (lgw_resultstextview_parent_class)->dispose (object);
+}
+
 
 
 static void
@@ -239,6 +263,7 @@ lgw_resultstextview_class_init (LgwResultsTextViewClass *klass)
     object_class->constructed = lgw_resultstextview_constructed;
     object_class->set_property = lgw_resultstextview_set_property;
     object_class->get_property = lgw_resultstextview_get_property;
+    object_class->dispose = lgw_resultstextview_dispose;
     object_class->finalize = lgw_resultstextview_finalize;
     klass->priv = g_new0 (LgwResultsTextViewClassPrivate, 1);
 
@@ -395,4 +420,104 @@ lgw_resultstextview_set_timeout (LgwResultsView *view,
 }
 
 
+static void
+lgw_resultstextview_set_actiongroup (LgwActionable  *actionable,
+                                     LgwActionGroup *action_group)
+{
+    printf("BREAK lgw_resultstextview_set_actiongroup\n");
+    //Sanity checks
+    g_return_val_if_fail (actionable != NULL, NULL);
+
+    //Declarations
+    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+    LgwResultsTextViewClass *klass = NULL;
+    LgwResultsTextViewClassPrivate *klasspriv = NULL;
+    GList *list = NULL;
+
+    //Initializations
+    results_text_view = LGW_RESULTSTEXTVIEW (actionable);
+    priv = results_text_view->priv;
+    klass = LGW_RESULTSTEXTVIEW_GET_CLASS (results_text_view);
+    klasspriv = klass->priv;
+
+    if (priv->data.action_group_list != NULL)
+    {
+      g_list_free (priv->data.action_group_list);
+      priv->data.action_group_list = NULL;
+    }
+
+    if (priv->data.action_group != NULL)
+    {
+        lgw_actiongroup_free (priv->data.action_group);
+        priv->data.action_group = NULL;
+    }
+    priv->data.action_group = action_group;
+
+    if (action_group != NULL)
+    {
+      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
+    }
+}
+
+
+void
+lgw_resultstextview_sync_actions (LgwResultsTextView *results_text_view)
+{
+    printf("BREAK0 lgw_resultstextview_sync_actions\n");
+
+    //Sanity checks
+    g_return_val_if_fail (results_text_view != NULL, NULL);
+
+    //Declarations
+    LgwResultsTextViewPrivate *priv = NULL;
+    GtkWidget *widget = NULL;
+    gboolean has_focus = FALSE;
+
+    //Initializations
+    priv = results_text_view->priv;
+    widget = GTK_WIDGET (results_text_view);
+    has_focus = gtk_widget_is_focus (GTK_WIDGET (results_text_view));
+
+    if (has_focus)
+    {
+      printf("BREAK1 lgw_resultstextview_sync_actions has focus\n");
+      static GActionEntry entries[] = {
+        { "copy", lgw_resultstextview_copy_cb, NULL, NULL, NULL }
+      };
+      if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
+      {
+        LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+        lgw_actionable_set_actiongroup (LGW_ACTIONABLE (results_text_view), action_group);
+      }
+    }
+    else 
+    {
+      lgw_actionable_set_actiongroup (LGW_ACTIONABLE (results_text_view), NULL);
+    }
+
+    printf("BREAK2 lgw_resultstextview_sync_actions\n");
+}
+
+
+static GList*
+lgw_resultstextview_get_actions (LgwActionable *actionable)
+{
+    printf("BREAK0 lgw_resultstextview_get_actions\n");
+
+    //Sanity checks
+    g_return_val_if_fail (actionable != NULL, NULL);
+
+    //Declarations
+    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    results_text_view = LGW_RESULTSTEXTVIEW (actionable);
+    priv = results_text_view->priv;
+
+    printf("BREAK1 lgw_resultstextview_get_actions\n");
+
+    return priv->data.action_group_list;
+}
 

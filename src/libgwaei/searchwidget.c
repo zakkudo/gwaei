@@ -245,6 +245,25 @@ lgw_searchwidget_constructed (GObject *object)
     }
 
     lgw_searchwidget_sync_actions (search_widget);
+
+    lgw_searchwidget_connect_signals (search_widget);
+}
+
+
+static void
+lgw_searchwidget_dispose (GObject *object)
+{
+    //Declarations
+    LgwSearchWidget *entry = NULL;
+    LgwSearchWidgetPrivate *priv = NULL;
+
+    //Initializations
+    entry = LGW_SEARCHWIDGET (object);
+    priv = entry->priv;
+
+    lgw_searchwidget_disconnect_signals (entry);
+
+    G_OBJECT_CLASS (lgw_searchwidget_parent_class)->dispose (object);
 }
 
 
@@ -258,6 +277,7 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
     object_class->constructed = lgw_searchwidget_constructed;
     object_class->set_property = lgw_searchwidget_set_property;
     object_class->get_property = lgw_searchwidget_get_property;
+    object_class->dispose = lgw_searchwidget_dispose;
     object_class->finalize = lgw_searchwidget_finalize;
 
     g_type_class_add_private (object_class, sizeof (LgwSearchWidgetPrivate));
@@ -421,12 +441,31 @@ lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
     {
       priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
     }
+
+    {
+        LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.search_entry);
+        GList *actions = lgw_actionable_get_actions (actionable);
+        if (actions != NULL)
+        {
+          priv->data.action_group_list = g_list_concat (priv->data.action_group_list, actions);
+        }
+    }
+
+    {
+        LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.results_view);
+        GList *actions = lgw_actionable_get_actions (actionable);
+        if (actions != NULL)
+        {
+          priv->data.action_group_list = g_list_concat (priv->data.action_group_list, actions);
+        }
+    }
 }
 
 
-static void
+void
 lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget)
 {
+    printf("BREAK0 lgw_searchwidget_sync_actions\n");
     //Sanity checks
     g_return_val_if_fail (search_widget != NULL, NULL);
 
@@ -439,6 +478,7 @@ lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget)
     priv = search_widget->priv;
     widget = GTK_WIDGET (search_widget);
     actionable = LGW_ACTIONABLE (search_widget);
+
 /*
     static GActionEntry entries[] = {
     };
@@ -448,7 +488,7 @@ lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget)
       lgw_actionable_set_actiongroup (actionable, action_group);
     }
 */
-
     lgw_actionable_set_actiongroup (actionable, NULL);
+    printf("BREAK1 lgw_searchwidget_sync_actions\n");
 }
 

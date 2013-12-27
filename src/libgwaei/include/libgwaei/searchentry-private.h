@@ -13,6 +13,8 @@ typedef enum {
 typedef enum {
     SIGNALID_ACTIVATED,
     SIGNALID_CHANGED,
+    SIGNALID_FOCUS_IN_EVENT,
+    SIGNALID_FOCUS_OUT_EVENT,
     TOTAL_SIGNALIDS 
 } SignalIds;
 
@@ -48,7 +50,7 @@ struct _LgwSearchEntryClassPrivate {
 
 static GList* lgw_searchentry_get_actions (LgwActionable *actionable);
 static void lgw_searchentry_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-static void lgw_searchentry_sync_actions (LgwSearchEntry *search_entry);
+void lgw_searchentry_sync_actions (LgwSearchEntry *search_entry);
 
 G_END_DECLS
 

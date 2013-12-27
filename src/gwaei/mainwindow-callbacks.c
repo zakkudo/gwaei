@@ -184,6 +184,7 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     if (widget != NULL && LGW_IS_ACTIONABLE (widget)) {
       GList *action_group_list = lgw_actionable_get_actions (actionable);
       GList *link = NULL;
+      printf("BREAK actionable glist length: %d\n", g_list_length (action_group_list));
       for (link = action_group_list; link != NULL; link = link->next)
       {
           LgwActionGroup *action_group = LGW_ACTIONGROUP (link->data);

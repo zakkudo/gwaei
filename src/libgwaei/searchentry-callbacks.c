@@ -54,19 +54,45 @@ lgw_searchentry_connect_signals (LgwSearchEntry *entry)
     //Initializations
     priv = entry->priv;
 
-    priv->data.signalid[SIGNALID_CHANGED] = g_signal_connect (
-        G_OBJECT (priv->ui.search_entry),
-        "search-changed",
-        G_CALLBACK (lgw_searchentry_changed_cb),
-        NULL
-    );
+    if (priv->data.signalid[SIGNALID_CHANGED] == 0)
+    {
+      priv->data.signalid[SIGNALID_CHANGED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.search_entry),
+          "search-changed",
+          G_CALLBACK (lgw_searchentry_changed_cb),
+          entry
+      );
+    }
 
-    priv->data.signalid[SIGNALID_ACTIVATED] = g_signal_connect (
-        G_OBJECT (priv->ui.search_entry),
-        "activate",
-        G_CALLBACK (lgw_searchentry_activated_cb),
-        NULL
-    );
+    if (priv->data.signalid[SIGNALID_ACTIVATED] == 0)
+    {
+      priv->data.signalid[SIGNALID_ACTIVATED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.search_entry),
+          "activate",
+          G_CALLBACK (lgw_searchentry_activated_cb),
+          entry
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] == 0)
+    {
+      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.search_entry),
+          "focus-in-event",
+          G_CALLBACK (lgw_searchentry_focus_in_event_cb),
+          entry 
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] == 0)
+    {
+      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.search_entry),
+          "focus-out-event",
+          G_CALLBACK (lgw_searchentry_focus_out_event_cb),
+          entry
+      );
+    }
 }
 
 
@@ -98,16 +124,16 @@ lgw_searchentry_disconnect_signals (LgwSearchEntry *entry)
 
 
 void
-lgw_searchentry_activated_cb (GtkEntry *entry,
-                              gpointer  data)
+lgw_searchentry_activated_cb (LgwSearchEntry *search_entry,
+                              GtkEntry *inner_entry)
 {
     printf("BREAK activated\n");
 }
 
 
 void
-lgw_searchentry_changed_cb (GtkSearchEntry *search_entry,
-                            gpointer        data)
+lgw_searchentry_changed_cb (LgwSearchEntry *search_entry,
+                            GtkSearchEntry *inner_search_entry)
 {
     printf("BREAK changed\n");
 }
@@ -273,5 +299,91 @@ lgw_searchentry_clear_search_cb (GSimpleAction *action,
 
     gtk_entry_set_text (entry, "");
     gtk_widget_grab_focus (GTK_WIDGET (entry));
+}
+
+
+gboolean
+lgw_searchentry_focus_in_event_cb (LgwSearchEntry *search_entry,
+                                   GdkEvent       *event,
+                                   GtkSearchEntry *inner_search_entry)
+{
+    printf("BREAK0 searchentry focus in event\n");
+    //Sanity checks
+    g_return_val_if_fail (search_entry != NULL, FALSE);
+    g_return_val_if_fail (inner_search_entry != NULL, FALSE);
+
+    lgw_searchentry_sync_actions (search_entry);
+
+    printf("BREAK1 searchentry focus in event\n");
+
+    return FALSE;
+}
+
+
+gboolean
+lgw_searchentry_focus_out_event_cb (LgwSearchEntry *search_entry,
+                                    GdkEvent       *event,
+                                    GtkSearchEntry *inner_search_entry)
+{
+    //Sanity checks
+    g_return_val_if_fail (search_entry != NULL, FALSE);
+    g_return_val_if_fail (inner_search_entry != NULL, FALSE);
+
+    lgw_searchentry_sync_actions (search_entry);
+
+    printf("searchentry focus out event\n");
+
+    return FALSE;
+}
+
+
+void
+lgw_searchentry_copy_cb (GSimpleAction *action,
+                         GVariant      *parameter,
+                         gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
+    //Declarations
+    LgwResultsTextView *results_text_view = LGW_RESULTSTEXTVIEW (data);
+
+    //Initializations
+
+    printf("BREAK lgw_searchentry_copy\n");
+}
+
+
+void
+lgw_searchentry_cut_cb (GSimpleAction *action,
+                        GVariant      *parameter,
+                        gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
+    //Declarations
+    LgwResultsTextView *results_text_view = LGW_RESULTSTEXTVIEW (data);
+
+    //Initializations
+
+    printf("BREAK lgw_searchentry_cut\n");
+}
+
+
+void
+lgw_searchentry_paste_cb (GSimpleAction *action,
+                          GVariant      *parameter,
+                          gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
+    //Declarations
+    LgwResultsTextView *results_text_view = LGW_RESULTSTEXTVIEW (data);
+
+    //Initializations
+
+    printf("BREAK lgw_searchentry_paste\n");
 }
 

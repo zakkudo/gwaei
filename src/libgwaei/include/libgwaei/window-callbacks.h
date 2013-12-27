@@ -13,6 +13,8 @@ void lgw_window_sync_show_menubar_cb (GSettings *settings, gchar *key, gpointer 
 
 void lgw_window_application_property_changed_cb (LgwWindow *window, GParamSpec *pspec, gpointer data);
 
+void lgw_window_set_focus_cb (LgwWindow *window, GtkWidget *widget, gpointer data);
+
 G_END_DECLS
 
 #endif

@@ -4,6 +4,12 @@
 G_BEGIN_DECLS
 
 typedef enum {
+    SIGNALID_SEARCHENTRY_ACTIONS,
+    SIGNALID_RESULTSVIEW_ACTIONS,
+    TOTAL_SIGNALIDS
+} SignalId;
+
+typedef enum {
     PROP_0,
     PROP_ACTIONS,
     TOTAL_PROPS
@@ -23,6 +29,7 @@ struct _Data {
     GMenuModel *window_menu_model;
     LgwActionGroup *action_group;
     GList *action_group_list;
+    guint signalid[TOTAL_SIGNALIDS];
 };
 
 struct _LgwSearchWidgetPrivate {
@@ -34,8 +41,10 @@ struct _LgwSearchWidgetPrivate {
 
 static GList* lgw_searchwidget_get_actions (LgwActionable *actionable);
 static void lgw_searchwidget_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-static void lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget);
+void lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget);
 
 G_END_DECLS
+
+#include <libgwaei/searchwidget-callbacks.h>
 
 #endif

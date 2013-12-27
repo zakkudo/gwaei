@@ -183,9 +183,9 @@ lgw_searchentry_constructed (GObject *object)
         gtk_widget_show (search_entry);
     }
 
-    lgw_searchentry_connect_signals (search_entry);
-
     lgw_searchentry_sync_actions (search_entry);
+
+    lgw_searchentry_connect_signals (search_entry);
 }
 
 
@@ -294,6 +294,8 @@ static void
 lgw_searchentry_set_actiongroup (LgwActionable  *actionable,
                                  LgwActionGroup *action_group)
 {
+    printf("BREAK lgw_searchentry_set_actiongroup\n");
+printf("BREAK0\n");
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 
@@ -310,29 +312,36 @@ lgw_searchentry_set_actiongroup (LgwActionable  *actionable,
     klass = LGW_SEARCHENTRY_GET_CLASS (search_entry);
     klasspriv = klass->priv;
 
+printf("BREAK0\n");
+
     if (priv->data.action_group_list != NULL)
     {
       g_list_free (priv->data.action_group_list);
       priv->data.action_group_list = NULL;
     }
+printf("BREAK1\n");
 
     if (priv->data.action_group != NULL)
     {
         lgw_actiongroup_free (priv->data.action_group);
         priv->data.action_group = NULL;
     }
+printf("BREAK2\n");
     priv->data.action_group = action_group;
+printf("BREAK3\n");
 
     if (action_group != NULL)
     {
       priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
     }
+printf("BREAK4\n");
 }
 
 
-static void
+void
 lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
 {
+  printf("BREAK lgw_searchentry_sync_actions\n");
     //Sanity checks
     g_return_val_if_fail (search_entry != NULL, NULL);
 
@@ -344,11 +353,15 @@ lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
     //Initializations
     priv = search_entry->priv;
     widget = GTK_WIDGET (search_entry);
-    has_focus = gtk_widget_is_focus (GTK_WIDGET (priv->ui.search_entry));
+    has_focus = gtk_widget_has_focus (GTK_WIDGET (priv->ui.search_entry)); 
 
     if (has_focus)
     {
+      printf("searchentry HAS FOCUS\n");
       static GActionEntry entries[] = {
+        { "copy", lgw_searchentry_copy_cb, NULL, NULL, NULL },
+        { "cut", lgw_searchentry_cut_cb, NULL, NULL, NULL },
+        { "paste", lgw_searchentry_paste_cb, NULL, NULL, NULL },
         { "insert-unknown-character", lgw_searchentry_insert_unknown_character_cb, NULL, NULL, NULL },
         { "insert-word-edge-character", lgw_searchentry_insert_word_edge_cb, NULL, NULL, NULL },
         { "insert-not-word-edge-character", lgw_searchentry_insert_not_word_edge_cb, NULL, NULL, NULL },
@@ -364,6 +377,7 @@ lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
     }
     else 
     {
+      printf("searchentry DOESN't HAVE FOCUS\n");
       static GActionEntry entries[] = {
         { "insert-unknown-character", lgw_searchentry_insert_unknown_character_cb, NULL, NULL, NULL },
         { "insert-word-edge-character", lgw_searchentry_insert_word_edge_cb, NULL, NULL, NULL },
