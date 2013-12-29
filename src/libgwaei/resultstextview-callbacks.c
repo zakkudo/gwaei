@@ -107,12 +107,7 @@ lgw_resultstextview_focus_in_event_cb (LgwResultsTextView *results_text_view,
                                        GdkEvent           *event,
                                        GtkTextView        *internal_text_view)
 {
-
-    printf("BREAK0 resultstextview focus in event\n");
-
     lgw_resultstextview_sync_actions (results_text_view);
-
-    printf("BREAK1 resultstextview focus in event\n");
 
     return FALSE;
 }
@@ -123,11 +118,7 @@ lgw_resultstextview_focus_out_event_cb (LgwResultsTextView *results_text_view,
                                         GdkEvent           *event,
                                         GtkTextView        *internal_text_view)
 {
-    printf("BREAK0 resultstextview focus out event\n");
-
     lgw_resultstextview_sync_actions (results_text_view);
-
-    printf("BREAK1 resultstextview focus out event\n");
 
     return FALSE;
 }
@@ -142,11 +133,18 @@ lgw_resultstextview_copy_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwResultsTextView *results_text_view = LGW_RESULTSTEXTVIEW (data);
+    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+    GtkTextBuffer *text_buffer = NULL;
+    GtkClipboard *clipboard = NULL;
 
     //Initializations
+    results_text_view = LGW_RESULTSTEXTVIEW (data);
+    priv = results_text_view->priv;
+    text_buffer = gtk_text_view_get_buffer (priv->ui.text_view);
+    clipboard = gtk_clipboard_get_for_display (gdk_display_get_default (), GDK_SELECTION_CLIPBOARD);
 
-    printf("BREAK lgw_resultstextview\n");
+    gtk_text_buffer_copy_clipboard (text_buffer, clipboard);
 }
 
 

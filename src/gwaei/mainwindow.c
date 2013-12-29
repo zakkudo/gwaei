@@ -388,9 +388,29 @@ gw_mainwindow_set_actiongroup (LgwActionable *actionable,
 
     priv->data.action_group = action_group;
 
+    {
+      GtkWidget *widget = gtk_stack_get_visible_child (priv->ui.stack);
+      if (LGW_IS_ACTIONABLE (widget))
+      {
+        LgwActionable *actionable = LGW_ACTIONABLE (widget);
+        GList *actions = lgw_actionable_get_actions (actionable);
+        if (actions != NULL)
+        {
+          GList *copy = g_list_copy (actions);
+          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
+        }
+      }
+    }
+
     if (action_group != NULL)
     {
       priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
+    }
+
+    {
+      GActionMap *action_map = G_ACTION_MAP (main_window);
+      GList *action_group_list = lgw_actionable_get_actions (actionable);
+      lgw_window_set_actions (LGW_WINDOW (main_window), action_group_list);
     }
 }
 
@@ -418,11 +438,8 @@ gw_mainwindow_sync_actions (GwMainWindow *main_window)
         { "toggle-menubar-show", gw_mainwindow_menubar_show_toggled_cb, NULL, "false", NULL },
         { "close", gw_mainwindow_close_cb, NULL, NULL, NULL }
       };
-      if (priv->data.action_group_list == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
-      {
-        LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-        lgw_actionable_set_actiongroup (actionable, action_group);
-      }
+      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+      lgw_actionable_set_actiongroup (actionable, action_group);
     }
 }
 

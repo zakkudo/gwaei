@@ -80,6 +80,16 @@ lgw_window_connect_signals (LgwWindow *window)
         window
       );
     }
+
+    if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY] == 0)
+    {
+      priv->data.signalid[SIGNALID_APPLICATION_PROPERTY] = g_signal_connect (
+        G_OBJECT (window),
+        "notify::application",
+        G_CALLBACK (lgw_window_application_property_changed_cb),
+        NULL
+      );
+    }
 }
 
 
@@ -116,21 +126,29 @@ lgw_window_disconnect_signals (LgwWindow *window)
       priv->data.signalid[SIGNALID_SHOW_MENUBAR] = 0;
     }
 
+    if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY] != 0) {
+      g_signal_handler_disconnect (G_OBJECT (window), priv->data.signalid[SIGNALID_APPLICATION_PROPERTY]);
+      priv->data.signalid[SIGNALID_APPLICATION_PROPERTY] = 0;
+    }
+
 
     if (preferences != NULL) g_object_unref (preferences);
 }
 
 
 gboolean 
-lgw_window_configure_event_cb (GtkWidget *widget,
+lgw_window_configure_event_cb (LgwWindow *window,
                                GdkEvent  *event,
                                gpointer   data)
 {
-    LgwWindow *window = NULL;
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_WINDOW (window), FALSE);
+
+    //Delcarations
     LgwWindowPrivate *priv = NULL;
     GdkEventConfigure *event_configure = NULL;
 
-    window = LGW_WINDOW (widget);
+    //Initializations
     priv = window->priv;
     event_configure = (GdkEventConfigure*) event;
 
@@ -144,19 +162,20 @@ lgw_window_configure_event_cb (GtkWidget *widget,
 
 
 gboolean
-lgw_window_focus_in_event_cb (GtkWidget *widget,
+lgw_window_focus_in_event_cb (LgwWindow *window,
                               GdkEvent  *event,
                               gpointer   data)
 {
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_WINDOW (window), FALSE);
+
     //Declarations
-    LgwWindow *window = NULL;
     GtkApplication *application = NULL;
     GMenuModel *menu_model = NULL;
     gboolean os_shows_win_menu = NULL;
     GtkSettings *settings = NULL;
     
     //Initializations
-    window = LGW_WINDOW (widget);
     application = gtk_window_get_application (GTK_WINDOW (window));
     settings = gtk_settings_get_default ();
     g_object_get (settings, "gtk-shell-shows-menubar", &os_shows_win_menu, NULL);
@@ -199,13 +218,18 @@ lgw_window_application_property_changed_cb (LgwWindow  *window,
                                             GParamSpec *pspec,
                                             gpointer    data)
 {
+    //Sanity checks
+    g_return_if_fail (LGW_IS_WINDOW (window));
+
     //Declarations
     LgwWindowPrivate *priv = NULL;
     GtkApplication *application = NULL;
 
+    //Initializations
     priv = window->priv;
     application = gtk_window_get_application (GTK_WINDOW (window));
     if (application == NULL) goto errored;
+    if (!gtk_widget_is_visible (GTK_WIDGET (window))) goto errored;
 
     lgw_window_set_window_menumodel (window, lgw_window_get_window_menumodel (window));
     lgw_window_set_button_menumodel (window, lgw_window_get_button_menumodel (window));

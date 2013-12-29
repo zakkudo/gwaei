@@ -82,15 +82,9 @@ lgw_actionable_set_actiongroup (LgwActionable  *self,
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
 
-    printf("BREAK0 lgw_actionable_set_actiongroup\n");
-
     LGW_ACTIONABLE_GET_INTERFACE (self)->set_actiongroup (self, action_group);
 
-    printf("BREAK1 lgw_actionable_set_actiongroup\n");
-
     g_object_notify_by_pspec (G_OBJECT (self), _param_spec[PROP_ACTIONS]);
-
-    printf("BREAK3 lgw_actionable_set_actiongroup\n");
 }
 
 

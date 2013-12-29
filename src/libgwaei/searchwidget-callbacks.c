@@ -54,7 +54,6 @@ lgw_searchwidget_connect_signals (LgwSearchWidget *search_widget)
     //Initializations
     priv = search_widget->priv;
 
-/*
     if (priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] == 0)
     {
       priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] = g_signal_connect_swapped (
@@ -74,7 +73,6 @@ lgw_searchwidget_connect_signals (LgwSearchWidget *search_widget)
           search_widget
       );
     }
-    */
 }
 
 
@@ -109,12 +107,9 @@ lgw_searchwidget_child_actions_property_changed_cb (LgwSearchWidget *search_widg
                                                     GParamSpec      *pspec,
                                                     LgwActionable   *actionable)
 {
-    printf("BREAK0 lgw_searchwidget_child_actions_property_changed_cb\n");
     //Sanity checks
     g_return_if_fail (search_widget != NULL);
     g_return_if_fail (actionable != NULL);
 
     lgw_searchwidget_sync_actions (search_widget);
-
-    printf("BREAK1 lgw_searchwidget_child_actions_property_changed_cb\n");
 }

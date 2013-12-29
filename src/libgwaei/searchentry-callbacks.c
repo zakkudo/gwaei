@@ -307,14 +307,11 @@ lgw_searchentry_focus_in_event_cb (LgwSearchEntry *search_entry,
                                    GdkEvent       *event,
                                    GtkSearchEntry *inner_search_entry)
 {
-    printf("BREAK0 searchentry focus in event\n");
     //Sanity checks
     g_return_val_if_fail (search_entry != NULL, FALSE);
     g_return_val_if_fail (inner_search_entry != NULL, FALSE);
 
     lgw_searchentry_sync_actions (search_entry);
-
-    printf("BREAK1 searchentry focus in event\n");
 
     return FALSE;
 }
@@ -331,8 +328,6 @@ lgw_searchentry_focus_out_event_cb (LgwSearchEntry *search_entry,
 
     lgw_searchentry_sync_actions (search_entry);
 
-    printf("searchentry focus out event\n");
-
     return FALSE;
 }
 
@@ -346,11 +341,16 @@ lgw_searchentry_copy_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwResultsTextView *results_text_view = LGW_RESULTSTEXTVIEW (data);
+    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntryPrivate *priv = NULL;
+    GtkEditable *editable = NULL;
 
     //Initializations
+    search_entry = LGW_SEARCHENTRY (data);
+    priv = search_entry->priv;
+    editable = GTK_EDITABLE (priv->ui.search_entry);
 
-    printf("BREAK lgw_searchentry_copy\n");
+    gtk_editable_copy_clipboard (editable);
 }
 
 
@@ -363,11 +363,16 @@ lgw_searchentry_cut_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwResultsTextView *results_text_view = LGW_RESULTSTEXTVIEW (data);
+    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntryPrivate *priv = NULL;
+    GtkEditable *editable = NULL;
 
     //Initializations
+    search_entry = LGW_SEARCHENTRY (data);
+    priv = search_entry->priv;
+    editable = GTK_EDITABLE (priv->ui.search_entry);
 
-    printf("BREAK lgw_searchentry_cut\n");
+    gtk_editable_cut_clipboard (editable);
 }
 
 
@@ -380,10 +385,15 @@ lgw_searchentry_paste_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwResultsTextView *results_text_view = LGW_RESULTSTEXTVIEW (data);
+    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntryPrivate *priv = NULL;
+    GtkEditable *editable = NULL;
 
     //Initializations
+    search_entry = LGW_SEARCHENTRY (data);
+    priv = search_entry->priv;
+    editable = GTK_EDITABLE (priv->ui.search_entry);
 
-    printf("BREAK lgw_searchentry_paste\n");
+    gtk_editable_paste_clipboard (editable);
 }
 

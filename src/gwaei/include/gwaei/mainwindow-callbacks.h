@@ -15,6 +15,8 @@ void gw_mainwindow_sync_show_menubar_cb (GSettings *settings, gchar *key, gpoint
 gboolean gw_mainwindow_focus_cb (GtkWidget *widget, GdkEvent *event, gpointer data);
 void gw_mainwindow_close_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 
+void lgw_mainwindow_child_actions_property_changed_cb (GwMainWindow *main_window, GParamSpec *pspec, LgwActionable *actionable);
+
 G_END_DECLS
 
 #endif

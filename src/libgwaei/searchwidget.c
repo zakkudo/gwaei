@@ -42,12 +42,6 @@
 #include <libgwaei/searchwidget-private.h>
 
 
-static GMenuModel* lgw_searchwidget_get_button_menu_model (LgwMenuable *widget);
-static GMenuModel* lgw_searchwidget_get_window_menu_model (LgwMenuable *widget);
-static void lgw_searchwidget_init_menuable_interface (LgwMenuableInterface *iface);
-static void lgw_searchwidget_init_actionable_interface (LgwActionableInterface *iface);
-
-
 G_DEFINE_TYPE_WITH_CODE (LgwSearchWidget, lgw_searchwidget, GTK_TYPE_BOX,
                          G_IMPLEMENT_INTERFACE (LGW_TYPE_MENUABLE, lgw_searchwidget_init_menuable_interface)
                          G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_searchwidget_init_actionable_interface));
@@ -243,8 +237,6 @@ lgw_searchwidget_constructed (GObject *object)
       priv->data.button_menu_model = G_MENU_MODEL (lgw_load_menu_model ("searchwidget-menumodel-button.ui"));
       priv->data.window_menu_model = G_MENU_MODEL (lgw_load_menu_model ("searchwidget-menumodel-window.ui"));
     }
-
-    lgw_searchwidget_sync_actions (search_widget);
 
     lgw_searchwidget_connect_signals (search_widget);
 }
@@ -447,7 +439,8 @@ lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
         GList *actions = lgw_actionable_get_actions (actionable);
         if (actions != NULL)
         {
-          priv->data.action_group_list = g_list_concat (priv->data.action_group_list, actions);
+          GList *copy = g_list_copy (actions);
+          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
         }
     }
 
@@ -456,7 +449,8 @@ lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
         GList *actions = lgw_actionable_get_actions (actionable);
         if (actions != NULL)
         {
-          priv->data.action_group_list = g_list_concat (priv->data.action_group_list, actions);
+          GList *copy = g_list_copy (actions);
+          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
         }
     }
 }
@@ -465,7 +459,6 @@ lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
 void
 lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget)
 {
-    printf("BREAK0 lgw_searchwidget_sync_actions\n");
     //Sanity checks
     g_return_val_if_fail (search_widget != NULL, NULL);
 
@@ -489,6 +482,5 @@ lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget)
     }
 */
     lgw_actionable_set_actiongroup (actionable, NULL);
-    printf("BREAK1 lgw_searchwidget_sync_actions\n");
 }
 

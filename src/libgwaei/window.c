@@ -49,15 +49,25 @@ lgw_window_init (LgwWindow *window)
 {
     window->priv = LGW_WINDOW_GET_PRIVATE (window);
     memset(window->priv, 0, sizeof(LgwWindowPrivate));
+
+    {
+      LgwWindowPrivate *priv = window->priv;
+
+      priv->data.window_menu_model = G_MENU_MODEL (g_menu_new ());
+      priv->data.button_menu_model = G_MENU_MODEL (g_menu_new ());
+      priv->data.accelgroup = gtk_accel_group_new ();
+    }
 }
 
 
 static void 
 lgw_window_finalize (GObject *object)
 {
+    //Declarations
     LgwWindow *window;
     LgwWindowPrivate *priv;
 
+    //Initializations
     window = LGW_WINDOW (object);
     priv = window->priv;
 
@@ -70,6 +80,7 @@ lgw_window_finalize (GObject *object)
 static void 
 lgw_window_constructed (GObject *object)
 {
+    //Declarations
     LgwWindow *window = NULL;
     LgwWindowPrivate *priv = NULL;
 
@@ -78,15 +89,12 @@ lgw_window_constructed (GObject *object)
       G_OBJECT_CLASS (lgw_window_parent_class)->constructed (object);
     }
 
+    //Initializations
     window = LGW_WINDOW (object);
     priv = window->priv;
 
     gtk_widget_add_events (GTK_WIDGET (window), GDK_FOCUS_CHANGE_MASK);
     gtk_application_window_set_show_menubar (GTK_APPLICATION_WINDOW (window), FALSE);
-
-    priv->data.window_menu_model = G_MENU_MODEL (g_menu_new ());
-    priv->data.button_menu_model = G_MENU_MODEL (g_menu_new ());
-    priv->data.accelgroup = gtk_accel_group_new ();
     gtk_window_add_accel_group (GTK_WINDOW (window), priv->data.accelgroup);
 
     {
@@ -412,6 +420,7 @@ void
 lgw_window_set_window_menumodel (LgwWindow  *window,
                                  GMenuModel *menu_model)
 {
+    printf("BREAK0 lgw_window_set_window_menumodel\n");
     //Sanity checks
     g_return_if_fail (window != NULL);
 
@@ -423,19 +432,20 @@ lgw_window_set_window_menumodel (LgwWindow  *window,
 
     //Initializations
     application = gtk_window_get_application (GTK_WINDOW (window));
+    printf("BREAK0 lgw_window_set_window_menumodel application: %d\n", application);
     priv = window->priv;
     klass = LGW_WINDOW_GET_CLASS (window);
     klasspriv = klass->priv;
 
+    if (application == NULL) goto errored;
     if (priv->data.window_menu_model == NULL) goto errored;
+    if (menu_model == NULL) goto errored;
+    if (menu_model == priv->data.window_menu_model) goto errored;
 
     lgw_menumodel_set_contents (priv->data.window_menu_model, menu_model);
-
-    if (application != NULL)
-    {
-      gtk_application_set_menubar (application, priv->data.window_menu_model);
-      lgw_application_add_accelerators (application, priv->data.window_menu_model);
-    }
+    gtk_application_set_menubar (application, NULL);
+    gtk_application_set_menubar (application, priv->data.window_menu_model);
+    //lgw_application_add_accelerators (application, priv->data.window_menu_model);
 
     g_object_notify_by_pspec (G_OBJECT (window), klasspriv->pspec[PROP_WINDOW_MENUMODEL]);
 
@@ -696,4 +706,68 @@ lgw_window_pack_start (LgwWindow *window,
 }
 
 
+void
+lgw_window_clear_actions (LgwWindow *window)
+{
+    //Sanity checks
+    g_return_if_fail (window != NULL);
+
+    //Declarations
+    gchar **actions = NULL;
+
+    //Initializations
+    actions = g_action_group_list_actions (G_ACTION_GROUP (window));
+    if (actions == NULL) goto errored;
+
+    {
+      gint i = 0;
+      for (i = 0; actions[i] != NULL; i++)
+      {
+          g_action_map_remove_action (G_ACTION_MAP (window), actions[i]);
+      }
+    }
+
+errored:
+
+    if (actions != NULL) g_strfreev (actions); actions = NULL;
+   
+    return; 
+}
+
+
+void
+lgw_window_add_actions (LgwWindow *window,
+                        GList     *action_group_list)
+{
+    //Sanity checks
+    g_return_if_fail (window != NULL);
+
+    //Declarations
+    GList *link = NULL;
+    GActionMap *action_map = NULL;
+
+    //Initializations
+    action_map = G_ACTION_MAP (window);
+
+    for (link = action_group_list; link != NULL; link = link->next)
+    {
+      LgwActionGroup *action_group = LGW_ACTIONGROUP (link->data);
+      if (action_group != NULL)
+      {
+        lgw_actiongroup_add_to_map (action_group, action_map);
+      }
+    }
+}
+
+
+void
+lgw_window_set_actions (LgwWindow *window,
+                        GList     *action_group_list)
+{
+    //Sanity checks
+    g_return_if_fail (window != NULL);
+
+    lgw_window_clear_actions (window);
+    lgw_window_add_actions (window, action_group_list);
+}
 

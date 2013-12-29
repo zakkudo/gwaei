@@ -183,8 +183,6 @@ lgw_searchentry_constructed (GObject *object)
         gtk_widget_show (search_entry);
     }
 
-    lgw_searchentry_sync_actions (search_entry);
-
     lgw_searchentry_connect_signals (search_entry);
 }
 
@@ -294,8 +292,6 @@ static void
 lgw_searchentry_set_actiongroup (LgwActionable  *actionable,
                                  LgwActionGroup *action_group)
 {
-    printf("BREAK lgw_searchentry_set_actiongroup\n");
-printf("BREAK0\n");
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 
@@ -312,36 +308,29 @@ printf("BREAK0\n");
     klass = LGW_SEARCHENTRY_GET_CLASS (search_entry);
     klasspriv = klass->priv;
 
-printf("BREAK0\n");
-
     if (priv->data.action_group_list != NULL)
     {
       g_list_free (priv->data.action_group_list);
       priv->data.action_group_list = NULL;
     }
-printf("BREAK1\n");
 
     if (priv->data.action_group != NULL)
     {
         lgw_actiongroup_free (priv->data.action_group);
         priv->data.action_group = NULL;
     }
-printf("BREAK2\n");
     priv->data.action_group = action_group;
-printf("BREAK3\n");
 
     if (action_group != NULL)
     {
       priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
     }
-printf("BREAK4\n");
 }
 
 
 void
 lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
 {
-  printf("BREAK lgw_searchentry_sync_actions\n");
     //Sanity checks
     g_return_val_if_fail (search_entry != NULL, NULL);
 
@@ -357,7 +346,6 @@ lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
 
     if (has_focus)
     {
-      printf("searchentry HAS FOCUS\n");
       static GActionEntry entries[] = {
         { "copy", lgw_searchentry_copy_cb, NULL, NULL, NULL },
         { "cut", lgw_searchentry_cut_cb, NULL, NULL, NULL },
@@ -369,15 +357,11 @@ lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
         { "insert-or-character", lgw_searchentry_insert_or_cb, NULL, NULL, NULL },
         { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
       };
-      if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
-      {
-        LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-        lgw_actionable_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
-      }
+      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+      lgw_actionable_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
     }
     else 
     {
-      printf("searchentry DOESN't HAVE FOCUS\n");
       static GActionEntry entries[] = {
         { "insert-unknown-character", lgw_searchentry_insert_unknown_character_cb, NULL, NULL, NULL },
         { "insert-word-edge-character", lgw_searchentry_insert_word_edge_cb, NULL, NULL, NULL },
@@ -386,11 +370,8 @@ lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
         { "insert-or-character", lgw_searchentry_insert_or_cb, NULL, NULL, NULL },
         { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
       };
-      if (priv->data.action_group_list == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
-      {
-        LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-        lgw_actionable_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
-      }
+      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+      lgw_actionable_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
     }
 }
 
@@ -398,8 +379,6 @@ lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
 static GList*
 lgw_searchentry_get_actions (LgwActionable *actionable)
 {
-    printf("BREAK searchentry get_actions\n");
-
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 

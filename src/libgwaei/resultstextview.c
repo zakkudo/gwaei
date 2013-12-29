@@ -225,8 +225,6 @@ lgw_resultstextview_constructed (GObject *object)
       }
     }
 
-    lgw_resultstextview_sync_actions (view); //TEMP TODO
-
     lgw_resultstextview_connect_signals (view);
 }
 
@@ -307,7 +305,6 @@ lgw_resultstextview_add_search (LgwResultsView *view,
       priv->data.searchiteratorlist = g_list_append (priv->data.searchiteratorlist, lw_searchiterator_new (search, "raw"));
     }
 
-    printf("set search\n");
 }
 
 
@@ -424,7 +421,6 @@ static void
 lgw_resultstextview_set_actiongroup (LgwActionable  *actionable,
                                      LgwActionGroup *action_group)
 {
-    printf("BREAK lgw_resultstextview_set_actiongroup\n");
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 
@@ -464,8 +460,6 @@ lgw_resultstextview_set_actiongroup (LgwActionable  *actionable,
 void
 lgw_resultstextview_sync_actions (LgwResultsTextView *results_text_view)
 {
-    printf("BREAK0 lgw_resultstextview_sync_actions\n");
-
     //Sanity checks
     g_return_val_if_fail (results_text_view != NULL, NULL);
 
@@ -477,34 +471,27 @@ lgw_resultstextview_sync_actions (LgwResultsTextView *results_text_view)
     //Initializations
     priv = results_text_view->priv;
     widget = GTK_WIDGET (results_text_view);
-    has_focus = gtk_widget_is_focus (GTK_WIDGET (results_text_view));
+    has_focus = gtk_widget_is_focus (GTK_WIDGET (priv->ui.text_view));
 
     if (has_focus)
     {
-      printf("BREAK1 lgw_resultstextview_sync_actions has focus\n");
       static GActionEntry entries[] = {
         { "copy", lgw_resultstextview_copy_cb, NULL, NULL, NULL }
       };
-      if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
-      {
-        LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-        lgw_actionable_set_actiongroup (LGW_ACTIONABLE (results_text_view), action_group);
-      }
+      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+      lgw_actionable_set_actiongroup (LGW_ACTIONABLE (results_text_view), action_group);
     }
     else 
     {
       lgw_actionable_set_actiongroup (LGW_ACTIONABLE (results_text_view), NULL);
     }
 
-    printf("BREAK2 lgw_resultstextview_sync_actions\n");
 }
 
 
 static GList*
 lgw_resultstextview_get_actions (LgwActionable *actionable)
 {
-    printf("BREAK0 lgw_resultstextview_get_actions\n");
-
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 
@@ -515,8 +502,6 @@ lgw_resultstextview_get_actions (LgwActionable *actionable)
     //Initializations
     results_text_view = LGW_RESULTSTEXTVIEW (actionable);
     priv = results_text_view->priv;
-
-    printf("BREAK1 lgw_resultstextview_get_actions\n");
 
     return priv->data.action_group_list;
 }

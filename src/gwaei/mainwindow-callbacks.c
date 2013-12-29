@@ -86,14 +86,15 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
       );
     }
 
-
-
-      /*priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] =*/ g_signal_connect (
-          window,
-          "move-focus",
-          G_CALLBACK (gw_mainwindow_focus_cb),
-          NULL
+    if (priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] == 0)
+    {
+      priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.search_widget),
+          "notify::actions",
+          G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
+          window
       );
+    }
 }
 
 
@@ -130,6 +131,13 @@ gw_mainwindow_disconnect_signals (GwMainWindow *window) {
       );
       priv->data.signalid[SIGNALID_SHOW_MENUBAR] = 0;
     }
+
+    if (priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] != 0)
+    {
+      g_signal_handler_disconnect (G_OBJECT (priv->ui.search_widget), priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS]);
+      priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] = 0;
+    }
+
 }
 
 
@@ -151,6 +159,11 @@ gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
 
     lgw_searchwidget_set_dictionarylist (priv->ui.search_widget, dictionarylist);
 
+    if (application != NULL)
+    {
+      gw_mainwindow_application_visible_child_property_changed_cb (main_window, pspec, data);
+    }
+
 errored:
 
     return;
@@ -162,41 +175,23 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
                                                              GParamSpec   *pspec,
                                                              gpointer      data)
 {
+    printf("BREAK0 visible child changed\n");
     //Declarations
     GwMainWindowPrivate *priv = NULL;
     GtkApplication *application = NULL;
     LwDictionaryList *dictionarylist = NULL;
-    GObject *widget = NULL;
-    GActionMap *action_map = NULL;
+    GtkWidget *widget = NULL;
     LgwActionable *actionable = NULL;
 
     //Initializations
     priv = main_window->priv;
     if (priv == NULL) goto errored;
-    g_object_get (G_OBJECT (priv->ui.stack), "visible-child", &widget, NULL);
+    widget = gtk_stack_get_visible_child (priv->ui.stack);
     application = gtk_window_get_application (GTK_WINDOW (main_window));
-    action_map = G_ACTION_MAP (main_window);
+    if (application == NULL) goto errored;
     actionable = LGW_ACTIONABLE (main_window);
 
     gw_mainwindow_sync_actions (main_window);
-
-    //Assign the actions
-    if (widget != NULL && LGW_IS_ACTIONABLE (widget)) {
-      GList *action_group_list = lgw_actionable_get_actions (actionable);
-      GList *link = NULL;
-      printf("BREAK actionable glist length: %d\n", g_list_length (action_group_list));
-      for (link = action_group_list; link != NULL; link = link->next)
-      {
-          LgwActionGroup *action_group = LGW_ACTIONGROUP (link->data);
-          if (action_group != NULL)
-          {
-            lgw_actiongroup_add_to_map (action_group, action_map);
-          }
-      }
-    }
-    else
-    {
-    }
 
     //Assign the menus
     if (widget != NULL && LGW_IS_MENUABLE (widget)) {
@@ -210,21 +205,11 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
       lgw_window_set_button_menumodel (LGW_WINDOW (main_window), NULL);
     }
 
-    printf("visible child changed\n");
+    printf("BREAK1 visible child changed\n");
 
 errored:
 
     return;
-}
-
-
-gboolean
-gw_mainwindow_focus_cb (GtkWidget *widget,
-                        GdkEvent  *event,
-                        gpointer   data)
-{
-    printf("focus changed\n");
-    return FALSE;
 }
 
 
@@ -303,5 +288,18 @@ gw_mainwindow_sync_show_menubar_cb (GSettings *settings,
 errored:
 
     return;
+}
+
+
+void
+lgw_mainwindow_child_actions_property_changed_cb (GwMainWindow *main_window,
+                                                  GParamSpec      *pspec,
+                                                  LgwActionable   *actionable)
+{
+    //Sanity checks
+    g_return_if_fail (main_window != NULL);
+    g_return_if_fail (actionable != NULL);
+
+    gw_mainwindow_sync_actions (main_window);
 }
 

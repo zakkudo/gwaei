@@ -51,6 +51,10 @@ gboolean lgw_window_get_shows_menubar (LgwWindow *window);
 
 void lgw_window_pack_start (LgwWindow *window, GtkWidget *widget, gboolean expand, gboolean fill, guint padding);
 
+void lgw_window_clear_actions (LgwWindow *window);
+void lgw_window_add_actions (LgwWindow *window, GList *action_group_list);
+void lgw_window_set_actions (LgwWindow *window, GList *action_group_list);
+
 G_END_DECLS
 
 #endif
