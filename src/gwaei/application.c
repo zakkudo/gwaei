@@ -49,7 +49,6 @@ static gboolean gw_application_local_command_line (GApplication*, gchar***, gint
 static int gw_application_command_line (GApplication*, GApplicationCommandLine*);
 static void gw_application_startup (GApplication*);
 static void gw_application_load_app_menu (GwApplication*);
-static void gw_application_load_menubar (GwApplication*);
 
 
 G_DEFINE_TYPE (GwApplication, gw_application, GTK_TYPE_APPLICATION)
@@ -462,7 +461,6 @@ gw_application_startup (GApplication *application)
     G_APPLICATION_CLASS (gw_application_parent_class)->startup (application);
 
     gw_application_load_app_menu (GW_APPLICATION (application));
-    //gw_application_load_menubar (GW_APPLICATION (application));
 
     gw_application_attach_signals (GW_APPLICATION (application));
 }
@@ -528,22 +526,6 @@ gw_application_load_app_menu (GwApplication *application)
     gtk_application_set_app_menu (GTK_APPLICATION (application), menu_model);
 
     gw_application_initialize_menumodel_links (application);
-}
-
-
-static void
-gw_application_load_menubar (GwApplication *application)
-{
-    //Sanity checks
-    g_return_if_fail (application != NULL);
-
-    //Declarations
-    GMenuModel *menumodel = NULL;
-
-    //Initializations
-    menumodel = G_MENU_MODEL (g_menu_new ());
-
-    gtk_application_set_menubar (GTK_APPLICATION (application), menumodel);
 }
 
 
@@ -655,7 +637,6 @@ gw_application_get_installed_dictionarylist (GwApplication *application)
 
     //Declarations
     GwApplicationPrivate *priv = NULL;
-    LwPreferences *preferences = NULL;
     LwMorphologyEngine *morphologyengine = NULL;
     LwDictionaryList *dictionarylist = NULL;
     gpointer *pointer = NULL;
@@ -666,10 +647,9 @@ gw_application_get_installed_dictionarylist (GwApplication *application)
     if (priv->data.dictionarylist.installed == NULL)
     {
       dictionarylist = lw_dictionarylist_new ();
-      preferences = lw_preferences_get_default ();
       morphologyengine = gw_application_get_morphologyengine (application);
       lw_dictionarylist_load_installed (LW_DICTIONARYLIST (dictionarylist), morphologyengine);
-      lw_dictionarylist_load_order (LW_DICTIONARYLIST (dictionarylist), preferences);
+      lw_dictionarylist_load_order (LW_DICTIONARYLIST (dictionarylist));
       
       priv->data.dictionarylist.installed = dictionarylist;
       pointer = (gpointer*) &(priv->data.dictionarylist.installed);
@@ -688,7 +668,6 @@ gw_application_get_installable_dictionarylist (GwApplication *application)
 
     //Declarations
     GwApplicationPrivate *priv = NULL;
-    LwPreferences *preferences = NULL;
     LwDictionaryList *dictionarylist = NULL;
     gpointer *pointer = NULL;
 
@@ -698,8 +677,7 @@ gw_application_get_installable_dictionarylist (GwApplication *application)
     if (priv->data.dictionarylist.installable == NULL)
     {
       dictionarylist = lw_dictionarylist_new ();
-      preferences = lw_preferences_get_default ();
-      lw_dictionarylist_load_installable (LW_DICTIONARYLIST (dictionarylist), preferences);
+      lw_dictionarylist_load_installable (LW_DICTIONARYLIST (dictionarylist));
 
       priv->data.dictionarylist.installable = dictionarylist;
       pointer = (gpointer*) &(priv->data.dictionarylist.installable);

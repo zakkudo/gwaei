@@ -186,7 +186,7 @@ lgw_window_focus_in_event_cb (LgwWindow *window,
     if (menu_model == NULL) 
       return FALSE;
 
-   gtk_application_set_menubar (application, menu_model);
+   gtk_application_set_menubar (application, menu_model); 
 
    return FALSE;
 }
@@ -231,8 +231,8 @@ lgw_window_application_property_changed_cb (LgwWindow  *window,
     if (application == NULL) goto errored;
     if (!gtk_widget_is_visible (GTK_WIDGET (window))) goto errored;
 
-    lgw_window_set_window_menumodel (window, lgw_window_get_window_menumodel (window));
-    lgw_window_set_button_menumodel (window, lgw_window_get_button_menumodel (window));
+    lgw_window_set_window_menumodel (window, lgw_window_get_window_menumodel (window)); 
+    lgw_window_set_button_menumodel (window, lgw_window_get_button_menumodel (window)); 
 
 errored:
 

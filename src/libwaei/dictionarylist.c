@@ -69,6 +69,57 @@ lw_dictionarylist_init (LwDictionaryList *dictionary_list)
 
 
 static void 
+lw_dictionarylist_set_property (GObject      *object,
+                                guint         property_id,
+                                const GValue *value,
+                                GParamSpec   *pspec)
+{
+    //Declarations
+    LwDictionaryList *dictionary_list;
+    LwDictionaryListPrivate *priv;
+
+    //Initializations
+    dictionary_list = LW_DICTIONARYLIST (object);
+    priv = dictionary_list->priv;
+
+    switch (property_id)
+    {
+      case PROP_PREFERENCES:
+        lw_dictionarylist_set_preferences (dictionary_list, g_value_get_object (value));
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void 
+lw_dictionarylist_get_property (GObject      *object,
+                                guint         property_id,
+                                GValue       *value,
+                                GParamSpec   *pspec)
+{
+    //Declarations
+    LwDictionaryList *dictionary_list;
+    LwDictionaryListPrivate *priv;
+
+    //Initializations
+    dictionary_list = LW_DICTIONARYLIST (object);
+    priv = dictionary_list->priv;
+
+    switch (property_id)
+    {
+      case PROP_PREFERENCES:
+        g_value_set_object (value, lw_dictionarylist_get_preferences (dictionary_list));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void 
 lw_dictionarylist_finalize (GObject *object)
 {
     //Declarations
@@ -87,6 +138,22 @@ lw_dictionarylist_finalize (GObject *object)
 
 
 static void
+lw_dictionarylist_dispose (GObject *object)
+{
+    //Declarations
+    LwDictionaryList *dictionary_list = NULL;
+
+    //Initializations
+    dictionary_list = LW_DICTIONARYLIST (object);
+
+    lw_dictionarylist_disconnect_signals (dictionary_list);
+
+    G_OBJECT_CLASS (lw_dictionarylist_parent_class)->dispose (object);
+}
+
+
+
+static void
 lw_dictionarylist_class_init (LwDictionaryListClass *klass)
 {
     //Declarations
@@ -97,6 +164,9 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
     object_class = G_OBJECT_CLASS (klass);
     klass->priv = g_new0 (LwDictionaryListClassPrivate, 1);
     klasspriv = klass->priv;
+    object_class->set_property = lw_dictionarylist_set_property;
+    object_class->get_property = lw_dictionarylist_get_property;
+    object_class->dispose = lw_dictionarylist_dispose;
     object_class->finalize = lw_dictionarylist_finalize;
 
     klasspriv->signalid[CLASS_SIGNALID_INSERTED] = g_signal_new (
@@ -130,8 +200,59 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
     );
 
     g_type_class_add_private (object_class, sizeof (LwDictionaryListPrivate));
+
+    klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
+        "preferences",
+        "Preferences construct prop",
+        "Set the preferences object",
+        LW_TYPE_PREFERENCES,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_PREFERENCES, klasspriv->pspec[PROP_PREFERENCES]);
 }
 
+
+void
+lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_list,
+                                   LwPreferences    *preferences)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+
+    //Declarations
+    LwDictionaryListPrivate *priv = NULL;
+
+    //Initializations
+    priv = dictionary_list->priv;
+
+    if (priv->preferences != NULL) {
+      g_object_remove_weak_pointer (G_OBJECT (priv->preferences), (gpointer*) &(priv->preferences));
+      g_object_unref (priv->preferences);
+      priv->preferences = NULL;
+    }
+
+    priv->preferences = preferences;
+
+    if (priv->preferences != NULL) {
+      g_object_add_weak_pointer (G_OBJECT (priv->preferences), (gpointer*) &(priv->preferences));
+    }
+}
+
+
+LwPreferences*
+lw_dictionarylist_get_preferences (LwDictionaryList *dictionary_list)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+
+    //Declarations
+    LwDictionaryListPrivate *priv = NULL;
+
+    //Initializations
+    priv = dictionary_list->priv;
+
+    return priv->preferences;
+}
 
 
 void 
@@ -587,8 +708,7 @@ lw_dictionarylist_get_total (LwDictionaryList *dictionary_list)
 //! @brief Saves the current load order to the preferences
 //
 void 
-lw_dictionarylist_save_order (LwDictionaryList *dictionary_list,
-                              LwPreferences    *preferences)
+lw_dictionarylist_save_order (LwDictionaryList *dictionary_list)
 {
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -620,7 +740,7 @@ lw_dictionarylist_save_order (LwDictionaryList *dictionary_list,
     order = g_strjoinv (";", atoms);
     if (order == NULL) goto errored;
 
-    lw_preferences_set_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, LW_KEY_LOAD_ORDER, order);
+    lw_preferences_set_string_by_schema (priv->preferences, LW_SCHEMA_DICTIONARY, LW_KEY_LOAD_ORDER, order);
 
 errored:
 
@@ -636,6 +756,7 @@ lw_dictionarylist_build_order_map (LwDictionaryList *dictionary_list)
     g_return_val_if_fail (dictionary_list != NULL, NULL);
 
     //Declarations
+    LwDictionaryListPrivate *priv = NULL;
     gchar *order = NULL;
     gchar **atoms = NULL;
     gchar i = 0;
@@ -643,10 +764,11 @@ lw_dictionarylist_build_order_map (LwDictionaryList *dictionary_list)
     GHashTable *hashtable = NULL;
 
     //Initializations
+    priv = dictionary_list->priv;
     hashtable = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
     if (hashtable == NULL) goto errored;
 
-    preferences = lw_preferences_get_default ();
+    preferences = priv->preferences;
     if (preferences == NULL) goto errored;
 
     order = lw_preferences_get_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, LW_KEY_LOAD_ORDER);
@@ -669,7 +791,6 @@ errored:
       else g_strfreev (atoms); 
       atoms = NULL;
     }
-    if (preferences != NULL) g_object_unref (preferences); preferences = NULL;
 
     return hashtable;
 }
@@ -808,12 +929,10 @@ lw_dictionarylist_sort_compare_function (gconstpointer a,
 //! @brief Loads the load order from the preferences
 //
 void 
-lw_dictionarylist_load_order (LwDictionaryList *dictionary_list,
-                              LwPreferences    *preferences)
+lw_dictionarylist_load_order (LwDictionaryList *dictionary_list)
 {
     //Sanity checks
     g_return_if_fail (dictionary_list != NULL);
-    g_return_if_fail (preferences != NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -851,8 +970,7 @@ errored:
 //! @brief Sets up the built-in installabale dictionaries
 //!
 void
-lw_dictionarylist_load_installable (LwDictionaryList   *dictionary_list, 
-                                    LwPreferences      *preferences)
+lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
 {
     //Sanity checks
     g_return_if_fail (dictionary_list != NULL);
@@ -873,7 +991,7 @@ lw_dictionarylist_load_installable (LwDictionaryList   *dictionary_list,
       lw_dictionary_set_builtin_installer_full (
         dictionary, 
         "English",
-        preferences,
+        priv->preferences,
         LW_KEY_ENGLISH_SOURCE,
         gettext("The venerable edict by Jim Breen."),
         LW_ENCODING_EUC_JP,
@@ -888,7 +1006,7 @@ lw_dictionarylist_load_installable (LwDictionaryList   *dictionary_list,
       lw_dictionary_set_builtin_installer_full (
         dictionary, 
         "Kanji",
-        preferences,
+        priv->preferences,
         LW_KEY_KANJI_SOURCE,
         gettext("A Kanji dictionary based off of kanjidic with radical information combined."),
         LW_ENCODING_EUC_JP,
@@ -903,7 +1021,7 @@ lw_dictionarylist_load_installable (LwDictionaryList   *dictionary_list,
       lw_dictionary_set_builtin_installer_full (
         dictionary, 
         "Names;Places",
-        preferences,
+        priv->preferences,
         LW_KEY_NAMES_PLACES_SOURCE,
         gettext("Based off of Enamdic, but with the names split from the places for 2 separate dictionaries."),
         LW_ENCODING_EUC_JP,
@@ -918,7 +1036,7 @@ lw_dictionarylist_load_installable (LwDictionaryList   *dictionary_list,
       lw_dictionary_set_builtin_installer_full (
         dictionary, 
         "Examples",
-        preferences,
+        priv->preferences,
         LW_KEY_EXAMPLES_SOURCE,
         gettext("A collection of Japanese/English sentences initially compiled "
                 "by Professor Yasuhito Tanaka at Hyogo University and his students."),

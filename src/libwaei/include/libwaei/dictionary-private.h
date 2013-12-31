@@ -3,6 +3,13 @@
 
 G_BEGIN_DECLS
 
+typedef enum
+{
+  PROP_0,
+  PROP_FILENAME,
+  PROP_MORPHOLOGYENGINE
+} LwDictionaryProps;
+
 typedef enum {
   CLASS_SIGNALID_PROGRESS_CHANGED,
   TOTAL_CLASS_SIGNALIDS
@@ -59,6 +66,9 @@ struct _LwDictionaryInstall {
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));
+
+LwPreferences* lw_dictionarylist_get_preferences (LwDictionaryList *dictionary_list);
+void lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_listi, LwPreferences *preferences);
 
 G_END_DECLS
 

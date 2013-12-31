@@ -45,14 +45,7 @@
 #include <libwaei/dictionary-private.h>
 
 
-G_DEFINE_ABSTRACT_TYPE (LwDictionary, lw_dictionary, G_TYPE_OBJECT)
-
-typedef enum
-{
-  PROP_0,
-  PROP_FILENAME,
-  PROP_MORPHOLOGYENGINE
-} LwDictionaryProps;
+G_DEFINE_ABSTRACT_TYPE (LwDictionary, lw_dictionary, G_TYPE_OBJECT);
 
 
 LwDictionaryInstall*

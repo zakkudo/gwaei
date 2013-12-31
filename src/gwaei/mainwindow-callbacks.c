@@ -218,6 +218,9 @@ gw_mainwindow_close_cb (GSimpleAction *action,
                         GVariant      *parameter,
                         gpointer       data)
 {
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
     //Declarations
     GwMainWindow *window = NULL;
     GtkWidget *widget = NULL;
@@ -247,6 +250,9 @@ gw_mainwindow_menubar_show_toggled_cb (GSimpleAction *action,
                                        GVariant      *parameter, 
                                        gpointer       data)
 {
+    //Sanity checks
+    g_return_if_fail (data != NULL);
+
     //Declarations
     GwMainWindow *window = NULL;
     LwPreferences *preferences = NULL;
@@ -301,5 +307,6 @@ lgw_mainwindow_child_actions_property_changed_cb (GwMainWindow *main_window,
     g_return_if_fail (actionable != NULL);
 
     gw_mainwindow_sync_actions (main_window);
+
 }
 

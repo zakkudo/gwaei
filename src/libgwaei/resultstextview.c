@@ -225,6 +225,9 @@ lgw_resultstextview_constructed (GObject *object)
       }
     }
 
+    gtk_text_view_set_editable (priv->ui.text_view, FALSE);
+    gtk_text_view_set_cursor_visible (priv->ui.text_view, FALSE);
+
     lgw_resultstextview_connect_signals (view);
 }
 

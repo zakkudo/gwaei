@@ -4,6 +4,13 @@
 G_BEGIN_DECLS
 
 typedef enum {
+    PROP_0,
+    PROP_PREFERENCES,
+    TOTAL_PROPS
+} Props;
+
+
+typedef enum {
   SIGNALID_CHANGED,
   SIGNALID_INSERTED,
   SIGNALID_DELETED,
@@ -25,9 +32,11 @@ struct _LwDictionaryListPrivate {
   GMutex mutex;
   GMenuModel *menu_model;
   guint signalid[TOTAL_SIGNALIDS];
+  LwPreferences *preferences;
 };
 
 struct _LwDictionaryListClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 
   //Signals
@@ -42,6 +51,9 @@ struct _LwDictionaryListClassPrivate {
 void lw_dictionarylist_menumodel_insert (LwDictionaryList *dictioanry_list, LwDictionary *dictionary, gint index_);
 void lw_dictionarylist_menumodel_append (LwDictionaryList *dictionary_list, LwDictionary *dictionary);
 void lw_dictionarylist_sync_menumodel (LwDictionaryList *dictionary_list);
+
+void lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_list, LwPreferences *preferences);
+LwPreferences* lw_dictionarylist_get_preferences (LwDictionaryList *dictionary_list);
 
 G_END_DECLS
 

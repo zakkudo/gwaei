@@ -89,7 +89,7 @@ gw_installprogresswindow_finish (GwInstallProgressWindow *window)
 
     lw_dictionarylist_clear (dictionarylist);
     lw_dictionarylist_load_installed (dictionarylist, morphologyengine);
-    lw_dictionarylist_load_order (dictionarylist, preferences);
+    lw_dictionarylist_load_order (dictionarylist);
 }
 
 

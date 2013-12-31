@@ -281,19 +281,17 @@ w_application_get_installed_dictionarylist (WApplication *application)
 
     //Declarations
     WApplicationPrivate *priv = NULL;
-    LwPreferences *preferences = NULL;
     LwMorphologyEngine *morphologyengine = NULL;
 
     //Initializations
     priv = application->priv;
-    preferences = w_application_get_preferences (application);
     morphologyengine = w_application_get_morphologyengine (application);
 
     if (priv->installed_dictionarylist == NULL)
     {
       priv->installed_dictionarylist = lw_dictionarylist_new ();
       lw_dictionarylist_load_installed (priv->installed_dictionarylist, morphologyengine);
-      lw_dictionarylist_load_order (priv->installed_dictionarylist, preferences);
+      lw_dictionarylist_load_order (priv->installed_dictionarylist);
     }
 
     return priv->installed_dictionarylist;
@@ -304,15 +302,13 @@ LwDictionaryList*
 w_application_get_installable_dictionarylist (WApplication *application)
 {
     WApplicationPrivate *priv;
-    LwPreferences *preferences;
 
     priv = application->priv;
 
     if (priv->installable_dictionarylist == NULL)
     {
       priv->installable_dictionarylist = lw_dictionarylist_new ();
-      preferences = w_application_get_preferences (application);
-      lw_dictionarylist_load_installable (priv->installable_dictionarylist, preferences);
+      lw_dictionarylist_load_installable (priv->installable_dictionarylist);
     }
 
     return priv->installable_dictionarylist;

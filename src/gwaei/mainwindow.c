@@ -347,9 +347,6 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
       gtk_widget_show (stack);
     }
 
-    //HACK
-    gw_mainwindow_application_visible_child_property_changed_cb (window, NULL, NULL);
-
     lgw_searchwidget_set_search_mode (priv->ui.search_widget, TRUE);
 }
 

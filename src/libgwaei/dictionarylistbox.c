@@ -179,6 +179,13 @@ lgw_dictionarylistbox_constructed (GObject *object)
         priv->ui.list_box = GTK_LIST_BOX (list_box);
         gtk_container_add (GTK_CONTAINER (scrolled_window), list_box);
         gtk_widget_show (list_box);
+
+        {
+          GtkWidget *label = gtk_label_new (NULL);
+          gtk_label_set_markup (GTK_LABEL (label), "Click + to add a dictionary");
+          gtk_list_box_set_placeholder (priv->ui.list_box, label);
+          gtk_widget_show (label);
+        }
       }
     }
 
@@ -229,63 +236,53 @@ lgw_dictionarylistbox_constructed (GObject *object)
         }
       }
     }
+}
 
-/*
+static GtkWidget*
+lgw_dictionarylist_create_row (LwDictionary *dictionary)
+{
+    //Sanity checks;
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
+
+    GtkWidget *container = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
+    GtkBox *box = GTK_BOX (container);
+    gtk_widget_show (container);
+
     {
-        GtkCellRenderer* renderer = gtk_cell_renderer_text_new();
-        gtk_cell_renderer_set_padding (renderer, 6, 4);
-        GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (gettext("Dictionary"), renderer, "text", LGW_DICTIONARYLIST_COLUMN_LONG_NAME, NULL);
-        gtk_tree_view_column_set_min_width (column, 100);
-        gtk_tree_view_append_column (priv->ui.tree_view, column);
+      GtkWidget *label = gtk_label_new (lw_dictionary_get_name (dictionary));
+      gtk_box_pack_start (box, label, FALSE, FALSE, 0);
+      gtk_widget_show (label);
     }
-    */
+
+    return container;
+}
 
 
-/*TODO
-    priv = window->priv;
-    application = gw_window_get_application (GW_WINDOW (window));
-    dictionarylist = gw_application_get_installed_dictionarylist (application);
-    liststore = gw_dictionarylist_get_liststore (dictionarylist);
-    treemodel = GTK_TREE_MODEL (liststore);
-    view = priv->manage_dictionaries_treeview;
-    selection = gtk_tree_view_get_selection (view);
+void
+lgw_dictionarylistbox_initialize_list (LgwDictionaryListBox *box)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (box));
 
-    gtk_tree_view_set_model (view, treemodel);
+    //Declarations
+    LgwDictionaryListBoxPrivate *priv = NULL;
+    LwDictionaryList *dictionary_list = NULL;
+    GList *list = NULL;
 
-    //Create the columns and renderer for each column
-    renderer = gtk_cell_renderer_pixbuf_new();
-    gtk_cell_renderer_set_padding (renderer, 6, 4);
-    column = gtk_tree_view_column_new ();
-    gtk_tree_view_column_set_title (column, " ");
-    gtk_tree_view_column_pack_start (column, renderer, TRUE);
-    gtk_tree_view_column_set_attributes (column, renderer, "icon-name", GW_DICTIONARYLIST_COLUMN_IMAGE, NULL);
-    gtk_tree_view_append_column (view, column);
+    //Initializations
+    priv = box->priv;
+    dictionary_list = LW_DICTIONARYLIST (box);
+    list = lw_dictionarylist_get_list (dictionary_list);
 
-    renderer = gtk_cell_renderer_text_new();
-    gtk_cell_renderer_set_padding (renderer, 6, 4);
-    column = gtk_tree_view_column_new_with_attributes ("#", renderer, "text", GW_DICTIONARYLIST_COLUMN_POSITION, NULL);
-    gtk_tree_view_append_column (view, column);
-
-    renderer = gtk_cell_renderer_text_new();
-    gtk_cell_renderer_set_padding (renderer, 6, 4);
-    column = gtk_tree_view_column_new_with_attributes (gettext("Name"), renderer, "text", GW_DICTIONARYLIST_COLUMN_LONG_NAME, NULL);
-    gtk_tree_view_column_set_min_width (column, 100);
-    gtk_tree_view_append_column (view, column);
-
-    renderer = gtk_cell_renderer_text_new();
-    gtk_cell_renderer_set_padding (renderer, 6, 4);
-    column = gtk_tree_view_column_new_with_attributes (gettext("Engine"), renderer, "text", GW_DICTIONARYLIST_COLUMN_ENGINE, NULL);
-    gtk_tree_view_append_column (view, column);
-
-    renderer = gtk_cell_renderer_text_new();
-    gtk_cell_renderer_set_padding (renderer, 6, 4);
-    column = gtk_tree_view_column_new_with_attributes (gettext("Shortcut"), renderer, "text", GW_DICTIONARYLIST_COLUMN_SHORTCUT, NULL);
-    gtk_tree_view_append_column (view, column);
-
-    gtk_tree_selection_set_mode (selection, GTK_SELECTION_BROWSE);
-*/
-
-
+    {
+      GList *link = NULL;
+      for (link = list; link->next != NULL; link = link->next)
+      {
+        LwDictionary *dictionary = LW_DICTIONARY (link->data);
+        GtkWidget *row = lgw_dictionarylist_create_row (dictionary);
+        gtk_container_add (GTK_CONTAINER (priv->ui.list_box), row);
+      }
+    }
 }
 
 
@@ -320,5 +317,15 @@ void
 lgw_dictionarylistbox_set_dictionarylist (LgwDictionaryListBox *box,
                                           LwDictionaryList* dictionarylist)
 {
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (box));
+
+    //Declarations
+    LgwDictionaryListBoxPrivate *priv = NULL;
+
+    //Initializations
+    priv = box->priv;
+
+    lgw_dictionarylistbox_initialize_list (box);
 }
 

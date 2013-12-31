@@ -161,7 +161,7 @@ lgw_menumodel_set_contents (GMenuModel *menu_model,
 
     //Add the menuitem linking the menus 
     if (other_menu_model != NULL) {
-      GMenuItem *menuitem = g_menu_item_new_section ("menu", other_menu_model);
+      GMenuItem *menuitem = g_menu_item_new_section (NULL, other_menu_model);
       if (menuitem != NULL)
       {
         g_menu_append_item (menu, menuitem);
@@ -202,7 +202,6 @@ lgw_application_add_accelerators (GtkApplication *application,
       g_menu_model_get_item_attribute (menumodel, index, G_MENU_ATTRIBUTE_TARGET, "s", &detail, NULL);
       if (accel != NULL && action != NULL)
       {
-        printf("BREAK adding accel %s::%s %s\n", action, detail, accel);
         if (detail != NULL)
         {
           gtk_application_add_accelerator (GTK_APPLICATION (application), accel, action, g_variant_new_string (detail));

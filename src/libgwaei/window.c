@@ -442,14 +442,14 @@ lgw_window_set_window_menumodel (LgwWindow  *window,
     if (menu_model == NULL) goto errored;
     if (menu_model == priv->data.window_menu_model) goto errored;
 
+    //lgw_application_remove_accelerators (application, priv->data.window_menu_model);
     lgw_menumodel_set_contents (priv->data.window_menu_model, menu_model);
-    gtk_application_set_menubar (application, NULL);
-    gtk_application_set_menubar (application, priv->data.window_menu_model);
-    //lgw_application_add_accelerators (application, priv->data.window_menu_model);
 
     g_object_notify_by_pspec (G_OBJECT (window), klasspriv->pspec[PROP_WINDOW_MENUMODEL]);
 
 errored:
+
+    printf("BREAK1 lgw_window_set_window_menumodel\n");
 
     return;
 }
@@ -659,18 +659,17 @@ lgw_window_sync_menubar_show (LgwWindow *window)
 
     if (priv->ui.window_menubar != NULL)
     {
-      printf("shows_menubar: %d, show_menubar: %d\n", priv->config.shows_menubar, priv->config.show_menubar);
       if (should_show_menubar)
       {
         gtk_widget_show (GTK_WIDGET (priv->ui.window_menubar));
-        gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (window), FALSE);
       }
       else
       {
         gtk_widget_hide (GTK_WIDGET (priv->ui.window_menubar));
-        gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (window), TRUE);
       }
     }
+
+    gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (window), FALSE);
 
     if (priv->ui.menu_button != NULL)
     {
@@ -739,24 +738,34 @@ void
 lgw_window_add_actions (LgwWindow *window,
                         GList     *action_group_list)
 {
+  printf("BREAK0 lgw_window_add_actions\n");
     //Sanity checks
     g_return_if_fail (window != NULL);
 
     //Declarations
+    LgwWindowPrivate *priv = NULL;
     GList *link = NULL;
     GActionMap *action_map = NULL;
+    GtkApplication *application = NULL;
 
     //Initializations
+    priv = window->priv;
     action_map = G_ACTION_MAP (window);
+    application = gtk_window_get_application (GTK_WINDOW (window));
+
+    printf("BREAK lgw_window_add_actions: %d\n", g_list_length (action_group_list));
 
     for (link = action_group_list; link != NULL; link = link->next)
     {
       LgwActionGroup *action_group = LGW_ACTIONGROUP (link->data);
       if (action_group != NULL)
       {
+        printf("added %d\n", g_list_length(action_group_list));
         lgw_actiongroup_add_to_map (action_group, action_map);
       }
     }
+      gtk_application_window_set_show_menubar (GTK_APPLICATION_WINDOW (window), TRUE);
+  printf("BREAK1 lgw_window_add_actions\n");
 }
 
 

@@ -35,35 +35,28 @@ struct _LwDictionaryListClass {
 LwDictionaryList* lw_dictionarylist_new (void);
 GType lw_dictionarylist_get_type (void) G_GNUC_CONST;
 
-void lw_dictionarylist_append (LwDictionaryList*, LwDictionary*);
 
-LwDictionary* lw_dictionarylist_remove (LwDictionaryList*, LwDictionary*);
-LwDictionary* lw_dictionarylist_remove_by_position (LwDictionaryList*, gint);
+gint lw_dictionarylist_get_total (LwDictionaryList *dictionary_list);
 
-LwDictionary* lw_dictionarylist_get_dictionary (LwDictionaryList*, GType, const gchar*);
-LwDictionary* lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList*, const gchar*);
-LwDictionary* lw_dictionarylist_get_dictionary_by_id (LwDictionaryList*, const gchar*);
-LwDictionary* lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList*, const gchar*);
-LwDictionary* lw_dictionarylist_get_dictionary_by_position (LwDictionaryList*, gint);
+void lw_dictionarylist_load_installed (LwDictionaryList *dictionary_list, LwMorphologyEngine *morphologyengine);
+void lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list);
 
-gint lw_dictionarylist_get_position (LwDictionaryList*, LwDictionary*);
-gboolean lw_dictionarylist_dictionary_exists (LwDictionaryList*, LwDictionary*);
+void  lw_dictionarylist_load_order (LwDictionaryList *dictionary_list);
 
-int lw_dictionarylist_get_total (LwDictionaryList*);
+void lw_dictionarylist_load_order (LwDictionaryList *dictionary_list);
 
-void lw_dictionarylist_load_order (LwDictionaryList*, LwPreferences*);
-void lw_dictionarylist_save_order (LwDictionaryList*, LwPreferences*);
+GList* lw_dictionarylist_get_list (LwDictionaryList *dictionary_list);
 
-void lw_dictionarylist_load_installed (LwDictionaryList*, LwMorphologyEngine*);
-void lw_dictionarylist_load_installable (LwDictionaryList*, LwPreferences*);
-void lw_dictionarylist_clear (LwDictionaryList*);
-
-gboolean lw_dictionarylist_installer_is_valid (LwDictionaryList*);
-
-GList* lw_dictionarylist_get_list (LwDictionaryList*);
-void lw_dictionarylist_sort_with_data (LwDictionaryList*, GCompareDataFunc, gpointer);
+LwDictionary* lw_dictionarylist_get_dictionary_by_position (LwDictionaryList* dictionary_list, gint position);
+LwDictionary* lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *dictionary_list, const gchar *FILENAME);
+LwDictionary* lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *dictionary_list, const gchar *FUZZY_DESCRIPTION);
+LwDictionary* lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *dictionary_list, const gchar *ENGINE_AND_FILENAME);
 
 GMenuModel* lw_dictionarylist_get_menumodel (LwDictionaryList *dictionary_list);
+
+gboolean lw_dictionarylist_dictionary_exists (LwDictionaryList *dictionary_list, LwDictionary *dictionary);
+void lw_dictionarylist_append (LwDictionaryList *dictionary_list, LwDictionary *dictionary);
+void lw_dictionarylist_clear (LwDictionaryList *dictionary_list);
 
 G_END_DECLS
 
