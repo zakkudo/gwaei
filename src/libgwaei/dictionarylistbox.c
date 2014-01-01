@@ -45,12 +45,6 @@ static void lgw_dictionarylistbox_init (LgwDictionaryListBox *widget);
 
 G_DEFINE_TYPE (LgwDictionaryListBox, lgw_dictionarylistbox, GTK_TYPE_BOX)
 
-typedef enum
-{
-  PROP_0,
-  PROP_DICTIONARYLIST
-} LgwDictionaryListBoxProps;
-
 //!
 //! @brief Sets up the variables in main-interface.c and main-callbacks.c for use
 //!
@@ -97,16 +91,16 @@ lgw_dictionarylistbox_set_property (GObject      *object,
                                     const GValue *value,
                                     GParamSpec   *pspec)
 {
-    LgwDictionaryListBox *dictionarylistbox = NULL;
+    LgwDictionaryListBox *dictionary_list_box = NULL;
     LgwDictionaryListBoxPrivate *priv = NULL;
 
-    dictionarylistbox = LGW_DICTIONARYLISTBOX (object);
-    priv = dictionarylistbox->priv;
+    dictionary_list_box = LGW_DICTIONARYLISTBOX (object);
+    priv = dictionary_list_box->priv;
 
     switch (property_id)
     {
       case PROP_DICTIONARYLIST:
-        priv->data.dictionary_list = LGW_DICTIONARYLIST (g_value_get_object (value));
+        lgw_dictionarylistbox_set_dictionarylist (dictionary_list_box, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -121,16 +115,16 @@ lgw_dictionarylistbox_get_property (GObject      *object,
                                     GValue       *value,
                                     GParamSpec   *pspec)
 {
-    LgwDictionaryListBox *dictionarylistbox = NULL;
+    LgwDictionaryListBox *dictionary_list_box = NULL;
     LgwDictionaryListBoxPrivate *priv = NULL;
 
-    dictionarylistbox = LGW_DICTIONARYLISTBOX (object);
-    priv = dictionarylistbox->priv;
+    dictionary_list_box = LGW_DICTIONARYLISTBOX (object);
+    priv = dictionary_list_box->priv;
 
     switch (property_id)
     {
       case PROP_DICTIONARYLIST:
-        g_value_set_object (value, priv->data.dictionary_list);
+        g_value_set_object (value, lgw_dictionarylistbox_get_dictionarylist (dictionary_list_box));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -244,54 +238,91 @@ lgw_dictionarylist_create_row (LwDictionary *dictionary)
     //Sanity checks;
     g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
 
-    GtkWidget *container = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
-    GtkBox *box = GTK_BOX (container);
-    gtk_widget_show (container);
-
+    GtkWidget *row = gtk_list_box_new ();
     {
-      GtkWidget *label = gtk_label_new (lw_dictionary_get_name (dictionary));
-      gtk_box_pack_start (box, label, FALSE, FALSE, 0);
-      gtk_widget_show (label);
+      GtkWidget *columns = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
+      {
+        GtkWidget *label = gtk_label_new (lw_dictionary_get_name (dictionary));
+        gtk_box_pack_start (GTK_BOX (columns), label, FALSE, FALSE, 0);
+        gtk_widget_show (label);
+      }
+      gtk_widget_show (columns);
+      gtk_container_add (GTK_CONTAINER (row), columns);
     }
 
-    return container;
+    return row;
 }
 
 
-void
-lgw_dictionarylistbox_initialize_list (LgwDictionaryListBox *box)
+static void
+lgw_dictionarylistbox_sync_list (LgwDictionaryListBox *dictionary_list_box)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (box));
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
 
     //Declarations
     LgwDictionaryListBoxPrivate *priv = NULL;
-    LwDictionaryList *dictionary_list = NULL;
-    GList *list = NULL;
+    LgwDictionaryList *dictionary_list = NULL;
 
     //Initializations
-    priv = box->priv;
-    dictionary_list = LW_DICTIONARYLIST (box);
-    list = lw_dictionarylist_get_list (dictionary_list);
+    priv = dictionary_list_box->priv;
+    dictionary_list = lgw_dictionarylistbox_get_dictionarylist (dictionary_list_box);
 
+    if (priv->ui.list_box == NULL) goto errored;
+
+    //Clear the previous list
     {
-      GList *link = NULL;
-      for (link = list; link->next != NULL; link = link->next)
+      GList *list = gtk_container_get_children (GTK_CONTAINER (priv->ui.list_box));
+      GList *link = list;
+      while (link != NULL)
+      {
+        GtkWidget *widget = GTK_WIDGET (link->data);
+        if (widget != NULL)
+        {
+          gtk_widget_destroy (widget);
+        }
+        link->data = NULL;
+        link = link->next;
+      }
+      if (list != NULL) g_list_free (list); list = NULL;
+    }
+
+    //Set the new list
+    if (dictionary_list != NULL)
+    {
+      GList *list = lw_dictionarylist_get_list (LW_DICTIONARYLIST (dictionary_list));
+      GList *link = list;;
+
+      while (link != NULL)
       {
         LwDictionary *dictionary = LW_DICTIONARY (link->data);
         GtkWidget *row = lgw_dictionarylist_create_row (dictionary);
+
         gtk_container_add (GTK_CONTAINER (priv->ui.list_box), row);
+        gtk_widget_show (row);
+
+        link = link->next;
       }
+
+      if (list != NULL) g_list_free (list); list = NULL;
     }
+
+errored:
+
+    return;
 }
 
 
 static void
 lgw_dictionarylistbox_class_init (LgwDictionaryListBoxClass *klass)
 {
-    GObjectClass *object_class;
+    //Declarations
+    GObjectClass *object_class = NULL;
+    LgwDictionaryListBoxClassPrivate *klasspriv = NULL;
 
+    //Initializations
     object_class = G_OBJECT_CLASS (klass);
+    klasspriv = klass->priv = g_new0(LgwDictionaryListBoxClassPrivate, 1);
 
     object_class->set_property = lgw_dictionarylistbox_set_property;
     object_class->get_property = lgw_dictionarylistbox_get_property;
@@ -300,32 +331,67 @@ lgw_dictionarylistbox_class_init (LgwDictionaryListBoxClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LgwDictionaryListBoxPrivate));
 
-    {
-      GParamSpec *pspec = g_param_spec_object (
-        "dictionarylist",
-        "Dictionary list used for the datamodel",
-        "Dictionarylist used for the datamodel",
-        LGW_TYPE_DICTIONARYLIST,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
-      );
-      g_object_class_install_property (object_class, PROP_DICTIONARYLIST, pspec);
-    }
+    klasspriv->pspec[PROP_DICTIONARYLIST] = g_param_spec_object (
+      "dictionarylist",
+      "Dictionary list used for the datamodel",
+      "Dictionarylist used for the datamodel",
+      LGW_TYPE_DICTIONARYLIST,
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_DICTIONARYLIST, klasspriv->pspec[PROP_DICTIONARYLIST]);
 }
 
 
 void
-lgw_dictionarylistbox_set_dictionarylist (LgwDictionaryListBox *box,
-                                          LwDictionaryList* dictionarylist)
+lgw_dictionarylistbox_set_dictionarylist (LgwDictionaryListBox *dictionary_list_box,
+                                          LgwDictionaryList    *dictionary_list)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (box));
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
+
+    //Declarations
+    LgwDictionaryListBoxPrivate *priv = NULL;
+    LgwDictionaryListBoxClass *klass = NULL;
+    LgwDictionaryListBoxClassPrivate *klasspriv = NULL;
+
+    //Initializations
+    priv = dictionary_list_box->priv;
+    klass = LGW_DICTIONARYLISTBOX_GET_CLASS (dictionary_list_box);
+    klasspriv = klass->priv;
+
+    if (priv->data.dictionary_list != NULL)
+    {
+      g_object_remove_weak_pointer (G_OBJECT (priv->data.dictionary_list), (gpointer*) &(priv->data.dictionary_list));
+      g_object_unref (priv->data.dictionary_list);
+      priv->data.dictionary_list = NULL;
+    }
+
+    priv->data.dictionary_list = dictionary_list;
+
+    if (priv->data.dictionary_list != NULL)
+    {
+      g_object_ref (priv->data.dictionary_list);
+      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionary_list), (gpointer*) &(priv->data.dictionary_list));
+    }
+
+    lgw_dictionarylistbox_sync_list (dictionary_list_box);
+
+    g_object_notify_by_pspec (G_OBJECT (dictionary_list_box), klasspriv->pspec[PROP_DICTIONARYLIST]);
+}
+
+
+LgwDictionaryList*
+lgw_dictionarylistbox_get_dictionarylist (LgwDictionaryListBox *dictionary_list_box)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
 
     //Declarations
     LgwDictionaryListBoxPrivate *priv = NULL;
 
     //Initializations
-    priv = box->priv;
+    priv = dictionary_list_box->priv;
 
-    lgw_dictionarylistbox_initialize_list (box);
+    return priv->data.dictionary_list;
 }
 

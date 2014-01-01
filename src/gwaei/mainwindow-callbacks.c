@@ -45,7 +45,7 @@
 void
 gw_mainwindow_connect_signals (GwMainWindow *window) {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (GW_IS_MAINWINDOW (window));
 
     //Declarations
     GwMainWindowPrivate *priv = NULL;
@@ -101,7 +101,7 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
 void
 gw_mainwindow_disconnect_signals (GwMainWindow *window) {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (GW_IS_MAINWINDOW (window));
 
     //Declarations
     GwMainWindowPrivate *priv = NULL;
@@ -146,18 +146,22 @@ gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
                                                GParamSpec   *pspec,
                                                gpointer      data)
 {
+    //Sanity checks
+    g_return_if_fail (GW_IS_MAINWINDOW (main_window));
+
     //Declarations
     GwMainWindowPrivate *priv = NULL;
     GtkApplication *application = NULL;
-    LwDictionaryList *dictionarylist = NULL;
+    LgwDictionaryList *dictionary_list = NULL;
 
+    //Initializations
     priv = main_window->priv;
     if (priv == NULL) goto errored;
     application = gtk_window_get_application (GTK_WINDOW (main_window));
     if (application == NULL) goto errored;
-    dictionarylist = gw_application_get_installed_dictionarylist (GW_APPLICATION (application));
+    dictionary_list = gw_application_get_installed_dictionarylist (GW_APPLICATION (application));
 
-    lgw_searchwidget_set_dictionarylist (priv->ui.search_widget, dictionarylist);
+    lgw_searchwidget_set_dictionarylist (priv->ui.search_widget, dictionary_list);
 
     if (application != NULL)
     {
@@ -175,11 +179,13 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
                                                              GParamSpec   *pspec,
                                                              gpointer      data)
 {
-    printf("BREAK0 visible child changed\n");
+    //Sanity checks
+    g_return_if_fail (GW_IS_MAINWINDOW (main_window));
+
     //Declarations
     GwMainWindowPrivate *priv = NULL;
     GtkApplication *application = NULL;
-    LwDictionaryList *dictionarylist = NULL;
+    LgwDictionaryList *dictionarylist = NULL;
     GtkWidget *widget = NULL;
     LgwActionable *actionable = NULL;
 
@@ -201,6 +207,7 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     }
     else
     {
+      printf("BREAK gw_mainwindow_applicacation_visible_child_property_changed_cb clearing the window menumodel\n");
       lgw_window_set_window_menumodel (LGW_WINDOW (main_window), NULL);
       lgw_window_set_button_menumodel (LGW_WINDOW (main_window), NULL);
     }

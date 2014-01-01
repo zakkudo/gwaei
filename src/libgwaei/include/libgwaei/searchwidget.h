@@ -8,6 +8,7 @@ G_BEGIN_DECLS
 typedef struct _LgwSearchWidget LgwSearchWidget;
 typedef struct _LgwSearchWidgetClass LgwSearchWidgetClass;
 typedef struct _LgwSearchWidgetPrivate LgwSearchWidgetPrivate;
+typedef struct _LgwSearchWidgetClassPrivate LgwSearchWidgetClassPrivate;
 
 #define LGW_TYPE_SEARCHWIDGET              (lgw_searchwidget_get_type())
 #define LGW_SEARCHWIDGET(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LGW_TYPE_SEARCHWIDGET, LgwSearchWidget))
@@ -23,6 +24,7 @@ struct _LgwSearchWidget {
 
 struct _LgwSearchWidgetClass {
   GtkBoxClass parent_class;
+  LgwSearchWidgetClassPrivate *priv;
 };
 
 GtkWidget* lgw_searchwidget_new (void);
@@ -33,7 +35,12 @@ GType lgw_searchwidget_get_type (void) G_GNUC_CONST;
 gboolean lgw_searchwidget_get_search_mode (LgwSearchWidget *widget);
 void lgw_searchwidget_set_search_mode (LgwSearchWidget *widget, gboolean search_mode);
 
-void lgw_searchwidget_set_dictionarylist (LgwSearchWidget *search_widget, LwDictionaryList *dictionary_list);
+void lgw_searchwidget_set_preferences (LgwSearchWidget *search_widget, LwPreferences *preferences);
+LwPreferences* lgw_searchwidget_get_preferences (LgwSearchWidget *search_widget);
+
+void lgw_searchwidget_set_dictionarylist (LgwSearchWidget *search_widget, LgwDictionaryList *dictionary_list);
+LgwDictionaryList* lgw_searchwidget_get_dictionarylist (LgwSearchWidget *search_widget);
+
 
 G_END_DECLS
 

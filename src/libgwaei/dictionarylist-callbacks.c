@@ -178,7 +178,7 @@ lgw_dictionarylist_connect_signals (LgwDictionaryList *dictionary_list)
     {
       priv->data.signalid[SIGNALID_CHANGED] = g_signal_connect (
         G_OBJECT (dictionary_list),
-        "changed",
+        "internal-row-changed",
         G_CALLBACK (lgw_dictionarylist_changed_cb),
         NULL
       );
@@ -188,7 +188,7 @@ lgw_dictionarylist_connect_signals (LgwDictionaryList *dictionary_list)
     {
       priv->data.signalid[SIGNALID_INSERTED] = g_signal_connect (
         G_OBJECT (dictionary_list),
-        "inserted",
+        "internal-row-inserted",
         G_CALLBACK (lgw_dictionarylist_inserted_cb),
         NULL
       );
@@ -198,7 +198,7 @@ lgw_dictionarylist_connect_signals (LgwDictionaryList *dictionary_list)
     {
       priv->data.signalid[SIGNALID_DELETED] = g_signal_connect (
         G_OBJECT (dictionary_list),
-        "deleted",
+        "internal-row-deleted",
         G_CALLBACK (lgw_dictionarylist_deleted_cb),
         NULL
       );
@@ -208,7 +208,7 @@ lgw_dictionarylist_connect_signals (LgwDictionaryList *dictionary_list)
     {
       priv->data.signalid[SIGNALID_REORDERED] = g_signal_connect (
         G_OBJECT (dictionary_list),
-        "reordered",
+        "internal-rows-reordered",
         G_CALLBACK (lgw_dictionarylist_reordered_cb),
         NULL
       );

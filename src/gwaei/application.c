@@ -126,8 +126,8 @@ gw_application_finalize (GObject *object)
 
     gw_application_remove_signals (application);
 
-    if (priv->data.dictionarylist.installable != NULL) g_object_unref (priv->data.dictionarylist.installable); 
-    if (priv->data.dictionarylist.installed != NULL) g_object_unref (priv->data.dictionarylist.installed); 
+    if (priv->data.dictionary_list.installable != NULL) g_object_unref (priv->data.dictionary_list.installable); 
+    if (priv->data.dictionary_list.installed != NULL) g_object_unref (priv->data.dictionary_list.installed); 
     if (priv->data.vocabularyliststore != NULL) g_object_unref (priv->data.vocabularyliststore); 
 
     if (priv->config.context != NULL) g_option_context_free (priv->config.context); 
@@ -629,7 +629,7 @@ gw_application_initialize_accelerators (GwApplication *application)
 }
 
 
-LwDictionaryList* 
+LgwDictionaryList* 
 gw_application_get_installed_dictionarylist (GwApplication *application)
 {
     //Sanity checks
@@ -637,30 +637,27 @@ gw_application_get_installed_dictionarylist (GwApplication *application)
 
     //Declarations
     GwApplicationPrivate *priv = NULL;
-    LwMorphologyEngine *morphologyengine = NULL;
-    LwDictionaryList *dictionarylist = NULL;
-    gpointer *pointer = NULL;
 
     //Initializations;
     priv = application->priv;
 
-    if (priv->data.dictionarylist.installed == NULL)
+    if (priv->data.dictionary_list.installed == NULL)
     {
-      dictionarylist = lw_dictionarylist_new ();
-      morphologyengine = gw_application_get_morphologyengine (application);
-      lw_dictionarylist_load_installed (LW_DICTIONARYLIST (dictionarylist), morphologyengine);
-      lw_dictionarylist_load_order (LW_DICTIONARYLIST (dictionarylist));
+      LgwDictionaryList *dictionary_list = lgw_dictionarylist_new ();
+      LwMorphologyEngine *morphologyengine = gw_application_get_morphologyengine (application);
+
+      lw_dictionarylist_load_installed (LW_DICTIONARYLIST (dictionary_list), morphologyengine);
+      lw_dictionarylist_load_order (LW_DICTIONARYLIST (dictionary_list));
       
-      priv->data.dictionarylist.installed = dictionarylist;
-      pointer = (gpointer*) &(priv->data.dictionarylist.installed);
-      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionarylist.installed), pointer);
+      priv->data.dictionary_list.installed = dictionary_list;
+      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionary_list.installed), (gpointer*) &(priv->data.dictionary_list.installed));
     }
 
-    return priv->data.dictionarylist.installed;
+    return priv->data.dictionary_list.installed;
 }
 
 
-LwDictionaryList* 
+LgwDictionaryList* 
 gw_application_get_installable_dictionarylist (GwApplication *application)
 {
     //Sanity checks
@@ -668,23 +665,21 @@ gw_application_get_installable_dictionarylist (GwApplication *application)
 
     //Declarations
     GwApplicationPrivate *priv = NULL;
-    LwDictionaryList *dictionarylist = NULL;
-    gpointer *pointer = NULL;
 
     //Initializations
     priv = application->priv;
 
-    if (priv->data.dictionarylist.installable == NULL)
+    if (priv->data.dictionary_list.installable == NULL)
     {
-      dictionarylist = lw_dictionarylist_new ();
-      lw_dictionarylist_load_installable (LW_DICTIONARYLIST (dictionarylist));
+      LgwDictionaryList *dictionary_list = lgw_dictionarylist_new ();
 
-      priv->data.dictionarylist.installable = dictionarylist;
-      pointer = (gpointer*) &(priv->data.dictionarylist.installable);
-      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionarylist.installable), pointer);
+      lw_dictionarylist_load_installable (LW_DICTIONARYLIST (dictionary_list));
+
+      priv->data.dictionary_list.installable = dictionary_list;
+      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionary_list.installable), (gpointer*) &(priv->data.dictionary_list.installable));
     }
 
-    return priv->data.dictionarylist.installable;
+    return priv->data.dictionary_list.installable;
 }
 
 

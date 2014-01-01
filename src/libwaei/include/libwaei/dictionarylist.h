@@ -28,6 +28,12 @@ struct _LwDictionaryList {
 struct _LwDictionaryListClass {
   GObjectClass parent_class;
   LwDictionaryListClassPrivate *priv;
+
+  //Signals
+  void (*row_changed) (LwDictionaryList* dictionarylist, gint position, gpointer data);
+  void (*row_inserted) (LwDictionaryList* dictionarylist, gint position, gpointer data);
+  void (*row_deleted) (LwDictionaryList* dictionarylist, gint position, gpointer data);
+  void (*rows_reordered) (LwDictionaryList* dictionarylist, gint *order, gpointer data);
 };
 
 

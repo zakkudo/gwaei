@@ -21,14 +21,14 @@ struct _Config {
 };
 
 struct _DictionaryList {
-  LwDictionaryList *installed;
-  LwDictionaryList *installable;
+  LgwDictionaryList *installed;
+  LgwDictionaryList *installable;
 };
 
 struct _Data {
   LwMorphologyEngine *morphologyengine;
   GtkListStore *vocabularyliststore;
-  struct _DictionaryList dictionarylist;
+  struct _DictionaryList dictionary_list;
 };
 
 struct _GwApplicationPrivate {

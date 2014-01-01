@@ -12,6 +12,8 @@ typedef enum {
 typedef enum {
     PROP_0,
     PROP_ACTIONS,
+    PROP_PREFERENCES,
+    PROP_DICTIONARYLIST,
     TOTAL_PROPS
 } Props;
 
@@ -30,11 +32,21 @@ struct _Data {
     LgwActionGroup *action_group;
     GList *action_group_list;
     guint signalid[TOTAL_SIGNALIDS];
+    LgwDictionaryList *dictionary_list;
+};
+
+struct _Config {
+    LwPreferences *preferences;
 };
 
 struct _LgwSearchWidgetPrivate {
     struct _UI ui;
     struct _Data data;
+    struct _Config config;
+};
+
+struct _LgwSearchWidgetClassPrivate {
+    GParamSpec *pspec[TOTAL_PROPS];
 };
 
 #define LGW_SEARCHWIDGET_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_SEARCHWIDGET, LgwSearchWidgetPrivate));

@@ -44,7 +44,7 @@ void
 lw_dictionarylist_connect_signals (LwDictionaryList *dictionary_list)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -56,7 +56,7 @@ lw_dictionarylist_connect_signals (LwDictionaryList *dictionary_list)
     {
       priv->signalid[SIGNALID_INSERTED] = g_signal_connect (
         G_OBJECT (dictionary_list),
-        "inserted",
+        "internal-row-inserted",
         G_CALLBACK (lw_dictionarylist_inserted_cb),
         NULL
       );
@@ -66,7 +66,7 @@ lw_dictionarylist_connect_signals (LwDictionaryList *dictionary_list)
     {
       priv->signalid[SIGNALID_DELETED] = g_signal_connect (
         G_OBJECT (dictionary_list),
-        "deleted",
+        "internal-row-deleted",
         G_CALLBACK (lw_dictionarylist_deleted_cb),
         NULL
       );
@@ -76,7 +76,7 @@ lw_dictionarylist_connect_signals (LwDictionaryList *dictionary_list)
     {
       priv->signalid[SIGNALID_REORDERED] = g_signal_connect (
         G_OBJECT (dictionary_list),
-        "reordered",
+        "internal-rows-reordered",
         G_CALLBACK (lw_dictionarylist_reordered_cb),
         NULL
       );
@@ -88,7 +88,7 @@ void
 lw_dictionarylist_disconnect_signals (LwDictionaryList *dictionary_list)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -120,6 +120,7 @@ lw_dictionarylist_inserted_cb (LwDictionaryList *dictionary_list,
 
     //Initializations
     dictionary = lw_dictionarylist_get_dictionary_by_position (dictionary_list, position);
+    printf("lw_dictionarylist_inserted_cb\n");
 
     lw_dictionarylist_menumodel_insert (dictionary_list, dictionary, position);
 }
@@ -136,9 +137,14 @@ lw_dictionarylist_deleted_cb (LwDictionaryList *dictionary_list,
 
     //Initializations
     menu_model = lw_dictionarylist_get_menumodel (dictionary_list);
+    if (menu_model == NULL) goto errored;
     menu = G_MENU (menu_model);
 
     g_menu_remove (menu, position);
+
+errored:
+
+    return;
 }
 
 
@@ -147,7 +153,7 @@ lw_dictionarylist_reordered_cb (LwDictionaryList *dictionary_list,
                                 gint             *new_order,
                                gpointer          data)
 {
-  lw_dictionarylist_sync_menumodel (dictionary_list);
+    lw_dictionarylist_sync_menumodel (dictionary_list);
 }
 
 

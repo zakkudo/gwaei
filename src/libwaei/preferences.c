@@ -40,12 +40,6 @@ static LwPreferences *_preferences = NULL;
 
 G_DEFINE_TYPE (LwPreferences, lw_preferences, G_TYPE_OBJECT)
 
-typedef enum
-{
-  PROP_0,
-  PROP_BACKEND,
-} LwPreferencesProps;
-
 
 //!
 //! @brief Creates a new LwDictInfo object
@@ -181,7 +175,7 @@ static void
 lw_preferences_class_init (LwPreferencesClass *klass)
 {
     //Sanity checks
-    g_return_if_fail (klass);
+    g_return_if_fail (klass != NULL);
 
     //Declarations
     GParamSpec *pspec = NULL;
@@ -309,7 +303,7 @@ lw_preferences_reset_value (GSettings* settings,
                             const gchar *KEY)
 {
     //Sanity checks
-    g_return_if_fail (settings != NULL);
+    g_return_if_fail (G_IS_SETTINGS (settings));
     g_return_if_fail (KEY != NULL);
 
     g_settings_reset (settings, KEY);
@@ -328,7 +322,7 @@ lw_preferences_reset_value_by_schema (LwPreferences *preferences,
                                       const gchar    *KEY)
 {
     //Sanity checks
-    g_return_if_fail (preferences != NULL);
+    g_return_if_fail (LW_IS_PREFERENCES(preferences));
     g_return_if_fail (SCHEMA != NULL);
     g_return_if_fail (KEY != NULL);
 
@@ -407,7 +401,7 @@ lw_preferences_set_int (GSettings  *settings,
                         const int   REQUEST)
 {
     //Sanity checks
-    g_return_if_fail (settings != NULL);
+    g_return_if_fail (G_IS_SETTINGS (settings));
     g_return_if_fail (KEY != NULL);
 
     g_settings_set_int (settings, KEY, REQUEST);
@@ -428,7 +422,7 @@ lw_preferences_set_int_by_schema (LwPreferences *preferences,
                                   const int      REQUEST)
 {
     //Sanity checks
-    g_return_if_fail (preferences != NULL);
+    g_return_if_fail (LW_IS_PREFERENCES(preferences));
     g_return_if_fail (SCHEMA != NULL);
     g_return_if_fail (KEY != NULL);
 
@@ -506,7 +500,7 @@ lw_preferences_set_boolean (GSettings     *settings,
                             const gboolean REQUEST)
 {
     //Sanity checks
-    g_return_if_fail (settings != NULL);
+    g_return_if_fail (G_IS_SETTINGS (settings));
     g_return_if_fail (KEY != NULL);
 
     g_settings_set_boolean (settings, KEY, REQUEST);
@@ -527,7 +521,7 @@ lw_preferences_set_boolean_by_schema (LwPreferences *preferences,
                                       const gboolean REQUEST)
 {
     //Sanity checks
-    g_return_if_fail (preferences != NULL);
+    g_return_if_fail (LW_IS_PREFERENCES(preferences));
     g_return_if_fail (SCHEMA != NULL);
     g_return_if_fail (KEY != NULL);
 
@@ -584,7 +578,7 @@ lw_preferences_get_string_by_schema (LwPreferences *preferences,
                                      const gchar    *KEY)
 {
     //Sanity checks
-    g_return_if_fail (preferences != NULL);
+    g_return_if_fail (LW_IS_PREFERENCES(preferences));
     g_return_if_fail (SCHEMA != NULL);
     g_return_if_fail (KEY != NULL);
 
@@ -616,7 +610,7 @@ lw_preferences_set_string (GSettings  *settings,
                            const gchar *REQUEST)
 {
     //Sanity checks
-    g_return_if_fail (settings != NULL);
+    g_return_if_fail (G_IS_SETTINGS (settings));
     g_return_if_fail (KEY != NULL);
     g_return_if_fail (REQUEST != NULL);
 
@@ -741,7 +735,7 @@ lw_preferences_remove_change_listener (GSettings *settings,
                                        gulong     id)
 {
     //Sanity checks
-    g_return_if_fail (settings != NULL);
+    g_return_if_fail (G_IS_SETTINGS (settings));
 
     if (g_signal_handler_is_connected (G_OBJECT (settings), id))
     {
@@ -762,7 +756,7 @@ lw_preferences_remove_change_listener_by_schema (LwPreferences *preferences,
                                                  gulong         id)
 {
     //Sanity checks
-    g_return_if_fail (preferences != NULL);
+    g_return_if_fail (LW_IS_PREFERENCES(preferences));
     g_return_if_fail (SCHEMA != NULL);
 
     //Declarations

@@ -66,7 +66,7 @@ GtkWindow* gw_application_get_window_by_type (GwApplication *application, const 
 const gchar* gw_application_get_program_name (GwApplication *application);
 void gw_application_map_actions (GActionMap *map, GwApplication *application);
 
-LwDictionaryList* gw_application_get_installed_dictionarylist (GwApplication *application);
+LgwDictionaryList* gw_application_get_installed_dictionarylist (GwApplication *application);
 
 G_END_DECLS
 

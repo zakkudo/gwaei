@@ -51,10 +51,11 @@ G_DEFINE_TYPE (LwDictionaryList, lw_dictionarylist, G_TYPE_OBJECT)
 LwDictionaryList* 
 lw_dictionarylist_new ()
 {
-    LwDictionaryList *dictionary;
+    LwDictionaryList *dictionary = NULL;
 
     //Initializations
     dictionary = LW_DICTIONARYLIST (g_object_new (LW_TYPE_DICTIONARYLIST, NULL));
+
     return dictionary;
 }
 
@@ -65,6 +66,8 @@ lw_dictionarylist_init (LwDictionaryList *dictionary_list)
     dictionary_list->priv = LW_DICTIONARYLIST_GET_PRIVATE (dictionary_list);
     memset(dictionary_list->priv, 0, sizeof(LwDictionaryListPrivate));
     g_mutex_init (&dictionary_list->priv->mutex);
+
+    lw_dictionarylist_connect_signals (dictionary_list);
 }
 
 
@@ -86,6 +89,7 @@ lw_dictionarylist_set_property (GObject      *object,
     {
       case PROP_PREFERENCES:
         lw_dictionarylist_set_preferences (dictionary_list, g_value_get_object (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -130,7 +134,6 @@ lw_dictionarylist_finalize (GObject *object)
     dictionary_list = LW_DICTIONARYLIST (object);
     priv = dictionary_list->priv;
 
-    lw_dictionarylist_clear (dictionary_list);
     g_mutex_clear (&priv->mutex);
 
     G_OBJECT_CLASS (lw_dictionarylist_parent_class)->finalize (object);
@@ -146,6 +149,7 @@ lw_dictionarylist_dispose (GObject *object)
     //Initializations
     dictionary_list = LW_DICTIONARYLIST (object);
 
+    lw_dictionarylist_clear (dictionary_list);
     lw_dictionarylist_disconnect_signals (dictionary_list);
 
     G_OBJECT_CLASS (lw_dictionarylist_parent_class)->dispose (object);
@@ -169,37 +173,51 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
     object_class->dispose = lw_dictionarylist_dispose;
     object_class->finalize = lw_dictionarylist_finalize;
 
-    klasspriv->signalid[CLASS_SIGNALID_INSERTED] = g_signal_new (
-        "row-inserted",
+    g_type_class_add_private (object_class, sizeof (LwDictionaryListPrivate));
+
+    klasspriv->signalid[CLASS_SIGNALID_CHANGED] = g_signal_new (
+        "internal-row-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwDictionaryListClassPrivate, row_inserted),
+        G_STRUCT_OFFSET (LwDictionaryListClass, row_changed),
         NULL, NULL,
         g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 0
+        G_TYPE_NONE, 1,
+        G_TYPE_INT
+    );
+
+    klasspriv->signalid[CLASS_SIGNALID_INSERTED] = g_signal_new (
+        "internal-row-inserted",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LwDictionaryListClass, row_inserted),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__INT,
+        G_TYPE_NONE, 1,
+        G_TYPE_INT
     );
 
     klasspriv->signalid[CLASS_SIGNALID_DELETED] = g_signal_new (
-        "row-deleted",
+        "internal-row-deleted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwDictionaryListClassPrivate, row_deleted),
+        G_STRUCT_OFFSET (LwDictionaryListClass, row_deleted),
         NULL, NULL,
         g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 0
+        G_TYPE_NONE, 1,
+        G_TYPE_INT
     );
 
     klasspriv->signalid[CLASS_SIGNALID_REORDERED] = g_signal_new (
-        "rows-reordered",
+        "internal-rows-reordered",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwDictionaryListClassPrivate, rows_reordered),
+        G_STRUCT_OFFSET (LwDictionaryListClass, rows_reordered),
         NULL, NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 0
+        g_cclosure_marshal_VOID__POINTER,
+        G_TYPE_NONE, 1,
+        G_TYPE_POINTER
     );
-
-    g_type_class_add_private (object_class, sizeof (LwDictionaryListPrivate));
 
     klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
         "preferences",
@@ -221,9 +239,13 @@ lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_list,
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
+    LwDictionaryListClass *klass = NULL;
+    LwDictionaryListClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = dictionary_list->priv;
+    klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
+    klasspriv = klass->priv;
 
     if (priv->preferences != NULL) {
       g_object_remove_weak_pointer (G_OBJECT (priv->preferences), (gpointer*) &(priv->preferences));
@@ -236,6 +258,8 @@ lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_list,
     if (priv->preferences != NULL) {
       g_object_add_weak_pointer (G_OBJECT (priv->preferences), (gpointer*) &(priv->preferences));
     }
+
+    g_object_notify_by_pspec (G_OBJECT (dictionary_list), klasspriv->pspec[PROP_PREFERENCES]);
 }
 
 
@@ -251,6 +275,11 @@ lw_dictionarylist_get_preferences (LwDictionaryList *dictionary_list)
     //Initializations
     priv = dictionary_list->priv;
 
+    if (priv->preferences == NULL)
+    {
+      lw_dictionarylist_set_preferences (dictionary_list, lw_preferences_get_default ());
+    }
+
     return priv->preferences;
 }
 
@@ -259,7 +288,7 @@ void
 lw_dictionarylist_clear (LwDictionaryList *dictionary_list)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -279,7 +308,7 @@ lw_dictionarylist_clear (LwDictionaryList *dictionary_list)
         g_object_unref (dictionary); link->data = NULL;
       }
       priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, 0);
+      g_signal_emit (G_OBJECT (dictionary_list), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, 0);
     }
     priv->list = NULL;
 }
@@ -290,7 +319,7 @@ lw_dictionarylist_load_installed (LwDictionaryList   *dictionary_list,
                                   LwMorphologyEngine *morphologyengine)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
 
     //Declarations
     LwDictionaryListClass *klass = NULL;
@@ -368,7 +397,7 @@ lw_dictionarylist_remove_by_position (LwDictionaryList *dictionary_list,
                                       gint              position)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -388,7 +417,7 @@ lw_dictionarylist_remove_by_position (LwDictionaryList *dictionary_list,
     {
       removed_dictionary = link->data;
       priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
+      g_signal_emit (G_OBJECT (dictionary_list), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
     }
 
     return removed_dictionary;
@@ -400,7 +429,7 @@ lw_dictionarylist_remove (LwDictionaryList *dictionary_list,
                           LwDictionary     *dictionary)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
     g_return_val_if_fail (dictionary != NULL, NULL);
 
     //Declarations
@@ -423,7 +452,7 @@ lw_dictionarylist_remove (LwDictionaryList *dictionary_list,
     {
       removed_dictionary = link->data;
       priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
+      g_signal_emit (G_OBJECT (dictionary_list), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
     }
         
     return removed_dictionary;
@@ -440,8 +469,8 @@ lw_dictionarylist_append (LwDictionaryList *dictionary_list,
                           LwDictionary     *dictionary)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
-    g_return_if_fail (dictionary != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARY (dictionary));
     if (lw_dictionarylist_dictionary_exists (dictionary_list, dictionary)) return;
 
     //Declarations
@@ -459,7 +488,7 @@ lw_dictionarylist_append (LwDictionaryList *dictionary_list,
 
     {
       gint index = g_list_index (priv->list, dictionary);
-      g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, index);
+      g_signal_emit (G_OBJECT (dictionary_list), klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, index);
     }
 }
 
@@ -520,7 +549,7 @@ lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *dictionary_list,
                                         const gchar      *FUZZY_DESCRIPTION)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -713,11 +742,13 @@ lw_dictionarylist_save_order (LwDictionaryList *dictionary_list)
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
     LwDictionary *dictionary = NULL;
+    LwPreferences *preferences = NULL;
     gchar *order = NULL;
     gchar **atoms = NULL;
 
-    //Initializations;
+    //Initializations
     priv = dictionary_list->priv;
+    preferences = lw_dictionarylist_get_preferences (dictionary_list);
 
     atoms = g_new0 (gchar*, lw_dictionarylist_get_total (dictionary_list) + 1);
     if (atoms == NULL) goto errored;
@@ -740,7 +771,7 @@ lw_dictionarylist_save_order (LwDictionaryList *dictionary_list)
     order = g_strjoinv (";", atoms);
     if (order == NULL) goto errored;
 
-    lw_preferences_set_string_by_schema (priv->preferences, LW_SCHEMA_DICTIONARY, LW_KEY_LOAD_ORDER, order);
+    lw_preferences_set_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, LW_KEY_LOAD_ORDER, order);
 
 errored:
 
@@ -753,7 +784,7 @@ static GHashTable*
 lw_dictionarylist_build_order_map (LwDictionaryList *dictionary_list)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -768,7 +799,7 @@ lw_dictionarylist_build_order_map (LwDictionaryList *dictionary_list)
     hashtable = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
     if (hashtable == NULL) goto errored;
 
-    preferences = priv->preferences;
+    preferences = lw_dictionarylist_get_preferences (dictionary_list);;
     if (preferences == NULL) goto errored;
 
     order = lw_preferences_get_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, LW_KEY_LOAD_ORDER);
@@ -801,7 +832,7 @@ lw_dictionarylist_convert_order_map_to_array (LwDictionaryList *dictionary_list,
                                               GHashTable       *hashtable)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
     g_return_val_if_fail (hashtable != NULL, NULL);
 
     //Declarations
@@ -932,7 +963,7 @@ void
 lw_dictionarylist_load_order (LwDictionaryList *dictionary_list)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -957,7 +988,8 @@ lw_dictionarylist_load_order (LwDictionaryList *dictionary_list)
     priv->list = g_list_sort_with_data (priv->list, lw_dictionarylist_sort_compare_function, order_map);
     if (priv->list == NULL) goto errored;
 
-    g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_REORDERED], 0, new_order);
+    printf("BREAk lw_dictionarylist_load_order CLASS_SIGNALID_REORDERED\n");
+    g_signal_emit (G_OBJECT (dictionary_list), klasspriv->signalid[CLASS_SIGNALID_REORDERED], 0, new_order);
 
 errored:
 
@@ -973,25 +1005,28 @@ void
 lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
     LwDictionaryListClass *klass = NULL;
     LwDictionaryListClassPrivate *klasspriv = NULL;
     LwDictionary* dictionary = NULL;
+    LwPreferences *preferences = NULL;
 
     //Initializations
     priv = dictionary_list->priv;
     klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
     klasspriv = klass->priv;
+    preferences = lw_dictionarylist_get_preferences (dictionary_list);
+    if (preferences == NULL) goto errored;
 
     {
       dictionary = lw_edictionary_new ("English", NULL);
       lw_dictionary_set_builtin_installer_full (
         dictionary, 
         "English",
-        priv->preferences,
+        preferences,
         LW_KEY_ENGLISH_SOURCE,
         gettext("The venerable edict by Jim Breen."),
         LW_ENCODING_EUC_JP,
@@ -1006,7 +1041,7 @@ lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
       lw_dictionary_set_builtin_installer_full (
         dictionary, 
         "Kanji",
-        priv->preferences,
+        preferences,
         LW_KEY_KANJI_SOURCE,
         gettext("A Kanji dictionary based off of kanjidic with radical information combined."),
         LW_ENCODING_EUC_JP,
@@ -1021,7 +1056,7 @@ lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
       lw_dictionary_set_builtin_installer_full (
         dictionary, 
         "Names;Places",
-        priv->preferences,
+        preferences,
         LW_KEY_NAMES_PLACES_SOURCE,
         gettext("Based off of Enamdic, but with the names split from the places for 2 separate dictionaries."),
         LW_ENCODING_EUC_JP,
@@ -1036,7 +1071,7 @@ lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
       lw_dictionary_set_builtin_installer_full (
         dictionary, 
         "Examples",
-        priv->preferences,
+        preferences,
         LW_KEY_EXAMPLES_SOURCE,
         gettext("A collection of Japanese/English sentences initially compiled "
                 "by Professor Yasuhito Tanaka at Hyogo University and his students."),
@@ -1065,6 +1100,10 @@ lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
       g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 */
+
+errored:
+    
+    return;
 }
 
 
@@ -1109,9 +1148,9 @@ lw_dictionarylist_installer_is_valid (LwDictionaryList *dictionary_list)
 GList*
 lw_dictionarylist_get_list (LwDictionaryList *dictionary_list)
 {
-    g_return_val_if_fail (dictionary_list != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
 
-    return dictionary_list->priv->list;
+    return g_list_copy (dictionary_list->priv->list);
 }
 
 
@@ -1121,7 +1160,7 @@ lw_dictionarylist_sort_with_data (LwDictionaryList *dictionary_list,
                                   gpointer          user_data)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
 
     //Declarations
     LwDictionaryListPrivate *priv;
@@ -1139,8 +1178,8 @@ lw_dictionarylist_menumodel_insert (LwDictionaryList *dictionary_list,
                                     gint              index_)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
-    g_return_if_fail (dictionary != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARY (dictionary));
 
     //Declarations
     GMenuModel *menu_model = NULL;
@@ -1180,8 +1219,8 @@ lw_dictionarylist_menumodel_append (LwDictionaryList *dictionary_list,
                                     LwDictionary     *dictionary)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
-    g_return_if_fail (dictionary != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARY (dictionary));
 
     //Declarations
     GMenuModel *menu_model = NULL;
@@ -1204,7 +1243,7 @@ void
 lw_dictionarylist_sync_menumodel (LwDictionaryList *dictionary_list)
 {
     //Sanity checks
-    g_return_if_fail (dictionary_list != NULL);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -1242,7 +1281,7 @@ GMenuModel*
 lw_dictionarylist_get_menumodel (LwDictionaryList *dictionary_list)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;

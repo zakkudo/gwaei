@@ -252,7 +252,7 @@ static void
 gw_mainwindow_initialize_header (GwMainWindow *window)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (GW_IS_MAINWINDOW (window));
     GwMainWindowPrivate *priv = window->priv;
 
     //Setup header bar
@@ -291,7 +291,7 @@ static void
 gw_mainwindow_initialize_vocabularywidget (GwMainWindow *window)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (GW_IS_MAINWINDOW (window));
     GwMainWindowPrivate *priv = window->priv;
 
     {
@@ -320,7 +320,7 @@ static void
 gw_mainwindow_initialize_body (GwMainWindow *window)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (GW_IS_MAINWINDOW (window));
 
     //Declarations
     GwMainWindowPrivate *priv = window->priv;

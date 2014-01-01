@@ -38,12 +38,6 @@ struct _LwDictionaryListPrivate {
 struct _LwDictionaryListClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
   guint signalid[TOTAL_CLASS_SIGNALIDS];
-
-  //Signals
-  void (*row_changed) (LwDictionaryList* dictionarylist, gpointer data);
-  void (*row_inserted) (LwDictionaryList* dictionarylist, gpointer data);
-  void (*row_deleted) (LwDictionaryList* dictionarylist, gpointer data);
-  void (*rows_reordered) (LwDictionaryList* dictionarylist, gpointer data);
 };
 
 #define LW_DICTIONARYLIST_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYLIST, LwDictionaryListPrivate));

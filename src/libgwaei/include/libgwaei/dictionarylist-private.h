@@ -12,6 +12,7 @@ typedef enum {
 } SignalId;
 
 struct _Data {
+  LgwDictionaryList *dictionary_list;
   GMenuModel *menumodel;
   guint signalid[TOTAL_SIGNALIDS];
 };
@@ -21,8 +22,7 @@ struct _LgwDictionaryListPrivate {
 };
 
 struct _LgwDictionaryListClassPrivate {
-  gint UNUSED;
-
+  gint unused;
 };
 
 #define LGW_DICTIONARYLIST_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_DICTIONARYLIST, LgwDictionaryListPrivate))

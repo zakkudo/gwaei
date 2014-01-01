@@ -52,7 +52,7 @@ LwDictionaryInstall*
 lw_dictionary_steal_installer (LwDictionary *dictionary)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
 
     //Declarations
     LwDictionaryInstall *install;
@@ -68,7 +68,7 @@ void
 lw_dictionary_set_installer (LwDictionary        *dictionary,
                              LwDictionaryInstall *install)
 {
-    g_return_if_fail (dictionary != NULL);
+    g_return_if_fail (LW_IS_DICTIONARY (dictionary));
     g_return_if_fail (install != NULL);
 
     dictionary->priv->install = install;
@@ -83,7 +83,7 @@ lw_dictionary_set_installer_full (LwDictionary *dictionary,
                                   LwEncoding    encoding,
                                   gboolean      postprocess)
 {
-    g_return_if_fail (dictionary != NULL);
+    g_return_if_fail (LW_IS_DICTIONARY (dictionary));
     g_return_if_fail (FILES != NULL && *FILES != '\0');
 
     //Declarations
@@ -115,7 +115,7 @@ lw_dictionary_set_builtin_installer_full (LwDictionary  *dictionary,
                                           gboolean       postprocess)
 {
     //Sanity checks
-    g_return_if_fail (dictionary != NULL);
+    g_return_if_fail (LW_IS_DICTIONARY (dictionary));
     g_return_if_fail (FILES != NULL);
     g_return_if_fail (preferences != NULL);
     g_return_if_fail (KEY != NULL);
@@ -288,7 +288,7 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
         "progress-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST | G_SIGNAL_DETAILED,
-        G_STRUCT_OFFSET (LwDictionaryClassPrivate, progress_changed),
+        G_STRUCT_OFFSET (LwDictionaryClass, progress_changed),
         NULL, NULL,
         g_cclosure_marshal_VOID__VOID,
         G_TYPE_NONE, 0
@@ -362,7 +362,7 @@ FILE*
 lw_dictionary_open (LwDictionary *dictionary)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
 
     //Declarations
     FILE *file = NULL;
@@ -433,7 +433,7 @@ gchar*
 lw_dictionary_get_path (LwDictionary *dictionary)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
 
     //Declarations
     gchar *directory;
@@ -481,7 +481,7 @@ const gchar*
 lw_dictionary_get_name (LwDictionary *dictionary)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
 
     //Declarations
     LwDictionaryPrivate *priv;
@@ -581,7 +581,7 @@ gchar*
 lw_dictionary_build_id (LwDictionary *dictionary)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
 
     //Declarations
     gchar *id;
@@ -614,7 +614,7 @@ lw_dictionary_install (LwDictionary *dictionary,
                        LwProgress   *progress)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, FALSE);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), FALSE);
     g_return_val_if_fail (dictionary->priv != NULL, FALSE);
     g_assert (dictionary->priv->install != NULL);
     if (lw_progress_errored (progress)) return FALSE;
@@ -640,7 +640,7 @@ gboolean
 lw_dictionary_is_selected (LwDictionary *dictionary)
 {
     //Sanity check
-    g_return_val_if_fail (dictionary != NULL, FALSE);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), FALSE);
 
     //Declarations
     LwDictionaryPrivate *priv;
@@ -657,7 +657,7 @@ lw_dictionary_set_selected (LwDictionary *dictionary,
                             gboolean      selected)
 {
     //Sanity check
-    g_return_if_fail (dictionary != NULL);
+    g_return_if_fail (LW_IS_DICTIONARY (dictionary));
 
     //Declarations
     LwDictionaryPrivate *priv;
@@ -747,7 +747,7 @@ const gchar*
 lw_dictionary_get_buffer (LwDictionary *dictionary)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
 
     //Declarations
     LwDictionaryPrivate *priv;
@@ -776,7 +776,7 @@ lw_dictionary_get_string (LwDictionary *dictionary,
                           LwOffset      offset)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
 
     //Declarations
     LwDictionaryPrivate *priv;

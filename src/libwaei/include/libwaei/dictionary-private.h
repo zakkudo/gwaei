@@ -31,9 +31,6 @@ struct _LwDictionaryPrivate {
 struct _LwDictionaryClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 
-  //Signal ids
-  void (*progress_changed) (LwDictionary* dictionary, gpointer data);
-
   //Virtual methods
   gint (*parse_result) (LwDictionary *dictionary, LwResult *result, const gchar* TEXT);
   gboolean (*installer_postprocess) (LwDictionary *dictionary, gchar** sourcelist, gchar** targetlist, LwProgress*);

@@ -34,6 +34,9 @@ struct _LwDictionary {
 struct _LwDictionaryClass {
   GObjectClass parent_class;
   LwDictionaryClassPrivate *priv;
+
+  //Signal ids
+  void (*progress_changed) (LwDictionary* dictionary, gpointer data);
 };
 
 //Methods

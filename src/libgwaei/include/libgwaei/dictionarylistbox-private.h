@@ -4,6 +4,12 @@
 G_BEGIN_DECLS
 
 typedef enum {
+  PROP_0,
+  PROP_DICTIONARYLIST,
+  TOTAL_PROPS
+} Props;
+
+typedef enum {
   UNUSED_SIGNALID,
   TOTAL_CLASS_SIGNALIDS
 } ClassSignalId;
@@ -34,6 +40,7 @@ struct _LgwDictionaryListBoxPrivate {
 
 struct _LgwDictionaryListBoxClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
+  GParamSpec *pspec[TOTAL_PROPS];
 };
 
 #define LGW_DICTIONARYLISTBOX_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_DICTIONARYLISTBOX, LgwDictionaryListBoxPrivate));

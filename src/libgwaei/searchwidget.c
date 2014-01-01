@@ -108,6 +108,12 @@ lgw_searchwidget_set_property (GObject      *object,
       case PROP_ACTIONS:
         lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
         break;
+      case PROP_PREFERENCES:
+        lgw_searchwidget_set_preferences (search_widget, g_value_get_object (value));
+        break;
+      case PROP_DICTIONARYLIST:
+        lgw_searchwidget_set_dictionarylist (search_widget, g_value_get_object (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -135,6 +141,12 @@ lgw_searchwidget_get_property (GObject      *object,
     {
       case PROP_ACTIONS:
         g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
+        break;
+      case PROP_PREFERENCES:
+        g_value_set_object (value, lgw_searchwidget_get_preferences (search_widget));
+        break;
+      case PROP_DICTIONARYLIST:
+        g_value_set_object (value, lgw_searchwidget_get_dictionarylist (search_widget));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -262,9 +274,14 @@ lgw_searchwidget_dispose (GObject *object)
 static void
 lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
 {
-    GObjectClass *object_class;
+    //Declarations
+    GObjectClass *object_class = NULL;
+    LgwSearchWidgetClassPrivate *klasspriv = NULL;
 
     object_class = G_OBJECT_CLASS (klass);
+
+    klass->priv = g_new0(LgwSearchWidgetClassPrivate, 1);
+    klasspriv = klass->priv;
 
     object_class->constructed = lgw_searchwidget_constructed;
     object_class->set_property = lgw_searchwidget_set_property;
@@ -275,6 +292,24 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
     g_type_class_add_private (object_class, sizeof (LgwSearchWidgetPrivate));
 
     g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
+
+    klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
+        "preferences",
+        "Preferences construct prop",
+        "Set the preferences object",
+        LW_TYPE_PREFERENCES,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_PREFERENCES, klasspriv->pspec[PROP_PREFERENCES]);
+
+    klasspriv->pspec[PROP_DICTIONARYLIST] = g_param_spec_object (
+        "dictionary-list",
+        "dictionary list",
+        "Set the related dictionary list",
+        LGW_TYPE_DICTIONARYLIST,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_DICTIONARYLIST, klasspriv->pspec[PROP_DICTIONARYLIST]);
 }
 
 
@@ -326,24 +361,6 @@ lgw_searchwidget_set_search_mode (LgwSearchWidget *widget,
     priv = widget->priv;
 
     gtk_search_bar_set_search_mode (priv->ui.search_bar, search_mode);
-}
-
-
-void
-lgw_searchwidget_set_dictionarylist (LgwSearchWidget  *search_widget, 
-                                     LwDictionaryList *dictionary_list)
-{
-    //Sanity checks
-    g_return_if_fail (search_widget != NULL);
-
-    //Declarations
-    LgwSearchWidgetPrivate *priv = NULL;
-
-    //Initializations
-    if (search_widget->priv != NULL)
-    {
-        priv = search_widget->priv;
-    }
 }
 
 
@@ -484,3 +501,114 @@ lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget)
     lgw_actionable_set_actiongroup (actionable, NULL);
 }
 
+
+void
+lgw_searchwidget_set_preferences (LgwSearchWidget *search_widget,
+                                  LwPreferences    *preferences)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+
+    //Declarations
+    LgwSearchWidgetPrivate *priv = NULL;
+    LgwSearchWidgetClass *klass = NULL;
+    LgwSearchWidgetClassPrivate *klasspriv = NULL;
+
+    //Initializations
+    priv = search_widget->priv;
+    klass = LGW_SEARCHWIDGET_GET_CLASS (search_widget);
+    klasspriv = klass->priv;
+
+    if (priv->config.preferences != NULL) {
+      g_object_remove_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
+      g_object_unref (priv->config.preferences);
+      priv->config.preferences = NULL;
+    }
+
+    priv->config.preferences = preferences;
+
+    if (priv->config.preferences != NULL) {
+      g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
+    }
+
+    g_object_notify_by_pspec (G_OBJECT (search_widget), klasspriv->pspec[PROP_PREFERENCES]);
+}
+
+
+LwPreferences*
+lgw_searchwidget_get_preferences (LgwSearchWidget *search_widget)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+
+    //Declarations
+    LgwSearchWidgetPrivate *priv = NULL;
+
+    //Initializations
+    priv = search_widget->priv;
+
+    if (priv->config.preferences == NULL)
+    {
+      lgw_searchwidget_set_preferences (search_widget, lw_preferences_get_default ());
+    }
+
+    return priv->config.preferences;
+}
+
+
+void
+lgw_searchwidget_set_dictionarylist (LgwSearchWidget   *search_widget,
+                                     LgwDictionaryList *dictionary_list)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+
+    //Declarations
+    LgwSearchWidgetPrivate *priv = NULL;
+    LgwSearchWidgetClass *klass = NULL;
+    LgwSearchWidgetClassPrivate *klasspriv = NULL;
+
+    //Initialziations
+    priv = search_widget->priv;
+    klass = LGW_SEARCHWIDGET_GET_CLASS (search_widget);
+    if (priv->ui.dictionary_list_box == NULL) goto errored;
+    klasspriv = klass->priv;
+
+    if (priv->data.dictionary_list != NULL)
+    {
+      g_object_remove_weak_pointer (G_OBJECT (priv->data.dictionary_list), (gpointer*) &(priv->data.dictionary_list));
+      g_object_unref (priv->data.dictionary_list);
+      priv->data.dictionary_list = NULL;
+    }
+
+    priv->data.dictionary_list = dictionary_list; 
+
+    if (priv->data.dictionary_list != NULL)
+    {
+      g_object_ref (priv->data.dictionary_list);
+      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionary_list), (gpointer*) &(priv->data.dictionary_list));
+    }
+
+    lgw_dictionarylistbox_set_dictionarylist (priv->ui.dictionary_list_box, dictionary_list);
+
+    g_object_notify_by_pspec (G_OBJECT (search_widget), klasspriv->pspec[PROP_DICTIONARYLIST]);
+
+errored:
+
+    return;
+}
+
+LgwDictionaryList*
+lgw_searchwidget_get_dictionarylist (LgwSearchWidget *search_widget)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+
+    //Declarations
+    LgwSearchWidgetPrivate *priv = NULL;
+
+    //Initialziations
+    priv = search_widget->priv;
+
+    return priv->data.dictionary_list;
+}

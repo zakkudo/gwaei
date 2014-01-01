@@ -288,6 +288,8 @@ gw_installprogresswindow_install_thread (gpointer data)
 
     lw_progress_set_finished (progress, TRUE);
 
+    if (list != NULL) g_list_free (list); list = NULL;
+
     return NULL;
 }
 

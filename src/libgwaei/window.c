@@ -420,7 +420,6 @@ void
 lgw_window_set_window_menumodel (LgwWindow  *window,
                                  GMenuModel *menu_model)
 {
-    printf("BREAK0 lgw_window_set_window_menumodel\n");
     //Sanity checks
     g_return_if_fail (window != NULL);
 
@@ -432,24 +431,20 @@ lgw_window_set_window_menumodel (LgwWindow  *window,
 
     //Initializations
     application = gtk_window_get_application (GTK_WINDOW (window));
-    printf("BREAK0 lgw_window_set_window_menumodel application: %d\n", application);
     priv = window->priv;
     klass = LGW_WINDOW_GET_CLASS (window);
     klasspriv = klass->priv;
 
     if (application == NULL) goto errored;
     if (priv->data.window_menu_model == NULL) goto errored;
-    if (menu_model == NULL) goto errored;
     if (menu_model == priv->data.window_menu_model) goto errored;
 
-    //lgw_application_remove_accelerators (application, priv->data.window_menu_model);
     lgw_menumodel_set_contents (priv->data.window_menu_model, menu_model);
 
     g_object_notify_by_pspec (G_OBJECT (window), klasspriv->pspec[PROP_WINDOW_MENUMODEL]);
 
 errored:
 
-    printf("BREAK1 lgw_window_set_window_menumodel\n");
 
     return;
 }
@@ -738,7 +733,6 @@ void
 lgw_window_add_actions (LgwWindow *window,
                         GList     *action_group_list)
 {
-  printf("BREAK0 lgw_window_add_actions\n");
     //Sanity checks
     g_return_if_fail (window != NULL);
 
@@ -753,19 +747,14 @@ lgw_window_add_actions (LgwWindow *window,
     action_map = G_ACTION_MAP (window);
     application = gtk_window_get_application (GTK_WINDOW (window));
 
-    printf("BREAK lgw_window_add_actions: %d\n", g_list_length (action_group_list));
-
     for (link = action_group_list; link != NULL; link = link->next)
     {
       LgwActionGroup *action_group = LGW_ACTIONGROUP (link->data);
       if (action_group != NULL)
       {
-        printf("added %d\n", g_list_length(action_group_list));
         lgw_actiongroup_add_to_map (action_group, action_map);
       }
     }
-      gtk_application_window_set_show_menubar (GTK_APPLICATION_WINDOW (window), TRUE);
-  printf("BREAK1 lgw_window_add_actions\n");
 }
 
 

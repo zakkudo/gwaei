@@ -3,6 +3,12 @@
 
 G_BEGIN_DECLS
 
+typedef enum
+{
+  PROP_0,
+  PROP_BACKEND,
+} Props;
+
 struct _LwPreferencesPrivate {
   GList *settingslist;
   GSettingsBackend *backend;
