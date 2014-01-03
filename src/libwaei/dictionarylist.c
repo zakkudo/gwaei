@@ -1281,6 +1281,39 @@ lw_dictionarylist_sync_menumodel (LwDictionaryList *dictionary_list)
     }
 }
 
+void
+lw_dictioanarylist_set_menumodel (LwDictionaryList *dictionary_list,
+                                  GMenuModel       *menu_model)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+
+    //Declarations
+    LwDictionaryListPrivate *priv = NULL;
+
+    //Initializations
+    priv = dictionary_list->priv;
+
+    if (menu_model != NULL)
+    {
+      g_object_ref (G_OBJECT (menu_model));
+    }
+
+    if (priv->menu_model != NULL)
+    {
+      g_object_remove_weak_pointer (G_OBJECT (priv->menu_model), (gpointer*) &(priv->menu_model));
+      g_object_unref (G_OBJECT (priv->menu_model));
+      priv->menu_model = NULL;
+    }
+
+    priv->menu_model = menu_model;
+
+    if (priv->menu_model != NULL)
+    {
+      g_object_add_weak_pointer (G_OBJECT (priv->menu_model), (gpointer*) &(priv->menu_model));
+    }
+}
+
 
 GMenuModel*
 lw_dictionarylist_get_menumodel (LwDictionaryList *dictionary_list)
@@ -1290,20 +1323,22 @@ lw_dictionarylist_get_menumodel (LwDictionaryList *dictionary_list)
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
-    GMenuModel *menu_model = NULL;
 
     //Initializations
     priv = dictionary_list->priv;
     if (priv == NULL) goto errored;
+
     if (priv->menu_model == NULL)
     {
-      priv->menu_model = G_MENU_MODEL (g_menu_new ());
+      GMenuModel *menu_model = G_MENU_MODEL (g_menu_new ());
+      lw_dictionarylist_set_menumodel (dictionary_list, menu_model);
+      g_object_unref (G_OBJECT (menu_model));
+      menu_model = NULL;
     }
-    menu_model = priv->menu_model;
 
 errored:
 
-    return menu_model;
+    return priv->menu_model;
 }
 
 

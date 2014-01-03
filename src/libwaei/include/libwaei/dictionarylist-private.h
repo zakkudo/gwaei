@@ -49,6 +49,8 @@ void lw_dictionarylist_sync_menumodel (LwDictionaryList *dictionary_list);
 void lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_list, LwPreferences *preferences);
 LwPreferences* lw_dictionarylist_get_preferences (LwDictionaryList *dictionary_list);
 
+void lw_dictioanarylist_set_menumodel (LwDictionaryList *dictionary_list, GMenuModel *menu_model);
+
 G_END_DECLS
 
 #include <libwaei/dictionarylist-callbacks.h>
