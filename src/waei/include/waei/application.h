@@ -34,7 +34,6 @@ const char* w_application_get_program_name (WApplication*);
 
 void w_application_handle_error (WApplication*, GError**);
 
-LwPreferences* w_application_get_preferences (WApplication*);
 LwDictionaryList* w_application_get_installed_dictionarylist (WApplication*);
 LwDictionaryList* w_application_get_installable_dictionarylist (WApplication*);
 
@@ -49,6 +48,8 @@ const gchar* w_application_get_uninstall_switch_data (WApplication*);
 const gchar* w_application_get_query_text_data (WApplication*);
 
 LwMorphologyEngine* w_application_get_morphologyengine (WApplication *application);
+
+LwPreferences* w_application_get_preferences (WApplication *application);
 
 G_END_DECLS
 

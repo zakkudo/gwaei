@@ -111,8 +111,8 @@ lgw_searchwidget_set_property (GObject      *object,
       case PROP_PREFERENCES:
         lgw_searchwidget_set_preferences (search_widget, g_value_get_object (value));
         break;
-      case PROP_DICTIONARYLIST:
-        lgw_searchwidget_set_dictionarylist (search_widget, g_value_get_object (value));
+      case PROP_DICTIONARYLISTSTORE:
+        lgw_searchwidget_set_dictionaryliststore (search_widget, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -145,8 +145,8 @@ lgw_searchwidget_get_property (GObject      *object,
       case PROP_PREFERENCES:
         g_value_set_object (value, lgw_searchwidget_get_preferences (search_widget));
         break;
-      case PROP_DICTIONARYLIST:
-        g_value_set_object (value, lgw_searchwidget_get_dictionarylist (search_widget));
+      case PROP_DICTIONARYLISTSTORE:
+        g_value_set_object (value, lgw_searchwidget_get_dictionaryliststore (search_widget));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -302,14 +302,14 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
     );
     g_object_class_install_property (object_class, PROP_PREFERENCES, klasspriv->pspec[PROP_PREFERENCES]);
 
-    klasspriv->pspec[PROP_DICTIONARYLIST] = g_param_spec_object (
-        "dictionary-list",
+    klasspriv->pspec[PROP_DICTIONARYLISTSTORE] = g_param_spec_object (
+        "dictionaryliststore",
         "dictionary list",
         "Set the related dictionary list",
-        LGW_TYPE_DICTIONARYLIST,
+        LGW_TYPE_DICTIONARYLISTSTORE,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DICTIONARYLIST, klasspriv->pspec[PROP_DICTIONARYLIST]);
+    g_object_class_install_property (object_class, PROP_DICTIONARYLISTSTORE, klasspriv->pspec[PROP_DICTIONARYLISTSTORE]);
 }
 
 
@@ -519,6 +519,11 @@ lgw_searchwidget_set_preferences (LgwSearchWidget *search_widget,
     klass = LGW_SEARCHWIDGET_GET_CLASS (search_widget);
     klasspriv = klass->priv;
 
+    if (preferences != NULL)
+    {
+      g_object_ref (preferences);
+    }
+
     if (priv->config.preferences != NULL) {
       g_object_remove_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
       g_object_unref (priv->config.preferences);
@@ -557,8 +562,8 @@ lgw_searchwidget_get_preferences (LgwSearchWidget *search_widget)
 
 
 void
-lgw_searchwidget_set_dictionarylist (LgwSearchWidget   *search_widget,
-                                     LgwDictionaryList *dictionary_list)
+lgw_searchwidget_set_dictionaryliststore (LgwSearchWidget   *search_widget,
+                                          LgwDictionaryListStore *dictionary_list_store)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
@@ -574,32 +579,32 @@ lgw_searchwidget_set_dictionarylist (LgwSearchWidget   *search_widget,
     if (priv->ui.dictionary_list_box == NULL) goto errored;
     klasspriv = klass->priv;
 
-    if (priv->data.dictionary_list != NULL)
+    if (priv->data.dictionary_list_store != NULL)
     {
-      g_object_remove_weak_pointer (G_OBJECT (priv->data.dictionary_list), (gpointer*) &(priv->data.dictionary_list));
-      g_object_unref (priv->data.dictionary_list);
-      priv->data.dictionary_list = NULL;
+      g_object_remove_weak_pointer (G_OBJECT (priv->data.dictionary_list_store), (gpointer*) &(priv->data.dictionary_list_store));
+      g_object_unref (priv->data.dictionary_list_store);
+      priv->data.dictionary_list_store = NULL;
     }
 
-    priv->data.dictionary_list = dictionary_list; 
+    priv->data.dictionary_list_store = dictionary_list_store; 
 
-    if (priv->data.dictionary_list != NULL)
+    if (priv->data.dictionary_list_store != NULL)
     {
-      g_object_ref (priv->data.dictionary_list);
-      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionary_list), (gpointer*) &(priv->data.dictionary_list));
+      g_object_ref (priv->data.dictionary_list_store);
+      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionary_list_store), (gpointer*) &(priv->data.dictionary_list_store));
     }
 
-    lgw_dictionarylistbox_set_dictionarylist (priv->ui.dictionary_list_box, dictionary_list);
+    lgw_dictionarylistbox_set_dictionaryliststore (priv->ui.dictionary_list_box, dictionary_list_store);
 
-    g_object_notify_by_pspec (G_OBJECT (search_widget), klasspriv->pspec[PROP_DICTIONARYLIST]);
+    g_object_notify_by_pspec (G_OBJECT (search_widget), klasspriv->pspec[PROP_DICTIONARYLISTSTORE]);
 
 errored:
 
     return;
 }
 
-LgwDictionaryList*
-lgw_searchwidget_get_dictionarylist (LgwSearchWidget *search_widget)
+LgwDictionaryListStore*
+lgw_searchwidget_get_dictionaryliststore (LgwSearchWidget *search_widget)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
@@ -610,5 +615,5 @@ lgw_searchwidget_get_dictionarylist (LgwSearchWidget *search_widget)
     //Initialziations
     priv = search_widget->priv;
 
-    return priv->data.dictionary_list;
+    return priv->data.dictionary_list_store;
 }

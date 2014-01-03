@@ -13,7 +13,7 @@ typedef enum {
     PROP_0,
     PROP_ACTIONS,
     PROP_PREFERENCES,
-    PROP_DICTIONARYLIST,
+    PROP_DICTIONARYLISTSTORE,
     TOTAL_PROPS
 } Props;
 
@@ -32,7 +32,7 @@ struct _Data {
     LgwActionGroup *action_group;
     GList *action_group_list;
     guint signalid[TOTAL_SIGNALIDS];
-    LgwDictionaryList *dictionary_list;
+    LgwDictionaryListStore *dictionary_list_store;
 };
 
 struct _Config {

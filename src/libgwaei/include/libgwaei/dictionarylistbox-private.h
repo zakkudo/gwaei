@@ -5,7 +5,7 @@ G_BEGIN_DECLS
 
 typedef enum {
   PROP_0,
-  PROP_DICTIONARYLIST,
+  PROP_DICTIONARYLISTSTORE,
   TOTAL_PROPS
 } Props;
 
@@ -29,7 +29,7 @@ struct _Config {
 };
 
 struct _Data {
-    LgwDictionaryList *dictionary_list;
+    LgwDictionaryListStore *dictionary_list_store;
 };
 
 struct _LgwDictionaryListBoxPrivate {

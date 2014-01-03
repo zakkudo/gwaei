@@ -1,8 +1,6 @@
 #ifndef GW_APPLICATION_INCLUDED
 #define GW_APPLICATION_INCLUDED
 
-#include <gwaei/vocabularyliststore.h>
-
 G_BEGIN_DECLS
 
 //Boilerplate
@@ -66,7 +64,9 @@ GtkWindow* gw_application_get_window_by_type (GwApplication *application, const 
 const gchar* gw_application_get_program_name (GwApplication *application);
 void gw_application_map_actions (GActionMap *map, GwApplication *application);
 
-LgwDictionaryList* gw_application_get_installed_dictionarylist (GwApplication *application);
+LgwDictionaryListStore* gw_application_get_installed_dictionaryliststore (GwApplication *application);
+
+LwPreferences* gw_application_get_preferences (GwApplication *application);
 
 G_END_DECLS
 

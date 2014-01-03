@@ -32,8 +32,8 @@ struct _LgwDictionaryListBoxClass {
 GtkWidget* lgw_dictionarylistbox_new (void);
 GType lgw_dictionarylistbox_get_type (void) G_GNUC_CONST;
 
-void lgw_dictionarylistbox_set_dictionarylist (LgwDictionaryListBox *dictionary_list_box, LgwDictionaryList *dictionary_list);
-LgwDictionaryList* lgw_dictionarylistbox_get_dictionarylist (LgwDictionaryListBox *view);
+void lgw_dictionarylistbox_set_dictionaryliststore (LgwDictionaryListBox *dictionary_list_box, LgwDictionaryListStore *dictionary_list_store);
+LgwDictionaryListStore* lgw_dictionarylistbox_get_dictionaryliststore (LgwDictionaryListBox *view);
 
 
 

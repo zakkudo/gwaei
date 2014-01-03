@@ -48,60 +48,38 @@ G_DEFINE_TYPE (LgwTextTagTable, lgw_texttagtable, GTK_TYPE_TEXT_TAG_TABLE)
 
 
 GtkTextTagTable*
-lgw_texttagtable_new ()
+lgw_texttagtable_new (LwPreferences *preferences)
 {
     //Declarations
-    LgwTextTagTable *tagtable = NULL;
-    LwPreferences *preferences = NULL;
+    LgwTextTagTable *tag_table = NULL;
 
     //Initializations
-    preferences = lw_preferences_get_default ();
-    tagtable = LGW_TEXTTAGTABLE (g_object_new (LGW_TYPE_TEXTTAGTABLE, "preferences", preferences, NULL));
+    tag_table = LGW_TEXTTAGTABLE (g_object_new (LGW_TYPE_TEXTTAGTABLE, "preferences", preferences, NULL));
 
-    return GTK_TEXT_TAG_TABLE (tagtable);
-}
-
-
-void
-lgw_texttagtable_set_preferences (LgwTextTagTable *tagtable,
-                                  LwPreferences   *preferences)
-{
-    //Sanity checks
-    g_return_if_fail (tagtable != NULL);
-
-    //Declarations
-    LgwTextTagTablePrivate *priv = NULL;
-    LgwTextTagTableClass *klass = NULL;
-    LgwTextTagTableClassPrivate* klasspriv = NULL;
-
-    //Initializations
-    priv = tagtable->priv;
-    klass = LGW_TEXTTAGTABLE_GET_CLASS (tagtable);
-    klasspriv = klass->priv;
-
-    lgw_texttagtable_disconnect_signals (tagtable);
-
-    if (priv->preferences != NULL)
-    {
-      g_object_unref (priv->preferences);
-    }
-    priv->preferences = NULL;
-
-    if (preferences != NULL)
-    {
-      priv->preferences = preferences;
-      lgw_texttagtable_connect_signals (tagtable);
-    }
-
-    g_object_notify_by_pspec (G_OBJECT (tagtable), klasspriv->pspec[PROP_PREFERENCES]);
+    return GTK_TEXT_TAG_TABLE (tag_table);
 }
 
 
 static void 
-lgw_texttagtable_init (LgwTextTagTable *tagtable)
+lgw_texttagtable_init (LgwTextTagTable *tag_table)
 {
-    tagtable->priv = LGW_TEXTTAGTABLE_GET_PRIVATE (tagtable);
-    memset(tagtable->priv, 0, sizeof(LgwTextTagTablePrivate));
+    tag_table->priv = LGW_TEXTTAGTABLE_GET_PRIVATE (tag_table);
+    memset(tag_table->priv, 0, sizeof(LgwTextTagTablePrivate));
+}
+
+
+static void
+lgw_texttagtable_dispose (GObject *object)
+{
+    //Declarations
+    LgwTextTagTable *tag_table = NULL;
+
+    //Initializations
+    tag_table = LGW_TEXTTAGTABLE (object);
+
+    lgw_texttagtable_disconnect_signals (tag_table);
+
+    G_OBJECT_CLASS (lgw_texttagtable_parent_class)->dispose (object);
 }
 
 
@@ -109,12 +87,10 @@ static void
 lgw_texttagtable_finalize (GObject *object)
 {
     //Declarations
-    LgwTextTagTable *tagtable = NULL;
+    LgwTextTagTable *tag_table = NULL;
 
     //Initializations
-    tagtable = LGW_TEXTTAGTABLE (object);
-
-    lgw_texttagtable_disconnect_signals (tagtable);
+    tag_table = LGW_TEXTTAGTABLE (object);
 
     G_OBJECT_CLASS (lgw_texttagtable_parent_class)->finalize (object);
 }
@@ -124,7 +100,7 @@ static void
 lgw_texttagtable_constructed (GObject *object)
 {
     //Declarations
-    LgwTextTagTable *tagtable = NULL;
+    LgwTextTagTable *tag_table = NULL;
 
     //Chain the parent class
     {
@@ -132,9 +108,9 @@ lgw_texttagtable_constructed (GObject *object)
     }
 
     //Initializations
-    tagtable = LGW_TEXTTAGTABLE (object);
+    tag_table = LGW_TEXTTAGTABLE (object);
 
-    lgw_texttagtable_init_base_tags (tagtable);
+    lgw_texttagtable_init_base_tags (tag_table);
 }
 
 
@@ -145,17 +121,17 @@ lgw_texttagtable_set_property (GObject      *object,
                               GParamSpec   *pspec)
 {
     //Declarations
-    LgwTextTagTable *tagtable = NULL;
+    LgwTextTagTable *tag_table = NULL;
     LgwTextTagTablePrivate *priv = NULL;
 
     //Initializations
-    tagtable = LGW_TEXTTAGTABLE (object);
-    priv = tagtable->priv;
+    tag_table = LGW_TEXTTAGTABLE (object);
+    priv = tag_table->priv;
 
     switch (property_id)
     {
       case PROP_PREFERENCES:
-        lgw_texttagtable_set_preferences (tagtable, LW_PREFERENCES (g_value_get_object (value)));
+        lgw_texttagtable_set_preferences (tag_table, LW_PREFERENCES (g_value_get_object (value)));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -171,17 +147,17 @@ lgw_texttagtable_get_property (GObject      *object,
                               GParamSpec   *pspec)
 {
     //Declarations
-    LgwTextTagTable *tagtable = NULL;
+    LgwTextTagTable *tag_table = NULL;
     LgwTextTagTablePrivate *priv = NULL;
 
     //Initializations
-    tagtable = LGW_TEXTTAGTABLE (object);
-    priv = tagtable->priv;
+    tag_table = LGW_TEXTTAGTABLE (object);
+    priv = tag_table->priv;
 
     switch (property_id)
     {
       case PROP_PREFERENCES:
-        g_value_set_object (value, priv->preferences);
+        g_value_set_object (value, lgw_texttagtable_get_preferences (tag_table));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -201,6 +177,7 @@ lgw_texttagtable_class_init (LgwTextTagTableClass *klass)
     object_class = G_OBJECT_CLASS (klass);
     object_class->set_property = lgw_texttagtable_set_property;
     object_class->get_property = lgw_texttagtable_get_property;
+    object_class->dispose = lgw_texttagtable_dispose;
     object_class->finalize = lgw_texttagtable_finalize;
     object_class->constructed = lgw_texttagtable_constructed;
 
@@ -222,60 +199,121 @@ lgw_texttagtable_class_init (LgwTextTagTableClass *klass)
 
 
 static void
-lgw_texttagtable_init_base_tags (LgwTextTagTable *tagtable)
+lgw_texttagtable_init_base_tags (LgwTextTagTable *tag_table)
 {
+    //Sanity checks
+    g_return_if_fail (LGW_IS_TEXTTAGTABLE (tag_table));
+
     //Declarations
     GtkTextTag *tag = NULL;
 
     tag = gtk_text_tag_new ("entry-grand-header");
     g_object_set (tag, "scale", 5.0, "family", "KanjiStrokeOrders", NULL);
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
 
     tag = gtk_text_tag_new ("entry-header");
     g_object_set (tag, "scale", 1.3, "weight", 600, NULL);
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
 
     tag = gtk_text_tag_new ("entry-definition");
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
 
     tag = gtk_text_tag_new ("entry-lexicon");
     g_object_set (tag, "scale", 1.0, "foreground", "#888888", "style", PANGO_STYLE_ITALIC, NULL);
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
 
     tag = gtk_text_tag_new ("entry-popular");
     g_object_set (tag, "scale", 1.0, NULL);
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
 
     tag = gtk_text_tag_new ("entry-example-definition");
     g_object_set (tag, "scale", 1.3, NULL);
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
 
     tag = gtk_text_tag_new ("entry-bullet");
     g_object_set (tag, "weight", PANGO_WEIGHT_BOLD, NULL);
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
 
     tag = gtk_text_tag_new ("comment");
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
 
     tag = gtk_text_tag_new ("match");
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
 
     tag = gtk_text_tag_new ("header");
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
 
     tag = gtk_text_tag_new ("spacing");
     g_object_set (tag, "scale", 0.5, NULL);
-    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tagtable), tag);
+    gtk_text_tag_table_add (GTK_TEXT_TAG_TABLE (tag_table), tag);
     g_object_unref (tag);
+}
+
+
+void
+lgw_texttagtable_set_preferences (LgwTextTagTable *tag_table,
+                                  LwPreferences   *preferences)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_TEXTTAGTABLE (tag_table));
+
+    //Declarations
+    LgwTextTagTablePrivate *priv = NULL;
+    LgwTextTagTableClass *klass = NULL;
+    LgwTextTagTableClassPrivate* klasspriv = NULL;
+
+    //Initializations
+    priv = tag_table->priv;
+    klass = LGW_TEXTTAGTABLE_GET_CLASS (tag_table);
+    klasspriv = klass->priv;
+
+    if (preferences != NULL)
+    {
+      g_object_ref (preferences);
+    }
+
+    if (priv->config.preferences != NULL)
+    {
+      lgw_texttagtable_disconnect_signals (tag_table);
+      g_object_remove_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
+      g_object_unref (priv->config.preferences);
+      priv->config.preferences = NULL;
+    }
+
+    priv->config.preferences = preferences;
+
+    if (priv->config.preferences != NULL)
+    {
+      g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
+      lgw_texttagtable_connect_signals (tag_table);
+    }
+
+    g_object_notify_by_pspec (G_OBJECT (tag_table), klasspriv->pspec[PROP_PREFERENCES]);
+}
+
+
+LwPreferences*
+lgw_texttagtable_get_preferences (LgwTextTagTable *tag_table)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_TEXTTAGTABLE (tag_table), NULL);
+
+    //Declarations
+    LgwTextTagTablePrivate *priv = NULL;
+
+    //Initializations
+    priv = tag_table->priv;
+
+    return priv->config.preferences;
 }
 

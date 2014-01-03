@@ -1,8 +1,6 @@
 #ifndef GW_APPLICATION_PRIVATE_INCLUDED
 #define GW_APPLICATION_PRIVATE_INCLUDED
 
-#include <gwaei/vocabularyliststore.h>
-
 G_BEGIN_DECLS
 
 
@@ -20,15 +18,15 @@ struct _Config {
   LwPreferences *preferences;
 };
 
-struct _DictionaryList {
-  LgwDictionaryList *installed;
-  LgwDictionaryList *installable;
+struct _DictionaryListStore {
+  LgwDictionaryListStore *installed;
+  LgwDictionaryListStore *installable;
 };
 
 struct _Data {
   LwMorphologyEngine *morphologyengine;
   GtkListStore *vocabularyliststore;
-  struct _DictionaryList dictionary_list;
+  struct _DictionaryListStore dictionary_list_store;
 };
 
 struct _GwApplicationPrivate {
@@ -40,6 +38,8 @@ struct _GwApplicationPrivate {
 };
 
 #define GW_APPLICATION_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GW_TYPE_APPLICATION, GwApplicationPrivate))
+
+void gw_application_set_preferences (GwApplication *application, LwPreferences *preferences);
 
 G_END_DECLS
 

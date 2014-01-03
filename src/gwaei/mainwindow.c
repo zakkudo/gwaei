@@ -44,7 +44,6 @@
 
 //Static declarations
 static void gw_mainwindow_initialize_header (GwMainWindow *window);
-static void gw_mainwindow_initialize_vocabularywidget (GwMainWindow *window);
 static void gw_mainwindow_initialize_body (GwMainWindow *window);
 
 static gchar* gw_mainwindow_get_symbolic_icon_name_if_exists (const gchar* ICON_NAME);
@@ -187,7 +186,6 @@ gw_mainwindow_constructed (GObject *object)
     priv = window->priv;
 
     gw_mainwindow_initialize_header (window);
-    gw_mainwindow_initialize_vocabularywidget (window);
     gw_mainwindow_initialize_body (window);
 
     //Set up the gtk window
@@ -288,35 +286,6 @@ gw_mainwindow_initialize_header (GwMainWindow *window)
 
 
 static void
-gw_mainwindow_initialize_vocabularywidget (GwMainWindow *window)
-{
-    //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (window));
-    GwMainWindowPrivate *priv = window->priv;
-
-    {
-      GtkWidget *bar = gtk_search_bar_new ();
-      priv->ui.vocabulary_widget = GTK_SEARCH_BAR (bar);
-      //gtk_search_bar_set_search_mode (priv->ui.vocabulary_widget, TRUE);
-
-      {
-        GtkWidget *entry = gtk_search_entry_new ();
-        gtk_container_add (GTK_CONTAINER (bar), entry);
-        gtk_widget_show (entry);
-      }
-
-      gtk_widget_show (bar);
-    }
-
-/*
-    GwKanjiPad
-    GwRadicalTable
-    GwVocabularyWidget
-    */
-}
-
-
-static void
 gw_mainwindow_initialize_body (GwMainWindow *window)
 {
     //Sanity checks
@@ -334,14 +303,17 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
       gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_CROSSFADE);
 
       {
-        {
-          GtkWidget* search_widget = lgw_searchwidget_new ();
-          priv->ui.search_widget = LGW_SEARCHWIDGET (search_widget);
-          gtk_stack_add_titled (priv->ui.stack, search_widget, "dictionary", gettext("Lookup"));
-          gtk_widget_show (search_widget);
-        }
+        GtkWidget* search_widget = lgw_searchwidget_new ();
+        priv->ui.search_widget = LGW_SEARCHWIDGET (search_widget);
+        gtk_stack_add_titled (priv->ui.stack, search_widget, "dictionary", gettext("Lookup"));
+        gtk_widget_show (search_widget);
+      }
 
-        gtk_stack_add_titled (priv->ui.stack, GTK_WIDGET (priv->ui.vocabulary_widget), "vocabulary", gettext("Study"));
+      {
+        GtkWidget* vocabulary_widget = lgw_vocabularywidget_new ();
+        priv->ui.vocabulary_widget = LGW_VOCABULARYWIDGET (vocabulary_widget);
+        gtk_stack_add_titled (priv->ui.stack, vocabulary_widget, "vocabulary", gettext("Study"));
+        gtk_widget_show (vocabulary_widget);
       }
 
       gtk_widget_show (stack);

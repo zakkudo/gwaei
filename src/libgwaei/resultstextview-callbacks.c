@@ -46,7 +46,7 @@ void
 lgw_resultstextview_connect_signals (LgwResultsTextView *results_text_view)
 {
     //Sanity checks
-    g_return_if_fail (results_text_view != NULL);
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (results_text_view));
 
     //Declarations
     LgwResultsTextViewPrivate *priv = NULL;
@@ -80,7 +80,7 @@ void
 lgw_resultstextview_disconnect_signals (LgwResultsTextView *results_text_view)
 {
     //Sanity checks
-    g_return_if_fail (results_text_view != NULL);
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (results_text_view));
 
     //Declarations
     LgwResultsTextViewPrivate *priv = NULL;

@@ -3,11 +3,16 @@
 
 G_BEGIN_DECLS
 
+struct _Config {
+  LwPreferences *preferences;
+};
+
 struct _WApplicationPrivate {
   gint* argc;
   gchar*** argv;
+  
+  struct _Config config;
 
-  LwPreferences *preferences;
   LwDictionaryList *installed_dictionarylist;
   LwDictionaryList *installable_dictionarylist;
   LwMorphologyEngine *morphologyengine;
@@ -28,6 +33,8 @@ struct _WApplicationPrivate {
 };
 
 #define W_APPLICATION_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), W_TYPE_APPLICATION, WApplicationPrivate))
+
+void w_application_set_preferences (WApplication *application, LwPreferences *preferences);
 
 G_END_DECLS
 

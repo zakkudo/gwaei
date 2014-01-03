@@ -49,12 +49,12 @@ G_DEFINE_TYPE (LwDictionaryList, lw_dictionarylist, G_TYPE_OBJECT)
 //! @return An allocated LwDictionaryList that will be needed to be freed by lw_dictionary_free.
 //!
 LwDictionaryList* 
-lw_dictionarylist_new ()
+lw_dictionarylist_new (LwPreferences *preferences)
 {
     LwDictionaryList *dictionary = NULL;
 
     //Initializations
-    dictionary = LW_DICTIONARYLIST (g_object_new (LW_TYPE_DICTIONARYLIST, NULL));
+    dictionary = LW_DICTIONARYLIST (g_object_new (LW_TYPE_DICTIONARYLIST, "preferences", preferences, NULL));
 
     return dictionary;
 }
@@ -246,6 +246,11 @@ lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_list,
     priv = dictionary_list->priv;
     klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
     klasspriv = klass->priv;
+
+    if (preferences != NULL)
+    {
+      g_object_ref (preferences);
+    }
 
     if (priv->preferences != NULL) {
       g_object_remove_weak_pointer (G_OBJECT (priv->preferences), (gpointer*) &(priv->preferences));

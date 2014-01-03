@@ -47,7 +47,7 @@ void
 lgw_texttagtable_connect_signals (LgwTextTagTable *tag_table)
 {
     //Sanity checks
-    g_return_if_fail (tag_table != NULL);
+    g_return_if_fail (LGW_IS_TEXTTAGTABLE (tag_table));
 
     //Declarations
     LgwTextTagTablePrivate *priv = NULL;
@@ -55,62 +55,62 @@ lgw_texttagtable_connect_signals (LgwTextTagTable *tag_table)
 
     //Initializations
     priv = tag_table->priv;
-    preferences = priv->preferences;
+    preferences = lgw_texttagtable_get_preferences (tag_table);
     if (preferences == NULL) goto errored;
 
-    if (priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_FG] == 0) {
-      priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_FG] = lw_preferences_add_change_listener_by_schema (
+    if (priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_FG] == 0) {
+      priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_FG] = lw_preferences_add_change_listener_by_schema (
           preferences, 
           LW_SCHEMA_HIGHLIGHT, 
           LW_KEY_MATCH_FG, 
           lgw_texttagtable_sync_tag_cb, 
           tag_table
       );
-      priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_FG] = 0;
+      priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_FG] = 0;
     }
 
-    if (priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_BG] == 0) {
-      priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_BG] = lw_preferences_add_change_listener_by_schema (
+    if (priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_BG] == 0) {
+      priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_BG] = lw_preferences_add_change_listener_by_schema (
           preferences, 
           LW_SCHEMA_HIGHLIGHT, 
           LW_KEY_MATCH_BG, 
           lgw_texttagtable_sync_tag_cb, 
           tag_table
       );
-      priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_BG] = 0;
+      priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_BG] = 0;
     }
 
-    if (priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_FG] == 0) {
-      priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_FG] = lw_preferences_add_change_listener_by_schema (
+    if (priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_FG] == 0) {
+      priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_FG] = lw_preferences_add_change_listener_by_schema (
           preferences, 
           LW_SCHEMA_HIGHLIGHT, 
           LW_KEY_HEADER_FG, 
           lgw_texttagtable_sync_tag_cb, 
           tag_table
       );
-      priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_FG] = 0;
+      priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_FG] = 0;
     }
 
-    if (priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_BG] == 0) {
-      priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_BG] = lw_preferences_add_change_listener_by_schema (
+    if (priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_BG] == 0) {
+      priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_BG] = lw_preferences_add_change_listener_by_schema (
           preferences, 
           LW_SCHEMA_HIGHLIGHT, 
           LW_KEY_HEADER_BG, 
           lgw_texttagtable_sync_tag_cb, 
           tag_table
       );
-      priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_BG] = 0;
+      priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_BG] = 0;
     }
 
-    if (priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_COMMENT_FG] == 0) {
-      priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_COMMENT_FG] = lw_preferences_add_change_listener_by_schema (
+    if (priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_COMMENT_FG] == 0) {
+      priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_COMMENT_FG] = lw_preferences_add_change_listener_by_schema (
           preferences, 
           LW_SCHEMA_HIGHLIGHT, 
           LW_KEY_COMMENT_FG, 
           lgw_texttagtable_sync_tag_cb, 
           tag_table
       );
-      priv->signalid[LGW_TEXTTAGTABLE_SIGNALID_COMMENT_FG] = 0;
+      priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_COMMENT_FG] = 0;
     }
 
 errored:
@@ -123,7 +123,7 @@ void
 lgw_texttagtable_disconnect_signals (LgwTextTagTable *tag_table)
 {
     //Sanity checks
-    g_return_if_fail (tag_table != NULL);
+    g_return_if_fail (LGW_IS_TEXTTAGTABLE (tag_table));
 
     //Declarations
     LgwTextTagTablePrivate *priv = NULL;
@@ -131,18 +131,18 @@ lgw_texttagtable_disconnect_signals (LgwTextTagTable *tag_table)
 
     //Initializations
     priv = tag_table->priv;
-    preferences = priv->preferences;
+    preferences = lgw_texttagtable_get_preferences (tag_table);
     if (preferences == NULL) goto errored;
 
     {
       gint i = 0;
-      for (i = 0; i < G_N_ELEMENTS (priv->signalid); i++) {
+      for (i = 0; i < G_N_ELEMENTS (priv->data.signalid); i++) {
         lw_preferences_remove_change_listener_by_schema (
           preferences, 
           LW_SCHEMA_HIGHLIGHT, 
-          priv->signalid[i]
+          priv->data.signalid[i]
         );
-        priv->signalid[i] = 0;
+        priv->data.signalid[i] = 0;
       }
     }
 

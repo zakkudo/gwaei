@@ -38,8 +38,8 @@ void lgw_searchwidget_set_search_mode (LgwSearchWidget *widget, gboolean search_
 void lgw_searchwidget_set_preferences (LgwSearchWidget *search_widget, LwPreferences *preferences);
 LwPreferences* lgw_searchwidget_get_preferences (LgwSearchWidget *search_widget);
 
-void lgw_searchwidget_set_dictionarylist (LgwSearchWidget *search_widget, LgwDictionaryList *dictionary_list);
-LgwDictionaryList* lgw_searchwidget_get_dictionarylist (LgwSearchWidget *search_widget);
+void lgw_searchwidget_set_dictionaryliststore (LgwSearchWidget *search_widget, LgwDictionaryListStore *dictionary_list_store);
+LgwDictionaryListStore* lgw_searchwidget_get_dictionaryliststore (LgwSearchWidget *search_widget);
 
 
 G_END_DECLS

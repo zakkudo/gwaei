@@ -106,9 +106,7 @@ lgw_resultstextview_finalize (GObject *object)
     klass = LGW_RESULTSTEXTVIEW_GET_CLASS (view);
     klasspriv = klass->priv;
 
-    if (klasspriv->text_tag_table != NULL) {
-        g_object_ref (klasspriv->text_tag_table);
-    }
+    lgw_resultstextview_set_tagtable (view, NULL);
 
     G_OBJECT_CLASS (lgw_resultstextview_parent_class)->finalize (object);
 }
@@ -195,16 +193,6 @@ lgw_resultstextview_constructed (GObject *object)
     klass = LGW_RESULTSTEXTVIEW_GET_CLASS (view);
     klasspriv = klass->priv;
 
-    if (klasspriv->text_tag_table == NULL)
-    {
-        klasspriv->text_tag_table = lgw_texttagtable_new ();
-        g_object_add_weak_pointer (G_OBJECT (klasspriv->text_tag_table), (gpointer*) &(klasspriv->text_tag_table));
-    }
-    else
-    {
-        g_object_ref (klasspriv->text_tag_table);
-    }
-
     {
       GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
       priv->ui.scrolled_window = GTK_SCROLLED_WINDOW (scrolled_window);
@@ -218,7 +206,8 @@ lgw_resultstextview_constructed (GObject *object)
         gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
         gtk_widget_show (text_view);
 
-        GtkTextBuffer *text_buffer = gtk_text_buffer_new (klasspriv->text_tag_table);
+        LgwTextTagTable *text_tag_table = lgw_resultstextview_get_tagtable (view);
+        GtkTextBuffer *text_buffer = gtk_text_buffer_new (GTK_TEXT_TAG_TABLE (text_tag_table));
         priv->ui.text_buffer = GTK_TEXT_BUFFER (text_buffer);
         gtk_text_view_set_buffer (priv->ui.text_view, text_buffer);
         g_object_unref (text_buffer);
@@ -279,7 +268,7 @@ lgw_resultstextview_add_search (LgwResultsView *view,
                                 LwSearch       *search)
 {
     //Sanity checks
-    g_return_if_fail (view != NULL);
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
@@ -315,7 +304,7 @@ void
 lgw_resultstextview_clear_searchlist (LgwResultsView *view)
 {
     //Sanity checks
-    g_return_if_fail (view != NULL);
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
@@ -338,7 +327,7 @@ lgw_resultstextview_set_searchlist (LgwResultsView *view,
                                     GList          *searchlist)
 {
     //Sanity checks
-    g_return_if_fail (view != NULL);
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
@@ -368,7 +357,7 @@ GList*
 lgw_resultstextview_get_searchlist (LgwResultsView *view)
 {
     //Sanity checks
-    g_return_if_fail (view != NULL);
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
@@ -383,7 +372,7 @@ static gboolean
 _load_results (LgwResultsView *view)
 {
     //Sanity checks
-    g_return_if_fail (view != NULL);
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
@@ -403,7 +392,7 @@ lgw_resultstextview_set_timeout (LgwResultsView *view,
                                  guint           milliseconds)
 {
     //Sanity checks
-    g_return_if_fail (view != NULL);
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
@@ -425,7 +414,7 @@ lgw_resultstextview_set_actiongroup (LgwActionable  *actionable,
                                      LgwActionGroup *action_group)
 {
     //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_ACTIONABLE (actionable), NULL);
 
     //Declarations
     LgwResultsTextView *results_text_view = NULL;
@@ -464,7 +453,7 @@ void
 lgw_resultstextview_sync_actions (LgwResultsTextView *results_text_view)
 {
     //Sanity checks
-    g_return_val_if_fail (results_text_view != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (results_text_view), NULL);
 
     //Declarations
     LgwResultsTextViewPrivate *priv = NULL;
@@ -496,7 +485,7 @@ static GList*
 lgw_resultstextview_get_actions (LgwActionable *actionable)
 {
     //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_ACTIONABLE (actionable), NULL);
 
     //Declarations
     LgwResultsTextView *results_text_view = NULL;
@@ -507,5 +496,53 @@ lgw_resultstextview_get_actions (LgwActionable *actionable)
     priv = results_text_view->priv;
 
     return priv->data.action_group_list;
+}
+
+void
+lgw_resultstextview_set_tagtable (LgwResultsTextView *results_text_view,
+                                  LgwTextTagTable    *tag_table)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (results_text_view));
+
+    //Declarations
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    priv = results_text_view->priv;
+
+    if (tag_table != NULL)
+    {
+      g_object_ref (tag_table);
+    }
+
+    if (priv->config.text_tag_table != NULL)
+    {
+      g_object_remove_weak_pointer (G_OBJECT (priv->config.text_tag_table), (gpointer*) &(priv->config.text_tag_table));
+      g_object_unref (priv->config.text_tag_table);
+      priv->config.text_tag_table = NULL;
+    }
+
+    priv->config.text_tag_table = tag_table;
+
+    if (priv->config.text_tag_table != NULL)
+    {
+      g_object_add_weak_pointer (G_OBJECT (priv->config.text_tag_table), (gpointer*) &(priv->config.text_tag_table));
+    }
+}
+
+LgwTextTagTable*
+lgw_resultstextview_get_tagtable (LgwResultsTextView *results_text_view)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (results_text_view), NULL);
+
+    //Declarations
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    priv = results_text_view->priv;
+
+    return priv->config.text_tag_table;
 }
 

@@ -38,7 +38,7 @@ struct _LwDictionaryListClass {
 
 
 //Methods
-LwDictionaryList* lw_dictionarylist_new (void);
+LwDictionaryList* lw_dictionarylist_new (LwPreferences *preferences);
 GType lw_dictionarylist_get_type (void) G_GNUC_CONST;
 
 

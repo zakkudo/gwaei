@@ -99,8 +99,8 @@ lgw_dictionarylistbox_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_DICTIONARYLIST:
-        lgw_dictionarylistbox_set_dictionarylist (dictionary_list_box, g_value_get_object (value));
+      case PROP_DICTIONARYLISTSTORE:
+        lgw_dictionarylistbox_set_dictionaryliststore (dictionary_list_box, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -123,8 +123,8 @@ lgw_dictionarylistbox_get_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_DICTIONARYLIST:
-        g_value_set_object (value, lgw_dictionarylistbox_get_dictionarylist (dictionary_list_box));
+      case PROP_DICTIONARYLISTSTORE:
+        g_value_set_object (value, lgw_dictionarylistbox_get_dictionaryliststore (dictionary_list_box));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -262,11 +262,11 @@ lgw_dictionarylistbox_sync_list (LgwDictionaryListBox *dictionary_list_box)
 
     //Declarations
     LgwDictionaryListBoxPrivate *priv = NULL;
-    LgwDictionaryList *dictionary_list = NULL;
+    LgwDictionaryListStore *dictionary_list_store = NULL;
 
     //Initializations
     priv = dictionary_list_box->priv;
-    dictionary_list = lgw_dictionarylistbox_get_dictionarylist (dictionary_list_box);
+    dictionary_list_store = lgw_dictionarylistbox_get_dictionaryliststore (dictionary_list_box);
 
     if (priv->ui.list_box == NULL) goto errored;
 
@@ -288,9 +288,9 @@ lgw_dictionarylistbox_sync_list (LgwDictionaryListBox *dictionary_list_box)
     }
 
     //Set the new list
-    if (dictionary_list != NULL)
+    if (dictionary_list_store != NULL)
     {
-      GList *list = lw_dictionarylist_get_list (LW_DICTIONARYLIST (dictionary_list));
+      GList *list = lw_dictionarylist_get_list (LW_DICTIONARYLIST (dictionary_list_store));
       GList *link = list;;
 
       while (link != NULL)
@@ -331,20 +331,20 @@ lgw_dictionarylistbox_class_init (LgwDictionaryListBoxClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LgwDictionaryListBoxPrivate));
 
-    klasspriv->pspec[PROP_DICTIONARYLIST] = g_param_spec_object (
-      "dictionarylist",
+    klasspriv->pspec[PROP_DICTIONARYLISTSTORE] = g_param_spec_object (
+      "dictionaryliststore",
       "Dictionary list used for the datamodel",
       "Dictionarylist used for the datamodel",
-      LGW_TYPE_DICTIONARYLIST,
+      LGW_TYPE_DICTIONARYLISTSTORE,
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DICTIONARYLIST, klasspriv->pspec[PROP_DICTIONARYLIST]);
+    g_object_class_install_property (object_class, PROP_DICTIONARYLISTSTORE, klasspriv->pspec[PROP_DICTIONARYLISTSTORE]);
 }
 
 
 void
-lgw_dictionarylistbox_set_dictionarylist (LgwDictionaryListBox *dictionary_list_box,
-                                          LgwDictionaryList    *dictionary_list)
+lgw_dictionarylistbox_set_dictionaryliststore (LgwDictionaryListBox *dictionary_list_box,
+                                               LgwDictionaryListStore    *dictionary_list_store)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
@@ -359,29 +359,29 @@ lgw_dictionarylistbox_set_dictionarylist (LgwDictionaryListBox *dictionary_list_
     klass = LGW_DICTIONARYLISTBOX_GET_CLASS (dictionary_list_box);
     klasspriv = klass->priv;
 
-    if (priv->data.dictionary_list != NULL)
+    if (priv->data.dictionary_list_store != NULL)
     {
-      g_object_remove_weak_pointer (G_OBJECT (priv->data.dictionary_list), (gpointer*) &(priv->data.dictionary_list));
-      g_object_unref (priv->data.dictionary_list);
-      priv->data.dictionary_list = NULL;
+      g_object_remove_weak_pointer (G_OBJECT (priv->data.dictionary_list_store), (gpointer*) &(priv->data.dictionary_list_store));
+      g_object_unref (priv->data.dictionary_list_store);
+      priv->data.dictionary_list_store = NULL;
     }
 
-    priv->data.dictionary_list = dictionary_list;
+    priv->data.dictionary_list_store = dictionary_list_store;
 
-    if (priv->data.dictionary_list != NULL)
+    if (priv->data.dictionary_list_store != NULL)
     {
-      g_object_ref (priv->data.dictionary_list);
-      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionary_list), (gpointer*) &(priv->data.dictionary_list));
+      g_object_ref (priv->data.dictionary_list_store);
+      g_object_add_weak_pointer (G_OBJECT (priv->data.dictionary_list_store), (gpointer*) &(priv->data.dictionary_list_store));
     }
 
     lgw_dictionarylistbox_sync_list (dictionary_list_box);
 
-    g_object_notify_by_pspec (G_OBJECT (dictionary_list_box), klasspriv->pspec[PROP_DICTIONARYLIST]);
+    g_object_notify_by_pspec (G_OBJECT (dictionary_list_box), klasspriv->pspec[PROP_DICTIONARYLISTSTORE]);
 }
 
 
-LgwDictionaryList*
-lgw_dictionarylistbox_get_dictionarylist (LgwDictionaryListBox *dictionary_list_box)
+LgwDictionaryListStore*
+lgw_dictionarylistbox_get_dictionaryliststore (LgwDictionaryListBox *dictionary_list_box)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
@@ -392,6 +392,6 @@ lgw_dictionarylistbox_get_dictionarylist (LgwDictionaryListBox *dictionary_list_
     //Initializations
     priv = dictionary_list_box->priv;
 
-    return priv->data.dictionary_list;
+    return priv->data.dictionary_list_store;
 }
 

@@ -1,0 +1,9 @@
+#ifndef LGW_DICTIONARYLIST_CALLBACKS_INCLUDED
+#define LGW_DICTIONARYLIST_CALLBACKS_INCLUDED
+
+
+void lgw_dictionaryliststore_connect_signals (LgwDictionaryListStore *dictionary_list_store);
+void lgw_dictionaryliststore_disconnect_signals (LgwDictionaryListStore *dictionary_list_store);
+
+#endif
+

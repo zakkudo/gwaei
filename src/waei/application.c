@@ -95,7 +95,8 @@ w_application_finalize (GObject *object)
     if (priv->installable_dictionarylist != NULL) g_object_unref (priv->installable_dictionarylist); priv->installable_dictionarylist = NULL;
     if (priv->context != NULL) g_option_context_free (priv->context); priv->context = NULL;
     if (priv->arg_query_text_data != NULL) g_free(priv->arg_query_text_data); priv->arg_query_text_data = NULL;
-    if (priv->preferences != NULL) g_object_unref (priv->preferences);
+
+    w_application_set_preferences (application, NULL);
 
     lw_regex_free ();
 
@@ -124,7 +125,7 @@ static void
 w_application_parse_args (WApplication *application, int *argc, char** argv[])
 {
     //Sanity checks
-    g_return_if_fail (application != NULL);
+    g_return_if_fail (W_IS_APPLICATION (application));
 
     //Declarations
     WApplicationPrivate *priv = NULL;
@@ -240,25 +241,6 @@ w_application_handle_error (WApplication *application, GError **error)
 }
 
 
-LwPreferences* 
-w_application_get_preferences (WApplication *application)
-{
-    WApplicationPrivate *priv;
-
-    priv = application->priv;
-
-
-    if (priv->preferences == NULL)
-    {
-      g_io_extension_point_register ("gsettings-backend");
-      priv->preferences = lw_preferences_new (g_memory_settings_backend_new ());
-      g_object_add_weak_pointer (G_OBJECT (priv->preferences), (gpointer*) &(priv->preferences));
-    }
-
-    return priv->preferences;
-}
-
-
 LwMorphologyEngine*
 w_application_get_morphologyengine (WApplication *application)
 {
@@ -277,19 +259,21 @@ LwDictionaryList*
 w_application_get_installed_dictionarylist (WApplication *application)
 {
     //Sanity checks
-    g_return_val_if_fail (application != NULL, NULL);
+    g_return_val_if_fail (W_IS_APPLICATION (application), NULL);
 
     //Declarations
     WApplicationPrivate *priv = NULL;
     LwMorphologyEngine *morphologyengine = NULL;
+    LwPreferences *preferences = NULL;
 
     //Initializations
     priv = application->priv;
     morphologyengine = w_application_get_morphologyengine (application);
+    preferences = w_application_get_preferences (application);
 
     if (priv->installed_dictionarylist == NULL)
     {
-      priv->installed_dictionarylist = lw_dictionarylist_new ();
+      priv->installed_dictionarylist = lw_dictionarylist_new (preferences);
       lw_dictionarylist_load_installed (priv->installed_dictionarylist, morphologyengine);
       lw_dictionarylist_load_order (priv->installed_dictionarylist);
     }
@@ -301,13 +285,20 @@ w_application_get_installed_dictionarylist (WApplication *application)
 LwDictionaryList* 
 w_application_get_installable_dictionarylist (WApplication *application)
 {
-    WApplicationPrivate *priv;
+    //Sanity checks
+    g_return_val_if_fail (W_IS_APPLICATION (application), NULL);
 
+    //Declarations
+    WApplicationPrivate *priv = NULL;
+    LwPreferences *preferences = NULL;
+
+    //Initializations
     priv = application->priv;
+    preferences = w_application_get_preferences (application);
 
     if (priv->installable_dictionarylist == NULL)
     {
-      priv->installable_dictionarylist = lw_dictionarylist_new ();
+      priv->installable_dictionarylist = lw_dictionarylist_new (preferences);
       lw_dictionarylist_load_installable (priv->installable_dictionarylist);
     }
 
@@ -454,5 +445,56 @@ w_application_get_query_text_data (WApplication *application)
   WApplicationPrivate *priv;
   priv = application->priv;
   return priv->arg_query_text_data;
+}
+
+
+LwPreferences*
+w_application_get_preferences (WApplication *application)
+{
+    //Sanity checks
+    g_return_val_if_fail (W_IS_APPLICATION (application), NULL);
+
+    //Declarations
+    WApplicationPrivate *priv = NULL;
+
+    //Initializations
+    priv = application->priv;
+
+    if (priv->config.preferences == NULL)
+    {
+      g_io_extension_point_register ("gsettings-backend");
+      w_application_set_preferences (application, lw_preferences_new (g_memory_settings_backend_new ()));
+    }
+
+    return priv->config.preferences;
+}
+
+
+void
+w_application_set_preferences (WApplication *application,
+                               LwPreferences *preferences)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_APPLICATION (application));
+
+    //Declarations
+    WApplicationPrivate *priv = NULL;
+
+    //Initializations
+    priv = application->priv;
+
+    if (priv->config.preferences != NULL)
+    {
+      g_object_remove_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
+      g_object_unref (priv->config.preferences);
+      priv->config.preferences = NULL;
+    }
+
+    priv->config.preferences = preferences;
+
+    if (priv->config.preferences != NULL) {
+      g_object_ref (priv->config.preferences);
+      g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
+    }
 }
 

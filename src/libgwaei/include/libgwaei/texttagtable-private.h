@@ -19,9 +19,17 @@ typedef enum {
   TOTAL_LGW_TEXTTAGTABLE_SIGNALIDS
 } LgwTextTagTableColumn;
 
-struct _LgwTextTagTablePrivate {
+struct _Config {
   LwPreferences *preferences;
+};
+
+struct _Data {
   guint signalid[TOTAL_LGW_TEXTTAGTABLE_SIGNALIDS];
+};
+
+struct _LgwTextTagTablePrivate {
+  struct _Config config;
+  struct _Data data;
 };
 
 #define LGW_TEXTTAGTABLE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_TEXTTAGTABLE, LgwTextTagTablePrivate))

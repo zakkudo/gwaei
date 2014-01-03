@@ -6,6 +6,7 @@ G_BEGIN_DECLS
 typedef enum {
     PROP_0,
     PROP_ACTIONS,
+    PROP_TEXTTAGTABLE,
     TOTAL_PROPS
 } Props;
 
@@ -25,6 +26,7 @@ struct _UI {
 struct _Config {
   gint scale_percent;
   gint max_results;
+  LgwTextTagTable *text_tag_table;
 };
 
 struct _Data {
@@ -44,7 +46,7 @@ struct _LgwResultsTextViewPrivate {
 };
 
 struct _LgwResultsTextViewClassPrivate {
-  GtkTextTagTable *text_tag_table;
+  gint unused;
 };
 
 #define LGW_RESULTSTEXTVIEW_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_RESULTSTEXTVIEW, LgwResultsTextViewPrivate));

@@ -39,6 +39,41 @@
 #include <gwaei/application-private.h>
 
 
+void 
+gw_application_connect_signals (GwApplication *application)
+{
+    //Sanity checks
+    g_return_if_fail (GW_IS_APPLICATION (application));
+
+#ifdef HAVE_HUNSPELL
+    //Sanity checks
+
+    //Declarations
+    LwPreferences *preferences = NULL;
+
+    //Initializations
+
+/*
+    lw_preferences_add_change_listener_by_schema (
+        preferences,
+        LW_SCHEMA_BASE,
+        LW_KEY_SPELLCHECK,
+        gw_application_sync_spellcheck_cb,
+        application 
+    );
+*/
+#endif
+}
+
+
+void 
+gw_application_disconnect_signals (GwApplication *application)
+{
+    //Sanity checks
+    g_return_if_fail (GW_IS_APPLICATION (application));
+}
+
+
 /* TO BE REMOVED
 void 
 gw_application_open_searchwindow_cb (GSimpleAction *action, 

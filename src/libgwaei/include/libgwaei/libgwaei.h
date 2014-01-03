@@ -11,7 +11,7 @@
 
 #include <libgwaei/texttagtable.h>
 
-#include <libgwaei/dictionarylist.h>
+#include <libgwaei/dictionaryliststore.h>
 #include <libgwaei/dictionarylistbox.h>
 
 #include <libgwaei/resultsview.h>

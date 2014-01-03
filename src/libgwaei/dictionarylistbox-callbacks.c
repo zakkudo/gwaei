@@ -49,16 +49,11 @@ lgw_dictionarylistbox_dictionarylist_property_changed_cb (LgwDictionaryListBox *
 {
     //Declarations
     LgwDictionaryListBoxPrivate *priv = NULL;
-    LwDictionaryList *dictionary_list = NULL;
 
     priv = box->priv;
     if (priv == NULL) goto errored;
-    g_object_get (G_OBJECT (box), "dictionarylist", &dictionary_list, NULL);
-    if (dictionary_list == NULL) goto errored;
 
 errored:
-
-    if (dictionary_list != NULL) g_object_unref (dictionary_list);
 
     return;
 }
