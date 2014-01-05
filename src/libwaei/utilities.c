@@ -1635,3 +1635,26 @@ lw_util_is_regex_pattern (const gchar *TEXT, GError **error)
 }
 
 
+gint
+lw_util_replace_linebreaks_with_nullcharacter (gchar *TEXT)
+{
+    g_return_if_fail (TEXT != NULL);
+
+    //Declarations    
+    gint length = NULL;
+    gchar *c = NULL;
+
+    //Initializations
+    length = strlen(TEXT);
+    c = TEXT;
+
+    while (c < TEXT + length)
+    {
+      if (*c == '\n') *c = '\0';
+      c++;
+    }
+
+    return length;
+}
+
+

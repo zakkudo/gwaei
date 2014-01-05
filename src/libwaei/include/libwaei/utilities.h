@@ -79,6 +79,8 @@ gchar* lw_util_get_environment_data_folder (void);
 
 gboolean lw_util_is_regex_pattern (const gchar *TEXT, GError **error);
 
+gint lw_util_replace_linebreaks_with_nullcharacter (gchar *TEXT);
+
 G_END_DECLS
 
 #endif

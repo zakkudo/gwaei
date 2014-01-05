@@ -134,6 +134,7 @@ lw_dictionarylist_finalize (GObject *object)
     dictionary_list = LW_DICTIONARYLIST (object);
     priv = dictionary_list->priv;
 
+    lw_dictionarylist_set_menumodel (dictionary_list, NULL);
     g_mutex_clear (&priv->mutex);
 
     G_OBJECT_CLASS (lw_dictionarylist_parent_class)->finalize (object);
@@ -1282,8 +1283,8 @@ lw_dictionarylist_sync_menumodel (LwDictionaryList *dictionary_list)
 }
 
 void
-lw_dictioanarylist_set_menumodel (LwDictionaryList *dictionary_list,
-                                  GMenuModel       *menu_model)
+lw_dictionarylist_set_menumodel (LwDictionaryList *dictionary_list,
+                                 GMenuModel       *menu_model)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));

@@ -29,10 +29,10 @@ struct _LwVocabularyClass {
   LwVocabularyClassPrivate *priv;
 
   //Signals
-  void (*row_changed) (LwVocabulary* dictionarylist, gint position, gpointer data);
-  void (*row_inserted) (LwVocabulary* dictionarylist, gint position, gpointer data);
-  void (*row_deleted) (LwVocabulary* dictionarylist, gint position, gpointer data);
-  void (*rows_reordered) (LwVocabulary* dictionarylist, gint *order, gpointer data);
+  void (*row_changed) (LwVocabulary* vocabulary, gint position, gpointer data);
+  void (*row_inserted) (LwVocabulary* vocabulary, gint position, gpointer data);
+  void (*row_deleted) (LwVocabulary* vocabulary, gint position, gpointer data);
+  void (*rows_reordered) (LwVocabulary* vocabulary, gint *order, gpointer data);
 };
 
 
@@ -40,10 +40,13 @@ struct _LwVocabularyClass {
 LwVocabulary* lw_vocabulary_new (const gchar* NAME);
 GType lw_vocabulary_get_type (void) G_GNUC_CONST;
 
-gchar** lw_vocabulary_get_lists (void);
+gchar** lw_vocabulary_get_filenames (void);
 
-void lw_vocabulary_save (LwVocabulary*, const gchar*, LwProgressCallback);
-void lw_vocabulary_load (LwVocabulary*, const gchar*, LwProgressCallback);
+void lw_vocabulary_set_changed (LwVocabulary *vocabulary, gboolean changed);
+gboolean lw_vocabulary_changed (LwVocabulary *vocabulary);
+
+void lw_vocabulary_set_filename (LwVocabulary *vocabulary, const gchar *FILENAME);
+const gchar* lw_vocabulary_get_filename (LwVocabulary *vocabulary);
 
 G_END_DECLS
 

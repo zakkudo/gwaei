@@ -5,8 +5,8 @@ G_BEGIN_DECLS
 
 typedef enum {
     PROP_0,
-    NAME,
-    CHANGED,
+    PROP_FILENAME,
+    PROP_CHANGED,
     TOTAL_PROPS
 } Props;
 
@@ -21,11 +21,10 @@ typedef enum {
 
 
 struct _LwVocabularyPrivate {
-  gchar *name;
-  GList *items; //<!-- A Glist of LwWord
+  gchar *filename;
+  GList *list; //<!-- A Glist of LwWord
   gboolean changed; //<!-- hint of there are any savable changes
   gdouble progress;
-  guint signalid[TOTAL_SIGNALIDS];
 };
 
 struct _LwVocabularyClassPrivate {
