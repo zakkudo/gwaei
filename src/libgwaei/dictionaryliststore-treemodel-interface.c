@@ -41,8 +41,29 @@
 
 #include <libgwaei/dictionaryliststore-private.h>
 
-gint stamp = 0;
-gint valid_stamp = 0;
+static gint stamp = 0;
+static gint valid_stamp = 0;
+
+
+void
+lgw_dictionaryliststore_init_interface (GtkTreeModelIface *iface)
+{
+    iface->get_flags = lgw_dictionaryliststore_get_flags;
+    iface->get_n_columns = lgw_dictionaryliststore_get_n_columns;
+    iface->get_column_type = lgw_dictionaryliststore_get_column_type;
+    iface->get_iter = lgw_dictionaryliststore_get_iter;
+    iface->get_path = lgw_dictionaryliststore_get_path;
+    iface->get_value = lgw_dictionaryliststore_get_value;
+    iface->iter_next = lgw_dictionaryliststore_iter_next;
+    iface->iter_previous = lgw_dictionaryliststore_iter_previous;
+    iface->iter_children = lgw_dictionaryliststore_iter_children;
+    iface->iter_has_child = lgw_dictionaryliststore_iter_has_child;
+    iface->iter_n_children = lgw_dictionaryliststore_iter_n_children;
+    iface->iter_nth_child = lgw_dictionaryliststore_iter_nth_child;
+    iface->iter_parent = lgw_dictionaryliststore_iter_parent;
+}
+
+
 
 void
 lgw_dictionaryliststore_initialize_tree_iter (LgwDictionaryListStore *dictionary_list_store,

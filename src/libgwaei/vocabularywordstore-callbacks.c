@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file vocabularyliststore.c
+//! @file vocabularywordstore.c
 //!
 //! @brief To be written
 //!
@@ -29,39 +29,28 @@
 #include "config.h"
 #endif
 
+
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-#include <glib/gstdio.h>
+#include <glib-object.h>
 #include <gtk/gtk.h>
 
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
 
-#include <libgwaei/vocabularyliststore-private.h>
+#include <libgwaei/vocabularywordstore-private.h>
 
-/*
-    GType types[] = { 
-      G_TYPE_UINT,   //LGW_VOCABULARYWORDSTORE_COLUMN_POSITION_INTEGER
-      G_TYPE_STRING, //LGW_VOCABULARYWORDSTORE_COLUMN_POSITION_STRING
-      G_TYPE_STRING, //LGW_VOCABULARYWORDSTORE_COLUMN_KANJI
-      G_TYPE_STRING, //LGW_VOCABULARYWORDSTORE_COLUMN_FURIGANA
-      G_TYPE_STRING, //LGW_VOCABULARYWORDSTORE_COLUMN_DEFINITIONS
-      G_TYPE_INT,    //LGW_VOCABULARYWORDSTORE_COLUMN_CORRECT_GUESSES
-      G_TYPE_INT,    //LGW_VOCABULARYWORDSTORE_COLUMN_INCORRECT_GUESSES
-      G_TYPE_STRING, //LGW_VOCABULARYWORDSTORE_COLUMN_SCORE
-      G_TYPE_UINT,   //LGW_VOCABULARYWORDSTORE_COLUMN_TIMESTAMP
-      G_TYPE_STRING, //LGW_VOCABULARYWORDSTORE_COLUMN_DAYS
-      G_TYPE_INT     //LGW_VOCABULARYWORDSTORE_COLUMN_WEIGHT
-    };
 
-    gtk_list_store_set_column_types (GTK_LIST_STORE (vocabulary_word_store), TOTAL_LGW_VOCABULARYWORDSTORE_COLUMNS, types);
-*/
 
 void
-lgw_vocabularyliststore_init_interface (LgwVocabularyListStore *vocabulary_list_store)
+lgw_vocabularywordstore_connect_signals (LgwVocabularyWordStore *vocaublary_word_store)
 {
-    //TODO
+}
+
+
+void
+lgw_vocabularywordstore_disconnect_signals (LgwVocabularyWordStore *vocaublary_word_store)
+{
 }

@@ -1,0 +1,11 @@
+#ifndef LGW_VOCABULARYWORDSTORE_TREEMODEL_INTERFACE_INCLUDED
+#define LGW_VOCABULARYWORDSTORE_TREEMODEL_INTERFACE_INCLUDED
+
+G_BEGIN_DECLS
+
+void lgw_vocabularywordstore_init_interface (LgwVocabularyWordStore *vocabulary_word_store);
+
+G_END_DECLS
+
+#endif
+

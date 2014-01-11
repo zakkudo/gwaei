@@ -1,0 +1,10 @@
+#ifndef LGW_VOCABULARYLISTSTORE_TREEMODEL_INTERFACE_INCLUDED
+#define LGW_VOCABULARYLISTSTORE_TREEMODEL_INTERFACE_INCLUDED
+
+G_BEGIN_DECLS
+
+void lgw_vocabularyliststore_init_interface (LgwVocabularyListStore *vocabulary_list_store);
+
+G_END_DECLS
+
+#endif

@@ -152,16 +152,16 @@ gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
     //Declarations
     GwMainWindowPrivate *priv = NULL;
     GtkApplication *application = NULL;
-    LgwDictionaryList *dictionary_list = NULL;
+    LgwDictionaryListStore *dictionary_list = NULL;
 
     //Initializations
     priv = main_window->priv;
     if (priv == NULL) goto errored;
     application = gtk_window_get_application (GTK_WINDOW (main_window));
     if (application == NULL) goto errored;
-    dictionary_list = gw_application_get_installed_dictionarylist (GW_APPLICATION (application));
+    dictionary_list = gw_application_get_installed_dictionaryliststore (GW_APPLICATION (application));
 
-    lgw_searchwidget_set_dictionarylist (priv->ui.search_widget, dictionary_list);
+    lgw_searchwidget_set_dictionaryliststore (priv->ui.search_widget, dictionary_list);
 
     if (application != NULL)
     {
@@ -185,7 +185,7 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     //Declarations
     GwMainWindowPrivate *priv = NULL;
     GtkApplication *application = NULL;
-    LgwDictionaryList *dictionarylist = NULL;
+    LgwDictionaryListStore *dictionary_list_store = NULL;
     GtkWidget *widget = NULL;
     LgwActionable *actionable = NULL;
 

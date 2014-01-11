@@ -1,0 +1,14 @@
+#ifndef LGW_VOCABULARYWORDSTORE_CALLBACKS_INCLUDED
+#define LGW_VOCABULARYWORDSTORE_CALLBACKS_INCLUDED
+
+G_BEGIN_DECLS
+
+
+void lgw_vocabularywordstore_connect_signals (LgwVocabularyWordStore *vocaublary_word_store);
+void lgw_vocabularywordstore_disconnect_signals (LgwVocabularyWordStore *vocaublary_word_store);
+
+
+G_END_DECLS
+
+#endif
+

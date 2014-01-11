@@ -611,7 +611,7 @@ gw_application_initialize_accelerators (GwApplication *application)
 
 
 LgwDictionaryListStore* 
-gw_application_get_installed_dictionarylist (GwApplication *application)
+gw_application_get_installed_dictionaryliststore (GwApplication *application)
 {
     //Sanity checks
     g_return_val_if_fail (GW_IS_APPLICATION (application), NULL);
@@ -640,7 +640,7 @@ gw_application_get_installed_dictionarylist (GwApplication *application)
 
 
 LgwDictionaryListStore* 
-gw_application_get_installable_dictionarylist (GwApplication *application)
+gw_application_get_installable_dictionaryliststore (GwApplication *application)
 {
     //Sanity checks
     g_return_val_if_fail (GW_IS_APPLICATION (application), NULL);

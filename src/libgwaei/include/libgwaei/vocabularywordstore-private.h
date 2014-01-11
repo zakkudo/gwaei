@@ -1,19 +1,23 @@
-#ifndef GW_VOCABULARYWORDSTORE_PRIVATE_INCLUDED
-#define GW_VOCABULARYWORDSTORE_PRIVATE_INCLUDED
+#ifndef LGW_VOCABULARYWORDSTORE_PRIVATE_INCLUDED
+#define LGW_VOCABULARYWORDSTORE_PRIVATE_INCLUDED
 
 G_BEGIN_DECLS
 
-struct _GwVocabularyWordStorePrivate {
-  gchar* name;
-  gchar* filename;
-  LwVocabulary *vocabulary_list;
-  gboolean has_changes;
+
+struct _LgwVocabularyWordStorePrivate {
   gboolean loaded;
 };
 
-#define GW_VOCABULARYWORDSTORE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GW_TYPE_VOCABULARYWORDSTORE, GwVocabularyWordStorePrivate))
+struct _LgwVocabularyWordStoreClassPrivate {
+  gint unused;
+};
+
+#define LGW_VOCABULARYWORDSTORE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_VOCABULARYWORDSTORE, LgwVocabularyWordStorePrivate))
 
 G_END_DECLS
+
+#include <libgwaei/vocabularywordstore-treemodel-interface.h>
+#include <libgwaei/vocabularywordstore-callbacks.h>
 
 #endif
 

@@ -20,12 +20,13 @@
 
 #include <libgwaei/searchwidget.h>
 
-/*
+#include <libgwaei/vocabularyliststore.h>
 #include <libgwaei/vocabularylistview.h>
+
+#include <libgwaei/vocabularywordstore.h>
 #include <libgwaei/vocabularywordview.h>
 
 #include <libgwaei/vocabularywidget.h>
-*/
 
 gchar* lgw_get_symbolic_icon_name_if_exists (const gchar* ICON_NAME);
 gboolean lgw_load_xml (GtkBuilder *builder, const gchar *FILENAME);

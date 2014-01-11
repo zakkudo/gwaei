@@ -3,6 +3,7 @@
 
 G_BEGIN_DECLS
 
+void lgw_dictionaryliststore_init_interface (GtkTreeModelIface *iface);
 
 void lgw_dictionaryliststore_initialize_tree_iter (LgwDictionaryListStore *dictionary_list, GtkTreeIter *iter, gint index_);
 void lgw_dictionaryliststore_invalidate_tree_iter (GtkTreeIter *iter);

@@ -28,7 +28,7 @@ struct _UI {
     GtkStack *stack;
 
     LgwSearchWidget *search_widget;
-    GtkSearchBar *vocabulary_widget;
+    LgwVocabularyWidget *vocabulary_widget;
 };
 
 struct _Data {
