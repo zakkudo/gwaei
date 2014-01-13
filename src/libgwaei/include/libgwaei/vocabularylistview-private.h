@@ -9,8 +9,20 @@ typedef enum {
   TOTAL_PROPS
 } Prop;
 
-struct _LgwVocabularyListViewPrivate {
+struct _Data {
   LgwVocabularyListStore *vocabulary_list_store;
+};
+
+struct _UI {
+  GtkBox *box;
+  GtkScrolledWindow *scrolled_window;
+  GtkTreeView *tree_view;
+  GtkToolbar *toolbar;
+};
+
+struct _LgwVocabularyListViewPrivate {
+  struct _Data data;
+  struct _UI ui;
 };
 
 struct _LgwVocabularyListViewClassPrivate {

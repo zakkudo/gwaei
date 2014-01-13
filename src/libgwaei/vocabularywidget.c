@@ -176,53 +176,6 @@ lgw_vocabularywidget_constructed (GObject *object)
     priv = vocabulary_widget->priv;
     priv->ui.box = GTK_BOX (vocabulary_widget);
 
-/*
-    {
-      GtkWidget *search_bar = gtk_search_bar_new ();
-      priv->ui.search_bar = GTK_SEARCH_BAR (search_bar);
-      gtk_box_pack_start (priv->ui.box, search_bar, FALSE, FALSE, 0);
-      gtk_widget_show (search_bar);
-
-      {
-        GtkWidget *box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
-        gtk_container_add (GTK_CONTAINER (priv->ui.search_bar), box);
-        gtk_widget_show (box);
-
-        {
-          GtkWidget *entry = lgw_searchentry_new ();
-          priv->ui.search_entry = LGW_SEARCHENTRY (entry);
-          gtk_search_bar_connect_entry (priv->ui.search_bar, lgw_searchentry_get_entry (priv->ui.search_entry));
-          gtk_box_pack_start (GTK_BOX (box), entry, FALSE, FALSE, 0);
-          gtk_widget_show (entry);
-        }
-
-        {
-          GtkWidget *button = gtk_menu_button_new ();
-          gtk_button_set_label (GTK_BUTTON (button), "漢");
-          gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
-          gtk_widget_show (button);
-
-          {
-            GtkWidget *menu = gtk_menu_new ();
-            gtk_menu_button_set_popup (GTK_MENU_BUTTON (button), menu);
-            gtk_widget_show (menu);
-
-            {
-              GtkWidget *menu_item = gtk_separator_menu_item_new ();
-              gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
-              gtk_widget_show (menu_item);
-
-              {
-                GtkWidget *label = gtk_label_new ("test");
-                gtk_container_add (GTK_CONTAINER (menu_item), label);
-                gtk_widget_show (label);
-              }
-            }
-          }
-        }
-      }
-    }
-
     {
       GtkWidget *paned = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);    
       priv->ui.paned = GTK_PANED (paned);
@@ -231,22 +184,21 @@ lgw_vocabularywidget_constructed (GObject *object)
       gtk_widget_show (paned);
 
       {
-        GtkWidget *dictionary_list_box = lgw_dictionarylistbox_new ();
-        gtk_container_set_border_width (GTK_CONTAINER (dictionary_list_box), 6);
-        priv->ui.dictionary_list_box = LGW_VOCABULARYLISTSTOREBOX (dictionary_list_box);
-        gtk_paned_pack1 (priv->ui.paned, dictionary_list_box, FALSE, FALSE);
-        gtk_widget_show (dictionary_list_box);
+        GtkWidget *vocabulary_list_view = lgw_vocabularylistview_new ();
+        gtk_container_set_border_width (GTK_CONTAINER (vocabulary_list_view), 6);
+        priv->ui.vocabulary_list_view = LGW_VOCABULARYLISTVIEW (vocabulary_list_view);
+        gtk_paned_pack1 (priv->ui.paned, vocabulary_list_view, FALSE, FALSE);
+        gtk_widget_show (vocabulary_list_view);
       }
 
       {
-        GtkWidget *results_view = lgw_resultstextview_new ();
-        gtk_container_set_border_width (GTK_CONTAINER (results_view), 6);
-        priv->ui.results_view = LGW_RESULTSVIEW (results_view);
-        gtk_paned_pack2 (priv->ui.paned, results_view, TRUE, TRUE);
-        gtk_widget_show (results_view);
+        GtkWidget *vocabulary_word_view = lgw_vocabularywordview_new ();
+        gtk_container_set_border_width (GTK_CONTAINER (vocabulary_word_view), 6);
+        priv->ui.vocabulary_word_view = LGW_VOCABULARYWORDVIEW (vocabulary_word_view);
+        gtk_paned_pack2 (priv->ui.paned, vocabulary_word_view, TRUE, TRUE);
+        gtk_widget_show (vocabulary_word_view);
       }
     }
-*/
 
     {
       priv->data.button_menu_model = G_MENU_MODEL (lgw_load_menu_model ("vocabularywidget-menumodel-button.ui"));

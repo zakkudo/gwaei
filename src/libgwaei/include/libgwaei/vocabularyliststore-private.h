@@ -8,10 +8,24 @@ typedef enum {
   TOTAL_CLASS_SIGNALIDS
 } ClassSignalId;
 
-struct _LgwVocabularyListStorePrivate {
+
+struct _Data {
+  gint list_new_index;
+  GList *rows;
   GMenuModel *menumodel;
   gboolean has_changes;
-  gint list_new_index;
+};
+
+
+struct _Config {
+  gboolean unused;
+};
+
+
+struct _LgwVocabularyListStorePrivate {
+  struct _Config config;
+  struct _Data data;
+  GFileMonitor *file_monitor;
 };
 
 struct _LgwVocabularyListStoreClassPrivate {
@@ -22,6 +36,7 @@ struct _LgwVocabularyListStoreClassPrivate {
 
 G_END_DECLS
 
+#include <libgwaei/vocabularyliststore-row.h>
 #include <libgwaei/vocabularyliststore-treemodel-interface.h>
 
 #endif

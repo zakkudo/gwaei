@@ -47,38 +47,49 @@ G_DEFINE_TYPE_WITH_CODE (LgwVocabularyListStore, lgw_vocabularyliststore, G_TYPE
                          G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularyliststore_init_interface));
 
 
+
 LgwVocabularyListStore*
 lgw_vocabularyliststore_new ()
 {
     //Declarations
-    LgwVocabularyListStore *store = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
 
     //Initializations
-    store = LGW_VOCABULARYLISTSTORE (g_object_new (LGW_TYPE_VOCABULARYLISTSTORE, NULL));
+    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (g_object_new (LGW_TYPE_VOCABULARYLISTSTORE, NULL));
 
-    return store;
+    return vocabulary_list_store;
 }
 
 
 static void 
-lgw_vocabularyliststore_init (LgwVocabularyListStore *store)
+lgw_vocabularyliststore_init (LgwVocabularyListStore *vocabulary_list_store)
 {
-    GType types[] = { G_TYPE_STRING, G_TYPE_INT, G_TYPE_OBJECT };
-    gtk_list_store_set_column_types (GTK_LIST_STORE (store), 3, types);
+    vocabulary_list_store->priv = LGW_VOCABULARYLISTSTORE_GET_PRIVATE (vocabulary_list_store);
+    memset(vocabulary_list_store->priv, 0, sizeof(LgwVocabularyListStorePrivate));
 
-    store->priv = LGW_VOCABULARYLISTSTORE_GET_PRIVATE (store);
-    memset(store->priv, 0, sizeof(LgwVocabularyListStorePrivate));
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    gchar *path = NULL;
+
+    //Initializations
+    priv = vocabulary_list_store->priv;
+
+    //TODO
+    /*
+    priv->file = g_file_new_for_path (path);
+    priv->file_monitor = (priv->file, G_FILE_MONITOR_NONE, NULL, NULL);
+    */
 }
 
 
 static void 
 lgw_vocabularyliststore_finalize (GObject *object)
 {
-    LgwVocabularyListStore *store;
+    LgwVocabularyListStore *vocabulary_list_store;
     LgwVocabularyListStorePrivate *priv;
 
-    store = LGW_VOCABULARYLISTSTORE (object);
-    priv = store->priv;
+    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (object);
+    priv = vocabulary_list_store->priv;
 
     G_OBJECT_CLASS (lgw_vocabularyliststore_parent_class)->finalize (object);
 }

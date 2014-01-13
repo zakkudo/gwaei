@@ -151,7 +151,6 @@ lgw_vocabularylistview_constructed (GObject *object)
     //Initializations
     widget = LGW_VOCABULARYLISTVIEW (object);
     priv = widget->priv;
-/*
     priv->ui.box = GTK_BOX (widget);
 
     {
@@ -169,17 +168,10 @@ lgw_vocabularylistview_constructed (GObject *object)
       }
 
       {
-        GtkWidget *list_box = gtk_list_box_new ();
-        priv->ui.list_box = GTK_LIST_BOX (list_box);
-        gtk_container_add (GTK_CONTAINER (scrolled_window), list_box);
-        gtk_widget_show (list_box);
-
-        {
-          GtkWidget *label = gtk_label_new (NULL);
-          gtk_label_set_markup (GTK_LABEL (label), "Click + to add a dictionary");
-          gtk_list_box_set_placeholder (priv->ui.list_box, label);
-          gtk_widget_show (label);
-        }
+        GtkWidget *tree_view = gtk_tree_view_new ();
+        priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
+        gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
+        gtk_widget_show (tree_view);
       }
     }
 
@@ -230,7 +222,6 @@ lgw_vocabularylistview_constructed (GObject *object)
         }
       }
     }
-*/
 }
 
 
@@ -280,25 +271,25 @@ lgw_vocabularylistview_set_liststore (LgwVocabularyListView  *vocabulary_list_vi
     klass = LGW_VOCABULARYLISTVIEW_GET_CLASS (vocabulary_list_view);
     klasspriv = klass->priv;
     
-    if (vocabulary_list_store != priv->vocabulary_list_store)
+    if (vocabulary_list_store != priv->data.vocabulary_list_store)
     {
       if (vocabulary_list_store != NULL)
       {
         g_object_ref (vocabulary_list_store);
       }
 
-      if (priv->vocabulary_list_store != NULL)
+      if (priv->data.vocabulary_list_store != NULL)
       {
-        g_object_remove_weak_pointer (G_OBJECT (priv->vocabulary_list_store), (gpointer*) &(priv->vocabulary_list_store));
-        g_object_unref (priv->vocabulary_list_store);
-        priv->vocabulary_list_store = NULL;
+        g_object_remove_weak_pointer (G_OBJECT (priv->data.vocabulary_list_store), (gpointer*) &(priv->data.vocabulary_list_store));
+        g_object_unref (priv->data.vocabulary_list_store);
+        priv->data.vocabulary_list_store = NULL;
       }
 
-      priv->vocabulary_list_store = vocabulary_list_store;
+      priv->data.vocabulary_list_store = vocabulary_list_store;
 
-      if (priv->vocabulary_list_store != NULL)
+      if (priv->data.vocabulary_list_store != NULL)
       {
-        g_object_add_weak_pointer (G_OBJECT (priv->vocabulary_list_store), (gpointer*) &(priv->vocabulary_list_store));
+        g_object_add_weak_pointer (G_OBJECT (priv->data.vocabulary_list_store), (gpointer*) &(priv->data.vocabulary_list_store));
       }
 
       g_object_notify_by_pspec (G_OBJECT (vocabulary_list_view), klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
@@ -322,5 +313,5 @@ lgw_vocabularylistview_get_liststore (LgwVocabularyListView  *vocabulary_list_vi
     klass = LGW_VOCABULARYLISTVIEW_GET_CLASS (vocabulary_list_view);
     klasspriv = klass->priv;
 
-    return priv->vocabulary_list_store;
+    return priv->data.vocabulary_list_store;
 }

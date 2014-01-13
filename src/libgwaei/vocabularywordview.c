@@ -55,7 +55,7 @@ lgw_vocabularywordview_new ()
     LgwVocabularyWordView *widget = NULL;
 
     //Initializations
-    widget = LGW_VOCABULARYWORDVIEW (g_object_new (LGW_TYPE_DICTIONARYLISTBOX, "orientation", GTK_ORIENTATION_VERTICAL, "spacing", 0, NULL));
+    widget = LGW_VOCABULARYWORDVIEW (g_object_new (LGW_TYPE_VOCABULARYWORDVIEW, "orientation", GTK_ORIENTATION_VERTICAL, "spacing", 0, NULL));
 
     return GTK_WIDGET (widget);
 }
@@ -153,7 +153,6 @@ lgw_vocabularywordview_constructed (GObject *object)
       G_OBJECT_CLASS (lgw_vocabularywordview_parent_class)->constructed (object);
     }
 
-/*TODO
     //Initializations
     widget = LGW_VOCABULARYWORDVIEW (object);
     priv = widget->priv;
@@ -174,17 +173,10 @@ lgw_vocabularywordview_constructed (GObject *object)
       }
 
       {
-        GtkWidget *list_box = gtk_list_box_new ();
-        priv->ui.list_box = GTK_LIST_BOX (list_box);
-        gtk_container_add (GTK_CONTAINER (scrolled_window), list_box);
-        gtk_widget_show (list_box);
-
-        {
-          GtkWidget *label = gtk_label_new (NULL);
-          gtk_label_set_markup (GTK_LABEL (label), "Click + to add a dictionary");
-          gtk_list_box_set_placeholder (priv->ui.list_box, label);
-          gtk_widget_show (label);
-        }
+        GtkWidget *tree_view = gtk_tree_view_new ();
+        priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
+        gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
+        gtk_widget_show (tree_view);
       }
     }
 
@@ -215,7 +207,7 @@ lgw_vocabularywordview_constructed (GObject *object)
               gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (item), "list-add");
             }
             gtk_toolbar_insert (priv->ui.toolbar, item, -1);
-            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.add-dictionary");
+            //gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.add-dictionary");
             gtk_widget_show (GTK_WIDGET (item));
           }
           
@@ -229,13 +221,12 @@ lgw_vocabularywordview_constructed (GObject *object)
               gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (item), "list-remove");
             }
             gtk_toolbar_insert (priv->ui.toolbar, item, -1);
-            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.remove-dictionary");
+            //gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.remove-dictionary");
             gtk_widget_show (GTK_WIDGET (item));
           }
         }
       }
     }
-    TODO*/
 }
 
 
@@ -286,25 +277,25 @@ lgw_vocabularywordview_set_wordstore (LgwVocabularyWordView  *vocabulary_word_vi
     klass = LGW_VOCABULARYWORDVIEW_GET_CLASS (vocabulary_word_view);
     klasspriv = klass->priv;
     
-    if (vocabulary_word_store != priv->vocabulary_word_store)
+    if (vocabulary_word_store != priv->data.vocabulary_word_store)
     {
       if (vocabulary_word_store != NULL)
       {
         g_object_ref (vocabulary_word_store);
       }
 
-      if (priv->vocabulary_word_store != NULL)
+      if (priv->data.vocabulary_word_store != NULL)
       {
-        g_object_remove_weak_pointer (G_OBJECT (priv->vocabulary_word_store), (gpointer*) &(priv->vocabulary_word_store));
-        g_object_unref (priv->vocabulary_word_store);
-        priv->vocabulary_word_store = NULL;
+        g_object_remove_weak_pointer (G_OBJECT (priv->data.vocabulary_word_store), (gpointer*) &(priv->data.vocabulary_word_store));
+        g_object_unref (priv->data.vocabulary_word_store);
+        priv->data.vocabulary_word_store = NULL;
       }
 
-      priv->vocabulary_word_store = vocabulary_word_store;
+      priv->data.vocabulary_word_store = vocabulary_word_store;
 
-      if (priv->vocabulary_word_store != NULL)
+      if (priv->data.vocabulary_word_store != NULL)
       {
-        g_object_add_weak_pointer (G_OBJECT (priv->vocabulary_word_store), (gpointer*) &(priv->vocabulary_word_store));
+        g_object_add_weak_pointer (G_OBJECT (priv->data.vocabulary_word_store), (gpointer*) &(priv->data.vocabulary_word_store));
       }
 
       g_object_notify_by_pspec (G_OBJECT (vocabulary_word_view), klasspriv->pspec[PROP_VOCABULARYWORDSTORE]);
@@ -328,5 +319,5 @@ lgw_vocabularywordview_get_wordstore (LgwVocabularyWordView  *vocabulary_word_vi
     klass = LGW_VOCABULARYWORDVIEW_GET_CLASS (vocabulary_word_view);
     klasspriv = klass->priv;
 
-    return priv->vocabulary_word_store;
+    return priv->data.vocabulary_word_store;
 }
