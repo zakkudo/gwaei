@@ -13,15 +13,8 @@ typedef enum {
 } SignalId;
 
 typedef enum {
-  CLASS_SIGNALID_CHANGED,
-  CLASS_SIGNALID_INSERTED,
-  CLASS_SIGNALID_DELETED,
-  CLASS_SIGNALID_REORDERED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-
-typedef enum {
   PROP_0,
+  PROP_PREFERENCES,
   TOTAL_PROPS
 } Prop;
 
@@ -36,7 +29,7 @@ struct _Data {
 
 
 struct _Config {
-  gboolean unused;
+  LwPreferences *preferences;
 };
 
 
@@ -47,7 +40,6 @@ struct _LgwVocabularyListStorePrivate {
 };
 
 struct _LgwVocabularyListStoreClassPrivate {
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
   GParamSpec *pspec[TOTAL_PROPS];
 };
 

@@ -25,7 +25,7 @@ struct _DictionaryListStore {
 
 struct _Data {
   LwMorphologyEngine *morphologyengine;
-  GtkListStore *vocabularyliststore;
+  LgwVocabularyListStore *vocabulary_list_store;
   struct _DictionaryListStore dictionary_list_store;
 };
 

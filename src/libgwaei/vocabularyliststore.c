@@ -49,13 +49,13 @@ G_DEFINE_TYPE_WITH_CODE (LgwVocabularyListStore, lgw_vocabularyliststore, G_TYPE
 
 
 LgwVocabularyListStore*
-lgw_vocabularyliststore_new ()
+lgw_vocabularyliststore_new (LwPreferences *preferences)
 {
     //Declarations
     LgwVocabularyListStore *vocabulary_list_store = NULL;
 
     //Initializations
-    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (g_object_new (LGW_TYPE_VOCABULARYLISTSTORE, NULL));
+    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (g_object_new (LGW_TYPE_VOCABULARYLISTSTORE, "preferences", preferences, NULL));
 
     return vocabulary_list_store;
 }
@@ -79,6 +79,8 @@ lgw_vocabularyliststore_init (LgwVocabularyListStore *vocabulary_list_store)
     priv->file = g_file_new_for_path (path);
     priv->file_monitor = (priv->file, G_FILE_MONITOR_NONE, NULL, NULL);
     */
+
+    lgw_vocabularyliststore_load (vocabulary_list_store);
 }
 
 
@@ -111,6 +113,9 @@ lgw_vocabularyliststore_set_property (GObject      *object,
 
     switch (property_id)
     {
+      case PROP_PREFERENCES:
+        lgw_vocabularyliststore_set_preferences (vocabulary_list_store, g_value_get_object (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -132,6 +137,9 @@ lgw_vocabularyliststore_get_property (GObject      *object,
 
     switch (property_id)
     {
+      case PROP_PREFERENCES:
+        g_value_set_object (value, lgw_vocabularyliststore_get_preferences (vocabulary_list_store));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -156,54 +164,16 @@ lgw_vocabularyliststore_class_init (LgwVocabularyListStoreClass *klass)
 
     object_class->finalize = lgw_vocabularyliststore_finalize;
 
-
     g_type_class_add_private (object_class, sizeof (LgwVocabularyListStorePrivate));
 
-
-    klasspriv->signalid[CLASS_SIGNALID_CHANGED] = g_signal_new (
-        "internal-row-changed",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwVocabularyListStoreClass, row_changed),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT
+    klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
+        "preferences",
+        "Preferences construct prop",
+        "Set the preferences object",
+        LW_TYPE_PREFERENCES,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-
-    klasspriv->signalid[CLASS_SIGNALID_INSERTED] = g_signal_new (
-        "internal-row-inserted",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwVocabularyListStoreClass, row_inserted),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_DELETED] = g_signal_new (
-        "internal-row-deleted",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwVocabularyListStoreClass, row_deleted),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_REORDERED] = g_signal_new (
-        "internal-rows-reordered",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwVocabularyListStoreClass, rows_reordered),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__POINTER,
-        G_TYPE_NONE, 1,
-        G_TYPE_POINTER
-    );
-
+    g_object_class_install_property (object_class, PROP_PREFERENCES, klasspriv->pspec[PROP_PREFERENCES]);
 }
 
 
@@ -211,7 +181,7 @@ void
 lgw_vocabularyliststore_load (LgwVocabularyListStore *vocabulary_list_store)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));    
 
     //Declarations
     LgwVocabularyListStorePrivate *priv = NULL;
@@ -267,6 +237,7 @@ lgw_vocabularyliststore_add (LgwVocabularyListStore *vocabulary_list_store, cons
     if (path == NULL) goto errored;
 
     priv->data.list = g_list_prepend (priv->data.list, vocabulary_word_store);
+    printf("BREAK lgw_vocabularyliststore_load %s %d\n", lw_vocabulary_get_filename (LW_VOCABULARY (vocabulary_word_store)), position);
     priv->data.length++;
 
     lgw_vocabularyliststore_initialize_tree_iter (vocabulary_list_store, &iter, position);
@@ -318,5 +289,63 @@ errored:
     if (path != NULL) gtk_tree_path_free (path); path = NULL;
 }
 
+
+void
+lgw_vocabularyliststore_set_preferences (LgwVocabularyListStore *vocabulary_list_store,
+                                         LwPreferences          *preferences)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    LgwVocabularyListStoreClass *klass = NULL;
+    LgwVocabularyListStoreClassPrivate *klasspriv = NULL;
+
+    //Initializations
+    priv = vocabulary_list_store->priv;
+    klass = LGW_VOCABULARYLISTSTORE_GET_CLASS (vocabulary_list_store);
+    klasspriv = klass->priv;
+
+    if (preferences != NULL)
+    {
+      g_object_ref (preferences);
+    }
+
+    if (priv->config.preferences != NULL) {
+      g_object_remove_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
+      g_object_unref (priv->config.preferences);
+      priv->config.preferences = NULL;
+    }
+
+    priv->config.preferences = preferences;
+
+    if (priv->config.preferences != NULL) {
+      g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
+    }
+
+    g_object_notify_by_pspec (G_OBJECT (vocabulary_list_store), klasspriv->pspec[PROP_PREFERENCES]);
+}
+
+
+LwPreferences*
+lgw_vocabularyliststore_get_preferences (LgwVocabularyListStore *vocabulary_list_store)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+
+    //Initializations
+    priv = vocabulary_list_store->priv;
+
+    if (priv->config.preferences == NULL)
+    {
+      lgw_vocabularyliststore_set_preferences (vocabulary_list_store, lw_preferences_get_default ());
+    }
+
+    return priv->config.preferences;
+}
 
 

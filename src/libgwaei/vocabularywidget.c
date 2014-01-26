@@ -90,9 +90,9 @@ lgw_vocabularywidget_finalize (GObject *object)
 
 static void
 lgw_vocabularywidget_set_property (GObject      *object,
-                               guint         property_id,
-                               const GValue *value,
-                               GParamSpec   *pspec)
+                                   guint         property_id,
+                                   const GValue *value,
+                                   GParamSpec   *pspec)
 {
     //Declarations
     LgwVocabularyWidget *vocabulary_widget = NULL;
@@ -113,7 +113,7 @@ lgw_vocabularywidget_set_property (GObject      *object,
         lgw_vocabularywidget_set_preferences (vocabulary_widget, g_value_get_object (value));
         break;
       case PROP_VOCABULARYLISTSTORE:
-        lgw_vocabularywidget_set_liststore (vocabulary_widget, g_value_get_object (value));
+        lgw_vocabularywidget_set_vocabularyliststore (vocabulary_widget, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -124,9 +124,9 @@ lgw_vocabularywidget_set_property (GObject      *object,
 
 static void
 lgw_vocabularywidget_get_property (GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+                                   guint         property_id,
+                                   GValue       *value,
+                                   GParamSpec   *pspec)
 {
     //Declarations
     LgwVocabularyWidget *vocabulary_widget = NULL;
@@ -147,7 +147,7 @@ lgw_vocabularywidget_get_property (GObject      *object,
         g_value_set_object (value, lgw_vocabularywidget_get_preferences (vocabulary_widget));
         break;
       case PROP_VOCABULARYLISTSTORE:
-        g_value_set_object (value, lgw_vocabularywidget_get_liststore (vocabulary_widget));
+        g_value_set_object (value, lgw_vocabularywidget_get_vocabularyliststore (vocabulary_widget));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -476,8 +476,8 @@ lgw_vocabularywidget_get_preferences (LgwVocabularyWidget *vocabulary_widget)
 
 
 void
-lgw_vocabularywidget_set_liststore (LgwVocabularyWidget    *vocabulary_widget,
-                                    LgwVocabularyListStore *vocabulary_list_store)
+lgw_vocabularywidget_set_vocabularyliststore (LgwVocabularyWidget    *vocabulary_widget,
+                                              LgwVocabularyListStore *vocabulary_list_store)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWIDGET (vocabulary_widget));
@@ -513,13 +513,15 @@ lgw_vocabularywidget_set_liststore (LgwVocabularyWidget    *vocabulary_widget,
         g_object_add_weak_pointer (G_OBJECT (priv->data.vocabulary_list_store), (gpointer*) &(priv->data.vocabulary_list_store));
       }
 
+      lgw_vocabularylistview_set_liststore (priv->ui.vocabulary_list_view, vocabulary_list_store);
+
       g_object_notify_by_pspec (G_OBJECT (vocabulary_widget), klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
     }
 }
 
 
 LgwVocabularyListStore*
-lgw_vocabularywidget_get_liststore (LgwVocabularyWidget *vocabulary_widget)
+lgw_vocabularywidget_get_vocabularyliststore (LgwVocabularyWidget *vocabulary_widget)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWIDGET (vocabulary_widget));

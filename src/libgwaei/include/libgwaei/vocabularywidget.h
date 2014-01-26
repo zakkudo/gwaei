@@ -36,8 +36,8 @@ GType lgw_vocabularywidget_get_type (void) G_GNUC_CONST;
 void lgw_vocabularywidget_set_preferences (LgwVocabularyWidget *vocabulary_widget, LwPreferences *preferences);
 LwPreferences* lgw_vocabularywidget_get_preferences (LgwVocabularyWidget *vocabulary_widget);
 
-void lgw_vocabularywidget_set_liststore (LgwVocabularyWidget *vocabulary_widget, LgwVocabularyListStore *vocabulary_list_store);
-LgwVocabularyListStore* lgw_vocabularywidget_get_liststore (LgwVocabularyWidget *vocabulary_widget);
+void lgw_vocabularywidget_set_vocabularyliststore (LgwVocabularyWidget *vocabulary_widget, LgwVocabularyListStore *vocabulary_list_store);
+LgwVocabularyListStore* lgw_vocabularywidget_get_vocabularyliststore (LgwVocabularyWidget *vocabulary_widget);
 
 G_END_DECLS
 

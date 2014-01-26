@@ -68,8 +68,8 @@ lgw_vocabularyliststore_init_interface (GtkTreeModelIface *iface)
 
 void
 lgw_vocabularyliststore_initialize_tree_iter (LgwVocabularyListStore *vocabulary_list_store,
-                                         GtkTreeIter       *iter,
-                                         gint               index_)
+                                              GtkTreeIter            *iter,
+                                              gint                    index_)
 {
     //Sanity checks
     g_return_val_if_fail (vocabulary_list_store != NULL, 0);
@@ -80,7 +80,7 @@ lgw_vocabularyliststore_initialize_tree_iter (LgwVocabularyListStore *vocabulary
     //Initializations
     iter->stamp = stamp;
     iter->user_data = vocabulary_list_store;
-    iter->user_data2 = GINT_TO_POINTER (index);
+    iter->user_data2 = GINT_TO_POINTER (index_);
 
     stamp++;
 }
@@ -99,7 +99,7 @@ lgw_vocabularyliststore_invalidate_tree_iter (GtkTreeIter *iter)
 
 gboolean
 lgw_vocabularyliststore_tree_iter_is_valid (LgwVocabularyListStore *vocabulary_list_store,
-                                       GtkTreeIter       *iter)
+                                            GtkTreeIter            *iter)
 {
     //Sanity checks
     g_return_val_if_fail (vocabulary_list_store != NULL, FALSE);
@@ -108,14 +108,12 @@ lgw_vocabularyliststore_tree_iter_is_valid (LgwVocabularyListStore *vocabulary_l
     //Declarations
     LgwVocabularyListStorePrivate *priv = NULL;
     gint index = 0;
-    gint total = 0;
 
     //Initializations
     priv = vocabulary_list_store->priv;
     index = GPOINTER_TO_INT (iter->user_data2);
-    total = g_list_length (priv->data.list);
 
-    return (iter->stamp > -1 && iter->stamp > valid_stamp && index >= 0 && index < total);
+    return (iter->stamp > -1 && iter->stamp > valid_stamp && index >= 0 && index < priv->data.length);
 }
 
 
@@ -178,7 +176,6 @@ lgw_vocabularyliststore_get_iter (GtkTreeModel *tree_model,
     gint depth = 0;
     gint index = 0;
     gint* indicies = NULL;
-    gint total = 0;
 
     if (tree_model == NULL) goto errored;
     if (path == NULL) goto errored;
@@ -192,8 +189,7 @@ lgw_vocabularyliststore_get_iter (GtkTreeModel *tree_model,
     {
       index = indicies[0];
     }
-    total = g_list_length (priv->data.list);
-    is_valid = (depth == 1 && index >= 0 && index < total);
+    is_valid = (depth == 1 && index >= 0 && index < priv->data.length);
 
     if (iter != NULL && is_valid)
     {
@@ -213,7 +209,7 @@ errored:
 
 GtkTreePath*
 lgw_vocabularyliststore_get_path (GtkTreeModel *tree_model,
-                             GtkTreeIter  *iter)
+                                  GtkTreeIter  *iter)
 {
     //Sanity checks
     g_return_val_if_fail (tree_model != NULL, NULL);
@@ -262,7 +258,6 @@ lgw_vocabularyliststore_get_value (GtkTreeModel *tree_model,
     index = GPOINTER_TO_INT (iter->user_data2);
     vocabulary_word_store = g_list_nth_data (priv->data.list, index);
     vocabulary = LW_VOCABULARY (vocabulary_word_store);
-    g_value_unset (value);
     g_value_init (value, type);
 
     if (vocabulary_word_store == NULL) goto errored;
@@ -329,7 +324,7 @@ errored:
 
 gboolean
 lgw_vocabularyliststore_iter_previous (GtkTreeModel *tree_model,
-                                  GtkTreeIter  *iter)
+                                       GtkTreeIter  *iter)
 {
     //Sanity checks
     g_return_val_if_fail (iter != NULL, FALSE);
@@ -362,8 +357,8 @@ errored:
 
 gboolean
 lgw_vocabularyliststore_iter_children (GtkTreeModel *tree_model,
-                                  GtkTreeIter  *iter,
-                                  GtkTreeIter  *parent)
+                                       GtkTreeIter  *iter,
+                                       GtkTreeIter  *parent)
 {
     //Sanity checks
     g_return_val_if_fail (iter != NULL, FALSE);
@@ -437,9 +432,9 @@ errored:
 
 gboolean
 lgw_vocabularyliststore_iter_nth_child (GtkTreeModel *tree_model,
-                                   GtkTreeIter  *iter,
-                                   GtkTreeIter  *parent,
-                                   gint          n)
+                                        GtkTreeIter  *iter,
+                                        GtkTreeIter  *parent,
+                                        gint          n)
 {
     //Sanity checks
     g_return_val_if_fail (iter != NULL, FALSE);

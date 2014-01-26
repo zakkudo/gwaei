@@ -139,7 +139,7 @@ gw_application_finalize (GObject *object)
 
     if (priv->data.dictionary_list_store.installable != NULL) g_object_unref (priv->data.dictionary_list_store.installable); 
     if (priv->data.dictionary_list_store.installed != NULL) g_object_unref (priv->data.dictionary_list_store.installed); 
-    if (priv->data.vocabularyliststore != NULL) g_object_unref (priv->data.vocabularyliststore); 
+    if (priv->data.vocabulary_list_store != NULL) g_object_unref (priv->data.vocabulary_list_store); 
 
     if (priv->config.context != NULL) g_option_context_free (priv->config.context); 
     if (priv->config.arguments.query != NULL) g_free(priv->config.arguments.query); 
@@ -483,8 +483,8 @@ gw_application_initialize_menumodel_links (GwApplication *application)
     menumodel = gtk_application_get_app_menu (GTK_APPLICATION (application));
     g_return_if_fail (menumodel != NULL);
 
-    store = GW_VOCABULARYLISTSTORE (gw_application_get_vocabularyliststore (application));
-    link = gw_vocabularyliststore_get_menumodel (store);
+    store = GW_VOCABULARYLISTSTORE (gw_application_get_vocabulary_list_store (application));
+    link = gw_vocabulary_list_store_get_menumodel (store);
     gw_menumodel_set_links (menumodel, "vocabulary-list-link", gettext ("Vocabulary"), G_MENU_LINK_SECTION, link);
 */
 }
@@ -663,6 +663,31 @@ gw_application_get_installable_dictionaryliststore (GwApplication *application)
     }
 
     return priv->data.dictionary_list_store.installable;
+}
+
+
+LgwVocabularyListStore*
+gw_application_get_vocabularyliststore (GwApplication *application)
+{
+    //Sanity checks
+    g_return_val_if_fail (GW_IS_APPLICATION (application), NULL);
+
+    //Declarations
+    GwApplicationPrivate *priv = NULL;
+
+    //Initializations
+    priv = application->priv;
+
+    if (priv->data.vocabulary_list_store == NULL)
+    {
+      LwPreferences *preferences = gw_application_get_preferences (application);
+      LgwVocabularyListStore *vocabulary_list_store = lgw_vocabularyliststore_new (preferences);
+
+      priv->data.vocabulary_list_store = vocabulary_list_store;
+      g_object_add_weak_pointer (G_OBJECT (priv->data.vocabulary_list_store), (gpointer*) &(priv->data.vocabulary_list_store));
+    }
+
+    return priv->data.vocabulary_list_store;
 }
 
 

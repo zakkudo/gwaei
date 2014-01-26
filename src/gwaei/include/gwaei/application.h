@@ -68,6 +68,8 @@ LgwDictionaryListStore* gw_application_get_installed_dictionaryliststore (GwAppl
 
 LwPreferences* gw_application_get_preferences (GwApplication *application);
 
+LgwVocabularyListStore* gw_application_get_vocabularyliststore (GwApplication *application);
+
 G_END_DECLS
 
 #include "application-callbacks.h"

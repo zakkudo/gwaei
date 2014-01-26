@@ -152,16 +152,19 @@ gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
     //Declarations
     GwMainWindowPrivate *priv = NULL;
     GtkApplication *application = NULL;
-    LgwDictionaryListStore *dictionary_list = NULL;
+    LgwDictionaryListStore *dictionary_list_store = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
 
     //Initializations
     priv = main_window->priv;
     if (priv == NULL) goto errored;
     application = gtk_window_get_application (GTK_WINDOW (main_window));
     if (application == NULL) goto errored;
-    dictionary_list = gw_application_get_installed_dictionaryliststore (GW_APPLICATION (application));
+    dictionary_list_store = gw_application_get_installed_dictionaryliststore (GW_APPLICATION (application));
+    vocabulary_list_store = gw_application_get_vocabularyliststore (GW_APPLICATION (application));
 
-    lgw_searchwidget_set_dictionaryliststore (priv->ui.search_widget, dictionary_list);
+    lgw_searchwidget_set_dictionaryliststore (priv->ui.search_widget, dictionary_list_store);
+    lgw_vocabularywidget_set_vocabularyliststore (priv->ui.vocabulary_widget, vocabulary_list_store);
 
     if (application != NULL)
     {

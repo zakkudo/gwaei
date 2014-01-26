@@ -177,6 +177,39 @@ lgw_vocabularywordview_constructed (GObject *object)
         priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
         gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
         gtk_widget_show (tree_view);
+
+        {
+          GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
+              gettext("Word"),
+              renderer,
+              "text", LGW_VOCABULARYWORDSTORE_COLUMN_KANJI,
+              NULL
+          );
+          gtk_tree_view_append_column (priv->ui.tree_view, column);
+        }
+
+        {
+          GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
+              gettext("Reading"),
+              renderer,
+              "text", LGW_VOCABULARYWORDSTORE_COLUMN_FURIGANA,
+              NULL
+          );
+          gtk_tree_view_append_column (priv->ui.tree_view, column);
+        }
+
+        {
+          GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
+              gettext("Definition"),
+              renderer,
+              "text", LGW_VOCABULARYWORDSTORE_COLUMN_DEFINITIONS,
+              NULL
+          );
+          gtk_tree_view_append_column (priv->ui.tree_view, column);
+        }
       }
     }
 

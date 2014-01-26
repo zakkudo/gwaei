@@ -132,7 +132,6 @@ lgw_vocabularylistview_get_property (GObject      *object,
 }
 
 
-
 static void 
 lgw_vocabularylistview_constructed (GObject *object)
 {
@@ -172,6 +171,17 @@ lgw_vocabularylistview_constructed (GObject *object)
         priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
         gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
         gtk_widget_show (tree_view);
+
+        {
+          GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
+              gettext("Vocabulary List"),
+              renderer,
+              "text", LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
+              NULL
+          );
+          gtk_tree_view_append_column (priv->ui.tree_view, column);
+        }
       }
     }
 
@@ -291,6 +301,8 @@ lgw_vocabularylistview_set_liststore (LgwVocabularyListView  *vocabulary_list_vi
       {
         g_object_add_weak_pointer (G_OBJECT (priv->data.vocabulary_list_store), (gpointer*) &(priv->data.vocabulary_list_store));
       }
+
+      gtk_tree_view_set_model (priv->ui.tree_view, GTK_TREE_MODEL (vocabulary_list_store));
 
       g_object_notify_by_pspec (G_OBJECT (vocabulary_list_view), klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
     }
