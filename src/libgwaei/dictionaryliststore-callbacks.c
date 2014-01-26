@@ -40,8 +40,8 @@
 
 void
 lgw_dictionaryliststore_changed_cb (LgwDictionaryListStore *dictionary_list_store,
-                               gint               position,
-                               gpointer           data)
+                                    gint               position,
+                                    gpointer           data)
 {
     //Sanity checks
     g_return_if_fail (dictionary_list_store != NULL);
@@ -73,8 +73,8 @@ errored:
 
 void
 lgw_dictionaryliststore_inserted_cb (LgwDictionaryListStore *dictionary_list_store,
-                                gint               position,
-                                gpointer           data)
+                                     gint               position,
+                                     gpointer           data)
 {
     //Sanity checks
     g_return_if_fail (dictionary_list_store != NULL);
@@ -105,8 +105,8 @@ errored:
 
 void
 lgw_dictionaryliststore_deleted_cb (LgwDictionaryListStore *dictionary_list_store,
-                               gint               position,
-                               gpointer           data)
+                                    gint               position,
+                                    gpointer           data)
 {
     //Sanity checks
     g_return_if_fail (dictionary_list_store != NULL);
@@ -133,8 +133,8 @@ errored:
 
 void
 lgw_dictionaryliststore_reordered_cb (LgwDictionaryListStore *dictionary_list_store,
-                                 gint              *new_order,
-                                 gpointer           data)
+                                      gint              *new_order,
+                                      gpointer           data)
 {
     //Sanity checks
     g_return_if_fail (dictionary_list_store != NULL);

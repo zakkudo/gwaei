@@ -44,7 +44,6 @@
 static gint stamp = 0;
 static gint valid_stamp = 0;
 
-
 void
 lgw_dictionaryliststore_init_interface (GtkTreeModelIface *iface)
 {

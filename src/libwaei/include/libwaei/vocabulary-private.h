@@ -7,6 +7,7 @@ typedef enum {
     PROP_0,
     PROP_FILENAME,
     PROP_CHANGED,
+    PROP_LOADED,
     TOTAL_PROPS
 } Props;
 
@@ -20,11 +21,20 @@ typedef enum {
 } ClassSignalId;
 
 
-struct _LwVocabularyPrivate {
-  gchar *filename;
+struct _Data {
   GList *list; //<!-- A Glist of LwWord
   gboolean changed; //<!-- hint of there are any savable changes
   gdouble progress;
+  gboolean loaded;
+};
+
+struct _Config {
+  gchar *filename;
+};
+
+struct _LwVocabularyPrivate {
+  struct _Data data;
+  struct _Config config;
 };
 
 struct _LwVocabularyClassPrivate {

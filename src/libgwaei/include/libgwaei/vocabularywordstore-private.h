@@ -5,7 +5,7 @@ G_BEGIN_DECLS
 
 
 struct _LgwVocabularyWordStorePrivate {
-  gboolean loaded;
+  gint unused;
 };
 
 struct _LgwVocabularyWordStoreClassPrivate {

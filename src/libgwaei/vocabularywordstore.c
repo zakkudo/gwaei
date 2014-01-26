@@ -53,8 +53,8 @@ lgw_vocabularywordstore_new (const gchar *FILENAME)
 
     //Initializations
     vocabulary_word_store = LGW_VOCABULARYWORDSTORE (g_object_new (LGW_TYPE_VOCABULARYWORDSTORE,
-                                                  "filename",        FILENAME,
-                                                  NULL));
+                                                    "filename",        FILENAME,
+                                                     NULL));
     return vocabulary_word_store;
 }
 
@@ -124,9 +124,9 @@ lgw_vocabularywordstore_set_property (GObject      *object,
 
 static void 
 lgw_vocabularywordstore_get_property (GObject      *object,
-                                 guint         property_id,
-                                 GValue       *value,
-                                 GParamSpec   *pspec)
+                                      guint         property_id,
+                                      GValue       *value,
+                                      GParamSpec   *pspec)
 {
     LgwVocabularyWordStore *vocabulary_word_store;
     LgwVocabularyWordStorePrivate *priv;
@@ -160,33 +160,8 @@ lgw_vocabularywordstore_class_init (LgwVocabularyWordStoreClass *klass)
 }
 
 
+
 /*DEPICATED
-void
-lgw_vocabularywordstore_update_timestamp_by_iter (LgwVocabularyWordStore *store, GtkTreeIter *iter)
-{
-    LwWord *word;
-    gchar *text;
-
-    text = lgw_vocabularywordstore_iter_to_string (store, iter);
-    word = lw_word_new_from_string (text);
-    if (text != NULL)
-    {
-      if (word != NULL)
-      {
-        lw_word_update_timestamp (word);
-
-        gtk_list_store_set (GTK_LIST_STORE (store), iter, 
-          LGW_VOCABULARYWORDSTORE_COLUMN_TIMESTAMP, lw_word_get_hours (word),
-          LGW_VOCABULARYWORDSTORE_COLUMN_DAYS, lw_word_get_timestamp_as_string (word),
-        -1);
-
-        lw_word_free (word);
-      }
-      g_free (text);
-    }
-}
-
-
 gint
 lgw_vocabularywordstore_calculate_weight (LgwVocabularyWordStore *store, GtkTreeIter *iter)
 {

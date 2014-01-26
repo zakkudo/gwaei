@@ -32,17 +32,16 @@ typedef struct _LgwVocabularyWordStorePrivate LgwVocabularyWordStorePrivate;
 #define LGW_VOCABULARYWORDSTORE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LGW_TYPE_VOCABULARYWORDSTORE, LgwVocabularyWordStoreClass))
 
 struct _LgwVocabularyWordStore {
-  GtkListStore model;
+  LwVocabulary vocabulary;
   LgwVocabularyWordStorePrivate *priv;
 };
 
 struct _LgwVocabularyWordStoreClass {
-  GtkListStoreClass parent_class;
-  void (*changed) (LgwVocabularyWordStore *store);
+  LwVocabularyClass parent_class;
 };
 
 //Methods
-LgwVocabularyWordStore* lgw_vocabularywordstore_new (const gchar*);
+LgwVocabularyWordStore* lgw_vocabularywordstore_new (const gchar* FILENAME);
 GType lgw_vocabularywordstore_get_type (void) G_GNUC_CONST;
 
 

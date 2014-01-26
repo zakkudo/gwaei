@@ -43,10 +43,13 @@ GType lw_vocabulary_get_type (void) G_GNUC_CONST;
 gchar** lw_vocabulary_get_filenames (void);
 
 void lw_vocabulary_set_changed (LwVocabulary *vocabulary, gboolean changed);
-gboolean lw_vocabulary_changed (LwVocabulary *vocabulary);
+gboolean lw_vocabulary_has_changes (LwVocabulary *vocabulary);
 
 void lw_vocabulary_set_filename (LwVocabulary *vocabulary, const gchar *FILENAME);
 const gchar* lw_vocabulary_get_filename (LwVocabulary *vocabulary);
+
+void lw_vocabulary_set_loaded (LwVocabulary *vocabulary, gboolean loaded);
+gboolean lw_vocabulary_is_loaded (LwVocabulary *vocabulary);
 
 G_END_DECLS
 

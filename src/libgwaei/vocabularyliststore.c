@@ -96,16 +96,227 @@ lgw_vocabularyliststore_finalize (GObject *object)
 
 
 static void
+lgw_vocabularyliststore_set_property (GObject      *object,
+                                      guint         property_id,
+                                      const GValue *value,
+                                      GParamSpec   *pspec)
+{
+    //Declarations
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+    LgwVocabularyListStorePrivate *priv = NULL;
+
+    //Initializations
+    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (object);
+    priv = vocabulary_list_store->priv;
+
+    switch (property_id)
+    {
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void
+lgw_vocabularyliststore_get_property (GObject      *object,
+                                 guint         property_id,
+                                 GValue       *value,
+                                 GParamSpec   *pspec)
+{
+    LgwVocabularyListStore *vocabulary_list_store;
+    LgwVocabularyListStorePrivate *priv;
+
+    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (object);
+    priv = vocabulary_list_store->priv;
+
+    switch (property_id)
+    {
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+
+static void
 lgw_vocabularyliststore_class_init (LgwVocabularyListStoreClass *klass)
 {
     //Declarations
-    GObjectClass *object_class;
+    GObjectClass *object_class = NULL;
+    LgwVocabularyListStoreClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
+    object_class->set_property = lgw_vocabularyliststore_set_property;
+    object_class->get_property = lgw_vocabularyliststore_get_property;
+    klass->priv = g_new0(LgwVocabularyListStoreClassPrivate, 1);
+    klasspriv = klass->priv;
+
     object_class->finalize = lgw_vocabularyliststore_finalize;
 
+
     g_type_class_add_private (object_class, sizeof (LgwVocabularyListStorePrivate));
+
+
+    klasspriv->signalid[CLASS_SIGNALID_CHANGED] = g_signal_new (
+        "internal-row-changed",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwVocabularyListStoreClass, row_changed),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__INT,
+        G_TYPE_NONE, 1,
+        G_TYPE_INT
+    );
+
+    klasspriv->signalid[CLASS_SIGNALID_INSERTED] = g_signal_new (
+        "internal-row-inserted",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwVocabularyListStoreClass, row_inserted),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__INT,
+        G_TYPE_NONE, 1,
+        G_TYPE_INT
+    );
+
+    klasspriv->signalid[CLASS_SIGNALID_DELETED] = g_signal_new (
+        "internal-row-deleted",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwVocabularyListStoreClass, row_deleted),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__INT,
+        G_TYPE_NONE, 1,
+        G_TYPE_INT
+    );
+
+    klasspriv->signalid[CLASS_SIGNALID_REORDERED] = g_signal_new (
+        "internal-rows-reordered",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LgwVocabularyListStoreClass, rows_reordered),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__POINTER,
+        G_TYPE_NONE, 1,
+        G_TYPE_POINTER
+    );
+
 }
+
+
+void
+lgw_vocabularyliststore_load (LgwVocabularyListStore *vocabulary_list_store)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    LgwVocabularyListStoreClass *klass = NULL;
+    LgwVocabularyListStoreClassPrivate *klasspriv = NULL;
+    gchar **filenames = NULL;
+
+    //Initializations
+    priv = vocabulary_list_store->priv;
+    klass = LGW_VOCABULARYLISTSTORE_GET_CLASS (vocabulary_list_store);
+    klasspriv = klass->priv;
+    filenames = lw_vocabulary_get_filenames ();
+
+    while (priv->data.list != NULL)
+    {
+        lgw_vocabularyliststore_remove_by_position (vocabulary_list_store, 0);
+    }
+
+    
+    if (filenames != NULL) {
+        gint i = 0;
+        const gchar* FILENAME = filenames[i];
+        if (FILENAME != NULL) {
+            lgw_vocabularyliststore_add (vocabulary_list_store, FILENAME);
+        }
+    }
+
+errored:
+
+    g_strfreev (filenames); filenames = NULL;
+}
+
+
+void
+lgw_vocabularyliststore_add (LgwVocabularyListStore *vocabulary_list_store, const gchar* FILENAME)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    GtkTreePath *path = NULL;
+    gint position = 0;
+    GtkTreeIter iter;
+
+    //Initializations
+    priv = vocabulary_list_store->priv;
+    vocabulary_word_store = lgw_vocabularywordstore_new (FILENAME);
+    if (vocabulary_word_store == NULL) goto errored;
+    position = priv->data.length;
+    path = gtk_tree_path_new_from_indices (position, -1);
+    if (path == NULL) goto errored;
+
+    priv->data.list = g_list_prepend (priv->data.list, vocabulary_word_store);
+    priv->data.length++;
+
+    lgw_vocabularyliststore_initialize_tree_iter (vocabulary_list_store, &iter, position);
+    if (!lgw_vocabularyliststore_tree_iter_is_valid (vocabulary_list_store, &iter)) goto errored;
+
+    g_signal_emit_by_name (G_OBJECT (vocabulary_list_store),
+      "row-inserted",
+      path,
+      &iter,
+      NULL
+    );
+
+errored:
+
+    if (path != NULL) gtk_tree_path_free (path); path = NULL;
+}
+
+
+void
+lgw_vocabularyliststore_remove_by_position (LgwVocabularyListStore *vocabulary_list_store, gint position)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    GtkTreePath *path = NULL;
+
+    //Initializations
+    priv = vocabulary_list_store->priv;
+    path = gtk_tree_path_new_from_indices (position, -1);
+    if (path == NULL) goto errored;
+
+    GList *link = g_list_nth_data (priv->data.list, position);
+    if (link != NULL)
+    {
+        g_list_free_full (g_list_remove_link (priv->data.list, link), g_object_unref);
+        priv->data.length--;
+
+        g_signal_emit_by_name (G_OBJECT (vocabulary_list_store),
+          "row-deleted",
+          path,
+          NULL
+        );
+    }
+
+errored:
+
+    if (path != NULL) gtk_tree_path_free (path); path = NULL;
+}
+
 
 

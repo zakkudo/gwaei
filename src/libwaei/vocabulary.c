@@ -128,6 +128,9 @@ lw_vocabulary_set_property (GObject      *object,
       case PROP_CHANGED:
         lw_vocabulary_set_changed (vocabulary, g_value_get_boolean (value));
         break;
+      case PROP_LOADED:
+        lw_vocabulary_set_loaded (vocabulary, g_value_get_boolean (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -155,7 +158,10 @@ lw_vocabulary_get_property (GObject    *object,
         g_value_set_string (value, lw_vocabulary_get_filename (vocabulary));
         break;
       case PROP_CHANGED:
-        g_value_set_boolean (value, lw_vocabulary_changed (vocabulary));
+        g_value_set_boolean (value, lw_vocabulary_has_changes (vocabulary));
+        break;
+      case PROP_LOADED:
+        g_value_set_boolean (value, lw_vocabulary_is_loaded (vocabulary));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -177,10 +183,10 @@ lw_vocabulary_finalize (GObject *object)
 
     lw_vocabulary_set_filename (vocabulary, NULL);
 
-    if (priv->list != NULL)
+    if (priv->data.list != NULL)
     {
-      g_list_free_full (priv->list, (GDestroyNotify) lw_word_free);
-      priv->list = NULL;
+      g_list_free_full (priv->data.list, (GDestroyNotify) lw_word_free);
+      priv->data.list = NULL;
     }
 
     G_OBJECT_CLASS (lw_vocabulary_parent_class)->finalize (object);
@@ -277,9 +283,18 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         "changed construct prop",
         "Set the changed",
         FALSE,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_FILENAME, klasspriv->pspec[PROP_FILENAME]);
+    g_object_class_install_property (object_class, PROP_CHANGED, klasspriv->pspec[PROP_CHANGED]);
+
+    klasspriv->pspec[PROP_LOADED] = g_param_spec_boolean (
+        "loaded",
+        "loaded construct prop",
+        "Set the loaded",
+        FALSE,
+        G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_LOADED, klasspriv->pspec[PROP_LOADED]);
 }
 
 
@@ -316,13 +331,14 @@ lw_vocabulary_load (LwVocabulary       *vocabulary,
         LwWord *word = lw_word_new_from_string (c);
         if (word != NULL)
         {
-          priv->list = g_list_append (priv->list, word);
+          priv->data.list = g_list_append (priv->data.list, word);
         }
         c += strlen(c) + 1;
       }
     }
 
     lw_vocabulary_set_changed (vocabulary, FALSE);
+    lw_vocabulary_set_loaded (vocabulary, TRUE);
 
 errored:
 
@@ -354,7 +370,7 @@ lw_vocabulary_save (LwVocabulary       *vocabulary,
     if (stream = NULL) goto errored;
 
     {
-      GList *link = priv->list;
+      GList *link = priv->data.list;
       while (link != NULL)
       {
         LwWord *word = LW_WORD (link->data);
@@ -385,22 +401,6 @@ errored:
 }
 
 
-GList*
-lw_vocabulary_get_list (LwVocabulary *vocabulary)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_VOCABULARY (vocabulary));
-
-    //Declarations
-    LwVocabularyPrivate *priv = NULL;
-
-    //Initializations
-    priv = vocabulary->priv;
-
-    return g_list_copy (priv->list);
-}
-
-
 void
 lw_vocabulary_set_changed (LwVocabulary *vocabulary, 
                            gboolean      changed_)
@@ -418,16 +418,16 @@ lw_vocabulary_set_changed (LwVocabulary *vocabulary,
     priv = vocabulary->priv;
     klass = LW_VOCABULARY_GET_CLASS (vocabulary);
     klasspriv = klass->priv;
-    changed = (changed_ != priv->changed);
+    changed = (changed_ != priv->data.changed);
 
-    priv->changed = changed_;
+    priv->data.changed = changed_;
 
     if (changed) g_object_notify_by_pspec (G_OBJECT (vocabulary), klasspriv->pspec[PROP_CHANGED]);
 }
 
 
 gboolean
-lw_vocabulary_changed (LwVocabulary *vocabulary)
+lw_vocabulary_has_changes (LwVocabulary *vocabulary)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_VOCABULARY(vocabulary), FALSE);
@@ -438,7 +438,48 @@ lw_vocabulary_changed (LwVocabulary *vocabulary)
     //Initializations
     priv = vocabulary->priv;
 
-    return priv->changed;
+    return priv->data.changed;
+}
+
+
+void
+lw_vocabulary_set_loaded (LwVocabulary *vocabulary, 
+                          gboolean      loaded)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (vocabulary));
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    LwVocabularyClass *klass = NULL;
+    LwVocabularyClassPrivate *klasspriv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = vocabulary->priv;
+    klass = LW_VOCABULARY_GET_CLASS (vocabulary);
+    klasspriv = klass->priv;
+    changed = (loaded != priv->data.loaded);
+
+    priv->data.loaded = loaded;
+
+    if (changed) g_object_notify_by_pspec (G_OBJECT (vocabulary), klasspriv->pspec[PROP_LOADED]);
+}
+
+
+gboolean
+lw_vocabulary_is_loaded (LwVocabulary *vocabulary)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY(vocabulary), FALSE);
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+
+    //Initializations
+    priv = vocabulary->priv;
+
+    return priv->data.loaded;
 }
 
 
@@ -459,17 +500,17 @@ lw_vocabulary_set_filename (LwVocabulary *vocabulary,
     priv = vocabulary->priv;
     klass = LW_VOCABULARY_GET_CLASS (vocabulary);
     klasspriv = klass->priv;
-    changed = (FILENAME != priv->filename || (FILENAME && priv->filename && strcmp(FILENAME, priv->filename) != 0));
+    changed = (FILENAME != priv->config.filename || (FILENAME && priv->config.filename && strcmp(FILENAME, priv->config.filename) != 0));
 
-    if (priv->filename != NULL)
+    if (priv->config.filename != NULL)
     {
-      g_free (priv->filename);
-      priv->filename = NULL;
+      g_free (priv->config.filename);
+      priv->config.filename = NULL;
     }
 
     if (FILENAME != NULL)
     {
-      priv->filename = g_strdup (FILENAME);
+      priv->config.filename = g_strdup (FILENAME);
     }
 
     if (changed) g_object_notify_by_pspec (G_OBJECT (vocabulary), klasspriv->pspec[PROP_FILENAME]);
@@ -488,6 +529,6 @@ lw_vocabulary_get_filename (LwVocabulary *vocabulary)
     //Initializations
     priv = vocabulary->priv;
 
-    return priv->filename;
+    return priv->config.filename;
 }
 

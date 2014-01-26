@@ -7,7 +7,8 @@ G_BEGIN_DECLS
 
 typedef enum { 
   LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
-  LGW_VOCABULARYLISTSTORE_COLUMN_CHANGED,
+  LGW_VOCABULARYLISTSTORE_COLUMN_FILENAME,
+  LGW_VOCABULARYLISTSTORE_COLUMN_HAS_CHANGES,
   LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT,
   TOTAL_LGW_VOCABULARYLISTSTORE_COLUMNS
 } LgwVocabularyListStoreColumn;
@@ -16,7 +17,7 @@ typedef enum {
 typedef struct _LgwVocabularyListStore LgwVocabularyListStore;
 typedef struct _LgwVocabularyListStoreClass LgwVocabularyListStoreClass;
 typedef struct _LgwVocabularyListStorePrivate LgwVocabularyListStorePrivate;
-typedef struct _LgwVocabualryListStoreClassPrivate LgwVocabularyListStoreClassPrivate;
+typedef struct _LgwVocabularyListStoreClassPrivate LgwVocabularyListStoreClassPrivate;
 
 typedef struct _LgwVocabualryListStoreRow LgwVocabularyListStoreRow;
 
@@ -35,12 +36,20 @@ struct _LgwVocabularyListStore {
 struct _LgwVocabularyListStoreClass {
   GtkListStoreClass parent_class;
   LgwVocabularyListStoreClassPrivate *priv;
-  void (*changed) (LgwVocabularyListStore *vocabulary_list_store);
+
+  //Signals
+  void (*row_changed) (LwDictionaryList* dictionarylist, gint position, gpointer data);
+  void (*row_inserted) (LwDictionaryList* dictionarylist, gint position, gpointer data);
+  void (*row_deleted) (LwDictionaryList* dictionarylist, gint position, gpointer data);
+  void (*rows_reordered) (LwDictionaryList* dictionarylist, gint *order, gpointer data);
 };
 
 //Methods
 LgwVocabularyListStore* lgw_vocabularyliststore_new (void);
 GType lgw_vocabularyliststore_get_type (void) G_GNUC_CONST;
+
+void lgw_vocabularyliststore_add (LgwVocabularyListStore *vocabulary_list_store, const gchar* FILENAME);
+void lgw_vocabularyliststore_remove_by_position (LgwVocabularyListStore *vocabulary_list_store, gint position);
 
 G_END_DECLS
 
