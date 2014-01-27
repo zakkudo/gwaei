@@ -35,6 +35,8 @@ GType lgw_vocabularywordview_get_type (void) G_GNUC_CONST;
 void lgw_vocabularywordview_set_wordstore (LgwVocabularyWordView *vocabulary_word_view, LgwVocabularyWordStore *vocabulary_word_store);
 LgwVocabularyWordStore* lgw_vocabularywordview_get_wordstore (LgwVocabularyWordView *vocabulary_word_view);
 
+LgwVocabularyWordView* lgw_vocabularylistview_get_wordview (LgwVocabularyListView *vocabulary_list_view);
+void lgw_vocabularylistview_set_wordview (LgwVocabularyListView *vocabulary_list_view, LgwVocabularyWordView *vocabulary_word_view);
 
 G_END_DECLS
 

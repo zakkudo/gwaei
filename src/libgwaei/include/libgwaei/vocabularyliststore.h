@@ -48,6 +48,7 @@ void lgw_vocabularyliststore_set_preferences (LgwVocabularyListStore *vocabulary
 
 void lgw_vocabularyliststore_load (LgwVocabularyListStore *vocabulary_list_store);
 
+
 G_END_DECLS
 
 #endif

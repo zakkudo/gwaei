@@ -331,6 +331,8 @@ lgw_vocabularywordview_set_wordstore (LgwVocabularyWordView  *vocabulary_word_vi
         g_object_add_weak_pointer (G_OBJECT (priv->data.vocabulary_word_store), (gpointer*) &(priv->data.vocabulary_word_store));
       }
 
+      gtk_tree_view_set_model (priv->ui.tree_view, GTK_TREE_MODEL (vocabulary_word_store));
+
       g_object_notify_by_pspec (G_OBJECT (vocabulary_word_view), klasspriv->pspec[PROP_VOCABULARYWORDSTORE]);
     }
 }
