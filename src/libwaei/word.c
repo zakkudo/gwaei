@@ -45,34 +45,37 @@ lw_word_set_kanji (LwWord *word, const gchar *text)
   if (word->fields[LW_WORD_FIELD_KANJI] != NULL)
     g_free (word->fields[LW_WORD_FIELD_KANJI]);
   word->fields[LW_WORD_FIELD_KANJI] = g_strdup (text);
+  word->has_changes = TRUE;
 }
 
 const gchar* 
-lw_word_get_furigana (LwWord *word)
+lw_word_get_reading (LwWord *word)
 {
-  return word->fields[LW_WORD_FIELD_FURIGANA];
+  return word->fields[LW_WORD_FIELD_READING];
 }
 
 void 
-lw_word_set_furigana (LwWord *word, const gchar *text)
+lw_word_set_reading (LwWord *word, const gchar *text)
 {
-  if (word->fields[LW_WORD_FIELD_FURIGANA] != NULL)
-    g_free (word->fields[LW_WORD_FIELD_FURIGANA]);
-  word->fields[LW_WORD_FIELD_FURIGANA] = g_strdup (text);
+  if (word->fields[LW_WORD_FIELD_READING] != NULL)
+    g_free (word->fields[LW_WORD_FIELD_READING]);
+  word->fields[LW_WORD_FIELD_READING] = g_strdup (text);
+  word->has_changes = TRUE;
 }
 
 const gchar* 
-lw_word_get_definitions (LwWord *word)
+lw_word_get_definition (LwWord *word)
 {
-  return word->fields[LW_WORD_FIELD_DEFINITIONS];
+  return word->fields[LW_WORD_FIELD_DEFINITION];
 }
 
 void 
-lw_word_set_definitions (LwWord *word, const gchar *text)
+lw_word_set_definition (LwWord *word, const gchar *text)
 {
-  if (word->fields[LW_WORD_FIELD_DEFINITIONS] != NULL)
-    g_free (word->fields[LW_WORD_FIELD_DEFINITIONS]);
-  word->fields[LW_WORD_FIELD_DEFINITIONS] = g_strdup (text);
+  if (word->fields[LW_WORD_FIELD_DEFINITION] != NULL)
+    g_free (word->fields[LW_WORD_FIELD_DEFINITION]);
+  word->fields[LW_WORD_FIELD_DEFINITION] = g_strdup (text);
+  word->has_changes = TRUE;
 }
 
 gint 
@@ -134,6 +137,7 @@ lw_word_get_score_as_string (LwWord *word)
     return word->score;
 }
 
+
 guint32
 lw_word_timestamp_to_hours (gint64 timestamp)
 {
@@ -160,7 +164,7 @@ lw_word_update_timestamp (LwWord *word)
 
 
 void
-lw_word_set_hours (LwWord *word, guint32 hours)
+lw_word_set_last_studied (LwWord *word, guint32 hours)
 {
     word->timestamp = hours;
 
@@ -173,18 +177,18 @@ lw_word_set_hours (LwWord *word, guint32 hours)
 
 
 guint32
-lw_word_get_hours (LwWord *word)
+lw_word_get_last_studied (LwWord *word)
 {
     return word->timestamp;
 }
 
 
 const gchar*
-lw_word_get_timestamp_as_string (LwWord *word)
+lw_word_get_last_studied_as_string (LwWord *word)
 {
     if (word->days == NULL)
     {
-      guint32 days = lw_word_get_hours (word) / 24;
+      guint32 days = lw_word_get_last_studied (word) / 24;
       guint32 today = lw_word_timestamp_to_hours ( g_get_real_time ()) / 24;
       guint32 difference = today - days;
       if (difference < 0) difference = 0;
@@ -279,3 +283,10 @@ lw_word_to_string (LwWord *word)
     text = lw_strjoinv (';', word->fields, TOTAL_LW_WORD_FIELDS);
     return text;
 }
+
+gboolean
+lw_word_has_changes (LwWord *word)
+{
+    return word->has_changes;
+}
+

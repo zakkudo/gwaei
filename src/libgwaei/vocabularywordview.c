@@ -194,7 +194,7 @@ lgw_vocabularywordview_constructed (GObject *object)
           GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
               gettext("Reading"),
               renderer,
-              "text", LGW_VOCABULARYWORDSTORE_COLUMN_FURIGANA,
+              "text", LGW_VOCABULARYWORDSTORE_COLUMN_READING,
               NULL
           );
           gtk_tree_view_append_column (priv->ui.tree_view, column);
@@ -205,7 +205,7 @@ lgw_vocabularywordview_constructed (GObject *object)
           GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
               gettext("Definition"),
               renderer,
-              "text", LGW_VOCABULARYWORDSTORE_COLUMN_DEFINITIONS,
+              "text", LGW_VOCABULARYWORDSTORE_COLUMN_DEFINITION,
               NULL
           );
           gtk_tree_view_append_column (priv->ui.tree_view, column);

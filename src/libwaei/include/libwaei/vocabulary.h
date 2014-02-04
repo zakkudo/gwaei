@@ -51,6 +51,8 @@ const gchar* lw_vocabulary_get_filename (LwVocabulary *vocabulary);
 void lw_vocabulary_set_loaded (LwVocabulary *vocabulary, gboolean loaded);
 gboolean lw_vocabulary_is_loaded (LwVocabulary *vocabulary);
 
+LwWord* lw_vocabulary_get_word_by_index (LwVocabulary *vocabulary, gint index);
+
 G_END_DECLS
 
 #endif

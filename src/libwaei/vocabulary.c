@@ -532,3 +532,39 @@ lw_vocabulary_get_filename (LwVocabulary *vocabulary)
     return priv->config.filename;
 }
 
+
+LwWord*
+lw_vocabulary_get_word_by_index (LwVocabulary *vocabulary, gint index)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY(vocabulary));
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    LwWord *word = NULL;
+
+    //Initializations
+    priv = vocabulary->priv;
+    word = g_list_nth_data (priv->data.list, index);
+
+    return word;
+}
+
+
+GList*
+lw_vocabualry_remove_all (LwVocabulary *vocabulary, gint *positions)
+{
+}
+
+
+GList*
+lw_vocabulary_insert_all (LwVocabulary *vocabualry, GList *wordlist, gint index)
+{
+}
+
+
+void
+lw_vocabulary_reorder (LwVocabulary *vocabulary, gint *new_positions)
+{
+}
+

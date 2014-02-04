@@ -4,8 +4,14 @@
 G_BEGIN_DECLS
 
 
+struct _Data {
+  gint list_new_index;
+  GList *list; //!< LgwVocabularyWordStore
+  gint length;
+};
+
 struct _LgwVocabularyWordStorePrivate {
-  gint unused;
+  struct _Data data;
 };
 
 struct _LgwVocabularyWordStoreClassPrivate {

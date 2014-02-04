@@ -48,7 +48,6 @@ static gint valid_stamp = 0;
 void
 lgw_vocabularywordstore_init_interface (GtkTreeModelIface *iface)
 {
-/*TODO
     iface->get_flags = lgw_vocabularywordstore_get_flags;
     iface->get_n_columns = lgw_vocabularywordstore_get_n_columns;
     iface->get_column_type = lgw_vocabularywordstore_get_column_type;
@@ -62,26 +61,23 @@ lgw_vocabularywordstore_init_interface (GtkTreeModelIface *iface)
     iface->iter_n_children = lgw_vocabularywordstore_iter_n_children;
     iface->iter_nth_child = lgw_vocabularywordstore_iter_nth_child;
     iface->iter_parent = lgw_vocabularywordstore_iter_parent;
-*/
 }
 
 
-/*TODO
-
 void
-lgw_vocabularywordstore_initialize_tree_iter (LgwVocabularyWordStore *vocabulary_list_store,
+lgw_vocabularywordstore_initialize_tree_iter (LgwVocabularyWordStore *vocabulary_word_store,
                                               GtkTreeIter            *iter,
                                               gint                    index_)
 {
     //Sanity checks
-    g_return_val_if_fail (vocabulary_list_store != NULL, 0);
+    g_return_val_if_fail (vocabulary_word_store != NULL, 0);
 
     //Declarations
     LgwVocabularyWordStoreClass *klass = NULL;
 
     //Initializations
     iter->stamp = stamp;
-    iter->user_data = vocabulary_list_store;
+    iter->user_data = vocabulary_word_store;
     iter->user_data2 = GINT_TO_POINTER (index_);
 
     stamp++;
@@ -100,11 +96,11 @@ lgw_vocabularywordstore_invalidate_tree_iter (GtkTreeIter *iter)
 
 
 gboolean
-lgw_vocabularywordstore_tree_iter_is_valid (LgwVocabularyWordStore *vocabulary_list_store,
+lgw_vocabularywordstore_tree_iter_is_valid (LgwVocabularyWordStore *vocabulary_word_store,
                                             GtkTreeIter            *iter)
 {
     //Sanity checks
-    g_return_val_if_fail (vocabulary_list_store != NULL, FALSE);
+    g_return_val_if_fail (vocabulary_word_store != NULL, FALSE);
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
@@ -112,7 +108,7 @@ lgw_vocabularywordstore_tree_iter_is_valid (LgwVocabularyWordStore *vocabulary_l
     gint index = 0;
 
     //Initializations
-    priv = vocabulary_list_store->priv;
+    priv = vocabulary_word_store->priv;
     index = GPOINTER_TO_INT (iter->user_data2);
 
     return (iter->stamp > -1 && iter->stamp > valid_stamp && index >= 0 && index < priv->data.length);
@@ -136,7 +132,7 @@ lgw_vocabularywordstore_get_flags (GtkTreeModel *tree_model)
 gint
 lgw_vocabularywordstore_get_n_columns (GtkTreeModel *tree_model)
 {
-    return TOTAL_LGW_VOCABULARYLISTSTORE_COLUMNS;
+    return TOTAL_LGW_VOCABULARYWORDSTORE_COLUMNS;
 }
 
 
@@ -148,18 +144,35 @@ lgw_vocabularywordstore_get_column_type (GtkTreeModel *tree_model,
 
     switch (index_)
     {
-      case LGW_VOCABULARYLISTSTORE_COLUMN_NAME:
+      case LGW_VOCABULARYWORDSTORE_COLUMN_POSITION:
         type = G_TYPE_STRING;
         break;
-      case LGW_VOCABULARYLISTSTORE_COLUMN_FILENAME:
+      case LGW_VOCABULARYWORDSTORE_COLUMN_KANJI:
         type = G_TYPE_STRING;
         break;
-      case LGW_VOCABULARYLISTSTORE_COLUMN_HAS_CHANGES:
-        type = G_TYPE_BOOLEAN;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_READING:
+        type = G_TYPE_STRING;
         break;
-      case LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT:
-        type = G_TYPE_OBJECT;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_DEFINITION:
+        type = G_TYPE_STRING;
         break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_CORRECT_GUESSES:
+        type = G_TYPE_STRING;
+        break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_INCORRECT_GUESSES:
+        type = G_TYPE_STRING;
+        break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_SCORE:
+        type = G_TYPE_STRING;
+        break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_LAST_STUDIED:
+        type = G_TYPE_STRING;
+        break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_WEIGHT:
+        type = G_TYPE_INT;
+        break;
+      default:
+        g_assert_not_reached ();
     }
 
     return type;
@@ -172,7 +185,7 @@ lgw_vocabularywordstore_get_iter (GtkTreeModel *tree_model,
                                   GtkTreePath  *path)
 {
     //Declarations
-    LgwVocabularyWordStore *vocabulary_list_store = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     gboolean is_valid = FALSE;
     gint depth = 0;
@@ -184,8 +197,8 @@ lgw_vocabularywordstore_get_iter (GtkTreeModel *tree_model,
     if (iter == NULL) goto errored;
 
     //Initializations
-    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
-    priv = vocabulary_list_store->priv;
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = vocabulary_word_store->priv;
     indicies = gtk_tree_path_get_indices_with_depth (path, &depth);
     if (indicies != NULL)
     {
@@ -195,12 +208,12 @@ lgw_vocabularywordstore_get_iter (GtkTreeModel *tree_model,
 
     if (iter != NULL && is_valid)
     {
-      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYLISTSTORE (vocabulary_list_store), iter, index);
+      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter, index);
     }
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (vocabulary_list_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -219,12 +232,12 @@ lgw_vocabularywordstore_get_path (GtkTreeModel *tree_model,
 
     //Declarations
     GtkTreePath *path = NULL;
-    LgwVocabularyWordStore *vocabulary_list_store = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
 
     //Initializations
-    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
 
-    if (lgw_vocabularywordstore_tree_iter_is_valid (vocabulary_list_store, iter))
+    if (lgw_vocabularywordstore_tree_iter_is_valid (vocabulary_word_store, iter))
     {
       path = gtk_tree_path_new_from_indices (GPOINTER_TO_INT (iter->user_data2), -1);
     }
@@ -245,44 +258,62 @@ lgw_vocabularywordstore_get_value (GtkTreeModel *tree_model,
     g_return_if_fail (value != NULL);
 
     //Declarations
-    LgwVocabularyWordStore *vocabulary_list_store = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     GType type = G_TYPE_INVALID;
     gint index = 0;
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LwVocabulary *vocabulary = NULL;
+    LwWord *word = NULL;
 
  
     //Initializations
-    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
-    priv = vocabulary_list_store->priv;
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = vocabulary_word_store->priv;
     type = lgw_vocabularywordstore_get_column_type (tree_model, column);
     index = GPOINTER_TO_INT (iter->user_data2);
-    vocabulary_word_store = g_list_nth_data (priv->data.list, index);
     vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    word = lw_vocabulary_get_word_by_index (vocabulary, index);
     g_value_init (value, type);
 
     if (vocabulary_word_store == NULL) goto errored;
+    if (index < 0) goto errored;
 
     switch (column)
     {
-      case LGW_VOCABULARYLISTSTORE_COLUMN_NAME: //G_TYPE_STRING
-        g_value_set_string (value, lw_vocabulary_get_filename (vocabulary));
+      case LGW_VOCABULARYWORDSTORE_COLUMN_POSITION: //G_TYPE_STRING
+        g_value_take_string (value, g_strdup_printf("%d", index + 1));
         break;
-      case LGW_VOCABULARYLISTSTORE_COLUMN_FILENAME: //G_TYPE_STRING
-        g_value_set_string (value, lw_vocabulary_get_filename (vocabulary));
+      case LGW_VOCABULARYWORDSTORE_COLUMN_KANJI:  //G_TYPE_STRING
+        g_value_set_string (value, lw_word_get_kanji (word));
         break;
-      case LGW_VOCABULARYLISTSTORE_COLUMN_HAS_CHANGES: //G_TYPE_BOOLEAN
-        g_value_set_boolean (value, lw_vocabulary_has_changes (vocabulary));
+      case LGW_VOCABULARYWORDSTORE_COLUMN_READING:  //G_TYPE_STRING
+        g_value_set_string (value, lw_word_get_reading (word));
         break;
-      case LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT: //G_TYPE_OBJECT
-        g_value_set_object (value, vocabulary_word_store);
+      case LGW_VOCABULARYWORDSTORE_COLUMN_DEFINITION:  //G_TYPE_STRING
+        g_value_set_string (value, lw_word_get_definition (word));
         break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_CORRECT_GUESSES:  //G_TYPE_STRING
+        g_value_take_string (value, g_strdup_printf ("%d", lw_word_get_correct_guesses (word)));
+        break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_INCORRECT_GUESSES:  //G_TYPE_STRING
+        g_value_take_string (value, g_strdup_printf ("%d", lw_word_get_incorrect_guesses (word)));
+        break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_SCORE:  //G_TYPE_STRING
+        g_value_set_string (value, lw_word_get_score_as_string (word));
+        break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_LAST_STUDIED:  //G_TYPE_STRING
+        g_value_set_string (value, lw_word_get_last_studied_as_string (word));
+        break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_WEIGHT:  //G_TYPE_INT
+        g_value_set_int (value, lw_word_has_changes (word));
+        break;
+      default:
+        g_assert_not_reached ();
     }
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (vocabulary_list_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -299,7 +330,7 @@ lgw_vocabularywordstore_iter_next (GtkTreeModel *tree_model,
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
-    LgwVocabularyWordStore *vocabulary_list_store = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     gboolean has_next = FALSE;
     gint index = 0;
@@ -307,15 +338,15 @@ lgw_vocabularywordstore_iter_next (GtkTreeModel *tree_model,
     if (tree_model == NULL) goto errored;
 
     //Initializations
-    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
-    priv = vocabulary_list_store->priv;
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = vocabulary_word_store->priv;
     index = GPOINTER_TO_INT (iter->user_data2) + 1;
     has_next = (index < priv->data.length);
     iter->user_data2 = GINT_TO_POINTER (index);
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (vocabulary_list_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -332,7 +363,7 @@ lgw_vocabularywordstore_iter_previous (GtkTreeModel *tree_model,
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
-    LgwVocabularyWordStore *vocabulary_list_store = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LgwVocabularyWordStorePrivate *priv;
     gboolean has_previous = FALSE;
     gint index = 0;
@@ -340,15 +371,15 @@ lgw_vocabularywordstore_iter_previous (GtkTreeModel *tree_model,
     if (tree_model == NULL) goto errored;
 
     //Initializations
-    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
-    priv = vocabulary_list_store->priv;
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = vocabulary_word_store->priv;
     index = GPOINTER_TO_INT (iter->user_data2) - 1;
     has_previous = (priv->data.length > 0 && index >= 0);
     iter->user_data2 = GINT_TO_POINTER (index);
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (vocabulary_list_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -366,26 +397,26 @@ lgw_vocabularywordstore_iter_children (GtkTreeModel *tree_model,
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
-    LgwVocabularyWordStore *vocabulary_list_store = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     gint index = 0;
 
     if (tree_model == NULL) goto errored;
 
     //Initializations
-    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
-    priv = vocabulary_list_store->priv;
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = vocabulary_word_store->priv;
     index = GPOINTER_TO_INT (iter->user_data2) - 1;
     iter->user_data2 = GINT_TO_POINTER (index);
 
     if (parent == NULL && priv->data.length > 0)
     {
-      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYLISTSTORE (vocabulary_list_store), iter, 0);
+      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter, 0);
     }
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (vocabulary_list_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -407,14 +438,14 @@ lgw_vocabularywordstore_iter_n_children (GtkTreeModel *tree_model,
                                          GtkTreeIter  *iter)
 {
     //Declarations
-    LgwVocabularyWordStore *vocabulary_list_store = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     gint total = 0;
 
     //Initializations
-    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
-    if (vocabulary_list_store == NULL) goto errored;
-    priv = vocabulary_list_store->priv;
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
+    if (vocabulary_word_store == NULL) goto errored;
+    priv = vocabulary_word_store->priv;
 
     if (iter == NULL)
     {
@@ -423,7 +454,7 @@ lgw_vocabularywordstore_iter_n_children (GtkTreeModel *tree_model,
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (vocabulary_list_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -442,30 +473,30 @@ lgw_vocabularywordstore_iter_nth_child (GtkTreeModel *tree_model,
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
-    LgwVocabularyWordStore *vocabulary_list_store = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     gint total = 0;
     gboolean exists = FALSE;
 
     //Initializations
-    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
-    priv = vocabulary_list_store->priv;
-    if (vocabulary_list_store == NULL) goto errored;
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = vocabulary_word_store->priv;
+    if (vocabulary_word_store == NULL) goto errored;
 
     if (parent == NULL)
     {
       total = priv->data.length;
     }
-    exists = (vocabulary_list_store != NULL && parent == NULL && total > 0 && n >= 0 && n < total);
+    exists = (vocabulary_word_store != NULL && parent == NULL && total > 0 && n >= 0 && n < total);
 
 errored:
 
     if (exists)
     {
-      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYLISTSTORE (vocabulary_list_store), iter, n);
+      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter, n);
     }
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (vocabulary_list_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
       exists = FALSE;
@@ -498,5 +529,4 @@ lgw_vocabularywordstore_unref_node (GtkTreeModel *tree_model,
 {
     //No-op
 }
-*/
 

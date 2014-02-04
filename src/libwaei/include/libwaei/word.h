@@ -5,8 +5,8 @@ G_BEGIN_DECLS
 
 typedef enum {
   LW_WORD_FIELD_KANJI,
-  LW_WORD_FIELD_FURIGANA,
-  LW_WORD_FIELD_DEFINITIONS,
+  LW_WORD_FIELD_READING,
+  LW_WORD_FIELD_DEFINITION,
   LW_WORD_FIELD_CORRECT_GUESSES,
   LW_WORD_FIELD_INCORRECT_GUESSES,
   LW_WORD_FIELD_TIMESTAMP,
@@ -21,6 +21,7 @@ struct _LwWord {
   gint correct_guesses;
   gint incorrect_guesses;
   gint32 timestamp;
+  gboolean has_changes;
 };
 
 typedef struct _LwWord LwWord;
@@ -34,11 +35,11 @@ void lw_word_free (LwWord*);
 void lw_word_set_kanji (LwWord*, const gchar*);
 const gchar* lw_word_get_kanji (LwWord*);
 
-void lw_word_set_furigana (LwWord*, const gchar*);
-const gchar* lw_word_get_furigana (LwWord*);
+void lw_word_set_reading (LwWord*, const gchar*);
+const gchar* lw_word_get_reading (LwWord*);
 
-void lw_word_set_definitions (LwWord*, const gchar*);
-const gchar* lw_word_get_definitions (LwWord*);
+void lw_word_set_definition (LwWord*, const gchar*);
+const gchar* lw_word_get_definition (LwWord*);
 
 gint lw_word_get_correct_guesses (LwWord*);
 void lw_word_set_correct_guesses (LwWord*, gint);
@@ -53,13 +54,15 @@ guint32 lw_word_timestamp_to_hours (gint64);
 void lw_word_set_timestamp (LwWord*, gint64);
 void lw_word_update_timestamp (LwWord*);
 void lw_word_set_hours (LwWord*, guint32);
-guint32 lw_word_get_hours (LwWord*);
-const gchar* lw_word_get_timestamp_as_string (LwWord*);
+guint32 lw_word_get_last_studied (LwWord*);
+const gchar* lw_word_get_last_studied_as_string (LwWord*);
 
 gchar* lw_word_to_string (LwWord*);
 void lw_word_update_timestamp (LwWord*);
 gint64 lw_word_get_timestamp (LwWord*);
 const gchar* lw_word_get_timestamp_as_string (LwWord*);
+
+gboolean lw_word_has_changes (LwWord *word);
 
 G_END_DECLS
 
