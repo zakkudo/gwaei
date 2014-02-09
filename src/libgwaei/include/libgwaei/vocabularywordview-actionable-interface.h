@@ -3,7 +3,7 @@
 
 G_BEGIN_DECLS
 
-void lgw_vocabularywordview_impliment_actionable_interface (LgwActionableInterface *iface);
+void lgw_vocabularywordview_implement_actionable_interface (LgwActionableInterface *iface);
 
 G_END_DECLS
 

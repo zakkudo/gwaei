@@ -20,7 +20,7 @@ libgwaei_la_SOURCES +=dictionarylistbox.c dictionarylistbox-callbacks.c
 libgwaei_la_SOURCES +=dictionaryliststore.c dictionaryliststore-treemodel-interface.c dictionaryliststore-callbacks.c
 
 #VocabularyWidget component
-libgwaei_la_SOURCES +=vocabularywidget.c vocabularywidget-callbacks.c vocabularywidget-actionable-interface.c
+libgwaei_la_SOURCES +=vocabularywidget.c vocabularywidget-callbacks.c vocabularywidget-actionable-interface.c vocabularywidget-menuable-interface.c
 libgwaei_la_SOURCES +=vocabularywordstore.c vocabularywordstore-callbacks.c vocabularywordstore-treemodel-interface.c
 libgwaei_la_SOURCES +=vocabularywordview.c vocabularywordview-callbacks.c vocabularywordview-actionable-interface.c
 libgwaei_la_SOURCES +=vocabularyliststore.c vocabularyliststore-treemodel-interface.c

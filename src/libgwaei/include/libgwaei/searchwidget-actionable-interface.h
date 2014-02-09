@@ -3,7 +3,7 @@
 
 G_BEGIN_DECLS
 
-void lgw_searchwidget_impliment_actionable_interface (LgwActionableInterface *iface);
+void lgw_searchwidget_implement_actionable_interface (LgwActionableInterface *iface);
 
 G_END_DECLS
 

@@ -43,7 +43,7 @@
 
 
 G_DEFINE_TYPE_WITH_CODE (LgwVocabularyListView, lgw_vocabularylistview, GTK_TYPE_BOX,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularylistview_impliment_actionable_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularylistview_implement_actionable_interface));
 
 //!
 //! @brief Sets up the variables in main-interface.c and main-callbacks.c for use

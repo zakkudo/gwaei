@@ -60,5 +60,6 @@ G_END_DECLS
 
 #include <libgwaei/searchwidget-callbacks.h>
 #include <libgwaei/searchwidget-actionable-interface.h>
+#include <libgwaei/searchwidget-menuable-interface.h>
 
 #endif

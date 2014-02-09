@@ -42,7 +42,7 @@
 #include <libgwaei/vocabularywordview-private.h>
 
 G_DEFINE_TYPE_WITH_CODE (LgwVocabularyWordView, lgw_vocabularywordview, GTK_TYPE_BOX,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularywordview_impliment_actionable_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularywordview_implement_actionable_interface));
 
 //!
 //! @brief Sets up the variables in main-interface.c and main-callbacks.c for use

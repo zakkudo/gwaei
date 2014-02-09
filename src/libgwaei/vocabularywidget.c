@@ -44,8 +44,8 @@
 
 
 G_DEFINE_TYPE_WITH_CODE (LgwVocabularyWidget, lgw_vocabularywidget, GTK_TYPE_BOX,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_MENUABLE, lgw_vocabularywidget_init_menuable_interface)
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularywidget_impliment_actionable_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_MENUABLE, lgw_vocabularywidget_implement_menuable_interface)
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularywidget_implement_actionable_interface));
 
 
 //!
@@ -265,47 +265,6 @@ lgw_vocabularywidget_class_init (LgwVocabularyWidgetClass *klass)
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_VOCABULARYLISTSTORE, klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
-}
-
-
-static void
-lgw_vocabularywidget_init_menuable_interface (LgwMenuableInterface *iface) {
-    iface->get_window_menu_model = lgw_vocabularywidget_get_window_menu_model;
-    iface->get_button_menu_model = lgw_vocabularywidget_get_button_menu_model;
-}
-
-
-static GMenuModel*
-lgw_vocabularywidget_get_button_menu_model (LgwMenuable *menuable)
-{
-    //Sanity checks
-    g_return_if_fail (menuable != NULL);
-
-    //Declarations
-    LgwVocabularyWidget *vocabulary_widget = LGW_VOCABULARYWIDGET (menuable);
-    LgwVocabularyWidgetPrivate *priv = NULL;
-
-    //Initializations
-    priv = vocabulary_widget->priv;
-
-    return priv->data.button_menu_model;
-}
-
-
-static GMenuModel*
-lgw_vocabularywidget_get_window_menu_model (LgwMenuable *menuable)
-{
-    //Sanity checks
-    g_return_if_fail (menuable != NULL);
-
-    //Declarations
-    LgwVocabularyWidget *vocabulary_widget = LGW_VOCABULARYWIDGET (menuable);
-    LgwVocabularyWidgetPrivate *priv = NULL;
-
-    //Initializations
-    priv = vocabulary_widget->priv;
-
-    return priv->data.window_menu_model;
 }
 
 

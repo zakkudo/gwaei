@@ -150,7 +150,7 @@ lgw_vocabularywidget_sync_actions (LgwActionable *actionable)
 
 
 void
-lgw_vocabularywidget_impliment_actionable_interface (LgwActionableInterface *iface) {
+lgw_vocabularywidget_implement_actionable_interface (LgwActionableInterface *iface) {
     iface->get_actions = lgw_vocabularywidget_get_actions;
     iface->set_actiongroup = lgw_vocabularywidget_set_actiongroup;
     iface->sync_actions = lgw_vocabularywidget_sync_actions;

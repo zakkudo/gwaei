@@ -39,12 +39,13 @@
 
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
+
 #include <libgwaei/searchwidget-private.h>
 
 
 G_DEFINE_TYPE_WITH_CODE (LgwSearchWidget, lgw_searchwidget, GTK_TYPE_BOX,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_MENUABLE, lgw_searchwidget_init_menuable_interface)
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_searchwidget_impliment_actionable_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_MENUABLE, lgw_searchwidget_implement_menuable_interface)
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_searchwidget_implement_actionable_interface));
 
 
 //!
@@ -313,13 +314,6 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
 }
 
 
-static void
-lgw_searchwidget_init_menuable_interface (LgwMenuableInterface *iface) {
-    iface->get_window_menu_model = lgw_searchwidget_get_window_menu_model;
-    iface->get_button_menu_model = lgw_searchwidget_get_button_menu_model;
-}
-
-
 gboolean
 lgw_searchwidget_get_search_mode (LgwSearchWidget *widget)
 {
@@ -339,6 +333,7 @@ lgw_searchwidget_get_search_mode (LgwSearchWidget *widget)
     return search_mode;
 }
 
+
 void
 lgw_searchwidget_set_search_mode (LgwSearchWidget *widget,
                                   gboolean         search_mode)
@@ -355,40 +350,6 @@ lgw_searchwidget_set_search_mode (LgwSearchWidget *widget,
     priv = widget->priv;
 
     gtk_search_bar_set_search_mode (priv->ui.search_bar, search_mode);
-}
-
-
-static GMenuModel*
-lgw_searchwidget_get_button_menu_model (LgwMenuable *menuable)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (menuable));
-
-    //Declarations
-    LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (menuable);
-    LgwSearchWidgetPrivate *priv = NULL;
-
-    //Initializations
-    priv = search_widget->priv;
-
-    return priv->data.button_menu_model;
-}
-
-
-static GMenuModel*
-lgw_searchwidget_get_window_menu_model (LgwMenuable *menuable)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (menuable));
-
-    //Declarations
-    LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (menuable);
-    LgwSearchWidgetPrivate *priv = NULL;
-
-    //Initializations
-    priv = search_widget->priv;
-
-    return priv->data.window_menu_model;
 }
 
 

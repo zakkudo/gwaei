@@ -148,7 +148,7 @@ lgw_searchwidget_sync_actions (LgwActionable* actionable)
 
 
 void
-lgw_searchwidget_impliment_actionable_interface (LgwActionableInterface *iface) {
+lgw_searchwidget_implement_actionable_interface (LgwActionableInterface *iface) {
     iface->get_actions = lgw_searchwidget_get_actions;
     iface->set_actiongroup = lgw_searchwidget_set_actiongroup;
     iface->sync_actions = lgw_searchwidget_sync_actions;

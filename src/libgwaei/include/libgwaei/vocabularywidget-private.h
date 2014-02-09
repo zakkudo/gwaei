@@ -57,5 +57,8 @@ static void lgw_vocabularywidget_init_menuable_interface (LgwMenuableInterface *
 G_END_DECLS
 
 #include <libgwaei/vocabularywidget-callbacks.h>
+#include <libgwaei/vocabularywidget-actionable-interface.h>
+#include <libgwaei/vocabularywidget-menuable-interface.h>
 
 #endif
+

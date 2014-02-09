@@ -4,7 +4,7 @@
 G_BEGIN_DECLS
 
 
-void lgw_vocabularywidget_impliment_actionable_interface (LgwActionableInterface *iface);
+void lgw_vocabularywidget_implement_actionable_interface (LgwActionableInterface *iface);
 
 
 G_END_DECLS
