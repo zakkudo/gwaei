@@ -152,7 +152,7 @@ void
 lw_word_set_timestamp (LwWord *word, gint64 timestamp)
 {
     guint32 hours = lw_word_timestamp_to_hours (timestamp);
-    lw_word_set_hours (word, hours);
+    lw_word_set_last_studied (word, hours);
 }
 
 

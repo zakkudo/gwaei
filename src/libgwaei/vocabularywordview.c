@@ -41,9 +41,8 @@
 
 #include <libgwaei/vocabularywordview-private.h>
 
-static void lgw_vocabularywordview_init (LgwVocabularyWordView *widget);
-
-G_DEFINE_TYPE (LgwVocabularyWordView, lgw_vocabularywordview, GTK_TYPE_BOX)
+G_DEFINE_TYPE_WITH_CODE (LgwVocabularyWordView, lgw_vocabularywordview, GTK_TYPE_BOX,
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularywordview_impliment_actionable_interface));
 
 //!
 //! @brief Sets up the variables in main-interface.c and main-callbacks.c for use
@@ -94,13 +93,18 @@ lgw_vocabularywordview_set_property (GObject      *object,
     //Declarations
     LgwVocabularyWordView *vocabulary_word_view = NULL;
     LgwVocabularyWordViewPrivate *priv = NULL;
+    LgwActionable *actionable = NULL;
 
     //Initializations
     vocabulary_word_view = LGW_VOCABULARYWORDVIEW (object);
     priv = vocabulary_word_view->priv;
+    actionable = LGW_ACTIONABLE (object);
 
     switch (property_id)
     {
+      case PROP_ACTIONS:
+        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
+        break;
       case PROP_VOCABULARYWORDSTORE:
         lgw_vocabularywordview_set_wordstore (vocabulary_word_view, g_value_get_object (value));
         break;
@@ -120,13 +124,18 @@ lgw_vocabularywordview_get_property (GObject      *object,
     //Declarations
     LgwVocabularyWordView *vocabulary_word_view = NULL;
     LgwVocabularyWordViewPrivate *priv = NULL;
+    LgwActionable *actionable = NULL;
 
     //Initializations
     vocabulary_word_view = LGW_VOCABULARYWORDVIEW (object);
     priv = vocabulary_word_view->priv;
+    actionable = LGW_ACTIONABLE (object);
 
     switch (property_id)
     {
+      case PROP_ACTIONS:
+        g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
+        break;
       case PROP_VOCABULARYWORDSTORE:
         g_value_set_object (value, lgw_vocabularywordview_get_wordstore (vocabulary_word_view));
         break;
@@ -177,6 +186,11 @@ lgw_vocabularywordview_constructed (GObject *object)
         priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
         gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
         gtk_widget_show (tree_view);
+
+        {
+            priv->data.tree_selection = gtk_tree_view_get_selection (priv->ui.tree_view);
+            g_object_add_weak_pointer (G_OBJECT (priv->data.tree_selection), (gpointer*) &(priv->data.tree_selection));
+        }
 
         {
           GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
@@ -289,6 +303,8 @@ lgw_vocabularywordview_class_init (LgwVocabularyWordViewClass *klass)
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_VOCABULARYWORDSTORE, klasspriv->pspec[PROP_VOCABULARYWORDSTORE]);
+
+    g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
 }
 
 

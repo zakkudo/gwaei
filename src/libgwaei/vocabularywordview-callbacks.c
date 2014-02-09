@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file vocabularylistview.c
+//! @file vocabularywordview.c
 //!
 //! @brief To be written
 //!
@@ -39,44 +39,44 @@
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
 
-#include <libgwaei/vocabularylistview-private.h>
+#include <libgwaei/vocabularywordview-private.h>
 
 
 void
-lgw_vocabularylistview_connect_signals (LgwVocabularyListView *vocabulary_list_view)
+lgw_vocabularywordview_connect_signals (LgwVocabularyWordView *vocabulary_word_view)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (vocabulary_word_view));
 
     //Declarations
-    LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyWordViewPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_list_view->priv;
+    priv = vocabulary_word_view->priv;
 
     if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] == 0)
     {
         priv->data.signalid[SIGNALID_SELECTION_CHANGED] = g_signal_connect_swapped (
           G_OBJECT (priv->data.tree_selection),
           "changed",
-          G_CALLBACK (lgw_vocabularylistview_selection_changed_cb),
-          vocabulary_list_view
+          G_CALLBACK (lgw_vocabularywordview_selection_changed_cb),
+          vocabulary_word_view
         );
     }
 }
 
 
 void
-lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *vocabulary_list_view)
+lgw_vocabularywordview_disconnect_signals (LgwVocabularyWordView *vocabulary_word_view)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (vocabulary_word_view));
 
     //Declarations
-    LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyWordViewPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_list_view->priv;
+    priv = vocabulary_word_view->priv;
 
     if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] != 0)
     {
@@ -93,27 +93,17 @@ lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *vocabulary_lis
 
 
 void
-lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *vocabulary_list_view,
+lgw_vocabularywordview_selection_changed_cb (LgwVocabularyWordView *vocabulary_word_view,
                                              GtkTreeSelection      *tree_selection)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (vocabulary_word_view));
 
-    printf("BREAK lgw_vocabularylistview_selection_changed_cb\n");
+    printf("BREAK lgw_vocabularywordview_selection_changed_cb\n");
 
     //Declarations
-    LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyWordViewPrivate *priv = NULL;
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
-    LgwVocabularyWordView *vocabulary_word_view = NULL;
-
-    //Initializations
-    priv = vocabulary_list_view->priv;
-    if (priv == NULL) goto errored;
-    vocabulary_word_view = lgw_vocabularylistview_get_wordview (vocabulary_list_view);
-    if (vocabulary_word_view == NULL) goto errored;
-    vocabulary_word_store = lgw_vocabularylistview_get_selected_wordstore (vocabulary_list_view);
-
-    lgw_vocabularywordview_set_wordstore (vocabulary_word_view, vocabulary_word_store);
 
 errored:
 
@@ -121,20 +111,20 @@ errored:
 }
 
 void
-lgw_vocabularylistview_new_activated_cb (GSimpleAction *action,
+lgw_vocabularywordview_new_activated_cb (GSimpleAction *action,
                                          GVariant      *parameter,
                                          gpointer       data)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (data));
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (data));
 
     //Declarations
-    LgwVocabularyListView *vocabulary_list_view = NULL;
+    LgwVocabularyWordView *vocabulary_word_view = NULL;
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
     gchar *filename = NULL;
 
     //Initializations
-    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (data);
+    vocabulary_word_view = LGW_VOCABULARYWORDVIEW (data);
     filename = lgw_vocabularywordstore_generate_filename ();
     if (filename == NULL) goto errored;
 
@@ -148,23 +138,23 @@ errored:
 }
 
 void
-lgw_vocabularylistview_remove_selected_activated_cb (GSimpleAction *action,
+lgw_vocabularywordview_remove_selected_activated_cb (GSimpleAction *action,
                                                      GVariant      *parameter,
                                                      gpointer       data)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (data));
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (data));
 
     //Declarations
-    LgwVocabularyListView *vocabulary_list_view = NULL;
-    LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyWordView *vocabulary_word_view = NULL;
+    LgwVocabularyWordViewPrivate *priv = NULL;
     GtkTreeModel *tree_model = NULL;
     GList *rowlist = NULL;
 
     //Initializations
-    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (data);
-    priv = vocabulary_list_view->priv;
-    tree_model = GTK_TREE_MODEL (priv->data.vocabulary_list_store);
+    vocabulary_word_view = LGW_VOCABULARYWORDVIEW (data);
+    priv = vocabulary_word_view->priv;
+    tree_model = GTK_TREE_MODEL (priv->data.vocabulary_word_store);
     rowlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
 
 errored:

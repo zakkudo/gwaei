@@ -53,7 +53,7 @@ const gchar* lw_word_get_score_as_string (LwWord*);
 guint32 lw_word_timestamp_to_hours (gint64);
 void lw_word_set_timestamp (LwWord*, gint64);
 void lw_word_update_timestamp (LwWord*);
-void lw_word_set_hours (LwWord*, guint32);
+void lw_word_set_last_studied (LwWord*, guint32);
 guint32 lw_word_get_last_studied (LwWord*);
 const gchar* lw_word_get_last_studied_as_string (LwWord*);
 

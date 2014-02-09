@@ -42,7 +42,8 @@
 #include <libgwaei/vocabularylistview-private.h>
 
 
-G_DEFINE_TYPE (LgwVocabularyListView, lgw_vocabularylistview, GTK_TYPE_BOX)
+G_DEFINE_TYPE_WITH_CODE (LgwVocabularyListView, lgw_vocabularylistview, GTK_TYPE_BOX,
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularylistview_impliment_actionable_interface));
 
 //!
 //! @brief Sets up the variables in main-interface.c and main-callbacks.c for use
@@ -107,12 +108,17 @@ lgw_vocabularylistview_set_property (GObject      *object,
 {
     LgwVocabularyListView *vocabulary_list_view = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
+    LgwActionable *actionable = NULL;
 
     vocabulary_list_view = LGW_VOCABULARYLISTVIEW (object);
     priv = vocabulary_list_view->priv;
+    actionable = LGW_ACTIONABLE (object);
 
     switch (property_id)
     {
+      case PROP_ACTIONS:
+        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
+        break;
       case PROP_VOCABULARYLISTSTORE:
         lgw_vocabularylistview_set_liststore (vocabulary_list_view, g_value_get_object (value));
         break;
@@ -134,12 +140,17 @@ lgw_vocabularylistview_get_property (GObject      *object,
 {
     LgwVocabularyListView *vocabulary_list_view = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
+    LgwActionable *actionable = NULL;
 
     vocabulary_list_view = LGW_VOCABULARYLISTVIEW (object);
     priv = vocabulary_list_view->priv;
+    actionable = LGW_ACTIONABLE (object);
 
     switch (property_id)
     {
+      case PROP_ACTIONS:
+        g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
+        break;
       case PROP_VOCABULARYLISTSTORE:
         g_value_set_object (value, lgw_vocabularylistview_get_liststore (vocabulary_list_view));
         break;
@@ -238,7 +249,7 @@ lgw_vocabularylistview_constructed (GObject *object)
               gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (item), "list-add");
             }
             gtk_toolbar_insert (priv->ui.toolbar, item, -1);
-            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.add-dictionary");
+            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.new-vocabulary-list");
             gtk_widget_show (GTK_WIDGET (item));
           }
           
@@ -252,7 +263,7 @@ lgw_vocabularylistview_constructed (GObject *object)
               gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (item), "list-remove");
             }
             gtk_toolbar_insert (priv->ui.toolbar, item, -1);
-            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.remove-dictionary");
+            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.remove-selected-vocabulary-lists");
             gtk_widget_show (GTK_WIDGET (item));
           }
         }
@@ -299,6 +310,8 @@ lgw_vocabularylistview_class_init (LgwVocabularyListViewClass *klass)
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_VOCABULARYWORDVIEW, klasspriv->pspec[PROP_VOCABULARYWORDVIEW]);
+
+    g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
 }
 
 

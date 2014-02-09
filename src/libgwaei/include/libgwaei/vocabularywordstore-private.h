@@ -15,7 +15,8 @@ struct _LgwVocabularyWordStorePrivate {
 };
 
 struct _LgwVocabularyWordStoreClassPrivate {
-  gint unused;
+  guint new_filename_index;
+  const gchar *BASE_FILENAME;
 };
 
 #define LGW_VOCABULARYWORDSTORE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_VOCABULARYWORDSTORE, LgwVocabularyWordStorePrivate))

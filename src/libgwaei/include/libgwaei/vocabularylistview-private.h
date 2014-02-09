@@ -5,6 +5,7 @@ G_BEGIN_DECLS
 
 typedef enum {
   PROP_0,
+  PROP_ACTIONS,
   PROP_VOCABULARYLISTSTORE,
   PROP_VOCABULARYWORDVIEW,
   TOTAL_PROPS
@@ -18,6 +19,8 @@ typedef enum {
 struct _Data {
   LgwVocabularyListStore *vocabulary_list_store;
   GtkTreeSelection *tree_selection;
+  LgwActionGroup *action_group;
+  GList *action_group_list;
   guint signalid[TOTAL_SIGNALIDS];
 };
 
@@ -48,6 +51,7 @@ struct _LgwVocabularyListViewClassPrivate {
 G_END_DECLS
 
 #include <libgwaei/vocabularylistview-callbacks.h>
+#include <libgwaei/vocabularylistview-actionable-interface.h>
 
 #endif
 

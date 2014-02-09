@@ -1,0 +1,11 @@
+#ifndef LGW_VOCABULARYLISTVIEW_ACTIONABLE_INTERFACE_INCLUDED
+#define LGW_VOCABULARYLISTVIEW_ACTIONABLE_INTERFACE_INCLUDED
+
+G_BEGIN_DECLS
+
+void lgw_vocabularylistview_impliment_actionable_interface (LgwActionableInterface *iface);
+
+G_END_DECLS
+
+#endif
+

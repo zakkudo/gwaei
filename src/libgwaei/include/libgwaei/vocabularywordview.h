@@ -40,4 +40,5 @@ void lgw_vocabularylistview_set_wordview (LgwVocabularyListView *vocabulary_list
 
 G_END_DECLS
 
+
 #endif

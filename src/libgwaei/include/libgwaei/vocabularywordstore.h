@@ -21,6 +21,7 @@ typedef enum {
 typedef struct _LgwVocabularyWordStore LgwVocabularyWordStore;
 typedef struct _LgwVocabularyWordStoreClass LgwVocabularyWordStoreClass;
 typedef struct _LgwVocabularyWordStorePrivate LgwVocabularyWordStorePrivate;
+typedef struct _LgwVocabularyWordStoreClassPrivate LgwVocabularyWordStoreClassPrivate;
 
 #define LGW_TYPE_VOCABULARYWORDSTORE              (lgw_vocabularywordstore_get_type())
 #define LGW_VOCABULARYWORDSTORE(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LGW_TYPE_VOCABULARYWORDSTORE, LgwVocabularyWordStore))
@@ -36,12 +37,14 @@ struct _LgwVocabularyWordStore {
 
 struct _LgwVocabularyWordStoreClass {
   LwVocabularyClass parent_class;
+  LgwVocabularyWordStoreClassPrivate *priv;
 };
 
 //Methods
 LgwVocabularyWordStore* lgw_vocabularywordstore_new (const gchar* FILENAME);
 GType lgw_vocabularywordstore_get_type (void) G_GNUC_CONST;
 
+gchar* lgw_vocabularywordstore_generate_filename (void);
 
 G_END_DECLS
 
