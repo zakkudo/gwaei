@@ -1,0 +1,10 @@
+#ifndef LGW_RESULTSTEXTVIEW_ACTIONABLE_INTERFACE_INCLUDED
+#define LGW_RESULTSTEXTVIEW_ACTIONABLE_INTERFACE_INCLUDED
+
+G_BEGIN_DECLS
+
+void lgw_resultstextview_implement_actionable_interface (LgwActionableInterface *iface);
+
+G_END_DECLS
+
+#endif

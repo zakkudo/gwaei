@@ -121,9 +121,9 @@ errored:
 }
 
 void
-lgw_vocabularylistview_new_activated_cb (GSimpleAction *action,
-                                         GVariant      *parameter,
-                                         gpointer       data)
+lgw_vocabularylistview_add_new_activated_cb (GSimpleAction *action,
+                                             GVariant      *parameter,
+                                             gpointer       data)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (data));

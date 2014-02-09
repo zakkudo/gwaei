@@ -291,7 +291,7 @@ void
 lgw_window_load_size (LgwWindow *window)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     //Declarations
     GtkApplication *application = NULL;
@@ -344,7 +344,7 @@ void
 lgw_window_save_size (LgwWindow *window)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -410,7 +410,7 @@ GMenuModel*
 lgw_window_get_window_menumodel (LgwWindow *window)
 {
     //Sanity checks
-    g_return_val_if_fail (window != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_WINDOW (window), NULL);
 
     return window->priv->data.window_menu_model;
 }
@@ -421,7 +421,7 @@ lgw_window_set_window_menumodel (LgwWindow  *window,
                                  GMenuModel *menu_model)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     //Declarations
     GtkApplication *application = NULL;
@@ -455,7 +455,7 @@ lgw_window_show_menubar (LgwWindow *window,
                          gboolean   show_menubar)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
     if (window->priv->ui.window_menubar == NULL) return;
 
     //Declarations
@@ -474,7 +474,7 @@ GMenuModel*
 lgw_window_get_transient_for_menumodel (LgwWindow *window)
 {
     //Sanity checks
-    g_return_val_if_fail (window != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_WINDOW (window), NULL);
 
     //Declarations
     GMenuModel *menumodel = NULL;
@@ -498,7 +498,7 @@ gboolean
 lgw_window_is_closable (LgwWindow *window)
 {
     //Sanity checks
-    g_return_val_if_fail (window != NULL, FALSE);
+    g_return_val_if_fail (LGW_IS_WINDOW (window), FALSE);
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -515,7 +515,7 @@ lgw_window_set_button_menumodel (LgwWindow *window,
                                  GMenuModel *menu_model)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -543,7 +543,7 @@ GMenuModel*
 lgw_window_get_button_menumodel (LgwWindow *window)
 {
     //Sanity checks
-    g_return_val_if_fail (window != NULL, FALSE);
+    g_return_val_if_fail (LGW_IS_WINDOW (window), FALSE);
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -559,7 +559,7 @@ GtkWidget*
 lgw_window_get_menubar (LgwWindow *window)
 {
     //Sanity checks
-    g_return_val_if_fail (window != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_WINDOW (window), NULL);
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -575,7 +575,7 @@ GtkWidget*
 lgw_window_get_menu_button (LgwWindow *window)
 {
     //Sanity checks
-    g_return_val_if_fail (window != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_WINDOW (window), NULL);
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -592,7 +592,7 @@ lgw_window_set_shows_menubar (LgwWindow *window,
                               gboolean shows_menubar)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -616,7 +616,7 @@ gboolean
 lgw_window_get_shows_menubar (LgwWindow *window)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -632,7 +632,7 @@ void
 lgw_window_sync_menubar_show (LgwWindow *window)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -688,7 +688,7 @@ lgw_window_pack_start (LgwWindow *window,
                        guint      padding)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -704,7 +704,7 @@ void
 lgw_window_clear_actions (LgwWindow *window)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     //Declarations
     gchar **actions = NULL;
@@ -734,7 +734,7 @@ lgw_window_add_actions (LgwWindow *window,
                         GList     *action_group_list)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -763,7 +763,7 @@ lgw_window_set_actions (LgwWindow *window,
                         GList     *action_group_list)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (LGW_IS_WINDOW (window));
 
     lgw_window_clear_actions (window);
     lgw_window_add_actions (window, action_group_list);

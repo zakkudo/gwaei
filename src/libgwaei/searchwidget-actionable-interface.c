@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file vocabularywordview.c
+//! @file searchwidget.c
 //!
 //! @brief To be written
 //!
@@ -40,42 +40,42 @@
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
 
-#include <libgwaei/vocabularywordview-private.h>
+#include <libgwaei/searchwidget-private.h>
 
 
 static GList*
-lgw_vocabularywordview_get_actions (LgwActionable *actionable)
+lgw_searchwidget_get_actions (LgwActionable *actionable)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_VOCABULARYWORDVIEW (actionable), NULL);
+    g_return_val_if_fail (actionable != NULL, NULL);
 
     //Declarations
-    LgwVocabularyWordView *vocabulary_word_view = NULL;
-    LgwVocabularyWordViewPrivate *priv = NULL;
+    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
-    vocabulary_word_view = LGW_VOCABULARYWORDVIEW (actionable);
-    priv = vocabulary_word_view->priv;
+    search_widget = LGW_SEARCHWIDGET (actionable);
+    priv = search_widget->priv;
 
     return priv->data.action_group_list;
 }
 
 
 static void
-lgw_vocabularywordview_set_actiongroup (LgwActionable *actionable,
-                                        LgwActionGroup *action_group)
+lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
+                                  LgwActionGroup *action_group)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (actionable));
+    g_return_val_if_fail (actionable != NULL, NULL);
 
     //Declarations
-    LgwVocabularyWordView *vocabulary_word_view = NULL;
-    LgwVocabularyWordViewPrivate *priv = NULL;
+    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidgetPrivate *priv = NULL;
     GList *list = NULL;
 
     //Initializations
-    vocabulary_word_view = LGW_VOCABULARYWORDVIEW (actionable);
-    priv = vocabulary_word_view->priv;
+    search_widget = LGW_SEARCHWIDGET (actionable);
+    priv = search_widget->priv;
 
     if (priv->data.action_group_list != NULL)
     {
@@ -95,43 +95,62 @@ lgw_vocabularywordview_set_actiongroup (LgwActionable *actionable,
     {
       priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
     }
+
+    {
+        LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.search_entry);
+        GList *actions = lgw_actionable_get_actions (actionable);
+        if (actions != NULL)
+        {
+          GList *copy = g_list_copy (actions);
+          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
+        }
+    }
+
+    {
+        LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.results_view);
+        GList *actions = lgw_actionable_get_actions (actionable);
+        if (actions != NULL)
+        {
+          GList *copy = g_list_copy (actions);
+          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
+        }
+    }
 }
 
 
 void
-lgw_vocabularywordview_sync_actions (LgwActionable *actionable)
+lgw_searchwidget_sync_actions (LgwActionable* actionable)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (actionable));
+    g_return_val_if_fail (LGW_IS_SEARCHWIDGET (actionable), NULL);
 
     //Declarations
-    LgwVocabularyWordView *vocabulary_word_view = NULL;
-    LgwVocabularyWordViewPrivate *priv = NULL;
+    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidgetPrivate *priv = NULL;
     GtkWidget *widget = NULL;
 
     //Initializations
-    vocabulary_word_view = LGW_VOCABULARYWORDVIEW (actionable);
-    priv = vocabulary_word_view->priv;
-    widget = GTK_WIDGET (vocabulary_word_view);
+    search_widget = LGW_SEARCHWIDGET (actionable);
+    priv = search_widget->priv;
+    widget = GTK_WIDGET (search_widget);
 
+/*
     static GActionEntry entries[] = {
-      { "add-new-word", lgw_vocabularywordview_add_new_activated_cb, NULL, NULL, NULL },
-      { "remove-selected-words", lgw_vocabularywordview_remove_selected_activated_cb, NULL, NULL, NULL }
     };
     if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
     {
       LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
       lgw_actionable_set_actiongroup (actionable, action_group);
     }
+*/
     lgw_actionable_set_actiongroup (actionable, NULL);
 }
 
 
 void
-lgw_vocabularywordview_impliment_actionable_interface (LgwActionableInterface *iface)
-{
-    iface->get_actions = lgw_vocabularywordview_get_actions;
-    iface->set_actiongroup = lgw_vocabularywordview_set_actiongroup;
-    iface->sync_actions = lgw_vocabularywordview_sync_actions;
+lgw_searchwidget_impliment_actionable_interface (LgwActionableInterface *iface) {
+    iface->get_actions = lgw_searchwidget_get_actions;
+    iface->set_actiongroup = lgw_searchwidget_set_actiongroup;
+    iface->sync_actions = lgw_searchwidget_sync_actions;
 }
 

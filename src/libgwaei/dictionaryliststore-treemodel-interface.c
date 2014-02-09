@@ -70,7 +70,7 @@ lgw_dictionaryliststore_initialize_tree_iter (LgwDictionaryListStore *dictionary
                                          gint               index_)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list_store != NULL, 0);
+    g_return_val_if_fail (LGW_IS_DICTIONARYLISTSTORE (dictionary_list_store), 0);
 
     //Declarations
     LgwDictionaryListStoreClass *klass = NULL;
@@ -100,7 +100,7 @@ lgw_dictionaryliststore_tree_iter_is_valid (LgwDictionaryListStore *dictionary_l
                                        GtkTreeIter       *iter)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list_store != NULL, FALSE);
+    g_return_val_if_fail (LGW_IS_DICTIONARYLISTSTORE (dictionary_list_store), FALSE);
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
@@ -222,7 +222,7 @@ lgw_dictionaryliststore_get_path (GtkTreeModel *tree_model,
                              GtkTreeIter  *iter)
 {
     //Sanity checks
-    g_return_val_if_fail (tree_model != NULL, NULL);
+    g_return_val_if_fail (GTK_IS_TREE_MODEL (tree_model), NULL);
     g_return_val_if_fail (iter != NULL, NULL);
 
     //Declarations
@@ -248,7 +248,7 @@ lgw_dictionaryliststore_get_value (GtkTreeModel *tree_model,
                               GValue       *value)
 {
     //Sanity checks
-    g_return_if_fail (tree_model != NULL);
+    g_return_if_fail (GTK_IS_TREE_MODEL (tree_model));
     g_return_if_fail (iter != NULL);
     g_return_if_fail (value != NULL);
 

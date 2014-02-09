@@ -254,7 +254,7 @@ lgw_vocabularywordview_constructed (GObject *object)
               gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (item), "list-add");
             }
             gtk_toolbar_insert (priv->ui.toolbar, item, -1);
-            //gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.add-dictionary");
+            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.add-new-word");
             gtk_widget_show (GTK_WIDGET (item));
           }
           
@@ -268,7 +268,7 @@ lgw_vocabularywordview_constructed (GObject *object)
               gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (item), "list-remove");
             }
             gtk_toolbar_insert (priv->ui.toolbar, item, -1);
-            //gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.remove-dictionary");
+            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.remove-selected-words");
             gtk_widget_show (GTK_WIDGET (item));
           }
         }

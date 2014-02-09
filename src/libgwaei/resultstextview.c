@@ -41,14 +41,10 @@
 
 #include <libgwaei/resultstextview-private.h>
 
-static void lgw_resultstextview_init_resultsview_interface (LgwResultsViewInterface *iface);
-static void lgw_resultstextview_init_actionable_interface (LgwActionableInterface *iface);
-
 
 G_DEFINE_TYPE_WITH_CODE (LgwResultsTextView, lgw_resultstextview, GTK_TYPE_BOX,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_RESULTSVIEW, lgw_resultstextview_init_resultsview_interface)
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_resultstextview_init_actionable_interface));
-
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_RESULTSVIEW, lgw_resultstextview_implement_resultsview_interface)
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_resultstextview_implement_actionable_interface));
 
 
 //!
@@ -64,21 +60,6 @@ lgw_resultstextview_new ()
     widget = LGW_RESULTSTEXTVIEW (g_object_new (LGW_TYPE_RESULTSTEXTVIEW, NULL));
 
     return GTK_WIDGET (widget);
-}
-
-
-static void
-lgw_resultstextview_init_resultsview_interface (LgwResultsViewInterface *iface)
-{
-    iface->set_search = lgw_resultstextview_set_searchlist;
-}
-
-
-static void
-lgw_resultstextview_init_actionable_interface (LgwActionableInterface *iface)
-{
-    iface->get_actions = lgw_resultstextview_get_actions;
-    iface->set_actiongroup = lgw_resultstextview_set_actiongroup;
 }
 
 
@@ -300,74 +281,6 @@ lgw_resultstextview_add_search (LgwResultsView *view,
 }
 
 
-void
-lgw_resultstextview_clear_searchlist (LgwResultsView *view)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
-
-    //Declarations
-    LgwResultsTextView *text_view = NULL;
-    LgwResultsTextViewPrivate *priv = NULL;
-
-    //Initializations
-    text_view = LGW_RESULTSTEXTVIEW (view);
-    priv = text_view->priv;
-
-    g_list_free_full (priv->data.searchiteratorlist, (GDestroyNotify) lw_searchiterator_free);
-    g_list_free_full (priv->data.searchlist, (GDestroyNotify) lw_search_free);
-
-    priv->data.searchiteratorlist = NULL;
-    priv->data.searchlist = NULL;
-}
-
-
-void
-lgw_resultstextview_set_searchlist (LgwResultsView *view,
-                                    GList          *searchlist)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
-
-    //Declarations
-    LgwResultsTextView *text_view = NULL;
-    LgwResultsTextViewPrivate *priv = NULL;
-
-    //Initializations
-    text_view = LGW_RESULTSTEXTVIEW (view);
-    priv = text_view->priv;
-
-    lgw_resultstextview_clear_searchlist (view);
-
-    {
-      GList *link = searchlist;
-      while (link != NULL)
-      {
-        LwSearch *search = LW_SEARCH (link->data);
-        lgw_resultstextview_add_search (view, search);
-        link = link->next;
-      }
-    }
-    
-    printf("set search\n");
-}
-
-
-GList*
-lgw_resultstextview_get_searchlist (LgwResultsView *view)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
-
-    //Declarations
-    LgwResultsTextView *text_view = NULL;
-    LgwResultsTextViewPrivate *priv = NULL;
-
-    //Initializations
-    text_view = LGW_RESULTSTEXTVIEW (view);
-    priv = text_view->priv;
-}
-
 static gboolean
 _load_results (LgwResultsView *view)
 {
@@ -408,95 +321,6 @@ lgw_resultstextview_set_timeout (LgwResultsView *view,
     }
 }
 
-
-static void
-lgw_resultstextview_set_actiongroup (LgwActionable  *actionable,
-                                     LgwActionGroup *action_group)
-{
-    //Sanity checks
-    g_return_val_if_fail (LGW_IS_ACTIONABLE (actionable), NULL);
-
-    //Declarations
-    LgwResultsTextView *results_text_view = NULL;
-    LgwResultsTextViewPrivate *priv = NULL;
-    LgwResultsTextViewClass *klass = NULL;
-    LgwResultsTextViewClassPrivate *klasspriv = NULL;
-    GList *list = NULL;
-
-    //Initializations
-    results_text_view = LGW_RESULTSTEXTVIEW (actionable);
-    priv = results_text_view->priv;
-    klass = LGW_RESULTSTEXTVIEW_GET_CLASS (results_text_view);
-    klasspriv = klass->priv;
-
-    if (priv->data.action_group_list != NULL)
-    {
-      g_list_free (priv->data.action_group_list);
-      priv->data.action_group_list = NULL;
-    }
-
-    if (priv->data.action_group != NULL)
-    {
-        lgw_actiongroup_free (priv->data.action_group);
-        priv->data.action_group = NULL;
-    }
-    priv->data.action_group = action_group;
-
-    if (action_group != NULL)
-    {
-      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
-    }
-}
-
-
-void
-lgw_resultstextview_sync_actions (LgwResultsTextView *results_text_view)
-{
-    //Sanity checks
-    g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (results_text_view), NULL);
-
-    //Declarations
-    LgwResultsTextViewPrivate *priv = NULL;
-    GtkWidget *widget = NULL;
-    gboolean has_focus = FALSE;
-
-    //Initializations
-    priv = results_text_view->priv;
-    widget = GTK_WIDGET (results_text_view);
-    has_focus = gtk_widget_is_focus (GTK_WIDGET (priv->ui.text_view));
-
-    if (has_focus)
-    {
-      static GActionEntry entries[] = {
-        { "copy", lgw_resultstextview_copy_cb, NULL, NULL, NULL }
-      };
-      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_actionable_set_actiongroup (LGW_ACTIONABLE (results_text_view), action_group);
-    }
-    else 
-    {
-      lgw_actionable_set_actiongroup (LGW_ACTIONABLE (results_text_view), NULL);
-    }
-
-}
-
-
-static GList*
-lgw_resultstextview_get_actions (LgwActionable *actionable)
-{
-    //Sanity checks
-    g_return_val_if_fail (LGW_IS_ACTIONABLE (actionable), NULL);
-
-    //Declarations
-    LgwResultsTextView *results_text_view = NULL;
-    LgwResultsTextViewPrivate *priv = NULL;
-
-    //Initializations
-    results_text_view = LGW_RESULTSTEXTVIEW (actionable);
-    priv = results_text_view->priv;
-
-    return priv->data.action_group_list;
-}
 
 void
 lgw_resultstextview_set_tagtable (LgwResultsTextView *results_text_view,

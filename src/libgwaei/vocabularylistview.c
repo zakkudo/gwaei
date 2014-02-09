@@ -249,7 +249,7 @@ lgw_vocabularylistview_constructed (GObject *object)
               gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (item), "list-add");
             }
             gtk_toolbar_insert (priv->ui.toolbar, item, -1);
-            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.new-vocabulary-list");
+            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.add-new-vocabulary-list");
             gtk_widget_show (GTK_WIDGET (item));
           }
           

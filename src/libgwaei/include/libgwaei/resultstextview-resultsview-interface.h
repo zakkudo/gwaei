@@ -1,0 +1,12 @@
+#ifndef LGW_RESULTSTEXTVIEW_RESULTSVIEW_INTERFACE_INCLUDED
+#define LGW_RESULTSTEXTVIEW_RESULTSVIEW_INTERFACE_INCLUDED
+
+G_BEGIN_DECLS
+
+
+void lgw_resultstextview_implement_resultsview_interface (LgwResultsViewInterface *iface);
+
+
+G_END_DECLS
+
+#endif

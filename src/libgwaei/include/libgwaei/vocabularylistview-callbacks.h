@@ -9,7 +9,7 @@ void lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *vocabular
 
 void lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *vocabulary_list_view, GtkTreeSelection *tree_selection);
 
-void lgw_vocabularylistview_new_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
+void lgw_vocabularylistview_add_new_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 void lgw_vocabularylistview_remove_selected_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 
 

@@ -48,12 +48,9 @@ struct _LgwSearchEntryClassPrivate {
 
 #define LGW_SEARCHENTRY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_SEARCHENTRY, LgwSearchEntryPrivate));
 
-static GList* lgw_searchentry_get_actions (LgwActionable *actionable);
-static void lgw_searchentry_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-void lgw_searchentry_sync_actions (LgwSearchEntry *search_entry);
-
 G_END_DECLS
 
 #include <libgwaei/searchentry-callbacks.h>
+#include <libgwaei/searchentry-actionable-interface.h>
 
 #endif

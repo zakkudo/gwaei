@@ -47,7 +47,7 @@ static GList*
 lgw_vocabularylistview_get_actions (LgwActionable *actionable)
 {
     //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_VOCABULARYLISTVIEW (actionable), NULL);
 
     //Declarations
     LgwVocabularyListView *vocabulary_list_view = NULL;
@@ -66,7 +66,7 @@ lgw_vocabularylistview_set_actiongroup (LgwActionable *actionable,
                                         LgwActionGroup *action_group)
 {
     //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (actionable));
 
     //Declarations
     LgwVocabularyListView *vocabulary_list_view = NULL;
@@ -99,23 +99,23 @@ lgw_vocabularylistview_set_actiongroup (LgwActionable *actionable,
 
 
 void
-lgw_vocabularylistview_sync_actions (LgwVocabularyListView *vocabulary_list_view)
+lgw_vocabularylistview_sync_actions (LgwActionable *actionable)
 {
     //Sanity checks
-    g_return_val_if_fail (vocabulary_list_view != NULL, NULL);
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (actionable));
 
     //Declarations
+    LgwVocabularyListView *vocabulary_list_view = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
     GtkWidget *widget = NULL;
-    LgwActionable *actionable = NULL;
 
     //Initializations
+    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (actionable);
     priv = vocabulary_list_view->priv;
     widget = GTK_WIDGET (vocabulary_list_view);
-    actionable = LGW_ACTIONABLE (vocabulary_list_view);
 
     static GActionEntry entries[] = {
-      { "new-vocabulary-list", lgw_vocabularylistview_new_activated_cb, NULL, NULL, NULL },
+      { "add-new-vocabulary-list", lgw_vocabularylistview_add_new_activated_cb, NULL, NULL, NULL },
       { "remove-selected-vocabulary-lists", lgw_vocabularylistview_remove_selected_activated_cb, NULL, NULL, NULL }
     };
     if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
@@ -132,5 +132,6 @@ lgw_vocabularylistview_impliment_actionable_interface (LgwActionableInterface *i
 {
     iface->get_actions = lgw_vocabularylistview_get_actions;
     iface->set_actiongroup = lgw_vocabularylistview_set_actiongroup;
+    iface->sync_actions = lgw_vocabularylistview_sync_actions;
 }
 

@@ -14,11 +14,15 @@ typedef struct _LgwResultsViewInterface LgwResultsViewInterface;
 struct _LgwResultsViewInterface {
       GTypeInterface parent;
       void (*set_search) (LgwResultsView *self, GList *searchlist);
+      GList* (*get_search) (LgwResultsView *self);
+      void (*clear_search) (LgwResultsView *self);
 };
 
 GType lgw_resultsview_get_type (void);
 
 void lgw_resultsview_set_searchlist (LgwResultsView *self, GList *searchlist);
+GList* lgw_resultsview_get_searchlist (LgwResultsView *self);
+void lgw_resultsview_clear_searchlist (LgwResultsView *self);
 
 
 #endif

@@ -54,10 +54,7 @@ struct _LgwResultsTextViewClassPrivate {
 G_END_DECLS
 
 #include <libgwaei/resultstextview-callbacks.h>
-
-static GList* lgw_resultstextview_get_actions (LgwActionable *actionable);
-static void lgw_resultstextview_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-
-void lgw_resultstextview_sync_actions (LgwResultsTextView *results_text_view);
+#include <libgwaei/resultstextview-actionable-interface.h>
+#include <libgwaei/resultstextview-resultsview-interface.h>
 
 #endif

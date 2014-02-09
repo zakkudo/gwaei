@@ -53,11 +53,6 @@ static GMenuModel* lgw_vocabularywidget_get_button_menu_model (LgwMenuable *widg
 static GMenuModel* lgw_vocabularywidget_get_window_menu_model (LgwMenuable *widget);
 
 static void lgw_vocabularywidget_init_menuable_interface (LgwMenuableInterface *iface);
-static void lgw_vocabularywidget_init_actionable_interface (LgwActionableInterface *iface);
-
-static GList* lgw_vocabularywidget_get_actions (LgwActionable *actionable);
-static void lgw_vocabularywidget_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-void lgw_vocabularywidget_sync_actions (LgwVocabularyWidget *vocabulary_widget);
 
 G_END_DECLS
 

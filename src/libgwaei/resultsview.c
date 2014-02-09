@@ -52,6 +52,18 @@ lgw_resultsview_set_searchlist (LgwResultsView *self, GList* searchlist)
     LGW_RESULTSVIEW_GET_INTERFACE (self)->set_search (self, searchlist);
 }
 
+GList*
+lgw_resultsview_get_searchlist (LgwResultsView *self)
+{
+    return LGW_RESULTSVIEW_GET_INTERFACE (self)->get_search (self);
+}
+
+void
+lgw_resultsview_clear_searchlist (LgwResultsView *self)
+{
+    LGW_RESULTSVIEW_GET_INTERFACE (self)->clear_search (self);
+}
+
 
 void
 lgw_resultsview_get_dictionarystatus (LgwResultsView *self)

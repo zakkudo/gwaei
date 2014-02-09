@@ -29,7 +29,7 @@ struct _LgwResultsTextViewClass {
 GtkWidget* lgw_resultstextview_new (void);
 GType lgw_resultstextview_get_type (void) G_GNUC_CONST;
 
-void lgw_resultstextview_set_searchlist (LgwResultsView *view, GList *searchlist);
+void lgw_resultstextview_add_search (LgwResultsView *view, LwSearch *search);
 
 void lgw_resultstextview_set_tagtable (LgwResultsTextView *results_text_view, LgwTextTagTable *tag_table);
 LgwTextTagTable* lgw_resultstextview_get_tagtable (LgwResultsTextView *results_text_view);

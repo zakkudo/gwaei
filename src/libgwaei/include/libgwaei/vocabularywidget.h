@@ -41,4 +41,6 @@ LgwVocabularyListStore* lgw_vocabularywidget_get_vocabularyliststore (LgwVocabul
 
 G_END_DECLS
 
+#include <libgwaei/vocabularywidget-actionable-interface.h>
+
 #endif

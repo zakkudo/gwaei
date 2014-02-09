@@ -69,7 +69,7 @@ GList*
 lgw_actionable_get_actions (LgwActionable *self)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_ACTIONABLE (self), NULL);
 
     return LGW_ACTIONABLE_GET_INTERFACE (self)->get_actions (self);
 }
@@ -80,7 +80,7 @@ lgw_actionable_set_actiongroup (LgwActionable  *self,
                                 LgwActionGroup *action_group)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_ACTIONABLE (self), NULL);
 
     LGW_ACTIONABLE_GET_INTERFACE (self)->set_actiongroup (self, action_group);
 
@@ -88,3 +88,11 @@ lgw_actionable_set_actiongroup (LgwActionable  *self,
 }
 
 
+void
+lgw_actionable_sync_actions (LgwActionable *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ACTIONABLE (self));
+
+    LGW_ACTIONABLE_GET_INTERFACE (self)->sync_actions (self);
+}

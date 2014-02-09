@@ -70,7 +70,7 @@ lgw_vocabularywordstore_initialize_tree_iter (LgwVocabularyWordStore *vocabulary
                                               gint                    index_)
 {
     //Sanity checks
-    g_return_val_if_fail (vocabulary_word_store != NULL, 0);
+    g_return_val_if_fail (LGW_IS_VOCABULARYWORDSTORE (vocabulary_word_store), 0);
 
     //Declarations
     LgwVocabularyWordStoreClass *klass = NULL;
@@ -100,7 +100,7 @@ lgw_vocabularywordstore_tree_iter_is_valid (LgwVocabularyWordStore *vocabulary_w
                                             GtkTreeIter            *iter)
 {
     //Sanity checks
-    g_return_val_if_fail (vocabulary_word_store != NULL, FALSE);
+    g_return_val_if_fail (LGW_IS_VOCABULARYWORDSTORE (vocabulary_word_store), FALSE);
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
@@ -227,7 +227,7 @@ lgw_vocabularywordstore_get_path (GtkTreeModel *tree_model,
                                   GtkTreeIter  *iter)
 {
     //Sanity checks
-    g_return_val_if_fail (tree_model != NULL, NULL);
+    g_return_val_if_fail (GTK_IS_TREE_MODEL (tree_model), NULL);
     g_return_val_if_fail (iter != NULL, NULL);
 
     //Declarations
@@ -253,7 +253,7 @@ lgw_vocabularywordstore_get_value (GtkTreeModel *tree_model,
                                    GValue       *value)
 {
     //Sanity checks
-    g_return_if_fail (tree_model != NULL);
+    g_return_if_fail (GTK_IS_TREE_MODEL (tree_model));
     g_return_if_fail (iter != NULL);
     g_return_if_fail (value != NULL);
 

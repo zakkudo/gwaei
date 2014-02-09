@@ -308,10 +308,16 @@ lgw_searchentry_focus_in_event_cb (LgwSearchEntry *search_entry,
                                    GtkSearchEntry *inner_search_entry)
 {
     //Sanity checks
-    g_return_val_if_fail (search_entry != NULL, FALSE);
-    g_return_val_if_fail (inner_search_entry != NULL, FALSE);
+    g_return_val_if_fail (LGW_IS_SEARCHENTRY (search_entry), FALSE);
+    g_return_val_if_fail (GTK_IS_SEARCH_ENTRY (inner_search_entry), FALSE);
 
-    lgw_searchentry_sync_actions (search_entry);
+    //Declarations
+    LgwActionable *actionable = NULL;
+
+    //Initializations
+    actionable = LGW_ACTIONABLE (search_entry);
+
+    lgw_actionable_sync_actions (actionable);
 
     return FALSE;
 }
@@ -323,10 +329,16 @@ lgw_searchentry_focus_out_event_cb (LgwSearchEntry *search_entry,
                                     GtkSearchEntry *inner_search_entry)
 {
     //Sanity checks
-    g_return_val_if_fail (search_entry != NULL, FALSE);
-    g_return_val_if_fail (inner_search_entry != NULL, FALSE);
+    g_return_val_if_fail (LGW_IS_SEARCHENTRY (search_entry), FALSE);
+    g_return_val_if_fail (GTK_IS_SEARCH_ENTRY (inner_search_entry), FALSE);
 
-    lgw_searchentry_sync_actions (search_entry);
+    //Declarations
+    LgwActionable *actionable = NULL;
+
+    //Initializations
+    actionable = LGW_ACTIONABLE (search_entry);
+
+    lgw_actionable_sync_actions (actionable);
 
     return FALSE;
 }

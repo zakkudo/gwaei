@@ -107,7 +107,13 @@ lgw_resultstextview_focus_in_event_cb (LgwResultsTextView *results_text_view,
                                        GdkEvent           *event,
                                        GtkTextView        *internal_text_view)
 {
-    lgw_resultstextview_sync_actions (results_text_view);
+    //Declarations
+    LgwActionable *actionable = NULL;
+
+    //Initializations
+    actionable = LGW_ACTIONABLE (results_text_view);
+
+    lgw_actionable_sync_actions (actionable);
 
     return FALSE;
 }
@@ -118,7 +124,13 @@ lgw_resultstextview_focus_out_event_cb (LgwResultsTextView *results_text_view,
                                         GdkEvent           *event,
                                         GtkTextView        *internal_text_view)
 {
-    lgw_resultstextview_sync_actions (results_text_view);
+    //Declarations
+    LgwActionable *actionable = NULL;
+
+    //Initializations
+    actionable = LGW_ACTIONABLE (results_text_view);
+
+    lgw_actionable_sync_actions (actionable);
 
     return FALSE;
 }

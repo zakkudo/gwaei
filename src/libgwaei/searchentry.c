@@ -41,10 +41,9 @@
 
 #include <libgwaei/searchentry-private.h>
 
-static void lgw_searchentry_init_actionable_interface (LgwActionableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (LgwSearchEntry, lgw_searchentry, GTK_TYPE_BOX,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_searchentry_init_actionable_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_searchentry_implement_actionable_interface));
 
 
 
@@ -72,14 +71,6 @@ lgw_searchentry_init (LgwSearchEntry *entry)
 
     LgwSearchEntryPrivate *priv;
     priv = entry->priv;
-}
-
-
-static void
-lgw_searchentry_init_actionable_interface (LgwActionableInterface *iface)
-{
-    iface->get_actions = lgw_searchentry_get_actions;
-    iface->set_actiongroup = lgw_searchentry_set_actiongroup;
 }
 
 
@@ -285,112 +276,6 @@ lgw_searchentry_get_entry (LgwSearchEntry *search_entry)
     priv = search_entry->priv;
 
     return GTK_ENTRY (priv->ui.search_entry);
-}
-
-
-static void
-lgw_searchentry_set_actiongroup (LgwActionable  *actionable,
-                                 LgwActionGroup *action_group)
-{
-    //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
-
-    //Declarations
-    LgwSearchEntry *search_entry = NULL;
-    LgwSearchEntryPrivate *priv = NULL;
-    LgwSearchEntryClass *klass = NULL;
-    LgwSearchEntryClassPrivate *klasspriv = NULL;
-    GList *list = NULL;
-
-    //Initializations
-    search_entry = LGW_SEARCHENTRY (actionable);
-    priv = search_entry->priv;
-    klass = LGW_SEARCHENTRY_GET_CLASS (search_entry);
-    klasspriv = klass->priv;
-
-    if (priv->data.action_group_list != NULL)
-    {
-      g_list_free (priv->data.action_group_list);
-      priv->data.action_group_list = NULL;
-    }
-
-    if (priv->data.action_group != NULL)
-    {
-        lgw_actiongroup_free (priv->data.action_group);
-        priv->data.action_group = NULL;
-    }
-    priv->data.action_group = action_group;
-
-    if (action_group != NULL)
-    {
-      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
-    }
-}
-
-
-void
-lgw_searchentry_sync_actions (LgwSearchEntry *search_entry)
-{
-    //Sanity checks
-    g_return_val_if_fail (search_entry != NULL, NULL);
-
-    //Declarations
-    LgwSearchEntryPrivate *priv = NULL;
-    GtkWidget *widget = NULL;
-    gboolean has_focus = FALSE;
-
-    //Initializations
-    priv = search_entry->priv;
-    widget = GTK_WIDGET (search_entry);
-    has_focus = gtk_widget_has_focus (GTK_WIDGET (priv->ui.search_entry)); 
-
-    if (has_focus)
-    {
-      static GActionEntry entries[] = {
-        { "copy", lgw_searchentry_copy_cb, NULL, NULL, NULL },
-        { "cut", lgw_searchentry_cut_cb, NULL, NULL, NULL },
-        { "paste", lgw_searchentry_paste_cb, NULL, NULL, NULL },
-        { "insert-unknown-character", lgw_searchentry_insert_unknown_character_cb, NULL, NULL, NULL },
-        { "insert-word-edge-character", lgw_searchentry_insert_word_edge_cb, NULL, NULL, NULL },
-        { "insert-not-word-edge-character", lgw_searchentry_insert_not_word_edge_cb, NULL, NULL, NULL },
-        { "insert-and-character", lgw_searchentry_insert_and_cb, NULL, NULL, NULL },
-        { "insert-or-character", lgw_searchentry_insert_or_cb, NULL, NULL, NULL },
-        { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
-      };
-      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_actionable_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
-    }
-    else 
-    {
-      static GActionEntry entries[] = {
-        { "insert-unknown-character", lgw_searchentry_insert_unknown_character_cb, NULL, NULL, NULL },
-        { "insert-word-edge-character", lgw_searchentry_insert_word_edge_cb, NULL, NULL, NULL },
-        { "insert-not-word-edge-character", lgw_searchentry_insert_not_word_edge_cb, NULL, NULL, NULL },
-        { "insert-and-character", lgw_searchentry_insert_and_cb, NULL, NULL, NULL },
-        { "insert-or-character", lgw_searchentry_insert_or_cb, NULL, NULL, NULL },
-        { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
-      };
-      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_actionable_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
-    }
-}
-
-
-static GList*
-lgw_searchentry_get_actions (LgwActionable *actionable)
-{
-    //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
-
-    //Declarations
-    LgwSearchEntry *search_entry = NULL;
-    LgwSearchEntryPrivate *priv = NULL;
-
-    //Initializations
-    search_entry = LGW_SEARCHENTRY (actionable);
-    priv = search_entry->priv;
-
-    return priv->data.action_group_list;
 }
 
 

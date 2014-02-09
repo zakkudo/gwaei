@@ -45,7 +45,7 @@
 
 G_DEFINE_TYPE_WITH_CODE (LgwVocabularyWidget, lgw_vocabularywidget, GTK_TYPE_BOX,
                          G_IMPLEMENT_INTERFACE (LGW_TYPE_MENUABLE, lgw_vocabularywidget_init_menuable_interface)
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularywidget_init_actionable_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularywidget_impliment_actionable_interface));
 
 
 //!
@@ -274,12 +274,6 @@ lgw_vocabularywidget_init_menuable_interface (LgwMenuableInterface *iface) {
     iface->get_button_menu_model = lgw_vocabularywidget_get_button_menu_model;
 }
 
-static void
-lgw_vocabularywidget_init_actionable_interface (LgwActionableInterface *iface) {
-    iface->get_actions = lgw_vocabularywidget_get_actions;
-    iface->set_actiongroup = lgw_vocabularywidget_set_actiongroup;
-}
-
 
 static GMenuModel*
 lgw_vocabularywidget_get_button_menu_model (LgwMenuable *menuable)
@@ -312,112 +306,6 @@ lgw_vocabularywidget_get_window_menu_model (LgwMenuable *menuable)
     priv = vocabulary_widget->priv;
 
     return priv->data.window_menu_model;
-}
-
-
-static GList*
-lgw_vocabularywidget_get_actions (LgwActionable *actionable)
-{
-    //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
-
-    //Declarations
-    LgwVocabularyWidget *vocabulary_widget = NULL;
-    LgwVocabularyWidgetPrivate *priv = NULL;
-
-    //Initializations
-    vocabulary_widget = LGW_VOCABULARYWIDGET (actionable);
-    priv = vocabulary_widget->priv;
-
-    return priv->data.action_group_list;
-}
-
-
-static void
-lgw_vocabularywidget_set_actiongroup (LgwActionable *actionable,
-                                  LgwActionGroup *action_group)
-{
-    //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
-
-    //Declarations
-    LgwVocabularyWidget *vocabulary_widget = NULL;
-    LgwVocabularyWidgetPrivate *priv = NULL;
-    GList *list = NULL;
-
-    //Initializations
-    vocabulary_widget = LGW_VOCABULARYWIDGET (actionable);
-    priv = vocabulary_widget->priv;
-
-    if (priv->data.action_group_list != NULL)
-    {
-      g_list_free (priv->data.action_group_list);
-      priv->data.action_group_list = NULL;
-    }
-
-    if (priv->data.action_group != NULL)
-    {
-        lgw_actiongroup_free (priv->data.action_group);
-        priv->data.action_group = NULL;
-    }
-
-    priv->data.action_group = action_group;
-
-    if (action_group != NULL)
-    {
-      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
-    }
-
-/*
-    {
-        LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.search_entry);
-        GList *actions = lgw_actionable_get_actions (actionable);
-        if (actions != NULL)
-        {
-          GList *copy = g_list_copy (actions);
-          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
-        }
-    }
-
-    {
-        LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.results_view);
-        GList *actions = lgw_actionable_get_actions (actionable);
-        if (actions != NULL)
-        {
-          GList *copy = g_list_copy (actions);
-          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
-        }
-    }
-*/
-}
-
-
-void
-lgw_vocabularywidget_sync_actions (LgwVocabularyWidget *vocabulary_widget)
-{
-    //Sanity checks
-    g_return_val_if_fail (vocabulary_widget != NULL, NULL);
-
-    //Declarations
-    LgwVocabularyWidgetPrivate *priv = NULL;
-    GtkWidget *widget = NULL;
-    LgwActionable *actionable = NULL;
-
-    //Initializations
-    priv = vocabulary_widget->priv;
-    widget = GTK_WIDGET (vocabulary_widget);
-    actionable = LGW_ACTIONABLE (vocabulary_widget);
-
-/*
-    static GActionEntry entries[] = {
-    };
-    if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
-    {
-      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_actionable_set_actiongroup (actionable, action_group);
-    }
-*/
-    lgw_actionable_set_actiongroup (actionable, NULL);
 }
 
 

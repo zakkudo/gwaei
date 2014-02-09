@@ -111,5 +111,5 @@ lgw_searchwidget_child_actions_property_changed_cb (LgwSearchWidget *search_widg
     g_return_if_fail (search_widget != NULL);
     g_return_if_fail (actionable != NULL);
 
-    lgw_searchwidget_sync_actions (search_widget);
+    lgw_actionable_sync_actions (LGW_ACTIONABLE (search_widget));
 }

@@ -111,9 +111,9 @@ errored:
 }
 
 void
-lgw_vocabularywordview_new_activated_cb (GSimpleAction *action,
-                                         GVariant      *parameter,
-                                         gpointer       data)
+lgw_vocabularywordview_add_new_activated_cb (GSimpleAction *action,
+                                             GVariant      *parameter,
+                                             gpointer       data)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (data));

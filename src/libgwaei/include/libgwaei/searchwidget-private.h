@@ -55,14 +55,10 @@ static GMenuModel* lgw_searchwidget_get_button_menu_model (LgwMenuable *widget);
 static GMenuModel* lgw_searchwidget_get_window_menu_model (LgwMenuable *widget);
 
 static void lgw_searchwidget_init_menuable_interface (LgwMenuableInterface *iface);
-static void lgw_searchwidget_init_actionable_interface (LgwActionableInterface *iface);
-
-static GList* lgw_searchwidget_get_actions (LgwActionable *actionable);
-static void lgw_searchwidget_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-void lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget);
 
 G_END_DECLS
 
 #include <libgwaei/searchwidget-callbacks.h>
+#include <libgwaei/searchwidget-actionable-interface.h>
 
 #endif

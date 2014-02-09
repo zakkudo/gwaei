@@ -7,9 +7,26 @@ datadir = @datadir@
 DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" 
 
 lib_LTLIBRARIES =libgwaei.la
-libgwaei_la_SOURCES =libgwaei.c actiongroup.c window.c window-callbacks.c  searchwidget.c searchwidget-callbacks.c searchentry.c searchentry-callbacks.c resultsview.c resultstextview.c resultstextview-callbacks.c texttagtable.c texttagtable-callbacks.c actionable.c menuable.c
-libgwaei_la_SOURCES +=dictionarylistbox.c dictionarylistbox-callbacks.c dictionaryliststore.c dictionaryliststore-treemodel-interface.c dictionaryliststore-callbacks.c
-libgwaei_la_SOURCES +=vocabularywordstore.c vocabularywordstore-callbacks.c vocabularywordstore-treemodel-interface.c vocabularywordview.c vocabularywordview-callbacks.c vocabularywordview-actionable-interface.c vocabularyliststore.c vocabularyliststore-treemodel-interface.c vocabularylistview.c vocabularylistview-callbacks.c vocabularylistview-actionable-interface.c vocabularywidget.c vocabularywidget-callbacks.c
+libgwaei_la_SOURCES =libgwaei.c actiongroup.c actionable.c menuable.c resultsview.c 
+
+libgwaei_la_SOURCES +=window.c window-callbacks.c
+
+#SearchWidget component
+libgwaei_la_SOURCES +=searchwidget.c searchwidget-callbacks.c searchwidget-actionable-interface.c
+libgwaei_la_SOURCES +=texttagtable.c texttagtable-callbacks.c
+libgwaei_la_SOURCES +=searchentry.c searchentry-callbacks.c searchentry-actionable-interface.c
+libgwaei_la_SOURCES +=resultstextview.c resultstextview-callbacks.c resultstextview-actionable-interface.c resultstextview-resultsview-interface.c
+libgwaei_la_SOURCES +=dictionarylistbox.c dictionarylistbox-callbacks.c
+libgwaei_la_SOURCES +=dictionaryliststore.c dictionaryliststore-treemodel-interface.c dictionaryliststore-callbacks.c
+
+#VocabularyWidget component
+libgwaei_la_SOURCES +=vocabularywidget.c vocabularywidget-callbacks.c vocabularywidget-actionable-interface.c
+libgwaei_la_SOURCES +=vocabularywordstore.c vocabularywordstore-callbacks.c vocabularywordstore-treemodel-interface.c
+libgwaei_la_SOURCES +=vocabularywordview.c vocabularywordview-callbacks.c vocabularywordview-actionable-interface.c
+libgwaei_la_SOURCES +=vocabularyliststore.c vocabularyliststore-treemodel-interface.c
+libgwaei_la_SOURCES +=vocabularylistview.c vocabularylistview-callbacks.c vocabularylistview-actionable-interface.c
+
+
 libgwaei_la_LDFLAGS =-no-undefined -version-info $(LIBRARY_VERSION)  $(GWAEI_LIBS) 
 libgwaei_la_CPPFLAGS =-I$(top_srcdir)/src/libwaei/include -I$(top_srcdir)/src/libgwaei/include $(GWAEI_CFLAGS) $(DEFINITIONS) 
 libgwaei_la_LIBADD =

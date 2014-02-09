@@ -44,7 +44,7 @@
 
 G_DEFINE_TYPE_WITH_CODE (LgwSearchWidget, lgw_searchwidget, GTK_TYPE_BOX,
                          G_IMPLEMENT_INTERFACE (LGW_TYPE_MENUABLE, lgw_searchwidget_init_menuable_interface)
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_searchwidget_init_actionable_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_searchwidget_impliment_actionable_interface));
 
 
 //!
@@ -319,18 +319,12 @@ lgw_searchwidget_init_menuable_interface (LgwMenuableInterface *iface) {
     iface->get_button_menu_model = lgw_searchwidget_get_button_menu_model;
 }
 
-static void
-lgw_searchwidget_init_actionable_interface (LgwActionableInterface *iface) {
-    iface->get_actions = lgw_searchwidget_get_actions;
-    iface->set_actiongroup = lgw_searchwidget_set_actiongroup;
-}
-
 
 gboolean
 lgw_searchwidget_get_search_mode (LgwSearchWidget *widget)
 {
     //Sanity checks
-    g_return_val_if_fail (widget != NULL, FALSE);
+    g_return_val_if_fail (LGW_IS_SEARCHWIDGET (widget), FALSE);
     g_return_val_if_fail (widget->priv != NULL, FALSE);
     g_return_val_if_fail (widget->priv->ui.search_bar != NULL, FALSE);
 
@@ -350,7 +344,7 @@ lgw_searchwidget_set_search_mode (LgwSearchWidget *widget,
                                   gboolean         search_mode)
 {
     //Sanity checks
-    g_return_if_fail (widget != NULL);
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (widget));
     g_return_val_if_fail (widget->priv != NULL, FALSE);
     g_return_val_if_fail (widget->priv->ui.search_bar != NULL, FALSE);
 
@@ -368,7 +362,7 @@ static GMenuModel*
 lgw_searchwidget_get_button_menu_model (LgwMenuable *menuable)
 {
     //Sanity checks
-    g_return_if_fail (menuable != NULL);
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (menuable));
 
     //Declarations
     LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (menuable);
@@ -385,7 +379,7 @@ static GMenuModel*
 lgw_searchwidget_get_window_menu_model (LgwMenuable *menuable)
 {
     //Sanity checks
-    g_return_if_fail (menuable != NULL);
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (menuable));
 
     //Declarations
     LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (menuable);
@@ -395,110 +389,6 @@ lgw_searchwidget_get_window_menu_model (LgwMenuable *menuable)
     priv = search_widget->priv;
 
     return priv->data.window_menu_model;
-}
-
-
-static GList*
-lgw_searchwidget_get_actions (LgwActionable *actionable)
-{
-    //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
-
-    //Declarations
-    LgwSearchWidget *search_widget = NULL;
-    LgwSearchWidgetPrivate *priv = NULL;
-
-    //Initializations
-    search_widget = LGW_SEARCHWIDGET (actionable);
-    priv = search_widget->priv;
-
-    return priv->data.action_group_list;
-}
-
-
-static void
-lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
-                                  LgwActionGroup *action_group)
-{
-    //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
-
-    //Declarations
-    LgwSearchWidget *search_widget = NULL;
-    LgwSearchWidgetPrivate *priv = NULL;
-    GList *list = NULL;
-
-    //Initializations
-    search_widget = LGW_SEARCHWIDGET (actionable);
-    priv = search_widget->priv;
-
-    if (priv->data.action_group_list != NULL)
-    {
-      g_list_free (priv->data.action_group_list);
-      priv->data.action_group_list = NULL;
-    }
-
-    if (priv->data.action_group != NULL)
-    {
-        lgw_actiongroup_free (priv->data.action_group);
-        priv->data.action_group = NULL;
-    }
-
-    priv->data.action_group = action_group;
-
-    if (action_group != NULL)
-    {
-      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
-    }
-
-    {
-        LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.search_entry);
-        GList *actions = lgw_actionable_get_actions (actionable);
-        if (actions != NULL)
-        {
-          GList *copy = g_list_copy (actions);
-          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
-        }
-    }
-
-    {
-        LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.results_view);
-        GList *actions = lgw_actionable_get_actions (actionable);
-        if (actions != NULL)
-        {
-          GList *copy = g_list_copy (actions);
-          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
-        }
-    }
-}
-
-
-void
-lgw_searchwidget_sync_actions (LgwSearchWidget *search_widget)
-{
-    //Sanity checks
-    g_return_val_if_fail (search_widget != NULL, NULL);
-
-    //Declarations
-    LgwSearchWidgetPrivate *priv = NULL;
-    GtkWidget *widget = NULL;
-    LgwActionable *actionable = NULL;
-
-    //Initializations
-    priv = search_widget->priv;
-    widget = GTK_WIDGET (search_widget);
-    actionable = LGW_ACTIONABLE (search_widget);
-
-/*
-    static GActionEntry entries[] = {
-    };
-    if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
-    {
-      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_actionable_set_actiongroup (actionable, action_group);
-    }
-*/
-    lgw_actionable_set_actiongroup (actionable, NULL);
 }
 
 
