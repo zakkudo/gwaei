@@ -63,6 +63,26 @@ lgw_vocabularylistview_connect_signals (LgwVocabularyListView *vocabulary_list_v
           vocabulary_list_view
         );
     }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] == 0)
+    {
+      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view),
+          "focus-in-event",
+          G_CALLBACK (lgw_vocabularylistview_focus_in_event_cb),
+          vocabulary_list_view
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] == 0)
+    {
+      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view),
+          "focus-out-event",
+          G_CALLBACK (lgw_vocabularylistview_focus_out_event_cb),
+          vocabulary_list_view
+      );
+    }
 }
 
 
@@ -88,6 +108,24 @@ lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *vocabulary_lis
           );
         }
         priv->data.signalid[SIGNALID_SELECTION_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view),
+        priv->data.signalid[SIGNALID_FOCUS_IN_EVENT]
+      );
+      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view),
+        priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT]
+      );
+      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = 0;
     }
 }
 
@@ -170,5 +208,49 @@ lgw_vocabularylistview_remove_selected_activated_cb (GSimpleAction *action,
 errored:
 
     if (rowlist != NULL) g_list_free_full (rowlist, (GDestroyNotify) gtk_tree_path_free); rowlist = NULL;
+}
+
+
+gboolean
+lgw_vocabularylistview_focus_in_event_cb (LgwVocabularyListView *vocabulary_list_view,
+                                          GdkEvent              *event,
+                                          GtkTreeView           *inner_tree_view)
+{
+    printf("BREAK lgw_vocabularylistview_focus_in\n");
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view), FALSE);
+    g_return_val_if_fail (GTK_IS_TREE_VIEW (inner_tree_view), FALSE);
+
+    //Declarations
+    LgwActionable *actionable = NULL;
+
+    //Initializations
+    actionable = LGW_ACTIONABLE (vocabulary_list_view);
+
+    lgw_actionable_sync_actions (actionable);
+
+    return FALSE;
+}
+
+
+gboolean
+lgw_vocabularylistview_focus_out_event_cb (LgwVocabularyListView *vocabulary_list_view,
+                                           GdkEvent              *event,
+                                           GtkTreeView           *inner_tree_view)
+{
+    printf("BREAK lgw_vocabularylistview_focus_out\n");
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view), FALSE);
+    g_return_val_if_fail (GTK_IS_TREE_VIEW (inner_tree_view), FALSE);
+
+    //Declarations
+    LgwActionable *actionable = NULL;
+
+    //Initializations
+    actionable = LGW_ACTIONABLE (vocabulary_list_view);
+
+    lgw_actionable_sync_actions (actionable);
+
+    return FALSE;
 }
 

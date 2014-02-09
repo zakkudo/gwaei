@@ -46,13 +46,72 @@
 void
 lgw_vocabularywidget_connect_signals (LgwVocabularyWidget *vocabulary_widget)
 {
-  //TODO
+    //Sanity checks
+    g_return_if_fail (vocabulary_widget != NULL);
+
+    //Declarations
+    LgwVocabularyWidgetPrivate *priv = NULL;
+
+    //Initializations
+    priv = vocabulary_widget->priv;
+
+    if (priv->data.signalid[SIGNALID_VOCABULARYLISTVIEW_ACTIONS] == 0)
+    {
+      priv->data.signalid[SIGNALID_VOCABULARYLISTVIEW_ACTIONS] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.vocabulary_list_view),
+          "notify::actions",
+          G_CALLBACK (lgw_vocabularywidget_child_actions_property_changed_cb),
+          vocabulary_widget
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_VOCABULARYWORDVIEW_ACTIONS] == 0)
+    {
+      priv->data.signalid[SIGNALID_VOCABULARYWORDVIEW_ACTIONS] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.vocabulary_word_view),
+          "notify::actions",
+          G_CALLBACK (lgw_vocabularywidget_child_actions_property_changed_cb),
+          vocabulary_widget
+      );
+    }
 }
 
 
 void
 lgw_vocabularywidget_disconnect_signals (LgwVocabularyWidget *vocabulary_widget)
 {
-  //TODO
+    //Sanity checks
+    g_return_if_fail (vocabulary_widget != NULL);
+
+    //Declarations
+    LgwVocabularyWidgetPrivate *priv = NULL;
+
+    //Initializations
+    priv = vocabulary_widget->priv;
+
+    if (priv->data.signalid[SIGNALID_VOCABULARYLISTVIEW_ACTIONS] != 0)
+    {
+      g_signal_handler_disconnect (G_OBJECT (priv->ui.vocabulary_list_view), priv->data.signalid[SIGNALID_VOCABULARYLISTVIEW_ACTIONS]);
+      priv->data.signalid[SIGNALID_VOCABULARYLISTVIEW_ACTIONS] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_VOCABULARYWORDVIEW_ACTIONS] != 0)
+    {
+      g_signal_handler_disconnect (G_OBJECT (priv->ui.vocabulary_word_view), priv->data.signalid[SIGNALID_VOCABULARYWORDVIEW_ACTIONS]);
+      priv->data.signalid[SIGNALID_VOCABULARYWORDVIEW_ACTIONS] = 0;
+    }
+}
+
+
+void
+lgw_vocabularywidget_child_actions_property_changed_cb (LgwVocabularyWidget *vocabulary_widget,
+                                                    GParamSpec      *pspec,
+                                                    LgwActionable   *actionable)
+{
+    //Sanity checks
+    g_return_if_fail (vocabulary_widget != NULL);
+    g_return_if_fail (actionable != NULL);
+
+    lgw_actionable_sync_actions (LGW_ACTIONABLE (vocabulary_widget));
 }
 

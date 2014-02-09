@@ -33,8 +33,6 @@
 #include <string.h>
 
 #include <glib-object.h>
-#include <gdk/gdk.h>
-#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include <libgwaei/gettext.h>
@@ -46,7 +44,7 @@ void
 lgw_searchwidget_connect_signals (LgwSearchWidget *search_widget)
 {
     //Sanity checks
-    g_return_if_fail (search_widget != NULL);
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
 
     //Declarations
     LgwSearchWidgetPrivate *priv = NULL;
@@ -80,7 +78,7 @@ void
 lgw_searchwidget_disconnect_signals (LgwSearchWidget *search_widget)
 {
     //Sanity checks
-    g_return_if_fail (search_widget != NULL);
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
 
     //Declarations
     LgwSearchWidgetPrivate *priv = NULL;
@@ -108,7 +106,7 @@ lgw_searchwidget_child_actions_property_changed_cb (LgwSearchWidget *search_widg
                                                     LgwActionable   *actionable)
 {
     //Sanity checks
-    g_return_if_fail (search_widget != NULL);
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
     g_return_if_fail (actionable != NULL);
 
     lgw_actionable_sync_actions (LGW_ACTIONABLE (search_widget));

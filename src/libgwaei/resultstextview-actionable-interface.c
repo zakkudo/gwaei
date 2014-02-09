@@ -32,8 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <gdk/gdk.h>
-#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include <libgwaei/gettext.h>
@@ -106,11 +104,11 @@ lgw_resultstextview_sync_actions (LgwActionable *actionable)
         { "copy", lgw_resultstextview_copy_cb, NULL, NULL, NULL }
       };
       LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_actionable_set_actiongroup (actionable, action_group);
+      lgw_resultstextview_set_actiongroup (actionable, action_group);
     }
     else 
     {
-      lgw_actionable_set_actiongroup (actionable, NULL);
+      lgw_resultstextview_set_actiongroup (actionable, NULL);
     }
 
 }

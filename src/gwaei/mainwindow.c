@@ -51,7 +51,7 @@ static gchar* gw_mainwindow_get_symbolic_icon_name_if_exists (const gchar* ICON_
 static void gw_mainwindow_init_actionable_interface (LgwActionableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (GwMainWindow, gw_mainwindow, LGW_TYPE_WINDOW,
-                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, gw_mainwindow_init_actionable_interface));
+                         G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, gw_mainwindow_implement_actionable_interface));
 
 //!
 //! @brief Sets up the variables in main-interface.c and main-callbacks.c for use
@@ -84,14 +84,6 @@ gw_mainwindow_init (GwMainWindow *window)
 
     GwMainWindowPrivate *priv;
     priv = window->priv;
-}
-
-
-static void
-gw_mainwindow_init_actionable_interface (LgwActionableInterface *iface)
-{
-    iface->get_actions = gw_mainwindow_get_actions;
-    iface->set_actiongroup = gw_mainwindow_set_actiongroup;
 }
 
 
@@ -322,113 +314,6 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
     lgw_searchwidget_set_search_mode (priv->ui.search_widget, TRUE);
 }
 
-
-void
-gw_mainwindow_set_actiongroup (LgwActionable *actionable,
-                               LgwActionGroup *action_group)
-{
-    //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
-
-    //Declarations
-    GwMainWindow *main_window = NULL;
-    GwMainWindowPrivate *priv = NULL;
-    GwMainWindowClass *klass = NULL;
-    GwMainWindowClassPrivate *klasspriv = NULL;
-    GList *list = NULL;
-
-    //Initializations
-    main_window = GW_MAINWINDOW (actionable);
-    priv = main_window->priv;
-    klass = GW_MAINWINDOW_GET_CLASS (main_window);
-    klasspriv = klass->priv;
-
-    if (priv->data.action_group_list != NULL)
-    {
-      g_list_free (priv->data.action_group_list);
-      priv->data.action_group_list = NULL;
-    }
-
-    if (priv->data.action_group != NULL)
-    {
-        lgw_actiongroup_free (priv->data.action_group);
-        priv->data.action_group = NULL;
-    }
-
-    priv->data.action_group = action_group;
-
-    {
-      GtkWidget *widget = gtk_stack_get_visible_child (priv->ui.stack);
-      if (LGW_IS_ACTIONABLE (widget))
-      {
-        LgwActionable *actionable = LGW_ACTIONABLE (widget);
-        GList *actions = lgw_actionable_get_actions (actionable);
-        if (actions != NULL)
-        {
-          GList *copy = g_list_copy (actions);
-          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
-        }
-      }
-    }
-
-    if (action_group != NULL)
-    {
-      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
-    }
-
-    {
-      GActionMap *action_map = G_ACTION_MAP (main_window);
-      GList *action_group_list = lgw_actionable_get_actions (actionable);
-      lgw_window_set_actions (LGW_WINDOW (main_window), action_group_list);
-    }
-}
-
-
-void
-gw_mainwindow_sync_actions (GwMainWindow *main_window)
-{
-    //Sanity checks
-    g_return_val_if_fail (main_window != NULL, NULL);
-
-    //Declarations
-    GwMainWindowPrivate *priv = NULL;
-    LgwActionable *actionable = NULL;
-    GtkWidget *widget = NULL;
-    gboolean has_focus = FALSE;
-
-    //Initializations
-    priv = main_window->priv;
-    actionable = LGW_ACTIONABLE (main_window);
-    widget = GTK_WIDGET (main_window);
-    has_focus = gtk_widget_is_focus (widget);
-
-    {
-      static GActionEntry entries[] = {
-        { "toggle-menubar-show", gw_mainwindow_menubar_show_toggled_cb, NULL, "false", NULL },
-        { "close", gw_mainwindow_close_cb, NULL, NULL, NULL }
-      };
-      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_actionable_set_actiongroup (actionable, action_group);
-    }
-}
-
-
-GList*
-gw_mainwindow_get_actions (LgwActionable *actionable)
-{
-    //Sanity checks
-    g_return_val_if_fail (actionable != NULL, NULL);
-
-    //Declarations
-    GwMainWindow *main_window = NULL;
-    GwMainWindowPrivate *priv = NULL;
-
-    //Initializations
-    main_window = GW_MAINWINDOW (actionable);
-    priv = main_window->priv;
-
-    return priv->data.action_group_list;
-}
 
 
 

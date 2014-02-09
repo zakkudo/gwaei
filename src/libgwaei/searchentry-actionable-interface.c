@@ -32,8 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <gdk/gdk.h>
-#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include <libgwaei/gettext.h>
@@ -114,7 +112,7 @@ lgw_searchentry_sync_actions (LgwActionable *actionable)
         { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
       };
       LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_actionable_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
+      lgw_searchentry_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
     }
     else 
     {
@@ -127,7 +125,7 @@ lgw_searchentry_sync_actions (LgwActionable *actionable)
         { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
       };
       LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_actionable_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
+      lgw_searchentry_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
     }
 }
 

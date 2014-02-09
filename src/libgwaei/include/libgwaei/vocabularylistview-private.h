@@ -13,6 +13,8 @@ typedef enum {
 
 typedef enum {
   SIGNALID_SELECTION_CHANGED,
+  SIGNALID_FOCUS_IN_EVENT,
+  SIGNALID_FOCUS_OUT_EVENT,
   TOTAL_SIGNALIDS
 } Signalid;
 

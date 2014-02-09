@@ -96,3 +96,4 @@ lgw_actionable_sync_actions (LgwActionable *self)
 
     LGW_ACTIONABLE_GET_INTERFACE (self)->sync_actions (self);
 }
+

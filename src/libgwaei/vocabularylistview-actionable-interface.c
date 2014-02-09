@@ -121,9 +121,9 @@ lgw_vocabularylistview_sync_actions (LgwActionable *actionable)
     if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
     {
       LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_actionable_set_actiongroup (actionable, action_group);
+      lgw_vocabularylistview_set_actiongroup (actionable, action_group);
     }
-    lgw_actionable_set_actiongroup (actionable, NULL);
+    lgw_vocabularylistview_set_actiongroup (actionable, NULL);
 }
 
 

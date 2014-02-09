@@ -54,12 +54,9 @@ struct _GwMainWindowClassPrivate {
 
 #define GW_MAINWINDOW_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GW_TYPE_MAINWINDOW, GwMainWindowPrivate))
 
-GList* gw_mainwindow_get_actions (LgwActionable *actionable);
-void gw_mainwindow_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-void gw_mainwindow_sync_actions (GwMainWindow *main_window);
-
 G_END_DECLS
 
 #include <gwaei/mainwindow-callbacks.h>
+#include <gwaei/mainwindow-actionable-interface.h>
 
 #endif

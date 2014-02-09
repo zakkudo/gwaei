@@ -9,7 +9,9 @@ bin_PROGRAMS = gwaei
 datadir = @datadir@
 DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DLIBDIR=\"$(libdir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\"
 
-gwaei_SOURCES = gwaei.c application.c application-callbacks.c mainwindow.c mainwindow-callbacks.c
+gwaei_SOURCES = gwaei.c
+gwaei_SOURCES +=application.c application-callbacks.c
+gwaei_SOURCES +=mainwindow.c mainwindow-callbacks.c mainwindow-actionable-interface.c
 
 gwaei_LDADD =  $(GWAEI_LIBS) ../libwaei/libwaei.la ../libgwaei/libgwaei.la
 gwaei_CPPFLAGS = -I$(top_srcdir)/src/libwaei/include -I$(top_srcdir)/src/libgwaei/include -I$(top_srcdir)/src/gwaei/include $(GWAEI_CFLAGS) $(GWAEI_DEFS) $(DEFINITIONS)

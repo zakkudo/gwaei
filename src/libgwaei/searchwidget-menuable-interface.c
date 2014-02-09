@@ -33,8 +33,6 @@
 #include <string.h>
 
 #include <glib-object.h>
-#include <gdk/gdk.h>
-#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include <libgwaei/gettext.h>

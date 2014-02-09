@@ -12,6 +12,9 @@ void lgw_vocabularywordview_selection_changed_cb (LgwVocabularyWordView *vocabul
 void lgw_vocabularywordview_add_new_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 void lgw_vocabularywordview_remove_selected_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 
+gboolean lgw_vocabularywordview_focus_in_event_cb (LgwVocabularyWordView *vocabulary_word_view, GdkEvent *event, GtkTreeView *inner_tree_view);
+gboolean lgw_vocabularywordview_focus_out_event_cb (LgwVocabularyWordView *vocabulary_word_view, GdkEvent *event, GtkTreeView *inner_tree_view);
+
 
 G_END_DECLS
 

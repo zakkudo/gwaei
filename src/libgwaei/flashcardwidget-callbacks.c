@@ -27,8 +27,8 @@
 #include "config.h"
 #endif
 
-#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
+
 #include <gwaei/gwaei.h>
 #include <gwaei/flashcardwindow-private.h>
 #include <gwaei/gettext.h>

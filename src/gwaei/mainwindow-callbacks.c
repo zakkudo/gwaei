@@ -200,7 +200,7 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     if (application == NULL) goto errored;
     actionable = LGW_ACTIONABLE (main_window);
 
-    gw_mainwindow_sync_actions (main_window);
+    lgw_actionable_sync_actions (actionable);
 
     //Assign the menus
     if (widget != NULL && LGW_IS_MENUABLE (widget)) {
@@ -316,7 +316,7 @@ lgw_mainwindow_child_actions_property_changed_cb (GwMainWindow *main_window,
     g_return_if_fail (main_window != NULL);
     g_return_if_fail (actionable != NULL);
 
-    gw_mainwindow_sync_actions (main_window);
+    lgw_actionable_sync_actions (actionable);
 
 }
 
