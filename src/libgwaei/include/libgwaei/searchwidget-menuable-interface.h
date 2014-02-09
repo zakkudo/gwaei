@@ -3,7 +3,7 @@
 
 G_BEGIN_DECLS
 
-void lgw_searchwidget_implement_menuable_interface (LgwActionableInterface *iface);
+void lgw_searchwidget_implement_menuable_interface (LgwMenuableInterface *iface);
 
 G_END_DECLS
 

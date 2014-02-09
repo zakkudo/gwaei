@@ -12,7 +12,7 @@ libgwaei_la_SOURCES =libgwaei.c actiongroup.c actionable.c menuable.c resultsvie
 libgwaei_la_SOURCES +=window.c window-callbacks.c
 
 #SearchWidget component
-libgwaei_la_SOURCES +=searchwidget.c searchwidget-callbacks.c searchwidget-actionable-interface.c
+libgwaei_la_SOURCES +=searchwidget.c searchwidget-callbacks.c searchwidget-actionable-interface.c searchwidget-menuable-interface.c
 libgwaei_la_SOURCES +=texttagtable.c texttagtable-callbacks.c
 libgwaei_la_SOURCES +=searchentry.c searchentry-callbacks.c searchentry-actionable-interface.c
 libgwaei_la_SOURCES +=resultstextview.c resultstextview-callbacks.c resultstextview-actionable-interface.c resultstextview-resultsview-interface.c
