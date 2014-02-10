@@ -232,6 +232,7 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *vocabulary_list_stor
     gboolean append = (position < 0);
 
     //Initializations
+    priv = vocabulary_list_store->priv;
     length = g_list_length (wordstorelist);
 
     if (append)
@@ -275,7 +276,7 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *vocabulary_list_stor
       for (i = 0; i < length; i++)
       {
         GtkTreeIter iter;
-        lgw_vocabularyliststore_initialize_tree_iter (vocabulary_list_store, &iter, position + 1);
+        lgw_vocabularyliststore_initialize_tree_iter (vocabulary_list_store, &iter, position + i);
         GtkTreePath *path = gtk_tree_path_new_from_indices (position + i, -1);
 
         if (path != NULL) {
