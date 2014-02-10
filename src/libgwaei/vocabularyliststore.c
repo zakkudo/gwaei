@@ -188,26 +188,27 @@ lgw_vocabularyliststore_load (LgwVocabularyListStore *vocabulary_list_store)
     LgwVocabularyListStoreClass *klass = NULL;
     LgwVocabularyListStoreClassPrivate *klasspriv = NULL;
     gchar **filenames = NULL;
+    GList *wordstorelist = NULL;
 
     //Initializations
     priv = vocabulary_list_store->priv;
     klass = LGW_VOCABULARYLISTSTORE_GET_CLASS (vocabulary_list_store);
     klasspriv = klass->priv;
     filenames = lw_vocabulary_get_filenames ();
+    if (filenames == NULL) goto errored;
 
-    while (priv->data.list != NULL)
     {
-        lgw_vocabularyliststore_remove_by_position (vocabulary_list_store, 0);
+      gint i = 0;
+      for (i = 0; filenames[i] != NULL; i++)
+      {
+        LgwVocabularyWordStore *s = lgw_vocabularywordstore_new (filenames[i]);
+        wordstorelist = g_list_prepend (wordstorelist, s);
+      }
+      wordstorelist = g_list_reverse (wordstorelist);
     }
 
-    
-    if (filenames != NULL) {
-        gint i = 0;
-        const gchar* FILENAME = filenames[i];
-        if (FILENAME != NULL) {
-            lgw_vocabularyliststore_add (vocabulary_list_store, FILENAME);
-        }
-    }
+    lgw_vocabularyliststore_clear (vocabulary_list_store);
+    lgw_vocabularyliststore_insert_all (vocabulary_list_store, 0, wordstorelist);
 
 errored:
 
@@ -216,76 +217,214 @@ errored:
 
 
 void
-lgw_vocabularyliststore_add (LgwVocabularyListStore *vocabulary_list_store, const gchar* FILENAME)
+lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *vocabulary_list_store,
+                                    gint                    position,
+                                    GList                  *wordstorelist)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));
+    if (wordstorelist == NULL) return;
 
     //Declarations
     LgwVocabularyListStorePrivate *priv = NULL;
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
-    GtkTreePath *path = NULL;
-    gint position = 0;
-    GtkTreeIter iter;
+    gint length = 0;
+    gboolean append = (position < 0);
 
     //Initializations
-    priv = vocabulary_list_store->priv;
-    vocabulary_word_store = lgw_vocabularywordstore_new (FILENAME);
-    if (vocabulary_word_store == NULL) goto errored;
-    position = priv->data.length;
-    path = gtk_tree_path_new_from_indices (position, -1);
-    if (path == NULL) goto errored;
+    length = g_list_length (wordstorelist);
 
-    priv->data.list = g_list_prepend (priv->data.list, vocabulary_word_store);
-    priv->data.length++;
+    if (append)
+    {
+      GList *copy = g_list_copy (wordstorelist);
+      GList *link = NULL;
+      for (link = copy; link != NULL; link = link->next)
+      {
+        if (!LGW_IS_VOCABULARYWORDSTORE (link->data))
+        {
+          GList *next = link->next;
+          copy = g_list_delete_link (copy, link);
+          link = next;
+          length--;
+        }
+      }
+      priv->data.list = g_list_concat (priv->data.list, copy);
+    }
+    else
+    {
+      GList *insert_position = g_list_nth (priv->data.list, position);
+      if (insert_position == NULL) goto errored;
+      GList *link = NULL;
 
-    lgw_vocabularyliststore_initialize_tree_iter (vocabulary_list_store, &iter, position);
-    if (!lgw_vocabularyliststore_tree_iter_is_valid (vocabulary_list_store, &iter)) goto errored;
+      for (link = g_list_last (wordstorelist); link != NULL; link = link->prev)
+      {
+          if (LGW_IS_VOCABULARYWORDSTORE (link->data))
+          {
+            priv->data.list = g_list_insert_before (priv->data.list, insert_position, link->data);
+            insert_position = insert_position->prev;
+          }
+          else
+          {
+            length--;
+          }
+      }
+    }
 
-    g_signal_emit_by_name (G_OBJECT (vocabulary_list_store),
-      "row-inserted",
-      path,
-      &iter,
-      NULL
-    );
+    {
+      gint i = 0;
+      for (i = 0; i < length; i++)
+      {
+        GtkTreeIter iter;
+        lgw_vocabularyliststore_initialize_tree_iter (vocabulary_list_store, &iter, position + 1);
+        GtkTreePath *path = gtk_tree_path_new_from_indices (position + i, -1);
+
+        if (path != NULL) {
+          g_signal_emit_by_name (G_OBJECT (vocabulary_list_store),
+            "row-inserted",
+            path,
+            &iter,
+            NULL
+          );
+          gtk_tree_path_free (path); path = NULL;
+        }
+      }
+    }
 
 errored:
 
-    if (path != NULL) gtk_tree_path_free (path); path = NULL;
+    return;
+}
+
+
+//Sorts in decending order
+static gint
+_remove_sort (gconstpointer a, gconstpointer b)
+{
+  gint ia = GPOINTER_TO_INT (a);
+  gint ib = GPOINTER_TO_INT (b);
+
+  if (ia > ib) return -1;
+  if (ia < ib) return 1;
+
+  return 0;
 }
 
 
 void
-lgw_vocabularyliststore_remove_by_position (LgwVocabularyListStore *vocabulary_list_store, gint position)
+lgw_vocabularyliststore_remove_all (LgwVocabularyListStore *vocabulary_list_store,
+                                    gint                   *positions)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));
+    if (positions == NULL) return;
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    gint length = 0;
+
+    //Initializations
+    priv = vocabulary_list_store->priv;
+    length = lgw_vocabularyliststore_length (vocabulary_list_store);
+
+
+    //Create sorted remove list
+    GList *remove_list = NULL;
+    gint *p = positions;
+    for (p = positions; *p > -1 && *p < length && p - positions < length; p++)
+    {
+      remove_list = g_list_prepend (remove_list, GINT_TO_POINTER (*p));
+    }
+    remove_list = g_list_sort (remove_list, _remove_sort);
+    
+
+    //Index the list
+    GHashTable *hash = g_hash_table_new (g_direct_hash, g_direct_equal);
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        g_hash_table_insert (hash, GINT_TO_POINTER (i), link);
+        i++;
+      }
+    }
+
+
+    //Remove from the objects main model
+    {
+      GList *remove_link = NULL;
+      for (remove_link = remove_list; remove_link != NULL; remove_link = remove_link->next)
+      {
+        GList *link = g_hash_table_lookup (hash, remove_link->data);
+        if (link != NULL) 
+        {
+          g_object_unref (G_OBJECT (link->data));
+          priv->data.list = g_list_delete_link (priv->data.list, link);
+          g_hash_table_remove (hash, GINT_TO_POINTER (*p));
+        }
+      }
+    }
+
+    //Update the GtkTreeModel
+    {
+      GList *remove_link = NULL;
+      for (remove_link = remove_list; remove_link != NULL; remove_link = remove_link->next)
+      {
+        gint index = GPOINTER_TO_INT (remove_link->data);
+        GtkTreePath *path = gtk_tree_path_new_from_indices (index, -1);
+        if (path != NULL) {
+          g_signal_emit_by_name (G_OBJECT (vocabulary_list_store),
+            "row-deleted",
+            path,
+            NULL
+          );
+          gtk_tree_path_free (path); path = NULL;
+        }
+      }
+    }
+
+errored:
+
+    if (hash != NULL) g_hash_table_unref (hash); hash = NULL;
+    if (remove_list != NULL) g_list_free (remove_list); remove_list = NULL;
+    priv->data.length = -1;
+}
+
+
+void
+lgw_vocabularyliststore_clear (LgwVocabularyListStore *vocabulary_list_store)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));
 
     //Declarations
     LgwVocabularyListStorePrivate *priv = NULL;
-    GtkTreePath *path = NULL;
+    gint length = 0;
 
     //Initializations
     priv = vocabulary_list_store->priv;
-    path = gtk_tree_path_new_from_indices (position, -1);
-    if (path == NULL) goto errored;
+    length = lgw_vocabularyliststore_length (vocabulary_list_store);
 
-    GList *link = g_list_nth_data (priv->data.list, position);
-    if (link != NULL)
+    //Update the internal model
+    g_list_free_full (priv->data.list, (GDestroyNotify) g_object_unref);
+    priv->data.list = NULL;
+
+    //Update the GtkTreeModel
     {
-        g_list_free_full (g_list_remove_link (priv->data.list, link), g_object_unref);
-        priv->data.length--;
-
-        g_signal_emit_by_name (G_OBJECT (vocabulary_list_store),
-          "row-deleted",
-          path,
-          NULL
-        );
+      gint i = 0;
+      for (i = length - 1; i > -1; i--)
+      {
+        GtkTreePath *path = gtk_tree_path_new_from_indices (i, -1);
+        if (path != NULL) {
+          g_signal_emit_by_name (G_OBJECT (vocabulary_list_store),
+            "row-deleted",
+            path,
+            NULL
+          );
+          gtk_tree_path_free (path); path = NULL;
+        }
+      }
     }
-
-errored:
-
-    if (path != NULL) gtk_tree_path_free (path); path = NULL;
 }
 
 
@@ -348,3 +487,22 @@ lgw_vocabularyliststore_get_preferences (LgwVocabularyListStore *vocabulary_list
 }
 
 
+gint
+lgw_vocabularyliststore_length (LgwVocabularyListStore *vocabulary_list_store)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (vocabulary_list_store));
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+
+    //Initializations
+    priv = vocabulary_list_store->priv;
+
+    if (priv->data.length < 0)
+    {
+      priv->data.length = g_list_length (priv->data.list);
+    }
+
+    return priv->data.length;
+}

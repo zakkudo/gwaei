@@ -40,14 +40,16 @@ struct _LgwVocabularyListStoreClass {
 LgwVocabularyListStore* lgw_vocabularyliststore_new (LwPreferences *preferences);
 GType lgw_vocabularyliststore_get_type (void) G_GNUC_CONST;
 
-void lgw_vocabularyliststore_add (LgwVocabularyListStore *vocabulary_list_store, const gchar* FILENAME);
-void lgw_vocabularyliststore_remove_by_position (LgwVocabularyListStore *vocabulary_list_store, gint position);
+void lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *vocabulary_list_store, gint position, GList *wordstorelist);
+void lgw_vocabularyliststore_remove_all (LgwVocabularyListStore *vocabulary_list_store, gint *positions);
+void lgw_vocabularyliststore_clear (LgwVocabularyListStore *vocabulary_list_store);
 
 LwPreferences* lgw_vocabularyliststore_get_preferences (LgwVocabularyListStore *vocabulary_list_store);
 void lgw_vocabularyliststore_set_preferences (LgwVocabularyListStore *vocabulary_list_store, LwPreferences *preferences);
 
 void lgw_vocabularyliststore_load (LgwVocabularyListStore *vocabulary_list_store);
 
+gint lgw_vocabularyliststore_length (LgwVocabularyListStore *vocabulary_list_store);
 
 G_END_DECLS
 
