@@ -95,6 +95,16 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
           window
       );
     }
+
+    if (priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] == 0)
+    {
+      priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.vocabulary_widget),
+          "notify::actions",
+          G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
+          window
+      );
+    }
 }
 
 
@@ -113,13 +123,19 @@ gw_mainwindow_disconnect_signals (GwMainWindow *window) {
 
     if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] != 0)
     {
-      g_signal_handler_disconnect (window, priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED]);
+      g_signal_handler_disconnect (
+        G_OBJECT (window),
+        priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED]
+      );
       priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = 0;
     }
 
     if (priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] != 0)
     {
-      g_signal_handler_disconnect (priv->ui.stack, priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED]);
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.stack),
+        priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED]
+      );
       priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] = 0;
     }
 
@@ -134,8 +150,20 @@ gw_mainwindow_disconnect_signals (GwMainWindow *window) {
 
     if (priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] != 0)
     {
-      g_signal_handler_disconnect (G_OBJECT (priv->ui.search_widget), priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS]);
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.search_widget),
+        priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS]
+      );
       priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.vocabulary_widget),
+        priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS]
+      );
+      priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] = 0;
     }
 
 }
@@ -210,12 +238,9 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     }
     else
     {
-      printf("BREAK gw_mainwindow_applicacation_visible_child_property_changed_cb clearing the window menumodel\n");
       lgw_window_set_window_menumodel (LGW_WINDOW (main_window), NULL);
       lgw_window_set_button_menumodel (LGW_WINDOW (main_window), NULL);
     }
-
-    printf("BREAK1 visible child changed\n");
 
 errored:
 
@@ -313,10 +338,12 @@ lgw_mainwindow_child_actions_property_changed_cb (GwMainWindow *main_window,
                                                   LgwActionable   *actionable)
 {
     //Sanity checks
-    g_return_if_fail (main_window != NULL);
-    g_return_if_fail (actionable != NULL);
+    g_return_if_fail (GW_IS_MAINWINDOW (main_window));
+    g_return_if_fail (LGW_IS_ACTIONABLE (main_window));
+    g_return_if_fail (LGW_IS_ACTIONABLE (actionable));
 
-    lgw_actionable_sync_actions (actionable);
+    printf("lgw_mainwindow_child_actions_property_changed_cb\n"); 
 
+    lgw_actionable_sync_actions (LGW_ACTIONABLE (main_window));
 }
 

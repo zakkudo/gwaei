@@ -84,6 +84,21 @@ lgw_vocabularywordview_finalize (GObject *object)
 }
 
 
+static void
+lgw_vocabularywordview_dispose (GObject *object)
+{
+    //Declarations
+    LgwVocabularyWordView *vocabulary_word_view = NULL;
+
+    //Initializations
+    vocabulary_word_view = LGW_VOCABULARYWORDVIEW (object);
+
+    lgw_vocabularywordview_disconnect_signals (vocabulary_word_view);
+
+    G_OBJECT_CLASS (lgw_vocabularywordview_parent_class)->dispose (object);
+}
+
+
 static void 
 lgw_vocabularywordview_set_property (GObject      *object,
                                     guint         property_id,
@@ -154,7 +169,7 @@ lgw_vocabularywordview_constructed (GObject *object)
     g_return_if_fail (object != NULL);
 
     //Declarations
-    LgwVocabularyWordView *widget = NULL;
+    LgwVocabularyWordView *vocabulary_word_view = NULL;
     LgwVocabularyWordViewPrivate *priv = NULL;
 
     //Chain the parent class
@@ -163,9 +178,9 @@ lgw_vocabularywordview_constructed (GObject *object)
     }
 
     //Initializations
-    widget = LGW_VOCABULARYWORDVIEW (object);
-    priv = widget->priv;
-    priv->ui.box = GTK_BOX (widget);
+    vocabulary_word_view = LGW_VOCABULARYWORDVIEW (object);
+    priv = vocabulary_word_view->priv;
+    priv->ui.box = GTK_BOX (vocabulary_word_view);
 
     {
       GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
@@ -274,6 +289,8 @@ lgw_vocabularywordview_constructed (GObject *object)
         }
       }
     }
+
+    lgw_vocabularywordview_connect_signals (vocabulary_word_view);
 }
 
 
@@ -291,6 +308,7 @@ lgw_vocabularywordview_class_init (LgwVocabularyWordViewClass *klass)
     object_class->set_property = lgw_vocabularywordview_set_property;
     object_class->get_property = lgw_vocabularywordview_get_property;
     object_class->constructed = lgw_vocabularywordview_constructed;
+    object_class->dispose = lgw_vocabularywordview_dispose;
     object_class->finalize = lgw_vocabularywordview_finalize;
 
     g_type_class_add_private (object_class, sizeof (LgwVocabularyWordViewPrivate));

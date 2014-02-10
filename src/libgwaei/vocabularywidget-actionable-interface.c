@@ -43,6 +43,11 @@
 #include <libgwaei/vocabularywidget-private.h>
 
 
+static GList* lgw_vocabularywidget_get_actions (LgwActionable *actionable);
+static void lgw_vocabularywidget_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
+static void lgw_vocabularywidget_sync_actions (LgwActionable *actionable);
+
+
 static GList*
 lgw_vocabularywidget_get_actions (LgwActionable *actionable)
 {
@@ -57,6 +62,11 @@ lgw_vocabularywidget_get_actions (LgwActionable *actionable)
     vocabulary_widget = LGW_VOCABULARYWIDGET (actionable);
     priv = vocabulary_widget->priv;
 
+    if (priv->data.action_group_list == NULL)
+    {
+      lgw_vocabularywidget_sync_actions (actionable);
+    }
+
     return priv->data.action_group_list;
 }
 
@@ -65,6 +75,7 @@ static void
 lgw_vocabularywidget_set_actiongroup (LgwActionable  *actionable,
                                       LgwActionGroup *action_group)
 {
+    printf("BREAk1 lgw_vocabularywidget_set_actiongroup\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWIDGET (actionable));
 
@@ -101,6 +112,7 @@ lgw_vocabularywidget_set_actiongroup (LgwActionable  *actionable,
       GList *actions = lgw_actionable_get_actions (actionable);
       if (actions != NULL)
       {
+        printf("BREAk adding vocabulary_list_view actions to vocabularywidget %d\n", actionable);
         GList *copy = g_list_copy (actions);
         priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
       }
@@ -111,6 +123,7 @@ lgw_vocabularywidget_set_actiongroup (LgwActionable  *actionable,
       GList *actions = lgw_actionable_get_actions (actionable);
       if (actions != NULL)
       {
+        printf("BREAk adding vocabulary_word_view actions to vocabularywidget %d\n", actionable);
         GList *copy = g_list_copy (actions);
         priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
       }
@@ -118,7 +131,7 @@ lgw_vocabularywidget_set_actiongroup (LgwActionable  *actionable,
 }
 
 
-void
+static void
 lgw_vocabularywidget_sync_actions (LgwActionable *actionable)
 {
     //Sanity checks

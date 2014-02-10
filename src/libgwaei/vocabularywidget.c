@@ -197,6 +197,7 @@ lgw_vocabularywidget_constructed (GObject *object)
         priv->ui.vocabulary_word_view = LGW_VOCABULARYWORDVIEW (vocabulary_word_view);
         gtk_paned_pack2 (priv->ui.paned, vocabulary_word_view, TRUE, TRUE);
         gtk_widget_show (vocabulary_word_view);
+        lgw_vocabularylistview_set_wordview (priv->ui.vocabulary_list_view, priv->ui.vocabulary_word_view);
       }
     }
 

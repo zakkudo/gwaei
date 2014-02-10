@@ -237,7 +237,6 @@ lgw_vocabularyliststore_add (LgwVocabularyListStore *vocabulary_list_store, cons
     if (path == NULL) goto errored;
 
     priv->data.list = g_list_prepend (priv->data.list, vocabulary_word_store);
-    printf("BREAK lgw_vocabularyliststore_load %s %d\n", lw_vocabulary_get_filename (LW_VOCABULARY (vocabulary_word_store)), position);
     priv->data.length++;
 
     lgw_vocabularyliststore_initialize_tree_iter (vocabulary_list_store, &iter, position);

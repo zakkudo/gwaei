@@ -40,6 +40,11 @@
 #include <libgwaei/resultstextview-private.h>
 
 
+static void lgw_resultstextview_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
+static void lgw_resultstextview_sync_actions (LgwActionable *actionable);
+static GList* lgw_resultstextview_get_actions (LgwActionable *actionable);
+
+
 static void
 lgw_resultstextview_set_actiongroup (LgwActionable  *actionable,
                                      LgwActionGroup *action_group)
@@ -80,7 +85,7 @@ lgw_resultstextview_set_actiongroup (LgwActionable  *actionable,
 }
 
 
-void
+static void
 lgw_resultstextview_sync_actions (LgwActionable *actionable)
 {
     //Sanity checks
@@ -127,6 +132,11 @@ lgw_resultstextview_get_actions (LgwActionable *actionable)
     //Initializations
     results_text_view = LGW_RESULTSTEXTVIEW (actionable);
     priv = results_text_view->priv;
+
+    if (priv->data.action_group_list == NULL)
+    {
+      lgw_resultstextview_sync_actions (actionable);
+    }
 
     return priv->data.action_group_list;
 }

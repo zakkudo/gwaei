@@ -298,19 +298,20 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
 }
 
 
-void
-lw_vocabulary_load (LwVocabulary       *vocabulary, 
-                    LwProgressCallback  cb)
+static void
+lw_vocabulary_load_from_file (LwVocabulary       *vocabulary, 
+                              LwProgressCallback  cb)
 {
     //Sanity checks
     g_return_if_fail (LW_VOCABULARY (vocabulary));
+    if (lw_vocabulary_is_loaded (vocabulary)) return;
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
     gchar const *FILENAME = NULL;
     gchar *uri = NULL;
-    gsize length = 0;
     gchar *contents = NULL;
+    gsize length = 0;
 
     //Initializations
     priv = vocabulary->priv;
@@ -321,29 +322,59 @@ lw_vocabulary_load (LwVocabulary       *vocabulary,
 
     if (!g_file_get_contents (uri, &contents, &length, NULL) || length == 0) goto errored;
 
-    length = lw_util_replace_linebreaks_with_nullcharacter (contents);
-
     if (length > 0)
     {
+      lw_util_replace_linebreaks_with_nullcharacter (contents);
+
       gchar *c = contents;
-      while (c < contents + length) 
+      while (c != NULL && c < contents + length) 
       {
         LwWord *word = lw_word_new_from_string (c);
         if (word != NULL)
         {
-          priv->data.list = g_list_append (priv->data.list, word);
+          priv->data.list = g_list_prepend (priv->data.list, word);
         }
         c += strlen(c) + 1;
       }
     }
 
-    lw_vocabulary_set_changed (vocabulary, FALSE);
-    lw_vocabulary_set_loaded (vocabulary, TRUE);
-
 errored:
 
     if (contents != NULL) g_free (contents); contents = NULL;
     if (uri != NULL) g_free (uri); uri = NULL;
+}
+
+
+void
+lw_vocabulary_load (LwVocabulary       *vocabulary, 
+                    LwProgressCallback  cb)
+{
+    //Sanity checks
+    g_return_if_fail (LW_VOCABULARY (vocabulary));
+    if (lw_vocabulary_is_loaded (vocabulary)) return;
+
+    //Declarations
+    LwVocabularyPrivate *priv = vocabulary->priv;
+    LwVocabularyClass *klass = LW_VOCABULARY_GET_CLASS (vocabulary);
+    LwVocabularyClassPrivate *klasspriv = klass->priv;
+
+    lw_vocabulary_load_from_file (vocabulary, cb);
+
+    //Update the list information
+    priv->data.length = -1;
+    priv->data.list = g_list_reverse (priv->data.list);
+
+    {
+      gint i = 0;
+      gint length = lw_vocabulary_length (vocabulary);
+      for (i = 0; i < length; i++)
+      {
+        g_signal_emit (vocabulary, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, i);
+      }
+    }
+
+    lw_vocabulary_set_changed (vocabulary, FALSE);
+    lw_vocabulary_set_loaded (vocabulary, TRUE);
 }
 
 void
@@ -566,5 +597,28 @@ lw_vocabulary_insert_all (LwVocabulary *vocabualry, GList *wordlist, gint index)
 void
 lw_vocabulary_reorder (LwVocabulary *vocabulary, gint *new_positions)
 {
+}
+
+
+gint
+lw_vocabulary_length (LwVocabulary *vocabulary)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY (vocabulary), 0);
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint length = 0;
+
+    //Initializations
+    priv = vocabulary->priv;
+    length = priv->data.length;
+
+    if (length < 0)
+    {
+      length = g_list_length (priv->data.list);
+    }
+
+    return length;
 }
 

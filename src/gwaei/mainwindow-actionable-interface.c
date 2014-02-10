@@ -42,6 +42,11 @@
 #include <gwaei/mainwindow-private.h>
 
 
+static void gw_mainwindow_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
+static void gw_mainwindow_sync_actions (LgwActionable *actionable);
+static GList* gw_mainwindow_get_actions (LgwActionable *actionable);
+
+
 static void
 gw_mainwindow_set_actiongroup (LgwActionable  *actionable,
                                LgwActionGroup *action_group)
@@ -98,6 +103,7 @@ gw_mainwindow_set_actiongroup (LgwActionable  *actionable,
     {
       GActionMap *action_map = G_ACTION_MAP (main_window);
       GList *action_group_list = lgw_actionable_get_actions (actionable);
+      printf("BREAK setting window actions\n");
       lgw_window_set_actions (LGW_WINDOW (main_window), action_group_list);
     }
 }
@@ -106,6 +112,7 @@ gw_mainwindow_set_actiongroup (LgwActionable  *actionable,
 static void
 gw_mainwindow_sync_actions (LgwActionable *actionable)
 {
+    printf("BREAK gw_mainwindow_sync_actions\n");
     //Sanity checks
     g_return_val_if_fail (GW_IS_MAINWINDOW (actionable), NULL);
 
@@ -145,6 +152,11 @@ gw_mainwindow_get_actions (LgwActionable *actionable)
     //Initializations
     main_window = GW_MAINWINDOW (actionable);
     priv = main_window->priv;
+
+    if (priv->data.action_group_list == NULL)
+    {
+      gw_mainwindow_sync_actions (actionable);
+    }
 
     return priv->data.action_group_list;
 }

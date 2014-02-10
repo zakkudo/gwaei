@@ -41,6 +41,11 @@
 #include <libgwaei/searchwidget-private.h>
 
 
+static GList* lgw_searchwidget_get_actions (LgwActionable *actionable);
+static void lgw_searchwidget_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
+static void lgw_searchwidget_sync_actions (LgwActionable* actionable);
+
+
 static GList*
 lgw_searchwidget_get_actions (LgwActionable *actionable)
 {
@@ -55,6 +60,11 @@ lgw_searchwidget_get_actions (LgwActionable *actionable)
     search_widget = LGW_SEARCHWIDGET (actionable);
     priv = search_widget->priv;
 
+    if (priv->data.action_group_list == NULL)
+    {
+      lgw_searchwidget_sync_actions (actionable);
+    }
+
     return priv->data.action_group_list;
 }
 
@@ -63,6 +73,7 @@ static void
 lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
                                   LgwActionGroup *action_group)
 {
+    printf("BREAK lgw_searchwindow_set_actiongroup\n");
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 
@@ -116,7 +127,7 @@ lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
 }
 
 
-void
+static void
 lgw_searchwidget_sync_actions (LgwActionable* actionable)
 {
     //Sanity checks

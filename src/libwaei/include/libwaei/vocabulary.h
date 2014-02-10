@@ -53,6 +53,10 @@ gboolean lw_vocabulary_is_loaded (LwVocabulary *vocabulary);
 
 LwWord* lw_vocabulary_get_word_by_index (LwVocabulary *vocabulary, gint index);
 
+void lw_vocabulary_load (LwVocabulary *vocabulary, LwProgressCallback cb);
+
+gint lw_vocabulary_length (LwVocabulary *vocabulary);
+
 G_END_DECLS
 
 #endif

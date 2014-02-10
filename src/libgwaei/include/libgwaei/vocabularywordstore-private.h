@@ -3,11 +3,19 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+  SIGNALID_CHANGED,
+  SIGNALID_DELETED,
+  SIGNALID_INSERTED,
+  SIGNALID_REORDERED,
+  TOTAL_SIGNALIDS
+} SignalId;
+
 
 struct _Data {
   gint list_new_index;
   GList *list; //!< LgwVocabularyWordStore
-  gint length;
+  guint signalid[TOTAL_SIGNALIDS];
 };
 
 struct _LgwVocabularyWordStorePrivate {

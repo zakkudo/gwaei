@@ -4,12 +4,12 @@
     <section>
       <item>
         <attribute name="label" translatable="yes">New _List</attribute>
-        <attribute name="action">win.new-list</attribute>
+        <attribute name="action">win.add-new-vocabulary-list</attribute>
         <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;&lt;Alt&gt;n</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">New _Word</attribute>
-        <attribute name="action">win.new-word</attribute>
+        <attribute name="action">win.add-new-word</attribute>
         <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;n</attribute>
       </item>
     </section>

@@ -95,5 +95,7 @@ lgw_actionable_sync_actions (LgwActionable *self)
     g_return_if_fail (LGW_IS_ACTIONABLE (self));
 
     LGW_ACTIONABLE_GET_INTERFACE (self)->sync_actions (self);
+
+    g_object_notify_by_pspec (G_OBJECT (self), _param_spec[PROP_ACTIONS]);
 }
 

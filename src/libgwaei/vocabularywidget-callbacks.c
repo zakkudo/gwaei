@@ -105,11 +105,12 @@ lgw_vocabularywidget_disconnect_signals (LgwVocabularyWidget *vocabulary_widget)
 
 void
 lgw_vocabularywidget_child_actions_property_changed_cb (LgwVocabularyWidget *vocabulary_widget,
-                                                    GParamSpec      *pspec,
-                                                    LgwActionable   *actionable)
+                                                        GParamSpec          *pspec,
+                                                        LgwActionable       *actionable)
 {
+  printf("lgw_vocabualrywidget_child_actions_property_changed_cb\n");
     //Sanity checks
-    g_return_if_fail (vocabulary_widget != NULL);
+    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (vocabulary_widget));
     g_return_if_fail (actionable != NULL);
 
     lgw_actionable_sync_actions (LGW_ACTIONABLE (vocabulary_widget));

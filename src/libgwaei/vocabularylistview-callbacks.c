@@ -137,8 +137,6 @@ lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *vocabulary_l
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
 
-    printf("BREAK lgw_vocabularylistview_selection_changed_cb\n");
-
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
@@ -150,6 +148,11 @@ lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *vocabulary_l
     vocabulary_word_view = lgw_vocabularylistview_get_wordview (vocabulary_list_view);
     if (vocabulary_word_view == NULL) goto errored;
     vocabulary_word_store = lgw_vocabularylistview_get_selected_wordstore (vocabulary_list_view);
+
+    if (vocabulary_word_store != NULL)
+    {
+      lw_vocabulary_load (LW_VOCABULARY (vocabulary_word_store), NULL);
+    }
 
     lgw_vocabularywordview_set_wordstore (vocabulary_word_view, vocabulary_word_store);
 
@@ -216,7 +219,6 @@ lgw_vocabularylistview_focus_in_event_cb (LgwVocabularyListView *vocabulary_list
                                           GdkEvent              *event,
                                           GtkTreeView           *inner_tree_view)
 {
-    printf("BREAK lgw_vocabularylistview_focus_in\n");
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view), FALSE);
     g_return_val_if_fail (GTK_IS_TREE_VIEW (inner_tree_view), FALSE);
@@ -238,7 +240,6 @@ lgw_vocabularylistview_focus_out_event_cb (LgwVocabularyListView *vocabulary_lis
                                            GdkEvent              *event,
                                            GtkTreeView           *inner_tree_view)
 {
-    printf("BREAK lgw_vocabularylistview_focus_out\n");
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view), FALSE);
     g_return_val_if_fail (GTK_IS_TREE_VIEW (inner_tree_view), FALSE);
