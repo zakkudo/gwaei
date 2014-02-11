@@ -103,7 +103,6 @@ gw_mainwindow_set_actiongroup (LgwActionable  *actionable,
     {
       GActionMap *action_map = G_ACTION_MAP (main_window);
       GList *action_group_list = lgw_actionable_get_actions (actionable);
-      printf("BREAK setting window actions\n");
       lgw_window_set_actions (LGW_WINDOW (main_window), action_group_list);
     }
 }
@@ -112,7 +111,6 @@ gw_mainwindow_set_actiongroup (LgwActionable  *actionable,
 static void
 gw_mainwindow_sync_actions (LgwActionable *actionable)
 {
-    printf("BREAK gw_mainwindow_sync_actions\n");
     //Sanity checks
     g_return_val_if_fail (GW_IS_MAINWINDOW (actionable), NULL);
 

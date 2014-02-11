@@ -228,15 +228,18 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *vocabulary_list_stor
     //Declarations
     LgwVocabularyListStorePrivate *priv = NULL;
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
-    gint length = 0;
-    gboolean append = (position < 0);
+    gint add_length = 0;
+    gint length = lgw_vocabularyliststore_length (vocabulary_list_store);
+    gboolean append = (position < 0 || position >= length || length == 0);
 
     //Initializations
     priv = vocabulary_list_store->priv;
-    length = g_list_length (wordstorelist);
+    add_length = g_list_length (wordstorelist);
 
     if (append)
     {
+      position = length;
+
       GList *copy = g_list_copy (wordstorelist);
       GList *link = NULL;
       for (link = copy; link != NULL; link = link->next)
@@ -246,7 +249,7 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *vocabulary_list_stor
           GList *next = link->next;
           copy = g_list_delete_link (copy, link);
           link = next;
-          length--;
+          add_length--;
         }
       }
       priv->data.list = g_list_concat (priv->data.list, copy);
@@ -256,30 +259,33 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *vocabulary_list_stor
       GList *insert_position = g_list_nth (priv->data.list, position);
       if (insert_position == NULL) goto errored;
       GList *link = NULL;
-
       for (link = g_list_last (wordstorelist); link != NULL; link = link->prev)
       {
-          if (LGW_IS_VOCABULARYWORDSTORE (link->data))
-          {
-            priv->data.list = g_list_insert_before (priv->data.list, insert_position, link->data);
-            insert_position = insert_position->prev;
-          }
-          else
-          {
-            length--;
-          }
+        if (LGW_IS_VOCABULARYWORDSTORE (link->data))
+        {
+          priv->data.list = g_list_insert_before (priv->data.list, insert_position, link->data);
+          insert_position = insert_position->prev;
+        }
+        else
+        {
+          add_length--;
+        }
       }
     }
 
+    priv->data.length = -1;
+    printf("BREAK %d\n", g_list_length (priv->data.list));
+
     {
       gint i = 0;
-      for (i = 0; i < length; i++)
+      for (i = 0; i < add_length; i++)
       {
         GtkTreeIter iter;
         lgw_vocabularyliststore_initialize_tree_iter (vocabulary_list_store, &iter, position + i);
         GtkTreePath *path = gtk_tree_path_new_from_indices (position + i, -1);
 
         if (path != NULL) {
+          printf("BREAK adding %d %d\n", position, i);
           g_signal_emit_by_name (G_OBJECT (vocabulary_list_store),
             "row-inserted",
             path,
@@ -301,13 +307,13 @@ errored:
 static gint
 _remove_sort (gconstpointer a, gconstpointer b)
 {
-  gint ia = GPOINTER_TO_INT (a);
-  gint ib = GPOINTER_TO_INT (b);
+    gint ia = GPOINTER_TO_INT (a);
+    gint ib = GPOINTER_TO_INT (b);
 
-  if (ia > ib) return -1;
-  if (ia < ib) return 1;
+    if (ia > ib) return -1;
+    if (ia < ib) return 1;
 
-  return 0;
+    return 0;
 }
 
 
@@ -426,6 +432,8 @@ lgw_vocabularyliststore_clear (LgwVocabularyListStore *vocabulary_list_store)
         }
       }
     }
+
+    priv->data.length = -1;
 }
 
 

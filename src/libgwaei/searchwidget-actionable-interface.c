@@ -73,7 +73,6 @@ static void
 lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
                                   LgwActionGroup *action_group)
 {
-    printf("BREAK lgw_searchwindow_set_actiongroup\n");
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
 

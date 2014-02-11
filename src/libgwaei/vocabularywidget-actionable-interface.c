@@ -73,7 +73,6 @@ static void
 lgw_vocabularywidget_set_actiongroup (LgwActionable  *actionable,
                                       LgwActionGroup *action_group)
 {
-    printf("BREAk1 lgw_vocabularywidget_set_actiongroup\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWIDGET (actionable));
 
@@ -110,7 +109,6 @@ lgw_vocabularywidget_set_actiongroup (LgwActionable  *actionable,
       GList *actions = lgw_actionable_get_actions (actionable);
       if (actions != NULL)
       {
-        printf("BREAk adding vocabulary_list_view actions to vocabularywidget %d\n", actionable);
         GList *copy = g_list_copy (actions);
         priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
       }
@@ -121,7 +119,6 @@ lgw_vocabularywidget_set_actiongroup (LgwActionable  *actionable,
       GList *actions = lgw_actionable_get_actions (actionable);
       if (actions != NULL)
       {
-        printf("BREAk adding vocabulary_word_view actions to vocabularywidget %d\n", actionable);
         GList *copy = g_list_copy (actions);
         priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
       }
