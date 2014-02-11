@@ -242,8 +242,16 @@ lgw_mainwindow_search_button_toggled_cb (GwMainWindow    *main_window,
     priv = main_window->priv;
     is_active = gtk_toggle_button_get_active (toggle_button);
 
-    if (is_active) child = GTK_WIDGET (priv->ui.search_widget);
-    else child = GTK_WIDGET (priv->ui.vocabulary_widget);
+    if (is_active)
+    {
+      child = GTK_WIDGET (priv->ui.search_widget);
+      gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
+    }
+    else 
+    {
+      child = GTK_WIDGET (priv->ui.vocabulary_widget);
+      gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_SLIDE_UP);
+    }
 
     gtk_stack_set_visible_child (priv->ui.stack, child);
 }
