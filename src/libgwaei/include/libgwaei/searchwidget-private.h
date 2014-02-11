@@ -4,7 +4,6 @@
 G_BEGIN_DECLS
 
 typedef enum {
-    SIGNALID_SEARCHENTRY_ACTIONS,
     SIGNALID_RESULTSVIEW_ACTIONS,
     TOTAL_SIGNALIDS
 } SignalId;
@@ -20,8 +19,6 @@ typedef enum {
 struct _UI {
     GtkBox *box;
     GtkPaned *paned;
-    LgwSearchEntry *search_entry;
-    GtkSearchBar *search_bar;
     LgwResultsView *results_view;
     LgwDictionaryListBox *dictionary_list_box;
 };

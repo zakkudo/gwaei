@@ -251,11 +251,26 @@ gw_mainwindow_initialize_header (GwMainWindow *window)
       priv->ui.header_bar = GTK_HEADER_BAR (bar);
       gtk_header_bar_set_show_close_button (priv->ui.header_bar, TRUE);
 
-      //Setup stack switcher
+      //Setup seach entry
       {
-        GtkWidget *switcher = gtk_stack_switcher_new ();
-        priv->ui.stack_switcher = GTK_STACK_SWITCHER (switcher);
-        gtk_header_bar_set_custom_title (priv->ui.header_bar, switcher);
+        GtkWidget *search_entry = lgw_searchentry_new ();
+        priv->ui.search_entry = LGW_SEARCHENTRY (search_entry);
+        //priv->ui.stack_switcher = GTK_STACK_SWITCHER (switcher);
+        gtk_header_bar_set_custom_title (priv->ui.header_bar, search_entry);
+        gtk_widget_show_all (search_entry);
+      }
+
+      //Search toggle button
+      {
+        GtkWidget *toggle_button = gtk_toggle_button_new ();
+        priv->ui.search_toggle_button = GTK_TOGGLE_BUTTON (toggle_button);
+        gtk_header_bar_pack_end (priv->ui.header_bar, toggle_button);
+        {
+          gchar* icon_name = lgw_get_symbolic_icon_name_if_exists ("edit-find");
+          GtkWidget *image = gtk_image_new_from_icon_name ("edit-find-symbolic", GTK_ICON_SIZE_MENU);
+          gtk_button_set_image (GTK_BUTTON (toggle_button), image);
+          if (icon_name != NULL) g_free (icon_name); icon_name = NULL;
+        }
       }
 
       //Setup menu button
@@ -291,7 +306,6 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
       priv->ui.stack = GTK_STACK (stack);
       gtk_stack_set_homogeneous (priv->ui.stack, TRUE);
       lgw_window_pack_start (LGW_WINDOW (window), stack, TRUE, TRUE, 0); 
-      gtk_stack_switcher_set_stack (priv->ui.stack_switcher, priv->ui.stack);
       gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_CROSSFADE);
 
       {
@@ -310,8 +324,6 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
 
       gtk_widget_show (stack);
     }
-
-    lgw_searchwidget_set_search_mode (priv->ui.search_widget, TRUE);
 }
 
 

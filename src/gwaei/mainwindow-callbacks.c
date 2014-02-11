@@ -43,133 +43,6 @@
 
 
 void
-gw_mainwindow_connect_signals (GwMainWindow *window) {
-    //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (window));
-
-    //Declarations
-    GwMainWindowPrivate *priv = NULL;
-    LwPreferences *preferences = NULL;
-
-    //Initializations
-    priv = window->priv;
-    preferences = lw_preferences_get_default ();
-
-    if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] == 0)
-    {
-      priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = g_signal_connect (
-          window, 
-          "notify::application",
-          G_CALLBACK (gw_mainwindow_application_property_changed_cb),
-          NULL
-      );
-    }
-
-    if (priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] == 0)
-    {
-      priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] = g_signal_connect_swapped (
-          priv->ui.stack,
-          "notify::visible-child",
-          G_CALLBACK (gw_mainwindow_application_visible_child_property_changed_cb),
-          window
-      );
-    }
-
-    if (priv->data.signalid[SIGNALID_SHOW_MENUBAR] == 0)
-    {
-      priv->data.signalid[SIGNALID_SHOW_MENUBAR] = lw_preferences_add_change_listener_by_schema (
-        preferences,
-        LW_SCHEMA_BASE,
-        LW_KEY_MENUBAR_SHOW,
-        gw_mainwindow_sync_show_menubar_cb,
-        window
-      );
-    }
-
-    if (priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] == 0)
-    {
-      priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] = g_signal_connect_swapped (
-          G_OBJECT (priv->ui.search_widget),
-          "notify::actions",
-          G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
-          window
-      );
-    }
-
-    if (priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] == 0)
-    {
-      priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] = g_signal_connect_swapped (
-          G_OBJECT (priv->ui.vocabulary_widget),
-          "notify::actions",
-          G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
-          window
-      );
-    }
-}
-
-
-void
-gw_mainwindow_disconnect_signals (GwMainWindow *window) {
-    //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (window));
-
-    //Declarations
-    GwMainWindowPrivate *priv = NULL;
-    LwPreferences *preferences = NULL;
-
-    //Initializations
-    priv = window->priv;
-    preferences = lw_preferences_get_default ();
-
-    if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] != 0)
-    {
-      g_signal_handler_disconnect (
-        G_OBJECT (window),
-        priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED]
-      );
-      priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = 0;
-    }
-
-    if (priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] != 0)
-    {
-      g_signal_handler_disconnect (
-        G_OBJECT (priv->ui.stack),
-        priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED]
-      );
-      priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] = 0;
-    }
-
-    if (priv->data.signalid[SIGNALID_SHOW_MENUBAR] != 0) {
-      lw_preferences_remove_change_listener_by_schema (
-          preferences,
-          LW_SCHEMA_BASE,
-          priv->data.signalid[SIGNALID_SHOW_MENUBAR]
-      );
-      priv->data.signalid[SIGNALID_SHOW_MENUBAR] = 0;
-    }
-
-    if (priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] != 0)
-    {
-      g_signal_handler_disconnect (
-        G_OBJECT (priv->ui.search_widget),
-        priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS]
-      );
-      priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] = 0;
-    }
-
-    if (priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] != 0)
-    {
-      g_signal_handler_disconnect (
-        G_OBJECT (priv->ui.vocabulary_widget),
-        priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS]
-      );
-      priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] = 0;
-    }
-
-}
-
-
-void
 gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
                                                GParamSpec   *pspec,
                                                gpointer      data)
@@ -241,6 +114,10 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
       lgw_window_set_window_menumodel (LGW_WINDOW (main_window), NULL);
       lgw_window_set_button_menumodel (LGW_WINDOW (main_window), NULL);
     }
+
+    g_signal_handler_block (priv->ui.search_toggle_button, priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED]);
+    gtk_toggle_button_set_active (priv->ui.search_toggle_button, (widget == GTK_WIDGET (priv->ui.search_widget)));
+    g_signal_handler_unblock (priv->ui.search_toggle_button, priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED]);
 
 errored:
 
@@ -345,5 +222,190 @@ lgw_mainwindow_child_actions_property_changed_cb (GwMainWindow *main_window,
     printf("lgw_mainwindow_child_actions_property_changed_cb\n"); 
 
     lgw_actionable_sync_actions (LGW_ACTIONABLE (main_window));
+}
+
+
+void
+lgw_mainwindow_search_button_toggled_cb (GwMainWindow    *main_window,
+                                         GtkToggleButton *toggle_button)
+{
+    //Sanity checks
+    g_return_if_fail (GW_IS_MAINWINDOW (main_window));
+    g_return_if_fail (GTK_IS_TOGGLE_BUTTON (toggle_button));
+
+    //Declarations
+    GwMainWindowPrivate *priv = NULL;
+    gboolean is_active = FALSE;
+    GtkWidget *child = NULL;
+
+    //Initializations
+    priv = main_window->priv;
+    is_active = gtk_toggle_button_get_active (toggle_button);
+
+    if (is_active) child = GTK_WIDGET (priv->ui.search_widget);
+    else child = GTK_WIDGET (priv->ui.vocabulary_widget);
+
+    gtk_stack_set_visible_child (priv->ui.stack, child);
+}
+
+
+void
+gw_mainwindow_connect_signals (GwMainWindow *window) {
+    //Sanity checks
+    g_return_if_fail (GW_IS_MAINWINDOW (window));
+
+    //Declarations
+    GwMainWindowPrivate *priv = NULL;
+    LwPreferences *preferences = NULL;
+
+    //Initializations
+    priv = window->priv;
+    preferences = lw_preferences_get_default ();
+
+    if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] == 0)
+    {
+      priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = g_signal_connect (
+          window, 
+          "notify::application",
+          G_CALLBACK (gw_mainwindow_application_property_changed_cb),
+          NULL
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] == 0)
+    {
+      priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] = g_signal_connect_swapped (
+          priv->ui.stack,
+          "notify::visible-child",
+          G_CALLBACK (gw_mainwindow_application_visible_child_property_changed_cb),
+          window
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_SHOW_MENUBAR] == 0)
+    {
+      priv->data.signalid[SIGNALID_SHOW_MENUBAR] = lw_preferences_add_change_listener_by_schema (
+        preferences,
+        LW_SCHEMA_BASE,
+        LW_KEY_MENUBAR_SHOW,
+        gw_mainwindow_sync_show_menubar_cb,
+        window
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] == 0)
+    {
+      priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.search_widget),
+          "notify::actions",
+          G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
+          window
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] == 0)
+    {
+      priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.vocabulary_widget),
+          "notify::actions",
+          G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
+          window
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED] == 0)
+    {
+      priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.search_toggle_button),
+          "toggled",
+          G_CALLBACK (lgw_mainwindow_search_button_toggled_cb),
+          window
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] == 0)
+    {
+      priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.search_entry),
+          "notify::actions",
+          G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
+          window
+      );
+    }
+}
+
+
+void
+gw_mainwindow_disconnect_signals (GwMainWindow *window) {
+    //Sanity checks
+    g_return_if_fail (GW_IS_MAINWINDOW (window));
+
+    //Declarations
+    GwMainWindowPrivate *priv = NULL;
+    LwPreferences *preferences = NULL;
+
+    //Initializations
+    priv = window->priv;
+    preferences = lw_preferences_get_default ();
+
+    if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (window),
+        priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED]
+      );
+      priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.stack),
+        priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED]
+      );
+      priv->data.signalid[SIGNALID_STACK_VISIBLE_CHILD_PROPERTY_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_SHOW_MENUBAR] != 0) {
+      lw_preferences_remove_change_listener_by_schema (
+          preferences,
+          LW_SCHEMA_BASE,
+          priv->data.signalid[SIGNALID_SHOW_MENUBAR]
+      );
+      priv->data.signalid[SIGNALID_SHOW_MENUBAR] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.search_widget),
+        priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS]
+      );
+      priv->data.signalid[SIGNALID_SEARCHWIDGET_ACTIONS] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.vocabulary_widget),
+        priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS]
+      );
+      priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.search_toggle_button),
+        priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED]
+      );
+      priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] != 0)
+    {
+      g_signal_handler_disconnect (G_OBJECT (priv->ui.search_entry), priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS]);
+      priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] = 0;
+    }
 }
 

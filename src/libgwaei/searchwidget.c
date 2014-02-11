@@ -175,52 +175,6 @@ lgw_searchwidget_constructed (GObject *object)
     priv->ui.box = GTK_BOX (search_widget);
 
     {
-      GtkWidget *search_bar = gtk_search_bar_new ();
-      priv->ui.search_bar = GTK_SEARCH_BAR (search_bar);
-      gtk_box_pack_start (priv->ui.box, search_bar, FALSE, FALSE, 0);
-      gtk_widget_show (search_bar);
-
-      {
-        GtkWidget *box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
-        gtk_container_add (GTK_CONTAINER (priv->ui.search_bar), box);
-        gtk_widget_show (box);
-
-        {
-          GtkWidget *entry = lgw_searchentry_new ();
-          priv->ui.search_entry = LGW_SEARCHENTRY (entry);
-          gtk_search_bar_connect_entry (priv->ui.search_bar, lgw_searchentry_get_entry (priv->ui.search_entry));
-          gtk_box_pack_start (GTK_BOX (box), entry, FALSE, FALSE, 0);
-          gtk_widget_show (entry);
-        }
-
-        {
-          GtkWidget *button = gtk_menu_button_new ();
-          gtk_button_set_label (GTK_BUTTON (button), "漢");
-          gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
-          gtk_widget_show (button);
-
-          {
-            GtkWidget *menu = gtk_menu_new ();
-            gtk_menu_button_set_popup (GTK_MENU_BUTTON (button), menu);
-            gtk_widget_show (menu);
-
-            {
-              GtkWidget *menu_item = gtk_separator_menu_item_new ();
-              gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
-              gtk_widget_show (menu_item);
-
-              {
-                GtkWidget *label = gtk_label_new ("test");
-                gtk_container_add (GTK_CONTAINER (menu_item), label);
-                gtk_widget_show (label);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    {
       GtkWidget *paned = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);    
       priv->ui.paned = GTK_PANED (paned);
       gtk_box_pack_start (priv->ui.box, paned, TRUE, TRUE, 0);
@@ -309,45 +263,6 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_DICTIONARYLISTSTORE, klasspriv->pspec[PROP_DICTIONARYLISTSTORE]);
-}
-
-
-gboolean
-lgw_searchwidget_get_search_mode (LgwSearchWidget *widget)
-{
-    //Sanity checks
-    g_return_val_if_fail (LGW_IS_SEARCHWIDGET (widget), FALSE);
-    g_return_val_if_fail (widget->priv != NULL, FALSE);
-    g_return_val_if_fail (widget->priv->ui.search_bar != NULL, FALSE);
-
-    //Declarations
-    LgwSearchWidgetPrivate *priv = NULL;
-    gboolean search_mode = FALSE;
-
-    //Initializations
-    priv = widget->priv;
-    search_mode = gtk_search_bar_get_search_mode (priv->ui.search_bar);
-
-    return search_mode;
-}
-
-
-void
-lgw_searchwidget_set_search_mode (LgwSearchWidget *widget,
-                                  gboolean         search_mode)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (widget));
-    g_return_val_if_fail (widget->priv != NULL, FALSE);
-    g_return_val_if_fail (widget->priv->ui.search_bar != NULL, FALSE);
-
-    //Declarations
-    LgwSearchWidgetPrivate *priv = NULL;
-
-    //Initializations
-    priv = widget->priv;
-
-    gtk_search_bar_set_search_mode (priv->ui.search_bar, search_mode);
 }
 
 

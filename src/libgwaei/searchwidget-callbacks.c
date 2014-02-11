@@ -40,6 +40,20 @@
 #include <libgwaei/searchwidget-private.h>
 
 
+
+void
+lgw_searchwidget_child_actions_property_changed_cb (LgwSearchWidget *search_widget,
+                                                    GParamSpec      *pspec,
+                                                    LgwActionable   *actionable)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+    g_return_if_fail (actionable != NULL);
+
+    lgw_actionable_sync_actions (LGW_ACTIONABLE (search_widget));
+}
+
+
 void
 lgw_searchwidget_connect_signals (LgwSearchWidget *search_widget)
 {
@@ -51,16 +65,6 @@ lgw_searchwidget_connect_signals (LgwSearchWidget *search_widget)
 
     //Initializations
     priv = search_widget->priv;
-
-    if (priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] == 0)
-    {
-      priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] = g_signal_connect_swapped (
-          G_OBJECT (priv->ui.search_entry),
-          "notify::actions",
-          G_CALLBACK (lgw_searchwidget_child_actions_property_changed_cb),
-          search_widget
-      );
-    }
 
     if (priv->data.signalid[SIGNALID_RESULTSVIEW_ACTIONS] == 0)
     {
@@ -86,12 +90,6 @@ lgw_searchwidget_disconnect_signals (LgwSearchWidget *search_widget)
     //Initializations
     priv = search_widget->priv;
 
-    if (priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] != 0)
-    {
-      g_signal_handler_disconnect (G_OBJECT (priv->ui.search_entry), priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS]);
-      priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] = 0;
-    }
-
     if (priv->data.signalid[SIGNALID_RESULTSVIEW_ACTIONS] != 0)
     {
       g_signal_handler_disconnect (G_OBJECT (priv->ui.results_view), priv->data.signalid[SIGNALID_RESULTSVIEW_ACTIONS]);
@@ -99,15 +97,3 @@ lgw_searchwidget_disconnect_signals (LgwSearchWidget *search_widget)
     }
 }
 
-
-void
-lgw_searchwidget_child_actions_property_changed_cb (LgwSearchWidget *search_widget,
-                                                    GParamSpec      *pspec,
-                                                    LgwActionable   *actionable)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
-    g_return_if_fail (actionable != NULL);
-
-    lgw_actionable_sync_actions (LGW_ACTIONABLE (search_widget));
-}

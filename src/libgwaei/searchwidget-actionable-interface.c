@@ -91,6 +91,16 @@ lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
       priv->data.action_group_list = NULL;
     }
 
+    {
+      LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.results_view);
+      GList *actions = lgw_actionable_get_actions (actionable);
+      if (actions != NULL)
+      {
+        GList *copy = g_list_copy (actions);
+        priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
+      }
+    }
+
     if (priv->data.action_group != NULL)
     {
         lgw_actiongroup_free (priv->data.action_group);
@@ -104,25 +114,6 @@ lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
       priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
     }
 
-    {
-        LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.search_entry);
-        GList *actions = lgw_actionable_get_actions (actionable);
-        if (actions != NULL)
-        {
-          GList *copy = g_list_copy (actions);
-          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
-        }
-    }
-
-    {
-        LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.results_view);
-        GList *actions = lgw_actionable_get_actions (actionable);
-        if (actions != NULL)
-        {
-          GList *copy = g_list_copy (actions);
-          priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
-        }
-    }
 }
 
 

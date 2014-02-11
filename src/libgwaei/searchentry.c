@@ -55,7 +55,7 @@ lgw_searchentry_new ()
     LgwSearchEntry *entry = NULL;
 
     //Initializations
-    entry = LGW_SEARCHENTRY (g_object_new (LGW_TYPE_SEARCHENTRY, NULL));
+    entry = LGW_SEARCHENTRY (g_object_new (LGW_TYPE_SEARCHENTRY, "spacing", 3, "border-width", 0, NULL));
 
     return GTK_WIDGET (entry);
 }
@@ -164,12 +164,44 @@ lgw_searchentry_constructed (GObject *object)
     priv->ui.box = GTK_BOX (search_entry);
     widget = GTK_WIDGET (object);
 
+
+    //GtkWidget *overlay = gtk_overlay_new ();
+    //gtk_box_pack_start (priv->ui.box, overlay, FALSE, FALSE, 0);
+
     {
-        GtkWidget *search_entry = gtk_search_entry_new ();
-        priv->ui.search_entry = GTK_SEARCH_ENTRY (search_entry);
-        gtk_box_pack_start (priv->ui.box, search_entry, FALSE, FALSE, 0);
-        gtk_widget_set_size_request (search_entry, 300, -1);
-        gtk_widget_show (search_entry);
+      //Search toggle button
+      {
+        GtkWidget *label = gtk_label_new (NULL);
+        gtk_label_set_markup (GTK_LABEL (label), "<small><b>漢</b></small>");
+
+        GtkWidget *toggle_button = gtk_toggle_button_new();
+        gtk_box_pack_start (priv->ui.box, toggle_button, TRUE, TRUE, 0);
+        //gtk_overlay_add_overlay (GTK_OVERLAY (overlay), toggle_button);
+
+        gtk_container_add (GTK_CONTAINER (toggle_button), label);
+        gtk_misc_set_padding (GTK_MISC (label), 0, 0);
+
+        {
+          GtkStyleContext *context = gtk_widget_get_style_context (toggle_button);
+          gtk_style_context_set_junction_sides (context, GTK_JUNCTION_LEFT);
+          gtk_widget_reset_style (toggle_button);
+        }
+      }
+    }
+
+    {
+      GtkWidget *search_entry = gtk_search_entry_new ();
+      priv->ui.search_entry = GTK_SEARCH_ENTRY (search_entry);
+      gtk_box_pack_start (priv->ui.box, search_entry, FALSE, FALSE, 0);
+      //gtk_container_add (GTK_CONTAINER (overlay), search_entry);
+      gtk_widget_set_size_request (search_entry, 300, -1);
+      gtk_widget_show (search_entry);
+
+      {
+        GtkStyleContext *context = gtk_widget_get_style_context (search_entry);
+        gtk_style_context_set_junction_sides (context, GTK_JUNCTION_RIGHT);
+        gtk_widget_reset_style (search_entry);
+      }
     }
 
     lgw_searchentry_connect_signals (search_entry);
