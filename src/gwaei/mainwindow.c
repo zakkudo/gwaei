@@ -262,15 +262,9 @@ gw_mainwindow_initialize_header (GwMainWindow *window)
 
       //Search toggle button
       {
-        GtkWidget *toggle_button = gtk_toggle_button_new ();
-        priv->ui.search_toggle_button = GTK_TOGGLE_BUTTON (toggle_button);
-        gtk_header_bar_pack_end (priv->ui.header_bar, toggle_button);
-        {
-          gchar* icon_name = lgw_get_symbolic_icon_name_if_exists ("edit-find");
-          GtkWidget *image = gtk_image_new_from_icon_name ("edit-find-symbolic", GTK_ICON_SIZE_MENU);
-          gtk_button_set_image (GTK_BUTTON (toggle_button), image);
-          if (icon_name != NULL) g_free (icon_name); icon_name = NULL;
-        }
+        GtkWidget *stack_switcher = gtk_stack_switcher_new ();
+        priv->ui.stack_switcher = GTK_STACK_SWITCHER (stack_switcher);
+        gtk_header_bar_pack_end (priv->ui.header_bar, stack_switcher);
       }
 
       //Setup menu button
@@ -279,7 +273,7 @@ gw_mainwindow_initialize_header (GwMainWindow *window)
         gtk_header_bar_pack_end (priv->ui.header_bar, menu_button);
         {
           gchar* icon_name = lgw_get_symbolic_icon_name_if_exists ("emblem-system");
-          GtkWidget *image = gtk_image_new_from_icon_name ("emblem-system-symbolic", GTK_ICON_SIZE_MENU);
+          GtkWidget *image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
           gtk_button_set_image (GTK_BUTTON (menu_button), image);
           if (icon_name != NULL) g_free (icon_name); icon_name = NULL;
         }
@@ -311,19 +305,46 @@ gw_mainwindow_initialize_body (GwMainWindow *window)
       {
         GtkWidget* search_widget = lgw_searchwidget_new ();
         priv->ui.search_widget = LGW_SEARCHWIDGET (search_widget);
-        gtk_stack_add_titled (priv->ui.stack, search_widget, "dictionary", gettext("Lookup"));
+
+        {
+          gchar* icon_name = lgw_get_symbolic_icon_name_if_exists ("edit-find");
+          gtk_container_add_with_properties (
+            GTK_CONTAINER (stack), search_widget, 
+            "name", "dictionary", 
+            "title", gettext("Lookup"), 
+            "icon-name", icon_name,
+            NULL
+          );
+          if (icon_name != NULL) g_free (icon_name); icon_name = NULL;
+        }
+
         gtk_widget_show (search_widget);
       }
 
       {
         GtkWidget* vocabulary_widget = lgw_vocabularywidget_new ();
         priv->ui.vocabulary_widget = LGW_VOCABULARYWIDGET (vocabulary_widget);
-        gtk_stack_add_titled (priv->ui.stack, vocabulary_widget, "vocabulary", gettext("Study"));
+
+        {
+          gchar* icon_name = lgw_get_symbolic_icon_name_if_exists ("view-list");
+          gtk_container_add_with_properties (
+            GTK_CONTAINER (stack), vocabulary_widget, 
+            "name", "vocabulary", 
+            "title", gettext("Study"), 
+            "icon-name", icon_name,
+            NULL
+          );
+          if (icon_name != NULL) g_free (icon_name); icon_name = NULL;
+        }
+
         gtk_widget_show (vocabulary_widget);
       }
 
       gtk_widget_show (stack);
+
     }
+
+    gtk_stack_switcher_set_stack (priv->ui.stack_switcher, priv->ui.stack);
 }
 
 

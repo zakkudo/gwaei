@@ -115,10 +115,6 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
       lgw_window_set_button_menumodel (LGW_WINDOW (main_window), NULL);
     }
 
-    g_signal_handler_block (priv->ui.search_toggle_button, priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED]);
-    gtk_toggle_button_set_active (priv->ui.search_toggle_button, (widget == GTK_WIDGET (priv->ui.search_widget)));
-    g_signal_handler_unblock (priv->ui.search_toggle_button, priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED]);
-
 errored:
 
     return;
@@ -226,38 +222,6 @@ lgw_mainwindow_child_actions_property_changed_cb (GwMainWindow *main_window,
 
 
 void
-lgw_mainwindow_search_button_toggled_cb (GwMainWindow    *main_window,
-                                         GtkToggleButton *toggle_button)
-{
-    //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (main_window));
-    g_return_if_fail (GTK_IS_TOGGLE_BUTTON (toggle_button));
-
-    //Declarations
-    GwMainWindowPrivate *priv = NULL;
-    gboolean is_active = FALSE;
-    GtkWidget *child = NULL;
-
-    //Initializations
-    priv = main_window->priv;
-    is_active = gtk_toggle_button_get_active (toggle_button);
-
-    if (is_active)
-    {
-      child = GTK_WIDGET (priv->ui.search_widget);
-      gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
-    }
-    else 
-    {
-      child = GTK_WIDGET (priv->ui.vocabulary_widget);
-      gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_SLIDE_UP);
-    }
-
-    gtk_stack_set_visible_child (priv->ui.stack, child);
-}
-
-
-void
 gw_mainwindow_connect_signals (GwMainWindow *window) {
     //Sanity checks
     g_return_if_fail (GW_IS_MAINWINDOW (window));
@@ -317,16 +281,6 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
           G_OBJECT (priv->ui.vocabulary_widget),
           "notify::actions",
           G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
-          window
-      );
-    }
-
-    if (priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED] == 0)
-    {
-      priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED] = g_signal_connect_swapped (
-          G_OBJECT (priv->ui.search_toggle_button),
-          "toggled",
-          G_CALLBACK (lgw_mainwindow_search_button_toggled_cb),
           window
       );
     }
@@ -399,15 +353,6 @@ gw_mainwindow_disconnect_signals (GwMainWindow *window) {
         priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS]
       );
       priv->data.signalid[SIGNALID_VOCABULARYWIDGET_ACTIONS] = 0;
-    }
-
-    if (priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED] != 0)
-    {
-      g_signal_handler_disconnect (
-        G_OBJECT (priv->ui.search_toggle_button),
-        priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED]
-      );
-      priv->data.signalid[SIGNALID_SEARCH_BUTTON_TOGGLED] = 0;
     }
 
     if (priv->data.signalid[SIGNALID_SEARCHENTRY_ACTIONS] != 0)

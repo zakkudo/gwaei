@@ -15,7 +15,6 @@ typedef enum {
   SIGNALID_SHOW_MENUBAR,
   SIGNALID_SEARCHWIDGET_ACTIONS,
   SIGNALID_VOCABULARYWIDGET_ACTIONS,
-  SIGNALID_SEARCH_BUTTON_TOGGLED,
   SIGNALID_SEARCHENTRY_ACTIONS,
   TOTAL_SIGNALIDS
 } SignalId;
@@ -27,9 +26,9 @@ typedef enum {
 
 struct _UI {
     GtkHeaderBar *header_bar;
-    GtkToggleButton *search_toggle_button;
     LgwSearchEntry *search_entry;
     GtkStack *stack;
+    GtkStackSwitcher *stack_switcher;
 
     LgwSearchWidget *search_widget;
     LgwVocabularyWidget *vocabulary_widget;

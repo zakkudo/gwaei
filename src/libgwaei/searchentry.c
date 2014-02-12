@@ -55,7 +55,7 @@ lgw_searchentry_new ()
     LgwSearchEntry *entry = NULL;
 
     //Initializations
-    entry = LGW_SEARCHENTRY (g_object_new (LGW_TYPE_SEARCHENTRY, "spacing", 3, "border-width", 0, NULL));
+    entry = LGW_SEARCHENTRY (g_object_new (LGW_TYPE_SEARCHENTRY, "spacing", 0, "border-width", 0, NULL));
 
     return GTK_WIDGET (entry);
 }
@@ -69,6 +69,12 @@ lgw_searchentry_init (LgwSearchEntry *entry)
 
     LgwSearchEntryPrivate *priv;
     priv = entry->priv;
+
+    GtkStyleContext *context = gtk_widget_get_style_context (GTK_WIDGET (entry));
+    gtk_style_context_add_class (context, GTK_STYLE_CLASS_LINKED);
+
+    gtk_widget_set_margin_left (GTK_WIDGET (entry), 6);
+    gtk_widget_set_margin_right (GTK_WIDGET (entry), 6);
 }
 
 
