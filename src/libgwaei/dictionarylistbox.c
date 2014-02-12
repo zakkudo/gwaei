@@ -97,6 +97,9 @@ lgw_dictionarylistbox_set_property (GObject      *object,
 
     switch (property_id)
     {
+      case PROP_EDITABLE:
+        lgw_dictionarylistbox_set_editable (dictionary_list_box, g_value_get_boolean (value));
+        break;
       case PROP_DICTIONARYLISTSTORE:
         lgw_dictionarylistbox_set_dictionaryliststore (dictionary_list_box, g_value_get_object (value));
         break;
@@ -121,6 +124,9 @@ lgw_dictionarylistbox_get_property (GObject      *object,
 
     switch (property_id)
     {
+      case PROP_EDITABLE:
+        g_value_set_boolean (value, lgw_dictionarylistbox_is_editable (dictionary_list_box));
+        break;
       case PROP_DICTIONARYLISTSTORE:
         g_value_set_object (value, lgw_dictionarylistbox_get_dictionaryliststore (dictionary_list_box));
         break;
@@ -155,7 +161,7 @@ lgw_dictionarylistbox_constructed (GObject *object)
     {
       GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
       priv->ui.scrolled_window = GTK_SCROLLED_WINDOW (scrolled_window);
-      gtk_scrolled_window_set_shadow_type (priv->ui.scrolled_window, GTK_SHADOW_IN);
+      //gtk_scrolled_window_set_shadow_type (priv->ui.scrolled_window, GTK_SHADOW_IN);
       gtk_scrolled_window_set_policy (priv->ui.scrolled_window, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
       gtk_box_pack_start (priv->ui.box, scrolled_window, TRUE, TRUE, 0);
       gtk_widget_show (scrolled_window);
@@ -170,6 +176,7 @@ lgw_dictionarylistbox_constructed (GObject *object)
         GtkWidget *list_box = gtk_list_box_new ();
         priv->ui.list_box = GTK_LIST_BOX (list_box);
         gtk_container_add (GTK_CONTAINER (scrolled_window), list_box);
+        gtk_widget_set_size_request (list_box, 150, -1);
         gtk_widget_show (list_box);
 
         {
@@ -186,7 +193,6 @@ lgw_dictionarylistbox_constructed (GObject *object)
       priv->ui.toolbar = GTK_TOOLBAR (toolbar);
       gtk_toolbar_set_icon_size (priv->ui.toolbar, GTK_ICON_SIZE_MENU);
       gtk_toolbar_set_show_arrow (priv->ui.toolbar, FALSE);
-      gtk_widget_show (toolbar);
       gtk_box_pack_start (priv->ui.box, toolbar, FALSE, FALSE, 0);
 
       {
@@ -337,6 +343,15 @@ lgw_dictionarylistbox_class_init (LgwDictionaryListBoxClass *klass)
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_DICTIONARYLISTSTORE, klasspriv->pspec[PROP_DICTIONARYLISTSTORE]);
+
+    klasspriv->pspec[PROP_EDITABLE] = g_param_spec_boolean (
+      "editable",
+      "TODO",
+      "TODO",
+      FALSE,
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_EDITABLE, klasspriv->pspec[PROP_EDITABLE]);
 }
 
 
@@ -392,4 +407,49 @@ lgw_dictionarylistbox_get_dictionaryliststore (LgwDictionaryListBox *dictionary_
 
     return priv->data.dictionary_list_store;
 }
+
+
+void
+lgw_dictionarylistbox_set_editable (LgwDictionaryListBox *dictionary_list_box,
+                                    gboolean              editable)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
+
+    //Declarations
+    LgwDictionaryListBoxPrivate *priv = NULL;
+    LgwDictionaryListBoxClass *klass = NULL;
+    LgwDictionaryListBoxClassPrivate *klasspriv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = dictionary_list_box->priv;
+    klass = LGW_DICTIONARYLISTBOX_GET_CLASS (dictionary_list_box);
+    klasspriv = klass->priv;
+    changed = priv->config.editable != editable;
+
+    if (changed)
+    {
+      priv->config.editable = editable;
+      g_object_notify_by_pspec (G_OBJECT (dictionary_list_box), klasspriv->pspec[PROP_EDITABLE]);
+    }
+}
+
+
+gboolean
+lgw_dictionarylistbox_is_editable (LgwDictionaryListBox *dictionary_list_box)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
+
+    //Declarations
+    LgwDictionaryListBoxPrivate *priv = NULL;
+
+    //Initializations
+    priv = dictionary_list_box->priv;
+
+    return priv->config.editable;
+}
+
+
 

@@ -175,7 +175,7 @@ lgw_resultstextview_constructed (GObject *object)
     {
       GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
       priv->ui.scrolled_window = GTK_SCROLLED_WINDOW (scrolled_window);
-      gtk_scrolled_window_set_shadow_type (priv->ui.scrolled_window, GTK_SHADOW_IN);
+      //gtk_scrolled_window_set_shadow_type (priv->ui.scrolled_window, GTK_SHADOW_IN);
       gtk_box_pack_start (priv->ui.box, scrolled_window, TRUE, TRUE, 0);
       gtk_widget_show (scrolled_window);
 

@@ -35,6 +35,8 @@ GType lgw_dictionarylistbox_get_type (void) G_GNUC_CONST;
 void lgw_dictionarylistbox_set_dictionaryliststore (LgwDictionaryListBox *dictionary_list_box, LgwDictionaryListStore *dictionary_list_store);
 LgwDictionaryListStore* lgw_dictionarylistbox_get_dictionaryliststore (LgwDictionaryListBox *view);
 
+void lgw_dictionarylistbox_set_editable (LgwDictionaryListBox *dictionary_list_box, gboolean editable);
+gboolean lgw_dictionarylistbox_is_editable (LgwDictionaryListBox *dictionary_list_box);
 
 
 G_END_DECLS

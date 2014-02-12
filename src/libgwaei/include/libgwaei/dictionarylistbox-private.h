@@ -6,6 +6,7 @@ G_BEGIN_DECLS
 typedef enum {
   PROP_0,
   PROP_DICTIONARYLISTSTORE,
+  PROP_EDITABLE,
   TOTAL_PROPS
 } Props;
 
@@ -23,9 +24,9 @@ struct _UI {
 };
 
 struct _Config {
-    gboolean readonly;
     gboolean show_toolbar;
     gboolean show_icons;
+    gboolean editable;
 };
 
 struct _Data {

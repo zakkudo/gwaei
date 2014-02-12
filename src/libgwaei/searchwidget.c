@@ -56,7 +56,7 @@ lgw_searchwidget_new ()
     LgwSearchWidget *widget = NULL;
 
     //Initializations
-    widget = LGW_SEARCHWIDGET (g_object_new (LGW_TYPE_SEARCHWIDGET, "orientation", GTK_ORIENTATION_VERTICAL, "spacing", 0, NULL));
+    widget = LGW_SEARCHWIDGET (g_object_new (LGW_TYPE_SEARCHWIDGET, "orientation", GTK_ORIENTATION_HORIZONTAL, "spacing", 0, NULL));
 
     return GTK_WIDGET (widget);
 }
@@ -175,25 +175,29 @@ lgw_searchwidget_constructed (GObject *object)
     priv->ui.box = GTK_BOX (search_widget);
 
     {
+      /*
       GtkWidget *paned = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);    
       priv->ui.paned = GTK_PANED (paned);
       gtk_box_pack_start (priv->ui.box, paned, TRUE, TRUE, 0);
       gtk_container_set_border_width (GTK_CONTAINER (paned), 6);
       gtk_widget_show (paned);
+      */
 
       {
         GtkWidget *dictionary_list_box = lgw_dictionarylistbox_new ();
-        gtk_container_set_border_width (GTK_CONTAINER (dictionary_list_box), 6);
+        gtk_container_set_border_width (GTK_CONTAINER (dictionary_list_box), 0);
         priv->ui.dictionary_list_box = LGW_DICTIONARYLISTBOX (dictionary_list_box);
-        gtk_paned_pack1 (priv->ui.paned, dictionary_list_box, FALSE, FALSE);
+        //gtk_paned_pack1 (priv->ui.paned, dictionary_list_box, FALSE, FALSE);
+        gtk_box_pack_start (priv->ui.box, dictionary_list_box, FALSE, FALSE, 0);
         gtk_widget_show (dictionary_list_box);
       }
 
       {
         GtkWidget *results_view = lgw_resultstextview_new ();
-        gtk_container_set_border_width (GTK_CONTAINER (results_view), 6);
+        gtk_container_set_border_width (GTK_CONTAINER (results_view), 0);
         priv->ui.results_view = LGW_RESULTSVIEW (results_view);
-        gtk_paned_pack2 (priv->ui.paned, results_view, TRUE, TRUE);
+        //gtk_paned_pack2 (priv->ui.paned, results_view, TRUE, TRUE);
+        gtk_box_pack_start (priv->ui.box, results_view, TRUE, TRUE, 0);
         gtk_widget_show (results_view);
       }
     }
