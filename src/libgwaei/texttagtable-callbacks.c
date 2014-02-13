@@ -44,18 +44,18 @@
 
 
 void
-lgw_texttagtable_connect_signals (LgwTextTagTable *tag_table)
+lgw_texttagtable_connect_signals (LgwTextTagTable *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_TEXTTAGTABLE (tag_table));
+    g_return_if_fail (LGW_IS_TEXTTAGTABLE (self));
 
     //Declarations
     LgwTextTagTablePrivate *priv = NULL;
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = tag_table->priv;
-    preferences = lgw_texttagtable_get_preferences (tag_table);
+    priv = self->priv;
+    preferences = lgw_texttagtable_get_preferences (self);
     if (preferences == NULL) goto errored;
 
     if (priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_FG] == 0) {
@@ -64,7 +64,7 @@ lgw_texttagtable_connect_signals (LgwTextTagTable *tag_table)
           LW_SCHEMA_HIGHLIGHT, 
           LW_KEY_MATCH_FG, 
           lgw_texttagtable_sync_tag_cb, 
-          tag_table
+          self
       );
       priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_FG] = 0;
     }
@@ -75,7 +75,7 @@ lgw_texttagtable_connect_signals (LgwTextTagTable *tag_table)
           LW_SCHEMA_HIGHLIGHT, 
           LW_KEY_MATCH_BG, 
           lgw_texttagtable_sync_tag_cb, 
-          tag_table
+          self
       );
       priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_MATCH_BG] = 0;
     }
@@ -86,7 +86,7 @@ lgw_texttagtable_connect_signals (LgwTextTagTable *tag_table)
           LW_SCHEMA_HIGHLIGHT, 
           LW_KEY_HEADER_FG, 
           lgw_texttagtable_sync_tag_cb, 
-          tag_table
+          self
       );
       priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_FG] = 0;
     }
@@ -97,7 +97,7 @@ lgw_texttagtable_connect_signals (LgwTextTagTable *tag_table)
           LW_SCHEMA_HIGHLIGHT, 
           LW_KEY_HEADER_BG, 
           lgw_texttagtable_sync_tag_cb, 
-          tag_table
+          self
       );
       priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_HEADER_BG] = 0;
     }
@@ -108,7 +108,7 @@ lgw_texttagtable_connect_signals (LgwTextTagTable *tag_table)
           LW_SCHEMA_HIGHLIGHT, 
           LW_KEY_COMMENT_FG, 
           lgw_texttagtable_sync_tag_cb, 
-          tag_table
+          self
       );
       priv->data.signalid[LGW_TEXTTAGTABLE_SIGNALID_COMMENT_FG] = 0;
     }
@@ -120,18 +120,18 @@ errored:
 
 
 void
-lgw_texttagtable_disconnect_signals (LgwTextTagTable *tag_table)
+lgw_texttagtable_disconnect_signals (LgwTextTagTable *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_TEXTTAGTABLE (tag_table));
+    g_return_if_fail (LGW_IS_TEXTTAGTABLE (self));
 
     //Declarations
     LgwTextTagTablePrivate *priv = NULL;
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = tag_table->priv;
-    preferences = lgw_texttagtable_get_preferences (tag_table);
+    priv = self->priv;
+    preferences = lgw_texttagtable_get_preferences (self);
     if (preferences == NULL) goto errored;
 
     {
@@ -169,10 +169,10 @@ lgw_texttagtable_sync_tag_cb (GSettings *settings,
     GdkRGBA color;
     gchar **pair = NULL;
     GtkTextTag *tag = NULL;
-    GtkTextTagTable *tag_table = NULL;
+    GtkTextTagTable *self = NULL;
 
-    tag_table = GTK_TEXT_TAG_TABLE (data);
-    if (tag_table == NULL) goto errored;
+    self = GTK_TEXT_TAG_TABLE (data);
+    if (self == NULL) goto errored;
 
     //Parse the color
     text = lw_preferences_get_string (settings, key);
@@ -187,7 +187,7 @@ lgw_texttagtable_sync_tag_cb (GSettings *settings,
     pair = g_strsplit (key, "-", 2);
     if (pair != NULL && pair[0] != NULL && pair[1] != NULL)
     {
-      tag = gtk_text_tag_table_lookup (tag_table, pair[0]);
+      tag = gtk_text_tag_table_lookup (self, pair[0]);
       if (tag == NULL) goto errored;
       g_object_set (G_OBJECT (tag), pair[1], text, NULL);
     }

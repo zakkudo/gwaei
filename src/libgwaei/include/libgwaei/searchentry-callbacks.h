@@ -6,11 +6,11 @@ G_BEGIN_DECLS
 void lgw_searchentry_connect_signals (LgwSearchEntry *entry);
 void lgw_searchentry_disconnect_signals (LgwSearchEntry *entry);
 
-void lgw_searchentry_changed_cb (LgwSearchEntry *search_entry, GtkSearchEntry *inner_search_entry);
-void lgw_searchentry_activated_cb (LgwSearchEntry *search_entry, GtkEntry *inner_entry);
+void lgw_searchentry_changed_cb (LgwSearchEntry *self, GtkSearchEntry *inner_search_entry);
+void lgw_searchentry_activated_cb (LgwSearchEntry *self, GtkEntry *inner_entry);
 
-gboolean lgw_searchentry_focus_in_event_cb (LgwSearchEntry *search_entry, GdkEvent *event, GtkSearchEntry *inner_search_entry);
-gboolean lgw_searchentry_focus_out_event_cb (LgwSearchEntry *search_entry, GdkEvent *event, GtkSearchEntry *inner_search_entry);
+gboolean lgw_searchentry_focus_in_event_cb (LgwSearchEntry *self, GdkEvent *event, GtkSearchEntry *inner_search_entry);
+gboolean lgw_searchentry_focus_out_event_cb (LgwSearchEntry *self, GdkEvent *event, GtkSearchEntry *inner_search_entry);
 
 void lgw_searchentry_insert_unknown_character_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 void lgw_searchentry_insert_word_edge_cb (GSimpleAction *action, GVariant *parameter, gpointer data);

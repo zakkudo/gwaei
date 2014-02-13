@@ -94,12 +94,12 @@ static void
 lgw_dictionaryliststore_dispose (GObject *object)
 {
     //Declarations
-    LgwDictionaryListStore *dictionary_list_store = NULL;
+    LgwDictionaryListStore *self = NULL;
 
     //Initializations
-    dictionary_list_store = LGW_DICTIONARYLISTSTORE (object);
+    self = LGW_DICTIONARYLISTSTORE (object);
 
-    lgw_dictionaryliststore_disconnect_signals (dictionary_list_store);
+    lgw_dictionaryliststore_disconnect_signals (self);
 
     G_OBJECT_CLASS (lgw_dictionaryliststore_parent_class)->dispose (object);
 }

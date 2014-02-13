@@ -42,16 +42,16 @@
 
 
 void
-lgw_vocabularywidget_connect_signals (LgwVocabularyWidget *vocabulary_widget)
+lgw_vocabularywidget_connect_signals (LgwVocabularyWidget *self)
 {
     //Sanity checks
-    g_return_if_fail (vocabulary_widget != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwVocabularyWidgetPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_widget->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_VOCABULARYLISTVIEW_ACTIONS] == 0)
     {
@@ -59,7 +59,7 @@ lgw_vocabularywidget_connect_signals (LgwVocabularyWidget *vocabulary_widget)
           G_OBJECT (priv->ui.vocabulary_list_view),
           "notify::actions",
           G_CALLBACK (lgw_vocabularywidget_child_actions_property_changed_cb),
-          vocabulary_widget
+          self
       );
     }
 
@@ -69,23 +69,23 @@ lgw_vocabularywidget_connect_signals (LgwVocabularyWidget *vocabulary_widget)
           G_OBJECT (priv->ui.vocabulary_word_view),
           "notify::actions",
           G_CALLBACK (lgw_vocabularywidget_child_actions_property_changed_cb),
-          vocabulary_widget
+          self
       );
     }
 }
 
 
 void
-lgw_vocabularywidget_disconnect_signals (LgwVocabularyWidget *vocabulary_widget)
+lgw_vocabularywidget_disconnect_signals (LgwVocabularyWidget *self)
 {
     //Sanity checks
-    g_return_if_fail (vocabulary_widget != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwVocabularyWidgetPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_widget->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_VOCABULARYLISTVIEW_ACTIONS] != 0)
     {
@@ -102,15 +102,15 @@ lgw_vocabularywidget_disconnect_signals (LgwVocabularyWidget *vocabulary_widget)
 
 
 void
-lgw_vocabularywidget_child_actions_property_changed_cb (LgwVocabularyWidget *vocabulary_widget,
+lgw_vocabularywidget_child_actions_property_changed_cb (LgwVocabularyWidget *self,
                                                         GParamSpec          *pspec,
                                                         LgwActionable       *actionable)
 {
   printf("lgw_vocabualrywidget_child_actions_property_changed_cb\n");
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (vocabulary_widget));
+    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (self));
     g_return_if_fail (actionable != NULL);
 
-    lgw_actionable_sync_actions (LGW_ACTIONABLE (vocabulary_widget));
+    lgw_actionable_sync_actions (LGW_ACTIONABLE (self));
 }
 

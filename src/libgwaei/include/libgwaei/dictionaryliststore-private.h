@@ -12,7 +12,6 @@ typedef enum {
 } SignalId;
 
 struct _Data {
-  LgwDictionaryListStore *dictionary_list_store;
   GMenuModel *menumodel;
   guint signalid[TOTAL_SIGNALIDS];
 };

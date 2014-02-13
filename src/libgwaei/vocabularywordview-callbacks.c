@@ -41,16 +41,16 @@
 
 
 void
-lgw_vocabularywordview_connect_signals (LgwVocabularyWordView *vocabulary_word_view)
+lgw_vocabularywordview_connect_signals (LgwVocabularyWordView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (vocabulary_word_view));
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
 
     //Declarations
     LgwVocabularyWordViewPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_word_view->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] == 0)
     {
@@ -58,7 +58,7 @@ lgw_vocabularywordview_connect_signals (LgwVocabularyWordView *vocabulary_word_v
           G_OBJECT (priv->data.tree_selection),
           "changed",
           G_CALLBACK (lgw_vocabularywordview_selection_changed_cb),
-          vocabulary_word_view
+          self
         );
     }
 
@@ -68,7 +68,7 @@ lgw_vocabularywordview_connect_signals (LgwVocabularyWordView *vocabulary_word_v
           G_OBJECT (priv->ui.tree_view),
           "focus-in-event",
           G_CALLBACK (lgw_vocabularywordview_focus_in_event_cb),
-          vocabulary_word_view
+          self
       );
     }
 
@@ -78,24 +78,24 @@ lgw_vocabularywordview_connect_signals (LgwVocabularyWordView *vocabulary_word_v
           G_OBJECT (priv->ui.tree_view),
           "focus-out-event",
           G_CALLBACK (lgw_vocabularywordview_focus_out_event_cb),
-          vocabulary_word_view
+          self
       );
     }
 }
 
 
 void
-lgw_vocabularywordview_disconnect_signals (LgwVocabularyWordView *vocabulary_word_view)
+lgw_vocabularywordview_disconnect_signals (LgwVocabularyWordView *self)
 {
 
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (vocabulary_word_view));
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
 
     //Declarations
     LgwVocabularyWordViewPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_word_view->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] != 0)
     {
@@ -130,11 +130,11 @@ lgw_vocabularywordview_disconnect_signals (LgwVocabularyWordView *vocabulary_wor
 
 
 void
-lgw_vocabularywordview_selection_changed_cb (LgwVocabularyWordView *vocabulary_word_view,
+lgw_vocabularywordview_selection_changed_cb (LgwVocabularyWordView *self,
                                              GtkTreeSelection      *tree_selection)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (vocabulary_word_view));
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
 
     //Declarations
     LgwVocabularyWordViewPrivate *priv = NULL;
@@ -154,12 +154,12 @@ lgw_vocabularywordview_add_new_activated_cb (GSimpleAction *action,
     g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (data));
 
     //Declarations
-    LgwVocabularyWordView *vocabulary_word_view = NULL;
+    LgwVocabularyWordView *self = NULL;
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
     gchar *filename = NULL;
 
     //Initializations
-    vocabulary_word_view = LGW_VOCABULARYWORDVIEW (data);
+    self = LGW_VOCABULARYWORDVIEW (data);
     filename = lgw_vocabularywordstore_generate_filename ();
     if (filename == NULL) goto errored;
 
@@ -181,14 +181,14 @@ lgw_vocabularywordview_remove_selected_activated_cb (GSimpleAction *action,
     g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (data));
 
     //Declarations
-    LgwVocabularyWordView *vocabulary_word_view = NULL;
+    LgwVocabularyWordView *self = NULL;
     LgwVocabularyWordViewPrivate *priv = NULL;
     GtkTreeModel *tree_model = NULL;
     GList *rowlist = NULL;
 
     //Initializations
-    vocabulary_word_view = LGW_VOCABULARYWORDVIEW (data);
-    priv = vocabulary_word_view->priv;
+    self = LGW_VOCABULARYWORDVIEW (data);
+    priv = self->priv;
     tree_model = GTK_TREE_MODEL (priv->data.vocabulary_word_store);
     rowlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
 
@@ -199,19 +199,19 @@ errored:
 
 
 gboolean
-lgw_vocabularywordview_focus_in_event_cb (LgwVocabularyWordView *vocabulary_word_view,
+lgw_vocabularywordview_focus_in_event_cb (LgwVocabularyWordView *self,
                                           GdkEvent              *event,
                                           GtkTreeView           *inner_tree_view)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_VOCABULARYWORDVIEW (vocabulary_word_view), FALSE);
+    g_return_val_if_fail (LGW_IS_VOCABULARYWORDVIEW (self), FALSE);
     g_return_val_if_fail (GTK_IS_TREE_VIEW (inner_tree_view), FALSE);
 
     //Declarations
     LgwActionable *actionable = NULL;
 
     //Initializations
-    actionable = LGW_ACTIONABLE (vocabulary_word_view);
+    actionable = LGW_ACTIONABLE (self);
 
     lgw_actionable_sync_actions (actionable);
 
@@ -220,19 +220,19 @@ lgw_vocabularywordview_focus_in_event_cb (LgwVocabularyWordView *vocabulary_word
 
 
 gboolean
-lgw_vocabularywordview_focus_out_event_cb (LgwVocabularyWordView *vocabulary_word_view,
+lgw_vocabularywordview_focus_out_event_cb (LgwVocabularyWordView *self,
                                            GdkEvent              *event,
                                            GtkTreeView           *inner_tree_view)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_VOCABULARYWORDVIEW (vocabulary_word_view), FALSE);
+    g_return_val_if_fail (LGW_IS_VOCABULARYWORDVIEW (self), FALSE);
     g_return_val_if_fail (GTK_IS_TREE_VIEW (inner_tree_view), FALSE);
 
     //Declarations
     LgwActionable *actionable = NULL;
 
     //Initializations
-    actionable = LGW_ACTIONABLE (vocabulary_word_view);
+    actionable = LGW_ACTIONABLE (self);
 
     lgw_actionable_sync_actions (actionable);
 

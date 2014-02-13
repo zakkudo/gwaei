@@ -48,11 +48,11 @@ lgw_searchwidget_get_button_menu_model (LgwMenuable *menuable)
     g_return_if_fail (LGW_IS_SEARCHWIDGET (menuable));
 
     //Declarations
-    LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (menuable);
+    LgwSearchWidget *self = LGW_SEARCHWIDGET (menuable);
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
-    priv = search_widget->priv;
+    priv = self->priv;
 
     return priv->data.button_menu_model;
 }
@@ -65,11 +65,11 @@ lgw_searchwidget_get_window_menu_model (LgwMenuable *menuable)
     g_return_if_fail (LGW_IS_SEARCHWIDGET (menuable));
 
     //Declarations
-    LgwSearchWidget *search_widget = LGW_SEARCHWIDGET (menuable);
+    LgwSearchWidget *self = LGW_SEARCHWIDGET (menuable);
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
-    priv = search_widget->priv;
+    priv = self->priv;
 
     return priv->data.window_menu_model;
 }

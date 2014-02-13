@@ -53,23 +53,23 @@ LgwVocabularyWordStore*
 lgw_vocabularywordstore_new (const gchar *FILENAME)
 {
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;;
+    LgwVocabularyWordStore *self = NULL;;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (g_object_new (LGW_TYPE_VOCABULARYWORDSTORE,
+    self = LGW_VOCABULARYWORDSTORE (g_object_new (LGW_TYPE_VOCABULARYWORDSTORE,
                                                     "filename",        FILENAME,
                                                      NULL));
-    return vocabulary_word_store;
+    return self;
 }
 
 
 static void 
-lgw_vocabularywordstore_init (LgwVocabularyWordStore *vocabulary_word_store)
+lgw_vocabularywordstore_init (LgwVocabularyWordStore *self)
 {
-    vocabulary_word_store->priv = LGW_VOCABULARYWORDSTORE_GET_PRIVATE (vocabulary_word_store);
-    memset(vocabulary_word_store->priv, 0, sizeof(LgwVocabularyWordStorePrivate));
+    self->priv = LGW_VOCABULARYWORDSTORE_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LgwVocabularyWordStorePrivate));
 
-    lgw_vocabularywordstore_connect_signals (vocabulary_word_store);
+    lgw_vocabularywordstore_connect_signals (self);
 }
 
 
@@ -77,12 +77,12 @@ static void
 lgw_vocabularywordstore_dispose (GObject *object)
 {
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwVocabularyWordStore *self = NULL;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (object);
+    self = LGW_VOCABULARYWORDSTORE (object);
 
-    lgw_vocabularywordstore_disconnect_signals (vocabulary_word_store);
+    lgw_vocabularywordstore_disconnect_signals (self);
 
     G_OBJECT_CLASS (lgw_vocabularywordstore_parent_class)->dispose (object);
 }
@@ -92,12 +92,12 @@ static void
 lgw_vocabularywordstore_finalize (GObject *object)
 {
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store;
+    LgwVocabularyWordStore *self;
     LgwVocabularyWordStorePrivate *priv;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (object);
-    priv = vocabulary_word_store->priv;
+    self = LGW_VOCABULARYWORDSTORE (object);
+    priv = self->priv;
 
     G_OBJECT_CLASS (lgw_vocabularywordstore_parent_class)->finalize (object);
 }
@@ -110,12 +110,12 @@ lgw_vocabularywordstore_set_property (GObject      *object,
                                       GParamSpec   *pspec)
 {
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwVocabularyWordStore *self = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (object);
-    priv = vocabulary_word_store->priv;
+    self = LGW_VOCABULARYWORDSTORE (object);
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -132,11 +132,11 @@ lgw_vocabularywordstore_get_property (GObject      *object,
                                       GValue       *value,
                                       GParamSpec   *pspec)
 {
-    LgwVocabularyWordStore *vocabulary_word_store;
+    LgwVocabularyWordStore *self;
     LgwVocabularyWordStorePrivate *priv;
 
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (object);
-    priv = vocabulary_word_store->priv;
+    self = LGW_VOCABULARYWORDSTORE (object);
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -222,7 +222,7 @@ lgw_vocabularywordstore_calculate_weight (LgwVocabularyWordStore *store, GtkTree
 
     //The effect of this is short term score is important.
     //long term, time is important for deciding weight
-    GtkTreeModel *vocabulary_word_store;
+    GtkTreeModel *self;
     gint score;
     gint numerator;
     gint denominator;
@@ -231,8 +231,8 @@ lgw_vocabularywordstore_calculate_weight (LgwVocabularyWordStore *store, GtkTree
     gint weight;
     guint32 hours;
 
-    vocabulary_word_store = GTK_TREE_MODEL (store);
-    gtk_tree_model_get (vocabulary_word_store, iter, 
+    self = GTK_TREE_MODEL (store);
+    gtk_tree_model_get (self, iter, 
           LGW_VOCABULARYWORDSTORE_COLUMN_TIMESTAMP, &hours,
           LGW_VOCABULARYWORDSTORE_COLUMN_CORRECT_GUESSES, &correct,
           LGW_VOCABULARYWORDSTORE_COLUMN_INCORRECT_GUESSES, &incorrect,

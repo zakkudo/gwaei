@@ -44,12 +44,12 @@
 
 
 void
-lgw_vocabularywordstore_changed_cb (LgwVocabularyWordStore *vocabulary_word_store,
+lgw_vocabularywordstore_changed_cb (LgwVocabularyWordStore *self,
                                     gint                    position,
                                     gpointer                data)
 {
     //Sanity checks
-    g_return_if_fail (vocabulary_word_store != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwVocabularyWordStorePrivate *priv = NULL;
@@ -57,13 +57,13 @@ lgw_vocabularywordstore_changed_cb (LgwVocabularyWordStore *vocabulary_word_stor
     GtkTreePath *path = NULL;
 
     //Initializations
-    priv = vocabulary_word_store->priv;
+    priv = self->priv;
     path = gtk_tree_path_new_from_indices (position, -1);
     if (path == NULL) goto errored;
-    lgw_vocabularywordstore_initialize_tree_iter (vocabulary_word_store, &iter, position);
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (vocabulary_word_store, &iter)) goto errored;
+    lgw_vocabularywordstore_initialize_tree_iter (self, &iter, position);
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (self, &iter)) goto errored;
 
-    g_signal_emit_by_name (G_OBJECT (vocabulary_word_store),
+    g_signal_emit_by_name (G_OBJECT (self),
       "row-changed",
       path,
       &iter,
@@ -77,12 +77,12 @@ errored:
 
 
 void
-lgw_vocabularywordstore_inserted_cb (LgwVocabularyWordStore *vocabulary_word_store,
+lgw_vocabularywordstore_inserted_cb (LgwVocabularyWordStore *self,
                                      gint                    position,
                                      gpointer                data)
 {
     //Sanity checks
-    g_return_if_fail (vocabulary_word_store != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwVocabularyWordStorePrivate *priv = NULL;
@@ -90,13 +90,13 @@ lgw_vocabularywordstore_inserted_cb (LgwVocabularyWordStore *vocabulary_word_sto
     GtkTreePath *path = NULL;
 
     //Initializations
-    priv = vocabulary_word_store->priv;
+    priv = self->priv;
     path = gtk_tree_path_new_from_indices (position, -1);
     if (path == NULL) goto errored;
-    lgw_vocabularywordstore_initialize_tree_iter (vocabulary_word_store, &iter, position);
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (vocabulary_word_store, &iter)) goto errored;
+    lgw_vocabularywordstore_initialize_tree_iter (self, &iter, position);
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (self, &iter)) goto errored;
 
-    g_signal_emit_by_name (G_OBJECT (vocabulary_word_store),
+    g_signal_emit_by_name (G_OBJECT (self),
       "row-inserted",
       path,
       &iter,
@@ -109,23 +109,23 @@ errored:
 }
 
 void
-lgw_vocabularywordstore_deleted_cb (LgwVocabularyWordStore *vocabulary_word_store,
+lgw_vocabularywordstore_deleted_cb (LgwVocabularyWordStore *self,
                                     gint               position,
                                     gpointer           data)
 {
     //Sanity checks
-    g_return_if_fail (vocabulary_word_store != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwVocabularyWordStorePrivate *priv = NULL;
     GtkTreePath *path = NULL;
 
     //Initializations
-    priv = vocabulary_word_store->priv;
+    priv = self->priv;
     path = gtk_tree_path_new_from_indices (position, -1);
     if (path == NULL) goto errored;
 
-    g_signal_emit_by_name (G_OBJECT (vocabulary_word_store),
+    g_signal_emit_by_name (G_OBJECT (self),
       "row-deleted",
       path,
       NULL
@@ -137,23 +137,23 @@ errored:
 }
 
 void
-lgw_vocabularywordstore_reordered_cb (LgwVocabularyWordStore *vocabulary_word_store,
+lgw_vocabularywordstore_reordered_cb (LgwVocabularyWordStore *self,
                                       gint                   *new_order,
                                       gpointer                data)
 {
     //Sanity checks
-    g_return_if_fail (vocabulary_word_store != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwVocabularyWordStorePrivate *priv = NULL;
     GtkTreePath *path = NULL;
 
     //Initializations
-    priv = vocabulary_word_store->priv;
+    priv = self->priv;
     path = gtk_tree_path_new_from_indices (-1);
     if (path == NULL) goto errored;
 
-    g_signal_emit_by_name (G_OBJECT (vocabulary_word_store),
+    g_signal_emit_by_name (G_OBJECT (self),
       "rows-reordered",
       path,
       NULL,
@@ -168,21 +168,21 @@ errored:
 
 
 void
-lgw_vocabularywordstore_connect_signals (LgwVocabularyWordStore *vocabulary_word_store)
+lgw_vocabularywordstore_connect_signals (LgwVocabularyWordStore *self)
 {
     //Sanity checks
-    g_return_if_fail (vocabulary_word_store != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwVocabularyWordStorePrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_word_store->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_CHANGED] == 0)
     {
       priv->data.signalid[SIGNALID_CHANGED] = g_signal_connect (
-        G_OBJECT (vocabulary_word_store),
+        G_OBJECT (self),
         "internal-row-changed",
         G_CALLBACK (lgw_vocabularywordstore_changed_cb),
         NULL
@@ -192,7 +192,7 @@ lgw_vocabularywordstore_connect_signals (LgwVocabularyWordStore *vocabulary_word
     if (priv->data.signalid[SIGNALID_INSERTED] == 0)
     {
       priv->data.signalid[SIGNALID_INSERTED] = g_signal_connect (
-        G_OBJECT (vocabulary_word_store),
+        G_OBJECT (self),
         "internal-row-inserted",
         G_CALLBACK (lgw_vocabularywordstore_inserted_cb),
         NULL
@@ -202,7 +202,7 @@ lgw_vocabularywordstore_connect_signals (LgwVocabularyWordStore *vocabulary_word
     if (priv->data.signalid[SIGNALID_DELETED] == 0)
     {
       priv->data.signalid[SIGNALID_DELETED] = g_signal_connect (
-        G_OBJECT (vocabulary_word_store),
+        G_OBJECT (self),
         "internal-row-deleted",
         G_CALLBACK (lgw_vocabularywordstore_deleted_cb),
         NULL
@@ -212,7 +212,7 @@ lgw_vocabularywordstore_connect_signals (LgwVocabularyWordStore *vocabulary_word
     if (priv->data.signalid[SIGNALID_REORDERED] == 0)
     {
       priv->data.signalid[SIGNALID_REORDERED] = g_signal_connect (
-        G_OBJECT (vocabulary_word_store),
+        G_OBJECT (self),
         "internal-rows-reordered",
         G_CALLBACK (lgw_vocabularywordstore_reordered_cb),
         NULL
@@ -222,23 +222,23 @@ lgw_vocabularywordstore_connect_signals (LgwVocabularyWordStore *vocabulary_word
 
 
 void
-lgw_vocabularywordstore_disconnect_signals (LgwVocabularyWordStore *vocabulary_word_store)
+lgw_vocabularywordstore_disconnect_signals (LgwVocabularyWordStore *self)
 {
     //Sanity checks
-    g_return_if_fail (vocabulary_word_store != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwVocabularyWordStorePrivate *priv = NULL;
     gint i = 0;
 
     //Initializations
-    priv = vocabulary_word_store->priv;
+    priv = self->priv;
 
     for (i = 0; i < TOTAL_SIGNALIDS; i++)
     {
       if (priv->data.signalid[i] != 0)
       {
-        g_signal_handler_disconnect (G_OBJECT (vocabulary_word_store), priv->data.signalid[i]);
+        g_signal_handler_disconnect (G_OBJECT (self), priv->data.signalid[i]);
         priv->data.signalid[i] = 0;
       }
     }

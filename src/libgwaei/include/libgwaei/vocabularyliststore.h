@@ -40,16 +40,16 @@ struct _LgwVocabularyListStoreClass {
 LgwVocabularyListStore* lgw_vocabularyliststore_new (LwPreferences *preferences);
 GType lgw_vocabularyliststore_get_type (void) G_GNUC_CONST;
 
-void lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *vocabulary_list_store, gint position, GList *wordstorelist);
-void lgw_vocabularyliststore_remove_all (LgwVocabularyListStore *vocabulary_list_store, gint *positions);
-void lgw_vocabularyliststore_clear (LgwVocabularyListStore *vocabulary_list_store);
+void lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *self, gint position, GList *wordstorelist);
+void lgw_vocabularyliststore_remove_all (LgwVocabularyListStore *self, gint *positions);
+void lgw_vocabularyliststore_clear (LgwVocabularyListStore *self);
 
-LwPreferences* lgw_vocabularyliststore_get_preferences (LgwVocabularyListStore *vocabulary_list_store);
-void lgw_vocabularyliststore_set_preferences (LgwVocabularyListStore *vocabulary_list_store, LwPreferences *preferences);
+LwPreferences* lgw_vocabularyliststore_get_preferences (LgwVocabularyListStore *self);
+void lgw_vocabularyliststore_set_preferences (LgwVocabularyListStore *self, LwPreferences *preferences);
 
-void lgw_vocabularyliststore_load (LgwVocabularyListStore *vocabulary_list_store);
+void lgw_vocabularyliststore_load (LgwVocabularyListStore *self);
 
-gint lgw_vocabularyliststore_length (LgwVocabularyListStore *vocabulary_list_store);
+gint lgw_vocabularyliststore_length (LgwVocabularyListStore *self);
 
 G_END_DECLS
 

@@ -44,8 +44,8 @@ struct _LgwDictionaryListStoreClass {
 LgwDictionaryListStore* lgw_dictionaryliststore_new (LwPreferences *preferences);
 GType lgw_dictionaryliststore_get_type (void) G_GNUC_CONST;
 
-void lgw_dictionaryliststore_sync_menumodel (LgwDictionaryListStore *dictionary_list_store);
-GMenuModel* lgw_dictionaryliststore_get_menumodel (LgwDictionaryListStore *dictionary_list_store);
+void lgw_dictionaryliststore_sync_menumodel (LgwDictionaryListStore *self);
+GMenuModel* lgw_dictionaryliststore_get_menumodel (LgwDictionaryListStore *self);
 
 G_END_DECLS
 

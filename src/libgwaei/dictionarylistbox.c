@@ -89,19 +89,19 @@ lgw_dictionarylistbox_set_property (GObject      *object,
                                     const GValue *value,
                                     GParamSpec   *pspec)
 {
-    LgwDictionaryListBox *dictionary_list_box = NULL;
+    LgwDictionaryListBox *self = NULL;
     LgwDictionaryListBoxPrivate *priv = NULL;
 
-    dictionary_list_box = LGW_DICTIONARYLISTBOX (object);
-    priv = dictionary_list_box->priv;
+    self = LGW_DICTIONARYLISTBOX (object);
+    priv = self->priv;
 
     switch (property_id)
     {
       case PROP_EDITABLE:
-        lgw_dictionarylistbox_set_editable (dictionary_list_box, g_value_get_boolean (value));
+        lgw_dictionarylistbox_set_editable (self, g_value_get_boolean (value));
         break;
       case PROP_DICTIONARYLISTSTORE:
-        lgw_dictionarylistbox_set_dictionaryliststore (dictionary_list_box, g_value_get_object (value));
+        lgw_dictionarylistbox_set_dictionaryliststore (self, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -116,19 +116,19 @@ lgw_dictionarylistbox_get_property (GObject      *object,
                                     GValue       *value,
                                     GParamSpec   *pspec)
 {
-    LgwDictionaryListBox *dictionary_list_box = NULL;
+    LgwDictionaryListBox *self = NULL;
     LgwDictionaryListBoxPrivate *priv = NULL;
 
-    dictionary_list_box = LGW_DICTIONARYLISTBOX (object);
-    priv = dictionary_list_box->priv;
+    self = LGW_DICTIONARYLISTBOX (object);
+    priv = self->priv;
 
     switch (property_id)
     {
       case PROP_EDITABLE:
-        g_value_set_boolean (value, lgw_dictionarylistbox_is_editable (dictionary_list_box));
+        g_value_set_boolean (value, lgw_dictionarylistbox_is_editable (self));
         break;
       case PROP_DICTIONARYLISTSTORE:
-        g_value_set_object (value, lgw_dictionarylistbox_get_dictionaryliststore (dictionary_list_box));
+        g_value_set_object (value, lgw_dictionarylistbox_get_dictionaryliststore (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -259,18 +259,18 @@ lgw_dictionarylist_create_row (LwDictionary *dictionary)
 
 
 static void
-lgw_dictionarylistbox_sync_list (LgwDictionaryListBox *dictionary_list_box)
+lgw_dictionarylistbox_sync_list (LgwDictionaryListBox *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (self));
 
     //Declarations
     LgwDictionaryListBoxPrivate *priv = NULL;
     LgwDictionaryListStore *dictionary_list_store = NULL;
 
     //Initializations
-    priv = dictionary_list_box->priv;
-    dictionary_list_store = lgw_dictionarylistbox_get_dictionaryliststore (dictionary_list_box);
+    priv = self->priv;
+    dictionary_list_store = lgw_dictionarylistbox_get_dictionaryliststore (self);
 
     if (priv->ui.list_box == NULL) goto errored;
 
@@ -356,11 +356,11 @@ lgw_dictionarylistbox_class_init (LgwDictionaryListBoxClass *klass)
 
 
 void
-lgw_dictionarylistbox_set_dictionaryliststore (LgwDictionaryListBox *dictionary_list_box,
+lgw_dictionarylistbox_set_dictionaryliststore (LgwDictionaryListBox *self,
                                                LgwDictionaryListStore    *dictionary_list_store)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (self));
 
     //Declarations
     LgwDictionaryListBoxPrivate *priv = NULL;
@@ -368,8 +368,8 @@ lgw_dictionarylistbox_set_dictionaryliststore (LgwDictionaryListBox *dictionary_
     LgwDictionaryListBoxClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = dictionary_list_box->priv;
-    klass = LGW_DICTIONARYLISTBOX_GET_CLASS (dictionary_list_box);
+    priv = self->priv;
+    klass = LGW_DICTIONARYLISTBOX_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (priv->data.dictionary_list_store != NULL)
@@ -387,34 +387,34 @@ lgw_dictionarylistbox_set_dictionaryliststore (LgwDictionaryListBox *dictionary_
       g_object_add_weak_pointer (G_OBJECT (priv->data.dictionary_list_store), (gpointer*) &(priv->data.dictionary_list_store));
     }
 
-    lgw_dictionarylistbox_sync_list (dictionary_list_box);
+    lgw_dictionarylistbox_sync_list (self);
 
-    g_object_notify_by_pspec (G_OBJECT (dictionary_list_box), klasspriv->pspec[PROP_DICTIONARYLISTSTORE]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DICTIONARYLISTSTORE]);
 }
 
 
 LgwDictionaryListStore*
-lgw_dictionarylistbox_get_dictionaryliststore (LgwDictionaryListBox *dictionary_list_box)
+lgw_dictionarylistbox_get_dictionaryliststore (LgwDictionaryListBox *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (self));
 
     //Declarations
     LgwDictionaryListBoxPrivate *priv = NULL;
 
     //Initializations
-    priv = dictionary_list_box->priv;
+    priv = self->priv;
 
     return priv->data.dictionary_list_store;
 }
 
 
 void
-lgw_dictionarylistbox_set_editable (LgwDictionaryListBox *dictionary_list_box,
+lgw_dictionarylistbox_set_editable (LgwDictionaryListBox *self,
                                     gboolean              editable)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (self));
 
     //Declarations
     LgwDictionaryListBoxPrivate *priv = NULL;
@@ -423,30 +423,30 @@ lgw_dictionarylistbox_set_editable (LgwDictionaryListBox *dictionary_list_box,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = dictionary_list_box->priv;
-    klass = LGW_DICTIONARYLISTBOX_GET_CLASS (dictionary_list_box);
+    priv = self->priv;
+    klass = LGW_DICTIONARYLISTBOX_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = priv->config.editable != editable;
 
     if (changed)
     {
       priv->config.editable = editable;
-      g_object_notify_by_pspec (G_OBJECT (dictionary_list_box), klasspriv->pspec[PROP_EDITABLE]);
+      g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_EDITABLE]);
     }
 }
 
 
 gboolean
-lgw_dictionarylistbox_is_editable (LgwDictionaryListBox *dictionary_list_box)
+lgw_dictionarylistbox_is_editable (LgwDictionaryListBox *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (dictionary_list_box));
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (self));
 
     //Declarations
     LgwDictionaryListBoxPrivate *priv = NULL;
 
     //Initializations
-    priv = dictionary_list_box->priv;
+    priv = self->priv;
 
     return priv->config.editable;
 }

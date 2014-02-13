@@ -87,12 +87,12 @@ static void
 lgw_vocabularylistview_dispose (GObject *object)
 {
     //Declarations
-    LgwVocabularyListView *vocabulary_list_view = NULL;
+    LgwVocabularyListView *self = NULL;
 
     //Initializations
-    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (object);
+    self = LGW_VOCABULARYLISTVIEW (object);
 
-    lgw_vocabularylistview_disconnect_signals (vocabulary_list_view);
+    lgw_vocabularylistview_disconnect_signals (self);
 
     G_OBJECT_CLASS (lgw_vocabularylistview_parent_class)->dispose (object);
 }
@@ -104,12 +104,12 @@ lgw_vocabularylistview_set_property (GObject      *object,
                                     const GValue *value,
                                     GParamSpec   *pspec)
 {
-    LgwVocabularyListView *vocabulary_list_view = NULL;
+    LgwVocabularyListView *self = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
     LgwActionable *actionable = NULL;
 
-    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (object);
-    priv = vocabulary_list_view->priv;
+    self = LGW_VOCABULARYLISTVIEW (object);
+    priv = self->priv;
     actionable = LGW_ACTIONABLE (object);
 
     switch (property_id)
@@ -118,10 +118,10 @@ lgw_vocabularylistview_set_property (GObject      *object,
         lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
         break;
       case PROP_VOCABULARYLISTSTORE:
-        lgw_vocabularylistview_set_liststore (vocabulary_list_view, g_value_get_object (value));
+        lgw_vocabularylistview_set_liststore (self, g_value_get_object (value));
         break;
       case PROP_VOCABULARYWORDVIEW:
-        lgw_vocabularylistview_set_wordview (vocabulary_list_view, g_value_get_object (value));
+        lgw_vocabularylistview_set_wordview (self, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -136,12 +136,12 @@ lgw_vocabularylistview_get_property (GObject      *object,
                                     GValue       *value,
                                     GParamSpec   *pspec)
 {
-    LgwVocabularyListView *vocabulary_list_view = NULL;
+    LgwVocabularyListView *self = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
     LgwActionable *actionable = NULL;
 
-    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (object);
-    priv = vocabulary_list_view->priv;
+    self = LGW_VOCABULARYLISTVIEW (object);
+    priv = self->priv;
     actionable = LGW_ACTIONABLE (object);
 
     switch (property_id)
@@ -150,10 +150,10 @@ lgw_vocabularylistview_get_property (GObject      *object,
         g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
         break;
       case PROP_VOCABULARYLISTSTORE:
-        g_value_set_object (value, lgw_vocabularylistview_get_liststore (vocabulary_list_view));
+        g_value_set_object (value, lgw_vocabularylistview_get_liststore (self));
         break;
       case PROP_VOCABULARYWORDVIEW:
-        g_value_set_object (value, lgw_vocabularylistview_get_wordview (vocabulary_list_view));
+        g_value_set_object (value, lgw_vocabularylistview_get_wordview (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -213,6 +213,7 @@ lgw_vocabularylistview_constructed (GObject *object)
               gettext("Vocabulary List"),
               renderer,
               "text", LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
+              "mode", GTK_CELL_RENDERER_MODE_EDITABLE,
               NULL
           );
           gtk_tree_view_append_column (priv->ui.tree_view, column);
@@ -314,11 +315,11 @@ lgw_vocabularylistview_class_init (LgwVocabularyListViewClass *klass)
 
 
 void
-lgw_vocabularylistview_set_liststore (LgwVocabularyListView  *vocabulary_list_view,
+lgw_vocabularylistview_set_liststore (LgwVocabularyListView  *self,
                                       LgwVocabularyListStore *vocabulary_list_store)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
@@ -326,8 +327,8 @@ lgw_vocabularylistview_set_liststore (LgwVocabularyListView  *vocabulary_list_vi
     LgwVocabularyListViewClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = vocabulary_list_view->priv;
-    klass = LGW_VOCABULARYLISTVIEW_GET_CLASS (vocabulary_list_view);
+    priv = self->priv;
+    klass = LGW_VOCABULARYLISTVIEW_GET_CLASS (self);
     klasspriv = klass->priv;
     
     if (vocabulary_list_store != priv->data.vocabulary_list_store)
@@ -353,16 +354,16 @@ lgw_vocabularylistview_set_liststore (LgwVocabularyListView  *vocabulary_list_vi
 
       gtk_tree_view_set_model (priv->ui.tree_view, GTK_TREE_MODEL (vocabulary_list_store));
 
-      g_object_notify_by_pspec (G_OBJECT (vocabulary_list_view), klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
+      g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
     }
 }
 
 
 LgwVocabularyListStore*
-lgw_vocabularylistview_get_liststore (LgwVocabularyListView  *vocabulary_list_view)
+lgw_vocabularylistview_get_liststore (LgwVocabularyListView  *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
@@ -370,8 +371,8 @@ lgw_vocabularylistview_get_liststore (LgwVocabularyListView  *vocabulary_list_vi
     LgwVocabularyListViewClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = vocabulary_list_view->priv;
-    klass = LGW_VOCABULARYLISTVIEW_GET_CLASS (vocabulary_list_view);
+    priv = self->priv;
+    klass = LGW_VOCABULARYLISTVIEW_GET_CLASS (self);
     klasspriv = klass->priv;
 
     return priv->data.vocabulary_list_store;
@@ -379,19 +380,19 @@ lgw_vocabularylistview_get_liststore (LgwVocabularyListView  *vocabulary_list_vi
 
 
 void
-lgw_vocabularylistview_set_wordview (LgwVocabularyListView *vocabulary_list_view,
+lgw_vocabularylistview_set_wordview (LgwVocabularyListView *self,
                                      LgwVocabularyWordView *vocabulary_word_view)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
 
     //Initializations
-    priv = vocabulary_list_view->priv;
-    vocabulary_word_store = lgw_vocabularylistview_get_selected_wordstore (vocabulary_list_view);
+    priv = self->priv;
+    vocabulary_word_store = lgw_vocabularylistview_get_selected_wordstore (self);
 
     if (priv->config.vocabulary_word_view != NULL)
     {
@@ -410,26 +411,26 @@ lgw_vocabularylistview_set_wordview (LgwVocabularyListView *vocabulary_list_view
 
 
 LgwVocabularyWordView*
-lgw_vocabularylistview_get_wordview (LgwVocabularyListView *vocabulary_list_view)
+lgw_vocabularylistview_get_wordview (LgwVocabularyListView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_list_view->priv;
+    priv = self->priv;
 
     return priv->config.vocabulary_word_view;
 }
 
 
 LgwVocabularyWordStore*
-lgw_vocabularylistview_get_selected_wordstore (LgwVocabularyListView *vocabulary_list_view)
+lgw_vocabularylistview_get_selected_wordstore (LgwVocabularyListView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
@@ -440,7 +441,7 @@ lgw_vocabularylistview_get_selected_wordstore (LgwVocabularyListView *vocabulary
     GtkTreePath *tree_path = NULL;
 
     //Initializations
-    priv = vocabulary_list_view->priv;
+    priv = self->priv;
     if (priv->data.vocabulary_list_store == NULL) goto errored;
     tree_model = GTK_TREE_MODEL (priv->data.vocabulary_list_store);
     selected_rows = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
@@ -466,4 +467,28 @@ errored:
     return vocabulary_word_store;
 }
 
+
+void
+lgw_vocabularylistview_add_new (LgwVocabularyListView *self)
+{
+    //TODO
+    /*
+    lgw_vocabularyliststore_insert_all (vocabulary_list_store, -1, wordstorelist);
+    gtk_tree_view_set_cursor_on_cell (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *focus_column, GtkCellRenderer *focus_cell, gboolean start_editing);
+    gtk_widget_grab_focus (tree_view)
+    add check for "editing-done" signal
+    void user_function (GtkCellEditable *cell_editable, gpointer user_data);
+    */
+}
+
+
+void
+lgw_vocabularylistview_delete_all_selected (LgwVocabularyListView *self)
+{
+    //TODO
+    /*
+    if (lw_vocabulary_exists ()) lw_vocabulary_delete ();
+    lgw_vocabularyliststore_remove_all (LgwVocabularyListStore *vocabulary_list_store, gint *positions);
+    */
+}
 

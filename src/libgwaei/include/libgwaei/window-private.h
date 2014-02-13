@@ -54,7 +54,7 @@ struct _LgwWindowClassPrivate {
 
 #define LGW_WINDOW_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_WINDOW, LgwWindowPrivate))
 
-void lgw_window_sync_menubar_show (LgwWindow *window);
+void lgw_window_sync_menubar_show (LgwWindow *self);
 
 G_END_DECLS
 

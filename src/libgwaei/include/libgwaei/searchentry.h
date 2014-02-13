@@ -29,10 +29,10 @@ struct _LgwSearchEntryClass {
 GtkWidget* lgw_searchentry_new (void);
 GType lgw_searchentry_get_type (void) G_GNUC_CONST;
 
-GtkEntry* lgw_searchentry_get_entry (LgwSearchEntry *search_entry);
+GtkEntry* lgw_searchentry_get_entry (LgwSearchEntry *self);
 
-void lgw_searchentry_set_text (LgwSearchEntry *search_entry, const gchar *TEXT);
-void lgw_searchentry_insert_text (LgwSearchEntry *search_entry, const gchar *TEXT);
+void lgw_searchentry_set_text (LgwSearchEntry *self, const gchar *TEXT);
+void lgw_searchentry_insert_text (LgwSearchEntry *self, const gchar *TEXT);
 
 G_END_DECLS
 

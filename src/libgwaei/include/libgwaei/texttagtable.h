@@ -17,7 +17,7 @@ typedef struct _LgwTextTagTableClassPrivate LgwTextTagTableClassPrivate;
 #define LGW_TEXTTAGTABLE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LGW_TYPE_TEXTTAGTABLE, LgwTextTagTableClass))
 
 struct _LgwTextTagTable {
-  GtkTextTagTable tag_table;
+  GtkTextTagTable self;
   LgwTextTagTablePrivate *priv;
 };
 
@@ -30,8 +30,8 @@ struct _LgwTextTagTableClass {
 GtkTextTagTable* lgw_texttagtable_new (LwPreferences *preferences);
 GType lgw_texttagtable_get_type (void) G_GNUC_CONST;
 
-void lgw_texttagtable_set_preferences (LgwTextTagTable *tag_table, LwPreferences *preferences);
-LwPreferences* lgw_texttagtable_get_preferences (LgwTextTagTable *tag_table);
+void lgw_texttagtable_set_preferences (LgwTextTagTable *self, LwPreferences *preferences);
+LwPreferences* lgw_texttagtable_get_preferences (LgwTextTagTable *self);
 
 G_END_DECLS
 

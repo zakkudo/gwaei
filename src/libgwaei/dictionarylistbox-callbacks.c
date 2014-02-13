@@ -41,14 +41,14 @@
 
 
 void
-lgw_dictionarylistbox_dictionarylist_property_changed_cb (LgwDictionaryListBox *box,
+lgw_dictionarylistbox_dictionarylist_property_changed_cb (LgwDictionaryListBox *self,
                                                           GParamSpec           *pspec,
                                                           gpointer              data)
 {
     //Declarations
     LgwDictionaryListBoxPrivate *priv = NULL;
 
-    priv = box->priv;
+    priv = self->priv;
     if (priv == NULL) goto errored;
 
 errored:

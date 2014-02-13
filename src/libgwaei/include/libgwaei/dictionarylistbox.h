@@ -18,7 +18,7 @@ typedef struct _LgwDictionaryListBoxClassPrivate LgwDictionaryListBoxClassPrivat
 #define LGW_DICTIONARYLISTBOX_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LGW_TYPE_DICTIONARYLISTBOX, LgwDictionaryListBoxClass))
 
 struct _LgwDictionaryListBox {
-  GtkBox box;
+  GtkBox self;
   LgwDictionaryListBoxPrivate *priv;
 };
 
@@ -32,11 +32,11 @@ struct _LgwDictionaryListBoxClass {
 GtkWidget* lgw_dictionarylistbox_new (void);
 GType lgw_dictionarylistbox_get_type (void) G_GNUC_CONST;
 
-void lgw_dictionarylistbox_set_dictionaryliststore (LgwDictionaryListBox *dictionary_list_box, LgwDictionaryListStore *dictionary_list_store);
+void lgw_dictionarylistbox_set_dictionaryliststore (LgwDictionaryListBox *self, LgwDictionaryListStore *dictionary_list_store);
 LgwDictionaryListStore* lgw_dictionarylistbox_get_dictionaryliststore (LgwDictionaryListBox *view);
 
-void lgw_dictionarylistbox_set_editable (LgwDictionaryListBox *dictionary_list_box, gboolean editable);
-gboolean lgw_dictionarylistbox_is_editable (LgwDictionaryListBox *dictionary_list_box);
+void lgw_dictionarylistbox_set_editable (LgwDictionaryListBox *self, gboolean editable);
+gboolean lgw_dictionarylistbox_is_editable (LgwDictionaryListBox *self);
 
 
 G_END_DECLS

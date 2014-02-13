@@ -41,16 +41,16 @@
 
 
 void
-lgw_searchentry_connect_signals (LgwSearchEntry *entry)
+lgw_searchentry_connect_signals (LgwSearchEntry *self)
 {
     //Sanity checks
-    g_return_if_fail (entry != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwSearchEntryPrivate *priv = NULL;
 
     //Initializations
-    priv = entry->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_CHANGED] == 0)
     {
@@ -58,7 +58,7 @@ lgw_searchentry_connect_signals (LgwSearchEntry *entry)
           G_OBJECT (priv->ui.search_entry),
           "search-changed",
           G_CALLBACK (lgw_searchentry_changed_cb),
-          entry
+          self
       );
     }
 
@@ -68,7 +68,7 @@ lgw_searchentry_connect_signals (LgwSearchEntry *entry)
           G_OBJECT (priv->ui.search_entry),
           "activate",
           G_CALLBACK (lgw_searchentry_activated_cb),
-          entry
+          self
       );
     }
 
@@ -78,7 +78,7 @@ lgw_searchentry_connect_signals (LgwSearchEntry *entry)
           G_OBJECT (priv->ui.search_entry),
           "focus-in-event",
           G_CALLBACK (lgw_searchentry_focus_in_event_cb),
-          entry 
+          self 
       );
     }
 
@@ -88,23 +88,23 @@ lgw_searchentry_connect_signals (LgwSearchEntry *entry)
           G_OBJECT (priv->ui.search_entry),
           "focus-out-event",
           G_CALLBACK (lgw_searchentry_focus_out_event_cb),
-          entry
+          self
       );
     }
 }
 
 
 void
-lgw_searchentry_disconnect_signals (LgwSearchEntry *entry)
+lgw_searchentry_disconnect_signals (LgwSearchEntry *self)
 {
     //Sanity checks
-    g_return_if_fail (entry != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwSearchEntryPrivate *priv = NULL;
     
     //Initializations
-    priv = entry->priv;
+    priv = self->priv;
 
     {
       gint i = 0;
@@ -122,7 +122,7 @@ lgw_searchentry_disconnect_signals (LgwSearchEntry *entry)
 
 
 void
-lgw_searchentry_activated_cb (LgwSearchEntry *search_entry,
+lgw_searchentry_activated_cb (LgwSearchEntry *self,
                               GtkEntry *inner_entry)
 {
     printf("BREAK activated\n");
@@ -130,7 +130,7 @@ lgw_searchentry_activated_cb (LgwSearchEntry *search_entry,
 
 
 void
-lgw_searchentry_changed_cb (LgwSearchEntry *search_entry,
+lgw_searchentry_changed_cb (LgwSearchEntry *self,
                             GtkSearchEntry *inner_search_entry)
 {
     printf("BREAK changed\n");
@@ -155,12 +155,12 @@ lgw_searchentry_insert_unknown_character_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (data);
+    self = LGW_SEARCHENTRY (data);
 
-    lgw_searchentry_insert_text (search_entry, ".");
+    lgw_searchentry_insert_text (self, ".");
 }
 
 
@@ -182,12 +182,12 @@ lgw_searchentry_insert_word_edge_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (data);
+    self = LGW_SEARCHENTRY (data);
 
-    lgw_searchentry_insert_text (search_entry, "\\b");
+    lgw_searchentry_insert_text (self, "\\b");
 }
 
 
@@ -209,12 +209,12 @@ lgw_searchentry_insert_not_word_edge_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (data);
+    self = LGW_SEARCHENTRY (data);
 
-    lgw_searchentry_insert_text (search_entry, "\\B");
+    lgw_searchentry_insert_text (self, "\\B");
 }
 
 
@@ -236,12 +236,12 @@ lgw_searchentry_insert_and_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (data);
+    self = LGW_SEARCHENTRY (data);
 
-    lgw_searchentry_insert_text (search_entry, "&");
+    lgw_searchentry_insert_text (self, "&");
 }
 
 
@@ -263,12 +263,12 @@ lgw_searchentry_insert_or_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (data);
+    self = LGW_SEARCHENTRY (data);
 
-    lgw_searchentry_insert_text (search_entry, "|");
+    lgw_searchentry_insert_text (self, "|");
 }
 
 
@@ -286,13 +286,13 @@ lgw_searchentry_clear_search_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
     LgwSearchEntryPrivate *priv = NULL;
     GtkEntry *entry = NULL;
     
     //Initializations
-    search_entry = LGW_SEARCHENTRY (data);
-    priv = search_entry->priv;
+    self = LGW_SEARCHENTRY (data);
+    priv = self->priv;
     entry = GTK_ENTRY (priv->ui.search_entry);
 
     gtk_entry_set_text (entry, "");
@@ -301,19 +301,19 @@ lgw_searchentry_clear_search_cb (GSimpleAction *action,
 
 
 gboolean
-lgw_searchentry_focus_in_event_cb (LgwSearchEntry *search_entry,
+lgw_searchentry_focus_in_event_cb (LgwSearchEntry *self,
                                    GdkEvent       *event,
                                    GtkSearchEntry *inner_search_entry)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_SEARCHENTRY (search_entry), FALSE);
+    g_return_val_if_fail (LGW_IS_SEARCHENTRY (self), FALSE);
     g_return_val_if_fail (GTK_IS_SEARCH_ENTRY (inner_search_entry), FALSE);
 
     //Declarations
     LgwActionable *actionable = NULL;
 
     //Initializations
-    actionable = LGW_ACTIONABLE (search_entry);
+    actionable = LGW_ACTIONABLE (self);
 
     lgw_actionable_sync_actions (actionable);
 
@@ -322,19 +322,19 @@ lgw_searchentry_focus_in_event_cb (LgwSearchEntry *search_entry,
 
 
 gboolean
-lgw_searchentry_focus_out_event_cb (LgwSearchEntry *search_entry,
+lgw_searchentry_focus_out_event_cb (LgwSearchEntry *self,
                                     GdkEvent       *event,
                                     GtkSearchEntry *inner_search_entry)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_SEARCHENTRY (search_entry), FALSE);
+    g_return_val_if_fail (LGW_IS_SEARCHENTRY (self), FALSE);
     g_return_val_if_fail (GTK_IS_SEARCH_ENTRY (inner_search_entry), FALSE);
 
     //Declarations
     LgwActionable *actionable = NULL;
 
     //Initializations
-    actionable = LGW_ACTIONABLE (search_entry);
+    actionable = LGW_ACTIONABLE (self);
 
     lgw_actionable_sync_actions (actionable);
 
@@ -351,13 +351,13 @@ lgw_searchentry_copy_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
     LgwSearchEntryPrivate *priv = NULL;
     GtkEditable *editable = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (data);
-    priv = search_entry->priv;
+    self = LGW_SEARCHENTRY (data);
+    priv = self->priv;
     editable = GTK_EDITABLE (priv->ui.search_entry);
 
     gtk_editable_copy_clipboard (editable);
@@ -373,13 +373,13 @@ lgw_searchentry_cut_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
     LgwSearchEntryPrivate *priv = NULL;
     GtkEditable *editable = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (data);
-    priv = search_entry->priv;
+    self = LGW_SEARCHENTRY (data);
+    priv = self->priv;
     editable = GTK_EDITABLE (priv->ui.search_entry);
 
     gtk_editable_cut_clipboard (editable);
@@ -395,13 +395,13 @@ lgw_searchentry_paste_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
     LgwSearchEntryPrivate *priv = NULL;
     GtkEditable *editable = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (data);
-    priv = search_entry->priv;
+    self = LGW_SEARCHENTRY (data);
+    priv = self->priv;
     editable = GTK_EDITABLE (priv->ui.search_entry);
 
     gtk_editable_paste_clipboard (editable);

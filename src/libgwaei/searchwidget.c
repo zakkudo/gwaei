@@ -93,14 +93,14 @@ lgw_searchwidget_set_property (GObject      *object,
                                GParamSpec   *pspec)
 {
     //Declarations
-    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidget *self = NULL;
     LgwActionable *actionable = NULL;
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
-    search_widget = LGW_SEARCHWIDGET (object);
+    self = LGW_SEARCHWIDGET (object);
     actionable = LGW_ACTIONABLE (object);
-    priv = search_widget->priv;
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -108,10 +108,10 @@ lgw_searchwidget_set_property (GObject      *object,
         lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
         break;
       case PROP_PREFERENCES:
-        lgw_searchwidget_set_preferences (search_widget, g_value_get_object (value));
+        lgw_searchwidget_set_preferences (self, g_value_get_object (value));
         break;
       case PROP_DICTIONARYLISTSTORE:
-        lgw_searchwidget_set_dictionaryliststore (search_widget, g_value_get_object (value));
+        lgw_searchwidget_set_dictionaryliststore (self, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -127,14 +127,14 @@ lgw_searchwidget_get_property (GObject      *object,
                                GParamSpec   *pspec)
 {
     //Declarations
-    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidget *self = NULL;
     LgwActionable *actionable = NULL;
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
-    search_widget = LGW_SEARCHWIDGET (object);
+    self = LGW_SEARCHWIDGET (object);
     actionable = LGW_ACTIONABLE (object);
-    priv = search_widget->priv;
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -142,10 +142,10 @@ lgw_searchwidget_get_property (GObject      *object,
         g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
         break;
       case PROP_PREFERENCES:
-        g_value_set_object (value, lgw_searchwidget_get_preferences (search_widget));
+        g_value_set_object (value, lgw_searchwidget_get_preferences (self));
         break;
       case PROP_DICTIONARYLISTSTORE:
-        g_value_set_object (value, lgw_searchwidget_get_dictionaryliststore (search_widget));
+        g_value_set_object (value, lgw_searchwidget_get_dictionaryliststore (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -161,7 +161,7 @@ lgw_searchwidget_constructed (GObject *object)
     g_return_if_fail (object != NULL);
 
     //Declarations
-    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidget *self = NULL;
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Chain the parent class
@@ -170,9 +170,9 @@ lgw_searchwidget_constructed (GObject *object)
     }
 
     //Initializations
-    search_widget = LGW_SEARCHWIDGET (object);
-    priv = search_widget->priv;
-    priv->ui.box = GTK_BOX (search_widget);
+    self = LGW_SEARCHWIDGET (object);
+    priv = self->priv;
+    priv->ui.box = GTK_BOX (self);
 
     {
       /*
@@ -207,7 +207,7 @@ lgw_searchwidget_constructed (GObject *object)
       priv->data.window_menu_model = G_MENU_MODEL (lgw_load_menu_model ("searchwidget-menumodel-window.ui"));
     }
 
-    lgw_searchwidget_connect_signals (search_widget);
+    lgw_searchwidget_connect_signals (self);
 }
 
 
@@ -271,11 +271,11 @@ lgw_searchwidget_class_init (LgwSearchWidgetClass *klass)
 
 
 void
-lgw_searchwidget_set_preferences (LgwSearchWidget *search_widget,
+lgw_searchwidget_set_preferences (LgwSearchWidget *self,
                                   LwPreferences    *preferences)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (self));
 
     //Declarations
     LgwSearchWidgetPrivate *priv = NULL;
@@ -283,8 +283,8 @@ lgw_searchwidget_set_preferences (LgwSearchWidget *search_widget,
     LgwSearchWidgetClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = search_widget->priv;
-    klass = LGW_SEARCHWIDGET_GET_CLASS (search_widget);
+    priv = self->priv;
+    klass = LGW_SEARCHWIDGET_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (preferences != NULL)
@@ -304,25 +304,25 @@ lgw_searchwidget_set_preferences (LgwSearchWidget *search_widget,
       g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
     }
 
-    g_object_notify_by_pspec (G_OBJECT (search_widget), klasspriv->pspec[PROP_PREFERENCES]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PREFERENCES]);
 }
 
 
 LwPreferences*
-lgw_searchwidget_get_preferences (LgwSearchWidget *search_widget)
+lgw_searchwidget_get_preferences (LgwSearchWidget *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (self));
 
     //Declarations
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
-    priv = search_widget->priv;
+    priv = self->priv;
 
     if (priv->config.preferences == NULL)
     {
-      lgw_searchwidget_set_preferences (search_widget, lw_preferences_get_default ());
+      lgw_searchwidget_set_preferences (self, lw_preferences_get_default ());
     }
 
     return priv->config.preferences;
@@ -330,11 +330,11 @@ lgw_searchwidget_get_preferences (LgwSearchWidget *search_widget)
 
 
 void
-lgw_searchwidget_set_dictionaryliststore (LgwSearchWidget   *search_widget,
+lgw_searchwidget_set_dictionaryliststore (LgwSearchWidget   *self,
                                           LgwDictionaryListStore *dictionary_list_store)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (self));
 
     //Declarations
     LgwSearchWidgetPrivate *priv = NULL;
@@ -342,8 +342,8 @@ lgw_searchwidget_set_dictionaryliststore (LgwSearchWidget   *search_widget,
     LgwSearchWidgetClassPrivate *klasspriv = NULL;
 
     //Initialziations
-    priv = search_widget->priv;
-    klass = LGW_SEARCHWIDGET_GET_CLASS (search_widget);
+    priv = self->priv;
+    klass = LGW_SEARCHWIDGET_GET_CLASS (self);
     if (priv->ui.dictionary_list_box == NULL) goto errored;
     klasspriv = klass->priv;
 
@@ -364,7 +364,7 @@ lgw_searchwidget_set_dictionaryliststore (LgwSearchWidget   *search_widget,
 
     lgw_dictionarylistbox_set_dictionaryliststore (priv->ui.dictionary_list_box, dictionary_list_store);
 
-    g_object_notify_by_pspec (G_OBJECT (search_widget), klasspriv->pspec[PROP_DICTIONARYLISTSTORE]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DICTIONARYLISTSTORE]);
 
 errored:
 
@@ -372,16 +372,16 @@ errored:
 }
 
 LgwDictionaryListStore*
-lgw_searchwidget_get_dictionaryliststore (LgwSearchWidget *search_widget)
+lgw_searchwidget_get_dictionaryliststore (LgwSearchWidget *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (self));
 
     //Declarations
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initialziations
-    priv = search_widget->priv;
+    priv = self->priv;
 
     return priv->data.dictionary_list_store;
 }

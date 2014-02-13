@@ -93,14 +93,14 @@ lgw_vocabularywidget_set_property (GObject      *object,
                                    GParamSpec   *pspec)
 {
     //Declarations
-    LgwVocabularyWidget *vocabulary_widget = NULL;
+    LgwVocabularyWidget *self = NULL;
     LgwActionable *actionable = NULL;
     LgwVocabularyWidgetPrivate *priv = NULL;
 
     //Initializations
-    vocabulary_widget = LGW_VOCABULARYWIDGET (object);
+    self = LGW_VOCABULARYWIDGET (object);
     actionable = LGW_ACTIONABLE (object);
-    priv = vocabulary_widget->priv;
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -108,10 +108,10 @@ lgw_vocabularywidget_set_property (GObject      *object,
         lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
         break;
       case PROP_PREFERENCES:
-        lgw_vocabularywidget_set_preferences (vocabulary_widget, g_value_get_object (value));
+        lgw_vocabularywidget_set_preferences (self, g_value_get_object (value));
         break;
       case PROP_VOCABULARYLISTSTORE:
-        lgw_vocabularywidget_set_vocabularyliststore (vocabulary_widget, g_value_get_object (value));
+        lgw_vocabularywidget_set_vocabularyliststore (self, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -127,14 +127,14 @@ lgw_vocabularywidget_get_property (GObject      *object,
                                    GParamSpec   *pspec)
 {
     //Declarations
-    LgwVocabularyWidget *vocabulary_widget = NULL;
+    LgwVocabularyWidget *self = NULL;
     LgwActionable *actionable = NULL;
     LgwVocabularyWidgetPrivate *priv = NULL;
 
     //Initializations
-    vocabulary_widget = LGW_VOCABULARYWIDGET (object);
+    self = LGW_VOCABULARYWIDGET (object);
     actionable = LGW_ACTIONABLE (object);
-    priv = vocabulary_widget->priv;
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -142,10 +142,10 @@ lgw_vocabularywidget_get_property (GObject      *object,
         g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
         break;
       case PROP_PREFERENCES:
-        g_value_set_object (value, lgw_vocabularywidget_get_preferences (vocabulary_widget));
+        g_value_set_object (value, lgw_vocabularywidget_get_preferences (self));
         break;
       case PROP_VOCABULARYLISTSTORE:
-        g_value_set_object (value, lgw_vocabularywidget_get_vocabularyliststore (vocabulary_widget));
+        g_value_set_object (value, lgw_vocabularywidget_get_vocabularyliststore (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -161,7 +161,7 @@ lgw_vocabularywidget_constructed (GObject *object)
     g_return_if_fail (object != NULL);
 
     //Declarations
-    LgwVocabularyWidget *vocabulary_widget = NULL;
+    LgwVocabularyWidget *self = NULL;
     LgwVocabularyWidgetPrivate *priv = NULL;
 
     //Chain the parent class
@@ -170,9 +170,9 @@ lgw_vocabularywidget_constructed (GObject *object)
     }
 
     //Initializations
-    vocabulary_widget = LGW_VOCABULARYWIDGET (object);
-    priv = vocabulary_widget->priv;
-    priv->ui.box = GTK_BOX (vocabulary_widget);
+    self = LGW_VOCABULARYWIDGET (object);
+    priv = self->priv;
+    priv->ui.box = GTK_BOX (self);
 
     {
       GtkWidget *paned = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);    
@@ -204,7 +204,7 @@ lgw_vocabularywidget_constructed (GObject *object)
       priv->data.window_menu_model = G_MENU_MODEL (lgw_load_menu_model ("vocabularywidget-menumodel-window.ui"));
     }
 
-    lgw_vocabularywidget_connect_signals (vocabulary_widget);
+    lgw_vocabularywidget_connect_signals (self);
 }
 
 
@@ -268,11 +268,11 @@ lgw_vocabularywidget_class_init (LgwVocabularyWidgetClass *klass)
 
 
 void
-lgw_vocabularywidget_set_preferences (LgwVocabularyWidget *vocabulary_widget,
+lgw_vocabularywidget_set_preferences (LgwVocabularyWidget *self,
                                       LwPreferences       *preferences)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (vocabulary_widget));
+    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (self));
 
     //Declarations
     LgwVocabularyWidgetPrivate *priv = NULL;
@@ -280,8 +280,8 @@ lgw_vocabularywidget_set_preferences (LgwVocabularyWidget *vocabulary_widget,
     LgwVocabularyWidgetClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = vocabulary_widget->priv;
-    klass = LGW_VOCABULARYWIDGET_GET_CLASS (vocabulary_widget);
+    priv = self->priv;
+    klass = LGW_VOCABULARYWIDGET_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (priv->config.preferences != NULL) {
@@ -296,25 +296,25 @@ lgw_vocabularywidget_set_preferences (LgwVocabularyWidget *vocabulary_widget,
       g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
     }
 
-    g_object_notify_by_pspec (G_OBJECT (vocabulary_widget), klasspriv->pspec[PROP_PREFERENCES]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PREFERENCES]);
 }
 
 
 LwPreferences*
-lgw_vocabularywidget_get_preferences (LgwVocabularyWidget *vocabulary_widget)
+lgw_vocabularywidget_get_preferences (LgwVocabularyWidget *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (vocabulary_widget));
+    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (self));
 
     //Declarations
     LgwVocabularyWidgetPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_widget->priv;
+    priv = self->priv;
 
     if (priv->config.preferences == NULL)
     {
-      lgw_vocabularywidget_set_preferences (vocabulary_widget, lw_preferences_get_default ());
+      lgw_vocabularywidget_set_preferences (self, lw_preferences_get_default ());
     }
 
     return priv->config.preferences;
@@ -322,11 +322,11 @@ lgw_vocabularywidget_get_preferences (LgwVocabularyWidget *vocabulary_widget)
 
 
 void
-lgw_vocabularywidget_set_vocabularyliststore (LgwVocabularyWidget    *vocabulary_widget,
+lgw_vocabularywidget_set_vocabularyliststore (LgwVocabularyWidget    *self,
                                               LgwVocabularyListStore *vocabulary_list_store)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (vocabulary_widget));
+    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (self));
 
     //Declarations
     LgwVocabularyWidgetPrivate *priv = NULL;
@@ -334,8 +334,8 @@ lgw_vocabularywidget_set_vocabularyliststore (LgwVocabularyWidget    *vocabulary
     LgwVocabularyWidgetClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = vocabulary_widget->priv;
-    klass = LGW_VOCABULARYWIDGET_GET_CLASS (vocabulary_widget);
+    priv = self->priv;
+    klass = LGW_VOCABULARYWIDGET_GET_CLASS (self);
     klasspriv = klass->priv;
     
     if (vocabulary_list_store != priv->data.vocabulary_list_store)
@@ -361,16 +361,16 @@ lgw_vocabularywidget_set_vocabularyliststore (LgwVocabularyWidget    *vocabulary
 
       lgw_vocabularylistview_set_liststore (priv->ui.vocabulary_list_view, vocabulary_list_store);
 
-      g_object_notify_by_pspec (G_OBJECT (vocabulary_widget), klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
+      g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
     }
 }
 
 
 LgwVocabularyListStore*
-lgw_vocabularywidget_get_vocabularyliststore (LgwVocabularyWidget *vocabulary_widget)
+lgw_vocabularywidget_get_vocabularyliststore (LgwVocabularyWidget *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (vocabulary_widget));
+    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (self));
 
     //Declarations
     LgwVocabularyWidgetPrivate *priv = NULL;
@@ -378,8 +378,8 @@ lgw_vocabularywidget_get_vocabularyliststore (LgwVocabularyWidget *vocabulary_wi
     LgwVocabularyWidgetClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = vocabulary_widget->priv;
-    klass = LGW_VOCABULARYWIDGET_GET_CLASS (vocabulary_widget);
+    priv = self->priv;
+    klass = LGW_VOCABULARYWIDGET_GET_CLASS (self);
     klasspriv = klass->priv;
 
     return priv->data.vocabulary_list_store;

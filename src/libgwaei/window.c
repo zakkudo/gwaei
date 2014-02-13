@@ -45,13 +45,13 @@
 G_DEFINE_ABSTRACT_TYPE (LgwWindow, lgw_window, GTK_TYPE_APPLICATION_WINDOW)
 
 static void 
-lgw_window_init (LgwWindow *window)
+lgw_window_init (LgwWindow *self)
 {
-    window->priv = LGW_WINDOW_GET_PRIVATE (window);
-    memset(window->priv, 0, sizeof(LgwWindowPrivate));
+    self->priv = LGW_WINDOW_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LgwWindowPrivate));
 
     {
-      LgwWindowPrivate *priv = window->priv;
+      LgwWindowPrivate *priv = self->priv;
 
       priv->data.window_menu_model = G_MENU_MODEL (g_menu_new ());
       priv->data.button_menu_model = G_MENU_MODEL (g_menu_new ());
@@ -64,12 +64,12 @@ static void
 lgw_window_finalize (GObject *object)
 {
     //Declarations
-    LgwWindow *window;
+    LgwWindow *self;
     LgwWindowPrivate *priv;
 
     //Initializations
-    window = LGW_WINDOW (object);
-    priv = window->priv;
+    self = LGW_WINDOW (object);
+    priv = self->priv;
 
     if (priv->data.accelgroup) g_object_unref (priv->data.accelgroup); priv->data.accelgroup = NULL;
 
@@ -81,7 +81,7 @@ static void
 lgw_window_constructed (GObject *object)
 {
     //Declarations
-    LgwWindow *window = NULL;
+    LgwWindow *self = NULL;
     LgwWindowPrivate *priv = NULL;
 
     //Chain the parent class
@@ -90,17 +90,17 @@ lgw_window_constructed (GObject *object)
     }
 
     //Initializations
-    window = LGW_WINDOW (object);
-    priv = window->priv;
+    self = LGW_WINDOW (object);
+    priv = self->priv;
 
-    gtk_widget_add_events (GTK_WIDGET (window), GDK_FOCUS_CHANGE_MASK);
-    gtk_application_window_set_show_menubar (GTK_APPLICATION_WINDOW (window), FALSE);
-    gtk_window_add_accel_group (GTK_WINDOW (window), priv->data.accelgroup);
+    gtk_widget_add_events (GTK_WIDGET (self), GDK_FOCUS_CHANGE_MASK);
+    gtk_application_window_set_show_menubar (GTK_APPLICATION_WINDOW (self), FALSE);
+    gtk_window_add_accel_group (GTK_WINDOW (self), priv->data.accelgroup);
 
     {
       GtkWidget *box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
       priv->ui.box = GTK_BOX (box);
-      gtk_container_add (GTK_CONTAINER (window), box);
+      gtk_container_add (GTK_CONTAINER (self), box);
       gtk_widget_show (box);
 
       {
@@ -114,7 +114,7 @@ lgw_window_constructed (GObject *object)
     priv->ui.menu_button = GTK_MENU_BUTTON (gtk_menu_button_new ());
     gtk_menu_button_set_menu_model (priv->ui.menu_button, priv->data.button_menu_model);
 
-    lgw_window_connect_signals (window);
+    lgw_window_connect_signals (self);
 }
 
 
@@ -124,22 +124,22 @@ lgw_window_set_property (GObject      *object,
                          const GValue *value,
                          GParamSpec   *pspec)
 {
-    LgwWindow *window;
+    LgwWindow *self;
     LgwWindowPrivate *priv;
 
-    window = LGW_WINDOW (object);
-    priv = window->priv;
+    self = LGW_WINDOW (object);
+    priv = self->priv;
 
     switch (property_id)
     {
       case PROP_WINDOW_MENUMODEL:
-        lgw_window_set_window_menumodel (window, g_value_get_object (value));
+        lgw_window_set_window_menumodel (self, g_value_get_object (value));
         break;
       case PROP_BUTTON_MENUMODEL:
-        lgw_window_set_button_menumodel (window, g_value_get_object (value));
+        lgw_window_set_button_menumodel (self, g_value_get_object (value));
         break;
       case PROP_SHOWS_MENUBAR:
-        lgw_window_set_shows_menubar (window, g_value_get_boolean (value));
+        lgw_window_set_shows_menubar (self, g_value_get_boolean (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -154,28 +154,28 @@ lgw_window_get_property (GObject      *object,
                          GValue       *value,
                          GParamSpec   *pspec)
 {
-    LgwWindow *window;
+    LgwWindow *self;
     LgwWindowPrivate *priv;
 
-    window = LGW_WINDOW (object);
-    priv = window->priv;
+    self = LGW_WINDOW (object);
+    priv = self->priv;
 
     switch (property_id)
     {
       case PROP_CLOSABLE:
-        g_value_set_boolean (value, lgw_window_is_closable (window));
+        g_value_set_boolean (value, lgw_window_is_closable (self));
         break;
       case PROP_WINDOW_MENUBAR:
         g_value_set_object (value, priv->ui.window_menubar);
         break;
       case PROP_WINDOW_MENUMODEL:
-        g_value_set_object (value, lgw_window_get_window_menumodel (window));
+        g_value_set_object (value, lgw_window_get_window_menumodel (self));
         break;
       case PROP_BUTTON_MENUMODEL:
-        g_value_set_object (value, lgw_window_get_button_menumodel (window));
+        g_value_set_object (value, lgw_window_get_button_menumodel (self));
         break;
       case PROP_SHOWS_MENUBAR:
-        g_value_set_boolean (value, lgw_window_get_shows_menubar (window));
+        g_value_set_boolean (value, lgw_window_get_shows_menubar (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -188,12 +188,12 @@ static void
 lgw_window_dispose (GObject *object)
 {
     //Declarations
-    LgwWindow *window = NULL;
+    LgwWindow *self = NULL;
 
     //Initializations
-    window = LGW_WINDOW (object);
+    self = LGW_WINDOW (object);
 
-    lgw_window_disconnect_signals (window);
+    lgw_window_disconnect_signals (self);
 
     G_OBJECT_CLASS (lgw_window_parent_class)->dispose (object);
 }
@@ -277,21 +277,21 @@ lgw_window_class_init (LgwWindowClass *klass)
 
 
 GtkAccelGroup*
-lgw_window_get_accel_group (LgwWindow *window)
+lgw_window_get_accel_group (LgwWindow *self)
 {
     LgwWindowPrivate *priv = NULL;
 
-    priv = window->priv;
+    priv = self->priv;
 
     return priv->data.accelgroup;
 }
 
 
 void
-lgw_window_load_size (LgwWindow *window)
+lgw_window_load_size (LgwWindow *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     GtkApplication *application = NULL;
@@ -305,11 +305,11 @@ lgw_window_load_size (LgwWindow *window)
     gint width = 0, height = 0;
 
     //Initializaitons
-    application = gtk_window_get_application (GTK_WINDOW (window));
+    application = gtk_window_get_application (GTK_WINDOW (self));
     preferences = lw_preferences_get_default ();
     buffer = lw_preferences_get_string_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_WINDOW_SIZE);
     goto errored;
-    NAME = G_OBJECT_TYPE_NAME (window);
+    NAME = G_OBJECT_TYPE_NAME (self);
 
     atoms = g_strsplit (buffer, ";", -1);
     if (atoms == NULL) goto errored;
@@ -326,10 +326,10 @@ lgw_window_load_size (LgwWindow *window)
     width = (gint) g_ascii_strtoll (atom[1], &endptr, 10);
     height = (gint) g_ascii_strtoll (atom[2], &endptr, 10);
     gint default_width = 0, default_height = 0;
-    gtk_window_get_default_size (GTK_WINDOW (window), &default_width, &default_height);
+    gtk_window_get_default_size (GTK_WINDOW (self), &default_width, &default_height);
     if (width > 0 && width != default_width && height > 0 && height != default_height)
     {
-      gtk_window_set_default_size (GTK_WINDOW (window), width, height);
+      gtk_window_set_default_size (GTK_WINDOW (self), width, height);
     }
 
 errored:
@@ -341,10 +341,10 @@ errored:
 
 
 void
-lgw_window_save_size (LgwWindow *window)
+lgw_window_save_size (LgwWindow *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -358,11 +358,11 @@ lgw_window_save_size (LgwWindow *window)
     const gchar *NAME = NULL;
 
     //Initializations
-    priv = window->priv;
-    application = gtk_window_get_application (GTK_WINDOW (window));
+    priv = self->priv;
+    application = gtk_window_get_application (GTK_WINDOW (self));
     preferences = lw_preferences_get_default ();
     new_buffer = NULL;
-    NAME = G_OBJECT_TYPE_NAME (window);
+    NAME = G_OBJECT_TYPE_NAME (self);
 
     atom = g_strdup_printf ("%s:%d,%d", NAME, priv->data.width, priv->data.height);
     if (atom == NULL) goto errored;
@@ -407,21 +407,21 @@ errored:
 
 
 GMenuModel*
-lgw_window_get_window_menumodel (LgwWindow *window)
+lgw_window_get_window_menumodel (LgwWindow *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_WINDOW (window), NULL);
+    g_return_val_if_fail (LGW_IS_WINDOW (self), NULL);
 
-    return window->priv->data.window_menu_model;
+    return self->priv->data.window_menu_model;
 }
 
 
 void
-lgw_window_set_window_menumodel (LgwWindow  *window,
+lgw_window_set_window_menumodel (LgwWindow  *self,
                                  GMenuModel *menu_model)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     GtkApplication *application = NULL;
@@ -430,9 +430,9 @@ lgw_window_set_window_menumodel (LgwWindow  *window,
     LgwWindowClassPrivate *klasspriv = NULL;
 
     //Initializations
-    application = gtk_window_get_application (GTK_WINDOW (window));
-    priv = window->priv;
-    klass = LGW_WINDOW_GET_CLASS (window);
+    application = gtk_window_get_application (GTK_WINDOW (self));
+    priv = self->priv;
+    klass = LGW_WINDOW_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (application == NULL) goto errored;
@@ -441,7 +441,7 @@ lgw_window_set_window_menumodel (LgwWindow  *window,
 
     lgw_menumodel_set_contents (priv->data.window_menu_model, menu_model);
 
-    g_object_notify_by_pspec (G_OBJECT (window), klasspriv->pspec[PROP_WINDOW_MENUMODEL]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_WINDOW_MENUMODEL]);
 
 errored:
 
@@ -451,30 +451,30 @@ errored:
 
 
 void 
-lgw_window_show_menubar (LgwWindow *window,
+lgw_window_show_menubar (LgwWindow *self,
                          gboolean   show_menubar)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
-    if (window->priv->ui.window_menubar == NULL) return;
+    g_return_if_fail (LGW_IS_WINDOW (self));
+    if (self->priv->ui.window_menubar == NULL) return;
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
 
     priv->config.show_menubar = show_menubar;
 
-    lgw_window_sync_menubar_show (window);
+    lgw_window_sync_menubar_show (self);
 }
 
 
 GMenuModel*
-lgw_window_get_transient_for_menumodel (LgwWindow *window)
+lgw_window_get_transient_for_menumodel (LgwWindow *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_WINDOW (window), NULL);
+    g_return_val_if_fail (LGW_IS_WINDOW (self), NULL);
 
     //Declarations
     GMenuModel *menumodel = NULL;
@@ -482,40 +482,40 @@ lgw_window_get_transient_for_menumodel (LgwWindow *window)
     gboolean check_transient_for = FALSE;
 
     //Initializations
-    transientfor = LGW_WINDOW (gtk_window_get_transient_for (GTK_WINDOW (window)));
-    menumodel = lgw_window_get_window_menumodel (window);
+    transientfor = LGW_WINDOW (gtk_window_get_transient_for (GTK_WINDOW (self)));
+    menumodel = lgw_window_get_window_menumodel (self);
     check_transient_for = (transientfor != NULL && menumodel == NULL);
 
     //Recursive
     if (check_transient_for)
       return lgw_window_get_transient_for_menumodel (LGW_WINDOW (transientfor));
     else
-      return lgw_window_get_window_menumodel (window);
+      return lgw_window_get_window_menumodel (self);
 }
 
 
 gboolean
-lgw_window_is_closable (LgwWindow *window)
+lgw_window_is_closable (LgwWindow *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_WINDOW (window), FALSE);
+    g_return_val_if_fail (LGW_IS_WINDOW (self), FALSE);
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
 
     return priv->config.is_closable;
 }
 
 
 void
-lgw_window_set_button_menumodel (LgwWindow *window,
+lgw_window_set_button_menumodel (LgwWindow *self,
                                  GMenuModel *menu_model)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -523,15 +523,15 @@ lgw_window_set_button_menumodel (LgwWindow *window,
     LgwWindowClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = window ->priv;
-    klass = LGW_WINDOW_GET_CLASS (window);
+    priv = self ->priv;
+    klass = LGW_WINDOW_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (priv->data.button_menu_model == NULL) goto errored;
 
     lgw_menumodel_set_contents (priv->data.button_menu_model, menu_model);
 
-    g_object_notify_by_pspec (G_OBJECT (window), klasspriv->pspec[PROP_BUTTON_MENUMODEL]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_BUTTON_MENUMODEL]);
 
 errored:
 
@@ -540,59 +540,59 @@ errored:
 
 
 GMenuModel*
-lgw_window_get_button_menumodel (LgwWindow *window)
+lgw_window_get_button_menumodel (LgwWindow *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_WINDOW (window), FALSE);
+    g_return_val_if_fail (LGW_IS_WINDOW (self), FALSE);
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
 
     return priv->data.button_menu_model;
 }
 
 
 GtkWidget*
-lgw_window_get_menubar (LgwWindow *window)
+lgw_window_get_menubar (LgwWindow *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_WINDOW (window), NULL);
+    g_return_val_if_fail (LGW_IS_WINDOW (self), NULL);
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
 
     return GTK_WIDGET (priv->ui.window_menubar);
 }
 
 
 GtkWidget*
-lgw_window_get_menu_button (LgwWindow *window)
+lgw_window_get_menu_button (LgwWindow *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_WINDOW (window), NULL);
+    g_return_val_if_fail (LGW_IS_WINDOW (self), NULL);
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
 
     return GTK_WIDGET (priv->ui.menu_button);
 }
 
 
 void
-lgw_window_set_shows_menubar (LgwWindow *window,
+lgw_window_set_shows_menubar (LgwWindow *self,
                               gboolean shows_menubar)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -600,39 +600,39 @@ lgw_window_set_shows_menubar (LgwWindow *window,
     LgwWindowClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = window->priv;
-    klass = LGW_WINDOW_GET_CLASS (window);
+    priv = self->priv;
+    klass = LGW_WINDOW_GET_CLASS (self);
     klasspriv = klass->priv;
 
     priv->config.shows_menubar = shows_menubar;
 
-    lgw_window_sync_menubar_show (window);
+    lgw_window_sync_menubar_show (self);
 
-    g_object_notify_by_pspec (G_OBJECT (window), klasspriv->pspec[PROP_SHOWS_MENUBAR]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_SHOWS_MENUBAR]);
 }
 
 
 gboolean
-lgw_window_get_shows_menubar (LgwWindow *window)
+lgw_window_get_shows_menubar (LgwWindow *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
 
     return priv->config.shows_menubar;
 }
 
 
 void
-lgw_window_sync_menubar_show (LgwWindow *window)
+lgw_window_sync_menubar_show (LgwWindow *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -641,7 +641,7 @@ lgw_window_sync_menubar_show (LgwWindow *window)
     gboolean should_show_menubar = FALSE;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
 
     settings = gtk_settings_get_default ();
     g_object_get (G_OBJECT (settings), "gtk-shell-shows-menubar", &shell_shows_menubar, NULL);
@@ -664,7 +664,7 @@ lgw_window_sync_menubar_show (LgwWindow *window)
       }
     }
 
-    gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (window), FALSE);
+    gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (self), FALSE);
 
     if (priv->ui.menu_button != NULL)
     {
@@ -681,43 +681,43 @@ lgw_window_sync_menubar_show (LgwWindow *window)
 
 
 void
-lgw_window_pack_start (LgwWindow *window,
+lgw_window_pack_start (LgwWindow *self,
                        GtkWidget *widget,
                        gboolean   expand,
                        gboolean   fill,
                        guint      padding)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
 
     gtk_box_pack_start (priv->ui.box, widget, expand, fill, padding);
 }
 
 
 void
-lgw_window_clear_actions (LgwWindow *window)
+lgw_window_clear_actions (LgwWindow *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     gchar **actions = NULL;
 
     //Initializations
-    actions = g_action_group_list_actions (G_ACTION_GROUP (window));
+    actions = g_action_group_list_actions (G_ACTION_GROUP (self));
     if (actions == NULL) goto errored;
 
     {
       gint i = 0;
       for (i = 0; actions[i] != NULL; i++)
       {
-          g_action_map_remove_action (G_ACTION_MAP (window), actions[i]);
+          g_action_map_remove_action (G_ACTION_MAP (self), actions[i]);
       }
     }
 
@@ -730,11 +730,11 @@ errored:
 
 
 void
-lgw_window_add_actions (LgwWindow *window,
+lgw_window_add_actions (LgwWindow *self,
                         GList     *action_group_list)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
@@ -743,9 +743,9 @@ lgw_window_add_actions (LgwWindow *window,
     GtkApplication *application = NULL;
 
     //Initializations
-    priv = window->priv;
-    action_map = G_ACTION_MAP (window);
-    application = gtk_window_get_application (GTK_WINDOW (window));
+    priv = self->priv;
+    action_map = G_ACTION_MAP (self);
+    application = gtk_window_get_application (GTK_WINDOW (self));
 
     for (link = action_group_list; link != NULL; link = link->next)
     {
@@ -759,13 +759,13 @@ lgw_window_add_actions (LgwWindow *window,
 
 
 void
-lgw_window_set_actions (LgwWindow *window,
+lgw_window_set_actions (LgwWindow *self,
                         GList     *action_group_list)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
-    lgw_window_clear_actions (window);
-    lgw_window_add_actions (window, action_group_list);
+    lgw_window_clear_actions (self);
+    lgw_window_add_actions (self, action_group_list);
 }
 

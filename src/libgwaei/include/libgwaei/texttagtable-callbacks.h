@@ -3,8 +3,8 @@
 
 G_BEGIN_DECLS
 
-void lgw_texttagtable_connect_signals (LgwTextTagTable *tag_table);
-void lgw_texttagtable_disconnect_signals (LgwTextTagTable *tag_table);
+void lgw_texttagtable_connect_signals (LgwTextTagTable *self);
+void lgw_texttagtable_disconnect_signals (LgwTextTagTable *self);
 
 void lgw_texttagtable_sync_tag_cb (GSettings *settings, gchar *key, gpointer data);
 

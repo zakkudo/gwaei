@@ -35,11 +35,11 @@ GType lgw_searchwidget_get_type (void) G_GNUC_CONST;
 gboolean lgw_searchwidget_get_search_mode (LgwSearchWidget *widget);
 void lgw_searchwidget_set_search_mode (LgwSearchWidget *widget, gboolean search_mode);
 
-void lgw_searchwidget_set_preferences (LgwSearchWidget *search_widget, LwPreferences *preferences);
-LwPreferences* lgw_searchwidget_get_preferences (LgwSearchWidget *search_widget);
+void lgw_searchwidget_set_preferences (LgwSearchWidget *self, LwPreferences *preferences);
+LwPreferences* lgw_searchwidget_get_preferences (LgwSearchWidget *self);
 
-void lgw_searchwidget_set_dictionaryliststore (LgwSearchWidget *search_widget, LgwDictionaryListStore *dictionary_list_store);
-LgwDictionaryListStore* lgw_searchwidget_get_dictionaryliststore (LgwSearchWidget *search_widget);
+void lgw_searchwidget_set_dictionaryliststore (LgwSearchWidget *self, LgwDictionaryListStore *dictionary_list_store);
+LgwDictionaryListStore* lgw_searchwidget_get_dictionaryliststore (LgwSearchWidget *self);
 
 
 G_END_DECLS

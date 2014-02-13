@@ -53,16 +53,16 @@ lgw_searchentry_set_actiongroup (LgwActionable  *actionable,
     g_return_val_if_fail (actionable != NULL, NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
     LgwSearchEntryPrivate *priv = NULL;
     LgwSearchEntryClass *klass = NULL;
     LgwSearchEntryClassPrivate *klasspriv = NULL;
     GList *list = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (actionable);
-    priv = search_entry->priv;
-    klass = LGW_SEARCHENTRY_GET_CLASS (search_entry);
+    self = LGW_SEARCHENTRY (actionable);
+    priv = self->priv;
+    klass = LGW_SEARCHENTRY_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (priv->data.action_group_list != NULL)
@@ -92,15 +92,15 @@ lgw_searchentry_sync_actions (LgwActionable *actionable)
     g_return_val_if_fail (LGW_IS_SEARCHENTRY (actionable), NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
     LgwSearchEntryPrivate *priv = NULL;
     GtkWidget *widget = NULL;
     gboolean has_focus = FALSE;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (actionable);
-    priv = search_entry->priv;
-    widget = GTK_WIDGET (search_entry);
+    self = LGW_SEARCHENTRY (actionable);
+    priv = self->priv;
+    widget = GTK_WIDGET (self);
     has_focus = gtk_widget_has_focus (GTK_WIDGET (priv->ui.search_entry)); 
 
     if (has_focus)
@@ -117,7 +117,7 @@ lgw_searchentry_sync_actions (LgwActionable *actionable)
         { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
       };
       LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_searchentry_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
+      lgw_searchentry_set_actiongroup (LGW_ACTIONABLE (self), action_group);
     }
     else 
     {
@@ -130,7 +130,7 @@ lgw_searchentry_sync_actions (LgwActionable *actionable)
         { "clear", lgw_searchentry_clear_search_cb, NULL, NULL, NULL },
       };
       LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_searchentry_set_actiongroup (LGW_ACTIONABLE (search_entry), action_group);
+      lgw_searchentry_set_actiongroup (LGW_ACTIONABLE (self), action_group);
     }
 }
 
@@ -142,12 +142,12 @@ lgw_searchentry_get_actions (LgwActionable *actionable)
     g_return_val_if_fail (actionable != NULL, NULL);
 
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
     LgwSearchEntryPrivate *priv = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (actionable);
-    priv = search_entry->priv;
+    self = LGW_SEARCHENTRY (actionable);
+    priv = self->priv;
 
     if (priv->data.action_group_list == NULL)
     {

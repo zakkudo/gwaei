@@ -41,17 +41,17 @@
 
 
 void
-lgw_resultstextview_clear_searchlist (LgwResultsView *view)
+lgw_resultstextview_clear_searchlist (LgwResultsView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    text_view = LGW_RESULTSTEXTVIEW (view);
+    text_view = LGW_RESULTSTEXTVIEW (self);
     priv = text_view->priv;
 
     g_list_free_full (priv->data.searchiteratorlist, (GDestroyNotify) lw_searchiterator_free);
@@ -63,28 +63,28 @@ lgw_resultstextview_clear_searchlist (LgwResultsView *view)
 
 
 void
-lgw_resultstextview_set_searchlist (LgwResultsView *view,
+lgw_resultstextview_set_searchlist (LgwResultsView *self,
                                     GList          *searchlist)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    text_view = LGW_RESULTSTEXTVIEW (view);
+    text_view = LGW_RESULTSTEXTVIEW (self);
     priv = text_view->priv;
 
-    lgw_resultstextview_clear_searchlist (view);
+    lgw_resultstextview_clear_searchlist (self);
 
     {
       GList *link = searchlist;
       while (link != NULL)
       {
         LwSearch *search = LW_SEARCH (link->data);
-        lgw_resultstextview_add_search (view, search);
+        lgw_resultstextview_add_search (self, search);
         link = link->next;
       }
     }
@@ -94,17 +94,17 @@ lgw_resultstextview_set_searchlist (LgwResultsView *view,
 
 
 GList*
-lgw_resultstextview_get_searchlist (LgwResultsView *view)
+lgw_resultstextview_get_searchlist (LgwResultsView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    text_view = LGW_RESULTSTEXTVIEW (view);
+    text_view = LGW_RESULTSTEXTVIEW (self);
     priv = text_view->priv;
 }
 

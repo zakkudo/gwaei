@@ -53,12 +53,12 @@ lgw_searchwidget_get_actions (LgwActionable *actionable)
     g_return_val_if_fail (actionable != NULL, NULL);
 
     //Declarations
-    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidget *self = NULL;
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
-    search_widget = LGW_SEARCHWIDGET (actionable);
-    priv = search_widget->priv;
+    self = LGW_SEARCHWIDGET (actionable);
+    priv = self->priv;
 
     if (priv->data.action_group_list == NULL)
     {
@@ -77,13 +77,13 @@ lgw_searchwidget_set_actiongroup (LgwActionable *actionable,
     g_return_val_if_fail (actionable != NULL, NULL);
 
     //Declarations
-    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidget *self = NULL;
     LgwSearchWidgetPrivate *priv = NULL;
     GList *list = NULL;
 
     //Initializations
-    search_widget = LGW_SEARCHWIDGET (actionable);
-    priv = search_widget->priv;
+    self = LGW_SEARCHWIDGET (actionable);
+    priv = self->priv;
 
     if (priv->data.action_group_list != NULL)
     {
@@ -124,14 +124,14 @@ lgw_searchwidget_sync_actions (LgwActionable* actionable)
     g_return_val_if_fail (LGW_IS_SEARCHWIDGET (actionable), NULL);
 
     //Declarations
-    LgwSearchWidget *search_widget = NULL;
+    LgwSearchWidget *self = NULL;
     LgwSearchWidgetPrivate *priv = NULL;
     GtkWidget *widget = NULL;
 
     //Initializations
-    search_widget = LGW_SEARCHWIDGET (actionable);
-    priv = search_widget->priv;
-    widget = GTK_WIDGET (search_widget);
+    self = LGW_SEARCHWIDGET (actionable);
+    priv = self->priv;
+    widget = GTK_WIDGET (self);
 
 /*
     static GActionEntry entries[] = {

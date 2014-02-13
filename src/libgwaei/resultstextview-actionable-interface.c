@@ -53,16 +53,16 @@ lgw_resultstextview_set_actiongroup (LgwActionable  *actionable,
     g_return_val_if_fail (LGW_IS_ACTIONABLE (actionable), NULL);
 
     //Declarations
-    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextView *self = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
     LgwResultsTextViewClass *klass = NULL;
     LgwResultsTextViewClassPrivate *klasspriv = NULL;
     GList *list = NULL;
 
     //Initializations
-    results_text_view = LGW_RESULTSTEXTVIEW (actionable);
-    priv = results_text_view->priv;
-    klass = LGW_RESULTSTEXTVIEW_GET_CLASS (results_text_view);
+    self = LGW_RESULTSTEXTVIEW (actionable);
+    priv = self->priv;
+    klass = LGW_RESULTSTEXTVIEW_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (priv->data.action_group_list != NULL)
@@ -92,15 +92,15 @@ lgw_resultstextview_sync_actions (LgwActionable *actionable)
     g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (actionable), NULL);
 
     //Declarations
-    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextView *self = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
     GtkWidget *widget = NULL;
     gboolean has_focus = FALSE;
 
     //Initializations
-    results_text_view = LGW_RESULTSTEXTVIEW (actionable);
-    priv = results_text_view->priv;
-    widget = GTK_WIDGET (results_text_view);
+    self = LGW_RESULTSTEXTVIEW (actionable);
+    priv = self->priv;
+    widget = GTK_WIDGET (self);
     has_focus = gtk_widget_is_focus (GTK_WIDGET (priv->ui.text_view));
 
     if (has_focus)
@@ -126,12 +126,12 @@ lgw_resultstextview_get_actions (LgwActionable *actionable)
     g_return_val_if_fail (LGW_IS_ACTIONABLE (actionable), NULL);
 
     //Declarations
-    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextView *self = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    results_text_view = LGW_RESULTSTEXTVIEW (actionable);
-    priv = results_text_view->priv;
+    self = LGW_RESULTSTEXTVIEW (actionable);
+    priv = self->priv;
 
     if (priv->data.action_group_list == NULL)
     {

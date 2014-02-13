@@ -43,16 +43,16 @@
 
 
 void
-lgw_vocabularylistview_connect_signals (LgwVocabularyListView *vocabulary_list_view)
+lgw_vocabularylistview_connect_signals (LgwVocabularyListView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_list_view->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] == 0)
     {
@@ -60,7 +60,7 @@ lgw_vocabularylistview_connect_signals (LgwVocabularyListView *vocabulary_list_v
           G_OBJECT (priv->data.tree_selection),
           "changed",
           G_CALLBACK (lgw_vocabularylistview_selection_changed_cb),
-          vocabulary_list_view
+          self
         );
     }
 
@@ -70,7 +70,7 @@ lgw_vocabularylistview_connect_signals (LgwVocabularyListView *vocabulary_list_v
           G_OBJECT (priv->ui.tree_view),
           "focus-in-event",
           G_CALLBACK (lgw_vocabularylistview_focus_in_event_cb),
-          vocabulary_list_view
+          self
       );
     }
 
@@ -80,23 +80,23 @@ lgw_vocabularylistview_connect_signals (LgwVocabularyListView *vocabulary_list_v
           G_OBJECT (priv->ui.tree_view),
           "focus-out-event",
           G_CALLBACK (lgw_vocabularylistview_focus_out_event_cb),
-          vocabulary_list_view
+          self
       );
     }
 }
 
 
 void
-lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *vocabulary_list_view)
+lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_list_view->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] != 0)
     {
@@ -131,11 +131,11 @@ lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *vocabulary_lis
 
 
 void
-lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *vocabulary_list_view,
+lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *self,
                                              GtkTreeSelection      *tree_selection)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view));
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
@@ -143,11 +143,11 @@ lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *vocabulary_l
     LgwVocabularyWordView *vocabulary_word_view = NULL;
 
     //Initializations
-    priv = vocabulary_list_view->priv;
+    priv = self->priv;
     if (priv == NULL) goto errored;
-    vocabulary_word_view = lgw_vocabularylistview_get_wordview (vocabulary_list_view);
+    vocabulary_word_view = lgw_vocabularylistview_get_wordview (self);
     if (vocabulary_word_view == NULL) goto errored;
-    vocabulary_word_store = lgw_vocabularylistview_get_selected_wordstore (vocabulary_list_view);
+    vocabulary_word_store = lgw_vocabularylistview_get_selected_wordstore (self);
 
     if (vocabulary_word_store != NULL)
     {
@@ -170,10 +170,10 @@ lgw_vocabularylistview_add_new_activated_cb (GSimpleAction *action,
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (data));
 
     //Declarations
-    LgwVocabularyListView *vocabulary_list_view = NULL;
+    LgwVocabularyListView *self = NULL;
 
     //Initializations
-    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (data);
+    self = LGW_VOCABULARYLISTVIEW (data);
 
     //TODO
 }
@@ -187,14 +187,14 @@ lgw_vocabularylistview_remove_selected_activated_cb (GSimpleAction *action,
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (data));
 
     //Declarations
-    LgwVocabularyListView *vocabulary_list_view = NULL;
+    LgwVocabularyListView *self = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
     GtkTreeModel *tree_model = NULL;
     GList *rowlist = NULL;
 
     //Initializations
-    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (data);
-    priv = vocabulary_list_view->priv;
+    self = LGW_VOCABULARYLISTVIEW (data);
+    priv = self->priv;
     tree_model = GTK_TREE_MODEL (priv->data.vocabulary_list_store);
     rowlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
 
@@ -205,19 +205,19 @@ errored:
 
 
 gboolean
-lgw_vocabularylistview_focus_in_event_cb (LgwVocabularyListView *vocabulary_list_view,
+lgw_vocabularylistview_focus_in_event_cb (LgwVocabularyListView *self,
                                           GdkEvent              *event,
                                           GtkTreeView           *inner_tree_view)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view), FALSE);
+    g_return_val_if_fail (LGW_IS_VOCABULARYLISTVIEW (self), FALSE);
     g_return_val_if_fail (GTK_IS_TREE_VIEW (inner_tree_view), FALSE);
 
     //Declarations
     LgwActionable *actionable = NULL;
 
     //Initializations
-    actionable = LGW_ACTIONABLE (vocabulary_list_view);
+    actionable = LGW_ACTIONABLE (self);
 
     lgw_actionable_sync_actions (actionable);
 
@@ -226,19 +226,19 @@ lgw_vocabularylistview_focus_in_event_cb (LgwVocabularyListView *vocabulary_list
 
 
 gboolean
-lgw_vocabularylistview_focus_out_event_cb (LgwVocabularyListView *vocabulary_list_view,
+lgw_vocabularylistview_focus_out_event_cb (LgwVocabularyListView *self,
                                            GdkEvent              *event,
                                            GtkTreeView           *inner_tree_view)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_VOCABULARYLISTVIEW (vocabulary_list_view), FALSE);
+    g_return_val_if_fail (LGW_IS_VOCABULARYLISTVIEW (self), FALSE);
     g_return_val_if_fail (GTK_IS_TREE_VIEW (inner_tree_view), FALSE);
 
     //Declarations
     LgwActionable *actionable = NULL;
 
     //Initializations
-    actionable = LGW_ACTIONABLE (vocabulary_list_view);
+    actionable = LGW_ACTIONABLE (self);
 
     lgw_actionable_sync_actions (actionable);
 

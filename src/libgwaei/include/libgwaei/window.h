@@ -18,7 +18,7 @@ typedef struct _LgwWindowClassPrivate LgwWindowClassPrivate;
 #define LGW_WINDOW_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LGW_TYPE_WINDOW, LgwWindowClass))
 
 struct _LgwWindow {
-  GtkApplicationWindow window;
+  GtkApplicationWindow self;
   LgwWindowPrivate *priv;
 };
 
@@ -31,29 +31,29 @@ struct _LgwWindowClass {
 GtkWindow* lgw_window_new (void);
 GType lgw_window_get_type (void) G_GNUC_CONST;
 
-GMenuModel* lgw_window_get_window_menumodel (LgwWindow *window);
-GMenuModel* lgw_window_get_button_menumodel (LgwWindow *window);
+GMenuModel* lgw_window_get_window_menumodel (LgwWindow *self);
+GMenuModel* lgw_window_get_button_menumodel (LgwWindow *self);
 
-void lgw_window_set_window_menumodel (LgwWindow *window, GMenuModel *menu_model);
-void lgw_window_set_button_menumodel (LgwWindow *window, GMenuModel *menu_model);
+void lgw_window_set_window_menumodel (LgwWindow *self, GMenuModel *menu_model);
+void lgw_window_set_button_menumodel (LgwWindow *self, GMenuModel *menu_model);
 
-gboolean lgw_window_is_closable (LgwWindow *window);
+gboolean lgw_window_is_closable (LgwWindow *self);
 
-GMenuModel* lgw_window_get_transient_for_menumodel (LgwWindow *window);
+GMenuModel* lgw_window_get_transient_for_menumodel (LgwWindow *self);
 
-void  lgw_window_show_menubar (LgwWindow *window, gboolean show);
+void  lgw_window_show_menubar (LgwWindow *self, gboolean show);
 
-GtkWidget* lgw_window_get_menubar (LgwWindow *window);
-GtkWidget* lgw_window_get_menu_button (LgwWindow *window);
+GtkWidget* lgw_window_get_menubar (LgwWindow *self);
+GtkWidget* lgw_window_get_menu_button (LgwWindow *self);
 
-void lgw_window_set_shows_menubar (LgwWindow *window, gboolean can_show_menubar);
-gboolean lgw_window_get_shows_menubar (LgwWindow *window);
+void lgw_window_set_shows_menubar (LgwWindow *self, gboolean can_show_menubar);
+gboolean lgw_window_get_shows_menubar (LgwWindow *self);
 
-void lgw_window_pack_start (LgwWindow *window, GtkWidget *widget, gboolean expand, gboolean fill, guint padding);
+void lgw_window_pack_start (LgwWindow *self, GtkWidget *widget, gboolean expand, gboolean fill, guint padding);
 
-void lgw_window_clear_actions (LgwWindow *window);
-void lgw_window_add_actions (LgwWindow *window, GList *action_group_list);
-void lgw_window_set_actions (LgwWindow *window, GList *action_group_list);
+void lgw_window_clear_actions (LgwWindow *self);
+void lgw_window_add_actions (LgwWindow *self, GList *action_group_list);
+void lgw_window_set_actions (LgwWindow *self, GList *action_group_list);
 
 G_END_DECLS
 

@@ -37,23 +37,23 @@
 
 
 void
-lgw_window_connect_signals (LgwWindow *window)
+lgw_window_connect_signals (LgwWindow *self)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
     preferences = lw_preferences_get_default ();
 
     if (priv->data.signalid[SIGNALID_CONFIGURE_EVENT] == 0)
     {
       priv->data.signalid[SIGNALID_CONFIGURE_EVENT] = g_signal_connect (
-        G_OBJECT (window),
+        G_OBJECT (self),
         "configure-event",
         G_CALLBACK (lgw_window_configure_event_cb),
         NULL
@@ -63,7 +63,7 @@ lgw_window_connect_signals (LgwWindow *window)
     if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] == 0)
     {
       priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = g_signal_connect (
-        G_OBJECT (window),
+        G_OBJECT (self),
         "focus-in-event",
         G_CALLBACK (lgw_window_focus_in_event_cb),
         NULL
@@ -77,14 +77,14 @@ lgw_window_connect_signals (LgwWindow *window)
         LW_SCHEMA_BASE,
         LW_KEY_MENUBAR_SHOW,
         lgw_window_sync_show_menubar_cb,
-        window
+        self
       );
     }
 
     if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY] == 0)
     {
       priv->data.signalid[SIGNALID_APPLICATION_PROPERTY] = g_signal_connect (
-        G_OBJECT (window),
+        G_OBJECT (self),
         "notify::application",
         G_CALLBACK (lgw_window_application_property_changed_cb),
         NULL
@@ -94,26 +94,26 @@ lgw_window_connect_signals (LgwWindow *window)
 
 
 void
-lgw_window_disconnect_signals (LgwWindow *window)
+lgw_window_disconnect_signals (LgwWindow *self)
 {
     //Sanity checks
-    g_return_if_fail (window != NULL);
+    g_return_if_fail (self != NULL);
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
     preferences = lw_preferences_get_default ();
     
     if (priv->data.signalid[SIGNALID_CONFIGURE_EVENT] != 0) {
-      g_signal_handler_disconnect (G_OBJECT (window), priv->data.signalid[SIGNALID_CONFIGURE_EVENT]);
+      g_signal_handler_disconnect (G_OBJECT (self), priv->data.signalid[SIGNALID_CONFIGURE_EVENT]);
       priv->data.signalid[SIGNALID_CONFIGURE_EVENT] = 0;
     }
 
     if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] != 0) {
-      g_signal_handler_disconnect (G_OBJECT (window), priv->data.signalid[SIGNALID_FOCUS_IN_EVENT]);
+      g_signal_handler_disconnect (G_OBJECT (self), priv->data.signalid[SIGNALID_FOCUS_IN_EVENT]);
       priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = 0;
     }
 
@@ -127,7 +127,7 @@ lgw_window_disconnect_signals (LgwWindow *window)
     }
 
     if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY] != 0) {
-      g_signal_handler_disconnect (G_OBJECT (window), priv->data.signalid[SIGNALID_APPLICATION_PROPERTY]);
+      g_signal_handler_disconnect (G_OBJECT (self), priv->data.signalid[SIGNALID_APPLICATION_PROPERTY]);
       priv->data.signalid[SIGNALID_APPLICATION_PROPERTY] = 0;
     }
 
@@ -137,19 +137,19 @@ lgw_window_disconnect_signals (LgwWindow *window)
 
 
 gboolean 
-lgw_window_configure_event_cb (LgwWindow *window,
+lgw_window_configure_event_cb (LgwWindow *self,
                                GdkEvent  *event,
                                gpointer   data)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_WINDOW (window), FALSE);
+    g_return_val_if_fail (LGW_IS_WINDOW (self), FALSE);
 
     //Delcarations
     LgwWindowPrivate *priv = NULL;
     GdkEventConfigure *event_configure = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
     event_configure = (GdkEventConfigure*) event;
 
     priv->data.x = event_configure->x;
@@ -162,12 +162,12 @@ lgw_window_configure_event_cb (LgwWindow *window,
 
 
 gboolean
-lgw_window_focus_in_event_cb (LgwWindow *window,
+lgw_window_focus_in_event_cb (LgwWindow *self,
                               GdkEvent  *event,
                               gpointer   data)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_WINDOW (window), FALSE);
+    g_return_val_if_fail (LGW_IS_WINDOW (self), FALSE);
 
     //Declarations
     GtkApplication *application = NULL;
@@ -176,11 +176,11 @@ lgw_window_focus_in_event_cb (LgwWindow *window,
     GtkSettings *settings = NULL;
     
     //Initializations
-    application = gtk_window_get_application (GTK_WINDOW (window));
+    application = gtk_window_get_application (GTK_WINDOW (self));
     settings = gtk_settings_get_default ();
     g_object_get (settings, "gtk-shell-shows-menubar", &os_shows_win_menu, NULL);
 
-    menu_model = lgw_window_get_transient_for_menumodel (window);
+    menu_model = lgw_window_get_transient_for_menumodel (self);
     if (menu_model == NULL)
       menu_model = G_MENU_MODEL (g_menu_new ());
     if (menu_model == NULL) 
@@ -201,38 +201,38 @@ lgw_window_sync_show_menubar_cb (GSettings *settings,
                                  gpointer   data)
 {
     //Declarations
-    LgwWindow *window = NULL;
+    LgwWindow *self = NULL;
     LgwWindowPrivate *priv = NULL;
 
     //Initializations
-    window = LGW_WINDOW (data);
-    priv = window->priv;
+    self = LGW_WINDOW (data);
+    priv = self->priv;
     priv->config.show_menubar = lw_preferences_get_boolean (settings, key);
 
-    lgw_window_sync_menubar_show (window);
+    lgw_window_sync_menubar_show (self);
 }
 
 
 void
-lgw_window_application_property_changed_cb (LgwWindow  *window,
+lgw_window_application_property_changed_cb (LgwWindow  *self,
                                             GParamSpec *pspec,
                                             gpointer    data)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_WINDOW (window));
+    g_return_if_fail (LGW_IS_WINDOW (self));
 
     //Declarations
     LgwWindowPrivate *priv = NULL;
     GtkApplication *application = NULL;
 
     //Initializations
-    priv = window->priv;
-    application = gtk_window_get_application (GTK_WINDOW (window));
+    priv = self->priv;
+    application = gtk_window_get_application (GTK_WINDOW (self));
     if (application == NULL) goto errored;
-    if (!gtk_widget_is_visible (GTK_WIDGET (window))) goto errored;
+    if (!gtk_widget_is_visible (GTK_WIDGET (self))) goto errored;
 
-    lgw_window_set_window_menumodel (window, lgw_window_get_window_menumodel (window)); 
-    lgw_window_set_button_menumodel (window, lgw_window_get_button_menumodel (window)); 
+    lgw_window_set_window_menumodel (self, lgw_window_get_window_menumodel (self)); 
+    lgw_window_set_button_menumodel (self, lgw_window_get_button_menumodel (self)); 
 
 errored:
 

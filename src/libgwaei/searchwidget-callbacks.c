@@ -42,29 +42,29 @@
 
 
 void
-lgw_searchwidget_child_actions_property_changed_cb (LgwSearchWidget *search_widget,
+lgw_searchwidget_child_actions_property_changed_cb (LgwSearchWidget *self,
                                                     GParamSpec      *pspec,
                                                     LgwActionable   *actionable)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (self));
     g_return_if_fail (actionable != NULL);
 
-    lgw_actionable_sync_actions (LGW_ACTIONABLE (search_widget));
+    lgw_actionable_sync_actions (LGW_ACTIONABLE (self));
 }
 
 
 void
-lgw_searchwidget_connect_signals (LgwSearchWidget *search_widget)
+lgw_searchwidget_connect_signals (LgwSearchWidget *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (self));
 
     //Declarations
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
-    priv = search_widget->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_RESULTSVIEW_ACTIONS] == 0)
     {
@@ -72,23 +72,23 @@ lgw_searchwidget_connect_signals (LgwSearchWidget *search_widget)
           G_OBJECT (priv->ui.results_view),
           "notify::actions",
           G_CALLBACK (lgw_searchwidget_child_actions_property_changed_cb),
-          search_widget
+          self
       );
     }
 }
 
 
 void
-lgw_searchwidget_disconnect_signals (LgwSearchWidget *search_widget)
+lgw_searchwidget_disconnect_signals (LgwSearchWidget *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_SEARCHWIDGET (search_widget));
+    g_return_if_fail (LGW_IS_SEARCHWIDGET (self));
 
     //Declarations
     LgwSearchWidgetPrivate *priv = NULL;
 
     //Initializations
-    priv = search_widget->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_RESULTSVIEW_ACTIONS] != 0)
     {

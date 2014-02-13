@@ -101,14 +101,14 @@ lgw_searchentry_set_property (GObject      *object,
                               GParamSpec   *pspec)
 {
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
     LgwActionable *actionable = NULL;
     LgwSearchEntryPrivate *priv = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (object);
+    self = LGW_SEARCHENTRY (object);
     actionable = LGW_ACTIONABLE (object);
-    priv = search_entry->priv;
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -129,14 +129,14 @@ lgw_searchentry_get_property (GObject      *object,
                               GParamSpec   *pspec)
 {
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
     LgwActionable *actionable = NULL;
     LgwSearchEntryPrivate *priv = NULL;
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (object);
+    self = LGW_SEARCHENTRY (object);
     actionable = LGW_ACTIONABLE (object);
-    priv = search_entry->priv;
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -155,7 +155,7 @@ static void
 lgw_searchentry_constructed (GObject *object)
 {
     //Declarations
-    LgwSearchEntry *search_entry = NULL;
+    LgwSearchEntry *self = NULL;
     LgwSearchEntryPrivate *priv = NULL;
     GtkWidget *widget = NULL;
 
@@ -165,9 +165,9 @@ lgw_searchentry_constructed (GObject *object)
     }
 
     //Initializations
-    search_entry = LGW_SEARCHENTRY (object);
-    priv = search_entry->priv;
-    priv->ui.box = GTK_BOX (search_entry);
+    self = LGW_SEARCHENTRY (object);
+    priv = self->priv;
+    priv->ui.box = GTK_BOX (self);
     widget = GTK_WIDGET (object);
 
 
@@ -196,21 +196,21 @@ lgw_searchentry_constructed (GObject *object)
     }
 
     {
-      GtkWidget *search_entry = gtk_search_entry_new ();
-      priv->ui.search_entry = GTK_SEARCH_ENTRY (search_entry);
-      gtk_box_pack_start (priv->ui.box, search_entry, FALSE, FALSE, 0);
-      //gtk_container_add (GTK_CONTAINER (overlay), search_entry);
-      gtk_widget_set_size_request (search_entry, 300, -1);
-      gtk_widget_show (search_entry);
+      GtkWidget *self = gtk_search_entry_new ();
+      priv->ui.search_entry = GTK_SEARCH_ENTRY (self);
+      gtk_box_pack_start (priv->ui.box, self, FALSE, FALSE, 0);
+      //gtk_container_add (GTK_CONTAINER (overlay), self);
+      gtk_widget_set_size_request (self, 300, -1);
+      gtk_widget_show (self);
 
       {
-        GtkStyleContext *context = gtk_widget_get_style_context (search_entry);
+        GtkStyleContext *context = gtk_widget_get_style_context (self);
         gtk_style_context_set_junction_sides (context, GTK_JUNCTION_RIGHT);
-        gtk_widget_reset_style (search_entry);
+        gtk_widget_reset_style (self);
       }
     }
 
-    lgw_searchentry_connect_signals (search_entry);
+    lgw_searchentry_connect_signals (self);
 }
 
 
@@ -285,7 +285,7 @@ lgw_searchentry_set_search_as_you_typea (LgwSearchEntry *entry,
 
 
 void
-lgw_searchentry_set_dictionarylistbox (LgwSearchEntry       *search_entry,
+lgw_searchentry_set_dictionarylistbox (LgwSearchEntry       *self,
                                        LgwDictionaryListBox *dictionary_list_box)
 {
 
@@ -293,34 +293,34 @@ lgw_searchentry_set_dictionarylistbox (LgwSearchEntry       *search_entry,
 
 
 void
-lgw_searchentry_set_resultsview (LgwSearchEntry *search_entry,
+lgw_searchentry_set_resultsview (LgwSearchEntry *self,
                                  LgwResultsView *results_view)
 {
 }
 
 
 GtkEntry*
-lgw_searchentry_get_entry (LgwSearchEntry *search_entry)
+lgw_searchentry_get_entry (LgwSearchEntry *self)
 {
     //Sanity checks
-    g_return_val_if_fail (search_entry != NULL, NULL);
+    g_return_val_if_fail (self != NULL, NULL);
 
     //Declarations
     LgwSearchEntryPrivate *priv = NULL;
 
     //Initializations
-    priv = search_entry->priv;
+    priv = self->priv;
 
     return GTK_ENTRY (priv->ui.search_entry);
 }
 
 
 void
-lgw_searchentry_insert_text (LgwSearchEntry *search_entry,
+lgw_searchentry_insert_text (LgwSearchEntry *self,
                              const gchar    *TEXT)
 {
     //Sanity checks
-    g_return_if_fail (search_entry != NULL);
+    g_return_if_fail (self != NULL);
     if (TEXT == NULL) TEXT = "";
 
     //Declarations
@@ -331,7 +331,7 @@ lgw_searchentry_insert_text (LgwSearchEntry *search_entry,
     GtkEditable *editable = NULL;
 
     //Initializations
-    priv = search_entry->priv;
+    priv = self->priv;
     editable = GTK_EDITABLE (priv->ui.search_entry);
     if (editable == NULL) goto errored;
     length = g_utf8_strlen (TEXT, -1);
@@ -349,11 +349,11 @@ errored:
 
 
 void
-lgw_searchentry_set_text (LgwSearchEntry *search_entry,
+lgw_searchentry_set_text (LgwSearchEntry *self,
                           const gchar    *TEXT)
 {
     //Sanity checks
-    g_return_if_fail (search_entry != NULL);
+    g_return_if_fail (self != NULL);
     if (TEXT == NULL) TEXT = "";
 
     //Declarations
@@ -362,7 +362,7 @@ lgw_searchentry_set_text (LgwSearchEntry *search_entry,
     GtkEditable *editable = NULL;
 
     //Initializations
-    priv = search_entry->priv;
+    priv = self->priv;
     entry = GTK_ENTRY (priv->ui.search_entry);
     editable = GTK_EDITABLE (entry);
 

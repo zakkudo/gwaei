@@ -41,16 +41,16 @@
 
 
 void
-lgw_resultstextview_connect_signals (LgwResultsTextView *results_text_view)
+lgw_resultstextview_connect_signals (LgwResultsTextView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (results_text_view));
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
 
     //Declarations
     LgwResultsTextViewPrivate *priv = NULL;
     
     //Initializations
-    priv = results_text_view->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] == 0)
     {
@@ -58,7 +58,7 @@ lgw_resultstextview_connect_signals (LgwResultsTextView *results_text_view)
           G_OBJECT (priv->ui.text_view),
           "focus-in-event",
           G_CALLBACK (lgw_resultstextview_focus_in_event_cb),
-          results_text_view
+          self
       );
     }
 
@@ -68,23 +68,23 @@ lgw_resultstextview_connect_signals (LgwResultsTextView *results_text_view)
           G_OBJECT (priv->ui.text_view),
           "focus-out-event",
           G_CALLBACK (lgw_resultstextview_focus_out_event_cb),
-          results_text_view
+          self
       );
     }
 }
 
 
 void
-lgw_resultstextview_disconnect_signals (LgwResultsTextView *results_text_view)
+lgw_resultstextview_disconnect_signals (LgwResultsTextView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (results_text_view));
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
 
     //Declarations
     LgwResultsTextViewPrivate *priv = NULL;
     
     //Initializations
-    priv = results_text_view->priv;
+    priv = self->priv;
 
     if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] != 0)
     {
@@ -101,7 +101,7 @@ lgw_resultstextview_disconnect_signals (LgwResultsTextView *results_text_view)
 
 
 gboolean
-lgw_resultstextview_focus_in_event_cb (LgwResultsTextView *results_text_view,
+lgw_resultstextview_focus_in_event_cb (LgwResultsTextView *self,
                                        GdkEvent           *event,
                                        GtkTextView        *internal_text_view)
 {
@@ -109,7 +109,7 @@ lgw_resultstextview_focus_in_event_cb (LgwResultsTextView *results_text_view,
     LgwActionable *actionable = NULL;
 
     //Initializations
-    actionable = LGW_ACTIONABLE (results_text_view);
+    actionable = LGW_ACTIONABLE (self);
 
     lgw_actionable_sync_actions (actionable);
 
@@ -118,7 +118,7 @@ lgw_resultstextview_focus_in_event_cb (LgwResultsTextView *results_text_view,
 
 
 gboolean
-lgw_resultstextview_focus_out_event_cb (LgwResultsTextView *results_text_view,
+lgw_resultstextview_focus_out_event_cb (LgwResultsTextView *self,
                                         GdkEvent           *event,
                                         GtkTextView        *internal_text_view)
 {
@@ -126,7 +126,7 @@ lgw_resultstextview_focus_out_event_cb (LgwResultsTextView *results_text_view,
     LgwActionable *actionable = NULL;
 
     //Initializations
-    actionable = LGW_ACTIONABLE (results_text_view);
+    actionable = LGW_ACTIONABLE (self);
 
     lgw_actionable_sync_actions (actionable);
 
@@ -143,14 +143,14 @@ lgw_resultstextview_copy_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextView *self = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
     GtkTextBuffer *text_buffer = NULL;
     GtkClipboard *clipboard = NULL;
 
     //Initializations
-    results_text_view = LGW_RESULTSTEXTVIEW (data);
-    priv = results_text_view->priv;
+    self = LGW_RESULTSTEXTVIEW (data);
+    priv = self->priv;
     text_buffer = gtk_text_view_get_buffer (priv->ui.text_view);
     clipboard = gtk_clipboard_get_for_display (gdk_display_get_default (), GDK_SELECTION_CLIPBOARD);
 

@@ -75,17 +75,17 @@ lgw_resultstextview_init (LgwResultsTextView *widget)
 static void 
 lgw_resultstextview_finalize (GObject *object)
 {
-    LgwResultsTextView *view;
+    LgwResultsTextView *self;
     LgwResultsTextViewPrivate *priv;
     LgwResultsTextViewClass *klass = NULL;
     LgwResultsTextViewClassPrivate *klasspriv = NULL;
 
-    view = LGW_RESULTSTEXTVIEW (object);
-    priv = view->priv;
-    klass = LGW_RESULTSTEXTVIEW_GET_CLASS (view);
+    self = LGW_RESULTSTEXTVIEW (object);
+    priv = self->priv;
+    klass = LGW_RESULTSTEXTVIEW_GET_CLASS (self);
     klasspriv = klass->priv;
 
-    lgw_resultstextview_set_tagtable (view, NULL);
+    lgw_resultstextview_set_tagtable (self, NULL);
 
     G_OBJECT_CLASS (lgw_resultstextview_parent_class)->finalize (object);
 }
@@ -98,14 +98,14 @@ lgw_resultstextview_set_property (GObject      *object,
                                   GParamSpec   *pspec)
 {
     //Declarations
-    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextView *self = NULL;
     LgwActionable *actionable = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    results_text_view = LGW_RESULTSTEXTVIEW (object);
+    self = LGW_RESULTSTEXTVIEW (object);
     actionable = LGW_ACTIONABLE (object);
-    priv = results_text_view->priv;
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -126,14 +126,14 @@ lgw_resultstextview_get_property (GObject      *object,
                                   GParamSpec   *pspec)
 {
     //Declarations
-    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextView *self = NULL;
     LgwActionable *actionable = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    results_text_view = LGW_RESULTSTEXTVIEW (object);
+    self = LGW_RESULTSTEXTVIEW (object);
     actionable = LGW_ACTIONABLE (object);
-    priv = results_text_view->priv;
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -155,7 +155,7 @@ lgw_resultstextview_constructed (GObject *object)
     g_return_if_fail (object != NULL);
 
     //Declarations
-    LgwResultsTextView *view = NULL;
+    LgwResultsTextView *self = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
     LgwResultsTextViewClass *klass = NULL;
     LgwResultsTextViewClassPrivate *klasspriv = NULL;
@@ -166,10 +166,10 @@ lgw_resultstextview_constructed (GObject *object)
     }
 
     //Initializations
-    view = LGW_RESULTSTEXTVIEW (object);
-    priv = view->priv;
-    priv->ui.box = GTK_BOX (view);
-    klass = LGW_RESULTSTEXTVIEW_GET_CLASS (view);
+    self = LGW_RESULTSTEXTVIEW (object);
+    priv = self->priv;
+    priv->ui.box = GTK_BOX (self);
+    klass = LGW_RESULTSTEXTVIEW_GET_CLASS (self);
     klasspriv = klass->priv;
 
     {
@@ -185,7 +185,7 @@ lgw_resultstextview_constructed (GObject *object)
         gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
         gtk_widget_show (text_view);
 
-        LgwTextTagTable *text_tag_table = lgw_resultstextview_get_tagtable (view);
+        LgwTextTagTable *text_tag_table = lgw_resultstextview_get_tagtable (self);
         GtkTextBuffer *text_buffer = gtk_text_buffer_new (GTK_TEXT_TAG_TABLE (text_tag_table));
         priv->ui.text_buffer = GTK_TEXT_BUFFER (text_buffer);
         gtk_text_view_set_buffer (priv->ui.text_view, text_buffer);
@@ -196,7 +196,7 @@ lgw_resultstextview_constructed (GObject *object)
     gtk_text_view_set_editable (priv->ui.text_view, FALSE);
     gtk_text_view_set_cursor_visible (priv->ui.text_view, FALSE);
 
-    lgw_resultstextview_connect_signals (view);
+    lgw_resultstextview_connect_signals (self);
 }
 
 
@@ -204,14 +204,14 @@ static void
 lgw_resultstextview_dispose (GObject *object)
 {
     //Declarations
-    LgwResultsTextView *results_text_view = NULL;
+    LgwResultsTextView *self = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    results_text_view = LGW_RESULTSTEXTVIEW (object);
-    priv = results_text_view->priv;
+    self = LGW_RESULTSTEXTVIEW (object);
+    priv = self->priv;
 
-    lgw_resultstextview_disconnect_signals (results_text_view);
+    lgw_resultstextview_disconnect_signals (self);
 
     G_OBJECT_CLASS (lgw_resultstextview_parent_class)->dispose (object);
 }
@@ -243,11 +243,11 @@ lgw_resultstextview_class_init (LgwResultsTextViewClass *klass)
 
 
 void
-lgw_resultstextview_add_search (LgwResultsView *view,
+lgw_resultstextview_add_search (LgwResultsView *self,
                                 LwSearch       *search)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
@@ -255,7 +255,7 @@ lgw_resultstextview_add_search (LgwResultsView *view,
     gboolean found = FALSE;
 
     //Initializations
-    text_view = LGW_RESULTSTEXTVIEW (view);
+    text_view = LGW_RESULTSTEXTVIEW (self);
     priv = text_view->priv;
 
     {
@@ -280,17 +280,17 @@ lgw_resultstextview_add_search (LgwResultsView *view,
 
 
 static gboolean
-_load_results (LgwResultsView *view)
+_load_results (LgwResultsView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    text_view = LGW_RESULTSTEXTVIEW (view);
+    text_view = LGW_RESULTSTEXTVIEW (self);
     priv = text_view->priv;
 
     priv->data.timeoutid = 0;
@@ -299,39 +299,39 @@ _load_results (LgwResultsView *view)
 
 
 static void
-lgw_resultstextview_set_timeout (LgwResultsView *view,
+lgw_resultstextview_set_timeout (LgwResultsView *self,
                                  guint           milliseconds)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (view));
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
 
     //Declarations
     LgwResultsTextView *text_view = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    text_view = LGW_RESULTSTEXTVIEW (view);
+    text_view = LGW_RESULTSTEXTVIEW (self);
     priv = text_view->priv;
 
     if (priv->data.timeoutid != 0)
     {
-      priv->data.timeoutid = g_timeout_add (milliseconds, (GSourceFunc) _load_results, view);
+      priv->data.timeoutid = g_timeout_add (milliseconds, (GSourceFunc) _load_results, self);
     }
 }
 
 
 void
-lgw_resultstextview_set_tagtable (LgwResultsTextView *results_text_view,
+lgw_resultstextview_set_tagtable (LgwResultsTextView *self,
                                   LgwTextTagTable    *tag_table)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (results_text_view));
+    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
 
     //Declarations
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    priv = results_text_view->priv;
+    priv = self->priv;
 
     if (tag_table != NULL)
     {
@@ -354,16 +354,16 @@ lgw_resultstextview_set_tagtable (LgwResultsTextView *results_text_view,
 }
 
 LgwTextTagTable*
-lgw_resultstextview_get_tagtable (LgwResultsTextView *results_text_view)
+lgw_resultstextview_get_tagtable (LgwResultsTextView *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (results_text_view), NULL);
+    g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (self), NULL);
 
     //Declarations
     LgwResultsTextViewPrivate *priv = NULL;
 
     //Initializations
-    priv = results_text_view->priv;
+    priv = self->priv;
 
     return priv->config.text_tag_table;
 }

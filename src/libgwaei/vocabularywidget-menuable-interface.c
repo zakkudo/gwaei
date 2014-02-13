@@ -48,11 +48,11 @@ lgw_vocabularywidget_get_button_menu_model (LgwMenuable *menuable)
     g_return_if_fail (menuable != NULL);
 
     //Declarations
-    LgwVocabularyWidget *vocabulary_widget = LGW_VOCABULARYWIDGET (menuable);
+    LgwVocabularyWidget *self = LGW_VOCABULARYWIDGET (menuable);
     LgwVocabularyWidgetPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_widget->priv;
+    priv = self->priv;
 
     return priv->data.button_menu_model;
 }
@@ -65,11 +65,11 @@ lgw_vocabularywidget_get_window_menu_model (LgwMenuable *menuable)
     g_return_if_fail (menuable != NULL);
 
     //Declarations
-    LgwVocabularyWidget *vocabulary_widget = LGW_VOCABULARYWIDGET (menuable);
+    LgwVocabularyWidget *self = LGW_VOCABULARYWIDGET (menuable);
     LgwVocabularyWidgetPrivate *priv = NULL;
 
     //Initializations
-    priv = vocabulary_widget->priv;
+    priv = self->priv;
 
     return priv->data.window_menu_model;
 }

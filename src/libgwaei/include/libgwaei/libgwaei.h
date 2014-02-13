@@ -20,11 +20,11 @@
 
 #include <libgwaei/searchwidget.h>
 
-#include <libgwaei/vocabularyliststore.h>
-#include <libgwaei/vocabularylistview.h>
-
 #include <libgwaei/vocabularywordstore.h>
 #include <libgwaei/vocabularywordview.h>
+
+#include <libgwaei/vocabularyliststore.h>
+#include <libgwaei/vocabularylistview.h>
 
 #include <libgwaei/vocabularywidget.h>
 

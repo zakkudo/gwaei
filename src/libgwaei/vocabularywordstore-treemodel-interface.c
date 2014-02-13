@@ -65,19 +65,19 @@ lgw_vocabularywordstore_init_interface (GtkTreeModelIface *iface)
 
 
 void
-lgw_vocabularywordstore_initialize_tree_iter (LgwVocabularyWordStore *vocabulary_word_store,
+lgw_vocabularywordstore_initialize_tree_iter (LgwVocabularyWordStore *self,
                                               GtkTreeIter            *iter,
                                               gint                    index_)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_VOCABULARYWORDSTORE (vocabulary_word_store), 0);
+    g_return_val_if_fail (LGW_IS_VOCABULARYWORDSTORE (self), 0);
 
     //Declarations
     LgwVocabularyWordStoreClass *klass = NULL;
 
     //Initializations
     iter->stamp = stamp;
-    iter->user_data = vocabulary_word_store;
+    iter->user_data = self;
     iter->user_data2 = GINT_TO_POINTER (index_);
 
     stamp++;
@@ -96,11 +96,11 @@ lgw_vocabularywordstore_invalidate_tree_iter (GtkTreeIter *iter)
 
 
 gboolean
-lgw_vocabularywordstore_tree_iter_is_valid (LgwVocabularyWordStore *vocabulary_word_store,
+lgw_vocabularywordstore_tree_iter_is_valid (LgwVocabularyWordStore *self,
                                             GtkTreeIter            *iter)
 {
     //Sanity checks
-    g_return_val_if_fail (LGW_IS_VOCABULARYWORDSTORE (vocabulary_word_store), FALSE);
+    g_return_val_if_fail (LGW_IS_VOCABULARYWORDSTORE (self), FALSE);
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
@@ -110,8 +110,8 @@ lgw_vocabularywordstore_tree_iter_is_valid (LgwVocabularyWordStore *vocabulary_w
     gint length = 0;
 
     //Initializations
-    vocabulary = LW_VOCABULARY (vocabulary_word_store);
-    priv = vocabulary_word_store->priv;
+    vocabulary = LW_VOCABULARY (self);
+    priv = self->priv;
     index = GPOINTER_TO_INT (iter->user_data2);
     length = lw_vocabulary_length (vocabulary);
 
@@ -189,7 +189,7 @@ lgw_vocabularywordstore_get_iter (GtkTreeModel *tree_model,
                                   GtkTreePath  *path)
 {
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwVocabularyWordStore *self = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     LwVocabulary *vocabulary = NULL;
     gint length = 0;
@@ -203,10 +203,10 @@ lgw_vocabularywordstore_get_iter (GtkTreeModel *tree_model,
     if (iter == NULL) goto errored;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
-    priv = vocabulary_word_store->priv;
+    self = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = self->priv;
     indicies = gtk_tree_path_get_indices_with_depth (path, &depth);
-    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    vocabulary = LW_VOCABULARY (self);
     length = lw_vocabulary_length (vocabulary);
 
     if (indicies != NULL)
@@ -217,12 +217,12 @@ lgw_vocabularywordstore_get_iter (GtkTreeModel *tree_model,
 
     if (iter != NULL && is_valid)
     {
-      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter, index);
+      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (self), iter, index);
     }
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (self), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -241,12 +241,12 @@ lgw_vocabularywordstore_get_path (GtkTreeModel *tree_model,
 
     //Declarations
     GtkTreePath *path = NULL;
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwVocabularyWordStore *self = NULL;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
+    self = LGW_VOCABULARYWORDSTORE (tree_model);
 
-    if (lgw_vocabularywordstore_tree_iter_is_valid (vocabulary_word_store, iter))
+    if (lgw_vocabularywordstore_tree_iter_is_valid (self, iter))
     {
       path = gtk_tree_path_new_from_indices (GPOINTER_TO_INT (iter->user_data2), -1);
     }
@@ -267,7 +267,7 @@ lgw_vocabularywordstore_get_value (GtkTreeModel *tree_model,
     g_return_if_fail (value != NULL);
 
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwVocabularyWordStore *self = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     GType type = G_TYPE_INVALID;
     gint index = 0;
@@ -276,15 +276,15 @@ lgw_vocabularywordstore_get_value (GtkTreeModel *tree_model,
 
  
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
-    priv = vocabulary_word_store->priv;
+    self = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = self->priv;
     type = lgw_vocabularywordstore_get_column_type (tree_model, column);
     index = GPOINTER_TO_INT (iter->user_data2);
-    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    vocabulary = LW_VOCABULARY (self);
     word = lw_vocabulary_get_word_by_index (vocabulary, index);
     g_value_init (value, type);
 
-    if (vocabulary_word_store == NULL) goto errored;
+    if (self == NULL) goto errored;
     if (index < 0) goto errored;
 
     switch (column)
@@ -322,7 +322,7 @@ lgw_vocabularywordstore_get_value (GtkTreeModel *tree_model,
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (self), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -339,7 +339,7 @@ lgw_vocabularywordstore_iter_next (GtkTreeModel *tree_model,
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwVocabularyWordStore *self = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     LwVocabulary *vocabulary = NULL;
     gint length = 0;
@@ -349,17 +349,17 @@ lgw_vocabularywordstore_iter_next (GtkTreeModel *tree_model,
     if (tree_model == NULL) goto errored;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
-    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    self = LGW_VOCABULARYWORDSTORE (tree_model);
+    vocabulary = LW_VOCABULARY (self);
     length = lw_vocabulary_length (vocabulary);
-    priv = vocabulary_word_store->priv;
+    priv = self->priv;
     index = GPOINTER_TO_INT (iter->user_data2) + 1;
     has_next = (index < length);
     iter->user_data2 = GINT_TO_POINTER (index);
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (self), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -376,7 +376,7 @@ lgw_vocabularywordstore_iter_previous (GtkTreeModel *tree_model,
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwVocabularyWordStore *self = NULL;
     LgwVocabularyWordStorePrivate *priv;
     LwVocabulary *vocabulary = NULL;
     gint length = 0;
@@ -386,9 +386,9 @@ lgw_vocabularywordstore_iter_previous (GtkTreeModel *tree_model,
     if (tree_model == NULL) goto errored;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
-    priv = vocabulary_word_store->priv;
-    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    self = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = self->priv;
+    vocabulary = LW_VOCABULARY (self);
     length = lw_vocabulary_length (vocabulary);
     index = GPOINTER_TO_INT (iter->user_data2) - 1;
     has_previous = (length > 0 && index >= 0);
@@ -396,7 +396,7 @@ lgw_vocabularywordstore_iter_previous (GtkTreeModel *tree_model,
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (self), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -414,7 +414,7 @@ lgw_vocabularywordstore_iter_children (GtkTreeModel *tree_model,
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwVocabularyWordStore *self = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     LwVocabulary *vocabulary = NULL;
     gint length = 0;
@@ -423,21 +423,21 @@ lgw_vocabularywordstore_iter_children (GtkTreeModel *tree_model,
     if (tree_model == NULL) goto errored;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
-    priv = vocabulary_word_store->priv;
-    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    self = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = self->priv;
+    vocabulary = LW_VOCABULARY (self);
     length = lw_vocabulary_length (vocabulary);
     index = GPOINTER_TO_INT (iter->user_data2) - 1;
     iter->user_data2 = GINT_TO_POINTER (index);
 
     if (parent == NULL && length > 0)
     {
-      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter, 0);
+      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (self), iter, 0);
     }
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (self), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -459,17 +459,17 @@ lgw_vocabularywordstore_iter_n_children (GtkTreeModel *tree_model,
                                          GtkTreeIter  *iter)
 {
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwVocabularyWordStore *self = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     LwVocabulary *vocabulary = NULL;
     gint length = 0;
     gint total = 0;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
-    if (vocabulary_word_store == NULL) goto errored;
-    priv = vocabulary_word_store->priv;
-    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    self = LGW_VOCABULARYWORDSTORE (tree_model);
+    if (self == NULL) goto errored;
+    priv = self->priv;
+    vocabulary = LW_VOCABULARY (self);
     length = lw_vocabulary_length (vocabulary);
 
     if (iter == NULL)
@@ -479,7 +479,7 @@ lgw_vocabularywordstore_iter_n_children (GtkTreeModel *tree_model,
 
 errored:
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (self), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
     }
@@ -498,7 +498,7 @@ lgw_vocabularywordstore_iter_nth_child (GtkTreeModel *tree_model,
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwVocabularyWordStore *self = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     LwVocabulary *vocabulary = NULL;
     gint length = 0;
@@ -506,26 +506,26 @@ lgw_vocabularywordstore_iter_nth_child (GtkTreeModel *tree_model,
     gboolean exists = FALSE;
 
     //Initializations
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
-    priv = vocabulary_word_store->priv;
-    if (vocabulary_word_store == NULL) goto errored;
-    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    self = LGW_VOCABULARYWORDSTORE (tree_model);
+    priv = self->priv;
+    if (self == NULL) goto errored;
+    vocabulary = LW_VOCABULARY (self);
     length = lw_vocabulary_length (vocabulary);
 
     if (parent == NULL)
     {
       total = length;
     }
-    exists = (vocabulary_word_store != NULL && parent == NULL && total > 0 && n >= 0 && n < total);
+    exists = (self != NULL && parent == NULL && total > 0 && n >= 0 && n < total);
 
 errored:
 
     if (exists)
     {
-      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter, n);
+      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (self), iter, n);
     }
 
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (vocabulary_word_store), iter))
+    if (!lgw_vocabularywordstore_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (self), iter))
     {
       lgw_vocabularywordstore_invalidate_tree_iter (iter);
       exists = FALSE;

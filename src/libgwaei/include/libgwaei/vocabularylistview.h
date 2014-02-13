@@ -32,10 +32,16 @@ struct _LgwVocabularyListViewClass {
 GtkWidget* lgw_vocabularylistview_new (void);
 GType lgw_vocabularylistview_get_type (void) G_GNUC_CONST;
 
-void lgw_vocabularylistview_set_liststore (LgwVocabularyListView *vocabulary_list_view, LgwVocabularyListStore *vocabulary_list_store);
-LgwVocabularyListStore* lgw_vocabularylistview_get_liststore (LgwVocabularyListView *vocabulary_list_view);
+void lgw_vocabularylistview_set_liststore (LgwVocabularyListView *self, LgwVocabularyListStore *vocabulary_list_store);
+LgwVocabularyListStore* lgw_vocabularylistview_get_liststore (LgwVocabularyListView *self);
 
-LgwVocabularyWordStore* lgw_vocabularylistview_get_selected_wordstore (LgwVocabularyListView *vocabulary_list_view);
+LgwVocabularyWordStore* lgw_vocabularylistview_get_selected_wordstore (LgwVocabularyListView *self);
+
+void lgw_vocabularylistview_add_new (LgwVocabularyListView *self);
+void lgw_vocabularylsitview_delete_all_selected (LgwVocabularyListView *self);
+
+LgwVocabularyWordView* lgw_vocabularylistview_get_wordview (LgwVocabularyListView *self);
+void lgw_vocabularylistview_set_wordview (LgwVocabularyListView *self, LgwVocabularyWordView *vocabulary_word_view);
 
 G_END_DECLS
 

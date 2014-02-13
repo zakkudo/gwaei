@@ -583,7 +583,7 @@ lw_vocabulary_get_word_by_index (LwVocabulary *vocabulary, gint index)
 
 
 GList*
-lw_vocabualry_remove_all (LwVocabulary *vocabulary, gint *positions)
+lw_vocabulary_remove_all (LwVocabulary *vocabulary, gint *positions)
 {
 }
 

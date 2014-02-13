@@ -53,12 +53,12 @@ lgw_vocabularylistview_get_actions (LgwActionable *actionable)
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTVIEW (actionable), NULL);
 
     //Declarations
-    LgwVocabularyListView *vocabulary_list_view = NULL;
+    LgwVocabularyListView *self = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
 
     //Initializations
-    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (actionable);
-    priv = vocabulary_list_view->priv;
+    self = LGW_VOCABULARYLISTVIEW (actionable);
+    priv = self->priv;
 
     if (priv->data.action_group_list == NULL)
     {
@@ -77,13 +77,13 @@ lgw_vocabularylistview_set_actiongroup (LgwActionable *actionable,
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (actionable));
 
     //Declarations
-    LgwVocabularyListView *vocabulary_list_view = NULL;
+    LgwVocabularyListView *self = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
     GList *list = NULL;
 
     //Initializations
-    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (actionable);
-    priv = vocabulary_list_view->priv;
+    self = LGW_VOCABULARYLISTVIEW (actionable);
+    priv = self->priv;
 
     if (priv->data.action_group_list != NULL)
     {
@@ -113,14 +113,14 @@ lgw_vocabularylistview_sync_actions (LgwActionable *actionable)
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (actionable));
 
     //Declarations
-    LgwVocabularyListView *vocabulary_list_view = NULL;
+    LgwVocabularyListView *self = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
     GtkWidget *widget = NULL;
 
     //Initializations
-    vocabulary_list_view = LGW_VOCABULARYLISTVIEW (actionable);
-    priv = vocabulary_list_view->priv;
-    widget = GTK_WIDGET (vocabulary_list_view);
+    self = LGW_VOCABULARYLISTVIEW (actionable);
+    priv = self->priv;
+    widget = GTK_WIDGET (self);
 
     static GActionEntry entries[] = {
       { "add-new-vocabulary-list", lgw_vocabularylistview_add_new_activated_cb, NULL, NULL, NULL },
