@@ -45,10 +45,6 @@ G_DEFINE_TYPE_WITH_CODE (LgwVocabularyWordStore, lgw_vocabularywordstore, LW_TYP
                          G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularywordstore_init_interface));
 
 
-static LgwVocabularyWordStoreClass *_klass = NULL;
-static LgwVocabularyWordStoreClassPrivate *_klasspriv = NULL;
-
-
 LgwVocabularyWordStore*
 lgw_vocabularywordstore_new (const gchar *FILENAME)
 {
@@ -146,47 +142,6 @@ lgw_vocabularywordstore_get_property (GObject      *object,
     }
 }
 
-static void
-lgw_vocabularywordstore_initialize_filename_suffix ()
-{
-    //Sanity checks
-    g_return_if_fail (_klasspriv != NULL);
-
-    //Declarations
-    gchar **filenames = NULL;
-    gint length = 0;
-    gint i = 0;
-
-    //Initializations
-    _klasspriv->new_filename_index = 0;
-    _klasspriv->BASE_FILENAME = "New List ";
-
-    length = strlen(_klasspriv->BASE_FILENAME);
-    filenames = lw_vocabulary_get_filenames ();
-    if (filenames == NULL) goto errored;
-
-
-    for (i = 0; filenames[i] != NULL; i++)
-    {
-      if (strncmp(filenames[i], _klasspriv->BASE_FILENAME, length) == 0)
-      {
-        const gchar* FILENAME = filenames[i];
-        const gchar* SUFFIX = FILENAME + length;
-        gchar* endptr = NULL;
-        gint index = (gint) strtol(SUFFIX, &endptr, 10);
-        if (endptr != NULL && *endptr == '\0' && index > _klasspriv->new_filename_index) {
-          _klasspriv->new_filename_index = index;
-        }
-      }
-    }
-
-errored:
-
-    if (filenames != NULL) g_strfreev (filenames); filenames = NULL;
-
-    _klasspriv->new_filename_index++;
-}
-
 
 static void
 lgw_vocabularywordstore_class_init (LgwVocabularyWordStoreClass *klass)
@@ -202,13 +157,6 @@ lgw_vocabularywordstore_class_init (LgwVocabularyWordStoreClass *klass)
     object_class->finalize = lgw_vocabularywordstore_finalize;
 
     g_type_class_add_private (object_class, sizeof (LgwVocabularyWordStorePrivate));
-
-    klass->priv = g_new0 (LgwVocabularyWordStoreClassPrivate, 1);
-
-    _klass = klass;
-    _klasspriv = klass->priv;
-
-    lgw_vocabularywordstore_initialize_filename_suffix (klass);
 }
 
 
@@ -251,23 +199,4 @@ lgw_vocabularywordstore_calculate_weight (LgwVocabularyWordStore *store, GtkTree
 }
 DEPRICATED*/
 
-
-gchar*
-lgw_vocabularywordstore_generate_filename ()
-{
-    //Sanity checks
-    g_return_val_if_fail (_klasspriv != NULL, NULL);
-
-    //Declarations
-    gchar *filename = NULL;
-    
-    //Initializations
-    filename = g_strdup_printf ("%s%d", _klasspriv->BASE_FILENAME, _klasspriv->new_filename_index);
-
-    if (filename != NULL) {
-      _klasspriv->new_filename_index++;
-    }
-
-    return filename;
-}
 

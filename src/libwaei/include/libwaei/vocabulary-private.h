@@ -39,9 +39,12 @@ struct _LwVocabularyPrivate {
 };
 
 struct _LwVocabularyClassPrivate {
+  guint new_filename_index;
+  const gchar *BASE_FILENAME;
   GParamSpec *pspec[TOTAL_PROPS];
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 };
+
 
 #define LW_VOCABULARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_VOCABULARY, LwVocabularyPrivate));
 

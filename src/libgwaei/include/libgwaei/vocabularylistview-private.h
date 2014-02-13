@@ -15,8 +15,14 @@ typedef enum {
   SIGNALID_SELECTION_CHANGED,
   SIGNALID_FOCUS_IN_EVENT,
   SIGNALID_FOCUS_OUT_EVENT,
+  SIGNALID_NAME_EDITED,
   TOTAL_SIGNALIDS
 } Signalid;
+
+typedef enum {
+  TREEVIEWCOLUMN_NAME,
+  TOTAL_TREEVIEWCOLUMNS
+} TreeViewColumn;
 
 struct _Data {
   LgwVocabularyListStore *vocabulary_list_store;
@@ -31,6 +37,7 @@ struct _UI {
   GtkScrolledWindow *scrolled_window;
   GtkTreeView *tree_view;
   GtkToolbar *toolbar;
+  GtkTreeViewColumn *tree_view_column[TOTAL_TREEVIEWCOLUMNS];
 };
 
 

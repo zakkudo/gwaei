@@ -57,6 +57,8 @@ void lw_vocabulary_load (LwVocabulary *vocabulary, LwProgressCallback cb);
 
 gint lw_vocabulary_length (LwVocabulary *vocabulary);
 
+gchar* lgw_vocabulary_generate_filename ();
+
 G_END_DECLS
 
 #endif

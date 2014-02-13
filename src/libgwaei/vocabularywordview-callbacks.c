@@ -155,19 +155,6 @@ lgw_vocabularywordview_add_new_activated_cb (GSimpleAction *action,
 
     //Declarations
     LgwVocabularyWordView *self = NULL;
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
-    gchar *filename = NULL;
-
-    //Initializations
-    self = LGW_VOCABULARYWORDVIEW (data);
-    filename = lgw_vocabularywordstore_generate_filename ();
-    if (filename == NULL) goto errored;
-
-    vocabulary_word_store = lgw_vocabularywordstore_new (filename);
-
-errored:
-
-    if (filename != NULL) g_free (filename); filename = NULL;
 
     //TODO append
 }

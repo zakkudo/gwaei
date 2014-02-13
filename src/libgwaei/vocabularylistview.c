@@ -209,14 +209,15 @@ lgw_vocabularylistview_constructed (GObject *object)
 
         {
           GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
           GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
               gettext("Vocabulary List"),
               renderer,
               "text", LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
-              "mode", GTK_CELL_RENDERER_MODE_EDITABLE,
               NULL
           );
           gtk_tree_view_append_column (priv->ui.tree_view, column);
+          priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME] = column;
         }
       }
     }
@@ -471,14 +472,44 @@ errored:
 void
 lgw_vocabularylistview_add_new (LgwVocabularyListView *self)
 {
-    //TODO
-    /*
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    gchar *filename = NULL;
+    GList *wordstorelist = NULL;
+    gint length = 0;
+
+    GtkTreePath *path = NULL;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
+    if (vocabulary_list_store == NULL) goto errored;
+    filename = lgw_vocabulary_generate_filename ();
+    if (filename == NULL) goto errored;
+    vocabulary_word_store = lgw_vocabularywordstore_new (filename);
+    if (vocabulary_word_store == NULL) goto errored;
+    wordstorelist = g_list_prepend (wordstorelist, vocabulary_word_store);
+    if (wordstorelist == NULL) goto errored;
+
+    length = lgw_vocabularyliststore_length (vocabulary_list_store);
+
+    path = gtk_tree_path_new_from_indices (length, -1);
+    if (path == NULL) goto errored;
+
     lgw_vocabularyliststore_insert_all (vocabulary_list_store, -1, wordstorelist);
-    gtk_tree_view_set_cursor_on_cell (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *focus_column, GtkCellRenderer *focus_cell, gboolean start_editing);
-    gtk_widget_grab_focus (tree_view)
-    add check for "editing-done" signal
-    void user_function (GtkCellEditable *cell_editable, gpointer user_data);
-    */
+    gtk_widget_grab_focus (GTK_WIDGET (priv->ui.tree_view));
+    gtk_tree_view_set_cursor (priv->ui.tree_view, path, priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME], TRUE);
+
+errored:
+
+    if (filename != NULL) g_free (filename); filename = NULL;
+    if (wordstorelist != NULL) g_list_free (wordstorelist); wordstorelist = NULL;
+    if (path != NULL) gtk_tree_path_free (path); path = NULL;
 }
 
 

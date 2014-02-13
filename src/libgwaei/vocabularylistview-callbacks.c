@@ -43,94 +43,6 @@
 
 
 void
-lgw_vocabularylistview_connect_signals (LgwVocabularyListView *self)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
-
-    //Declarations
-    LgwVocabularyListViewPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] == 0)
-    {
-        priv->data.signalid[SIGNALID_SELECTION_CHANGED] = g_signal_connect_swapped (
-          G_OBJECT (priv->data.tree_selection),
-          "changed",
-          G_CALLBACK (lgw_vocabularylistview_selection_changed_cb),
-          self
-        );
-    }
-
-    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] == 0)
-    {
-      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = g_signal_connect_swapped (
-          G_OBJECT (priv->ui.tree_view),
-          "focus-in-event",
-          G_CALLBACK (lgw_vocabularylistview_focus_in_event_cb),
-          self
-      );
-    }
-
-    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] == 0)
-    {
-      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = g_signal_connect_swapped (
-          G_OBJECT (priv->ui.tree_view),
-          "focus-out-event",
-          G_CALLBACK (lgw_vocabularylistview_focus_out_event_cb),
-          self
-      );
-    }
-}
-
-
-void
-lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *self)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
-
-    //Declarations
-    LgwVocabularyListViewPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] != 0)
-    {
-        if (priv->data.tree_selection != NULL) //NOTE apparently the tree selection object is disposed of early
-        {
-          g_signal_handler_disconnect (
-            G_OBJECT (priv->data.tree_selection),
-            priv->data.signalid[SIGNALID_SELECTION_CHANGED]
-          );
-        }
-        priv->data.signalid[SIGNALID_SELECTION_CHANGED] = 0;
-    }
-
-    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] != 0)
-    {
-      g_signal_handler_disconnect (
-        G_OBJECT (priv->ui.tree_view),
-        priv->data.signalid[SIGNALID_FOCUS_IN_EVENT]
-      );
-      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = 0;
-    }
-
-    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] != 0)
-    {
-      g_signal_handler_disconnect (
-        G_OBJECT (priv->ui.tree_view),
-        priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT]
-      );
-      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = 0;
-    }
-}
-
-
-void
 lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *self,
                                              GtkTreeSelection      *tree_selection)
 {
@@ -175,7 +87,7 @@ lgw_vocabularylistview_add_new_activated_cb (GSimpleAction *action,
     //Initializations
     self = LGW_VOCABULARYLISTVIEW (data);
 
-    //TODO
+    lgw_vocabularylistview_add_new (self);
 }
 
 void
@@ -244,4 +156,122 @@ lgw_vocabularylistview_focus_out_event_cb (LgwVocabularyListView *self,
 
     return FALSE;
 }
+
+
+void lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
+                                            gchar                 *path,
+                                            gchar                 *new_text,
+                                            GtkCellRendererText   *renderer)
+{
+    printf("EDITED!\n");
+}
+
+
+
+void
+lgw_vocabularylistview_connect_signals (LgwVocabularyListView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] == 0)
+    {
+        priv->data.signalid[SIGNALID_SELECTION_CHANGED] = g_signal_connect_swapped (
+          G_OBJECT (priv->data.tree_selection),
+          "changed",
+          G_CALLBACK (lgw_vocabularylistview_selection_changed_cb),
+          self
+        );
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] == 0)
+    {
+      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view),
+          "focus-in-event",
+          G_CALLBACK (lgw_vocabularylistview_focus_in_event_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] == 0)
+    {
+      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view),
+          "focus-out-event",
+          G_CALLBACK (lgw_vocabularylistview_focus_out_event_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_NAME_EDITED] == 0)
+    {
+      priv->data.signalid[SIGNALID_NAME_EDITED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME]),
+          "focus-out-event",
+          G_CALLBACK (lgw_vocabularylistview_name_edited_cb),
+          self
+      );
+    }
+}
+
+
+void
+lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] != 0)
+    {
+        if (priv->data.tree_selection != NULL) //NOTE apparently the tree selection object is disposed of early
+        {
+          g_signal_handler_disconnect (
+            G_OBJECT (priv->data.tree_selection),
+            priv->data.signalid[SIGNALID_SELECTION_CHANGED]
+          );
+        }
+        priv->data.signalid[SIGNALID_SELECTION_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view),
+        priv->data.signalid[SIGNALID_FOCUS_IN_EVENT]
+      );
+      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view),
+        priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT]
+      );
+      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_NAME_EDITED] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME]),
+        priv->data.signalid[SIGNALID_NAME_EDITED]
+      );
+      priv->data.signalid[SIGNALID_NAME_EDITED] = 0;
+    }
+}
+
 

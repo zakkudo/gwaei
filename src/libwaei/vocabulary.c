@@ -27,6 +27,8 @@
 #include "config.h"
 #endif
 
+#include <stdlib.h>
+
 #include <glib/gstdio.h>
 
 #include <libwaei/gettext.h>
@@ -34,6 +36,8 @@
 
 #include <libwaei/vocabulary-private.h>
 
+static LwVocabularyClass *_klass = NULL;
+static LwVocabularyClassPrivate *_klasspriv = NULL;
 
 G_DEFINE_TYPE (LwVocabulary, lw_vocabulary, G_TYPE_OBJECT)
 
@@ -206,6 +210,47 @@ lw_vocabulary_dispose (GObject *object)
 }
 
 
+static void
+lgw_vocabulary_initialize_filename_suffix ()
+{
+    //Sanity checks
+    g_return_if_fail (_klasspriv != NULL);
+
+    //Declarations
+    gchar **filenames = NULL;
+    gint length = 0;
+    gint i = 0;
+
+    //Initializations
+    _klasspriv->new_filename_index = 0;
+    _klasspriv->BASE_FILENAME = "New List ";
+
+    length = strlen(_klasspriv->BASE_FILENAME);
+    filenames = lw_vocabulary_get_filenames ();
+    if (filenames == NULL) goto errored;
+
+
+    for (i = 0; filenames[i] != NULL; i++)
+    {
+      if (strncmp(filenames[i], _klasspriv->BASE_FILENAME, length) == 0)
+      {
+        const gchar* FILENAME = filenames[i];
+        const gchar* SUFFIX = FILENAME + length;
+        gchar* endptr = NULL;
+        gint index = (gint) strtol(SUFFIX, &endptr, 10);
+        if (endptr != NULL && *endptr == '\0' && index > _klasspriv->new_filename_index) {
+          _klasspriv->new_filename_index = index;
+        }
+      }
+    }
+
+errored:
+
+    if (filenames != NULL) g_strfreev (filenames); filenames = NULL;
+
+    _klasspriv->new_filename_index++;
+}
+
 
 static void
 lw_vocabulary_class_init (LwVocabularyClass *klass)
@@ -224,6 +269,11 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
     object_class->finalize = lw_vocabulary_finalize;
 
     g_type_class_add_private (object_class, sizeof (LwVocabularyPrivate));
+
+    _klass = klass;
+    _klasspriv = klass->priv;
+
+    lgw_vocabulary_initialize_filename_suffix ();
 
     klasspriv->signalid[CLASS_SIGNALID_CHANGED] = g_signal_new (
         "internal-row-changed",
@@ -622,3 +672,22 @@ lw_vocabulary_length (LwVocabulary *vocabulary)
     return length;
 }
 
+
+gchar*
+lgw_vocabulary_generate_filename ()
+{
+    //Sanity checks
+    g_return_val_if_fail (_klasspriv != NULL, NULL);
+
+    //Declarations
+    gchar *filename = NULL;
+    
+    //Initializations
+    filename = g_strdup_printf ("%s%d", _klasspriv->BASE_FILENAME, _klasspriv->new_filename_index);
+
+    if (filename != NULL) {
+      _klasspriv->new_filename_index++;
+    }
+
+    return filename;
+}

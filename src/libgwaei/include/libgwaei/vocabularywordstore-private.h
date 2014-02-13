@@ -22,11 +22,6 @@ struct _LgwVocabularyWordStorePrivate {
   struct _Data data;
 };
 
-struct _LgwVocabularyWordStoreClassPrivate {
-  guint new_filename_index;
-  const gchar *BASE_FILENAME;
-};
-
 #define LGW_VOCABULARYWORDSTORE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_VOCABULARYWORDSTORE, LgwVocabularyWordStorePrivate))
 
 G_END_DECLS
