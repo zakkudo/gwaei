@@ -115,20 +115,33 @@ lgw_vocabularylistview_sync_actions (LgwActionable *actionable)
     //Declarations
     LgwVocabularyListView *self = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
     GtkWidget *widget = NULL;
+    gboolean has_selection = FALSE;
 
     //Initializations
     self = LGW_VOCABULARYLISTVIEW (actionable);
     priv = self->priv;
+    vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
     widget = GTK_WIDGET (self);
+    has_selection = (gtk_tree_selection_count_selected_rows (priv->data.tree_selection) > 0);
 
-    static GActionEntry entries[] = {
-      { "add-new-vocabulary-list", lgw_vocabularylistview_add_new_activated_cb, NULL, NULL, NULL },
-      { "remove-selected-vocabulary-lists", lgw_vocabularylistview_remove_selected_activated_cb, NULL, NULL, NULL }
-    };
+    printf("BREAK lgw_vocabularylistview_sync_actions %d\n", has_selection);
 
-    if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
+    if (has_selection)
     {
+      static GActionEntry entries[] = {
+        { "add-new-vocabulary-list", lgw_vocabularylistview_add_new_activated_cb, NULL, NULL, NULL },
+        { "remove-selected-vocabulary-lists", lgw_vocabularylistview_delete_selected_activated_cb, NULL, NULL, NULL }
+      };
+      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
+      lgw_vocabularylistview_set_actiongroup (actionable, action_group);
+    }
+    else
+    {
+      static GActionEntry entries[] = {
+        { "add-new-vocabulary-list", lgw_vocabularylistview_add_new_activated_cb, NULL, NULL, NULL }
+      };
       LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
       lgw_vocabularylistview_set_actiongroup (actionable, action_group);
     }

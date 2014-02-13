@@ -38,10 +38,11 @@ LgwVocabularyListStore* lgw_vocabularylistview_get_liststore (LgwVocabularyListV
 LgwVocabularyWordStore* lgw_vocabularylistview_get_selected_wordstore (LgwVocabularyListView *self);
 
 void lgw_vocabularylistview_add_new (LgwVocabularyListView *self);
-void lgw_vocabularylsitview_delete_all_selected (LgwVocabularyListView *self);
+void lgw_vocabularylistview_delete_all_selected (LgwVocabularyListView *self);
 
 LgwVocabularyWordView* lgw_vocabularylistview_get_wordview (LgwVocabularyListView *self);
 void lgw_vocabularylistview_set_wordview (LgwVocabularyListView *self, LgwVocabularyWordView *vocabulary_word_view);
+
 
 G_END_DECLS
 

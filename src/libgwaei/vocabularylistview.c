@@ -516,10 +516,56 @@ errored:
 void
 lgw_vocabularylistview_delete_all_selected (LgwVocabularyListView *self)
 {
-    //TODO
-    /*
-    if (lw_vocabulary_exists ()) lw_vocabulary_delete ();
-    lgw_vocabularyliststore_remove_all (LgwVocabularyListStore *vocabulary_list_store, gint *positions);
-    */
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+    GList *pathlist = NULL;
+    GtkTreeModel *tree_model = NULL;
+    gint length = 0;
+    gint *positions = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
+    if (vocabulary_list_store == NULL) goto errored;
+
+    pathlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
+    if (pathlist == NULL) goto errored;
+
+    tree_model = GTK_TREE_MODEL (vocabulary_list_store);
+    if (tree_model == NULL) goto errored;
+
+    length = g_list_length (pathlist);
+    if (length < 1) goto errored;
+    positions = g_new0(gint, length + 1);
+    if (positions == NULL) goto errored;
+
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = pathlist; link != NULL; link = link->next)
+      {
+        GtkTreePath *path = link->data;
+        if (path != NULL)
+        {
+          gint* indices = gtk_tree_path_get_indices (path);
+          printf("BREAK delete index: %d\n", *indices);
+          positions[i] = indices[0];
+          i++;
+        }
+      }
+      positions[i] = -1;
+    }
+
+    lgw_vocabularyliststore_remove_all (vocabulary_list_store, positions);
+
+errored:
+
+    if (positions != NULL) g_free (positions); positions = NULL;
+    if (pathlist != NULL) g_list_free_full (pathlist, (GDestroyNotify) gtk_tree_path_free); pathlist = NULL;
 }
 

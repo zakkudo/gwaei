@@ -53,6 +53,7 @@ lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *self,
     LgwVocabularyListViewPrivate *priv = NULL;
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LgwVocabularyWordView *vocabulary_word_view = NULL;
+    LgwActionable *actionable = NULL;
 
     //Initializations
     priv = self->priv;
@@ -60,6 +61,7 @@ lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *self,
     vocabulary_word_view = lgw_vocabularylistview_get_wordview (self);
     if (vocabulary_word_view == NULL) goto errored;
     vocabulary_word_store = lgw_vocabularylistview_get_selected_wordstore (self);
+    actionable = LGW_ACTIONABLE (self);
 
     if (vocabulary_word_store != NULL)
     {
@@ -67,6 +69,8 @@ lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *self,
     }
 
     lgw_vocabularywordview_set_wordstore (vocabulary_word_view, vocabulary_word_store);
+
+    lgw_actionable_sync_actions (actionable);
 
 errored:
 
@@ -91,7 +95,7 @@ lgw_vocabularylistview_add_new_activated_cb (GSimpleAction *action,
 }
 
 void
-lgw_vocabularylistview_remove_selected_activated_cb (GSimpleAction *action,
+lgw_vocabularylistview_delete_selected_activated_cb (GSimpleAction *action,
                                                      GVariant      *parameter,
                                                      gpointer       data)
 {
@@ -100,19 +104,11 @@ lgw_vocabularylistview_remove_selected_activated_cb (GSimpleAction *action,
 
     //Declarations
     LgwVocabularyListView *self = NULL;
-    LgwVocabularyListViewPrivate *priv = NULL;
-    GtkTreeModel *tree_model = NULL;
-    GList *rowlist = NULL;
 
     //Initializations
     self = LGW_VOCABULARYLISTVIEW (data);
-    priv = self->priv;
-    tree_model = GTK_TREE_MODEL (priv->data.vocabulary_list_store);
-    rowlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
 
-errored:
-
-    if (rowlist != NULL) g_list_free_full (rowlist, (GDestroyNotify) gtk_tree_path_free); rowlist = NULL;
+    lgw_vocabularylistview_delete_all_selected (self);
 }
 
 
