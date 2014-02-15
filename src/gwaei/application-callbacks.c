@@ -40,10 +40,10 @@
 
 
 void 
-gw_application_connect_signals (GwApplication *application)
+gw_application_connect_signals (GwApplication *self)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_APPLICATION (application));
+    g_return_if_fail (GW_IS_APPLICATION (self));
 
 #ifdef HAVE_HUNSPELL
     //Sanity checks
@@ -59,7 +59,7 @@ gw_application_connect_signals (GwApplication *application)
         LW_SCHEMA_BASE,
         LW_KEY_SPELLCHECK,
         gw_application_sync_spellcheck_cb,
-        application 
+        self 
     );
 */
 #endif
@@ -67,10 +67,10 @@ gw_application_connect_signals (GwApplication *application)
 
 
 void 
-gw_application_disconnect_signals (GwApplication *application)
+gw_application_disconnect_signals (GwApplication *self)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_APPLICATION (application));
+    g_return_if_fail (GW_IS_APPLICATION (self));
 }
 
 
@@ -81,13 +81,13 @@ gw_application_open_searchwindow_cb (GSimpleAction *action,
                                      gpointer       data)
 {
     //Declarations
-    GwApplication *application;
+    GwApplication *self;
     GtkWindow *window;
 
     //Initializations
-    application = GW_APPLICATION (data);
-    g_return_if_fail (application != NULL);
-    window = gw_searchwindow_new (GTK_APPLICATION (application));
+    self = GW_APPLICATION (data);
+    g_return_if_fail (self != NULL);
+    window = gw_searchwindow_new (GTK_APPLICATION (self));
 
     gtk_widget_show (GTK_WIDGET (window));
 }
@@ -110,15 +110,15 @@ gw_application_open_settingswindow_cb (GSimpleAction *action,
                                        gpointer       data)
 {
     //Declarations
-    GwApplication *application;
+    GwApplication *self;
     GwMainWindow *searchwindow;
     GtkWindow *settingswindow;
     GList *link;
 
     //Initializations
     searchwindow = GW_MAINWINDOW (gw_application_get_last_focused_searchwindow (GW_APPLICATION (data)));
-    application = gw_window_get_application (GW_WINDOW (searchwindow));
-    link = gtk_application_get_windows (GTK_APPLICATION (application));
+    self = gw_window_get_application (GW_WINDOW (searchwindow));
+    link = gtk_application_get_windows (GTK_APPLICATION (self));
 
     while (link != NULL && !GW_IS_SETTINGSWINDOW (link->data)) link = link->next;
 
@@ -130,7 +130,7 @@ gw_application_open_settingswindow_cb (GSimpleAction *action,
     }
     else
     {
-      settingswindow = gw_settingswindow_new (GTK_APPLICATION (application));
+      settingswindow = gw_settingswindow_new (GTK_APPLICATION (self));
       gtk_window_set_transient_for (GTK_WINDOW (settingswindow), GTK_WINDOW (searchwindow));
       gtk_widget_show (GTK_WIDGET (settingswindow));
     }
@@ -142,11 +142,11 @@ gw_application_open_vocabularywindow_cb (GSimpleAction *action,
                                          GVariant      *parameter,
                                          gpointer       data)
 {
-    GwApplication *application;
+    GwApplication *self;
 
-    application = GW_APPLICATION (data);
+    self = GW_APPLICATION (data);
 
-    gw_application_show_vocabularywindow (application, -1);
+    gw_application_show_vocabularywindow (self, -1);
 }
 
 
@@ -155,15 +155,15 @@ gw_application_open_vocabularywindow_index_cb (GSimpleAction *action,
                                                GVariant      *parameter,
                                                gpointer       data)
 {
-    GwApplication *application;
+    GwApplication *self;
     const gchar *value;
     gint index;
 
-    application = GW_APPLICATION (data);
+    self = GW_APPLICATION (data);
     value = g_variant_get_string (parameter, NULL);
     index = (gint) g_ascii_strtoll (value, NULL, 10);
 
-    gw_application_show_vocabularywindow (application, index);
+    gw_application_show_vocabularywindow (self, index);
 }
 */
 
@@ -249,18 +249,18 @@ gw_application_open_irc_channel_cb (GSimpleAction *action,
     //Initializations
     GError *error;
     GwMainWindow *window;
-    GwApplication *application;
+    GwApplication *self;
 
     //Declarations
     error = NULL;
     window = GW_MAINWINDOW (gtk_widget_get_ancestor (GTK_WIDGET (data), GW_TYPE_MAINWINDOW));
     g_return_if_fail (window != NULL);
-    application = gw_window_get_application (GW_WINDOW (window));
+    self = gw_window_get_application (GW_WINDOW (window));
 
     gtk_show_uri (NULL, "irc://irc.freenode.net/gWaei", gtk_get_current_event_time (), &error);
 
     //Cleanup
-    //gw_application_handle_error (application, GTK_WINDOW (window), TRUE, &error);
+    //gw_application_handle_error (self, GTK_WINDOW (window), TRUE, &error);
 */
 }
 
@@ -279,18 +279,18 @@ gw_application_open_homepage_cb (GSimpleAction *action,
     //Declarations
     GError *error;
     GwMainWindow *window;
-    GwApplication *application;
+    GwApplication *self;
 
     //Initializations
     error = NULL;
     window = GW_MAINWINDOW (gtk_widget_get_ancestor (GTK_WIDGET (data), GW_TYPE_MAINWINDOW));
     g_return_if_fail (window != NULL);
-    application = gw_window_get_application (GW_WINDOW (window));
+    self = gw_window_get_application (GW_WINDOW (window));
 
     gtk_show_uri (NULL, "http://gwaei.sourceforge.net/", gtk_get_current_event_time (), &error);
 
     //Cleanup
-    //gw_application_handle_error (application, GTK_WINDOW (window), TRUE, &error);
+    //gw_application_handle_error (self, GTK_WINDOW (window), TRUE, &error);
 */
 }
 
@@ -322,10 +322,10 @@ gw_application_open_glossary_cb (GSimpleAction *action,
     //Declarations
     gchar *uri;
     GError *error;
-    GwApplication *application;
+    GwApplication *self;
 
     //Initializations
-    application = GW_APPLICATION (data);
+    self = GW_APPLICATION (data);
     uri = g_build_filename ("ghelp://", DATADIR2, "gnome", "help", "gwaei", "C", "glossary.xml", NULL);
     error = NULL;
     
@@ -335,7 +335,7 @@ gw_application_open_glossary_cb (GSimpleAction *action,
       g_free (uri); uri = NULL;
     }
 
-    //gw_application_handle_error (application, NULL, FALSE, &error);
+    //gw_application_handle_error (self, NULL, FALSE, &error);
 }
 
 
@@ -351,12 +351,12 @@ gw_application_spellcheck_toggled_cb (GSimpleAction *action,
                                       gpointer       data)
 {
     //Declarations
-    GwApplication *application = NULL;
+    GwApplication *self = NULL;
     LwPreferences *preferences = NULL;
     gboolean state = FALSE;
 
     //Initializations
-    application = GW_APPLICATION (data);
+    self = GW_APPLICATION (data);
     preferences = lw_preferences_get_default ();
     state = lw_preferences_get_boolean_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_SPELLCHECK);
 
@@ -369,14 +369,14 @@ gw_application_sync_spellcheck_cb (GSettings *settings,
                                    gpointer   data)
 {
     //Declarations
-    GwApplication *application;
+    GwApplication *self;
     gboolean state;
     GAction *action;
 
     //Initializations
-    application = GW_APPLICATION (data);
+    self = GW_APPLICATION (data);
     state = lw_preferences_get_boolean (settings, key);
-    action = g_action_map_lookup_action (G_ACTION_MAP (application), "toggle-spellcheck");
+    action = g_action_map_lookup_action (G_ACTION_MAP (self), "toggle-spellcheck");
 
     if (action != NULL) g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (state));
 }

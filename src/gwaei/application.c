@@ -76,10 +76,10 @@ gw_application_new ()
 
 
 static void 
-gw_application_init (GwApplication *application)
+gw_application_init (GwApplication *self)
 {
-    application->priv = GW_APPLICATION_GET_PRIVATE (application);
-    memset(application->priv, 0, sizeof(GwApplicationPrivate));
+    self->priv = GW_APPLICATION_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(GwApplicationPrivate));
 }
 
 static void 
@@ -115,11 +115,11 @@ static void
 gw_application_dispose (GObject *object)
 {
     //Declarations
-    GwApplication *application;
+    GwApplication *self;
 
-    application = GW_APPLICATION (object);
+    self = GW_APPLICATION (object);
 
-    gw_application_disconnect_signals (application);
+    gw_application_disconnect_signals (self);
 
     G_OBJECT_CLASS (gw_application_parent_class)->dispose (object);
 }
@@ -129,13 +129,13 @@ static void
 gw_application_finalize (GObject *object)
 {
     //Declarations
-    GwApplication *application;
+    GwApplication *self;
     GwApplicationPrivate *priv;
 
-    application = GW_APPLICATION (object);
-    priv = application->priv;
+    self = GW_APPLICATION (object);
+    priv = self->priv;
 
-    gw_application_disconnect_signals (application);
+    gw_application_disconnect_signals (self);
 
     if (priv->data.dictionary_list_store.installable != NULL) g_object_unref (priv->data.dictionary_list_store.installable); 
     if (priv->data.dictionary_list_store.installed != NULL) g_object_unref (priv->data.dictionary_list_store.installed); 
@@ -145,7 +145,7 @@ gw_application_finalize (GObject *object)
     if (priv->config.arguments.query != NULL) g_free(priv->config.arguments.query); 
     if (priv->data.morphologyengine != NULL) g_object_unref (priv->data.morphologyengine); 
 
-    gw_application_set_preferences (application, NULL);
+    gw_application_set_preferences (self, NULL);
 
     lw_regex_free ();
 
@@ -183,11 +183,11 @@ gw_application_class_init (GwApplicationClass *klass)
 //!
 
 void 
-gw_application_parse_args (GwApplication *application, int *argc, char** argv[])
+gw_application_parse_args (GwApplication *self, int *argc, char** argv[])
 {
     GwApplicationPrivate *priv;
 
-    priv = application->priv;
+    priv = self->priv;
 
     //Reset the switches to their default state
     g_free (priv->config.arguments.dictionary);
@@ -217,7 +217,7 @@ gw_application_parse_args (GwApplication *application, int *argc, char** argv[])
 
     if (error != NULL)
     {
-      //gw_application_handle_error (application, NULL, FALSE, &error);
+      //gw_application_handle_error (self, NULL, FALSE, &error);
       exit(EXIT_SUCCESS);
     }
 
@@ -230,11 +230,11 @@ gw_application_parse_args (GwApplication *application, int *argc, char** argv[])
 //! @brief Prints to the terminal the about message for the program.
 //!
 void 
-gw_application_print_about (GwApplication *application)
+gw_application_print_about (GwApplication *self)
 {
     const gchar *NAME = NULL; 
 
-    NAME = gw_application_get_program_name (GW_APPLICATION (application));
+    NAME = gw_application_get_program_name (GW_APPLICATION (self));
 
     printf (gettext ("%s version %s"), NAME, VERSION);
 
@@ -252,10 +252,10 @@ gw_application_print_about (GwApplication *application)
 
 
 void 
-gw_application_quit (GwApplication *application)
+gw_application_quit (GwApplication *self)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_APPLICATION (application));
+    g_return_if_fail (GW_IS_APPLICATION (self));
 
     //Declarations
     GList *link = NULL;
@@ -266,11 +266,11 @@ gw_application_quit (GwApplication *application)
 
     if (should_close)
     {
-      link = gtk_application_get_windows (GTK_APPLICATION (application));
+      link = gtk_application_get_windows (GTK_APPLICATION (self));
       while (link != NULL)
       {
         gtk_widget_destroy (GTK_WIDGET (link->data));
-        link = gtk_application_get_windows (GTK_APPLICATION (application));
+        link = gtk_application_get_windows (GTK_APPLICATION (self));
       }
     }
 }
@@ -281,7 +281,7 @@ gw_application_quit (GwApplication *application)
 //! @returns A constanst string representing the program name
 //!
 const gchar* 
-gw_application_get_program_name (GwApplication *application) 
+gw_application_get_program_name (GwApplication *self) 
 {
   return gettext("gWaei Japanese-English Dictionary");
 }
@@ -291,7 +291,7 @@ gw_application_get_program_name (GwApplication *application)
 //!  @brief Will attempt to get the window of the specified type which is most at the front
 //!
 GtkWindow* 
-gw_application_get_window_by_type (GwApplication *application, const GType TYPE)
+gw_application_get_window_by_type (GwApplication *self, const GType TYPE)
 {
     //Declarations
     GList *iter;
@@ -301,7 +301,7 @@ gw_application_get_window_by_type (GwApplication *application, const GType TYPE)
     GtkWindow *fuzzy;
 
     //Initializations
-    list = gtk_application_get_windows (GTK_APPLICATION (application));
+    list = gtk_application_get_windows (GTK_APPLICATION (self));
     window = NULL;
     fuzzy = NULL;
     active = NULL;
@@ -331,17 +331,17 @@ gw_application_get_window_by_type (GwApplication *application, const GType TYPE)
 
 
 LwMorphologyEngine*
-gw_application_get_morphologyengine (GwApplication *application)
+gw_application_get_morphologyengine (GwApplication *self)
 {
   //Sanity checks
-  g_return_val_if_fail (GW_IS_APPLICATION (application), NULL);
+  g_return_val_if_fail (GW_IS_APPLICATION (self), NULL);
 
   //Declarations
   GwApplicationPrivate *priv = NULL;
   gpointer* pointer = NULL;
 
   //Initializations
-  priv = application->priv;
+  priv = self->priv;
 
   if (priv->data.morphologyengine == NULL)
   {
@@ -355,26 +355,26 @@ gw_application_get_morphologyengine (GwApplication *application)
 
 
 static void 
-gw_application_activate (GApplication *application)
+gw_application_activate (GApplication *self)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_APPLICATION (application));
+    g_return_if_fail (GW_IS_APPLICATION (self));
 
     //Declarations
     GwApplicationPrivate *priv = NULL;
     GwMainWindow *mainwindow = NULL;
 
     //Initializations
-    priv = GW_APPLICATION (application)->priv;
+    priv = GW_APPLICATION (self)->priv;
 
-    mainwindow = GW_MAINWINDOW (gw_mainwindow_new (GTK_APPLICATION (application)));
+    mainwindow = GW_MAINWINDOW (gw_mainwindow_new (GTK_APPLICATION (self)));
 
     gtk_widget_show (GTK_WIDGET (mainwindow));
 }
 
 
 static int 
-gw_application_command_line (GApplication *application, GApplicationCommandLine *command_line)
+gw_application_command_line (GApplication *self, GApplicationCommandLine *command_line)
 {
     //Declarations
     LwDictionary *dictionary;
@@ -385,16 +385,16 @@ gw_application_command_line (GApplication *application, GApplicationCommandLine 
     gint position;
 
     //Initializations
-    priv = GW_APPLICATION (application)->priv;
+    priv = GW_APPLICATION (self)->priv;
     argv = NULL;
 
     if (command_line != NULL)
     {
       argv = g_application_command_line_get_arguments (command_line, &argc);
 
-      gw_application_parse_args (GW_APPLICATION (application), &argc, &argv);
+      gw_application_parse_args (GW_APPLICATION (self), &argc, &argv);
     }
-    g_application_activate (G_APPLICATION (application));
+    g_application_activate (G_APPLICATION (self));
 
     //Cleanup
     if (argv != NULL) g_strfreev (argv); argv = NULL;
@@ -404,7 +404,7 @@ gw_application_command_line (GApplication *application, GApplicationCommandLine 
 
 
 static gboolean 
-gw_application_local_command_line (GApplication *application, 
+gw_application_local_command_line (GApplication *self, 
                                    gchar ***argv, gint *exit_status)
 {
     //Declarations
@@ -420,14 +420,14 @@ gw_application_local_command_line (GApplication *application,
     {
       if (strcmp((*argv)[i], "-v") == 0 || strcmp((*argv)[i], "--version") == 0)
       {
-        gw_application_print_about (GW_APPLICATION (application));
+        gw_application_print_about (GW_APPLICATION (self));
         handled = TRUE;
         break;
       }
       else if (strcmp((*argv)[i], "-h") == 0 || strcmp((*argv)[i], "--help") == 0)
       {
         handled = TRUE;
-        gw_application_parse_args (GW_APPLICATION (application), &argc, argv);
+        gw_application_parse_args (GW_APPLICATION (self), &argc, argv);
         break;
       }
     }
@@ -437,18 +437,18 @@ gw_application_local_command_line (GApplication *application,
 
 
 static void
-gw_application_startup (GApplication *application)
+gw_application_startup (GApplication *self)
 {
-    G_APPLICATION_CLASS (gw_application_parent_class)->startup (application);
+    G_APPLICATION_CLASS (gw_application_parent_class)->startup (self);
 
-    gw_application_load_app_menu (GW_APPLICATION (application));
+    gw_application_load_app_menu (GW_APPLICATION (self));
 
-    gw_application_connect_signals (GW_APPLICATION (application));
+    gw_application_connect_signals (GW_APPLICATION (self));
 }
 
 
 gboolean
-gw_application_should_quit (GwApplication *application)
+gw_application_should_quit (GwApplication *self)
 {
     return TRUE;
 /*
@@ -456,7 +456,7 @@ gw_application_should_quit (GwApplication *application)
     GList *link;
     gboolean should_quit;
 
-    windowlist = gtk_application_get_windows (GTK_APPLICATION (application));
+    windowlist = gtk_application_get_windows (GTK_APPLICATION (self));
     should_quit = TRUE;
 
     for (link = windowlist; should_quit && link != NULL; link = link->next)
@@ -468,11 +468,11 @@ gw_application_should_quit (GwApplication *application)
 
 
 static void
-gw_application_initialize_menumodel_links (GwApplication *application)
+gw_application_initialize_menumodel_links (GwApplication *self)
 {
 /*
     //Sanity checks
-    g_return_if_fail (GW_IS_APPLICATION (application));
+    g_return_if_fail (GW_IS_APPLICATION (self));
   
     //Declarations
     GwVocabularyListStore *store;
@@ -480,10 +480,10 @@ gw_application_initialize_menumodel_links (GwApplication *application)
     GMenuModel *link;
 
     //Initializations
-    menumodel = gtk_application_get_app_menu (GTK_APPLICATION (application));
+    menumodel = gtk_application_get_app_menu (GTK_APPLICATION (self));
     g_return_if_fail (menumodel != NULL);
 
-    store = GW_VOCABULARYLISTSTORE (gw_application_get_vocabulary_list_store (application));
+    store = GW_VOCABULARYLISTSTORE (gw_application_get_vocabulary_list_store (self));
     link = gw_vocabulary_list_store_get_menumodel (store);
     gw_menumodel_set_links (menumodel, "vocabulary-list-link", gettext ("Vocabulary"), G_MENU_LINK_SECTION, link);
 */
@@ -491,31 +491,31 @@ gw_application_initialize_menumodel_links (GwApplication *application)
 
 
 static void
-gw_application_load_app_menu (GwApplication *application)
+gw_application_load_app_menu (GwApplication *self)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_APPLICATION (application));
+    g_return_if_fail (GW_IS_APPLICATION (self));
 
     //Declarations
     GMenuModel *menu_model = NULL;
 
     //Initializations
 
-    gw_application_map_actions (G_ACTION_MAP (application), application);
+    gw_application_map_actions (G_ACTION_MAP (self), self);
 
     menu_model = lgw_load_menu_model ("application-menumodel.ui");
-    gtk_application_set_app_menu (GTK_APPLICATION (application), menu_model);
+    gtk_application_set_app_menu (GTK_APPLICATION (self), menu_model);
 
-    gw_application_initialize_menumodel_links (application);
+    gw_application_initialize_menumodel_links (self);
 }
 
 
 void
-gw_application_map_actions (GActionMap *map, GwApplication *application)
+gw_application_map_actions (GActionMap *map, GwApplication *self)
 {
     //Sanity checks
     g_return_if_fail (map != NULL);
-    g_return_if_fail (GW_IS_APPLICATION (application));
+    g_return_if_fail (GW_IS_APPLICATION (self));
 
     static GActionEntry entries[] = {
       //{ "new-window", gw_application_open_searchwindow_cb, NULL, NULL, NULL },
@@ -531,7 +531,7 @@ gw_application_map_actions (GActionMap *map, GwApplication *application)
       { "quit", gw_application_quit_cb, NULL, NULL, NULL }
     };
 
-    g_action_map_add_action_entries (map, entries, G_N_ELEMENTS (entries), application);
+    g_action_map_add_action_entries (map, entries, G_N_ELEMENTS (entries), self);
 }
 
 
@@ -579,10 +579,10 @@ gw_menumodel_set_links (GMenuModel *menumodel, const gchar *LABEL, const gchar *
 }
 
 static void
-gw_application_initialize_accelerators (GwApplication *application)
+gw_application_initialize_accelerators (GwApplication *self)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_APPLICATION (application));
+    g_return_if_fail (GW_IS_APPLICATION (self));
 
     //Declarations
     gchar *accel = NULL;
@@ -600,7 +600,7 @@ gw_application_initialize_accelerators (GwApplication *application)
       detail = g_strdup_printf ("%d", index);
       if (accel != NULL && action != NULL && detail != NULL)
       {
-        gtk_application_add_accelerator (GTK_APPLICATION (application), accel, action, g_variant_new_string (detail));
+        gtk_application_add_accelerator (GTK_APPLICATION (self), accel, action, g_variant_new_string (detail));
         index++;
       }
       if (accel != NULL) g_free (accel); accel = NULL;
@@ -611,22 +611,22 @@ gw_application_initialize_accelerators (GwApplication *application)
 
 
 LgwDictionaryListStore* 
-gw_application_get_installed_dictionaryliststore (GwApplication *application)
+gw_application_get_installed_dictionaryliststore (GwApplication *self)
 {
     //Sanity checks
-    g_return_val_if_fail (GW_IS_APPLICATION (application), NULL);
+    g_return_val_if_fail (GW_IS_APPLICATION (self), NULL);
 
     //Declarations
     GwApplicationPrivate *priv = NULL;
 
     //Initializations;
-    priv = application->priv;
+    priv = self->priv;
 
     if (priv->data.dictionary_list_store.installed == NULL)
     {
-      LwPreferences *preferences = gw_application_get_preferences (application);
+      LwPreferences *preferences = gw_application_get_preferences (self);
       LgwDictionaryListStore *dictionary_list_store = lgw_dictionaryliststore_new (preferences);
-      LwMorphologyEngine *morphologyengine = gw_application_get_morphologyengine (application);
+      LwMorphologyEngine *morphologyengine = gw_application_get_morphologyengine (self);
 
       lw_dictionarylist_load_installed (LW_DICTIONARYLIST (dictionary_list_store), morphologyengine);
       lw_dictionarylist_load_order (LW_DICTIONARYLIST (dictionary_list_store));
@@ -640,20 +640,20 @@ gw_application_get_installed_dictionaryliststore (GwApplication *application)
 
 
 LgwDictionaryListStore* 
-gw_application_get_installable_dictionaryliststore (GwApplication *application)
+gw_application_get_installable_dictionaryliststore (GwApplication *self)
 {
     //Sanity checks
-    g_return_val_if_fail (GW_IS_APPLICATION (application), NULL);
+    g_return_val_if_fail (GW_IS_APPLICATION (self), NULL);
 
     //Declarations
     GwApplicationPrivate *priv = NULL;
 
     //Initializations
-    priv = application->priv;
+    priv = self->priv;
 
     if (priv->data.dictionary_list_store.installable == NULL)
     {
-      LwPreferences *preferences = gw_application_get_preferences (application);
+      LwPreferences *preferences = gw_application_get_preferences (self);
       LgwDictionaryListStore *dictionary_list_store = lgw_dictionaryliststore_new (preferences);
 
       lw_dictionarylist_load_installable (LW_DICTIONARYLIST (dictionary_list_store));
@@ -667,20 +667,20 @@ gw_application_get_installable_dictionaryliststore (GwApplication *application)
 
 
 LgwVocabularyListStore*
-gw_application_get_vocabularyliststore (GwApplication *application)
+gw_application_get_vocabularyliststore (GwApplication *self)
 {
     //Sanity checks
-    g_return_val_if_fail (GW_IS_APPLICATION (application), NULL);
+    g_return_val_if_fail (GW_IS_APPLICATION (self), NULL);
 
     //Declarations
     GwApplicationPrivate *priv = NULL;
 
     //Initializations
-    priv = application->priv;
+    priv = self->priv;
 
     if (priv->data.vocabulary_list_store == NULL)
     {
-      LwPreferences *preferences = gw_application_get_preferences (application);
+      LwPreferences *preferences = gw_application_get_preferences (self);
       LgwVocabularyListStore *vocabulary_list_store = lgw_vocabularyliststore_new (preferences);
 
       priv->data.vocabulary_list_store = vocabulary_list_store;
@@ -692,20 +692,20 @@ gw_application_get_vocabularyliststore (GwApplication *application)
 
 
 LwPreferences*
-gw_application_get_preferences (GwApplication *application)
+gw_application_get_preferences (GwApplication *self)
 {
     //Sanity checks
-    g_return_val_if_fail (GW_IS_APPLICATION (application), NULL);
+    g_return_val_if_fail (GW_IS_APPLICATION (self), NULL);
 
     //Declarations
     GwApplicationPrivate *priv = NULL;
 
     //Initializations
-    priv = application->priv;
+    priv = self->priv;
 
     if (priv->config.preferences == NULL)
     {
-      gw_application_set_preferences (application, lw_preferences_get_default ());
+      gw_application_set_preferences (self, lw_preferences_get_default ());
     }
 
     return priv->config.preferences;
@@ -713,17 +713,17 @@ gw_application_get_preferences (GwApplication *application)
 
 
 void
-gw_application_set_preferences (GwApplication *application,
+gw_application_set_preferences (GwApplication *self,
                                 LwPreferences *preferences)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_APPLICATION (application));
+    g_return_if_fail (GW_IS_APPLICATION (self));
 
     //Declarations
     GwApplicationPrivate *priv = NULL;
 
     //Initializations
-    priv = application->priv;
+    priv = self->priv;
 
     if (priv->config.preferences != NULL)
     {

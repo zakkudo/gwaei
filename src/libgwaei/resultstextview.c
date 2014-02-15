@@ -109,9 +109,6 @@ lgw_resultstextview_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_ACTIONS:
-        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
-        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -185,11 +182,15 @@ lgw_resultstextview_constructed (GObject *object)
         gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
         gtk_widget_show (text_view);
 
-        LgwTextTagTable *text_tag_table = lgw_resultstextview_get_tagtable (self);
-        GtkTextBuffer *text_buffer = gtk_text_buffer_new (GTK_TEXT_TAG_TABLE (text_tag_table));
-        priv->ui.text_buffer = GTK_TEXT_BUFFER (text_buffer);
-        gtk_text_view_set_buffer (priv->ui.text_view, text_buffer);
-        g_object_unref (text_buffer);
+        {
+          LgwTextTagTable *text_tag_table = lgw_resultstextview_get_tagtable (self);
+          {
+            GtkTextBuffer *text_buffer = gtk_text_buffer_new (GTK_TEXT_TAG_TABLE (text_tag_table));
+            priv->data.text_buffer = GTK_TEXT_BUFFER (text_buffer);
+            gtk_text_view_set_buffer (priv->ui.text_view, text_buffer);
+            g_object_unref (text_buffer);
+          }
+        }
       }
     }
 

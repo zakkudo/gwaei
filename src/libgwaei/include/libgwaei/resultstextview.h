@@ -17,7 +17,7 @@ typedef struct _LgwResultsTextViewClassPrivate LgwResultsTextViewClassPrivate;
 #define LGW_RESULTSTEXTVIEW_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LGW_TYPE_RESULTSTEXTVIEW, LgwResultsTextViewClass))
 
 struct _LgwResultsTextView {
-  GtkBox box;
+  GtkBox self;
   LgwResultsTextViewPrivate *priv;
 };
 

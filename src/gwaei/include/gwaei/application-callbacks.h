@@ -3,8 +3,8 @@
 
 G_BEGIN_DECLS
 
-void gw_application_connect_signals (GwApplication *application);
-void gw_application_disconnect_signals (GwApplication *application);
+void gw_application_connect_signals (GwApplication *self);
+void gw_application_disconnect_signals (GwApplication *self);
 
 #ifdef HAVE_HUNSPELL
 void gw_application_open_aboutdialog_cb (GSimpleAction *action, GVariant *parameter, gpointer data);

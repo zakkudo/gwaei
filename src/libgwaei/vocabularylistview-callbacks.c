@@ -159,7 +159,7 @@ void lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
                                             gchar                 *new_text,
                                             GtkCellRendererText   *renderer)
 {
-    printf("EDITED!\n");
+    printf("EDITED! %s\n", new_text);
 }
 
 
@@ -209,8 +209,8 @@ lgw_vocabularylistview_connect_signals (LgwVocabularyListView *self)
     if (priv->data.signalid[SIGNALID_NAME_EDITED] == 0)
     {
       priv->data.signalid[SIGNALID_NAME_EDITED] = g_signal_connect_swapped (
-          G_OBJECT (priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME]),
-          "focus-out-event",
+          G_OBJECT (priv->ui.cell_renderer[CELLRENDERER_NAME]),
+          "edited",
           G_CALLBACK (lgw_vocabularylistview_name_edited_cb),
           self
       );
@@ -263,7 +263,7 @@ lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *self)
     if (priv->data.signalid[SIGNALID_NAME_EDITED] != 0)
     {
       g_signal_handler_disconnect (
-        G_OBJECT (priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME]),
+        G_OBJECT (priv->ui.cell_renderer[CELLRENDERER_NAME]),
         priv->data.signalid[SIGNALID_NAME_EDITED]
       );
       priv->data.signalid[SIGNALID_NAME_EDITED] = 0;

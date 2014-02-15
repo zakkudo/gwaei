@@ -43,12 +43,12 @@
 
 
 void
-gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
+gw_mainwindow_application_property_changed_cb (GwMainWindow *self,
                                                GParamSpec   *pspec,
                                                gpointer      data)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (main_window));
+    g_return_if_fail (GW_IS_MAINWINDOW (self));
 
     //Declarations
     GwMainWindowPrivate *priv = NULL;
@@ -57,9 +57,9 @@ gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
     LgwVocabularyListStore *vocabulary_list_store = NULL;
 
     //Initializations
-    priv = main_window->priv;
+    priv = self->priv;
     if (priv == NULL) goto errored;
-    application = gtk_window_get_application (GTK_WINDOW (main_window));
+    application = gtk_window_get_application (GTK_WINDOW (self));
     if (application == NULL) goto errored;
     dictionary_list_store = gw_application_get_installed_dictionaryliststore (GW_APPLICATION (application));
     vocabulary_list_store = gw_application_get_vocabularyliststore (GW_APPLICATION (application));
@@ -69,7 +69,7 @@ gw_mainwindow_application_property_changed_cb (GwMainWindow *main_window,
 
     if (application != NULL)
     {
-      gw_mainwindow_application_visible_child_property_changed_cb (main_window, pspec, data);
+      gw_mainwindow_application_visible_child_property_changed_cb (self, pspec, data);
     }
 
 errored:
@@ -79,12 +79,12 @@ errored:
 
 
 void
-gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_window,
+gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *self,
                                                              GParamSpec   *pspec,
                                                              gpointer      data)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (main_window));
+    g_return_if_fail (GW_IS_MAINWINDOW (self));
 
     //Declarations
     GwMainWindowPrivate *priv = NULL;
@@ -94,25 +94,25 @@ gw_mainwindow_application_visible_child_property_changed_cb (GwMainWindow *main_
     LgwActionable *actionable = NULL;
 
     //Initializations
-    priv = main_window->priv;
+    priv = self->priv;
     if (priv == NULL) goto errored;
     widget = gtk_stack_get_visible_child (priv->ui.stack);
-    application = gtk_window_get_application (GTK_WINDOW (main_window));
+    application = gtk_window_get_application (GTK_WINDOW (self));
     if (application == NULL) goto errored;
-    actionable = LGW_ACTIONABLE (main_window);
+    actionable = LGW_ACTIONABLE (self);
 
     lgw_actionable_sync_actions (actionable);
 
     //Assign the menus
     if (widget != NULL && LGW_IS_MENUABLE (widget)) {
       LgwMenuable *menuable = LGW_MENUABLE (widget);
-      lgw_window_set_window_menumodel (LGW_WINDOW (main_window), lgw_menuable_get_window_menu_model (menuable));
-      lgw_window_set_button_menumodel (LGW_WINDOW (main_window), lgw_menuable_get_button_menu_model (menuable));
+      lgw_window_set_window_menumodel (LGW_WINDOW (self), lgw_menuable_get_window_menu_model (menuable));
+      lgw_window_set_button_menumodel (LGW_WINDOW (self), lgw_menuable_get_button_menu_model (menuable));
     }
     else
     {
-      lgw_window_set_window_menumodel (LGW_WINDOW (main_window), NULL);
-      lgw_window_set_button_menumodel (LGW_WINDOW (main_window), NULL);
+      lgw_window_set_window_menumodel (LGW_WINDOW (self), NULL);
+      lgw_window_set_button_menumodel (LGW_WINDOW (self), NULL);
     }
 
 errored:
@@ -130,12 +130,12 @@ gw_mainwindow_close_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    GwMainWindow *window = NULL;
+    GwMainWindow *self = NULL;
     GtkWidget *widget = NULL;
 
     //Initializations
-    window = GW_MAINWINDOW (data);
-    if (window == NULL) goto errored;
+    self = GW_MAINWINDOW (data);
+    if (self == NULL) goto errored;
     widget = GTK_WIDGET (data);
     if (widget == NULL) goto errored;
 
@@ -162,12 +162,12 @@ gw_mainwindow_menubar_show_toggled_cb (GSimpleAction *action,
     g_return_if_fail (data != NULL);
 
     //Declarations
-    GwMainWindow *window = NULL;
+    GwMainWindow *self = NULL;
     LwPreferences *preferences = NULL;
     gboolean show = FALSE;
 
     //Initializations
-    window = GW_MAINWINDOW (data);
+    self = GW_MAINWINDOW (data);
     preferences = lw_preferences_get_default ();
     show = lw_preferences_get_boolean_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_MENUBAR_SHOW);
 
@@ -184,17 +184,17 @@ gw_mainwindow_sync_show_menubar_cb (GSettings *settings,
                                     gpointer   data)
 {
     //Declarations
-    GwMainWindow *window = NULL;
+    GwMainWindow *self = NULL;
     GwMainWindowPrivate *priv = NULL;
     gboolean show_menubar = FALSE;
     GAction *action = NULL;
 
     //Initializations
-    window = GW_MAINWINDOW (data);
-    if (window == NULL) goto errored;
-    priv = window->priv;
+    self = GW_MAINWINDOW (data);
+    if (self == NULL) goto errored;
+    priv = self->priv;
     show_menubar = lw_preferences_get_boolean (settings, key);
-    action = g_action_map_lookup_action (G_ACTION_MAP (window), "toggle-menubar-show");
+    action = g_action_map_lookup_action (G_ACTION_MAP (self), "toggle-menubar-show");
     if (action == NULL) goto errored;
 
     g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_boolean (show_menubar));
@@ -206,38 +206,38 @@ errored:
 
 
 void
-lgw_mainwindow_child_actions_property_changed_cb (GwMainWindow *main_window,
+lgw_mainwindow_child_actions_property_changed_cb (GwMainWindow *self,
                                                   GParamSpec      *pspec,
                                                   LgwActionable   *actionable)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (main_window));
-    g_return_if_fail (LGW_IS_ACTIONABLE (main_window));
+    g_return_if_fail (GW_IS_MAINWINDOW (self));
+    g_return_if_fail (LGW_IS_ACTIONABLE (self));
     g_return_if_fail (LGW_IS_ACTIONABLE (actionable));
 
     printf("lgw_mainwindow_child_actions_property_changed_cb\n"); 
 
-    lgw_actionable_sync_actions (LGW_ACTIONABLE (main_window));
+    lgw_actionable_sync_actions (LGW_ACTIONABLE (self));
 }
 
 
 void
-gw_mainwindow_connect_signals (GwMainWindow *window) {
+gw_mainwindow_connect_signals (GwMainWindow *self) {
     //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (window));
+    g_return_if_fail (GW_IS_MAINWINDOW (self));
 
     //Declarations
     GwMainWindowPrivate *priv = NULL;
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
     preferences = lw_preferences_get_default ();
 
     if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] == 0)
     {
       priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = g_signal_connect (
-          window, 
+          self, 
           "notify::application",
           G_CALLBACK (gw_mainwindow_application_property_changed_cb),
           NULL
@@ -250,7 +250,7 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
           priv->ui.stack,
           "notify::visible-child",
           G_CALLBACK (gw_mainwindow_application_visible_child_property_changed_cb),
-          window
+          self
       );
     }
 
@@ -261,7 +261,7 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
         LW_SCHEMA_BASE,
         LW_KEY_MENUBAR_SHOW,
         gw_mainwindow_sync_show_menubar_cb,
-        window
+        self
       );
     }
 
@@ -271,7 +271,7 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
           G_OBJECT (priv->ui.search_widget),
           "notify::actions",
           G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
-          window
+          self
       );
     }
 
@@ -281,7 +281,7 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
           G_OBJECT (priv->ui.vocabulary_widget),
           "notify::actions",
           G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
-          window
+          self
       );
     }
 
@@ -291,29 +291,29 @@ gw_mainwindow_connect_signals (GwMainWindow *window) {
           G_OBJECT (priv->ui.search_entry),
           "notify::actions",
           G_CALLBACK (lgw_mainwindow_child_actions_property_changed_cb),
-          window
+          self
       );
     }
 }
 
 
 void
-gw_mainwindow_disconnect_signals (GwMainWindow *window) {
+gw_mainwindow_disconnect_signals (GwMainWindow *self) {
     //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (window));
+    g_return_if_fail (GW_IS_MAINWINDOW (self));
 
     //Declarations
     GwMainWindowPrivate *priv = NULL;
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = window->priv;
+    priv = self->priv;
     preferences = lw_preferences_get_default ();
 
     if (priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] != 0)
     {
       g_signal_handler_disconnect (
-        G_OBJECT (window),
+        G_OBJECT (self),
         priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED]
       );
       priv->data.signalid[SIGNALID_APPLICATION_PROPERTY_CHANGED] = 0;

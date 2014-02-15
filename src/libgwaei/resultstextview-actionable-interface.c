@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file resultstextview.c
+//! @file resultstextview-actionable-interface.c
 //!
 //! @brief To be written
 //!
@@ -40,53 +40,8 @@
 #include <libgwaei/resultstextview-private.h>
 
 
-static void lgw_resultstextview_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-static void lgw_resultstextview_sync_actions (LgwActionable *actionable);
-static GList* lgw_resultstextview_get_actions (LgwActionable *actionable);
-
-
 static void
-lgw_resultstextview_set_actiongroup (LgwActionable  *actionable,
-                                     LgwActionGroup *action_group)
-{
-    //Sanity checks
-    g_return_val_if_fail (LGW_IS_ACTIONABLE (actionable), NULL);
-
-    //Declarations
-    LgwResultsTextView *self = NULL;
-    LgwResultsTextViewPrivate *priv = NULL;
-    LgwResultsTextViewClass *klass = NULL;
-    LgwResultsTextViewClassPrivate *klasspriv = NULL;
-    GList *list = NULL;
-
-    //Initializations
-    self = LGW_RESULTSTEXTVIEW (actionable);
-    priv = self->priv;
-    klass = LGW_RESULTSTEXTVIEW_GET_CLASS (self);
-    klasspriv = klass->priv;
-
-    if (priv->data.action_group_list != NULL)
-    {
-      g_list_free (priv->data.action_group_list);
-      priv->data.action_group_list = NULL;
-    }
-
-    if (priv->data.action_group != NULL)
-    {
-        lgw_actiongroup_free (priv->data.action_group);
-        priv->data.action_group = NULL;
-    }
-    priv->data.action_group = action_group;
-
-    if (action_group != NULL)
-    {
-      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
-    }
-}
-
-
-static void
-lgw_resultstextview_sync_actions (LgwActionable *actionable)
+lgw_resultstextview_rebuild_actiongroup (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (actionable), NULL);
@@ -96,26 +51,63 @@ lgw_resultstextview_sync_actions (LgwActionable *actionable)
     LgwResultsTextViewPrivate *priv = NULL;
     GtkWidget *widget = NULL;
     gboolean has_focus = FALSE;
+    gboolean has_selection = FALSE;
 
     //Initializations
     self = LGW_RESULTSTEXTVIEW (actionable);
     priv = self->priv;
     widget = GTK_WIDGET (self);
-    has_focus = gtk_widget_is_focus (GTK_WIDGET (priv->ui.text_view));
+    has_focus = gtk_widget_has_focus (GTK_WIDGET (priv->ui.text_view)); 
+    has_selection = gtk_text_buffer_get_has_selection (priv->data.text_buffer);
 
-    if (has_focus)
+    if (priv->data.action_group == NULL)
+    {
+      priv->data.action_group = lgw_actiongroup_new (widget);
+    }
+
     {
       static GActionEntry entries[] = {
         { "copy", lgw_resultstextview_copy_cb, NULL, NULL, NULL }
       };
-      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_resultstextview_set_actiongroup (actionable, action_group);
+      gint length = G_N_ELEMENTS (entries);
+      if (has_focus && has_selection) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+      else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
     }
-    else 
+}
+
+
+static void
+lgw_resultstextview_rebuild_actiongrouplist (LgwActionable *actionable)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (actionable), NULL);
+
+    //Declarations
+    LgwResultsTextView *self = NULL;
+    LgwResultsTextViewPrivate *priv = NULL;
+
+    //Initializations
+    self = LGW_RESULTSTEXTVIEW (actionable);
+    priv = self->priv;
+
+    if (priv->data.action_group_list != NULL)
     {
-      lgw_resultstextview_set_actiongroup (actionable, NULL);
+      g_list_free (priv->data.action_group_list);
+      priv->data.action_group_list = NULL;
     }
 
+    priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, priv->data.action_group);
+}
+
+
+static void
+lgw_resultstextview_sync_actions (LgwActionable *actionable)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (actionable), NULL);
+
+    lgw_resultstextview_rebuild_actiongroup (actionable);
+    lgw_resultstextview_rebuild_actiongrouplist (actionable);
 }
 
 
@@ -146,7 +138,6 @@ void
 lgw_resultstextview_implement_actionable_interface (LgwActionableInterface *iface)
 {
     iface->get_actions = lgw_resultstextview_get_actions;
-    iface->set_actiongroup = lgw_resultstextview_set_actiongroup;
     iface->sync_actions = lgw_resultstextview_sync_actions;
 }
 

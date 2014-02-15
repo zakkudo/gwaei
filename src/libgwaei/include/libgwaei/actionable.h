@@ -16,14 +16,12 @@ typedef struct _LgwActionableInterface LgwActionableInterface;
 struct _LgwActionableInterface {
       GTypeInterface parent;
       GList* (*get_actions) (LgwActionable *self);
-      void (*set_actiongroup) (LgwActionable *self, LgwActionGroup *action_group);
       void (*sync_actions) (LgwActionable *self);
 };
 
 GType lgw_actionable_get_type (void);
 
 GList* lgw_actionable_get_actions (LgwActionable *self);
-void lgw_actionable_set_actiongroup (LgwActionable *self, LgwActionGroup *action_group);
 void lgw_actionable_sync_actions (LgwActionable *self);
 
 

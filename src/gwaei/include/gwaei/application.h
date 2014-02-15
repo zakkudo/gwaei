@@ -42,7 +42,7 @@ typedef enum {
 
 
 struct _GwApplication {
-  GtkApplication application;
+  GtkApplication self;
   GwApplicationPrivate *priv;
 };
 
@@ -59,16 +59,16 @@ GwApplicationResolution gw_application_run (GwApplication*);
 void gw_application_parse_args (GwApplication*, int*, char***);
 void gw_application_quit (GwApplication*);
 
-GtkWindow* gw_application_get_window_by_type (GwApplication *application, const GType TYPE);
+GtkWindow* gw_application_get_window_by_type (GwApplication *self, const GType TYPE);
 
-const gchar* gw_application_get_program_name (GwApplication *application);
-void gw_application_map_actions (GActionMap *map, GwApplication *application);
+const gchar* gw_application_get_program_name (GwApplication *self);
+void gw_application_map_actions (GActionMap *map, GwApplication *self);
 
-LgwDictionaryListStore* gw_application_get_installed_dictionaryliststore (GwApplication *application);
+LgwDictionaryListStore* gw_application_get_installed_dictionaryliststore (GwApplication *self);
 
-LwPreferences* gw_application_get_preferences (GwApplication *application);
+LwPreferences* gw_application_get_preferences (GwApplication *self);
 
-LgwVocabularyListStore* gw_application_get_vocabularyliststore (GwApplication *application);
+LgwVocabularyListStore* gw_application_get_vocabularyliststore (GwApplication *self);
 
 G_END_DECLS
 

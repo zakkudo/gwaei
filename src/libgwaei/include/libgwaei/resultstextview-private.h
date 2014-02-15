@@ -19,7 +19,6 @@ typedef enum {
 struct _UI {
   GtkBox *box;
   GtkTextView *text_view;
-  GtkTextBuffer *text_buffer;
   GtkScrolledWindow *scrolled_window;
 };
 
@@ -37,6 +36,7 @@ struct _Data {
   guint timeoutid;
   GList *action_group_list;
   LgwActionGroup *action_group;
+  GtkTextBuffer *text_buffer;
 };
 
 struct _LgwResultsTextViewPrivate {

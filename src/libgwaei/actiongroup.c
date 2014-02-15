@@ -37,15 +37,10 @@
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
 
-
 LgwActionGroup*
-lgw_actiongroup_static_new (GActionEntry* const entries,
-                            gint                length,
-                            GtkWidget*          widget)
+lgw_actiongroup_new (GtkWidget* widget)
 {
     //Sanity checks
-    g_return_val_if_fail (entries != NULL, NULL);
-    g_return_val_if_fail (length > 0, NULL);
     g_return_val_if_fail (widget != NULL, NULL);
 
     //Declarations
@@ -54,90 +49,167 @@ lgw_actiongroup_static_new (GActionEntry* const entries,
     //Initializations
     group = g_new0 (LgwActionGroup, 1);
 
-    group->entries = entries;
-    group->length = length;
     group->widget = GTK_WIDGET (widget);
+    group->entries = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, (GDestroyNotify) g_free);
+    group->changed = FALSE;
 
     return group;
 }
 
 
 void
-lgw_actiongroup_free (LgwActionGroup *group)
+lgw_actiongroup_free (LgwActionGroup *self)
 {
     //Sanity checks
-    if (group == NULL) return;
+    if (self == NULL) return;
 
-    g_free (group);
+    if (self->entries != NULL) g_hash_table_unref (self->entries); self->entries = NULL;
+
+    g_free (self);
 }
 
 
 void
-lgw_actiongroup_add_to_map (LgwActionGroup *action_group,
+lgw_actiongroup_add_entries (LgwActionGroup *self, ...)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    //Declarations
+    va_list va;
+    GActionEntry* entries = NULL;
+    gint length = 0;
+
+    va_start(va, self);
+
+    while (TRUE)
+    {
+      entries = va_arg(va, GActionEntry*);
+      if (entries == NULL) goto done;
+      length = va_arg(va, gint);
+      if (length == 0) goto done;
+
+      if (g_hash_table_lookup (self->entries, entries) == NULL)
+      {
+        LgwActionGroupData *data = g_new0 (LgwActionGroupData, 1);
+        data->entries = entries;
+        data->length = length;
+        g_hash_table_insert (self->entries, entries, data);
+        self->changed = TRUE;
+      }
+    }
+
+done:
+
+    va_end(va);
+}
+
+void
+lgw_actiongroup_remove_entries (LgwActionGroup *self, ...)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    va_list va;
+    GActionEntry* entries = NULL;
+    gint length = 0;
+
+    va_start(va, self);
+
+    while (TRUE)
+    {
+      entries = va_arg(va, GActionEntry*);
+      if (entries == NULL) goto done;
+
+      gboolean removed = g_hash_table_remove (self->entries, entries);
+
+      if (removed)
+      {
+        self->changed = TRUE;
+      }
+    }
+
+done:
+
+    va_end(va);
+}
+
+
+void
+lgw_actiongroup_add_to_map (LgwActionGroup *self,
                             GActionMap     *action_map)
 {
     //Sanity checks
-    g_return_if_fail (action_group != NULL);
-    g_return_if_fail (action_map != NULL);
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (G_IS_ACTION_MAP (action_map));
+
+//    if (self->changed == FALSE) return;
 
     //Declarations
-    GActionEntry *entries = NULL;
-    gint length = 0;
+    GList *values = NULL;
     GtkWidget *widget = NULL;
 
     //Initializations
-    entries = (GActionEntry*) action_group->entries;
-    length = action_group->length;
-    widget = GTK_WIDGET (action_group->widget);
+    values = g_hash_table_get_values (self->entries);
+    widget = GTK_WIDGET (self->widget);
 
-    g_action_map_add_action_entries (action_map, entries, length, widget);
+    {
+      GList *link = NULL;
+      LgwActionGroupData *data = NULL;
+      const GActionEntry *entries = NULL;
+      gint length = 0;
+      for (link = values; link != NULL; link = link->next)
+      {
+        data = LGW_ACTIONGROUPDATA (link->data);
+        entries = data->entries;
+        length = data->length;
+
+        g_action_map_add_action_entries (action_map, entries, length, widget);
+      }
+    }
+
+    self->changed = FALSE;
 }
 
 
 void
-lgw_actiongroup_remove_from_map (LgwActionGroup *action_group,
+lgw_actiongroup_remove_from_map (LgwActionGroup *self,
                                  GActionMap     *action_map)
 {
     //Sanity checks
-    g_return_if_fail (action_group != NULL);
-    g_return_if_fail (action_map != NULL);
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (G_IS_ACTION_MAP (action_map));
+
+//    if (self->changed == TRUE) return;
 
     //Declarations
-    GActionEntry *entries = NULL;
-    gint length = 0;
+    GList *values = NULL;
     GtkWidget *widget = NULL;
 
     //Initializations
-    entries = (GActionEntry*) action_group->entries;
-    length = action_group->length;
+    values = g_hash_table_get_values (self->entries);
+    widget = GTK_WIDGET (self->widget);
 
     {
+      GList *link = NULL;
+      LgwActionGroupData *data = NULL;
+      const GActionEntry *entries = NULL;
+      gint length = 0;
       gint i = 0;
-      for (i = 0; i < length; i++)
+      for (link = values; link != NULL; link = link->next)
       {
-        g_action_map_remove_action (action_map, entries[i].name);
+        data = LGW_ACTIONGROUPDATA (link->data);
+        entries = data->entries;
+        length = data->length;
+
+        for (i = 0; i < length; i++)
+        {
+          g_action_map_remove_action (action_map, entries[i].name);
+        }
       }
     }
+
+    self->changed = TRUE;
 }
 
-
-gboolean
-lgw_actiongroup_contains_entries (LgwActionGroup *action_group,
-                                  GActionEntry   *other_entries,
-                                  gint            other_length)
-{
-    //Sanity checks
-    g_return_val_if_fail (action_group != NULL, FALSE);
-    g_return_val_if_fail (other_entries != NULL, FALSE);
-
-    //Declarations
-    GActionEntry *entries = NULL;
-    gint length = 0;
-
-    //Initializations
-    entries = (GActionEntry*) action_group->entries;
-    length = action_group->length;
-
-    return (entries == other_entries && length == other_length);
-}
 

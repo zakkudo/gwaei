@@ -42,44 +42,57 @@
 #include <gwaei/mainwindow-private.h>
 
 
-static void gw_mainwindow_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-static void gw_mainwindow_sync_actions (LgwActionable *actionable);
-static GList* gw_mainwindow_get_actions (LgwActionable *actionable);
-
-
 static void
-gw_mainwindow_set_actiongroup (LgwActionable  *actionable,
-                               LgwActionGroup *action_group)
+gw_mainwindow_rebuild_actiongroup (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (GW_IS_MAINWINDOW (actionable), NULL);
 
     //Declarations
-    GwMainWindow *main_window = NULL;
+    GwMainWindow *self = NULL;
     GwMainWindowPrivate *priv = NULL;
-    GwMainWindowClass *klass = NULL;
-    GwMainWindowClassPrivate *klasspriv = NULL;
-    GList *list = NULL;
+    GtkWidget *widget = NULL;
 
     //Initializations
-    main_window = GW_MAINWINDOW (actionable);
-    priv = main_window->priv;
-    klass = GW_MAINWINDOW_GET_CLASS (main_window);
-    klasspriv = klass->priv;
+    self = GW_MAINWINDOW (actionable);
+    priv = self->priv;
+    widget = GTK_WIDGET (self);
+
+    if (priv->data.action_group == NULL)
+    {
+        priv->data.action_group = lgw_actiongroup_new (widget);
+    }
+
+    {
+      static GActionEntry entries[] = {
+        { "toggle-menubar-show", gw_mainwindow_menubar_show_toggled_cb, NULL, "false", NULL },
+        { "close", gw_mainwindow_close_cb, NULL, NULL, NULL }
+      };
+      gint length = G_N_ELEMENTS (entries);
+      lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+    }
+}
+
+
+static void
+gw_mainwindow_rebuild_actiongrouplist (LgwActionable *actionable)
+{
+    //Sanity checks
+    g_return_val_if_fail (GW_IS_MAINWINDOW (actionable), NULL);
+
+    //Declarations
+    GwMainWindow *self = NULL;
+    GwMainWindowPrivate *priv = NULL;
+
+    //Initializations
+    self = GW_MAINWINDOW (actionable);
+    priv = self->priv;
 
     if (priv->data.action_group_list != NULL)
     {
       g_list_free (priv->data.action_group_list);
       priv->data.action_group_list = NULL;
     }
-
-    if (priv->data.action_group != NULL)
-    {
-        lgw_actiongroup_free (priv->data.action_group);
-        priv->data.action_group = NULL;
-    }
-
-    priv->data.action_group = action_group;
 
     {
       GtkWidget *widget = gtk_stack_get_visible_child (priv->ui.stack);
@@ -105,16 +118,7 @@ gw_mainwindow_set_actiongroup (LgwActionable  *actionable,
       }
     }
 
-    if (action_group != NULL)
-    {
-      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
-    }
-
-    {
-      GActionMap *action_map = G_ACTION_MAP (main_window);
-      GList *action_group_list = lgw_actionable_get_actions (actionable);
-      lgw_window_set_actions (LGW_WINDOW (main_window), action_group_list);
-    }
+    priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, priv->data.action_group);
 }
 
 
@@ -123,26 +127,23 @@ gw_mainwindow_sync_actions (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (GW_IS_MAINWINDOW (actionable), NULL);
+    g_return_val_if_fail (G_IS_ACTION_MAP (actionable), NULL);
 
     //Declarations
-    GwMainWindow *main_window = NULL;
-    GwMainWindowPrivate *priv = NULL;
-    GtkWidget *widget = NULL;
-    gboolean has_focus = FALSE;
+    GwMainWindow *self = NULL;
+    GActionMap *action_map = NULL;
 
     //Initializations
-    main_window = GW_MAINWINDOW (actionable);
-    priv = main_window->priv;
-    widget = GTK_WIDGET (main_window);
-    has_focus = gtk_widget_is_focus (widget);
+    self = GW_MAINWINDOW (actionable);
+    action_map = G_ACTION_MAP (actionable);
+
+    gw_mainwindow_rebuild_actiongroup (actionable);
+    gw_mainwindow_rebuild_actiongrouplist (actionable);
 
     {
-      static GActionEntry entries[] = {
-        { "toggle-menubar-show", gw_mainwindow_menubar_show_toggled_cb, NULL, "false", NULL },
-        { "close", gw_mainwindow_close_cb, NULL, NULL, NULL }
-      };
-      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      gw_mainwindow_set_actiongroup (actionable, action_group);
+      GActionMap *action_map = G_ACTION_MAP (actionable);
+      GList *action_group_list = lgw_actionable_get_actions (actionable);
+      lgw_window_set_actions (LGW_WINDOW (self), action_group_list);
     }
 }
 
@@ -154,12 +155,12 @@ gw_mainwindow_get_actions (LgwActionable *actionable)
     g_return_val_if_fail (GW_IS_MAINWINDOW (actionable), NULL);
 
     //Declarations
-    GwMainWindow *main_window = NULL;
+    GwMainWindow *self = NULL;
     GwMainWindowPrivate *priv = NULL;
 
     //Initializations
-    main_window = GW_MAINWINDOW (actionable);
-    priv = main_window->priv;
+    self = GW_MAINWINDOW (actionable);
+    priv = self->priv;
 
     if (priv->data.action_group_list == NULL)
     {
@@ -174,7 +175,6 @@ void
 gw_mainwindow_implement_actionable_interface (LgwActionableInterface *iface)
 {
     iface->get_actions = gw_mainwindow_get_actions;
-    iface->set_actiongroup = gw_mainwindow_set_actiongroup;
     iface->sync_actions = gw_mainwindow_sync_actions;
 }
 

@@ -19,7 +19,7 @@ typedef struct _GwMainWindowClassPrivate GwMainWindowClassPrivate;
 #define GW_MAINWINDOW_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), GW_TYPE_MAINWINDOW, GwMainWindowClass))
 
 struct _GwMainWindow {
-  LgwWindow window;
+  LgwWindow self;
   GwMainWindowPrivate *priv;
 };
 

@@ -114,9 +114,6 @@ lgw_vocabularylistview_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_ACTIONS:
-        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
-        break;
       case PROP_VOCABULARYLISTSTORE:
         lgw_vocabularylistview_set_liststore (self, g_value_get_object (value));
         break;
@@ -209,15 +206,19 @@ lgw_vocabularylistview_constructed (GObject *object)
 
         {
           GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          priv->ui.cell_renderer[CELLRENDERER_NAME] = renderer;
           g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
-          GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
-              gettext("Vocabulary List"),
-              renderer,
-              "text", LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
-              NULL
-          );
-          gtk_tree_view_append_column (priv->ui.tree_view, column);
-          priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME] = column;
+
+          {
+            GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
+                gettext("Vocabulary List"),
+                renderer,
+                "text", LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
+                NULL
+            );
+            gtk_tree_view_append_column (priv->ui.tree_view, column);
+            priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME] = column;
+          }
         }
       }
     }

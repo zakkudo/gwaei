@@ -39,7 +39,7 @@ struct _GwApplicationPrivate {
 
 #define GW_APPLICATION_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GW_TYPE_APPLICATION, GwApplicationPrivate))
 
-void gw_application_set_preferences (GwApplication *application, LwPreferences *preferences);
+void gw_application_set_preferences (GwApplication *self, LwPreferences *preferences);
 
 G_END_DECLS
 

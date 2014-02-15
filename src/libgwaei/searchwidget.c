@@ -104,9 +104,6 @@ lgw_searchwidget_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_ACTIONS:
-        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
-        break;
       case PROP_PREFERENCES:
         lgw_searchwidget_set_preferences (self, g_value_get_object (value));
         break;

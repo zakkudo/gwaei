@@ -41,9 +41,78 @@
 #include <libgwaei/vocabularywidget-private.h>
 
 
-static GList* lgw_vocabularywidget_get_actions (LgwActionable *actionable);
-static void lgw_vocabularywidget_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-static void lgw_vocabularywidget_sync_actions (LgwActionable *actionable);
+static void
+lgw_vocabularywidget_rebuild_actiongroup (LgwActionable *actionable)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYWIDGET (actionable), NULL);
+
+    //Declarations
+    LgwVocabularyWidget *self = NULL;
+    LgwVocabularyWidgetPrivate *priv = NULL;
+    GtkWidget *widget = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYWIDGET (actionable);
+    priv = self->priv;
+    widget = GTK_WIDGET (self);
+
+    if (priv->data.action_group == NULL)
+    {
+        priv->data.action_group = lgw_actiongroup_new (widget);
+    }
+}
+
+
+static void
+lgw_vocabularywidget_rebuild_actiongrouplist (LgwActionable *actionable)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYWIDGET (actionable), NULL);
+
+    //Declarations
+    LgwVocabularyWidget *self = NULL;
+    LgwVocabularyWidgetPrivate *priv = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYWIDGET (actionable);
+    priv = self->priv;
+
+    if (priv->data.action_group_list != NULL)
+    {
+      g_list_free (priv->data.action_group_list);
+      priv->data.action_group_list = NULL;
+    }
+
+    {
+      GList *actions = lgw_actionable_get_actions (LGW_ACTIONABLE (priv->ui.vocabulary_list_view));
+      if (actions != NULL)
+      {
+        priv->data.action_group_list = g_list_concat (g_list_copy (actions), priv->data.action_group_list);
+      }
+    }
+
+    {
+      GList *actions = lgw_actionable_get_actions (LGW_ACTIONABLE (priv->ui.vocabulary_word_view));
+      if (actions != NULL)
+      {
+        priv->data.action_group_list = g_list_concat (g_list_copy (actions), priv->data.action_group_list);
+      }
+    }
+
+    priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, priv->data.action_group);
+}
+
+
+static void
+lgw_vocabularywidget_sync_actions (LgwActionable *actionable)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYWIDGET (actionable), NULL);
+
+    lgw_vocabularywidget_rebuild_actiongroup (actionable);
+    lgw_vocabularywidget_rebuild_actiongrouplist (actionable);
+}
 
 
 static GList*
@@ -69,96 +138,9 @@ lgw_vocabularywidget_get_actions (LgwActionable *actionable)
 }
 
 
-static void
-lgw_vocabularywidget_set_actiongroup (LgwActionable  *actionable,
-                                      LgwActionGroup *action_group)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (actionable));
-
-    //Declarations
-    LgwVocabularyWidget *self = NULL;
-    LgwVocabularyWidgetPrivate *priv = NULL;
-    GList *list = NULL;
-
-    //Initializations
-    self = LGW_VOCABULARYWIDGET (actionable);
-    priv = self->priv;
-
-    if (priv->data.action_group_list != NULL)
-    {
-      g_list_free (priv->data.action_group_list);
-      priv->data.action_group_list = NULL;
-    }
-
-    if (priv->data.action_group != NULL)
-    {
-        lgw_actiongroup_free (priv->data.action_group);
-        priv->data.action_group = NULL;
-    }
-
-    priv->data.action_group = action_group;
-
-    if (action_group != NULL)
-    {
-      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
-    }
-
-    {
-      LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.vocabulary_list_view);
-      GList *actions = lgw_actionable_get_actions (actionable);
-      if (actions != NULL)
-      {
-        GList *copy = g_list_copy (actions);
-        priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
-      }
-    }
-
-    {
-      LgwActionable *actionable = LGW_ACTIONABLE (priv->ui.vocabulary_word_view);
-      GList *actions = lgw_actionable_get_actions (actionable);
-      if (actions != NULL)
-      {
-        GList *copy = g_list_copy (actions);
-        priv->data.action_group_list = g_list_concat (copy, priv->data.action_group_list);
-      }
-    }
-}
-
-
-static void
-lgw_vocabularywidget_sync_actions (LgwActionable *actionable)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (actionable));
-
-    //Declarations
-    LgwVocabularyWidget *self = NULL;
-    LgwVocabularyWidgetPrivate *priv = NULL;
-    GtkWidget *widget = NULL;
-
-    //Initializations
-    self = LGW_VOCABULARYWIDGET (actionable);
-    priv = self->priv;
-    widget = GTK_WIDGET (self);
-
-/*
-    static GActionEntry entries[] = {
-    };
-    if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
-    {
-      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_vocabularywidget_set_actiongroup (actionable, action_group);
-    }
-*/
-    lgw_vocabularywidget_set_actiongroup (actionable, NULL);
-}
-
-
 void
 lgw_vocabularywidget_implement_actionable_interface (LgwActionableInterface *iface) {
     iface->get_actions = lgw_vocabularywidget_get_actions;
-    iface->set_actiongroup = lgw_vocabularywidget_set_actiongroup;
     iface->sync_actions = lgw_vocabularywidget_sync_actions;
 }
 

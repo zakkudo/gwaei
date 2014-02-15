@@ -41,9 +41,83 @@
 #include <libgwaei/vocabularywordview-private.h>
 
 
-static GList* lgw_vocabularywordview_get_actions (LgwActionable *actionable);
-static void lgw_vocabularywordview_set_actiongroup (LgwActionable *actionable, LgwActionGroup *action_group);
-static void lgw_vocabularywordview_sync_actions (LgwActionable *actionable);
+static void
+lgw_vocabularywordview_rebuild_actiongroup (LgwActionable *actionable)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYWORDVIEW (actionable), NULL);
+
+    //Declarations
+    LgwVocabularyWordView *self = NULL;
+    LgwVocabularyWordViewPrivate *priv = NULL;
+    GtkWidget *widget = NULL;
+    gboolean has_focus = FALSE;
+    gboolean has_selection = FALSE;
+
+    //Initializations
+    self = LGW_VOCABULARYWORDVIEW (actionable);
+    priv = self->priv;
+    widget = GTK_WIDGET (self);
+    has_focus = gtk_widget_has_focus (GTK_WIDGET (priv->ui.tree_view)); 
+    has_selection = (gtk_tree_selection_count_selected_rows (priv->data.tree_selection) > 0);
+
+    if (priv->data.action_group == NULL)
+    {
+      priv->data.action_group = lgw_actiongroup_new (widget);
+    }
+
+    {
+      static GActionEntry entries[] = {
+        { "add-new-word", lgw_vocabularywordview_add_new_activated_cb, NULL, NULL, NULL },
+      };
+      gint length = G_N_ELEMENTS (entries);
+      lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+    }
+
+    {
+      static GActionEntry entries[] = {
+        { "remove-selected-words", lgw_vocabularywordview_remove_selected_activated_cb, NULL, NULL, NULL }
+      };
+      gint length = G_N_ELEMENTS (entries);
+      if (has_focus && has_selection) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+      else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
+    }
+}
+
+
+static void
+lgw_vocabularywordview_rebuild_actiongrouplist (LgwActionable *actionable)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYWORDVIEW (actionable), NULL);
+
+    //Declarations
+    LgwVocabularyWordView *self = NULL;
+    LgwVocabularyWordViewPrivate *priv = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYWORDVIEW (actionable);
+    priv = self->priv;
+
+    if (priv->data.action_group_list != NULL)
+    {
+      g_list_free (priv->data.action_group_list);
+      priv->data.action_group_list = NULL;
+    }
+
+    priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, priv->data.action_group);
+}
+
+
+static void
+lgw_vocabularywordview_sync_actions (LgwActionable *actionable)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYWORDVIEW (actionable), NULL);
+
+    lgw_vocabularywordview_rebuild_actiongroup (actionable);
+    lgw_vocabularywordview_rebuild_actiongrouplist (actionable);
+}
 
 
 static GList*
@@ -69,77 +143,10 @@ lgw_vocabularywordview_get_actions (LgwActionable *actionable)
 }
 
 
-static void
-lgw_vocabularywordview_set_actiongroup (LgwActionable *actionable,
-                                        LgwActionGroup *action_group)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (actionable));
-
-    //Declarations
-    LgwVocabularyWordView *self = NULL;
-    LgwVocabularyWordViewPrivate *priv = NULL;
-    GList *list = NULL;
-
-    //Initializations
-    self = LGW_VOCABULARYWORDVIEW (actionable);
-    priv = self->priv;
-
-    if (priv->data.action_group_list != NULL)
-    {
-      g_list_free (priv->data.action_group_list);
-      priv->data.action_group_list = NULL;
-    }
-
-    if (priv->data.action_group != NULL)
-    {
-        lgw_actiongroup_free (priv->data.action_group);
-        priv->data.action_group = NULL;
-    }
-
-    priv->data.action_group = action_group;
-
-    if (action_group != NULL)
-    {
-      priv->data.action_group_list = g_list_prepend (priv->data.action_group_list, action_group);
-    }
-}
-
-
-static void
-lgw_vocabularywordview_sync_actions (LgwActionable *actionable)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (actionable));
-
-    //Declarations
-    LgwVocabularyWordView *self = NULL;
-    LgwVocabularyWordViewPrivate *priv = NULL;
-    GtkWidget *widget = NULL;
-
-    //Initializations
-    self = LGW_VOCABULARYWORDVIEW (actionable);
-    priv = self->priv;
-    widget = GTK_WIDGET (self);
-
-    static GActionEntry entries[] = {
-      { "add-new-word", lgw_vocabularywordview_add_new_activated_cb, NULL, NULL, NULL },
-      { "remove-selected-words", lgw_vocabularywordview_remove_selected_activated_cb, NULL, NULL, NULL }
-    };
-
-    if (priv->data.action_group == NULL || !lgw_actiongroup_contains_entries (priv->data.action_group, entries, G_N_ELEMENTS (entries)))
-    {
-      LgwActionGroup *action_group = lgw_actiongroup_static_new (entries, G_N_ELEMENTS (entries), widget);
-      lgw_vocabularywordview_set_actiongroup (actionable, action_group);
-    }
-}
-
-
 void
 lgw_vocabularywordview_implement_actionable_interface (LgwActionableInterface *iface)
 {
     iface->get_actions = lgw_vocabularywordview_get_actions;
-    iface->set_actiongroup = lgw_vocabularywordview_set_actiongroup;
     iface->sync_actions = lgw_vocabularywordview_sync_actions;
 }
 

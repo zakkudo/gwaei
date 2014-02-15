@@ -43,8 +43,8 @@
 
 
 //Static declarations
-static void gw_mainwindow_initialize_header (GwMainWindow *window);
-static void gw_mainwindow_initialize_body (GwMainWindow *window);
+static void gw_mainwindow_initialize_header (GwMainWindow *self);
+static void gw_mainwindow_initialize_body (GwMainWindow *self);
 
 static gchar* gw_mainwindow_get_symbolic_icon_name_if_exists (const gchar* ICON_NAME);
 
@@ -63,27 +63,27 @@ gw_mainwindow_new (GtkApplication *application)
     g_return_val_if_fail (application != NULL, NULL);
 
     //Declarations
-    GwMainWindow *window = NULL;
+    GwMainWindow *self = NULL;
 
     //Initializations
-    window = GW_MAINWINDOW (g_object_new (GW_TYPE_MAINWINDOW,
+    self = GW_MAINWINDOW (g_object_new (GW_TYPE_MAINWINDOW,
                                           "type",        GTK_WINDOW_TOPLEVEL,
                                           "application", application,
                                           "shows-menubar", TRUE,
                                            NULL));
 
-    return GTK_WINDOW (window);
+    return GTK_WINDOW (self);
 }
 
 
 static void 
-gw_mainwindow_init (GwMainWindow *window)
+gw_mainwindow_init (GwMainWindow *self)
 {
-    window->priv = GW_MAINWINDOW_GET_PRIVATE (window);
-    memset(window->priv, 0, sizeof(GwMainWindowPrivate));
+    self->priv = GW_MAINWINDOW_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(GwMainWindowPrivate));
 
     GwMainWindowPrivate *priv;
-    priv = window->priv;
+    priv = self->priv;
 }
 
 
@@ -94,20 +94,17 @@ gw_mainwindow_set_property (GObject      *object,
                             GParamSpec   *pspec)
 {
     //Declarations
-    GwMainWindow *main_window = NULL;
+    GwMainWindow *self = NULL;
     LgwActionable *actionable = NULL;
     GwMainWindowPrivate *priv = NULL;
 
     //Initializations
-    main_window = GW_MAINWINDOW (object);
+    self = GW_MAINWINDOW (object);
     actionable = LGW_ACTIONABLE (object);
-    priv = main_window->priv;
+    priv = self->priv;
 
     switch (property_id)
     {
-      case PROP_ACTIONS:
-        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
-        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -122,14 +119,14 @@ gw_mainwindow_get_property (GObject      *object,
                             GParamSpec   *pspec)
 {
     //Declarations
-    GwMainWindow *main_window = NULL;
+    GwMainWindow *self = NULL;
     LgwActionable *actionable = NULL;
     GwMainWindowPrivate *priv = NULL;
 
     //Initializations
-    main_window = GW_MAINWINDOW (object);
+    self = GW_MAINWINDOW (object);
     actionable = LGW_ACTIONABLE (object);
-    priv = main_window->priv;
+    priv = self->priv;
 
     switch (property_id)
     {
@@ -147,12 +144,12 @@ static void
 gw_mainwindow_finalize (GObject *object)
 {
     //Declarations
-    GwMainWindow *window = NULL;
+    GwMainWindow *self = NULL;
     GwMainWindowPrivate *priv = NULL;
 
     //Initializations
-    window = GW_MAINWINDOW (object);
-    priv = window->priv;
+    self = GW_MAINWINDOW (object);
+    priv = self->priv;
 
     G_OBJECT_CLASS (gw_mainwindow_parent_class)->finalize (object);
 }
@@ -165,7 +162,7 @@ gw_mainwindow_constructed (GObject *object)
     g_return_if_fail (object != NULL);
 
     //Declarations
-    GwMainWindow *window = NULL;
+    GwMainWindow *self = NULL;
     GwMainWindowPrivate *priv = NULL;
 
     //Chain the parent class
@@ -174,18 +171,18 @@ gw_mainwindow_constructed (GObject *object)
     }
 
     //Initializations
-    window = GW_MAINWINDOW (object);
-    priv = window->priv;
+    self = GW_MAINWINDOW (object);
+    priv = self->priv;
 
-    gw_mainwindow_initialize_header (window);
-    gw_mainwindow_initialize_body (window);
+    gw_mainwindow_initialize_header (self);
+    gw_mainwindow_initialize_body (self);
 
-    //Set up the gtk window
-    gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_MOUSE);
-    gtk_window_set_default_size (GTK_WINDOW (window), 620, 500);
-    gtk_window_set_icon_name (GTK_WINDOW (window), "gwaei");
+    //Set up the gtk self
+    gtk_window_set_position (GTK_WINDOW (self), GTK_WIN_POS_MOUSE);
+    gtk_window_set_default_size (GTK_WINDOW (self), 620, 500);
+    gtk_window_set_icon_name (GTK_WINDOW (self), "gwaei");
 
-    gw_mainwindow_connect_signals (window);
+    gw_mainwindow_connect_signals (self);
 }
 
 
@@ -193,14 +190,14 @@ static void
 gw_mainwindow_dispose (GObject *object)
 {
     //Declarations
-    GwMainWindow *main_window = NULL;
+    GwMainWindow *self = NULL;
     GwMainWindowPrivate *priv = NULL;
 
     //Initializations
-    main_window = GW_MAINWINDOW (object);
-    priv = main_window->priv;
+    self = GW_MAINWINDOW (object);
+    priv = self->priv;
 
-    gw_mainwindow_disconnect_signals (main_window);
+    gw_mainwindow_disconnect_signals (self);
 
     if (priv->data.action_group != NULL)
     {
@@ -239,11 +236,11 @@ gw_mainwindow_class_init (GwMainWindowClass *klass)
 
 
 static void
-gw_mainwindow_initialize_header (GwMainWindow *window)
+gw_mainwindow_initialize_header (GwMainWindow *self)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (window));
-    GwMainWindowPrivate *priv = window->priv;
+    g_return_if_fail (GW_IS_MAINWINDOW (self));
+    GwMainWindowPrivate *priv = self->priv;
 
     //Setup header bar
     {
@@ -269,7 +266,7 @@ gw_mainwindow_initialize_header (GwMainWindow *window)
 
       //Setup menu button
       {
-        GtkWidget *menu_button = lgw_window_get_menu_button (LGW_WINDOW (window));
+        GtkWidget *menu_button = lgw_window_get_menu_button (LGW_WINDOW (self));
         gtk_header_bar_pack_end (priv->ui.header_bar, menu_button);
         {
           gchar* icon_name = lgw_get_symbolic_icon_name_if_exists ("emblem-system");
@@ -280,26 +277,26 @@ gw_mainwindow_initialize_header (GwMainWindow *window)
       }
 
       //Finalize and show
-      gtk_window_set_titlebar (GTK_WINDOW (window), bar);
+      gtk_window_set_titlebar (GTK_WINDOW (self), bar);
       gtk_widget_show_all (bar);
     }
 }
 
 
 static void
-gw_mainwindow_initialize_body (GwMainWindow *window)
+gw_mainwindow_initialize_body (GwMainWindow *self)
 {
     //Sanity checks
-    g_return_if_fail (GW_IS_MAINWINDOW (window));
+    g_return_if_fail (GW_IS_MAINWINDOW (self));
 
     //Declarations
-    GwMainWindowPrivate *priv = window->priv;
+    GwMainWindowPrivate *priv = self->priv;
 
     {
       GtkWidget *stack = gtk_stack_new ();
       priv->ui.stack = GTK_STACK (stack);
       gtk_stack_set_homogeneous (priv->ui.stack, TRUE);
-      lgw_window_pack_start (LGW_WINDOW (window), stack, TRUE, TRUE, 0); 
+      lgw_window_pack_start (LGW_WINDOW (self), stack, TRUE, TRUE, 0); 
       gtk_stack_set_transition_type (priv->ui.stack, GTK_STACK_TRANSITION_TYPE_CROSSFADE);
 
       {

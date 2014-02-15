@@ -115,9 +115,6 @@ lgw_vocabularywordview_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_ACTIONS:
-        lgw_actionable_set_actiongroup (actionable, g_value_get_pointer (value));
-        break;
       case PROP_VOCABULARYWORDSTORE:
         lgw_vocabularywordview_set_wordstore (self, g_value_get_object (value));
         break;

@@ -24,6 +24,11 @@ typedef enum {
   TOTAL_TREEVIEWCOLUMNS
 } TreeViewColumn;
 
+typedef enum {
+  CELLRENDERER_NAME,
+  TOTAL_CELLRENDERERS
+} CellRenderer;
+
 struct _Data {
   LgwVocabularyListStore *vocabulary_list_store;
   GtkTreeSelection *tree_selection;
@@ -38,6 +43,7 @@ struct _UI {
   GtkTreeView *tree_view;
   GtkToolbar *toolbar;
   GtkTreeViewColumn *tree_view_column[TOTAL_TREEVIEWCOLUMNS];
+  GtkCellRenderer *cell_renderer[TOTAL_CELLRENDERERS];
 };
 
 
