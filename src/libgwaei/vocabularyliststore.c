@@ -201,6 +201,7 @@ lgw_vocabularyliststore_load (LgwVocabularyListStore *self)
       gint i = 0;
       for (i = 0; filenames[i] != NULL; i++)
       {
+        printf("BREAK adding %s %d\n", filenames[i], i);
         LgwVocabularyWordStore *s = lgw_vocabularywordstore_new (filenames[i]);
         wordstorelist = g_list_prepend (wordstorelist, s);
       }
@@ -231,6 +232,7 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *self,
     gint add_length = 0;
     gint length = lgw_vocabularyliststore_length (self);
     gboolean append = (position < 0 || position >= length || length == 0);
+    printf("BREAK insert length %d\n", g_list_length (wordstorelist));
 
     //Initializations
     priv = self->priv;
@@ -277,6 +279,7 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *self,
 
     {
       gint i = 0;
+      printf("BREAK add_length %d\n", add_length);
       for (i = 0; i < add_length; i++)
       {
         GtkTreeIter iter;

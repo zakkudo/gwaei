@@ -69,6 +69,7 @@ lw_vocabulary_get_filenames ()
       while ((FILENAME = g_dir_read_name (dir)) != NULL && i < length)
       {
         filenames[i] = g_strdup (FILENAME);
+        i++;
       }
     }
 
