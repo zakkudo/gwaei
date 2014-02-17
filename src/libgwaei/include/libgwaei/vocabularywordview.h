@@ -32,8 +32,9 @@ struct _LgwVocabularyWordViewClass {
 GtkWidget* lgw_vocabularywordview_new (void);
 GType lgw_vocabularywordview_get_type (void) G_GNUC_CONST;
 
-void lgw_vocabularywordview_set_wordstore (LgwVocabularyWordView *self, LgwVocabularyWordStore *vocabulary_word_store);
+void lgw_vocabularywordview_set_wordstores (LgwVocabularyWordView *self, GList *wordstores);
 LgwVocabularyWordStore* lgw_vocabularywordview_get_wordstore (LgwVocabularyWordView *self);
+GList* lgw_vocabularywordview_get_wordstores (LgwVocabularyWordView *self);
 
 G_END_DECLS
 

@@ -274,7 +274,6 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *self,
     }
 
     priv->data.length = -1;
-    printf("BREAK %d\n", g_list_length (priv->data.list));
 
     {
       gint i = 0;
@@ -514,4 +513,32 @@ lgw_vocabularyliststore_length (LgwVocabularyListStore *self)
     }
 
     return priv->data.length;
+}
+
+
+LgwVocabularyWordStore*
+lgw_vocabularyliststore_get_wordstore (LgwVocabularyListStore *self, GtkTreePath *tree_path)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (self));
+
+    //Declarations
+    GtkTreeModel *tree_model = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    GtkTreeIter iter;
+
+    //Initializations
+    tree_model = GTK_TREE_MODEL (self);
+
+    if (gtk_tree_model_get_iter (tree_model, &iter, tree_path))
+    {
+      GObject *object = NULL;
+      gtk_tree_model_get (tree_model, &iter, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &object, -1);
+      vocabulary_word_store = LGW_VOCABULARYWORDSTORE (object);
+      g_object_unref (object);
+    }
+
+errored:
+
+    return vocabulary_word_store;
 }

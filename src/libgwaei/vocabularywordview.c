@@ -115,8 +115,8 @@ lgw_vocabularywordview_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_VOCABULARYWORDSTORE:
-        lgw_vocabularywordview_set_wordstore (self, g_value_get_object (value));
+      case PROP_VOCABULARYWORDSTORES:
+        lgw_vocabularywordview_set_wordstores (self, g_value_get_pointer (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -146,8 +146,8 @@ lgw_vocabularywordview_get_property (GObject      *object,
       case PROP_ACTIONS:
         g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
         break;
-      case PROP_VOCABULARYWORDSTORE:
-        g_value_set_object (value, lgw_vocabularywordview_get_wordstore (self));
+      case PROP_VOCABULARYWORDSTORES:
+        g_value_set_pointer (value, lgw_vocabularywordview_get_wordstores (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -308,23 +308,21 @@ lgw_vocabularywordview_class_init (LgwVocabularyWordViewClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LgwVocabularyWordViewPrivate));
 
-    klasspriv->pspec[PROP_VOCABULARYWORDSTORE] = g_param_spec_object (
-      "vocabulary-word-store",
+    klasspriv->pspec[PROP_VOCABULARYWORDSTORES] = g_param_spec_pointer (
+      "vocabulary-word-stores",
       "used for the datamodel",
       "for the datamodel",
-      LGW_TYPE_VOCABULARYWORDSTORE,
-      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+      G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_VOCABULARYWORDSTORE, klasspriv->pspec[PROP_VOCABULARYWORDSTORE]);
+    g_object_class_install_property (object_class, PROP_VOCABULARYWORDSTORES, klasspriv->pspec[PROP_VOCABULARYWORDSTORES]);
 
     g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
 }
 
 
-
-void
-lgw_vocabularywordview_set_wordstore (LgwVocabularyWordView  *self,
-                                      LgwVocabularyWordStore *vocabulary_word_store)
+static gboolean
+lgw_vocabularywordview_contains_all_wordstores (LgwVocabularyWordView *self,
+                                                GList                 *wordstores)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
@@ -333,37 +331,99 @@ lgw_vocabularywordview_set_wordstore (LgwVocabularyWordView  *self,
     LgwVocabularyWordViewPrivate *priv = NULL;
     LgwVocabularyWordViewClass *klass = NULL;
     LgwVocabularyWordViewClassPrivate *klasspriv = NULL;
+    gboolean changed = FALSE;
+    GHashTable *table = NULL;
+    gboolean contains_all = TRUE;
 
     //Initializations
     priv = self->priv;
     klass = LGW_VOCABULARYWORDVIEW_GET_CLASS (self);
     klasspriv = klass->priv;
-    
-    if (vocabulary_word_store != priv->data.vocabulary_word_store)
+    table = g_hash_table_new (g_direct_hash, g_direct_equal);
+    contains_all = (g_list_length (wordstores) == g_list_length (priv->data.vocabulary_word_stores));
+    if (contains_all == FALSE) goto errored;
+
     {
-      if (vocabulary_word_store != NULL)
+      GList *link = NULL;
+      for (link = priv->data.vocabulary_word_stores; link != NULL; link = link->next)
       {
-        g_object_ref (vocabulary_word_store);
+        LgwVocabularyWordStore *s = LGW_VOCABULARYWORDSTORE (link->data);
+        if (s != NULL)
+        {
+          g_hash_table_add (table, s);
+        }
       }
-
-      if (priv->data.vocabulary_word_store != NULL)
-      {
-        g_object_remove_weak_pointer (G_OBJECT (priv->data.vocabulary_word_store), (gpointer*) &(priv->data.vocabulary_word_store));
-        g_object_unref (priv->data.vocabulary_word_store);
-        priv->data.vocabulary_word_store = NULL;
-      }
-
-      priv->data.vocabulary_word_store = vocabulary_word_store;
-
-      if (priv->data.vocabulary_word_store != NULL)
-      {
-        g_object_add_weak_pointer (G_OBJECT (priv->data.vocabulary_word_store), (gpointer*) &(priv->data.vocabulary_word_store));
-      }
-
-      gtk_tree_view_set_model (priv->ui.tree_view, GTK_TREE_MODEL (vocabulary_word_store));
-
-      g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_VOCABULARYWORDSTORE]);
     }
+
+    {
+      GList *link = NULL;
+      for (link = wordstores; link != NULL && contains_all; link = link->next)
+      {
+        LgwVocabularyWordStore *s = LGW_VOCABULARYWORDSTORE (link->data);
+        if (s != NULL && !g_hash_table_contains (table, s))
+        {
+          contains_all = FALSE;
+        }
+      }
+    }
+
+errored:
+
+      if (table != NULL) g_hash_table_unref (table); table = NULL;
+
+      return contains_all;
+}
+
+
+void
+lgw_vocabularywordview_set_wordstores (LgwVocabularyWordView  *self,
+                                       GList                  *wordstores)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordViewPrivate *priv = NULL;
+    LgwVocabularyWordViewClass *klass = NULL;
+    LgwVocabularyWordViewClassPrivate *klasspriv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    klass = LGW_VOCABULARYWORDVIEW_GET_CLASS (self);
+    klasspriv = klass->priv;
+    changed = !lgw_vocabularywordview_contains_all_wordstores (self, wordstores);
+    if (!changed) goto errored;
+ 
+    if (wordstores != NULL)
+    {
+      g_list_foreach (wordstores, (GFunc) g_object_ref, NULL);
+      g_list_foreach (wordstores, (GFunc) lw_vocabulary_load, NULL);
+    }
+
+    if (priv->data.vocabulary_word_stores != NULL)
+    {
+      g_list_free_full (priv->data.vocabulary_word_stores, (GDestroyNotify) g_object_unref);
+      priv->data.vocabulary_word_stores = NULL;
+      priv->data.vocabulary_word_store = NULL;
+    }
+
+    if (wordstores != NULL)
+    {
+      priv->data.vocabulary_word_stores = g_list_copy (wordstores);
+      priv->data.vocabulary_word_store = LGW_VOCABULARYWORDSTORE (wordstores->data);
+      gtk_tree_view_set_model (priv->ui.tree_view, GTK_TREE_MODEL (wordstores->data));
+    }
+    else
+    {
+      gtk_tree_view_set_model (priv->ui.tree_view, NULL);
+    }
+
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_VOCABULARYWORDSTORES]);
+
+errored:
+
+      return;
 }
 
 
@@ -375,13 +435,28 @@ lgw_vocabularywordview_get_wordstore (LgwVocabularyWordView  *self)
 
     //Declarations
     LgwVocabularyWordViewPrivate *priv = NULL;
-    LgwVocabularyWordViewClass *klass = NULL;
-    LgwVocabularyWordViewClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
-    klass = LGW_VOCABULARYWORDVIEW_GET_CLASS (self);
-    klasspriv = klass->priv;
 
     return priv->data.vocabulary_word_store;
 }
+
+
+GList*
+lgw_vocabularywordview_get_wordstores (LgwVocabularyWordView  *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordViewPrivate *priv = NULL;
+    GList *copy = NULL;
+
+    //Initializations
+    priv = self->priv;
+    copy = g_list_copy (priv->data.vocabulary_word_stores);
+
+    return priv->data.vocabulary_word_stores;
+}
+

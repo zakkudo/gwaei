@@ -106,7 +106,6 @@ lgw_vocabularywidget_child_actions_property_changed_cb (LgwVocabularyWidget *sel
                                                         GParamSpec          *pspec,
                                                         LgwActionable       *actionable)
 {
-  printf("lgw_vocabualrywidget_child_actions_property_changed_cb\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWIDGET (self));
     g_return_if_fail (actionable != NULL);

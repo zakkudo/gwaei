@@ -51,6 +51,8 @@ void lgw_vocabularyliststore_load (LgwVocabularyListStore *self);
 
 gint lgw_vocabularyliststore_length (LgwVocabularyListStore *self);
 
+LgwVocabularyWordStore* lgw_vocabularyliststore_get_wordstore (LgwVocabularyListStore *self, GtkTreePath *tree_path);
+
 G_END_DECLS
 
 #endif

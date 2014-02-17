@@ -41,95 +41,6 @@
 
 
 void
-lgw_vocabularywordview_connect_signals (LgwVocabularyWordView *self)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
-
-    //Declarations
-    LgwVocabularyWordViewPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] == 0)
-    {
-        priv->data.signalid[SIGNALID_SELECTION_CHANGED] = g_signal_connect_swapped (
-          G_OBJECT (priv->data.tree_selection),
-          "changed",
-          G_CALLBACK (lgw_vocabularywordview_selection_changed_cb),
-          self
-        );
-    }
-
-    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] == 0)
-    {
-      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = g_signal_connect_swapped (
-          G_OBJECT (priv->ui.tree_view),
-          "focus-in-event",
-          G_CALLBACK (lgw_vocabularywordview_focus_in_event_cb),
-          self
-      );
-    }
-
-    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] == 0)
-    {
-      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = g_signal_connect_swapped (
-          G_OBJECT (priv->ui.tree_view),
-          "focus-out-event",
-          G_CALLBACK (lgw_vocabularywordview_focus_out_event_cb),
-          self
-      );
-    }
-}
-
-
-void
-lgw_vocabularywordview_disconnect_signals (LgwVocabularyWordView *self)
-{
-
-    //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
-
-    //Declarations
-    LgwVocabularyWordViewPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] != 0)
-    {
-        if (priv->data.tree_selection != NULL) //NOTE apparently the tree selection object is disposed of early
-        {
-          g_signal_handler_disconnect (
-            G_OBJECT (priv->data.tree_selection),
-            priv->data.signalid[SIGNALID_SELECTION_CHANGED]
-          );
-        }
-        priv->data.signalid[SIGNALID_SELECTION_CHANGED] = 0;
-    }
-
-    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] != 0)
-    {
-      g_signal_handler_disconnect (
-        G_OBJECT (priv->ui.tree_view),
-        priv->data.signalid[SIGNALID_FOCUS_IN_EVENT]
-      );
-      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = 0;
-    }
-
-    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] != 0)
-    {
-      g_signal_handler_disconnect (
-        G_OBJECT (priv->ui.tree_view),
-        priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT]
-      );
-      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = 0;
-    }
-}
-
-
-void
 lgw_vocabularywordview_selection_changed_cb (LgwVocabularyWordView *self,
                                              GtkTreeSelection      *tree_selection)
 {
@@ -138,7 +49,14 @@ lgw_vocabularywordview_selection_changed_cb (LgwVocabularyWordView *self,
 
     //Declarations
     LgwVocabularyWordViewPrivate *priv = NULL;
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LgwActionable *actionable = NULL;
+
+    //Initializations
+    priv = self->priv;
+    if (priv == NULL) goto errored;
+    actionable = LGW_ACTIONABLE (self);
+
+    lgw_actionable_sync_actions (actionable);
 
 errored:
 
@@ -224,5 +142,94 @@ lgw_vocabularywordview_focus_out_event_cb (LgwVocabularyWordView *self,
     lgw_actionable_sync_actions (actionable);
 
     return FALSE;
+}
+
+
+void
+lgw_vocabularywordview_connect_signals (LgwVocabularyWordView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordViewPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] == 0)
+    {
+        priv->data.signalid[SIGNALID_SELECTION_CHANGED] = g_signal_connect_swapped (
+          G_OBJECT (priv->data.tree_selection),
+          "changed",
+          G_CALLBACK (lgw_vocabularywordview_selection_changed_cb),
+          self
+        );
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] == 0)
+    {
+      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view),
+          "focus-in-event",
+          G_CALLBACK (lgw_vocabularywordview_focus_in_event_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] == 0)
+    {
+      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view),
+          "focus-out-event",
+          G_CALLBACK (lgw_vocabularywordview_focus_out_event_cb),
+          self
+      );
+    }
+}
+
+
+void
+lgw_vocabularywordview_disconnect_signals (LgwVocabularyWordView *self)
+{
+
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordViewPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->data.signalid[SIGNALID_SELECTION_CHANGED] != 0)
+    {
+        if (priv->data.tree_selection != NULL) //NOTE apparently the tree selection object is disposed of early
+        {
+          g_signal_handler_disconnect (
+            G_OBJECT (priv->data.tree_selection),
+            priv->data.signalid[SIGNALID_SELECTION_CHANGED]
+          );
+        }
+        priv->data.signalid[SIGNALID_SELECTION_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view),
+        priv->data.signalid[SIGNALID_FOCUS_IN_EVENT]
+      );
+      priv->data.signalid[SIGNALID_FOCUS_IN_EVENT] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view),
+        priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT]
+      );
+      priv->data.signalid[SIGNALID_FOCUS_OUT_EVENT] = 0;
+    }
 }
 

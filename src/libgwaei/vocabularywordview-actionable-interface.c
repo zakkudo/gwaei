@@ -79,7 +79,7 @@ lgw_vocabularywordview_rebuild_actiongroup (LgwActionable *actionable)
         { "remove-selected-words", lgw_vocabularywordview_remove_selected_activated_cb, NULL, NULL, NULL }
       };
       gint length = G_N_ELEMENTS (entries);
-      if (has_focus && has_selection) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+      if (has_selection) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
       else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
     }
 }

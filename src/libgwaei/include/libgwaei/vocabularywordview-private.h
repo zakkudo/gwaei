@@ -6,7 +6,7 @@ G_BEGIN_DECLS
 typedef enum {
   PROP_0,
   PROP_ACTIONS,
-  PROP_VOCABULARYWORDSTORE,
+  PROP_VOCABULARYWORDSTORES,
   TOTAL_PROPS
 } Prop;
 
@@ -25,11 +25,13 @@ struct _UI {
 };
 
 struct _Data {
+  GList *vocabulary_word_stores;
   LgwVocabularyWordStore *vocabulary_word_store;
   GtkTreeSelection *tree_selection;
   LgwActionGroup *action_group;
   GList *action_group_list;
   guint signalid[TOTAL_SIGNALIDS];
+  gboolean editable;
 };
 
 struct _LgwVocabularyWordViewPrivate {

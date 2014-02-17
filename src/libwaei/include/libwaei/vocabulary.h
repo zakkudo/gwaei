@@ -51,13 +51,16 @@ const gchar* lw_vocabulary_get_filename (LwVocabulary *vocabulary);
 void lw_vocabulary_set_loaded (LwVocabulary *vocabulary, gboolean loaded);
 gboolean lw_vocabulary_is_loaded (LwVocabulary *vocabulary);
 
+gboolean lw_vocabulary_rename (LwVocabulary *vocabulary, const gchar *FILENAME);
+
 LwWord* lw_vocabulary_get_word_by_index (LwVocabulary *vocabulary, gint index);
 
 void lw_vocabulary_load (LwVocabulary *vocabulary, LwProgressCallback cb);
 
 gint lw_vocabulary_length (LwVocabulary *vocabulary);
 
-gchar* lgw_vocabulary_generate_filename ();
+gchar* lw_vocabulary_generate_filename ();
+gboolean lw_vocabulary_filename_exists (const gchar *FILENAME);
 
 G_END_DECLS
 

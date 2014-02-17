@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file vocabularylistview.c
+//! @file vocabularylistview-callbacks.c
 //!
 //! @brief To be written
 //!
@@ -51,7 +51,7 @@ lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *self,
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    GList *vocabulary_word_stores = NULL;
     LgwVocabularyWordView *vocabulary_word_view = NULL;
     LgwActionable *actionable = NULL;
 
@@ -60,22 +60,20 @@ lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *self,
     if (priv == NULL) goto errored;
     vocabulary_word_view = lgw_vocabularylistview_get_wordview (self);
     if (vocabulary_word_view == NULL) goto errored;
-    vocabulary_word_store = lgw_vocabularylistview_get_selected_wordstore (self);
+    vocabulary_word_stores = lgw_vocabularylistview_get_selected_wordstores (self);
     actionable = LGW_ACTIONABLE (self);
 
-    if (vocabulary_word_store != NULL)
-    {
-      lw_vocabulary_load (LW_VOCABULARY (vocabulary_word_store), NULL);
-    }
-
-    lgw_vocabularywordview_set_wordstore (vocabulary_word_view, vocabulary_word_store);
+    lgw_vocabularywordview_set_wordstores (vocabulary_word_view, vocabulary_word_stores);
 
     lgw_actionable_sync_actions (actionable);
 
 errored:
 
+    if (vocabulary_word_stores != NULL) g_list_free (vocabulary_word_stores);
+
     return;
 }
+
 
 void
 lgw_vocabularylistview_add_new_activated_cb (GSimpleAction *action,
@@ -93,6 +91,7 @@ lgw_vocabularylistview_add_new_activated_cb (GSimpleAction *action,
 
     lgw_vocabularylistview_add_new (self);
 }
+
 
 void
 lgw_vocabularylistview_delete_selected_activated_cb (GSimpleAction *action,
@@ -154,14 +153,47 @@ lgw_vocabularylistview_focus_out_event_cb (LgwVocabularyListView *self,
 }
 
 
-void lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
-                                            gchar                 *path,
-                                            gchar                 *new_text,
-                                            GtkCellRendererText   *renderer)
+void
+lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
+                                       gchar                 *path_string,
+                                       gchar                 *new_text,
+                                       GtkCellRendererText   *renderer)
 {
-    printf("EDITED! %s\n", new_text);
-}
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
+    //Declarations
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+    GtkTreeModel *tree_model = NULL;
+    GtkTreePath *tree_path = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LwVocabulary *vocabulary = NULL;
+    GtkTreeIter iter;
+
+    //Initializations
+    vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
+    tree_model = GTK_TREE_MODEL (vocabulary_list_store);
+    tree_path = gtk_tree_path_new_from_string (path_string);
+    if (tree_path == NULL) goto errored;
+    vocabulary_word_store = lgw_vocabularyliststore_get_wordstore (vocabulary_list_store, tree_path);
+    if (vocabulary_word_store == NULL) goto errored;
+    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    gtk_tree_model_get_iter_from_string (tree_model, &iter, path_string);
+
+    lw_vocabulary_set_filename (vocabulary, new_text);
+
+    g_signal_emit_by_name (
+      G_OBJECT (vocabulary_list_store),
+      "row-changed",
+      tree_path,
+      &iter,
+      NULL
+    );
+
+errored:
+
+    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
+}
 
 
 void

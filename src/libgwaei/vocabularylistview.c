@@ -390,11 +390,11 @@ lgw_vocabularylistview_set_wordview (LgwVocabularyListView *self,
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    GList *selected_wordstores = NULL;
 
     //Initializations
     priv = self->priv;
-    vocabulary_word_store = lgw_vocabularylistview_get_selected_wordstore (self);
+    selected_wordstores = lgw_vocabularylistview_get_selected_wordstores (self);
 
     if (priv->config.vocabulary_word_view != NULL)
     {
@@ -407,7 +407,7 @@ lgw_vocabularylistview_set_wordview (LgwVocabularyListView *self,
     if (priv->config.vocabulary_word_view != NULL)
     {
       g_object_add_weak_pointer (G_OBJECT (vocabulary_word_view), (gpointer*) &(priv->config.vocabulary_word_view));
-      lgw_vocabularywordview_set_wordstore (priv->config.vocabulary_word_view, vocabulary_word_store);
+      lgw_vocabularywordview_set_wordstores (priv->config.vocabulary_word_view, selected_wordstores);
     }
 }
 
@@ -428,8 +428,8 @@ lgw_vocabularylistview_get_wordview (LgwVocabularyListView *self)
 }
 
 
-LgwVocabularyWordStore*
-lgw_vocabularylistview_get_selected_wordstore (LgwVocabularyListView *self)
+GList*
+lgw_vocabularylistview_get_selected_wordstores (LgwVocabularyListView *self)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
@@ -438,24 +438,25 @@ lgw_vocabularylistview_get_selected_wordstore (LgwVocabularyListView *self)
     LgwVocabularyListViewPrivate *priv = NULL;
     GtkTreeModel *tree_model = NULL;
     GList *selected_rows = NULL;
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
-    GtkTreeIter iter;
-    GtkTreePath *tree_path = NULL;
+    GList *selected_wordstores = NULL;
 
     //Initializations
     priv = self->priv;
     if (priv->data.vocabulary_list_store == NULL) goto errored;
     tree_model = GTK_TREE_MODEL (priv->data.vocabulary_list_store);
     selected_rows = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
+    printf("BREAK gtk_tree_selection_get_selected_rows %d\n", g_list_length (selected_rows));
     if (selected_rows == NULL) goto errored;
-    tree_path = selected_rows->data;
 
-    if (gtk_tree_model_get_iter (tree_model, &iter, tree_path))
     {
-      GObject *object = NULL;
-      gtk_tree_model_get (tree_model, &iter, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &object, -1);
-      vocabulary_word_store = LGW_VOCABULARYWORDSTORE (object);
-      g_object_unref (object);
+      GList *link = NULL;
+      for (link = selected_rows; link != NULL; link = link->next)
+      {
+        GtkTreePath *tree_path = selected_rows->data;
+        LgwVocabularyWordStore *vocabulary_word_store = lgw_vocabularyliststore_get_wordstore (priv->data.vocabulary_list_store, tree_path);
+        selected_wordstores = g_list_prepend (selected_wordstores, vocabulary_word_store);
+        printf("BREAK lgw_vocabularyliststore_get_wordstore %d\n", g_list_length (selected_wordstores));
+      }
     }
 
 errored:
@@ -466,7 +467,9 @@ errored:
       selected_rows = NULL;
     }
 
-    return vocabulary_word_store;
+    selected_wordstores = g_list_reverse (selected_wordstores);
+
+    return selected_wordstores;
 }
 
 
@@ -490,7 +493,7 @@ lgw_vocabularylistview_add_new (LgwVocabularyListView *self)
     priv = self->priv;
     vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
     if (vocabulary_list_store == NULL) goto errored;
-    filename = lgw_vocabulary_generate_filename ();
+    filename = lw_vocabulary_generate_filename ();
     if (filename == NULL) goto errored;
     vocabulary_word_store = lgw_vocabularywordstore_new (filename);
     if (vocabulary_word_store == NULL) goto errored;
@@ -569,4 +572,7 @@ errored:
     if (positions != NULL) g_free (positions); positions = NULL;
     if (pathlist != NULL) g_list_free_full (pathlist, (GDestroyNotify) gtk_tree_path_free); pathlist = NULL;
 }
+
+
+
 
