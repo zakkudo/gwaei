@@ -25,6 +25,7 @@ libgwaei_la_SOURCES +=vocabularywordstore.c vocabularywordstore-callbacks.c voca
 libgwaei_la_SOURCES +=vocabularywordview.c vocabularywordview-callbacks.c vocabularywordview-actionable-interface.c
 libgwaei_la_SOURCES +=vocabularyliststore.c vocabularyliststore-treemodel-interface.c
 libgwaei_la_SOURCES +=vocabularylistview.c vocabularylistview-callbacks.c vocabularylistview-actionable-interface.c
+libgwaei_la_SOURCES +=addvocabularydialog.c addvocabularydialog-callbacks.c
 
 
 libgwaei_la_LDFLAGS =-no-undefined -version-info $(LIBRARY_VERSION)  $(GWAEI_LIBS) 

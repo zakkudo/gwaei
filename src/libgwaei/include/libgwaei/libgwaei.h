@@ -28,6 +28,8 @@
 
 #include <libgwaei/vocabularywidget.h>
 
+#include <libgwaei/addvocabularydialog.h>
+
 gchar* lgw_get_symbolic_icon_name_if_exists (const gchar* ICON_NAME);
 gboolean lgw_load_xml (GtkBuilder *builder, const gchar *FILENAME);
 GMenuModel* lgw_load_menu_model (const gchar* FILENAME);

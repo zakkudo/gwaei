@@ -301,6 +301,8 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *self,
 
 errored:
 
+    //lgw_vocabularyliststore_rebuild_index (self); TODO
+
     return;
 }
 
@@ -374,6 +376,8 @@ lgw_vocabularyliststore_remove_all (LgwVocabularyListStore *self,
       }
     }
 
+    priv->data.length = -1;
+
     //Update the GtkTreeModel
     {
       GList *remove_link = NULL;
@@ -396,7 +400,8 @@ errored:
 
     if (hash != NULL) g_hash_table_unref (hash); hash = NULL;
     if (remove_list != NULL) g_list_free (remove_list); remove_list = NULL;
-    priv->data.length = -1;
+
+    // lgw_vocabularyliststore_rebuild_index (self); TODO
 }
 
 

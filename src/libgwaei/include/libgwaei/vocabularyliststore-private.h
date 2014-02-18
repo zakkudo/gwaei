@@ -18,6 +18,11 @@ typedef enum {
   TOTAL_PROPS
 } Prop;
 
+struct _Index {
+  GHashTable *filename;
+  GHashTable *wordstore;
+  GList** position;
+};
 
 struct _Data {
   gint list_new_index;
@@ -25,6 +30,7 @@ struct _Data {
   GMenuModel *menumodel;
   gboolean has_changes;
   gint length;
+  struct _Index index;
 };
 
 

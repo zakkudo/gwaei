@@ -42,6 +42,19 @@
 
 
 void
+lgw_vocabularywidget_child_actions_property_changed_cb (LgwVocabularyWidget *self,
+                                                        GParamSpec          *pspec,
+                                                        LgwActionable       *actionable)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (self));
+    g_return_if_fail (actionable != NULL);
+
+    lgw_actionable_sync_actions (LGW_ACTIONABLE (self));
+}
+
+
+void
 lgw_vocabularywidget_connect_signals (LgwVocabularyWidget *self)
 {
     //Sanity checks
@@ -98,18 +111,5 @@ lgw_vocabularywidget_disconnect_signals (LgwVocabularyWidget *self)
       g_signal_handler_disconnect (G_OBJECT (priv->ui.vocabulary_word_view), priv->data.signalid[SIGNALID_VOCABULARYWORDVIEW_ACTIONS]);
       priv->data.signalid[SIGNALID_VOCABULARYWORDVIEW_ACTIONS] = 0;
     }
-}
-
-
-void
-lgw_vocabularywidget_child_actions_property_changed_cb (LgwVocabularyWidget *self,
-                                                        GParamSpec          *pspec,
-                                                        LgwActionable       *actionable)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWIDGET (self));
-    g_return_if_fail (actionable != NULL);
-
-    lgw_actionable_sync_actions (LGW_ACTIONABLE (self));
 }
 

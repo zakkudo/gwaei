@@ -20,19 +20,25 @@
 *******************************************************************************/
 
 //!
-//!  @file addvocabularywindow.c
+//!  @file addvocabularywindow-callbacks.c
 //!
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <gwaei/gettext.h>
-#include <gwaei/gwaei.h>
-#include <gwaei/addvocabularywindow-private.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include <gtk/gtk.h>
 
-G_MODULE_EXPORT void 
+#include <libgwaei/gettext.h>
+#include <libgwaei/libgwaei.h>
+
+#include <libgwaei/addvocabularydialog-private.h>
+
+/*
+void 
 gw_addvocabularywindow_add_cb (GtkWidget *widget, gpointer data)
 {
     GwAddVocabularyWindow *window;
@@ -67,7 +73,7 @@ gw_addvocabularywindow_add_cb (GtkWidget *widget, gpointer data)
 }
 
 
-G_MODULE_EXPORT void 
+void 
 gw_addvocabularywindow_cancel_cb (GtkWidget *widget, gpointer data)
 {
     GwAddVocabularyWindow *window;
@@ -79,7 +85,7 @@ gw_addvocabularywindow_cancel_cb (GtkWidget *widget, gpointer data)
 }
 
 
-G_MODULE_EXPORT void
+void
 gw_addvocabularywindow_kanji_changed_cb (GtkWidget *widget, gpointer data)
 {
     GwAddVocabularyWindow *window;
@@ -97,7 +103,7 @@ gw_addvocabularywindow_kanji_changed_cb (GtkWidget *widget, gpointer data)
 }
 
 
-G_MODULE_EXPORT void
+void
 gw_addvocabularywindow_furigana_changed_cb (GtkWidget *widget, gpointer data)
 {
     GwAddVocabularyWindow *window;
@@ -115,10 +121,7 @@ gw_addvocabularywindow_furigana_changed_cb (GtkWidget *widget, gpointer data)
 }
 
 
-void gw_addvocabularywindow_definitions_event_after_cb (GtkWidget*, GdkEvent*, gpointer);
-
-
-G_MODULE_EXPORT void
+void
 gw_addvocabularywindow_definitions_paste_done_cb (GtkTextBuffer *buffer,
                                                   GtkClipboard  *clipboard,
                                                   gpointer       data      )
@@ -148,7 +151,7 @@ gw_addvocabularywindow_definitions_paste_done_cb (GtkTextBuffer *buffer,
 }
 
 
-G_MODULE_EXPORT void
+void
 gw_addvocabularywindow_definitions_event_after_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 
@@ -205,7 +208,7 @@ gw_addvocabularywindow_definitions_event_after_cb (GtkWidget *widget, GdkEvent *
 }
 
 
-G_MODULE_EXPORT void
+void
 gw_addvocabularywindow_list_changed_cb (GtkWidget *widget, gpointer data)
 {
     GwAddVocabularyWindow *window;
@@ -224,3 +227,4 @@ gw_addvocabularywindow_list_changed_cb (GtkWidget *widget, gpointer data)
     gw_addvocabularywindow_validate (window);
 }
 
+*/
