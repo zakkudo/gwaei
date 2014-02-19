@@ -16,24 +16,29 @@ typedef enum {
 
 
 typedef enum {
+    PROP_0,
     PROP_KANJI,
     PROP_READING,
     PROP_DEFINITION,
     PROP_VOCABULARYLISTSTORE,
+    PROP_VOCABULARYWORDSTORE,
     TOTAL_PROPS
 } Props;
 
 struct _UI {
-  GtkComboBox *combobox;
+  GtkComboBox *combo_box;
   GtkEntry *kanji_entry;
   GtkEntry *reading_entry;
-  GtkEntry *definition_entry;
+  GtkTextView *definition_text_view;
   GtkButton *add_button;
   GtkButton *cancel_button;
+  GtkGrid *grid;
+  GtkBox *layout_box;
 };
 
 struct _Data {
   LgwVocabularyListStore *vocabulary_list_store;
+  LgwVocabularyWordStore *vocabulary_word_store;
   LwWord *word;
   guint signalid[TOTAL_SIGNALIDS];
 };

@@ -3,6 +3,11 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+  LGW_ADDVOCABULARYDIALOG_RESPONSE_CANCEL,
+  LGW_ADDVOCABULARYDIALOG_RESPONSE_ADD,
+  TOTAL_LGW_ADDVOCABULARYDIALOG_RESPONSES
+} LgwAddVocabularyDialogResponse;
 
 //Boilerplate
 typedef struct _LgwAddVocabularyDialog LgwAddVocabularyDialog;
@@ -28,7 +33,7 @@ struct _LgwAddVocabularyDialogClass {
   void (*word_added) (LgwAddVocabularyDialog *dialog);
 };
 
-GtkWidget* lgw_addvocabularydialog_new (LgwVocabularyListStore *vocabulary_list_store);
+GtkWidget* lgw_addvocabularydialog_new (GtkWindow *window);
 GType lgw_addvocabularydialog_get_type (void) G_GNUC_CONST;
 
 
@@ -44,6 +49,8 @@ void lgw_addvocabularydialog_set_definition (LgwAddVocabularyDialog *self, const
 void lgw_addvocabularydialog_set_liststore (LgwAddVocabularyDialog *self, LgwVocabularyListStore *vocabulary_list_store);
 LgwVocabularyListStore* lgw_addvocabularydialog_get_liststore (LgwAddVocabularyDialog *self);
 
+LgwVocabularyWordStore* lgw_addvocabularydialog_get_wordstore (LgwAddVocabularyDialog *self);
+void lgw_addvocabularydialog_set_wordstore (LgwAddVocabularyDialog *self, LgwVocabularyWordStore *vocabulary_word_store);
 
 G_END_DECLS
 

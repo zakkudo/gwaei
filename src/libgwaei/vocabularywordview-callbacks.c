@@ -73,8 +73,27 @@ lgw_vocabularywordview_add_new_activated_cb (GSimpleAction *action,
 
     //Declarations
     LgwVocabularyWordView *self = NULL;
+    GtkWidget *toplevel = NULL;
+    GtkWindow *window = NULL;
+    GtkDialog *dialog = NULL;
+    GtkWidget *add_vocabulary_dialog = NULL;
 
-    //TODO append
+    //Initializations
+    self = LGW_VOCABULARYWORDVIEW (data);
+    toplevel = gtk_widget_get_toplevel (GTK_WIDGET (self));
+    if (gtk_widget_is_toplevel (toplevel))
+    {
+      window = GTK_WINDOW (toplevel);
+    }
+    add_vocabulary_dialog = lgw_addvocabularydialog_new (window);
+    dialog = GTK_DIALOG (add_vocabulary_dialog);
+
+    add_vocabulary_dialog = lgw_addvocabularydialog_new (window);
+    gint response = gtk_dialog_run (GTK_DIALOG (add_vocabulary_dialog));
+
+errored:
+
+    if (add_vocabulary_dialog != NULL) gtk_widget_destroy (add_vocabulary_dialog);
 }
 
 void

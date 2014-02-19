@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//!  @file addvocabularywindow-callbacks.c
+//!  @file addvocabularydialog-callbacks.c
 //!
 
 #ifdef HAVE_CONFIG_H
@@ -39,7 +39,7 @@
 
 /*
 void 
-gw_addvocabularywindow_add_cb (GtkWidget *widget, gpointer data)
+gw_addvocabularydialog_add_cb (GtkWidget *widget, gpointer data)
 {
     GwAddVocabularyWindow *window;
     GwAddVocabularyWindowPrivate *priv;
@@ -52,10 +52,10 @@ gw_addvocabularywindow_add_cb (GtkWidget *widget, gpointer data)
     priv = window->priv;
     klass = GW_ADDVOCABULARYWINDOW_CLASS (G_OBJECT_GET_CLASS (window));
 
-    kanji = gw_addvocabularywindow_get_kanji (window);
-    furigana = gw_addvocabularywindow_get_furigana (window);
-    definitions = gw_addvocabularywindow_get_definitions (window);
-    wordstore = gw_addvocabularywindow_get_wordstore (window);
+    kanji = gw_addvocabularydialog_get_kanji (window);
+    furigana = gw_addvocabularydialog_get_furigana (window);
+    definitions = gw_addvocabularydialog_get_definitions (window);
+    wordstore = gw_addvocabularydialog_get_wordstore (window);
     priv->wordstore = GW_VOCABULARYWORDSTORE (wordstore);
 
     gw_vocabularywordstore_load (priv->wordstore, NULL);
@@ -63,7 +63,7 @@ gw_addvocabularywindow_add_cb (GtkWidget *widget, gpointer data)
 
     if (klass->last_selected_list_name != NULL)
       g_free (klass->last_selected_list_name);
-    klass->last_selected_list_name = g_strdup (gw_addvocabularywindow_get_list (window));
+    klass->last_selected_list_name = g_strdup (gw_addvocabularydialog_get_list (window));
 
     priv->valid = TRUE;
 
@@ -74,7 +74,7 @@ gw_addvocabularywindow_add_cb (GtkWidget *widget, gpointer data)
 
 
 void 
-gw_addvocabularywindow_cancel_cb (GtkWidget *widget, gpointer data)
+gw_addvocabularydialog_cancel_cb (GtkWidget *widget, gpointer data)
 {
     GwAddVocabularyWindow *window;
 
@@ -86,7 +86,7 @@ gw_addvocabularywindow_cancel_cb (GtkWidget *widget, gpointer data)
 
 
 void
-gw_addvocabularywindow_kanji_changed_cb (GtkWidget *widget, gpointer data)
+gw_addvocabularydialog_kanji_changed_cb (GtkWidget *widget, gpointer data)
 {
     GwAddVocabularyWindow *window;
     GwAddVocabularyWindowPrivate *priv;
@@ -99,12 +99,12 @@ gw_addvocabularywindow_kanji_changed_cb (GtkWidget *widget, gpointer data)
     priv->kanji_text = g_strdup (gtk_entry_get_text (priv->kanji_entry));
     g_strstrip (priv->kanji_text);
 
-    gw_addvocabularywindow_validate (window);
+    gw_addvocabularydialog_validate (window);
 }
 
 
 void
-gw_addvocabularywindow_furigana_changed_cb (GtkWidget *widget, gpointer data)
+gw_addvocabularydialog_furigana_changed_cb (GtkWidget *widget, gpointer data)
 {
     GwAddVocabularyWindow *window;
     GwAddVocabularyWindowPrivate *priv;
@@ -117,12 +117,12 @@ gw_addvocabularywindow_furigana_changed_cb (GtkWidget *widget, gpointer data)
     priv->furigana_text = g_strdup (gtk_entry_get_text (priv->furigana_entry));
     g_strstrip (priv->furigana_text);
 
-    gw_addvocabularywindow_validate (window);
+    gw_addvocabularydialog_validate (window);
 }
 
 
 void
-gw_addvocabularywindow_definitions_paste_done_cb (GtkTextBuffer *buffer,
+gw_addvocabularydialog_definitions_paste_done_cb (GtkTextBuffer *buffer,
                                                   GtkClipboard  *clipboard,
                                                   gpointer       data      )
 {
@@ -152,7 +152,7 @@ gw_addvocabularywindow_definitions_paste_done_cb (GtkTextBuffer *buffer,
 
 
 void
-gw_addvocabularywindow_definitions_event_after_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
+gw_addvocabularydialog_definitions_event_after_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 
     GwAddVocabularyWindow *window;
@@ -193,13 +193,13 @@ gw_addvocabularywindow_definitions_event_after_cb (GtkWidget *widget, GdkEvent *
     }
     *source_ptr = '\0';
 
-    valid = gw_addvocabularywindow_validate (window);
+    valid = gw_addvocabularydialog_validate (window);
 
     if (activate)
     {
-      G_GNUC_EXTENSION g_signal_handlers_block_by_func (widget, gw_addvocabularywindow_definitions_event_after_cb, data);
+      G_GNUC_EXTENSION g_signal_handlers_block_by_func (widget, gw_addvocabularydialog_definitions_event_after_cb, data);
       gtk_text_buffer_set_text (buffer, priv->definitions_text, -1);
-      G_GNUC_EXTENSION g_signal_handlers_unblock_by_func (widget, gw_addvocabularywindow_definitions_event_after_cb, data);
+      G_GNUC_EXTENSION g_signal_handlers_unblock_by_func (widget, gw_addvocabularydialog_definitions_event_after_cb, data);
       if (valid)
       {
         gtk_button_clicked (priv->add_button);
@@ -209,7 +209,7 @@ gw_addvocabularywindow_definitions_event_after_cb (GtkWidget *widget, GdkEvent *
 
 
 void
-gw_addvocabularywindow_list_changed_cb (GtkWidget *widget, gpointer data)
+gw_addvocabularydialog_list_changed_cb (GtkWidget *widget, gpointer data)
 {
     GwAddVocabularyWindow *window;
     GwAddVocabularyWindowPrivate *priv;
@@ -224,7 +224,40 @@ gw_addvocabularywindow_list_changed_cb (GtkWidget *widget, gpointer data)
     priv->list_text = g_strdup (gtk_entry_get_text (entry));
     g_strstrip (priv->list_text);
 
-    gw_addvocabularywindow_validate (window);
+    gw_addvocabularydialog_validate (window);
 }
 
 */
+
+void
+lgw_addvocabularydialog_kanji_changed_cb (LgwAddVocabularyDialog *self,
+                                          GtkEditable            *entry)
+{
+}
+
+
+void
+lgw_addvocabularydialog_reading_changed_cb (LgwAddVocabularyDialog *self,
+                                            GtkEditable            *entry)
+{
+}
+
+
+void
+lgw_addvocabularydialog_definition_changed_cb (LgwAddVocabularyDialog *self,
+                                               GtkEditable            *entry)
+{
+}
+
+
+void
+lgw_addvocabularydialog_connect_signals (LgwAddVocabularyDialog *self)
+{
+}
+
+
+void
+lgw_addvocabularydialog_disconnect_signals (LgwAddVocabularyDialog *self)
+{
+}
+
