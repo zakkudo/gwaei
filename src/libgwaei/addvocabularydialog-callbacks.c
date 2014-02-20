@@ -231,33 +231,224 @@ gw_addvocabularydialog_list_changed_cb (GtkWidget *widget, gpointer data)
 
 void
 lgw_addvocabularydialog_kanji_changed_cb (LgwAddVocabularyDialog *self,
-                                          GtkEditable            *entry)
+                                          GtkEditable            *inner_entry)
 {
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+    g_return_if_fail (GTK_IS_ENTRY (inner_entry));
+
+    printf("BREAK kanji_changed\n");
 }
 
 
 void
 lgw_addvocabularydialog_reading_changed_cb (LgwAddVocabularyDialog *self,
-                                            GtkEditable            *entry)
+                                            GtkEditable            *inner_entry)
 {
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+    g_return_if_fail (GTK_IS_ENTRY (inner_entry));
+
+    printf("BREAK reading_changed\n");
 }
 
 
 void
 lgw_addvocabularydialog_definition_changed_cb (LgwAddVocabularyDialog *self,
-                                               GtkEditable            *entry)
+                                               GtkTextBuffer          *inner_text_buffer)
 {
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+    g_return_if_fail (GTK_IS_TEXT_BUFFER (inner_text_buffer));
+
+    lgw_addvocabularydialog_sync_definition_text_buffer (self);
+
+    printf("BREAK definition_changed\n");
+}
+
+
+gboolean
+lgw_addvocabularydialog_definition_focus_in_event_cb (LgwAddVocabularyDialog *self,
+                                                      GdkEvent               *event,
+                                                      GtkTextView            *inner_text_view)
+{
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+    g_return_if_fail (GTK_IS_TEXT_VIEW (inner_text_view));
+
+    lgw_addvocabularydialog_sync_definition_text_buffer (self);
+
+    printf("BREAK focus_in_event\n");
+
+    return FALSE;
+}
+
+
+gboolean
+lgw_addvocabularydialog_definition_focus_out_event_cb (LgwAddVocabularyDialog *self,
+                                                       GdkEvent               *event,
+                                                       GtkTextView            *inner_text_view)
+{
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+    g_return_if_fail (GTK_IS_TEXT_VIEW (inner_text_view));
+
+    lgw_addvocabularydialog_sync_definition_text_buffer (self);
+
+    printf("BREAK focus_out_event\n");
+
+    return FALSE;
+}
+
+
+void
+lgw_addvocabularydialog_response_cb (LgwAddVocabularyDialog *self,
+                                     gint                    response_id,
+                                     GtkDialog              *dialog)
+{
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+    g_return_if_fail (GTK_IS_DIALOG (dialog));
+
+    lgw_addvocabularydialog_sync_definition_text_buffer (self);
+
+    printf("BREAK response is %d\n", response_id);
 }
 
 
 void
 lgw_addvocabularydialog_connect_signals (LgwAddVocabularyDialog *self)
 {
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+
+    //Declarations
+    LgwAddVocabularyDialogPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->data.signalid[SIGNALID_KANJI_CHANGED] == 0)
+    {
+        priv->data.signalid[SIGNALID_KANJI_CHANGED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.kanji_entry),
+          "changed",
+          G_CALLBACK (lgw_addvocabularydialog_kanji_changed_cb),
+          self
+        );
+    }
+
+    if (priv->data.signalid[SIGNALID_READING_CHANGED] == 0)
+    {
+        priv->data.signalid[SIGNALID_READING_CHANGED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.reading_entry),
+          "changed",
+          G_CALLBACK (lgw_addvocabularydialog_reading_changed_cb),
+          self
+        );
+    }
+
+    if (priv->data.signalid[SIGNALID_DEFINITION_CHANGED] == 0)
+    {
+        priv->data.signalid[SIGNALID_DEFINITION_CHANGED] = g_signal_connect_swapped (
+          G_OBJECT (priv->data.definition.text_buffer),
+          "changed",
+          G_CALLBACK (lgw_addvocabularydialog_definition_changed_cb),
+          self
+        );
+    }
+
+    if (priv->data.signalid[SIGNALID_DEFINITION_FOCUS_IN_EVENT] == 0)
+    {
+        priv->data.signalid[SIGNALID_DEFINITION_FOCUS_IN_EVENT] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.definition_text_view),
+          "focus-in-event",
+          G_CALLBACK (lgw_addvocabularydialog_definition_focus_in_event_cb),
+          self
+        );
+    }
+
+    if (priv->data.signalid[SIGNALID_DEFINITION_FOCUS_OUT_EVENT] == 0)
+    {
+        priv->data.signalid[SIGNALID_DEFINITION_FOCUS_OUT_EVENT] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.definition_text_view),
+          "focus-out-event",
+          G_CALLBACK (lgw_addvocabularydialog_definition_focus_out_event_cb),
+          self
+        );
+    }
+
+    if (priv->data.signalid[SIGNALID_RESPONSE] == 0)
+    {
+        priv->data.signalid[SIGNALID_RESPONSE] = g_signal_connect_swapped (
+          G_OBJECT (self),
+          "response",
+          G_CALLBACK (lgw_addvocabularydialog_response_cb),
+          self
+        );
+    }
 }
 
 
 void
 lgw_addvocabularydialog_disconnect_signals (LgwAddVocabularyDialog *self)
 {
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+
+    //Declarations
+    LgwAddVocabularyDialogPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->data.signalid[SIGNALID_KANJI_CHANGED] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.kanji_entry),
+        priv->data.signalid[SIGNALID_KANJI_CHANGED]
+      );
+      priv->data.signalid[SIGNALID_KANJI_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_READING_CHANGED] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.reading_entry),
+        priv->data.signalid[SIGNALID_READING_CHANGED]
+      );
+      priv->data.signalid[SIGNALID_READING_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_DEFINITION_CHANGED] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->data.definition.text_buffer),
+        priv->data.signalid[SIGNALID_DEFINITION_CHANGED]
+      );
+      priv->data.signalid[SIGNALID_DEFINITION_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_DEFINITION_FOCUS_IN_EVENT] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.definition_text_view),
+        priv->data.signalid[SIGNALID_DEFINITION_FOCUS_IN_EVENT]
+      );
+      priv->data.signalid[SIGNALID_DEFINITION_FOCUS_IN_EVENT] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_DEFINITION_FOCUS_OUT_EVENT] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.definition_text_view),
+        priv->data.signalid[SIGNALID_DEFINITION_FOCUS_OUT_EVENT]
+      );
+      priv->data.signalid[SIGNALID_DEFINITION_FOCUS_OUT_EVENT] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_RESPONSE] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (self),
+        priv->data.signalid[SIGNALID_RESPONSE]
+      );
+      priv->data.signalid[SIGNALID_RESPONSE] = 0;
+    }
 }
 

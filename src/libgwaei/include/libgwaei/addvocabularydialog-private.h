@@ -4,7 +4,12 @@
 G_BEGIN_DECLS
 
 typedef enum {
-    UNUSED_SIGNALID,
+    SIGNALID_KANJI_CHANGED,
+    SIGNALID_READING_CHANGED,
+    SIGNALID_DEFINITION_CHANGED,
+    SIGNALID_DEFINITION_FOCUS_IN_EVENT,
+    SIGNALID_DEFINITION_FOCUS_OUT_EVENT,
+    SIGNALID_RESPONSE,
     TOTAL_SIGNALIDS
 } SignalId;
 
@@ -25,6 +30,16 @@ typedef enum {
     TOTAL_PROPS
 } Props;
 
+struct _Definition {
+  GtkTextBuffer *placeholder_text_buffer;
+  GtkTextBuffer *text_buffer;
+};
+
+struct _Store {
+  LgwVocabularyListStore *vocabulary_list;
+  LgwVocabularyWordStore *vocabulary_word;
+};
+
 struct _UI {
   GtkComboBox *combo_box;
   GtkEntry *kanji_entry;
@@ -37,13 +52,14 @@ struct _UI {
 };
 
 struct _Data {
-  LgwVocabularyListStore *vocabulary_list_store;
-  LgwVocabularyWordStore *vocabulary_word_store;
   LwWord *word;
+  struct _Store store;
+  struct _Definition definition;
   guint signalid[TOTAL_SIGNALIDS];
 };
 
 struct _Config {
+  gboolean save_on_close;
 };
 
 struct _LgwAddVocabularyDialogPrivate {
@@ -59,6 +75,9 @@ struct _LgwAddVocabularyDialogClassPrivate {
 };
 
 #define LGW_ADDVOCABULARYDIALOG_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_ADDVOCABULARYDIALOG, LgwAddVocabularyDialogPrivate));
+
+void lgw_addvocabularydialog_sync_definition_text_buffer (LgwAddVocabularyDialog *self);
+void lgw_addvocabularydialog_sync_list_store (LgwAddVocabularyDialog *self);
 
 G_END_DECLS
 

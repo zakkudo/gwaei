@@ -98,7 +98,7 @@ lgw_addvocabularydialog_finalize (GObject *object)
     priv = self->priv;
 
     if (priv->data.word != NULL) lw_word_free (priv->data.word); priv->data.word = NULL;
-    if (priv->data.vocabulary_list_store != NULL) g_object_unref (priv->data.vocabulary_list_store); priv->data.vocabulary_list_store = NULL;
+    if (priv->data.store.vocabulary_list != NULL) g_object_unref (priv->data.store.vocabulary_list); priv->data.store.vocabulary_list = NULL;
 
     G_OBJECT_CLASS (lgw_addvocabularydialog_parent_class)->finalize (object);
 }
@@ -204,6 +204,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
       {
         GtkWidget *layout_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
         priv->ui.layout_box = GTK_BOX (layout_box);
+        gtk_container_set_border_width (GTK_CONTAINER (layout_box), 6);
         gtk_box_pack_start (box, layout_box, TRUE, TRUE, 0);
         gtk_widget_show (layout_box);
 
@@ -308,16 +309,29 @@ lgw_addvocabularydialog_constructed (GObject *object)
 
             {
               GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-              gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window), GTK_SHADOW_IN);
+              gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window), GTK_SHADOW_ETCHED_OUT);
+
+
               {
-                GtkWidget *text_view = gtk_text_view_new ();
-                priv->ui.definition_text_view = GTK_TEXT_VIEW (text_view);
-                //gtk_entry_set_placeholder_text (priv->ui.definition_text_view, gettext("Definition"));
-                gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
-                gtk_widget_show (text_view);
+                GtkTextBuffer *text_buffer = gtk_text_buffer_new (NULL);
+                priv->data.definition.placeholder_text_buffer = text_buffer;
+              }
+
+              {
+                GtkTextBuffer *text_buffer = gtk_text_buffer_new (NULL);
+                priv->data.definition.text_buffer = text_buffer;
+
+                {
+                  GtkWidget *text_view = gtk_text_view_new_with_buffer (text_buffer);
+                  priv->ui.definition_text_view = GTK_TEXT_VIEW (text_view);
+                  //gtk_entry_set_placeholder_text (priv->ui.definition_text_view, gettext("Definition"));
+                  gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
+                  gtk_widget_show (text_view);
+                }
               }
               gtk_widget_show (scrolled_window);
               gtk_grid_attach (priv->ui.grid, scrolled_window, 1, 3, 1, 1);
+
             }
           }
         }
@@ -628,7 +642,7 @@ lgw_addvocabularydialog_get_liststore (LgwAddVocabularyDialog *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.vocabulary_list_store;
+    return priv->data.store.vocabulary_list;
 }
 
 
@@ -645,7 +659,7 @@ lgw_addvocabularydialog_set_liststore (LgwAddVocabularyDialog *self,
 
     //Initializations
     priv = self->priv;
-    changed = (vocabulary_list_store != priv->data.vocabulary_list_store);
+    changed = (vocabulary_list_store != priv->data.store.vocabulary_list);
     if (!changed) goto errored;
 
     if (vocabulary_list_store != NULL)
@@ -653,32 +667,33 @@ lgw_addvocabularydialog_set_liststore (LgwAddVocabularyDialog *self,
       g_object_ref (vocabulary_list_store);
     }
 
-    if (priv->data.vocabulary_list_store != NULL)
+    if (priv->data.store.vocabulary_list != NULL)
     {
       g_object_remove_weak_pointer (
-        G_OBJECT (priv->data.vocabulary_list_store),
-        (gpointer*) &(priv->data.vocabulary_list_store)
+        G_OBJECT (priv->data.store.vocabulary_list),
+        (gpointer*) &(priv->data.store.vocabulary_list)
       );
-      g_object_unref (priv->data.vocabulary_list_store);
-      priv->data.vocabulary_list_store = NULL;
+      g_object_unref (priv->data.store.vocabulary_list);
+      priv->data.store.vocabulary_list = NULL;
     }
 
     if (vocabulary_list_store != NULL)
     {
-      priv->data.vocabulary_list_store = vocabulary_list_store;
+      priv->data.store.vocabulary_list = vocabulary_list_store;
       g_object_add_weak_pointer (
-        G_OBJECT (priv->data.vocabulary_list_store),
-        (gpointer*) &(priv->data.vocabulary_list_store)
+        G_OBJECT (priv->data.store.vocabulary_list),
+        (gpointer*) &(priv->data.store.vocabulary_list)
       );
 
-      gtk_combo_box_set_model (priv->ui.combo_box, GTK_TREE_MODEL (priv->data.vocabulary_list_store));
-      g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
+      gtk_combo_box_set_model (priv->ui.combo_box, GTK_TREE_MODEL (priv->data.store.vocabulary_list));
     }
     else
     {
       gtk_combo_box_set_model (priv->ui.combo_box, NULL);
-      g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
     }
+
+    lgw_addvocabularydialog_sync_list_store (self);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
 
 errored:
   
@@ -698,7 +713,7 @@ lgw_addvocabularydialog_get_wordstore (LgwAddVocabularyDialog *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.vocabulary_word_store;
+    return priv->data.store.vocabulary_word;
 }
 
 
@@ -715,7 +730,7 @@ lgw_addvocabularydialog_set_wordstore (LgwAddVocabularyDialog *self,
 
     //Initializations
     priv = self->priv;
-    changed = (vocabulary_word_store != priv->data.vocabulary_word_store);
+    changed = (vocabulary_word_store != priv->data.store.vocabulary_word);
     if (!changed) goto errored;
 
     if (vocabulary_word_store != NULL)
@@ -723,24 +738,53 @@ lgw_addvocabularydialog_set_wordstore (LgwAddVocabularyDialog *self,
       g_object_ref (vocabulary_word_store);
     }
 
-    if (priv->data.vocabulary_word_store != NULL)
+    if (priv->data.store.vocabulary_word != NULL)
     {
-      g_object_remove_weak_pointer (G_OBJECT (priv->data.vocabulary_word_store), (gpointer*) &(priv->data.vocabulary_word_store));
-      g_object_unref (priv->data.vocabulary_word_store);
-      priv->data.vocabulary_word_store = NULL;
+      g_object_remove_weak_pointer (G_OBJECT (priv->data.store.vocabulary_word), (gpointer*) &(priv->data.store.vocabulary_word));
+      g_object_unref (priv->data.store.vocabulary_word);
+      priv->data.store.vocabulary_word = NULL;
     }
 
     if (vocabulary_word_store != NULL)
     {
-      priv->data.vocabulary_word_store = vocabulary_word_store;
-      g_object_add_weak_pointer (G_OBJECT (priv->data.vocabulary_word_store), (gpointer*) &(priv->data.vocabulary_word_store));
+      priv->data.store.vocabulary_word = vocabulary_word_store;
+      g_object_add_weak_pointer (G_OBJECT (priv->data.store.vocabulary_word), (gpointer*) &(priv->data.store.vocabulary_word));
     }
 
+    lgw_addvocabularydialog_sync_list_store (self);
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VOCABULARYWORDSTORE]);
 
 errored:
   
     return;
+}
+
+
+void
+lgw_addvocabularydialog_sync_definition_text_buffer (LgwAddVocabularyDialog *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+
+    //Declarations
+    LgwAddVocabularyDialogPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+}
+
+
+void
+lgw_addvocabularydialog_sync_list_store (LgwAddVocabularyDialog *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+
+    //Declarations
+    LgwAddVocabularyDialogPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
 }
 
 
