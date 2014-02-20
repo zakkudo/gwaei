@@ -52,6 +52,9 @@ LgwVocabularyListStore* lgw_addvocabularydialog_get_liststore (LgwAddVocabularyD
 LgwVocabularyWordStore* lgw_addvocabularydialog_get_wordstore (LgwAddVocabularyDialog *self);
 void lgw_addvocabularydialog_set_wordstore (LgwAddVocabularyDialog *self, LgwVocabularyWordStore *vocabulary_word_store);
 
+gboolean lgw_addvocabularydialog_get_save_on_add (LgwAddVocabularyDialog *self);
+void lgw_addvocabularydialog_set_save_on_add (LgwAddVocabularyDialog *self, gboolean save_on_add);
+
 
 G_END_DECLS
 

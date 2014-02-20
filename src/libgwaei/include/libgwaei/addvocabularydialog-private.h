@@ -15,18 +15,13 @@ typedef enum {
 
 
 typedef enum {
-  CLASS_SIGNALID_WORD_ADDED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-
-
-typedef enum {
     PROP_0,
     PROP_KANJI,
     PROP_READING,
     PROP_DEFINITION,
     PROP_VOCABULARYLISTSTORE,
     PROP_VOCABULARYWORDSTORE,
+    PROP_SAVE_ON_ADD,
     TOTAL_PROPS
 } Props;
 
@@ -59,7 +54,7 @@ struct _Data {
 };
 
 struct _Config {
-  gboolean save_on_close;
+  gboolean save_on_add;
 };
 
 struct _LgwAddVocabularyDialogPrivate {
@@ -70,7 +65,6 @@ struct _LgwAddVocabularyDialogPrivate {
 
 struct _LgwAddVocabularyDialogClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
   gchar *last_selected_list_name;
 };
 

@@ -135,6 +135,9 @@ lgw_addvocabularydialog_set_property (GObject      *object,
       case PROP_DEFINITION:
         lgw_addvocabularydialog_set_definition (self, g_value_get_string (value));
         break;
+      case PROP_SAVE_ON_ADD:
+        lgw_addvocabularydialog_set_save_on_add (self, g_value_get_boolean (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -172,6 +175,9 @@ lgw_addvocabularydialog_get_property (GObject      *object,
         break;
       case PROP_DEFINITION:
         g_value_set_string (value, lgw_addvocabularydialog_get_definition (self));
+        break;
+      case PROP_SAVE_ON_ADD:
+        g_value_set_boolean (value, lgw_addvocabularydialog_get_save_on_add (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -375,16 +381,6 @@ lgw_addvocabularydialog_class_init (LgwAddVocabularyDialogClass *klass)
     _klass = klass;
     _klasspriv = klass->priv;
 
-    _klasspriv->signalid[CLASS_SIGNALID_WORD_ADDED] = g_signal_new (
-        "word-added",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LgwAddVocabularyDialogClass, word_added),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0
-    );
-
     _klasspriv->pspec[PROP_VOCABULARYLISTSTORE] = g_param_spec_object (
         "vocabulary-list-store",
         "prop",
@@ -429,6 +425,15 @@ lgw_addvocabularydialog_class_init (LgwAddVocabularyDialogClass *klass)
         G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_DEFINITION, _klasspriv->pspec[PROP_DEFINITION]);
+
+    _klasspriv->pspec[PROP_SAVE_ON_ADD] = g_param_spec_boolean (
+        "save-on-add",
+        "prop",
+        "object",
+        FALSE,
+        G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_SAVE_ON_ADD, _klasspriv->pspec[PROP_SAVE_ON_ADD]);
 }
 
 /*
@@ -756,6 +761,48 @@ lgw_addvocabularydialog_set_wordstore (LgwAddVocabularyDialog *self,
 
 errored:
   
+    return;
+}
+
+
+gboolean
+lgw_addvocabularydialog_get_save_on_add (LgwAddVocabularyDialog *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+
+    //Declarations
+    LgwAddVocabularyDialogPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->config.save_on_add;
+}
+
+
+void
+lgw_addvocabularydialog_set_save_on_add (LgwAddVocabularyDialog *self,
+                                         gboolean                save_on_add)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+
+    //Declarations
+    LgwAddVocabularyDialogPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (save_on_add != priv->config.save_on_add);
+    if (!changed) goto errored;
+
+    priv->config.save_on_add = save_on_add;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_SAVE_ON_ADD]);
+
+errored:
+
     return;
 }
 
