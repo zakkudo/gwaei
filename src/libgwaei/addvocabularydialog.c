@@ -526,22 +526,31 @@ lgw_addvocabularydialog_set_kanji (LgwAddVocabularyDialog *self,
 
     //Declarations
     LgwAddVocabularyDialogPrivate *priv = NULL;
-    gboolean changed = FALSE;
+    gchar *kanji = NULL;
+    const gchar *ENTRY_TEXT = gtk_entry_get_text (priv->ui.kanji_entry);
 
     //Initializations
     priv = self->priv;
-    changed = (
-      KANJI != lw_word_get_reading (priv->data.word) &&
-      strcmp(KANJI, lw_word_get_reading (priv->data.word)) != 0
-    );
+    kanji = g_strdup (KANJI);
+    if (kanji == NULL) goto errored;
+    kanji = g_strstrip (kanji);
 
-    if (changed)
+    if (strcmp(ENTRY_TEXT, KANJI) != 0)
     {
-      lw_word_set_kanji (priv->data.word, KANJI);
+      g_signal_handler_block (priv->ui.kanji_entry, priv->data.signalid[SIGNALID_KANJI_CHANGED]);
       gtk_entry_set_text (priv->ui.kanji_entry, KANJI);
+      g_signal_handler_unblock (priv->ui.kanji_entry, priv->data.signalid[SIGNALID_KANJI_CHANGED]);
+    }
 
+    if (strcmp(ENTRY_TEXT, kanji) != 0)
+    {
+      lw_word_set_kanji (priv->data.word, kanji);
       g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_KANJI]);
     }
+
+errored:
+
+    if (kanji != NULL) g_free (kanji); kanji = NULL;
 }
 
 
@@ -569,24 +578,36 @@ lgw_addvocabularydialog_set_reading (LgwAddVocabularyDialog *self,
     g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
     if (READING == NULL) READING = "";
 
+
     //Declarations
     LgwAddVocabularyDialogPrivate *priv = NULL;
-    gboolean changed = FALSE;
+    gchar *reading = NULL;
+    const gchar *ENTRY_TEXT = NULL;
 
     //Initializations
     priv = self->priv;
-    changed = (
-      READING != lw_word_get_reading (priv->data.word) &&
-      strcmp(READING, lw_word_get_reading (priv->data.word)) != 0
-    );
+    reading = g_strdup (READING);
+    if (reading == NULL) goto errored;
+    reading = g_strstrip (reading);
+    ENTRY_TEXT = gtk_entry_get_text (priv->ui.reading_entry);
 
-    if (changed)
+
+    if (strcmp(ENTRY_TEXT, READING) != 0)
     {
-      lw_word_set_reading (priv->data.word, READING);
+      g_signal_handler_block (priv->ui.reading_entry, priv->data.signalid[SIGNALID_READING_CHANGED]);
       gtk_entry_set_text (priv->ui.reading_entry, READING);
+      g_signal_handler_unblock (priv->ui.reading_entry, priv->data.signalid[SIGNALID_READING_CHANGED]);
+    }
 
+    if (strcmp(ENTRY_TEXT, reading) != 0)
+    {
+      lw_word_set_reading (priv->data.word, reading);
       g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_READING]);
     }
+
+errored:
+
+    if (reading != NULL) g_free (reading); reading = NULL;
 }
 
 
@@ -616,22 +637,38 @@ lgw_addvocabularydialog_set_definition (LgwAddVocabularyDialog *self,
 
     //Declarations
     LgwAddVocabularyDialogPrivate *priv = NULL;
-    gboolean changed = FALSE;
+    GtkTextIter start;
+    GtkTextIter end;
+    gchar *text_buffer_text = NULL;
+    gchar *definition = NULL;
 
     //Initializations
     priv = self->priv;
-    changed = (
-      DEFINITION != lw_word_get_reading (priv->data.word) &&
-      strcmp(DEFINITION, lw_word_get_reading (priv->data.word)) != 0
-    );
+    gtk_text_buffer_get_start_iter (priv->data.definition.text_buffer, &start);
+    gtk_text_buffer_get_end_iter (priv->data.definition.text_buffer, &end);
+    text_buffer_text = gtk_text_buffer_get_text (priv->data.definition.text_buffer, &start, &end, FALSE);
+    if (text_buffer_text == NULL) goto errored;
+    definition = g_strdup (DEFINITION);
+    if (definition == NULL) goto errored;
+    definition = g_strstrip (definition);
 
-    if (changed)
+    if (strcmp (text_buffer_text, DEFINITION) != 0)
     {
-      lw_word_set_definition (priv->data.word, DEFINITION);
-      //gtk_entry_set_text (priv->ui.definition_text_view, DEFINITION);
+      g_signal_handler_block (priv->data.definition.text_buffer, priv->data.signalid[SIGNALID_DEFINITION_CHANGED]);
+      gtk_text_buffer_set_text (priv->data.definition.text_buffer, DEFINITION, -1);
+      g_signal_handler_unblock (priv->data.definition.text_buffer, priv->data.signalid[SIGNALID_DEFINITION_CHANGED]);
+    }
 
+    if (strcmp(text_buffer_text, definition) != 0)
+    { 
+      lw_word_set_definition (priv->data.word, definition);
       g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DEFINITION]);
     }
+
+errored:
+
+    if (text_buffer_text != NULL) g_free (text_buffer_text); text_buffer_text = NULL;
+    if (definition != NULL) g_free (definition); definition = NULL;
 }
 
 
