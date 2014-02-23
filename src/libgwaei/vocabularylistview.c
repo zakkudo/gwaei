@@ -39,6 +39,8 @@
 
 #include <libgwaei/vocabularylistview-private.h>
 
+static LgwVocabularyListViewClass *_klass = NULL;
+static LgwVocabularyListViewClassPrivate *_klasspriv = NULL;
 
 G_DEFINE_TYPE_WITH_CODE (LgwVocabularyListView, lgw_vocabularylistview, GTK_TYPE_BOX,
                          G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularylistview_implement_actionable_interface));
@@ -280,11 +282,12 @@ lgw_vocabularylistview_class_init (LgwVocabularyListViewClass *klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
-    LgwVocabularyListViewClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
-    klasspriv = klass->priv = g_new0(LgwVocabularyListViewClassPrivate, 1);
+
+    _klass = klass;
+    _klasspriv = _klass->priv = g_new0(LgwVocabularyListViewClassPrivate, 1);
 
     object_class->set_property = lgw_vocabularylistview_set_property;
     object_class->get_property = lgw_vocabularylistview_get_property;
@@ -294,23 +297,23 @@ lgw_vocabularylistview_class_init (LgwVocabularyListViewClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LgwVocabularyListViewPrivate));
 
-    klasspriv->pspec[PROP_VOCABULARYLISTSTORE] = g_param_spec_object (
+    _klasspriv->pspec[PROP_VOCABULARYLISTSTORE] = g_param_spec_object (
       "vocabulary-list-store",
       "used for the datamodel",
       "for the datamodel",
       LGW_TYPE_VOCABULARYLISTSTORE,
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_VOCABULARYLISTSTORE, klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
+    g_object_class_install_property (object_class, PROP_VOCABULARYLISTSTORE, _klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
 
-    klasspriv->pspec[PROP_VOCABULARYWORDVIEW] = g_param_spec_object (
+    _klasspriv->pspec[PROP_VOCABULARYWORDVIEW] = g_param_spec_object (
       "vocabulary-word-view",
       "used for the datamodel",
       "for the datamodel",
       LGW_TYPE_VOCABULARYWORDVIEW,
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_VOCABULARYWORDVIEW, klasspriv->pspec[PROP_VOCABULARYWORDVIEW]);
+    g_object_class_install_property (object_class, PROP_VOCABULARYWORDVIEW, _klasspriv->pspec[PROP_VOCABULARYWORDVIEW]);
 
     g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
 }
@@ -325,13 +328,11 @@ lgw_vocabularylistview_set_liststore (LgwVocabularyListView  *self,
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
-    LgwVocabularyListViewClass *klass = NULL;
-    LgwVocabularyListViewClassPrivate *klasspriv = NULL;
+    LgwActionable *actionable = NULL;
 
     //Initializations
     priv = self->priv;
-    klass = LGW_VOCABULARYLISTVIEW_GET_CLASS (self);
-    klasspriv = klass->priv;
+    actionable = LGW_ACTIONABLE (self);
     
     if (vocabulary_list_store != priv->data.vocabulary_list_store)
     {
@@ -355,8 +356,9 @@ lgw_vocabularylistview_set_liststore (LgwVocabularyListView  *self,
       }
 
       gtk_tree_view_set_model (priv->ui.tree_view, GTK_TREE_MODEL (vocabulary_list_store));
+      lgw_actionable_sync_actions (actionable);
 
-      g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
+      g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
     }
 }
 
@@ -369,13 +371,9 @@ lgw_vocabularylistview_get_liststore (LgwVocabularyListView  *self)
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
-    LgwVocabularyListViewClass *klass = NULL;
-    LgwVocabularyListViewClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
-    klass = LGW_VOCABULARYLISTVIEW_GET_CLASS (self);
-    klasspriv = klass->priv;
 
     return priv->data.vocabulary_list_store;
 }
@@ -530,22 +528,19 @@ lgw_vocabularylistview_delete_all_selected (LgwVocabularyListView *self)
     GtkTreeModel *tree_model = NULL;
     gint length = 0;
     gint *positions = NULL;
+    GList *wordstorelist = NULL;
 
     //Initializations
     priv = self->priv;
-
     vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
     if (vocabulary_list_store == NULL) goto errored;
-
     pathlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
     if (pathlist == NULL) goto errored;
-
     tree_model = GTK_TREE_MODEL (vocabulary_list_store);
     if (tree_model == NULL) goto errored;
-
     length = g_list_length (pathlist);
     if (length < 1) goto errored;
-    positions = g_new0(gint, length + 1);
+    positions = g_new0 (gint, length + 1);
     if (positions == NULL) goto errored;
 
     {
@@ -557,20 +552,23 @@ lgw_vocabularylistview_delete_all_selected (LgwVocabularyListView *self)
         if (path != NULL)
         {
           gint* indices = gtk_tree_path_get_indices (path);
-          printf("BREAK delete index: %d\n", *indices);
-          positions[i] = indices[0];
-          i++;
+          if (indices != NULL)
+          {
+            positions[i] = indices[0];
+            i++;
+          }
         }
       }
       positions[i] = -1;
     }
 
-    lgw_vocabularyliststore_remove_all (vocabulary_list_store, positions);
+    wordstorelist = lgw_vocabularyliststore_delete_all (vocabulary_list_store, positions);
 
 errored:
 
     if (positions != NULL) g_free (positions); positions = NULL;
     if (pathlist != NULL) g_list_free_full (pathlist, (GDestroyNotify) gtk_tree_path_free); pathlist = NULL;
+    if (wordstorelist != NULL) g_list_free_full (wordstorelist, (GDestroyNotify) g_object_unref);
 }
 
 

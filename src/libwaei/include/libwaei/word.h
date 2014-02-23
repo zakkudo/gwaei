@@ -13,15 +13,20 @@ typedef enum {
   TOTAL_LW_WORD_FIELDS
 } LwWordField;
 
+struct _Row {
+  gint current_index;
+  gint saved_index;
+};
 
 struct _LwWord {
-  gchar *fields[TOTAL_LW_WORD_FIELDS];
+  struct _Row row;
   gchar *score;
   gchar *days;
   gint correct_guesses;
   gint incorrect_guesses;
   gint32 timestamp;
   gboolean has_changes;
+  gchar *fields[TOTAL_LW_WORD_FIELDS];
 };
 
 typedef struct _LwWord LwWord;

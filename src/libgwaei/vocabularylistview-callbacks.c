@@ -169,6 +169,7 @@ lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LwVocabulary *vocabulary = NULL;
     GtkTreeIter iter;
+    gchar *uri = NULL;
 
     //Initializations
     vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
@@ -179,6 +180,8 @@ lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
     if (vocabulary_word_store == NULL) goto errored;
     vocabulary = LW_VOCABULARY (vocabulary_word_store);
     gtk_tree_model_get_iter_from_string (tree_model, &iter, path_string);
+    uri = lw_vocabulary_build_uri (new_text);
+    if (uri == NULL) goto errored;
 
     lw_vocabulary_set_filename (vocabulary, new_text);
 
@@ -192,6 +195,7 @@ lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
 
 errored:
 
+    if (uri != NULL) g_free (uri); uri = NULL;
     if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
 }
 

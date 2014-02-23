@@ -21,7 +21,7 @@ typedef enum {
 struct _Index {
   GHashTable *filename;
   GHashTable *wordstore;
-  GList** position;
+  GHashTable *update_filename_callback;
 };
 
 struct _Data {
@@ -31,6 +31,7 @@ struct _Data {
   gboolean has_changes;
   gint length;
   struct _Index index;
+  GList **array;
 };
 
 
@@ -50,6 +51,8 @@ struct _LgwVocabularyListStoreClassPrivate {
 };
 
 #define LGW_VOCABULARYLISTSTORE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_VOCABULARYLISTSTORE, LgwVocabularyListStorePrivate))
+
+void lgw_vocabularyliststore_invalidate_length (LgwVocabularyListStore *self);
 
 G_END_DECLS
 

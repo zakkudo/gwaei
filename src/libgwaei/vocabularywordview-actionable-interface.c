@@ -53,6 +53,7 @@ lgw_vocabularywordview_rebuild_actiongroup (LgwActionable *actionable)
     GtkWidget *widget = NULL;
     gboolean has_focus = FALSE;
     gboolean has_selection = FALSE;
+    gboolean has_wordstorelist = FALSE;
 
     //Initializations
     self = LGW_VOCABULARYWORDVIEW (actionable);
@@ -60,6 +61,7 @@ lgw_vocabularywordview_rebuild_actiongroup (LgwActionable *actionable)
     widget = GTK_WIDGET (self);
     has_focus = gtk_widget_has_focus (GTK_WIDGET (priv->ui.tree_view)); 
     has_selection = (gtk_tree_selection_count_selected_rows (priv->data.tree_selection) > 0);
+    has_wordstorelist = (priv->data.vocabulary_word_stores != NULL);
 
     if (priv->data.action_group == NULL)
     {
@@ -71,7 +73,8 @@ lgw_vocabularywordview_rebuild_actiongroup (LgwActionable *actionable)
         { "add-new-word", lgw_vocabularywordview_add_new_activated_cb, NULL, NULL, NULL },
       };
       gint length = G_N_ELEMENTS (entries);
-      lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+      if (has_wordstorelist) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+      else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
     }
 
     {

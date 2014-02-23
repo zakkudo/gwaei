@@ -68,7 +68,7 @@ lw_vocabulary_get_filenames ()
       gint i = 0;
       while ((FILENAME = g_dir_read_name (dir)) != NULL && i < length)
       {
-        filenames[i] = g_strdup (FILENAME);
+        filenames[i] = g_uri_unescape_string (FILENAME, NULL);
         i++;
       }
     }
@@ -258,12 +258,10 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
-    LwVocabularyClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
     klass->priv = g_new0 (LwVocabularyClassPrivate, 1);
-    klasspriv = klass->priv;
     object_class->set_property = lw_vocabulary_set_property;
     object_class->get_property = lw_vocabulary_get_property;
     object_class->dispose = lw_vocabulary_dispose;
@@ -276,7 +274,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
 
     lw_vocabulary_initialize_filename_suffix ();
 
-    klasspriv->signalid[CLASS_SIGNALID_CHANGED] = g_signal_new (
+    _klasspriv->signalid[CLASS_SIGNALID_CHANGED] = g_signal_new (
         "internal-row-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -287,7 +285,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_INT
     );
 
-    klasspriv->signalid[CLASS_SIGNALID_INSERTED] = g_signal_new (
+    _klasspriv->signalid[CLASS_SIGNALID_INSERTED] = g_signal_new (
         "internal-row-inserted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -298,7 +296,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_INT
     );
 
-    klasspriv->signalid[CLASS_SIGNALID_DELETED] = g_signal_new (
+    _klasspriv->signalid[CLASS_SIGNALID_DELETED] = g_signal_new (
         "internal-row-deleted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -309,7 +307,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_INT
     );
 
-    klasspriv->signalid[CLASS_SIGNALID_REORDERED] = g_signal_new (
+    _klasspriv->signalid[CLASS_SIGNALID_REORDERED] = g_signal_new (
         "internal-rows-reordered",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -320,32 +318,43 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_POINTER
     );
 
-    klasspriv->pspec[PROP_FILENAME] = g_param_spec_string (
+    _klasspriv->signalid[CLASS_SIGNALID_FILENAME_CHANGED] = g_signal_new (
+        "filename-changed",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LwVocabularyClass, filename_changed),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__STRING,
+        G_TYPE_NONE, 1,
+        G_TYPE_STRING
+    );
+
+    _klasspriv->pspec[PROP_FILENAME] = g_param_spec_string (
         "filename",
         "FIlename construct prop",
         "Set the filename",
         gettext("New Vocabulary List"),
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_FILENAME, klasspriv->pspec[PROP_FILENAME]);
+    g_object_class_install_property (object_class, PROP_FILENAME, _klasspriv->pspec[PROP_FILENAME]);
 
-    klasspriv->pspec[PROP_CHANGED] = g_param_spec_boolean (
+    _klasspriv->pspec[PROP_CHANGED] = g_param_spec_boolean (
         "changed",
         "changed construct prop",
         "Set the changed",
         FALSE,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_CHANGED, klasspriv->pspec[PROP_CHANGED]);
+    g_object_class_install_property (object_class, PROP_CHANGED, _klasspriv->pspec[PROP_CHANGED]);
 
-    klasspriv->pspec[PROP_LOADED] = g_param_spec_boolean (
+    _klasspriv->pspec[PROP_LOADED] = g_param_spec_boolean (
         "loaded",
         "loaded construct prop",
         "Set the loaded",
         FALSE,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_LOADED, klasspriv->pspec[PROP_LOADED]);
+    g_object_class_install_property (object_class, PROP_LOADED, _klasspriv->pspec[PROP_LOADED]);
 }
 
 
@@ -406,13 +415,11 @@ lw_vocabulary_load (LwVocabulary       *self,
 
     //Declarations
     LwVocabularyPrivate *priv = self->priv;
-    LwVocabularyClass *klass = LW_VOCABULARY_GET_CLASS (self);
-    LwVocabularyClassPrivate *klasspriv = klass->priv;
 
     lw_vocabulary_load_from_file (self, cb);
 
     //Update the list information
-    priv->data.length = -1;
+    lw_vocabulary_invalidate_length (self);
     priv->data.list = g_list_reverse (priv->data.list);
 
     {
@@ -420,7 +427,7 @@ lw_vocabulary_load (LwVocabulary       *self,
       gint length = lw_vocabulary_length (self);
       for (i = 0; i < length; i++)
       {
-        g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, i);
+        g_signal_emit (self, _klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, i);
       }
     }
 
@@ -492,19 +499,15 @@ lw_vocabulary_set_changed (LwVocabulary *self,
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
-    LwVocabularyClass *klass = NULL;
-    LwVocabularyClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
-    klass = LW_VOCABULARY_GET_CLASS (self);
-    klasspriv = klass->priv;
     changed = (changed_ != priv->data.changed);
 
     priv->data.changed = changed_;
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CHANGED]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_CHANGED]);
 }
 
 
@@ -533,19 +536,15 @@ lw_vocabulary_set_loaded (LwVocabulary *self,
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
-    LwVocabularyClass *klass = NULL;
-    LwVocabularyClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
-    klass = LW_VOCABULARY_GET_CLASS (self);
-    klasspriv = klass->priv;
     changed = (loaded != priv->data.loaded);
 
     priv->data.loaded = loaded;
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_LOADED]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_LOADED]);
 }
 
 
@@ -565,29 +564,107 @@ lw_vocabulary_is_loaded (LwVocabulary *self)
 }
 
 
+gchar*
+lw_vocabulary_build_uri (const gchar *FILENAME)
+{
+    //Sanity checks
+    if (FILENAME == NULL) return NULL;
+
+    //Declarations
+    gchar *filename = NULL;
+    gchar *uri = NULL;
+
+    //Initializations
+    filename = g_strstrip (g_uri_escape_string (FILENAME, " ", TRUE));
+    if (filename == NULL || strlen(filename) == 0) goto errored;
+
+    uri = lw_util_build_filename (LW_PATH_VOCABULARY, filename);
+
+errored:
+
+    if (filename != NULL) g_free (filename); filename = NULL;
+
+    return uri;
+}
+
+
 static gboolean
-lw_vocabulary_rename_filename (LwVocabulary *self,
-                               const gchar  *FILENAME)
+lw_vocabulary_delete_file (LwVocabulary *self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
-    g_return_if_fail (FILENAME != NULL);
+
+    //Declarations
+    const gchar *FILENAME = NULL;
+    gchar *uri = NULL;
+    gint status = -1;
+
+    //Initializations
+    FILENAME = lw_vocabulary_get_filename (self);
+    uri = lw_vocabulary_build_uri (FILENAME);
+    if (uri == NULL) goto errored;
+    if (g_file_test (uri, G_FILE_TEST_IS_REGULAR) == FALSE) goto errored;
+
+    status = g_unlink (uri);
+
+errored:
+
+    if (uri != NULL) g_free (uri); uri = NULL;
+
+    return (status == 0);
+}
+
+
+static gboolean
+lw_vocabulary_create_file (LwVocabulary *self,
+                           const gchar *FILENAME)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), FALSE);
+    if (FILENAME == NULL) return FALSE;
+
+    //Declarations
+    gchar *uri = NULL;
+    gboolean success = FALSE;
+
+    //Initializations
+    uri = lw_vocabulary_build_uri (FILENAME);
+    if (uri == NULL) goto errored;
+
+    success = g_file_set_contents (uri, "", -1, NULL);
+
+errored:
+
+    if (uri != NULL) g_free (uri); uri = NULL;
+
+    return success;
+}
+
+
+static gboolean
+lw_vocabulary_rename_file (LwVocabulary *self,
+                           const gchar  *FILENAME)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), FALSE);
+    if (FILENAME == NULL) return FALSE;
 
     //Declarations
     gchar *new_uri = NULL;
     gchar *old_uri = NULL;
-    const gchar *OLD_FILENAME = lw_vocabulary_get_filename (self);
-    gint status = FALSE;
+    const gchar *OLD_FILENAME = NULL;
+    gint status = -1;
 
-    g_return_if_fail (OLD_FILENAME != NULL);
-
-    old_uri = lw_util_build_filename (LW_PATH_VOCABULARY, OLD_FILENAME);
+    //Initializations
+    OLD_FILENAME = lw_vocabulary_get_filename (self);
+    if (OLD_FILENAME == NULL) goto errored;
+    old_uri = lw_vocabulary_build_uri (OLD_FILENAME);
     if (old_uri == NULL) goto errored;
-    new_uri = lw_util_build_filename (LW_PATH_VOCABULARY, FILENAME);
+    new_uri = lw_vocabulary_build_uri (FILENAME);
     if (new_uri == NULL) goto errored;
+    if (g_file_test (new_uri, G_FILE_TEST_IS_REGULAR)) goto errored;
 
     status = g_rename (old_uri, new_uri);
-    printf("%d\n', status\n");
 
 errored:
 
@@ -604,56 +681,48 @@ lw_vocabulary_set_filename (LwVocabulary *self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY(self));
-    g_return_if_fail (FILENAME != NULL);
 
     //Declarations
-    gchar *filename = NULL;
     LwVocabularyPrivate *priv = NULL;
-    LwVocabularyClass *klass = NULL;
-    LwVocabularyClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
-    gboolean requires_rename = FALSE;
+    gchar *previous_filename = NULL;
+    gboolean file_exists = FALSE;
+    gchar *new_uri = NULL;
 
     //Initializations
     priv = self->priv;
-    klass = LW_VOCABULARY_GET_CLASS (self);
-    klasspriv = klass->priv;
-    filename = g_uri_escape_string (FILENAME, " ", TRUE);
-    if (filename == NULL) goto errored;
-    requires_rename = (
-      filename != NULL &&
-      priv->config.filename != NULL &&
-      lw_vocabulary_filename_exists (priv->config.filename) &&
-      strcmp(filename, priv->config.filename) != 0
-    );
+    new_uri = lw_vocabulary_build_uri (FILENAME);
+    file_exists = lw_vocabulary_file_exists (self);
+    if (new_uri == NULL) FILENAME = NULL;
 
-    if (requires_rename)
+    //Delete
+    if (FILENAME == NULL && file_exists)
     {
-      if (!lw_vocabulary_rename_filename (self, filename)) goto errored; 
+      changed = lw_vocabulary_delete_file (self);
     }
-    else
+    //Rename
+    else if (FILENAME != NULL && priv->config.filename != NULL && file_exists)
     {
-      gchar *uri = lw_util_build_filename (LW_PATH_VOCABULARY, filename);
-      if (!g_file_set_contents (uri, "", -1, NULL)) goto errored;
-      if (uri != NULL) g_free (uri); uri = NULL;
+      changed = lw_vocabulary_rename_file (self, FILENAME);
+    }
+    //Create
+    else if (FILENAME != NULL && !file_exists)
+    {
+      changed = lw_vocabulary_create_file (self, FILENAME);
     }
 
-    if (priv->config.filename != NULL)
-    {
-      g_free (priv->config.filename);
-      priv->config.filename = NULL;
-    }
+    if (!changed) goto errored;
 
-    if (filename != NULL)
-    {
-      priv->config.filename = g_strdup (filename);
-    }
+    previous_filename = priv->config.filename;
+    priv->config.filename = g_strdup (FILENAME);
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_FILENAME]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FILENAME]);
+    g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_FILENAME_CHANGED], 0, previous_filename);
 
 errored:
 
-if (filename != NULL) g_free (filename); filename = NULL;
+    if (new_uri != NULL) g_free (new_uri); new_uri = NULL;
+    if (previous_filename != NULL) g_free (previous_filename); previous_filename = NULL;
 
     return;
 }
@@ -667,6 +736,7 @@ lw_vocabulary_get_filename (LwVocabulary *self)
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
+    gchar *filename = NULL;
 
     //Initializations
     priv = self->priv;
@@ -734,6 +804,23 @@ lw_vocabulary_length (LwVocabulary *self)
 }
 
 
+void
+lw_vocabulary_invalidate_length (LwVocabulary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), 0);
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint length = 0;
+
+    //Initializations
+    priv = self->priv;
+
+    priv->data.length = -1;
+}
+
+
 gchar*
 lw_vocabulary_generate_filename ()
 {
@@ -755,17 +842,21 @@ lw_vocabulary_generate_filename ()
 
 
 gboolean
-lw_vocabulary_filename_exists (const gchar *FILENAME)
+lw_vocabulary_file_exists (LwVocabulary *self)
 {
     //Sanity checks
-    g_return_if_fail (FILENAME != NULL);
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), FALSE);
 
     //Declarations
+    const gchar *FILENAME = NULL;
     gchar *uri = NULL;
     gboolean exists = FALSE;
 
     //Initializations
-    uri = lw_util_build_filename (LW_PATH_VOCABULARY, FILENAME);
+    FILENAME = lw_vocabulary_get_filename (self);
+    if (FILENAME == NULL) goto errored;
+    uri = lw_vocabulary_build_uri (FILENAME);
+    if (uri == NULL) goto errored;
     exists = g_file_test (uri, G_FILE_TEST_IS_REGULAR);
 
 errored:

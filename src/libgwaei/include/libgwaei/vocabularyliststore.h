@@ -41,7 +41,8 @@ LgwVocabularyListStore* lgw_vocabularyliststore_new (LwPreferences *preferences)
 GType lgw_vocabularyliststore_get_type (void) G_GNUC_CONST;
 
 void lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *self, gint position, GList *wordstorelist);
-void lgw_vocabularyliststore_remove_all (LgwVocabularyListStore *self, gint *positions);
+GList* lgw_vocabularyliststore_remove_all (LgwVocabularyListStore *self, gint *positions);
+GList* lgw_vocabularyliststore_delete_all (LgwVocabularyListStore *self, gint *positions);
 void lgw_vocabularyliststore_clear (LgwVocabularyListStore *self);
 
 LwPreferences* lgw_vocabularyliststore_get_preferences (LgwVocabularyListStore *self);
@@ -52,6 +53,8 @@ void lgw_vocabularyliststore_load (LgwVocabularyListStore *self);
 gint lgw_vocabularyliststore_length (LgwVocabularyListStore *self);
 
 LgwVocabularyWordStore* lgw_vocabularyliststore_get_wordstore (LgwVocabularyListStore *self, GtkTreePath *tree_path);
+GtkTreePath* lgw_vocabularyliststore_find_by_wordstore (LgwVocabularyListStore *self, LgwVocabularyWordStore *vocabulary_word_store);
+GtkTreePath* lgw_vocabularyliststore_find_by_filename (LgwVocabularyListStore *self, const gchar *FILENAME);
 
 G_END_DECLS
 

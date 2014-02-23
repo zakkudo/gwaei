@@ -21,6 +21,7 @@ typedef struct _LwVocabularyClassPrivate LwVocabularyClassPrivate;
 
 struct _LwVocabulary {
   GObject object;
+  struct _Row row; 
   LwVocabularyPrivate *priv;
 };
 
@@ -33,6 +34,7 @@ struct _LwVocabularyClass {
   void (*row_inserted) (LwVocabulary* vocabulary, gint position, gpointer data);
   void (*row_deleted) (LwVocabulary* vocabulary, gint position, gpointer data);
   void (*rows_reordered) (LwVocabulary* vocabulary, gint *order, gpointer data);
+  void (*filename_changed) (LwVocabulary* vocabulary, const gchar* OLD_FILENAME, gpointer data);
 };
 
 
@@ -42,25 +44,27 @@ GType lw_vocabulary_get_type (void) G_GNUC_CONST;
 
 gchar** lw_vocabulary_get_filenames (void);
 
-void lw_vocabulary_set_changed (LwVocabulary *vocabulary, gboolean changed);
-gboolean lw_vocabulary_has_changes (LwVocabulary *vocabulary);
+void lw_vocabulary_set_changed (LwVocabulary *self, gboolean changed);
+gboolean lw_vocabulary_has_changes (LwVocabulary *self);
 
-void lw_vocabulary_set_filename (LwVocabulary *vocabulary, const gchar *FILENAME);
-const gchar* lw_vocabulary_get_filename (LwVocabulary *vocabulary);
+void lw_vocabulary_set_filename (LwVocabulary *self, const gchar *FILENAME);
+const gchar* lw_vocabulary_get_filename (LwVocabulary *self);
 
-void lw_vocabulary_set_loaded (LwVocabulary *vocabulary, gboolean loaded);
-gboolean lw_vocabulary_is_loaded (LwVocabulary *vocabulary);
+void lw_vocabulary_set_loaded (LwVocabulary *self, gboolean loaded);
+gboolean lw_vocabulary_is_loaded (LwVocabulary *self);
 
-gboolean lw_vocabulary_rename (LwVocabulary *vocabulary, const gchar *FILENAME);
+gboolean lw_vocabulary_rename (LwVocabulary *self, const gchar *FILENAME);
 
-LwWord* lw_vocabulary_get_word_by_index (LwVocabulary *vocabulary, gint index);
+LwWord* lw_vocabulary_get_word_by_index (LwVocabulary *self, gint index);
 
-void lw_vocabulary_load (LwVocabulary *vocabulary, LwProgressCallback cb);
+void lw_vocabulary_load (LwVocabulary *self, LwProgressCallback cb);
 
-gint lw_vocabulary_length (LwVocabulary *vocabulary);
+gint lw_vocabulary_length (LwVocabulary *self);
 
-gchar* lw_vocabulary_generate_filename ();
-gboolean lw_vocabulary_filename_exists (const gchar *FILENAME);
+gchar* lw_vocabulary_generate_filename (void);
+gboolean lw_vocabulary_file_exists (LwVocabulary *self);
+
+gchar* lw_vocabulary_build_uri (const gchar *FILENAME);
 
 G_END_DECLS
 

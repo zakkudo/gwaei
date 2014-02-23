@@ -527,13 +527,14 @@ lgw_addvocabularydialog_set_kanji (LgwAddVocabularyDialog *self,
     //Declarations
     LgwAddVocabularyDialogPrivate *priv = NULL;
     gchar *kanji = NULL;
-    const gchar *ENTRY_TEXT = gtk_entry_get_text (priv->ui.kanji_entry);
+    const gchar *ENTRY_TEXT = NULL;
 
     //Initializations
     priv = self->priv;
     kanji = g_strdup (KANJI);
     if (kanji == NULL) goto errored;
     kanji = g_strstrip (kanji);
+    ENTRY_TEXT = gtk_entry_get_text (priv->ui.kanji_entry);
 
     if (strcmp(ENTRY_TEXT, KANJI) != 0)
     {
@@ -791,6 +792,7 @@ lgw_addvocabularydialog_set_wordstore (LgwAddVocabularyDialog *self,
     {
       priv->data.store.vocabulary_word = vocabulary_word_store;
       g_object_add_weak_pointer (G_OBJECT (priv->data.store.vocabulary_word), (gpointer*) &(priv->data.store.vocabulary_word));
+
     }
 
     lgw_addvocabularydialog_sync_list_store (self);
@@ -799,6 +801,38 @@ lgw_addvocabularydialog_set_wordstore (LgwAddVocabularyDialog *self,
 errored:
   
     return;
+}
+
+
+void
+lgw_addvocabularydialog_select_wordstore (LgwAddVocabularyDialog *self, 
+                                          LgwVocabularyWordStore *vocabulary_word_store)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+
+    //Declarations
+    LgwAddVocabularyDialogPrivate *priv = NULL;
+    GtkTreePath *tree_path = NULL;
+    gint index = -1;
+
+    //Initializations
+    priv = self->priv;
+
+    if (vocabulary_word_store != NULL && priv->data.store.vocabulary_list != NULL)
+    {
+      tree_path = lgw_vocabularyliststore_find_by_wordstore (priv->data.store.vocabulary_list, vocabulary_word_store);
+      if (tree_path != NULL)
+      {
+        index = gtk_tree_path_get_indices (tree_path)[0];
+      }
+    }
+
+    gtk_combo_box_set_active (priv->ui.combo_box, index);
+
+errored:
+
+    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
 }
 
 
@@ -869,6 +903,8 @@ lgw_addvocabularydialog_sync_list_store (LgwAddVocabularyDialog *self)
 
     //Initializations
     priv = self->priv;
+
+    lgw_addvocabularydialog_select_wordstore (self, priv->data.store.vocabulary_word);
 }
 
 

@@ -65,7 +65,6 @@ struct _LgwAddVocabularyDialogPrivate {
 
 struct _LgwAddVocabularyDialogClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
-  gchar *last_selected_list_name;
 };
 
 #define LGW_ADDVOCABULARYDIALOG_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_ADDVOCABULARYDIALOG, LgwAddVocabularyDialogPrivate));

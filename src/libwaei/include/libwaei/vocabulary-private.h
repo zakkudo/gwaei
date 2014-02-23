@@ -3,6 +3,8 @@
 
 G_BEGIN_DECLS
 
+#include <libwaei/word.h>
+
 typedef enum {
     PROP_0,
     PROP_FILENAME,
@@ -17,6 +19,7 @@ typedef enum {
   CLASS_SIGNALID_INSERTED,
   CLASS_SIGNALID_DELETED,
   CLASS_SIGNALID_REORDERED,
+  CLASS_SIGNALID_FILENAME_CHANGED,
   TOTAL_CLASS_SIGNALIDS
 } ClassSignalId;
 
@@ -45,8 +48,9 @@ struct _LwVocabularyClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 };
 
-
 #define LW_VOCABULARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_VOCABULARY, LwVocabularyPrivate));
+
+void lw_vocabulary_invalidate_length (LwVocabulary *self);
 
 G_END_DECLS
 

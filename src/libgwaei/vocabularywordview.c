@@ -39,6 +39,9 @@
 
 #include <libgwaei/vocabularywordview-private.h>
 
+static LgwVocabularyWordViewClass *_klass = NULL;
+static LgwVocabularyWordViewClassPrivate *_klasspriv = NULL;
+
 G_DEFINE_TYPE_WITH_CODE (LgwVocabularyWordView, lgw_vocabularywordview, GTK_TYPE_BOX,
                          G_IMPLEMENT_INTERFACE (LGW_TYPE_ACTIONABLE, lgw_vocabularywordview_implement_actionable_interface));
 
@@ -294,11 +297,11 @@ lgw_vocabularywordview_class_init (LgwVocabularyWordViewClass *klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
-    LgwVocabularyWordViewClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
-    klasspriv = klass->priv = g_new0(LgwVocabularyWordViewClassPrivate, 1);
+    _klass = klass;
+    _klasspriv = klass->priv = g_new0 (LgwVocabularyWordViewClassPrivate, 1);
 
     object_class->set_property = lgw_vocabularywordview_set_property;
     object_class->get_property = lgw_vocabularywordview_get_property;
@@ -308,13 +311,13 @@ lgw_vocabularywordview_class_init (LgwVocabularyWordViewClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LgwVocabularyWordViewPrivate));
 
-    klasspriv->pspec[PROP_VOCABULARYWORDSTORES] = g_param_spec_pointer (
+    _klasspriv->pspec[PROP_VOCABULARYWORDSTORES] = g_param_spec_pointer (
       "vocabulary-word-stores",
       "used for the datamodel",
       "for the datamodel",
       G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_VOCABULARYWORDSTORES, klasspriv->pspec[PROP_VOCABULARYWORDSTORES]);
+    g_object_class_install_property (object_class, PROP_VOCABULARYWORDSTORES, _klasspriv->pspec[PROP_VOCABULARYWORDSTORES]);
 
     g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
 }
@@ -329,16 +332,12 @@ lgw_vocabularywordview_contains_all_wordstores (LgwVocabularyWordView *self,
 
     //Declarations
     LgwVocabularyWordViewPrivate *priv = NULL;
-    LgwVocabularyWordViewClass *klass = NULL;
-    LgwVocabularyWordViewClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
     GHashTable *table = NULL;
     gboolean contains_all = TRUE;
 
     //Initializations
     priv = self->priv;
-    klass = LGW_VOCABULARYWORDVIEW_GET_CLASS (self);
-    klasspriv = klass->priv;
     table = g_hash_table_new (g_direct_hash, g_direct_equal);
     contains_all = (g_list_length (wordstores) == g_list_length (priv->data.vocabulary_word_stores));
     if (contains_all == FALSE) goto errored;
@@ -384,14 +383,12 @@ lgw_vocabularywordview_set_wordstores (LgwVocabularyWordView  *self,
 
     //Declarations
     LgwVocabularyWordViewPrivate *priv = NULL;
-    LgwVocabularyWordViewClass *klass = NULL;
-    LgwVocabularyWordViewClassPrivate *klasspriv = NULL;
+    LgwActionable *actionable = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
-    klass = LGW_VOCABULARYWORDVIEW_GET_CLASS (self);
-    klasspriv = klass->priv;
+    actionable = LGW_ACTIONABLE (self);
     changed = !lgw_vocabularywordview_contains_all_wordstores (self, wordstores);
     if (!changed) goto errored;
  
@@ -419,7 +416,8 @@ lgw_vocabularywordview_set_wordstores (LgwVocabularyWordView  *self,
       gtk_tree_view_set_model (priv->ui.tree_view, NULL);
     }
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_VOCABULARYWORDSTORES]);
+    lgw_actionable_sync_actions (actionable);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VOCABULARYWORDSTORES]);
 
 errored:
 
