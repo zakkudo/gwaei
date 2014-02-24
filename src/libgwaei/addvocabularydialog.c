@@ -243,101 +243,110 @@ lgw_addvocabularydialog_constructed (GObject *object)
             gtk_widget_show (grid);
 
             {
-              gchar *markup = g_markup_printf_escaped ("%s:", gettext("List"));
-              GtkWidget *label = gtk_label_new (NULL);
-              gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
-              gtk_misc_set_padding (GTK_MISC (label), 6, 6);
-              gtk_label_set_markup (GTK_LABEL (label), markup);
-              gtk_grid_attach (priv->ui.grid, label, 0, 0, 1, 1);
-              gtk_widget_show (label);
-              if (markup != NULL) g_free (markup); markup = NULL;
-            }
-
-            {
-              GtkWidget *combo_box = gtk_combo_box_new_with_entry ();
-              priv->ui.combo_box = GTK_COMBO_BOX (combo_box);
-              gtk_combo_box_set_id_column (priv->ui.combo_box, LGW_VOCABULARYLISTSTORE_COLUMN_NAME);
-              gtk_combo_box_set_entry_text_column (priv->ui.combo_box, LGW_VOCABULARYLISTSTORE_COLUMN_NAME);
-              gtk_grid_attach (priv->ui.grid, combo_box, 1, 0, 1, 1);
-              gtk_widget_show (combo_box);
-            }
-
-            {
-              gchar *markup = g_markup_printf_escaped ("%s:", gettext("Word"));
-              GtkWidget *label = gtk_label_new (NULL);
-              gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
-              gtk_misc_set_padding (GTK_MISC (label), 6, 6);
-              gtk_label_set_markup (GTK_LABEL (label), markup);
-              gtk_grid_attach (priv->ui.grid, label, 0, 1, 1, 1);
-              gtk_widget_show (label);
-              if (markup != NULL) g_free (markup); markup = NULL;
-            }
-
-            {
-              GtkWidget *entry = gtk_entry_new ();
-              priv->ui.kanji_entry = GTK_ENTRY (entry);
-              gtk_entry_set_placeholder_text (priv->ui.kanji_entry, gettext("Word"));
-              gtk_entry_set_width_chars (priv->ui.kanji_entry, 20);
-              gtk_grid_attach (priv->ui.grid, entry, 1, 1, 1, 1);
-              gtk_widget_show (entry);
-            }
-
-            {
-              gchar *markup = g_markup_printf_escaped ("%s:", gettext("Reading"));
-              GtkWidget *label = gtk_label_new (NULL);
-              gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
-              gtk_misc_set_padding (GTK_MISC (label), 6, 6);
-              gtk_label_set_markup (GTK_LABEL (label), markup);
-              gtk_grid_attach (priv->ui.grid, label, 0, 2, 1, 1);
-              gtk_widget_show (label);
-              if (markup != NULL) g_free (markup); markup = NULL;
-            }
-
-            {
-              GtkWidget *entry = gtk_entry_new ();
-              priv->ui.reading_entry = GTK_ENTRY (entry);
-              gtk_entry_set_placeholder_text (priv->ui.reading_entry, gettext("Reading"));
-              gtk_entry_set_width_chars (priv->ui.reading_entry, 20);
-              gtk_grid_attach (priv->ui.grid, entry, 1, 2, 1, 1);
-              gtk_widget_show (entry);
-            }
-
-            {
-              gchar *markup = g_markup_printf_escaped ("%s:", gettext("Definition"));
-              GtkWidget *label = gtk_label_new (NULL);
-              gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
-              gtk_misc_set_padding (GTK_MISC (label), 6, 6);
-              gtk_label_set_markup (GTK_LABEL (label), markup);
-              gtk_grid_attach (priv->ui.grid, label, 0, 3, 1, 1);
-              gtk_widget_show (label);
-              if (markup != NULL) g_free (markup); markup = NULL;
-            }
-
-            {
-              GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-              gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window), GTK_SHADOW_ETCHED_OUT);
-
-
               {
-                GtkTextBuffer *text_buffer = gtk_text_buffer_new (NULL);
-                priv->data.definition.placeholder_text_buffer = text_buffer;
+                gchar *markup = g_markup_printf_escaped ("%s:", gettext("List"));
+                GtkWidget *label = gtk_label_new (NULL);
+                priv->ui.list_label = GTK_LABEL (label);
+                gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+                gtk_misc_set_padding (GTK_MISC (label), 6, 6);
+                gtk_label_set_markup (priv->ui.list_label, markup);
+                gtk_grid_attach (priv->ui.grid, label, 0, 0, 1, 1);
+                if (markup != NULL) g_free (markup); markup = NULL;
               }
 
               {
-                GtkTextBuffer *text_buffer = gtk_text_buffer_new (NULL);
-                priv->data.definition.text_buffer = text_buffer;
+                GtkWidget *combo_box = gtk_combo_box_new_with_entry ();
+                priv->ui.combo_box = GTK_COMBO_BOX (combo_box);
+                gtk_combo_box_set_id_column (priv->ui.combo_box, LGW_VOCABULARYLISTSTORE_COLUMN_NAME);
+                gtk_combo_box_set_entry_text_column (priv->ui.combo_box, LGW_VOCABULARYLISTSTORE_COLUMN_NAME);
+                gtk_grid_attach (priv->ui.grid, combo_box, 1, 0, 1, 1);
+              }
+            }
+
+            {
+              {
+                gchar *markup = g_markup_printf_escaped ("%s:", gettext("Word"));
+                GtkWidget *label = gtk_label_new (NULL);
+                gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+                gtk_misc_set_padding (GTK_MISC (label), 6, 6);
+                gtk_label_set_markup (GTK_LABEL (label), markup);
+                gtk_grid_attach (priv->ui.grid, label, 0, 1, 1, 1);
+                gtk_widget_show (label);
+                if (markup != NULL) g_free (markup); markup = NULL;
+              }
+
+              {
+                GtkWidget *entry = gtk_entry_new ();
+                priv->ui.kanji_entry = GTK_ENTRY (entry);
+                gtk_entry_set_placeholder_text (priv->ui.kanji_entry, gettext("Word"));
+                gtk_entry_set_width_chars (priv->ui.kanji_entry, 20);
+                gtk_grid_attach (priv->ui.grid, entry, 1, 1, 1, 1);
+                gtk_widget_show (entry);
+              }
+            }
+
+            {
+              {
+                gchar *markup = g_markup_printf_escaped ("%s:", gettext("Reading"));
+                GtkWidget *label = gtk_label_new (NULL);
+                gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+                gtk_misc_set_padding (GTK_MISC (label), 6, 6);
+                gtk_label_set_markup (GTK_LABEL (label), markup);
+                gtk_grid_attach (priv->ui.grid, label, 0, 2, 1, 1);
+                gtk_widget_show (label);
+                if (markup != NULL) g_free (markup); markup = NULL;
+              }
+
+              {
+                GtkWidget *entry = gtk_entry_new ();
+                priv->ui.reading_entry = GTK_ENTRY (entry);
+                gtk_entry_set_placeholder_text (priv->ui.reading_entry, gettext("Reading"));
+                gtk_entry_set_width_chars (priv->ui.reading_entry, 20);
+                gtk_grid_attach (priv->ui.grid, entry, 1, 2, 1, 1);
+                gtk_widget_show (entry);
+              }
+            }
+
+            {
+              {
+                gchar *markup = g_markup_printf_escaped ("%s:", gettext("Definition"));
+                GtkWidget *label = gtk_label_new (NULL);
+                gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+                gtk_misc_set_padding (GTK_MISC (label), 6, 6);
+                gtk_label_set_markup (GTK_LABEL (label), markup);
+                gtk_grid_attach (priv->ui.grid, label, 0, 3, 1, 1);
+                gtk_widget_show (label);
+                if (markup != NULL) g_free (markup); markup = NULL;
+              }
+
+              {
+                GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+                gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window), GTK_SHADOW_ETCHED_IN);
+                gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
 
                 {
-                  GtkWidget *text_view = gtk_text_view_new_with_buffer (text_buffer);
-                  priv->ui.definition_text_view = GTK_TEXT_VIEW (text_view);
-                  //gtk_entry_set_placeholder_text (priv->ui.definition_text_view, gettext("Definition"));
-                  gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
-                  gtk_widget_show (text_view);
+                  GtkTextBuffer *text_buffer = gtk_text_buffer_new (NULL);
+                  gtk_text_buffer_set_text (text_buffer, gettext("Definition"), -1);
+                  priv->data.definition.placeholder_text_buffer = text_buffer;
                 }
-              }
-              gtk_widget_show (scrolled_window);
-              gtk_grid_attach (priv->ui.grid, scrolled_window, 1, 3, 1, 1);
 
+                {
+                  GtkTextBuffer *text_buffer = gtk_text_buffer_new (NULL);
+                  priv->data.definition.text_buffer = text_buffer;
+
+                  {
+                    GtkWidget *text_view = gtk_text_view_new_with_buffer (text_buffer);
+                    priv->ui.definition_text_view = GTK_TEXT_VIEW (text_view);
+                    //gtk_entry_set_placeholder_text (priv->ui.definition_text_view, gettext("Definition"));
+                    gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
+                    gtk_container_set_border_width (GTK_CONTAINER (text_view), 3);
+                    gtk_widget_show (text_view);
+                  }
+                }
+                gtk_widget_show (scrolled_window);
+                gtk_grid_attach (priv->ui.grid, scrolled_window, 1, 3, 1, 1);
+
+              }
             }
           }
         }
@@ -386,7 +395,7 @@ lgw_addvocabularydialog_class_init (LgwAddVocabularyDialogClass *klass)
         "prop",
         "object",
         LGW_TYPE_VOCABULARYLISTSTORE,
-        G_PARAM_READWRITE
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_VOCABULARYLISTSTORE, _klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
 
@@ -395,7 +404,7 @@ lgw_addvocabularydialog_class_init (LgwAddVocabularyDialogClass *klass)
         "prop",
         "object",
         LGW_TYPE_VOCABULARYWORDSTORE,
-        G_PARAM_READWRITE
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_VOCABULARYWORDSTORE, _klasspriv->pspec[PROP_VOCABULARYWORDSTORE]);
 
@@ -729,10 +738,14 @@ lgw_addvocabularydialog_set_liststore (LgwAddVocabularyDialog *self,
       );
 
       gtk_combo_box_set_model (priv->ui.combo_box, GTK_TREE_MODEL (priv->data.store.vocabulary_list));
+      gtk_widget_show (GTK_WIDGET (priv->ui.combo_box));
+      gtk_widget_show (GTK_WIDGET (priv->ui.list_label));
     }
     else
     {
       gtk_combo_box_set_model (priv->ui.combo_box, NULL);
+      gtk_widget_hide (GTK_WIDGET (priv->ui.combo_box));
+      gtk_widget_hide (GTK_WIDGET (priv->ui.list_label));
     }
 
     lgw_addvocabularydialog_sync_list_store (self);
@@ -886,9 +899,33 @@ lgw_addvocabularydialog_sync_definition_text_buffer (LgwAddVocabularyDialog *sel
 
     //Declarations
     LgwAddVocabularyDialogPrivate *priv = NULL;
+    GtkWidget *widget = NULL;
+    gboolean has_focus = FALSE;
+    gboolean has_text = FALSE;
 
     //Initializations
     priv = self->priv;
+    widget = GTK_WIDGET (priv->ui.definition_text_view);
+    has_focus = gtk_widget_is_focus (widget);
+    has_text = (gtk_text_buffer_get_char_count (priv->data.definition.text_buffer) > 0);
+
+    gtk_text_view_set_buffer (priv->ui.definition_text_view, priv->data.definition.text_buffer);
+/*
+    if (has_focus || has_text)
+    {
+      printf("BREAK setting primary buffer %d %d\n", has_focus, has_text);
+      gtk_text_view_set_buffer (priv->ui.definition_text_view, priv->data.definition.text_buffer);
+      gtk_text_view_set_editable (priv->ui.definition_text_view, TRUE);
+      gtk_text_view_set_cursor_visible (priv->ui.definition_text_view, FALSE);
+    }
+    else
+    {
+      printf("BREAK setting placeholder buffer %d %d\n", has_focus, has_text);
+      gtk_text_view_set_buffer (priv->ui.definition_text_view, priv->data.definition.placeholder_text_buffer);
+      gtk_text_view_set_editable (priv->ui.definition_text_view, FALSE);
+      gtk_text_view_set_cursor_visible (priv->ui.definition_text_view, TRUE);
+    }
+*/
 }
 
 
@@ -906,6 +943,26 @@ lgw_addvocabularydialog_sync_list_store (LgwAddVocabularyDialog *self)
 
     lgw_addvocabularydialog_select_wordstore (self, priv->data.store.vocabulary_word);
 }
+
+
+LwWord*
+lgw_addvocabularydialog_steal_word (LgwAddVocabularyDialog *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+
+    //Declarations
+    LgwAddVocabularyDialogPrivate *priv = NULL;
+    LwWord *word = NULL;
+
+    //Initializations
+    priv = self->priv;
+    word = priv->data.word;
+    priv->data.word = NULL;
+
+    return word;
+}
+                             
 
 
 /*

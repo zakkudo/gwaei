@@ -745,39 +745,291 @@ lw_vocabulary_get_filename (LwVocabulary *self)
 }
 
 
-LwWord*
-lw_vocabulary_get_word_by_index (LwVocabulary *self, gint index)
+static void
+_rebuild_array (LwVocabulary *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_VOCABULARY(self));
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+
+    lw_vocabulary_invalidate_length (self);
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
-    LwWord *word = NULL;
+    gint length = 0;
 
     //Initializations
     priv = self->priv;
-    word = g_list_nth_data (priv->data.list, index);
+    length = lw_vocabulary_length (self);
 
-    return word;
+    g_free (priv->data.array); priv->data.array = NULL;
+    priv->data.array = g_new0 (GList*, length);
+
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LwWord *word = LW_WORD (link->data);
+        priv->data.array[i] = link;
+        word->row.current_index = i;
+        i++;
+      }
+    }
 }
 
 
-GList*
-lw_vocabulary_remove_all (LwVocabulary *self, gint *positions)
+static gint
+_insert_all (LwVocabulary *self,
+             gint         *position,
+             GList        *wordlist)
 {
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+    if (wordlist == NULL) return 0;
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint number_inserted = 0;
+    gint length = 0;
+    gboolean append = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    length = lw_vocabulary_length (self);
+    append = (*position < 0 || *position >= length || length == 0);
+    number_inserted = g_list_length (wordlist);
+
+    if (append)
+    {
+      GList *copy = g_list_copy (wordlist);
+      *position = length;
+      priv->data.list = g_list_concat (priv->data.list, copy);
+    }
+    else
+    {
+      GList *insert_link = g_list_nth (priv->data.list, *position);
+      if (insert_link == NULL) goto errored;
+      GList *link = NULL;
+      for (link = g_list_last (wordlist); link != NULL; link = link->next)
+      {
+        LwWord *word = LW_WORD (link->data);
+        if (word != NULL)
+        {
+          priv->data.list = g_list_insert_before (priv->data.list, insert_link, word);
+          insert_link = insert_link->prev;
+        }
+        else
+        {
+          number_inserted--;
+        }
+      }
+    }
+
+errored:
+
+    lw_vocabulary_invalidate_length (self);
+
+    return number_inserted;;
 }
 
 
-GList*
-lw_vocabulary_insert_all (LwVocabulary *vocabualry, GList *wordlist, gint index)
+static void
+_insert_all_propogate_changes (LwVocabulary *self,
+                               gint          position,
+                               gint          number_inserted)
 {
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint length = 0;
+    gint i = 0;
+
+    //Initializations
+    priv = self->priv;
+    length = lw_vocabulary_length (self);
+
+    //Rows that were inserted
+    for (i = position; i < position + number_inserted; i ++)
+    {
+      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, i);
+    }
+
+    //Rows with modified indexes
+    for (i = position + number_inserted; i < length; i++)
+    {
+      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_CHANGED], 0, i);
+    }
 }
 
 
 void
-lw_vocabulary_reorder (LwVocabulary *self, gint *new_positions)
+lw_vocabulary_insert_all (LwVocabulary *self, 
+                          gint          position,
+                          GList        *wordlist)
 {
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+    if (wordlist == NULL) return;
+
+    //Declarations
+    gint number_inserted = 0;
+
+    //Initializations
+    number_inserted = _insert_all (self, &position, wordlist);
+
+    _rebuild_array (self);
+    _insert_all_propogate_changes (self, position, number_inserted);
+}
+
+
+static gint
+_remove_sort (gconstpointer a, gconstpointer b)
+{
+    gint ia = GPOINTER_TO_INT (a);
+    gint ib = GPOINTER_TO_INT (b);
+
+    if (ia > ib) return -1;
+    if (ia < ib) return 1;
+
+    return 0;
+}
+
+
+
+static GList*
+_convert_array_to_list (LwVocabulary *self,
+                        gint         *positions)
+{
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
+    if (positions == NULL) return NULL;
+
+    //Declarations
+    gint length = 0;
+    GList *list = NULL;
+    gint *p = NULL;
+
+    //Initializations
+    length = lw_vocabulary_length (self);
+
+    for (p = positions; *p > -1 && *p < length && p - positions < length; p++)
+    {
+      list = g_list_prepend (list, GINT_TO_POINTER (*p));
+    }
+
+    return g_list_sort (list, _remove_sort);
+}
+
+
+static GList*
+_remove_all (LwVocabulary *self,
+             GList        *indices)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+    if (indices == NULL) return NULL;
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint length = 0;
+    GList *list = NULL;
+
+    //Initializations
+    priv = self->priv;
+    length = lw_vocabulary_length (self);
+    if (length == 0) goto errored;
+
+    {
+      GList *index = NULL;
+      for (index = indices; index != NULL; index = index->next)
+      {
+        gint i = GPOINTER_TO_INT (index->data);
+        if (i < length && i > -1)
+        {
+          GList *link = priv->data.array[i];
+          if (link != NULL)
+          {
+            LwWord *word = LW_WORD (link->data);
+            priv->data.list = g_list_remove_link (priv->data.list, link);
+            list = g_list_concat (link, list);
+            priv->data.array[i] = NULL;
+          }
+        }
+      }
+      list = g_list_reverse (list);
+    }
+
+errored:
+
+    lw_vocabulary_invalidate_length (self);
+
+    return list;
+}
+
+
+static void
+_remove_all_propogate_changes (LwVocabulary *self,
+                               GList        *indices)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+    if (indices == NULL) return;
+
+    //Declarations
+    gint length = 0;
+    gint start = 0;
+
+    //Initializations
+    length = lw_vocabulary_length (self);
+    start = GPOINTER_TO_INT (g_list_last (indices)->data);
+
+    //Rows that were removed
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = indices; link != NULL; link = link->next)
+      {
+        i = GPOINTER_TO_INT (link->data);
+        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, i);
+      }
+    }
+
+    //Rows with modified indexes
+    {
+      gint i = 0;
+      for (i = start; i < length; i++)
+      {
+        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_CHANGED], 0, i);
+      }
+    }
+}
+
+
+GList*
+lw_vocabulary_remove_all (LwVocabulary *self,
+                          gint         *positions)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+    if (positions == NULL) return NULL;
+
+    //Declarations
+    GList *list = NULL;
+    GList *indices = NULL;
+
+    //Initializations
+    indices = _convert_array_to_list (self, positions);
+
+    list = _remove_all (self, indices);
+    _rebuild_array (self);
+    _remove_all_propogate_changes (self, indices);
+
+errored:
+
+    if (indices != NULL) g_list_free (indices); indices = NULL;
+
+    return list;
 }
 
 
@@ -864,6 +1116,31 @@ errored:
     if (uri != NULL) g_free (uri); uri = NULL;
 
     return exists;
+}
+
+
+LwWord*
+lw_vocabulary_nth (LwVocabulary *self,
+                   gint          index)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint length = 0;
+    LwWord *word = NULL;
+
+    //Initializations
+    priv = self->priv;
+    length = lw_vocabulary_length (self);
+
+    if (index > -1 && index < length)
+    {
+      word = LW_WORD (priv->data.array[index]->data);
+    }
+
+    return word;
 }
 
 

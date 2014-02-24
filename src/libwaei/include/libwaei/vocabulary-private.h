@@ -26,6 +26,7 @@ typedef enum {
 
 struct _Data {
   GList *list; //<!-- A Glist of LwWord
+  GList **array;
   gint length;
   gboolean changed; //<!-- hint of there are any savable changes
   gdouble progress;

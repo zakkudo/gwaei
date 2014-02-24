@@ -36,6 +36,7 @@ struct _Store {
 };
 
 struct _UI {
+  GtkLabel *list_label;
   GtkComboBox *combo_box;
   GtkEntry *kanji_entry;
   GtkEntry *reading_entry;

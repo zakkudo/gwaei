@@ -332,10 +332,37 @@ lgw_addvocabularydialog_response_cb (LgwAddVocabularyDialog *self,
                                      gint                    response_id,
                                      GtkDialog              *dialog)
 {
+    //Sanity checks
     g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
-    g_return_if_fail (GTK_IS_DIALOG (dialog));
 
-    lgw_addvocabularydialog_sync_definition_text_buffer (self);
+    //Declarations
+    LgwAddVocabularyDialogPrivate *priv = NULL;
+    LwVocabulary *vocabulary = NULL;
+    LwWord *word = NULL;
+    GList *wordlist = NULL;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary = LW_VOCABULARY (priv->data.store.vocabulary_word);
+    if (vocabulary == NULL) goto errored;
+    word = lgw_addvocabularydialog_steal_word (self);
+    if (word == NULL) goto errored;
+    wordlist = g_list_prepend (wordlist, word);
+    if (wordlist == NULL) goto errored;
+
+    if (response_id == LGW_ADDVOCABULARYDIALOG_RESPONSE_ADD)
+    {
+      lw_vocabulary_insert_all (vocabulary, -1, wordlist);
+    }
+
+    if (priv->config.save_on_add)
+    {
+      lw_vocabulary_save (vocabulary, NULL);
+    }
+
+errored:
+
+    if (wordlist != NULL) g_list_free_full (wordlist, (GDestroyNotify) lw_word_free); wordlist = NULL;
 
     printf("BREAK response is %d\n", response_id);
 }
