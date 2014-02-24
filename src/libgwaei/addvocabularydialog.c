@@ -336,10 +336,12 @@ lgw_addvocabularydialog_constructed (GObject *object)
 
                   {
                     GtkWidget *text_view = gtk_text_view_new_with_buffer (text_buffer);
+                    gtk_widget_set_size_request (text_view, 250, 50);
                     priv->ui.definition_text_view = GTK_TEXT_VIEW (text_view);
+                    gtk_text_view_set_wrap_mode (priv->ui.definition_text_view, GTK_WRAP_WORD);
                     //gtk_entry_set_placeholder_text (priv->ui.definition_text_view, gettext("Definition"));
                     gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
-                    gtk_container_set_border_width (GTK_CONTAINER (text_view), 3);
+                    gtk_container_set_border_width (GTK_CONTAINER (text_view), 4);
                     gtk_widget_show (text_view);
                   }
                 }
@@ -365,6 +367,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
 
     gtk_window_set_title (GTK_WINDOW (dialog), gettext("Add New Vocabulary"));
     gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+    gtk_window_set_resizable (GTK_WINDOW (dialog), FALSE);
 
     lgw_addvocabularydialog_connect_signals (self);
 }
