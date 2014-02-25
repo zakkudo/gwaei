@@ -68,7 +68,7 @@ gboolean lw_vocabulary_file_exists (LwVocabulary *self);
 gchar* lw_vocabulary_build_uri (const gchar *FILENAME);
 
 void lw_vocabulary_insert_all (LwVocabulary *self, gint position, GList *wordlist);
-GList* lw_vocabulary_remove_all (LwVocabulary *self, gint *positions);
+GList* lw_vocabulary_remove_all (LwVocabulary *self, gint *indices);
 
 LwWord* lw_vocabulary_nth (LwVocabulary *self, gint index);
 

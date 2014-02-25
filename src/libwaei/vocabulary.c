@@ -357,6 +357,41 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
     g_object_class_install_property (object_class, PROP_LOADED, _klasspriv->pspec[PROP_LOADED]);
 }
 
+void
+lw_vocabulary_clear (LwVocabulary *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_VOCABULARY (self));
+    if (lw_vocabulary_is_loaded (self)) return;
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint *indices = NULL;
+    GList *removed = NULL;
+    gint length = 0;
+
+    //Initializations
+    priv = self->priv;
+    length = lw_vocabulary_length (self);
+    indices = g_new0 (gint, length + 1);
+
+    {
+      gint i = 0;
+      for (i = 0; i < length; i++)
+      {
+        indices[i] = i;
+      }
+      indices[i] = -1;
+    }
+
+    removed = lw_vocabulary_remove_all (self, indices);
+
+errored:
+
+    if (indices != NULL) g_free (indices); indices = NULL;
+    if (removed != NULL) g_list_free_full (removed, (GDestroyNotify) lw_word_free);
+}
+
 
 static void
 lw_vocabulary_load_from_file (LwVocabulary       *self, 
@@ -380,6 +415,8 @@ lw_vocabulary_load_from_file (LwVocabulary       *self,
     uri = lw_util_build_filename (LW_PATH_VOCABULARY, FILENAME);
     if (uri == NULL) goto errored;
 
+    lw_vocabulary_clear (self);
+
     if (!g_file_get_contents (uri, &contents, &length, NULL) || length == 0) goto errored;
 
     if (length > 0)
@@ -387,15 +424,19 @@ lw_vocabulary_load_from_file (LwVocabulary       *self,
       lw_util_replace_linebreaks_with_nullcharacter (contents);
 
       gchar *c = contents;
+      GList *list = NULL;
       while (c != NULL && c < contents + length) 
       {
         LwWord *word = lw_word_new_from_string (c);
         if (word != NULL)
         {
-          priv->data.list = g_list_prepend (priv->data.list, word);
+          list = g_list_prepend (list, word);
         }
         c += strlen(c) + 1;
       }
+      lw_vocabulary_insert_all (self, -1, list);
+
+      if (list != NULL) g_list_free (list); list = NULL;
     }
 
 errored:
@@ -418,19 +459,6 @@ lw_vocabulary_load (LwVocabulary       *self,
 
     lw_vocabulary_load_from_file (self, cb);
 
-    //Update the list information
-    lw_vocabulary_invalidate_length (self);
-    priv->data.list = g_list_reverse (priv->data.list);
-
-    {
-      gint i = 0;
-      gint length = lw_vocabulary_length (self);
-      for (i = 0; i < length; i++)
-      {
-        g_signal_emit (self, _klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, i);
-      }
-    }
-
     lw_vocabulary_set_changed (self, FALSE);
     lw_vocabulary_set_loaded (self, TRUE);
 }
@@ -445,18 +473,17 @@ lw_vocabulary_save (LwVocabulary       *self,
     //Declarations
     LwVocabularyPrivate *priv = NULL;
     const gchar *FILENAME = NULL;
-    gint i = 0;
     gchar *uri = NULL;
-    FILE *stream = NULL;
+    FILE *fd = NULL;
 
     //Initializations
     priv = self->priv;
     FILENAME = lw_vocabulary_get_filename (self);
     if (FILENAME == NULL) goto errored;
-    uri = lw_util_build_filename (LW_PATH_VOCABULARY, FILENAME);
+    uri = lw_vocabulary_build_uri (FILENAME);
     if (uri == NULL) goto errored;
-    stream = g_fopen (uri, "w");
-    if (stream = NULL) goto errored;
+    fd = g_fopen (uri, "w");
+    if (fd = NULL) goto errored;
 
     {
       GList *link = priv->data.list;
@@ -465,16 +492,13 @@ lw_vocabulary_save (LwVocabulary       *self,
         LwWord *word = LW_WORD (link->data);
         if (word != NULL)
         {
-          for (i = 0; i < TOTAL_LW_WORD_FIELDS - 1 && feof(stream) == 0; i++)
+          gchar *text = lw_word_to_string (word);
+          if (text != NULL)
           {
-            if (word->fields[i] != NULL)
-            {
-              fputs(word->fields[i], stream);
-              fputc(';', stream);
-            }
+            fputs(text, fd);
+            fputc('\n', fd);
           }
-          if (word->fields[i] != NULL) fputs(word->fields[i], stream);
-          fputc('\n', stream);
+          if (text != NULL) g_free (text); text = NULL;
         }
 
         link = link->next;
@@ -485,7 +509,7 @@ lw_vocabulary_save (LwVocabulary       *self,
 
 errored:
 
-    if (stream != NULL) fclose(stream); stream = NULL;
+    if (fd != NULL) fclose(fd); fd = NULL;
     if (uri != NULL) g_free (uri); uri = NULL;
 }
 
@@ -698,17 +722,26 @@ lw_vocabulary_set_filename (LwVocabulary *self,
     //Delete
     if (FILENAME == NULL && file_exists)
     {
+      printf("BREAK delete file %s\n", FILENAME);
       changed = lw_vocabulary_delete_file (self);
     }
     //Rename
     else if (FILENAME != NULL && priv->config.filename != NULL && file_exists)
     {
+      printf("BREAK rename file %s\n", FILENAME);
       changed = lw_vocabulary_rename_file (self, FILENAME);
     }
     //Create
-    else if (FILENAME != NULL && !file_exists)
+    else if (FILENAME != NULL && priv->config.filename != NULL && !file_exists)
     {
+      printf("BREAK create file %s\n", FILENAME);
       changed = lw_vocabulary_create_file (self, FILENAME);
+    }
+    //Initialize
+    else if (priv->config.filename == NULL && FILENAME != NULL)
+    {
+      printf("BREAK initialize %s\n", FILENAME);
+      changed = TRUE;
     }
 
     if (!changed) goto errored;
@@ -898,33 +931,58 @@ _remove_sort (gconstpointer a, gconstpointer b)
 
 
 
-static GList*
-_convert_array_to_list (LwVocabulary *self,
-                        gint         *positions)
+static gint* 
+_sanitize_indices (LwVocabulary *self,
+                   gint         *indices)
 {
     g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
-    if (positions == NULL) return NULL;
+    if (indices == NULL) return NULL;
 
     //Declarations
+    gint size = 0;
     gint length = 0;
-    GList *list = NULL;
-    gint *p = NULL;
 
     //Initializations
     length = lw_vocabulary_length (self);
 
-    for (p = positions; *p > -1 && *p < length && p - positions < length; p++)
+    //Copy
     {
-      list = g_list_prepend (list, GINT_TO_POINTER (*p));
+      gint *copy = NULL;
+      gint i = 0;
+      while (indices[i] > -1 && indices[i] < length && i < length) i++;
+      size = i;
+      copy = g_new0 (gint, size + 1);
+      memcpy(copy, indices, sizeof(gint) * (size));
+      copy[size] = -1;
+      indices = copy;
     }
 
-    return g_list_sort (list, _remove_sort);
+    //Sort
+    qsort(indices, sizeof(gint), size, _remove_sort);
+
+    //Remove duplicates
+    {
+      gint i = 0, j = 0;
+      while (indices[i] != -1 && indices[j] != -1)
+      {
+        if (indices[i] != indices[j])
+        {
+          indices[j] = indices[i];
+          j++;
+        }
+        i++;
+      }
+
+      indices[i] = -1;
+    }
+
+    return indices;
 }
 
 
 static GList*
 _remove_all (LwVocabulary *self,
-             GList        *indices)
+             gint         *indices)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
@@ -941,20 +999,17 @@ _remove_all (LwVocabulary *self,
     if (length == 0) goto errored;
 
     {
-      GList *index = NULL;
-      for (index = indices; index != NULL; index = index->next)
+      gint i = 0;
+      for (i = 0; indices[i] != -1 && i < length; i++)
       {
-        gint i = GPOINTER_TO_INT (index->data);
-        if (i < length && i > -1)
+        gint index = indices[i];
+        GList *link = priv->data.array[index];
+        if (link != NULL)
         {
-          GList *link = priv->data.array[i];
-          if (link != NULL)
-          {
-            LwWord *word = LW_WORD (link->data);
-            priv->data.list = g_list_remove_link (priv->data.list, link);
-            list = g_list_concat (link, list);
-            priv->data.array[i] = NULL;
-          }
+          LwWord *word = LW_WORD (link->data);
+          priv->data.list = g_list_remove_link (priv->data.list, link);
+          list = g_list_concat (link, list);
+          priv->data.array[index] = NULL;
         }
       }
       list = g_list_reverse (list);
@@ -970,7 +1025,7 @@ errored:
 
 static void
 _remove_all_propogate_changes (LwVocabulary *self,
-                               GList        *indices)
+                               gint         *indices)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
@@ -978,29 +1033,24 @@ _remove_all_propogate_changes (LwVocabulary *self,
 
     //Declarations
     gint length = 0;
-    gint start = 0;
+    gint i = 0;
 
     //Initializations
     length = lw_vocabulary_length (self);
-    start = GPOINTER_TO_INT (g_list_last (indices)->data);
 
     //Rows that were removed
+    for (i = 0; indices[i] != -1; i++)
     {
-      GList *link = NULL;
-      gint i = 0;
-      for (link = indices; link != NULL; link = link->next)
-      {
-        i = GPOINTER_TO_INT (link->data);
-        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, i);
-      }
+      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, indices[i]);
     }
+    i--;
 
     //Rows with modified indexes
     {
-      gint i = 0;
-      for (i = start; i < length; i++)
+      gint index = 0;
+      for (index = indices[i]; index < length; index++)
       {
-        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_CHANGED], 0, i);
+        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_CHANGED], 0, index);
       }
     }
 }
@@ -1008,28 +1058,28 @@ _remove_all_propogate_changes (LwVocabulary *self,
 
 GList*
 lw_vocabulary_remove_all (LwVocabulary *self,
-                          gint         *positions)
+                          gint         *indices)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
-    if (positions == NULL) return NULL;
+    if (indices == NULL) return NULL;
 
     //Declarations
-    GList *list = NULL;
-    GList *indices = NULL;
+    GList *removed = NULL;
 
     //Initializations
-    indices = _convert_array_to_list (self, positions);
+    indices = _sanitize_indices (self, indices);
+    if (indices == NULL) goto errored;
 
-    list = _remove_all (self, indices);
+    removed = _remove_all (self, indices);
     _rebuild_array (self);
     _remove_all_propogate_changes (self, indices);
 
 errored:
 
-    if (indices != NULL) g_list_free (indices); indices = NULL;
+    if (indices != NULL) g_free (indices); indices = NULL;
 
-    return list;
+    return removed;
 }
 
 
@@ -1137,7 +1187,8 @@ lw_vocabulary_nth (LwVocabulary *self,
 
     if (index > -1 && index < length)
     {
-      word = LW_WORD (priv->data.array[index]->data);
+      GList *link = priv->data.array[index];
+      word = LW_WORD (link->data);
     }
 
     return word;
