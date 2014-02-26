@@ -197,11 +197,13 @@ lgw_vocabularywordview_constructed (GObject *object)
       {
         GtkWidget *tree_view = gtk_tree_view_new ();
         priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
+        gtk_tree_view_set_reorderable (priv->ui.tree_view, TRUE);
         gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
         gtk_widget_show (tree_view);
 
         {
             priv->data.tree_selection = gtk_tree_view_get_selection (priv->ui.tree_view);
+            gtk_tree_selection_set_mode (priv->data.tree_selection, GTK_SELECTION_MULTIPLE);
             g_object_add_weak_pointer (G_OBJECT (priv->data.tree_selection), (gpointer*) &(priv->data.tree_selection));
         }
 
@@ -456,5 +458,112 @@ lgw_vocabularywordview_get_wordstores (LgwVocabularyWordView  *self)
     copy = g_list_copy (priv->data.vocabulary_word_stores);
 
     return priv->data.vocabulary_word_stores;
+}
+
+
+void
+lgw_vocabularywordview_delete_selected (LgwVocabularyWordView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordViewPrivate *priv = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    GtkTreeModel *tree_model = NULL;
+    LwVocabulary *vocabulary = NULL;
+    GList *pathlist = NULL;
+    gint length = 0;
+    gint *positions = NULL;
+    GList *wordlist = NULL;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
+    if (vocabulary_word_store == NULL) goto errored;
+    tree_model = GTK_TREE_MODEL (vocabulary_word_store);
+    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    pathlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
+    if (pathlist == NULL) goto errored;
+    length = g_list_length (pathlist);
+    if (length < 1) goto errored;
+    positions = g_new0 (gint, length + 1);
+    if (positions == NULL) goto errored;
+
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = pathlist; link != NULL; link = link->next)
+      {
+        GtkTreePath *path = link->data;
+        if (path != NULL)
+        {
+          gint* indices = gtk_tree_path_get_indices (path);
+          if (indices != NULL)
+          {
+            positions[i] = indices[0];
+            printf("delete_selected build indices: positions[%d] = %d\n", i, positions[i]);
+            i++;
+          }
+        }
+      }
+      positions[i] = -1;
+    }
+
+    wordlist = lw_vocabulary_remove_all (vocabulary, positions);
+
+errored:
+
+    if (pathlist != NULL) g_list_free_full (pathlist, (GDestroyNotify) gtk_tree_path_free); pathlist = NULL;
+    if (wordlist != NULL) g_list_free_full (wordlist, (GDestroyNotify) lw_word_free); wordlist = NULL;
+}
+
+
+void
+lgw_vocabularywordview_add_new (LgwVocabularyWordView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordViewPrivate *priv = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LwVocabulary *vocabulary = NULL;
+    GtkWidget *toplevel = NULL;
+    GtkWindow *window = NULL;
+    GtkDialog *dialog = NULL;
+    GtkWidget *add_vocabulary_dialog = NULL;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
+    if (vocabulary_word_store == NULL) goto errored;
+    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    toplevel = gtk_widget_get_toplevel (GTK_WIDGET (self));
+    if (gtk_widget_is_toplevel (toplevel))
+    {
+      window = GTK_WINDOW (toplevel);
+    }
+    add_vocabulary_dialog = lgw_addvocabularydialog_new (window);
+    dialog = GTK_DIALOG (add_vocabulary_dialog);
+
+    lgw_addvocabularydialog_set_wordstore (LGW_ADDVOCABULARYDIALOG (add_vocabulary_dialog), vocabulary_word_store);
+    gint response = gtk_dialog_run (GTK_DIALOG (add_vocabulary_dialog));
+
+    //Select the added item
+    if (response == LGW_ADDVOCABULARYDIALOG_RESPONSE_ADD)
+    {
+      gint length = lw_vocabulary_length (vocabulary);
+      GtkTreePath *tree_path = gtk_tree_path_new_from_indices (length - 1, -1);
+      if (tree_path != NULL)
+      {
+        gtk_tree_view_set_cursor (priv->ui.tree_view, tree_path, NULL, FALSE);
+        gtk_tree_path_free (tree_path); tree_path = NULL;
+      }
+    }
+
+errored:
+
+    if (add_vocabulary_dialog != NULL) gtk_widget_destroy (add_vocabulary_dialog);
 }
 

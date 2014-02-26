@@ -73,27 +73,11 @@ lgw_vocabularywordview_add_new_activated_cb (GSimpleAction *action,
 
     //Declarations
     LgwVocabularyWordView *self = NULL;
-    GtkWidget *toplevel = NULL;
-    GtkWindow *window = NULL;
-    GtkDialog *dialog = NULL;
-    GtkWidget *add_vocabulary_dialog = NULL;
 
     //Initializations
     self = LGW_VOCABULARYWORDVIEW (data);
-    toplevel = gtk_widget_get_toplevel (GTK_WIDGET (self));
-    if (gtk_widget_is_toplevel (toplevel))
-    {
-      window = GTK_WINDOW (toplevel);
-    }
-    add_vocabulary_dialog = lgw_addvocabularydialog_new (window);
-    dialog = GTK_DIALOG (add_vocabulary_dialog);
 
-    add_vocabulary_dialog = lgw_addvocabularydialog_new (window);
-    gint response = gtk_dialog_run (GTK_DIALOG (add_vocabulary_dialog));
-
-errored:
-
-    if (add_vocabulary_dialog != NULL) gtk_widget_destroy (add_vocabulary_dialog);
+    lgw_vocabularywordview_add_new (self);
 }
 
 void
@@ -106,19 +90,11 @@ lgw_vocabularywordview_remove_selected_activated_cb (GSimpleAction *action,
 
     //Declarations
     LgwVocabularyWordView *self = NULL;
-    LgwVocabularyWordViewPrivate *priv = NULL;
-    GtkTreeModel *tree_model = NULL;
-    GList *rowlist = NULL;
 
     //Initializations
     self = LGW_VOCABULARYWORDVIEW (data);
-    priv = self->priv;
-    tree_model = GTK_TREE_MODEL (priv->data.vocabulary_word_store);
-    rowlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
 
-errored:
-
-    if (rowlist != NULL) g_list_free_full (rowlist, (GDestroyNotify) gtk_tree_path_free); rowlist = NULL;
+    lgw_vocabularywordview_delete_selected (self);
 }
 
 

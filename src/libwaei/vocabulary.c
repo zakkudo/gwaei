@@ -816,6 +816,7 @@ _insert_all (LwVocabulary *self,
              gint         *position,
              GList        *wordlist)
 {
+printf("BREAK0 _insert_all\n");
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
     if (wordlist == NULL) return 0;
@@ -832,8 +833,10 @@ _insert_all (LwVocabulary *self,
     append = (*position < 0 || *position >= length || length == 0);
     number_inserted = g_list_length (wordlist);
 
+printf("BREAK1 _insert_all\n");
     if (append)
     {
+printf("BREAK2 _insert_all\n");
       GList *copy = g_list_copy (wordlist);
       *position = length;
       priv->data.list = g_list_concat (priv->data.list, copy);
@@ -850,6 +853,7 @@ _insert_all (LwVocabulary *self,
         {
           priv->data.list = g_list_insert_before (priv->data.list, insert_link, word);
           insert_link = insert_link->prev;
+          link->data = NULL;
         }
         else
         {
@@ -882,16 +886,19 @@ _insert_all_propogate_changes (LwVocabulary *self,
     //Initializations
     priv = self->priv;
     length = lw_vocabulary_length (self);
+printf("BREAK0 _insert_all_propogate_changed\n");
 
     //Rows that were inserted
     for (i = position; i < position + number_inserted; i ++)
     {
+printf("BREAK1 _insert_all_propogate_changed insert %d\n", i);
       g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, i);
     }
 
     //Rows with modified indexes
     for (i = position + number_inserted; i < length; i++)
     {
+printf("BREAK2 _insert_all_propogate_changed update %d\n", i);
       g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_CHANGED], 0, i);
     }
 }
@@ -905,6 +912,8 @@ lw_vocabulary_insert_all (LwVocabulary *self,
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
     if (wordlist == NULL) return;
+
+    printf("BREAK0 lw_vocabulary_insert_all %d %d\n", position, g_list_length (wordlist));
 
     //Declarations
     gint number_inserted = 0;
@@ -920,15 +929,14 @@ lw_vocabulary_insert_all (LwVocabulary *self,
 static gint
 _remove_sort (gconstpointer a, gconstpointer b)
 {
-    gint ia = GPOINTER_TO_INT (a);
-    gint ib = GPOINTER_TO_INT (b);
+    gint ia = *((gint*) a);
+    gint ib = *((gint*) b);
 
     if (ia > ib) return -1;
     if (ia < ib) return 1;
 
     return 0;
 }
-
 
 
 static gint* 
@@ -958,21 +966,21 @@ _sanitize_indices (LwVocabulary *self,
     }
 
     //Sort
-    qsort(indices, sizeof(gint), size, _remove_sort);
-
+    qsort(indices, size, sizeof(gint), _remove_sort);
+  
     //Remove duplicates
     {
-      gint i = 0, j = 0;
+      gint i = 0, j = 1;
       while (indices[i] != -1 && indices[j] != -1)
       {
         if (indices[i] != indices[j])
         {
-          indices[j] = indices[i];
-          j++;
+          i++;
+          indices[i] = indices[j];
         }
-        i++;
+        j++;
       }
-
+      i++;
       indices[i] = -1;
     }
 
@@ -999,10 +1007,12 @@ _remove_all (LwVocabulary *self,
     if (length == 0) goto errored;
 
     {
+      printf("_remove_all length: %d\n", g_list_length (list));
       gint i = 0;
       for (i = 0; indices[i] != -1 && i < length; i++)
       {
         gint index = indices[i];
+        printf("_remove_all removing index %d\n", index);
         GList *link = priv->data.array[index];
         if (link != NULL)
         {
@@ -1013,6 +1023,7 @@ _remove_all (LwVocabulary *self,
         }
       }
       list = g_list_reverse (list);
+      printf("_remove_all length: %d\n", g_list_length (list));
     }
 
 errored:
@@ -1041,6 +1052,7 @@ _remove_all_propogate_changes (LwVocabulary *self,
     //Rows that were removed
     for (i = 0; indices[i] != -1; i++)
     {
+      printf("_remove_all_propogate_changes removed %d\n", indices[i]);
       g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, indices[i]);
     }
     i--;
@@ -1050,6 +1062,7 @@ _remove_all_propogate_changes (LwVocabulary *self,
       gint index = 0;
       for (index = indices[i]; index < length; index++)
       {
+        printf("_remove_all_propogate_changes updating %d\n", index);
         g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_CHANGED], 0, index);
       }
     }

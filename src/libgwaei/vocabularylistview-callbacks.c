@@ -107,7 +107,7 @@ lgw_vocabularylistview_delete_selected_activated_cb (GSimpleAction *action,
     //Initializations
     self = LGW_VOCABULARYLISTVIEW (data);
 
-    lgw_vocabularylistview_delete_all_selected (self);
+    lgw_vocabularylistview_delete_selected (self);
 }
 
 

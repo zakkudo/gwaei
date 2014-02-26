@@ -540,6 +540,7 @@ lgw_addvocabularydialog_set_kanji (LgwAddVocabularyDialog *self,
     LgwAddVocabularyDialogPrivate *priv = NULL;
     gchar *kanji = NULL;
     const gchar *ENTRY_TEXT = NULL;
+    const gchar *INTERNAL_TEXT = NULL;
 
     //Initializations
     priv = self->priv;
@@ -547,6 +548,7 @@ lgw_addvocabularydialog_set_kanji (LgwAddVocabularyDialog *self,
     if (kanji == NULL) goto errored;
     kanji = g_strstrip (kanji);
     ENTRY_TEXT = gtk_entry_get_text (priv->ui.kanji_entry);
+    INTERNAL_TEXT = lw_word_get_kanji (priv->data.word);
 
     if (strcmp(ENTRY_TEXT, KANJI) != 0)
     {
@@ -555,7 +557,7 @@ lgw_addvocabularydialog_set_kanji (LgwAddVocabularyDialog *self,
       g_signal_handler_unblock (priv->ui.kanji_entry, priv->data.signalid[SIGNALID_KANJI_CHANGED]);
     }
 
-    if (strcmp(ENTRY_TEXT, kanji) != 0)
+    if (INTERNAL_TEXT == NULL || strcmp(INTERNAL_TEXT, kanji) != 0)
     {
       lw_word_set_kanji (priv->data.word, kanji);
       g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_KANJI]);
@@ -596,6 +598,7 @@ lgw_addvocabularydialog_set_reading (LgwAddVocabularyDialog *self,
     LgwAddVocabularyDialogPrivate *priv = NULL;
     gchar *reading = NULL;
     const gchar *ENTRY_TEXT = NULL;
+    const gchar *INTERNAL_TEXT = NULL;
 
     //Initializations
     priv = self->priv;
@@ -603,6 +606,7 @@ lgw_addvocabularydialog_set_reading (LgwAddVocabularyDialog *self,
     if (reading == NULL) goto errored;
     reading = g_strstrip (reading);
     ENTRY_TEXT = gtk_entry_get_text (priv->ui.reading_entry);
+    INTERNAL_TEXT = lw_word_get_reading (priv->data.word);
 
 
     if (strcmp(ENTRY_TEXT, READING) != 0)
@@ -612,7 +616,7 @@ lgw_addvocabularydialog_set_reading (LgwAddVocabularyDialog *self,
       g_signal_handler_unblock (priv->ui.reading_entry, priv->data.signalid[SIGNALID_READING_CHANGED]);
     }
 
-    if (strcmp(ENTRY_TEXT, reading) != 0)
+    if (INTERNAL_TEXT == NULL || strcmp(INTERNAL_TEXT, reading) != 0)
     {
       lw_word_set_reading (priv->data.word, reading);
       g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_READING]);
@@ -654,6 +658,7 @@ lgw_addvocabularydialog_set_definition (LgwAddVocabularyDialog *self,
     GtkTextIter end;
     gchar *text_buffer_text = NULL;
     gchar *definition = NULL;
+    const gchar *INTERNAL_TEXT = NULL;
 
     //Initializations
     priv = self->priv;
@@ -664,6 +669,7 @@ lgw_addvocabularydialog_set_definition (LgwAddVocabularyDialog *self,
     definition = g_strdup (DEFINITION);
     if (definition == NULL) goto errored;
     definition = g_strstrip (definition);
+    INTERNAL_TEXT = lw_word_get_definition (priv->data.word);
 
     if (strcmp (text_buffer_text, DEFINITION) != 0)
     {
@@ -672,7 +678,7 @@ lgw_addvocabularydialog_set_definition (LgwAddVocabularyDialog *self,
       g_signal_handler_unblock (priv->data.definition.text_buffer, priv->data.signalid[SIGNALID_DEFINITION_CHANGED]);
     }
 
-    if (strcmp(text_buffer_text, definition) != 0)
+    if (INTERNAL_TEXT == NULL || strcmp(INTERNAL_TEXT, definition) != 0)
     { 
       lw_word_set_definition (priv->data.word, definition);
       g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DEFINITION]);
@@ -961,7 +967,7 @@ lgw_addvocabularydialog_steal_word (LgwAddVocabularyDialog *self)
     //Initializations
     priv = self->priv;
     word = priv->data.word;
-    priv->data.word = NULL;
+    priv->data.word = lw_word_new ();
 
     return word;
 }

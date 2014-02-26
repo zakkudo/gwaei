@@ -198,11 +198,13 @@ lgw_vocabularylistview_constructed (GObject *object)
       {
         GtkWidget *tree_view = gtk_tree_view_new ();
         priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
+        gtk_tree_view_set_reorderable (priv->ui.tree_view, TRUE);
         gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
         gtk_widget_show (tree_view);
 
         {
             priv->data.tree_selection = gtk_tree_view_get_selection (priv->ui.tree_view);
+            gtk_tree_selection_set_mode (priv->data.tree_selection, GTK_SELECTION_MULTIPLE);
             g_object_add_weak_pointer (G_OBJECT (priv->data.tree_selection), (gpointer*) &(priv->data.tree_selection));
         }
 
@@ -516,7 +518,7 @@ errored:
 
 
 void
-lgw_vocabularylistview_delete_all_selected (LgwVocabularyListView *self)
+lgw_vocabularylistview_delete_selected (LgwVocabularyListView *self)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
@@ -534,10 +536,10 @@ lgw_vocabularylistview_delete_all_selected (LgwVocabularyListView *self)
     priv = self->priv;
     vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
     if (vocabulary_list_store == NULL) goto errored;
-    pathlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
-    if (pathlist == NULL) goto errored;
     tree_model = GTK_TREE_MODEL (vocabulary_list_store);
     if (tree_model == NULL) goto errored;
+    pathlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
+    if (pathlist == NULL) goto errored;
     length = g_list_length (pathlist);
     if (length < 1) goto errored;
     positions = g_new0 (gint, length + 1);

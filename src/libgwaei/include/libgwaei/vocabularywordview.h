@@ -36,6 +36,9 @@ void lgw_vocabularywordview_set_wordstores (LgwVocabularyWordView *self, GList *
 LgwVocabularyWordStore* lgw_vocabularywordview_get_wordstore (LgwVocabularyWordView *self);
 GList* lgw_vocabularywordview_get_wordstores (LgwVocabularyWordView *self);
 
+void lgw_vocabularywordview_delete_selected (LgwVocabularyWordView *self);
+void lgw_vocabularywordview_add_new (LgwVocabularyWordView *self);
+
 G_END_DECLS
 
 

@@ -538,12 +538,11 @@ errored:
 }
 
 
-//Sorts in decending order
 static gint
 _remove_sort (gconstpointer a, gconstpointer b)
 {
-    gint ia = GPOINTER_TO_INT (a);
-    gint ib = GPOINTER_TO_INT (b);
+    gint ia = *((gint*) a);
+    gint ib = *((gint*) b);
 
     if (ia > ib) return -1;
     if (ia < ib) return 1;
@@ -554,7 +553,7 @@ _remove_sort (gconstpointer a, gconstpointer b)
 
 static gint* 
 _sanitize_indices (LgwVocabularyListStore *self,
-                   gint                   *indices)
+                   gint         *indices)
 {
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (self), NULL);
     if (indices == NULL) return NULL;
@@ -579,21 +578,21 @@ _sanitize_indices (LgwVocabularyListStore *self,
     }
 
     //Sort
-    qsort(indices, sizeof(gint), size, _remove_sort);
-
+    qsort(indices, size, sizeof(gint), _remove_sort);
+  
     //Remove duplicates
     {
-      gint i = 0, j = 0;
+      gint i = 0, j = 1;
       while (indices[i] != -1 && indices[j] != -1)
       {
         if (indices[i] != indices[j])
         {
-          indices[j] = indices[i];
-          j++;
+          i++;
+          indices[i] = indices[j];
         }
-        i++;
+        j++;
       }
-
+      i++;
       indices[i] = -1;
     }
 

@@ -246,7 +246,6 @@ lgw_addvocabularydialog_kanji_changed_cb (LgwAddVocabularyDialog *self,
     TEXT = gtk_entry_get_text (entry);
 
     lgw_addvocabularydialog_set_kanji (self, TEXT);
-    printf("BREAK kanji_changed\n");
 }
 
 
@@ -266,7 +265,6 @@ lgw_addvocabularydialog_reading_changed_cb (LgwAddVocabularyDialog *self,
     TEXT = gtk_entry_get_text (entry);
 
     lgw_addvocabularydialog_set_reading (self, TEXT);
-    printf("BREAK reading_changed\n");
 }
 
 
@@ -289,7 +287,6 @@ lgw_addvocabularydialog_definition_changed_cb (LgwAddVocabularyDialog *self,
     if (text == NULL) goto errored;
 
     lgw_addvocabularydialog_set_definition (self, text);
-    printf("BREAK definition_changed\n");
 
 errored:
 
@@ -306,7 +303,6 @@ lgw_addvocabularydialog_definition_focus_in_event_cb (LgwAddVocabularyDialog *se
     g_return_if_fail (GTK_IS_TEXT_VIEW (inner_text_view));
 
     lgw_addvocabularydialog_sync_definition_text_buffer (self);
-    printf("BREAK focus_in_event\n");
 
     return FALSE;
 }
@@ -321,7 +317,6 @@ lgw_addvocabularydialog_definition_focus_out_event_cb (LgwAddVocabularyDialog *s
     g_return_if_fail (GTK_IS_TEXT_VIEW (inner_text_view));
 
     lgw_addvocabularydialog_sync_definition_text_buffer (self);
-    printf("BREAK focus_out_event\n");
 
     return FALSE;
 }
@@ -362,7 +357,7 @@ lgw_addvocabularydialog_response_cb (LgwAddVocabularyDialog *self,
 
 errored:
 
-    if (wordlist != NULL) g_list_free_full (wordlist, (GDestroyNotify) lw_word_free); wordlist = NULL;
+    if (wordlist != NULL) g_list_free (wordlist); wordlist = NULL;
 
     printf("BREAK response is %d\n", response_id);
 }

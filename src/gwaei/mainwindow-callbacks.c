@@ -215,8 +215,6 @@ lgw_mainwindow_child_actions_property_changed_cb (GwMainWindow *self,
     g_return_if_fail (LGW_IS_ACTIONABLE (self));
     g_return_if_fail (LGW_IS_ACTIONABLE (actionable));
 
-    printf("lgw_mainwindow_child_actions_property_changed_cb\n"); 
-
     lgw_actionable_sync_actions (LGW_ACTIONABLE (self));
 }
 
