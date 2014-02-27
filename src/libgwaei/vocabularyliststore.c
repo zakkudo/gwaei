@@ -44,7 +44,7 @@
 
 
 G_DEFINE_TYPE_WITH_CODE (LgwVocabularyListStore, lgw_vocabularyliststore, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularyliststore_init_interface));
+                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularyliststore_implement_treemodel_interface));
 
 
 
@@ -469,19 +469,22 @@ _insert_all_propogate_changes (LgwVocabularyListStore *self,
     if (number_inserted == 0) return;
 
     //Declarations
+    GtkTreeModel *tree_model = NULL;
     gint length = 0;
     gint i = 0;
     GtkTreeIter iter;
 
     //Initializations
+    tree_model = GTK_TREE_MODEL (self);
     length = lgw_vocabularyliststore_length (self);
 
     //Rows that were inserted
     for (i = position; i < position + number_inserted; i++)
     {
-      lgw_vocabularyliststore_initialize_tree_iter (self, &iter, i);
       GtkTreePath *path = gtk_tree_path_new_from_indices (i, -1);
-      if (path != NULL) {
+      if (path != NULL)
+      {
+        gtk_tree_model_get_iter (tree_model, &iter, path);
         g_signal_emit_by_name (G_OBJECT (self),
           "row-inserted",
           path,
@@ -495,9 +498,9 @@ _insert_all_propogate_changes (LgwVocabularyListStore *self,
     //Rows with modified indexes
     for (i = position + number_inserted; i < length; i++)
     {
-      lgw_vocabularyliststore_initialize_tree_iter (self, &iter, i);
       GtkTreePath *path = gtk_tree_path_new_from_indices (i, -1);
       if (path != NULL) {
+        gtk_tree_model_get_iter (tree_model, &iter, path);
         g_signal_emit_by_name (G_OBJECT (self),
           "row-changed",
           path,
@@ -658,11 +661,13 @@ _remove_all_propogate_changes (LgwVocabularyListStore *self,
     if (indices == NULL) return;
 
     //Declarations
+    GtkTreeModel *tree_model = NULL;
     gint length = 0;
     gint i = 0;
     GtkTreeIter iter;
 
     //Initializations
+    tree_model = GTK_TREE_MODEL (self);
     length = lgw_vocabularyliststore_length (self);
 
     //Rows that were removed
@@ -685,9 +690,9 @@ _remove_all_propogate_changes (LgwVocabularyListStore *self,
       gint index = 0;
       for (index = indices[i]; index < length; index++)
       {
-        lgw_vocabularyliststore_initialize_tree_iter (self, &iter, index);
         GtkTreePath *path = gtk_tree_path_new_from_indices (index, -1);
         if (path != NULL) {
+          gtk_tree_model_get_iter (tree_model, &iter, path);
           g_signal_emit_by_name (G_OBJECT (self),
             "row-changed",
             path,
@@ -969,4 +974,32 @@ errored:
     return vocabulary_word_store;
 }
 
+
+LgwVocabularyWordStore*
+lgw_vocabularyliststore_nth (LgwVocabularyListStore *self,
+                             gint                    index)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (self), NULL);
+    if (index < 0) return NULL;
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    gint length = 0;
+    GList *link = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+
+    //Initializations
+    priv = self->priv;
+    length = lgw_vocabularyliststore_length (self);
+    if (index >= length) goto errored;
+
+    link = priv->data.array[index]->data;
+    if (link == NULL) goto errored;
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (link);
+
+errored:
+
+    return vocabulary_word_store;
+}
 

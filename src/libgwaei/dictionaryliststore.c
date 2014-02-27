@@ -42,7 +42,7 @@
 static gint lgw_dictionaryliststore_sort_compare_function (gconstpointer, gconstpointer, gpointer);
 
 G_DEFINE_TYPE_WITH_CODE (LgwDictionaryListStore, lgw_dictionaryliststore, LW_TYPE_DICTIONARYLIST,
-                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_dictionaryliststore_init_interface));
+                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_dictionaryliststore_implement_treemodel_interface));
 
 
 //!

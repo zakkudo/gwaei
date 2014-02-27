@@ -69,6 +69,8 @@ const gchar* lw_word_get_timestamp_as_string (LwWord*);
 
 gboolean lw_word_has_changes (LwWord *word);
 
+LwWord* lw_word_copy (LwWord *word);
+
 G_END_DECLS
 
 #endif

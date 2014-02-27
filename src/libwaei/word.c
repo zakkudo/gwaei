@@ -290,3 +290,14 @@ lw_word_has_changes (LwWord *word)
     return word->has_changes;
 }
 
+
+LwWord*
+lw_word_copy (LwWord *word)
+{
+    if (word == NULL) return NULL;
+
+    //TODO
+
+    g_assert_not_reached ();
+}
+

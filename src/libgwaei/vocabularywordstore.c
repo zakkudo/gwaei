@@ -42,7 +42,7 @@
 #include <libgwaei/vocabularywordstore-private.h>
 
 G_DEFINE_TYPE_WITH_CODE (LgwVocabularyWordStore, lgw_vocabularywordstore, LW_TYPE_VOCABULARY,
-                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularywordstore_init_interface));
+                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularywordstore_implement_treemodel_interface));
 
 
 LgwVocabularyWordStore*

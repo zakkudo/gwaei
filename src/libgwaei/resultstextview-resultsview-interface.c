@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file resultstextview.c
+//! @file resultstextview-resultsview-interface.c
 //!
 //! @brief To be written
 //!
@@ -40,8 +40,8 @@
 #include <libgwaei/resultstextview-private.h>
 
 
-void
-lgw_resultstextview_clear_searchlist (LgwResultsView *self)
+static void
+_clear_searchlist (LgwResultsView *self)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
@@ -62,8 +62,8 @@ lgw_resultstextview_clear_searchlist (LgwResultsView *self)
 }
 
 
-void
-lgw_resultstextview_set_searchlist (LgwResultsView *self,
+static void
+_set_searchlist (LgwResultsView *self,
                                     GList          *searchlist)
 {
     //Sanity checks
@@ -77,7 +77,7 @@ lgw_resultstextview_set_searchlist (LgwResultsView *self,
     text_view = LGW_RESULTSTEXTVIEW (self);
     priv = text_view->priv;
 
-    lgw_resultstextview_clear_searchlist (self);
+    _clear_searchlist (self);
 
     {
       GList *link = searchlist;
@@ -93,8 +93,8 @@ lgw_resultstextview_set_searchlist (LgwResultsView *self,
 }
 
 
-GList*
-lgw_resultstextview_get_searchlist (LgwResultsView *self)
+static GList*
+_get_searchlist (LgwResultsView *self)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
@@ -112,9 +112,9 @@ lgw_resultstextview_get_searchlist (LgwResultsView *self)
 void
 lgw_resultstextview_implement_resultsview_interface (LgwResultsViewInterface *iface)
 {
-    iface->set_search = lgw_resultstextview_set_searchlist;
-    iface->get_search = lgw_resultstextview_get_searchlist;
-    iface->clear_search = lgw_resultstextview_clear_searchlist;
+    iface->set_search = _set_searchlist;
+    iface->get_search = _get_searchlist;
+    iface->clear_search = _clear_searchlist;
 }
 
 

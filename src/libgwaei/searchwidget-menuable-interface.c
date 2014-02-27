@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file searchwidget.c
+//! @file searchwidget-menuable-interface.c
 //!
 //! @brief To be written
 //!
@@ -42,7 +42,7 @@
 
 
 static GMenuModel*
-lgw_searchwidget_get_button_menu_model (LgwMenuable *menuable)
+_get_button_menu_model (LgwMenuable *menuable)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_SEARCHWIDGET (menuable));
@@ -59,7 +59,7 @@ lgw_searchwidget_get_button_menu_model (LgwMenuable *menuable)
 
 
 static GMenuModel*
-lgw_searchwidget_get_window_menu_model (LgwMenuable *menuable)
+_get_window_menu_model (LgwMenuable *menuable)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_SEARCHWIDGET (menuable));
@@ -77,7 +77,7 @@ lgw_searchwidget_get_window_menu_model (LgwMenuable *menuable)
 
 void
 lgw_searchwidget_implement_menuable_interface (LgwMenuableInterface *iface) {
-    iface->get_window_menu_model = lgw_searchwidget_get_window_menu_model;
-    iface->get_button_menu_model = lgw_searchwidget_get_button_menu_model;
+    iface->get_window_menu_model = _get_window_menu_model;
+    iface->get_button_menu_model = _get_button_menu_model;
 }
 

@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file searchentry.c
+//! @file searchentry-actionable-interface.c
 //!
 //! @brief To be written
 //!
@@ -41,7 +41,7 @@
 
 
 static void
-lgw_searchentry_rebuild_actiongroup (LgwActionable *actionable)
+_rebuild_actiongroup (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_SEARCHENTRY (actionable), NULL);
@@ -101,7 +101,7 @@ lgw_searchentry_rebuild_actiongroup (LgwActionable *actionable)
 
 
 static void
-lgw_searchentry_rebuild_actiongrouplist (LgwActionable *actionable)
+_rebuild_actiongrouplist (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_SEARCHENTRY (actionable), NULL);
@@ -125,18 +125,18 @@ lgw_searchentry_rebuild_actiongrouplist (LgwActionable *actionable)
 
 
 static void
-lgw_searchentry_sync_actions (LgwActionable *actionable)
+_sync_actions (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_SEARCHENTRY (actionable), NULL);
 
-    lgw_searchentry_rebuild_actiongroup (actionable);
-    lgw_searchentry_rebuild_actiongrouplist (actionable);
+    _rebuild_actiongroup (actionable);
+    _rebuild_actiongrouplist (actionable);
 }
 
 
 static GList*
-lgw_searchentry_get_actions (LgwActionable *actionable)
+_get_actions (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (actionable != NULL, NULL);
@@ -151,7 +151,7 @@ lgw_searchentry_get_actions (LgwActionable *actionable)
 
     if (priv->data.action_group_list == NULL || priv->data.action_group == NULL)
     {
-      lgw_searchentry_sync_actions (actionable);
+      _sync_actions (actionable);
     }
 
     return priv->data.action_group_list;
@@ -161,7 +161,7 @@ lgw_searchentry_get_actions (LgwActionable *actionable)
 void
 lgw_searchentry_implement_actionable_interface (LgwActionableInterface *iface)
 {
-    iface->get_actions = lgw_searchentry_get_actions;
-    iface->sync_actions = lgw_searchentry_sync_actions;
+    iface->get_actions = _get_actions;
+    iface->sync_actions = _sync_actions;
 }
 

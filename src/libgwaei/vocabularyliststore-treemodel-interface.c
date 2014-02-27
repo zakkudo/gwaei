@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file vocabularyliststore.c
+//! @file vocabularyliststore-treemodel-interface.c
 //!
 //! @brief To be written
 //!
@@ -46,37 +46,18 @@
 static gint stamp = 0;
 static gint valid_stamp = 0;
 
-void
-lgw_vocabularyliststore_init_interface (GtkTreeModelIface *iface)
-{
-    iface->get_flags = lgw_vocabularyliststore_get_flags;
-    iface->get_n_columns = lgw_vocabularyliststore_get_n_columns;
-    iface->get_column_type = lgw_vocabularyliststore_get_column_type;
-    iface->get_iter = lgw_vocabularyliststore_get_iter;
-    iface->get_path = lgw_vocabularyliststore_get_path;
-    iface->get_value = lgw_vocabularyliststore_get_value;
-    iface->iter_next = lgw_vocabularyliststore_iter_next;
-    iface->iter_previous = lgw_vocabularyliststore_iter_previous;
-    iface->iter_children = lgw_vocabularyliststore_iter_children;
-    iface->iter_has_child = lgw_vocabularyliststore_iter_has_child;
-    iface->iter_n_children = lgw_vocabularyliststore_iter_n_children;
-    iface->iter_nth_child = lgw_vocabularyliststore_iter_nth_child;
-    iface->iter_parent = lgw_vocabularyliststore_iter_parent;
-}
 
-
-
-void
-lgw_vocabularyliststore_initialize_tree_iter (LgwVocabularyListStore *self,
-                                              GtkTreeIter            *iter,
-                                              gint                    index_)
+static void
+_initialize_tree_iter (LgwVocabularyListStore *self,
+                       GtkTreeIter            *iter,
+                       gint                    index_)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (self), 0);
 
     //Declarations
     LgwVocabularyListStoreClass *klass = NULL;
-
+ 
     //Initializations
     iter->stamp = stamp;
     iter->user_data = self;
@@ -86,8 +67,8 @@ lgw_vocabularyliststore_initialize_tree_iter (LgwVocabularyListStore *self,
 }
 
 
-void
-lgw_vocabularyliststore_invalidate_tree_iter (GtkTreeIter *iter)
+static void
+_invalidate_tree_iter (GtkTreeIter *iter)
 {
     //Sanity checks
     g_return_if_fail (iter != NULL);
@@ -97,9 +78,9 @@ lgw_vocabularyliststore_invalidate_tree_iter (GtkTreeIter *iter)
 }
 
 
-gboolean
-lgw_vocabularyliststore_tree_iter_is_valid (LgwVocabularyListStore *self,
-                                            GtkTreeIter            *iter)
+static gboolean
+_tree_iter_is_valid (LgwVocabularyListStore *self,
+                     GtkTreeIter            *iter)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (self), FALSE);
@@ -126,23 +107,23 @@ lgw_vocabularyliststore_invalidate_old_timestamps ()
 }
 
 
-GtkTreeModelFlags
-lgw_vocabularyliststore_get_flags (GtkTreeModel *tree_model)
+static GtkTreeModelFlags
+_get_flags (GtkTreeModel *tree_model)
 {
     return GTK_TREE_MODEL_LIST_ONLY;
 }
 
 
-gint
-lgw_vocabularyliststore_get_n_columns (GtkTreeModel *tree_model)
+static gint
+_get_n_columns (GtkTreeModel *tree_model)
 {
     return TOTAL_LGW_VOCABULARYLISTSTORE_COLUMNS;
 }
 
 
-GType
-lgw_vocabularyliststore_get_column_type (GtkTreeModel *tree_model,
-                                         gint          index_)
+static GType
+_get_column_type (GtkTreeModel *tree_model,
+                  gint          index_)
 {
     GType type = G_TYPE_INVALID;
 
@@ -166,10 +147,10 @@ lgw_vocabularyliststore_get_column_type (GtkTreeModel *tree_model,
 }
 
 
-gboolean
-lgw_vocabularyliststore_get_iter (GtkTreeModel *tree_model,
-                                  GtkTreeIter  *iter,
-                                  GtkTreePath  *path)
+static gboolean
+_get_iter (GtkTreeModel *tree_model,
+           GtkTreeIter  *iter,
+           GtkTreePath  *path)
 {
     //Declarations
     LgwVocabularyListStore *self = NULL;
@@ -197,23 +178,23 @@ lgw_vocabularyliststore_get_iter (GtkTreeModel *tree_model,
 
     if (iter != NULL && is_valid)
     {
-      lgw_vocabularyliststore_initialize_tree_iter (LGW_VOCABULARYLISTSTORE (self), iter, index);
+      _initialize_tree_iter (LGW_VOCABULARYLISTSTORE (self), iter, index);
     }
 
 errored:
 
-    if (!lgw_vocabularyliststore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
+    if (!_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
     {
-      lgw_vocabularyliststore_invalidate_tree_iter (iter);
+      _invalidate_tree_iter (iter);
     }
 
     return is_valid;
 }
 
 
-GtkTreePath*
-lgw_vocabularyliststore_get_path (GtkTreeModel *tree_model,
-                                  GtkTreeIter  *iter)
+static GtkTreePath*
+_get_path (GtkTreeModel *tree_model,
+           GtkTreeIter  *iter)
 {
     //Sanity checks
     g_return_val_if_fail (GTK_IS_TREE_MODEL (tree_model), NULL);
@@ -226,7 +207,7 @@ lgw_vocabularyliststore_get_path (GtkTreeModel *tree_model,
     //Initializations
     self = LGW_VOCABULARYLISTSTORE (tree_model);
 
-    if (lgw_vocabularyliststore_tree_iter_is_valid (self, iter))
+    if (_tree_iter_is_valid (self, iter))
     {
       path = gtk_tree_path_new_from_indices (GPOINTER_TO_INT (iter->user_data2), -1);
     }
@@ -235,11 +216,11 @@ lgw_vocabularyliststore_get_path (GtkTreeModel *tree_model,
 }
 
 
-void
-lgw_vocabularyliststore_get_value (GtkTreeModel *tree_model,
-                                   GtkTreeIter  *iter,
-                                   gint          column,
-                                   GValue       *value)
+static void
+_get_value (GtkTreeModel *tree_model,
+            GtkTreeIter  *iter,
+            gint          column,
+            GValue       *value)
 {
     //Sanity checks
     g_return_val_if_fail (GTK_IS_TREE_MODEL (tree_model), NULL);
@@ -258,9 +239,9 @@ lgw_vocabularyliststore_get_value (GtkTreeModel *tree_model,
     //Initializations
     self = LGW_VOCABULARYLISTSTORE (tree_model);
     priv = self->priv;
-    type = lgw_vocabularyliststore_get_column_type (tree_model, column);
+    type = _get_column_type (tree_model, column);
     index = GPOINTER_TO_INT (iter->user_data2);
-    vocabulary_word_store = g_list_nth_data (priv->data.list, index);
+    vocabulary_word_store = lgw_vocabularyliststore_nth (self, index);
     vocabulary = LW_VOCABULARY (vocabulary_word_store);
     g_value_init (value, type);
 
@@ -284,18 +265,18 @@ lgw_vocabularyliststore_get_value (GtkTreeModel *tree_model,
 
 errored:
 
-    if (!lgw_vocabularyliststore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
+    if (!_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
     {
-      lgw_vocabularyliststore_invalidate_tree_iter (iter);
+      _invalidate_tree_iter (iter);
     }
 
     return;
 }
 
 
-gboolean
-lgw_vocabularyliststore_iter_next (GtkTreeModel *tree_model,
-                                   GtkTreeIter  *iter)
+static gboolean
+_iter_next (GtkTreeModel *tree_model,
+            GtkTreeIter  *iter)
 {
     //Sanity checks
     g_return_val_if_fail (iter != NULL, FALSE);
@@ -319,18 +300,18 @@ lgw_vocabularyliststore_iter_next (GtkTreeModel *tree_model,
 
 errored:
 
-    if (!lgw_vocabularyliststore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
+    if (!_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
     {
-      lgw_vocabularyliststore_invalidate_tree_iter (iter);
+      _invalidate_tree_iter (iter);
     }
 
     return has_next;
 }
 
 
-gboolean
-lgw_vocabularyliststore_iter_previous (GtkTreeModel *tree_model,
-                                       GtkTreeIter  *iter)
+static gboolean
+_iter_previous (GtkTreeModel *tree_model,
+                GtkTreeIter  *iter)
 {
     //Sanity checks
     g_return_val_if_fail (iter != NULL, FALSE);
@@ -354,19 +335,19 @@ lgw_vocabularyliststore_iter_previous (GtkTreeModel *tree_model,
 
 errored:
 
-    if (!lgw_vocabularyliststore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
+    if (!_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
     {
-      lgw_vocabularyliststore_invalidate_tree_iter (iter);
+      _invalidate_tree_iter (iter);
     }
 
     return has_previous;
 }
 
 
-gboolean
-lgw_vocabularyliststore_iter_children (GtkTreeModel *tree_model,
-                                       GtkTreeIter  *iter,
-                                       GtkTreeIter  *parent)
+static gboolean
+_iter_children (GtkTreeModel *tree_model,
+                GtkTreeIter  *iter,
+                GtkTreeIter  *parent)
 {
     //Sanity checks
     g_return_val_if_fail (iter != NULL, FALSE);
@@ -388,31 +369,31 @@ lgw_vocabularyliststore_iter_children (GtkTreeModel *tree_model,
 
     if (parent == NULL && length > 0)
     {
-      lgw_vocabularyliststore_initialize_tree_iter (LGW_VOCABULARYLISTSTORE (self), iter, 0);
+      _initialize_tree_iter (LGW_VOCABULARYLISTSTORE (self), iter, 0);
     }
 
 errored:
 
-    if (!lgw_vocabularyliststore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
+    if (!_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
     {
-      lgw_vocabularyliststore_invalidate_tree_iter (iter);
+      _invalidate_tree_iter (iter);
     }
 
     return (parent == NULL);
 }
 
 
-gboolean
-lgw_vocabularyliststore_iter_has_child (GtkTreeModel *tree_model,
-                                        GtkTreeIter  *iter)
+static gboolean
+_iter_has_child (GtkTreeModel *tree_model,
+                 GtkTreeIter  *iter)
 {
     return FALSE;
 }
 
 
-gint
-lgw_vocabularyliststore_iter_n_children (GtkTreeModel *tree_model,
-                                         GtkTreeIter  *iter)
+static gint
+_iter_n_children (GtkTreeModel *tree_model,
+                  GtkTreeIter  *iter)
 {
     //Declarations
     LgwVocabularyListStore *self = NULL;
@@ -433,20 +414,20 @@ lgw_vocabularyliststore_iter_n_children (GtkTreeModel *tree_model,
 
 errored:
 
-    if (!lgw_vocabularyliststore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
+    if (!_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
     {
-      lgw_vocabularyliststore_invalidate_tree_iter (iter);
+      _invalidate_tree_iter (iter);
     }
     
     return total;
 }
 
 
-gboolean
-lgw_vocabularyliststore_iter_nth_child (GtkTreeModel *tree_model,
-                                        GtkTreeIter  *iter,
-                                        GtkTreeIter  *parent,
-                                        gint          n)
+static gboolean
+_iter_nth_child (GtkTreeModel *tree_model,
+                 GtkTreeIter  *iter,
+                 GtkTreeIter  *parent,
+                 gint          n)
 {
     //Sanity checks
     g_return_val_if_fail (iter != NULL, FALSE);
@@ -474,12 +455,12 @@ errored:
 
     if (exists)
     {
-      lgw_vocabularyliststore_initialize_tree_iter (LGW_VOCABULARYLISTSTORE (self), iter, n);
+      _initialize_tree_iter (LGW_VOCABULARYLISTSTORE (self), iter, n);
     }
 
-    if (!lgw_vocabularyliststore_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
+    if (!_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
     {
-      lgw_vocabularyliststore_invalidate_tree_iter (iter);
+      _invalidate_tree_iter (iter);
       exists = FALSE;
     }
     
@@ -487,16 +468,16 @@ errored:
 }
 
 
-gboolean
-lgw_vocabularyliststore_iter_parent (GtkTreeModel *tree_model,
-                                GtkTreeIter  *iter,
-                                GtkTreeIter  *child)
+static gboolean
+_iter_parent (GtkTreeModel *tree_model,
+              GtkTreeIter  *iter,
+              GtkTreeIter  *child)
 {
     return FALSE;
 }
 
 
-void
+static void
 lgw_vocabularyliststore_ref_node (GtkTreeModel *tree_model,
                             GtkTreeIter  *iter)
 {
@@ -504,10 +485,29 @@ lgw_vocabularyliststore_ref_node (GtkTreeModel *tree_model,
 }
 
 
-void
+static void
 lgw_vocabularyliststore_unref_node (GtkTreeModel *tree_model,
                               GtkTreeIter  *iter)
 {
     //No-op
+}
+
+
+void
+lgw_vocabularyliststore_implement_treemodel_interface (GtkTreeModelIface *iface)
+{
+    iface->get_flags = _get_flags;
+    iface->get_n_columns = _get_n_columns;
+    iface->get_column_type = _get_column_type;
+    iface->get_iter = _get_iter;
+    iface->get_path = _get_path;
+    iface->get_value = _get_value;
+    iface->iter_next = _iter_next;
+    iface->iter_previous = _iter_previous;
+    iface->iter_children = _iter_children;
+    iface->iter_has_child = _iter_has_child;
+    iface->iter_n_children = _iter_n_children;
+    iface->iter_nth_child = _iter_nth_child;
+    iface->iter_parent = _iter_parent;
 }
 

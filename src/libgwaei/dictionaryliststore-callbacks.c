@@ -40,23 +40,24 @@
 
 void
 lgw_dictionaryliststore_changed_cb (LgwDictionaryListStore *self,
-                                    gint               position,
-                                    gpointer           data)
+                                    gint                    position,
+                                    gpointer                data)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
 
     //Declarations
+    GtkTreeModel *tree_model = NULL;
     LgwDictionaryListStorePrivate *priv = NULL;
     GtkTreeIter iter;
     GtkTreePath *path = NULL;
 
     //Initializations
+    tree_model = GTK_TREE_MODEL (self);
     priv = self->priv;
     path = gtk_tree_path_new_from_indices (position, -1);
     if (path == NULL) goto errored;
-    lgw_dictionaryliststore_initialize_tree_iter (self, &iter, position);
-    if (!lgw_dictionaryliststore_tree_iter_is_valid (self, &iter)) goto errored;
+    gtk_tree_model_get_iter (tree_model, &iter, path);
 
     g_signal_emit_by_name (G_OBJECT (self),
       "row-changed",
@@ -73,23 +74,24 @@ errored:
 
 void
 lgw_dictionaryliststore_inserted_cb (LgwDictionaryListStore *self,
-                                     gint               position,
-                                     gpointer           data)
+                                     gint                    position,
+                                     gpointer                data)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
 
     //Declarations
+    GtkTreeModel *tree_model = NULL;
     LgwDictionaryListStorePrivate *priv = NULL;
     GtkTreeIter iter;
     GtkTreePath *path = NULL;
 
     //Initializations
+    tree_model = GTK_TREE_MODEL (self);
     priv = self->priv;
     path = gtk_tree_path_new_from_indices (position, -1);
     if (path == NULL) goto errored;
-    lgw_dictionaryliststore_initialize_tree_iter (self, &iter, position);
-    if (!lgw_dictionaryliststore_tree_iter_is_valid (self, &iter)) goto errored;
+    gtk_tree_model_get_iter (tree_model, &iter, path);
 
     g_signal_emit_by_name (G_OBJECT (self),
       "row-inserted",

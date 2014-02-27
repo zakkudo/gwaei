@@ -41,7 +41,7 @@
 
 
 static void
-lgw_resultstextview_rebuild_actiongroup (LgwActionable *actionable)
+_rebuild_actiongroup (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (actionable), NULL);
@@ -77,7 +77,7 @@ lgw_resultstextview_rebuild_actiongroup (LgwActionable *actionable)
 
 
 static void
-lgw_resultstextview_rebuild_actiongrouplist (LgwActionable *actionable)
+_rebuild_actiongrouplist (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (actionable), NULL);
@@ -101,18 +101,18 @@ lgw_resultstextview_rebuild_actiongrouplist (LgwActionable *actionable)
 
 
 static void
-lgw_resultstextview_sync_actions (LgwActionable *actionable)
+_sync_actions (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_RESULTSTEXTVIEW (actionable), NULL);
 
-    lgw_resultstextview_rebuild_actiongroup (actionable);
-    lgw_resultstextview_rebuild_actiongrouplist (actionable);
+    _rebuild_actiongroup (actionable);
+    _rebuild_actiongrouplist (actionable);
 }
 
 
 static GList*
-lgw_resultstextview_get_actions (LgwActionable *actionable)
+_get_actions (LgwActionable *actionable)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_ACTIONABLE (actionable), NULL);
@@ -127,7 +127,7 @@ lgw_resultstextview_get_actions (LgwActionable *actionable)
 
     if (priv->data.action_group_list == NULL)
     {
-      lgw_resultstextview_sync_actions (actionable);
+      _sync_actions (actionable);
     }
 
     return priv->data.action_group_list;
@@ -137,8 +137,8 @@ lgw_resultstextview_get_actions (LgwActionable *actionable)
 void
 lgw_resultstextview_implement_actionable_interface (LgwActionableInterface *iface)
 {
-    iface->get_actions = lgw_resultstextview_get_actions;
-    iface->sync_actions = lgw_resultstextview_sync_actions;
+    iface->get_actions = _get_actions;
+    iface->sync_actions = _sync_actions;
 }
 
 

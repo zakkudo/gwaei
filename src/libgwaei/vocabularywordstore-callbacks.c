@@ -52,16 +52,17 @@ lgw_vocabularywordstore_changed_cb (LgwVocabularyWordStore *self,
     g_return_if_fail (self != NULL);
 
     //Declarations
+    GtkTreeModel *tree_model = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     GtkTreeIter iter;
     GtkTreePath *path = NULL;
 
     //Initializations
+    tree_model = GTK_TREE_MODEL (self);
     priv = self->priv;
     path = gtk_tree_path_new_from_indices (position, -1);
     if (path == NULL) goto errored;
-    lgw_vocabularywordstore_initialize_tree_iter (self, &iter, position);
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (self, &iter)) goto errored;
+    gtk_tree_model_get_iter (tree_model, &iter, path);
 
     g_signal_emit_by_name (G_OBJECT (self),
       "row-changed",
@@ -85,16 +86,17 @@ lgw_vocabularywordstore_inserted_cb (LgwVocabularyWordStore *self,
     g_return_if_fail (self != NULL);
 
     //Declarations
+    GtkTreeModel *tree_model = NULL;
     LgwVocabularyWordStorePrivate *priv = NULL;
     GtkTreeIter iter;
     GtkTreePath *path = NULL;
 
     //Initializations
+    tree_model = GTK_TREE_MODEL (self);
     priv = self->priv;
     path = gtk_tree_path_new_from_indices (position, -1);
     if (path == NULL) goto errored;
-    lgw_vocabularywordstore_initialize_tree_iter (self, &iter, position);
-    if (!lgw_vocabularywordstore_tree_iter_is_valid (self, &iter)) goto errored;
+    gtk_tree_model_get_iter (tree_model, &iter, path);
 
     g_signal_emit_by_name (G_OBJECT (self),
       "row-inserted",
