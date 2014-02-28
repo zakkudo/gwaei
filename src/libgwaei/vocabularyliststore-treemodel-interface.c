@@ -110,7 +110,7 @@ lgw_vocabularyliststore_invalidate_old_timestamps ()
 static GtkTreeModelFlags
 _get_flags (GtkTreeModel *tree_model)
 {
-    return GTK_TREE_MODEL_LIST_ONLY;
+    return GTK_TREE_MODEL_LIST_ONLY | GTK_TREE_MODEL_ITERS_PERSIST;
 }
 
 
@@ -414,11 +414,6 @@ _iter_n_children (GtkTreeModel *tree_model,
 
 errored:
 
-    if (!_tree_iter_is_valid (LGW_VOCABULARYLISTSTORE (self), iter))
-    {
-      _invalidate_tree_iter (iter);
-    }
-    
     return total;
 }
 

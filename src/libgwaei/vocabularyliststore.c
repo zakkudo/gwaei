@@ -43,8 +43,12 @@
 #include <libgwaei/vocabularyliststore-private.h>
 
 
-G_DEFINE_TYPE_WITH_CODE (LgwVocabularyListStore, lgw_vocabularyliststore, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularyliststore_implement_treemodel_interface));
+G_DEFINE_TYPE_WITH_CODE (
+  LgwVocabularyListStore, lgw_vocabularyliststore, G_TYPE_OBJECT,
+  G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularyliststore_implement_treemodel_interface)
+  G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_SOURCE, lgw_vocabularyliststore_implement_treedragsource_interface)
+  G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_DEST, lgw_vocabularyliststore_implement_treedragdest_interface)
+);
 
 
 
@@ -432,7 +436,7 @@ _insert_all (LgwVocabularyListStore *self,
 
     else
     {
-      GList *insert_position = g_list_nth (priv->data.list, *position);
+      GList *insert_position = priv->data.array[*position];
       if (insert_position == NULL) goto errored;
       GList *link = NULL;
       for (link = g_list_last (wordstorelist); link != NULL; link = link->prev)
@@ -440,6 +444,7 @@ _insert_all (LgwVocabularyListStore *self,
         LgwVocabularyWordStore *vocabulary_word_store = LGW_VOCABULARYWORDSTORE (link->data);
         if (vocabulary_word_store != NULL)
         {
+          g_object_ref (vocabulary_word_store);
           priv->data.list = g_list_insert_before (priv->data.list, insert_position, vocabulary_word_store);
           insert_position = insert_position->prev;
           _add_to_index (self, vocabulary_word_store);
@@ -994,9 +999,9 @@ lgw_vocabularyliststore_nth (LgwVocabularyListStore *self,
     length = lgw_vocabularyliststore_length (self);
     if (index >= length) goto errored;
 
-    link = priv->data.array[index]->data;
+    link = priv->data.array[index];
     if (link == NULL) goto errored;
-    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (link);
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (link->data);
 
 errored:
 

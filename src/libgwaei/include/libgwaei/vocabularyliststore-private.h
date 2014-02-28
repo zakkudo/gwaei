@@ -57,6 +57,8 @@ void lgw_vocabularyliststore_invalidate_length (LgwVocabularyListStore *self);
 G_END_DECLS
 
 #include <libgwaei/vocabularyliststore-treemodel-interface.h>
+#include <libgwaei/vocabularyliststore-treedragdest-interface.h>
+#include <libgwaei/vocabularyliststore-treedragsource-interface.h>
 
 #endif
 

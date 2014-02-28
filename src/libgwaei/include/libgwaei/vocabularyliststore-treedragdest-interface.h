@@ -1,0 +1,10 @@
+#ifndef LGW_VOCABULARYLISTSTORE_TREEDRAGDEST_INTERFACE_INCLUDED
+#define LGW_VOCABULARYLISTSTORE_TREEDRAGDEST_INTERFACE_INCLUDED
+
+G_BEGIN_DECLS
+
+void lgw_vocabularyliststore_implement_treedragdest_interface (GtkTreeDragDestIface *iface);
+
+G_END_DECLS
+
+#endif
