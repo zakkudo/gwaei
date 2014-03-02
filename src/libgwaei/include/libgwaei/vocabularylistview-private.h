@@ -16,15 +16,23 @@ typedef enum {
   SIGNALID_FOCUS_IN_EVENT,
   SIGNALID_FOCUS_OUT_EVENT,
   SIGNALID_NAME_EDITED,
+  SIGNALID_DRAG_MOTION,
+  SIGNALID_DRAG_DROP,
+  SIGNALID_DRAG_DATA_RECEIVED,
+  SIGNALID_DRAG_LEAVE,
   TOTAL_SIGNALIDS
 } Signalid;
 
 typedef enum {
+  TREEVIEWCOLUMN_POSITION,
+  TREEVIEWCOLUMN_SAVED_POSITION,
   TREEVIEWCOLUMN_NAME,
   TOTAL_TREEVIEWCOLUMNS
 } TreeViewColumn;
 
 typedef enum {
+  CELLRENDERER_POSITION,
+  CELLRENDERER_SAVED_POSITION,
   CELLRENDERER_NAME,
   TOTAL_CELLRENDERERS
 } CellRenderer;
@@ -35,6 +43,7 @@ struct _Data {
   LgwActionGroup *action_group;
   GList *action_group_list;
   guint signalid[TOTAL_SIGNALIDS];
+  GdkDragAction suggested_action;
 };
 
 struct _UI {

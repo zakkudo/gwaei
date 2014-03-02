@@ -210,12 +210,40 @@ lgw_vocabularywordview_constructed (GObject *object)
         {
           GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
           GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
+              gettext("#"),
+              renderer,
+              "text", LGW_VOCABULARYWORDSTORE_COLUMN_POSITION,
+              NULL
+          );
+          gtk_tree_view_append_column (priv->ui.tree_view, column);
+          priv->ui.cell_renderer[CELLRENDERER_POSITION] = renderer;
+          priv->ui.tree_view_column[TREEVIEWCOLUMN_POSITION] = column;
+        }
+
+        {
+          GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
+              gettext("#!"),
+              renderer,
+              "text", LGW_VOCABULARYWORDSTORE_COLUMN_SAVED_POSITION,
+              NULL
+          );
+          gtk_tree_view_append_column (priv->ui.tree_view, column);
+          priv->ui.cell_renderer[CELLRENDERER_SAVED_POSITION] = renderer;
+          priv->ui.tree_view_column[TREEVIEWCOLUMN_SAVED_POSITION] = column;
+        }
+
+        {
+          GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
               gettext("Word"),
               renderer,
               "text", LGW_VOCABULARYWORDSTORE_COLUMN_KANJI,
               NULL
           );
           gtk_tree_view_append_column (priv->ui.tree_view, column);
+          priv->ui.cell_renderer[CELLRENDERER_KANJI] = renderer;
+          priv->ui.tree_view_column[TREEVIEWCOLUMN_KANJI] = column;
         }
 
         {
@@ -227,6 +255,8 @@ lgw_vocabularywordview_constructed (GObject *object)
               NULL
           );
           gtk_tree_view_append_column (priv->ui.tree_view, column);
+          priv->ui.cell_renderer[CELLRENDERER_READING] = renderer;
+          priv->ui.tree_view_column[TREEVIEWCOLUMN_READING] = column;
         }
 
         {
@@ -238,6 +268,8 @@ lgw_vocabularywordview_constructed (GObject *object)
               NULL
           );
           gtk_tree_view_append_column (priv->ui.tree_view, column);
+          priv->ui.cell_renderer[CELLRENDERER_DEFINITION] = renderer;
+          priv->ui.tree_view_column[TREEVIEWCOLUMN_DEFINITION] = column;
         }
       }
     }

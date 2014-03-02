@@ -38,6 +38,8 @@
 
 static LwVocabularyClass *_klass = NULL;
 static LwVocabularyClassPrivate *_klasspriv = NULL;
+gint _new_filename_index = 0;
+const gchar* _BASE_FILENAME = NULL;
 
 G_DEFINE_TYPE (LwVocabulary, lw_vocabulary, G_TYPE_OBJECT)
 
@@ -212,48 +214,6 @@ lw_vocabulary_dispose (GObject *object)
 
 
 static void
-lw_vocabulary_initialize_filename_suffix ()
-{
-    //Sanity checks
-    g_return_if_fail (_klasspriv != NULL);
-
-    //Declarations
-    gchar **filenames = NULL;
-    gint length = 0;
-    gint i = 0;
-
-    //Initializations
-    _klasspriv->new_filename_index = 0;
-    _klasspriv->BASE_FILENAME = "New List ";
-
-    length = strlen(_klasspriv->BASE_FILENAME);
-    filenames = lw_vocabulary_get_filenames ();
-    if (filenames == NULL) goto errored;
-
-
-    for (i = 0; filenames[i] != NULL; i++)
-    {
-      if (strncmp(filenames[i], _klasspriv->BASE_FILENAME, length) == 0)
-      {
-        const gchar* FILENAME = filenames[i];
-        const gchar* SUFFIX = FILENAME + length;
-        gchar* endptr = NULL;
-        gint index = (gint) strtol(SUFFIX, &endptr, 10);
-        if (endptr != NULL && *endptr == '\0' && index > _klasspriv->new_filename_index) {
-          _klasspriv->new_filename_index = index;
-        }
-      }
-    }
-
-errored:
-
-    if (filenames != NULL) g_strfreev (filenames); filenames = NULL;
-
-    _klasspriv->new_filename_index++;
-}
-
-
-static void
 lw_vocabulary_class_init (LwVocabularyClass *klass)
 {
     //Declarations
@@ -271,8 +231,6 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
 
     _klass = klass;
     _klasspriv = klass->priv;
-
-    lw_vocabulary_initialize_filename_suffix ();
 
     _klasspriv->signalid[CLASS_SIGNALID_CHANGED] = g_signal_new (
         "internal-row-changed",
@@ -778,6 +736,46 @@ lw_vocabulary_get_filename (LwVocabulary *self)
 }
 
 
+gint
+lw_vocabulary_length (LwVocabulary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), 0);
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint length = 0;
+
+    //Initializations
+    priv = self->priv;
+    length = priv->data.length;
+
+    if (length < 0)
+    {
+      length = g_list_length (priv->data.list);
+    }
+
+    return length;
+}
+
+
+void
+lw_vocabulary_invalidate_length (LwVocabulary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), 0);
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint length = 0;
+
+    //Initializations
+    priv = self->priv;
+
+    priv->data.length = -1;
+}
+
+
 static void
 _rebuild_array (LwVocabulary *self)
 {
@@ -1096,60 +1094,61 @@ errored:
 }
 
 
-gint
-lw_vocabulary_length (LwVocabulary *self)
+static void
+_initialize_filename_suffix ()
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_VOCABULARY (self), 0);
+    if (_BASE_FILENAME != NULL) return;
 
     //Declarations
-    LwVocabularyPrivate *priv = NULL;
+    gchar **filenames = NULL;
     gint length = 0;
+    gint i = 0;
 
     //Initializations
-    priv = self->priv;
-    length = priv->data.length;
+    _new_filename_index = 0;
+    _BASE_FILENAME = "New List ";
 
-    if (length < 0)
+    length = strlen(_BASE_FILENAME);
+    filenames = lw_vocabulary_get_filenames ();
+    if (filenames == NULL) goto errored;
+
+
+    for (i = 0; filenames[i] != NULL; i++)
     {
-      length = g_list_length (priv->data.list);
+      if (strncmp(filenames[i], _BASE_FILENAME, length) == 0)
+      {
+        const gchar* FILENAME = filenames[i];
+        const gchar* SUFFIX = FILENAME + length;
+        gchar* endptr = NULL;
+        gint index = (gint) strtol(SUFFIX, &endptr, 10);
+        if (endptr != NULL && *endptr == '\0' && index > _new_filename_index) {
+          _new_filename_index = index;
+        }
+      }
     }
 
-    return length;
-}
+errored:
 
+    if (filenames != NULL) g_strfreev (filenames); filenames = NULL;
 
-void
-lw_vocabulary_invalidate_length (LwVocabulary *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_VOCABULARY (self), 0);
-
-    //Declarations
-    LwVocabularyPrivate *priv = NULL;
-    gint length = 0;
-
-    //Initializations
-    priv = self->priv;
-
-    priv->data.length = -1;
+    _new_filename_index++;
 }
 
 
 gchar*
 lw_vocabulary_generate_filename ()
 {
-    //Sanity checks
-    g_return_val_if_fail (_klasspriv != NULL, NULL);
+    _initialize_filename_suffix ();
 
     //Declarations
     gchar *filename = NULL;
     
     //Initializations
-    filename = g_strdup_printf ("%s%d", _klasspriv->BASE_FILENAME, _klasspriv->new_filename_index);
+    filename = g_strdup_printf ("%s%d", _BASE_FILENAME, _new_filename_index);
 
     if (filename != NULL) {
-      _klasspriv->new_filename_index++;
+      _new_filename_index++;
     }
 
     return filename;

@@ -48,6 +48,7 @@ _drag_data_received (GtkTreeDragDest  *drag_dest,
                      GtkTreePath      *dest,
                      GtkSelectionData *selection_data)
 {
+  printf("_drag_data_received\n");
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (drag_dest), FALSE);
 
@@ -55,36 +56,46 @@ _drag_data_received (GtkTreeDragDest  *drag_dest,
     LgwVocabularyListStore *self = NULL;
     GtkTreeModel *tree_model = NULL;
     gboolean success = FALSE;
-    GtkTreePath *source = NULL;
+    GtkTreePath *src = NULL;
     GList *list = NULL;
+    gint *indices = NULL;
+    gint position = 0;
+    gint depth = 0;
 
     //Initializations
     self = LGW_VOCABULARYLISTSTORE (drag_dest);
     tree_model = GTK_TREE_MODEL (self);
+    indices = gtk_tree_path_get_indices_with_depth (dest, &depth);
+    position = indices[0];
 
-    success = gtk_tree_get_row_drag_data (selection_data, &tree_model, &source);
+    success = gtk_tree_get_row_drag_data (selection_data, &tree_model, &src);
     if (success == FALSE) goto errored;
 
-    if (LGW_IS_VOCABULARYLISTSTORE (tree_model))
+    if (LGW_IS_VOCABULARYLISTSTORE (tree_model) && depth == 1)
     {
       LgwVocabularyWordStore *vocabulary_word_store = NULL;
-      vocabulary_word_store = lgw_vocabularyliststore_get_wordstore (self, source);
-      gint position = gtk_tree_path_get_indices (dest)[0];
+      vocabulary_word_store = lgw_vocabularyliststore_get_wordstore (self, src);
       if (vocabulary_word_store != NULL)
       {
         list = g_list_append (list, vocabulary_word_store);
         lgw_vocabularyliststore_insert_all (self, position, list);
       }
-
+      printf("gtk_tree_drag_dest_drag_data_received: position: %d, depth %d\n", position, depth);
     }
-    else if (LGW_IS_VOCABULARYWORDSTORE (tree_model))
+    else if (LGW_IS_VOCABULARYWORDSTORE (tree_model) && depth == 2)
     {
+      success = FALSE;
       //TODO
+    }
+    else
+    {
+      printf("gtk_tree_drag_dest_drag_data_received: failed\n");
+      success = FALSE;
     }
 
 errored:
 
-    if (source != NULL) gtk_tree_path_free (source); source = NULL;
+    if (src != NULL) gtk_tree_path_free (src); src = NULL;
     if (list != NULL) g_list_free (list); list = NULL;
 
     return success;
@@ -98,16 +109,23 @@ _row_drop_possible (GtkTreeDragDest  *drag_dest,
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (drag_dest), FALSE);
+    if (drag_dest == NULL) return FALSE;
+    if (selection_data == NULL) return FALSE;
 
     //Declarations
     LgwVocabularyListStore *self = NULL;
     GtkTreeModel *tree_model = NULL;
     GtkTreePath *tree_path = NULL;
     gboolean possible = FALSE;
+    gint depth = 0;
+    gint position = 0;
+    gint *indices = NULL;
 
     //Initializations
     self = LGW_VOCABULARYLISTSTORE (drag_dest);
     tree_model = GTK_TREE_MODEL (self);
+    indices = gtk_tree_path_get_indices_with_depth (dest_path, &depth);
+    position = indices[0];
 
     possible = gtk_tree_get_row_drag_data (selection_data, &tree_model, &tree_path);
     if (!possible) goto errored;
@@ -115,9 +133,19 @@ _row_drop_possible (GtkTreeDragDest  *drag_dest,
     possible = (LGW_IS_VOCABULARYLISTSTORE (tree_model) || LGW_IS_VOCABULARYWORDSTORE (tree_model));
     if (!possible) goto errored;
 
+/* DO NO DO THIS CHECK  I will make the GtkTreeView try depth 2 and then 1 sequencially
+    if (LGW_IS_VOCABULARYLISTSTORE (tree_model) && depth != 1) possible = FALSE;
+    if (!possible) goto errored;
+
+    if (LGW_IS_VOCABULARYWORDSTORE (tree_model) && depth != 2) possible = FALSE;
+    if (!possible) goto errored;
+*/
+
 errored:
 
     if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
+
+    printf("BREAK drop possible? possible: %d, position: %d, depth: %d\n", possible, position, depth);
 
     return possible;
 }

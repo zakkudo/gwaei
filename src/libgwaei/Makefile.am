@@ -23,7 +23,7 @@ libgwaei_la_SOURCES +=dictionaryliststore.c dictionaryliststore-treemodel-interf
 libgwaei_la_SOURCES +=vocabularywidget.c vocabularywidget-callbacks.c vocabularywidget-actionable-interface.c vocabularywidget-menuable-interface.c
 libgwaei_la_SOURCES +=vocabularywordstore.c vocabularywordstore-callbacks.c vocabularywordstore-treemodel-interface.c
 libgwaei_la_SOURCES +=vocabularywordview.c vocabularywordview-callbacks.c vocabularywordview-actionable-interface.c
-libgwaei_la_SOURCES +=vocabularyliststore.c vocabularyliststore-treemodel-interface.c vocabularyliststore-treedragsource-interface.c vocabularyliststore-treedragdest-interface.c
+libgwaei_la_SOURCES +=vocabularyliststore.c vocabularyliststore-treemodel-interface.c vocabularyliststore-treedragsource-interface.c vocabularyliststore-treedragdest-interface.c vocabularyliststore-treesortable-interface.c
 libgwaei_la_SOURCES +=vocabularylistview.c vocabularylistview-callbacks.c vocabularylistview-actionable-interface.c
 libgwaei_la_SOURCES +=addvocabularydialog.c addvocabularydialog-callbacks.c
 

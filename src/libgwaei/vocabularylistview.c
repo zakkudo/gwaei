@@ -198,7 +198,26 @@ lgw_vocabularylistview_constructed (GObject *object)
       {
         GtkWidget *tree_view = gtk_tree_view_new ();
         priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
-        gtk_tree_view_set_reorderable (priv->ui.tree_view, TRUE);
+
+        const GtkTargetEntry row_targets[] = {
+          { "GTK_TREE_MODEL_ROW", GTK_TARGET_SAME_APP, 0 }
+        };
+
+        gtk_tree_view_enable_model_drag_source (
+          priv->ui.tree_view,
+          GDK_BUTTON1_MASK,
+          row_targets,
+          G_N_ELEMENTS (row_targets),
+          GDK_ACTION_MOVE
+        );
+
+        gtk_tree_view_enable_model_drag_dest (
+          priv->ui.tree_view,
+          row_targets,
+          G_N_ELEMENTS (row_targets),
+          GDK_ACTION_MOVE | GDK_ACTION_COPY
+        );
+
         gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
         gtk_widget_show (tree_view);
 
@@ -206,6 +225,38 @@ lgw_vocabularylistview_constructed (GObject *object)
             priv->data.tree_selection = gtk_tree_view_get_selection (priv->ui.tree_view);
             gtk_tree_selection_set_mode (priv->data.tree_selection, GTK_SELECTION_MULTIPLE);
             g_object_add_weak_pointer (G_OBJECT (priv->data.tree_selection), (gpointer*) &(priv->data.tree_selection));
+        }
+
+        {
+          GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          priv->ui.cell_renderer[CELLRENDERER_POSITION] = renderer;
+
+          {
+            GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
+                gettext("#"),
+                renderer,
+                "text", LGW_VOCABULARYLISTSTORE_COLUMN_POSITION,
+                NULL
+            );
+            gtk_tree_view_append_column (priv->ui.tree_view, column);
+            priv->ui.tree_view_column[TREEVIEWCOLUMN_POSITION] = column;
+          }
+        }
+
+        {
+          GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          priv->ui.cell_renderer[CELLRENDERER_SAVED_POSITION] = renderer;
+
+          {
+            GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
+                gettext("!#"),
+                renderer,
+                "text", LGW_VOCABULARYLISTSTORE_COLUMN_SAVED_POSITION,
+                NULL
+            );
+            gtk_tree_view_append_column (priv->ui.tree_view, column);
+            priv->ui.tree_view_column[TREEVIEWCOLUMN_SAVED_POSITION] = column;
+          }
         }
 
         {

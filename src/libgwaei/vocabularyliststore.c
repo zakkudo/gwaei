@@ -214,6 +214,8 @@ lgw_vocabularyliststore_load (LgwVocabularyListStore *self)
       for (i = 0; filenames[i] != NULL; i++)
       {
         LgwVocabularyWordStore *s = lgw_vocabularywordstore_new (filenames[i]);
+        LwVocabulary *v = LW_VOCABULARY (s);
+        v->row.saved_index = i;
         wordstorelist = g_list_prepend (wordstorelist, s);
       }
       wordstorelist = g_list_reverse (wordstorelist);

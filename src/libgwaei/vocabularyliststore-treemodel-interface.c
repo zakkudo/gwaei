@@ -129,6 +129,12 @@ _get_column_type (GtkTreeModel *tree_model,
 
     switch (index_)
     {
+      case LGW_VOCABULARYLISTSTORE_COLUMN_POSITION:
+        type = G_TYPE_STRING;
+        break;
+      case LGW_VOCABULARYLISTSTORE_COLUMN_SAVED_POSITION:
+        type = G_TYPE_STRING;
+        break;
       case LGW_VOCABULARYLISTSTORE_COLUMN_NAME:
         type = G_TYPE_STRING;
         break;
@@ -249,6 +255,12 @@ _get_value (GtkTreeModel *tree_model,
 
     switch (column)
     {
+      case LGW_VOCABULARYLISTSTORE_COLUMN_POSITION: //G_TYPE_STRING
+        g_value_take_string (value, g_strdup_printf ("%d", vocabulary->row.current_index + 1));
+        break;
+      case LGW_VOCABULARYLISTSTORE_COLUMN_SAVED_POSITION: //G_TYPE_STRING
+        g_value_take_string (value, g_strdup_printf ("%d", vocabulary->row.saved_index + 1));
+        break;
       case LGW_VOCABULARYLISTSTORE_COLUMN_NAME: //G_TYPE_STRING
         g_value_set_string (value, lw_vocabulary_get_filename (vocabulary));
         break;

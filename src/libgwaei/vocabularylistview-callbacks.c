@@ -201,6 +201,223 @@ errored:
 
 
 void
+lgw_vocabularylistview_drag_motion_cb (LgwVocabularyListView *self,
+                                      GdkDragContext         *drag_context,
+                                      gint                    x,
+                                      gint                    y,
+                                      guint                   time,
+                                      GtkTreeView            *inner_tree_view)
+{
+  printf("BREAK lgw_vocabularylistview_drag_motion_cb\n");
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    GtkWidget *source_widget = NULL;
+    GdkAtom target;
+
+    GtkTreePath *dest_path = NULL;
+    GtkTreeViewDropPosition drop_position = -1;
+    gboolean block = FALSE;
+    gint depth = 0;
+
+    //Initializations
+    priv = self->priv;
+    source_widget = gtk_drag_get_source_widget (drag_context);
+    block = !gtk_tree_view_get_dest_row_at_pos (inner_tree_view, x, y, &dest_path, &drop_position);
+    if (block) goto errored;
+    if (dest_path == NULL) goto errored;
+    target = gtk_drag_dest_find_target (GTK_WIDGET (inner_tree_view), drag_context, NULL);
+    depth = gtk_tree_path_get_depth (dest_path);
+
+//    gtk_drag_highlight (GTK_WIDGET (inner_tree_view));
+
+    if (GTK_IS_TREE_VIEW (source_widget))
+    {
+      GtkTreeModel *tree_model = gtk_tree_view_get_model (GTK_TREE_VIEW (source_widget));
+      if (LGW_IS_VOCABULARYLISTSTORE (tree_model))
+      {
+        if (drop_position == GTK_TREE_VIEW_DROP_INTO_OR_BEFORE)
+          gtk_tree_view_set_drag_dest_row (inner_tree_view, dest_path, GTK_TREE_VIEW_DROP_BEFORE);
+        else if (drop_position == GTK_TREE_VIEW_DROP_INTO_OR_AFTER)
+          gtk_tree_view_set_drag_dest_row (inner_tree_view, dest_path, GTK_TREE_VIEW_DROP_AFTER);
+      }
+      if (LGW_IS_VOCABULARYWORDSTORE (tree_model))
+      {
+        if (drop_position == GTK_TREE_VIEW_DROP_BEFORE)
+          gtk_tree_view_set_drag_dest_row (inner_tree_view, dest_path, GTK_TREE_VIEW_DROP_INTO_OR_BEFORE);
+        else if (drop_position == GTK_TREE_VIEW_DROP_AFTER)
+          gtk_tree_view_set_drag_dest_row (inner_tree_view, dest_path, GTK_TREE_VIEW_DROP_INTO_OR_AFTER);
+      }
+    }
+
+    if (target == GDK_NONE)
+    {
+      printf("BREAK GKD_NONE\n");
+      gdk_drag_status (drag_context, 0, time);
+    }
+    else
+    {
+      printf("BEEAK get data\n");
+      priv->data.suggested_action = gdk_drag_context_get_suggested_action (drag_context);
+      gtk_drag_get_data (GTK_WIDGET (inner_tree_view), drag_context, target, time);
+    }
+
+errored:
+
+    if (dest_path != NULL) gtk_tree_path_free (dest_path); dest_path = NULL;
+}
+
+
+static gint
+_get_insert_index (LgwVocabularyListView *self, gint x, gint y)
+{
+    printf("BREAK lgw_vocabularylistview_drag_drop_cb\n");
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+    GtkTreePath *tree_path = NULL;
+    GtkTreeViewDropPosition drop_position = 0;
+    gint index = -1;
+    gint length = 0;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
+    if (vocabulary_list_store == NULL) goto errored;
+    gtk_tree_view_get_dest_row_at_pos (priv->ui.tree_view, x, y, &tree_path, &drop_position);
+    if (tree_path == NULL) goto errored;
+    index = gtk_tree_path_get_indices (tree_path)[0];
+    length = lgw_vocabularyliststore_length (vocabulary_list_store);
+
+    if (drop_position == GTK_TREE_VIEW_DROP_INTO_OR_AFTER || drop_position == GTK_TREE_VIEW_DROP_AFTER)
+    {
+      index++;
+    }
+
+    if (index < 0 || index >= length) index = -1;
+
+errored:
+
+    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
+
+    return index;
+}
+
+
+gboolean
+lgw_vocabularylistview_drag_drop_cb (LgwVocabularyListView *self,
+                                     GdkDragContext        *drag_context,
+                                     gint                   x,
+                                     gint                   y,
+                                     guint                  time,
+                                     gpointer              *inner_text_view)
+{
+    printf("BREAK lgw_vocabularylistview_drag_drop_cb\n");
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    GtkTreeSelection *selection = NULL;
+    GtkTreeModel *tree_model = NULL;
+    GList *rows = NULL;
+    gint success = FALSE;
+    GtkWidget *source_widget = NULL;
+
+    //Initializations
+    source_widget = gtk_drag_get_source_widget (drag_context);
+    if (!GTK_IS_TREE_VIEW (source_widget)) goto errored;
+    tree_model = gtk_tree_view_get_model (GTK_TREE_VIEW (source_widget));
+    if (tree_model == NULL) goto errored;
+    
+    if (LGW_IS_VOCABULARYLISTSTORE (tree_model))
+    {
+      LgwVocabularyListStore *vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
+      GList *wordstores = lgw_vocabularylistview_get_selected_wordstores (self);
+      gint position = _get_insert_index (self, x, y);
+      printf("BREAK lgw_vocabularylistview_drag_drop_cb is a vocabulary list store %d\n", position);
+      lgw_vocabularyliststore_insert_all (vocabulary_list_store, position, wordstores);
+      success = TRUE;
+    }
+    else if (LGW_IS_VOCABULARYWORDSTORE (tree_model))
+    {
+      g_assert_not_reached ();
+    }
+
+errored:
+
+    gtk_drag_finish (drag_context, success, TRUE, time);
+
+    return TRUE;
+}
+
+
+void
+lgw_vocabularylistview_drag_data_received_cb (LgwVocabularyListView *self,
+                                              GdkDragContext        *drag_context,
+                                              gint                   x,
+                                              gint                   y,
+                                              GtkSelectionData      *selection_data,
+                                              guint                  info,
+                                              guint                  time,
+                                              GtkTreeView           *inner_tree_view)
+{
+  printf("BREAK lgw_vocabularylistview_drag_data_received_cb\n");
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    GtkWidget *source_widget = NULL;
+    GtkTreeModel *tree_model = NULL;
+
+    //Initializations
+    priv = self->priv;
+    source_widget = gtk_drag_get_source_widget (drag_context);
+    if (!GTK_IS_TREE_VIEW (source_widget)) goto errored;
+    tree_model = gtk_tree_view_get_model (GTK_TREE_VIEW (source_widget));
+
+    if (LGW_IS_VOCABULARYLISTVIEW (tree_model))
+    {
+      printf("BREAK0\n");
+      gdk_drag_status (drag_context, priv->data.suggested_action, time);
+    }
+    else
+    {
+      printf("BREAK1\n");
+      gdk_drag_status (drag_context, 0, time);
+    }
+    priv->data.suggested_action = 0;
+
+errored:
+
+    return;
+}
+                  
+
+void
+lgw_vocabularylistview_drag_leave_cb (LgwVocabularyListView *self,
+                                      GdkDragContext        *drag_context,
+                                      guint                  time,
+                                      GtkTreeView           *inner_tree_view)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    gtk_drag_unhighlight (GTK_WIDGET (inner_tree_view));
+}
+
+
+void
 lgw_vocabularylistview_connect_signals (LgwVocabularyListView *self)
 {
     //Sanity checks
@@ -248,6 +465,46 @@ lgw_vocabularylistview_connect_signals (LgwVocabularyListView *self)
           G_OBJECT (priv->ui.cell_renderer[CELLRENDERER_NAME]),
           "edited",
           G_CALLBACK (lgw_vocabularylistview_name_edited_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_DRAG_MOTION] == 0)
+    {
+      priv->data.signalid[SIGNALID_DRAG_MOTION] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view),
+          "drag-motion",
+          G_CALLBACK (lgw_vocabularylistview_drag_motion_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_DRAG_DROP] == 0)
+    {
+      priv->data.signalid[SIGNALID_DRAG_DROP] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view),
+          "drag-drop",
+          G_CALLBACK (lgw_vocabularylistview_drag_drop_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_DRAG_DATA_RECEIVED] == 0)
+    {
+      priv->data.signalid[SIGNALID_DRAG_DATA_RECEIVED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view),
+          "drag-data-received",
+          G_CALLBACK (lgw_vocabularylistview_drag_data_received_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_DRAG_LEAVE] == 0)
+    {
+      priv->data.signalid[SIGNALID_DRAG_LEAVE] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view),
+          "drag-leave",
+          G_CALLBACK (lgw_vocabularylistview_drag_leave_cb),
           self
       );
     }
@@ -303,6 +560,42 @@ lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *self)
         priv->data.signalid[SIGNALID_NAME_EDITED]
       );
       priv->data.signalid[SIGNALID_NAME_EDITED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_DRAG_MOTION] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view),
+        priv->data.signalid[SIGNALID_DRAG_MOTION]
+      );
+      priv->data.signalid[SIGNALID_DRAG_MOTION] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_DRAG_DROP] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view),
+        priv->data.signalid[SIGNALID_DRAG_DROP]
+      );
+      priv->data.signalid[SIGNALID_DRAG_DROP] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_DRAG_DATA_RECEIVED] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view),
+        priv->data.signalid[SIGNALID_DRAG_DATA_RECEIVED]
+      );
+      priv->data.signalid[SIGNALID_DRAG_DATA_RECEIVED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_DRAG_LEAVE] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view),
+        priv->data.signalid[SIGNALID_DRAG_LEAVE]
+      );
+      priv->data.signalid[SIGNALID_DRAG_LEAVE] = 0;
     }
 }
 

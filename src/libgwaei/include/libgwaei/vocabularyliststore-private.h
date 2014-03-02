@@ -37,6 +37,9 @@ struct _Data {
 
 struct _Config {
   LwPreferences *preferences;
+  gint sort_column_id;
+  GtkSortType order;
+  GtkTreeIterCompareFunc sort_func;
 };
 
 
@@ -59,6 +62,7 @@ G_END_DECLS
 #include <libgwaei/vocabularyliststore-treemodel-interface.h>
 #include <libgwaei/vocabularyliststore-treedragdest-interface.h>
 #include <libgwaei/vocabularyliststore-treedragsource-interface.h>
+#include <libgwaei/vocabularyliststore-treesortable-interface.h>
 
 #endif
 
