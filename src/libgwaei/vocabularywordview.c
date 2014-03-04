@@ -599,3 +599,50 @@ errored:
     if (add_vocabulary_dialog != NULL) gtk_widget_destroy (add_vocabulary_dialog);
 }
 
+
+void
+lgw_vocabularywordview_save (LgwVocabularyWordView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LwVocabulary *vocabulary = NULL;
+
+    //Initializations
+    vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
+    if (vocabulary_word_store == NULL) goto errored;
+    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+
+    lw_vocabulary_save (vocabulary, NULL);
+
+errored:
+
+   return;
+}
+
+
+void
+lgw_vocabularywordview_revert (LgwVocabularyWordView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LwVocabulary *vocabulary = NULL;
+
+    //Initializations
+    vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
+    if (vocabulary_word_store == NULL) goto errored;
+    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+
+    lw_vocabulary_load (vocabulary, NULL);
+
+errored:
+
+   return;
+}
+
+

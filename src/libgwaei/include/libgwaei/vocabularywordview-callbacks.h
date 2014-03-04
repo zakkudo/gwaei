@@ -7,13 +7,10 @@ G_BEGIN_DECLS
 void lgw_vocabularywordview_connect_signals (LgwVocabularyWordView *self);
 void lgw_vocabularywordview_disconnect_signals (LgwVocabularyWordView *self);
 
-void lgw_vocabularywordview_selection_changed_cb (LgwVocabularyWordView *self, GtkTreeSelection *tree_selection);
-
+void lgw_vocabularywordview_save_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 void lgw_vocabularywordview_add_new_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 void lgw_vocabularywordview_remove_selected_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
-
-gboolean lgw_vocabularywordview_focus_in_event_cb (LgwVocabularyWordView *self, GdkEvent *event, GtkTreeView *inner_tree_view);
-gboolean lgw_vocabularywordview_focus_out_event_cb (LgwVocabularyWordView *self, GdkEvent *event, GtkTreeView *inner_tree_view);
+void lgw_vocabularywordview_revert_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 
 
 G_END_DECLS

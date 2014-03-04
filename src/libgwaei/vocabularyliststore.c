@@ -87,6 +87,7 @@ lgw_vocabularyliststore_init (LgwVocabularyListStore *self)
     priv->data.index.filename = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
     priv->data.index.wordstore = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
     priv->data.index.update_filename_callback = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
+    priv->data.index.changed_callback = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
 
     lgw_vocabularyliststore_load (self);
 }
@@ -104,6 +105,7 @@ lgw_vocabularyliststore_finalize (GObject *object)
     if (priv->data.index.filename != NULL) g_hash_table_unref (priv->data.index.filename); priv->data.index.filename = NULL;
     if (priv->data.index.wordstore != NULL) g_hash_table_unref (priv->data.index.wordstore); priv->data.index.wordstore = NULL;
     if (priv->data.index.update_filename_callback != NULL) g_hash_table_unref (priv->data.index.update_filename_callback); priv->data.index.update_filename_callback = NULL;
+    if (priv->data.index.changed_callback != NULL) g_hash_table_unref (priv->data.index.changed_callback); priv->data.index.changed_callback = NULL;
 
     G_OBJECT_CLASS (lgw_vocabularyliststore_parent_class)->finalize (object);
 }
@@ -259,9 +261,53 @@ _wordstore_filename_changed (LgwVocabularyListStore *self,
       g_hash_table_insert (priv->data.index.filename, filename, vocabulary_word_store);
     }
 
+    printf("BREAK filename changed\n");
+
 errored:
 
     if (filename != NULL) g_free (filename); filename = NULL;
+}
+
+
+static void
+_wordstore_changed (LgwVocabularyListStore *self,
+                    GParamSpec             *pspec,
+                    LgwVocabularyWordStore *vocabulary_word_store)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (self));
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (vocabulary_word_store));
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    LwVocabulary *vocabulary = NULL;
+    GtkTreeModel *tree_model = NULL;
+    GtkTreePath *tree_path = NULL;
+    GtkTreeIter iter;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    if (vocabulary == NULL) goto errored;
+    tree_model = GTK_TREE_MODEL (self);
+    if (tree_model == NULL) goto errored;
+    tree_path = lgw_vocabularyliststore_find_by_wordstore (self, vocabulary_word_store);
+    if (tree_path == NULL) goto errored;
+    gtk_tree_model_get_iter (tree_model, &iter, tree_path);
+
+    printf("BREAK changed!\n");
+
+    g_signal_emit_by_name (
+      G_OBJECT (self),
+      "row-changed",
+      tree_path,
+      &iter,
+      NULL
+    );
+
+errored:
+
+    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
 }
 
 
@@ -301,6 +347,12 @@ _add_to_index (LgwVocabularyListStore *self,
       g_hash_table_insert (priv->data.index.update_filename_callback, vocabulary_word_store, GUINT_TO_POINTER (signalid));
     }
 
+    if (!g_hash_table_contains (priv->data.index.changed_callback, vocabulary_word_store))
+    {
+      guint signalid = g_signal_connect_swapped (G_OBJECT (vocabulary_word_store), "notify::changed", G_CALLBACK (_wordstore_changed), self);
+      g_hash_table_insert (priv->data.index.changed_callback, vocabulary_word_store, GUINT_TO_POINTER (signalid));
+    }
+
 errored:
 
     return;
@@ -333,6 +385,16 @@ _remove_from_index (LgwVocabularyListStore *self,
       {
         g_signal_handler_disconnect (G_OBJECT (vocabulary_word_store), signalid);
         g_hash_table_remove (priv->data.index.update_filename_callback, vocabulary_word_store);
+      }
+    }
+
+    if (g_hash_table_contains (priv->data.index.changed_callback, vocabulary_word_store))
+    {
+      guint signalid = GPOINTER_TO_UINT (g_hash_table_lookup (priv->data.index.changed_callback, vocabulary_word_store));
+      if (signalid > 0)
+      {
+        g_signal_handler_disconnect (G_OBJECT (vocabulary_word_store), signalid);
+        g_hash_table_remove (priv->data.index.changed_callback, vocabulary_word_store);
       }
     }
 

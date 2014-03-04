@@ -232,7 +232,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
     _klass = klass;
     _klasspriv = klass->priv;
 
-    _klasspriv->signalid[CLASS_SIGNALID_CHANGED] = g_signal_new (
+    _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
         "internal-row-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -243,7 +243,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_INSERTED] = g_signal_new (
+    _klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
         "internal-row-inserted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -254,7 +254,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_DELETED] = g_signal_new (
+    _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
         "internal-row-deleted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -265,7 +265,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_REORDERED] = g_signal_new (
+    _klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
         "internal-rows-reordered",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -489,7 +489,9 @@ lw_vocabulary_set_changed (LwVocabulary *self,
 
     priv->data.changed = changed_;
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_CHANGED]);
+    printf("BREAK vocabulary list has changes %d\n", changed_);
+
+    if (changed || changed_) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_CHANGED]);
 }
 
 
@@ -708,7 +710,6 @@ lw_vocabulary_set_filename (LwVocabulary *self,
     priv->config.filename = g_strdup (FILENAME);
 
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FILENAME]);
-    g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_FILENAME_CHANGED], 0, previous_filename);
 
 errored:
 
@@ -806,6 +807,8 @@ _rebuild_array (LwVocabulary *self)
         i++;
       }
     }
+
+    lw_vocabulary_invalidate_length (self);
 }
 
 
@@ -864,7 +867,7 @@ errored:
 
     lw_vocabulary_invalidate_length (self);
 
-    return number_inserted;;
+    return number_inserted;
 }
 
 
@@ -890,15 +893,70 @@ printf("BREAK0 _insert_all_propogate_changed\n");
     for (i = position; i < position + number_inserted; i ++)
     {
 printf("BREAK1 _insert_all_propogate_changed insert %d\n", i);
-      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, i);
+      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, i);
     }
 
     //Rows with modified indexes
     for (i = position + number_inserted; i < length; i++)
     {
 printf("BREAK2 _insert_all_propogate_changed update %d\n", i);
-      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_CHANGED], 0, i);
+      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, i);
     }
+}
+
+
+static gint*
+_find_duplicates (LwVocabulary *self, 
+                  gint          position, 
+                  GList        *wordlist)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
+    if (wordlist == NULL) return NULL;
+
+    //Declarations
+    gint length = -1;
+    gint *indices = NULL;
+
+    //Initializations
+    length = g_list_length (wordlist);
+printf("BREAK0 _find_duplicates %d %d\n", position, length);
+    if (position < 0) return NULL;
+    indices = g_new0 (gint, length + 1);
+    if (indices == NULL) goto errored;
+printf("BREAK1 _find_duplicates\n");
+
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = wordlist; link != NULL; link = link->next)
+      {
+printf("BREAK2 _find_duplicates\n");
+        LwWord *a = LW_WORD (link->data);
+        if (a == NULL) continue;
+        LwWord *b = LW_WORD (lw_vocabulary_nth (self, a->row.current_index));
+        if (b == NULL) continue;
+
+        if (a == b)
+        {
+          gint index = a->row.current_index;
+printf("BREAK3 _find_duplicates %d\n", index);
+          if (index >= position)
+          {
+            index += length;
+          }
+          indices[i] = index;
+          printf("BREAK _find_duplicates indices[%d] = %d\n", i, indices[i]);
+          i++;
+        }
+      }
+      indices[i] = -1;
+      printf("BREAK _find_duplicates indices[%d] = %d\n", i, indices[i]);
+    }
+
+errored:
+
+    return indices;
 }
 
 
@@ -915,12 +973,31 @@ lw_vocabulary_insert_all (LwVocabulary *self,
 
     //Declarations
     gint number_inserted = 0;
+    gint *duplicates = NULL;
+    GList *removed = NULL;
+    gboolean changed = FALSE;
 
     //Initializations
+    duplicates = _find_duplicates (self, position, wordlist);
     number_inserted = _insert_all (self, &position, wordlist);
 
     _rebuild_array (self);
     _insert_all_propogate_changes (self, position, number_inserted);
+
+    changed = TRUE;
+
+    if (duplicates == NULL) goto errored;
+
+    removed = lw_vocabulary_remove_all (self, duplicates);
+
+errored:
+
+    if (duplicates != NULL) g_free (duplicates); duplicates = NULL;
+    if (removed != NULL) g_list_free (removed); removed;
+
+    if (changed) lw_vocabulary_set_changed (self, TRUE);
+    
+    return;
 }
 
 
@@ -1051,7 +1128,7 @@ _remove_all_propogate_changes (LwVocabulary *self,
     for (i = 0; indices[i] != -1; i++)
     {
       printf("_remove_all_propogate_changes removed %d\n", indices[i]);
-      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, indices[i]);
+      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, indices[i]);
     }
     i--;
 
@@ -1061,7 +1138,7 @@ _remove_all_propogate_changes (LwVocabulary *self,
       for (index = indices[i]; index < length; index++)
       {
         printf("_remove_all_propogate_changes updating %d\n", index);
-        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_CHANGED], 0, index);
+        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, index);
       }
     }
 }
@@ -1077,6 +1154,7 @@ lw_vocabulary_remove_all (LwVocabulary *self,
 
     //Declarations
     GList *removed = NULL;
+    gboolean changed = FALSE;
 
     //Initializations
     indices = _sanitize_indices (self, indices);
@@ -1086,9 +1164,13 @@ lw_vocabulary_remove_all (LwVocabulary *self,
     _rebuild_array (self);
     _remove_all_propogate_changes (self, indices);
 
+    changed = TRUE;
+
 errored:
 
     if (indices != NULL) g_free (indices); indices = NULL;
+
+    if (changed) lw_vocabulary_set_changed (self, TRUE);
 
     return removed;
 }
@@ -1187,21 +1269,24 @@ lw_vocabulary_nth (LwVocabulary *self,
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
+    if (index < 0) return NULL;
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
     gint length = 0;
     LwWord *word = NULL;
+    GList *link = NULL;
 
     //Initializations
     priv = self->priv;
     length = lw_vocabulary_length (self);
+    if (index >= length) goto errored;
 
-    if (index > -1 && index < length)
-    {
-      GList *link = priv->data.array[index];
-      word = LW_WORD (link->data);
-    }
+    link = priv->data.array[index];
+    if (link == NULL) goto errored;
+    word = LW_WORD (link->data);
+
+errored:
 
     return word;
 }

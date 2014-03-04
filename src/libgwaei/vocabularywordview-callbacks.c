@@ -98,6 +98,42 @@ lgw_vocabularywordview_remove_selected_activated_cb (GSimpleAction *action,
 }
 
 
+void
+lgw_vocabularywordview_save_activated_cb (GSimpleAction *action,
+                                          GVariant      *parameter,
+                                          gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (data));
+
+    //Declarations
+    LgwVocabularyWordView *self = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYWORDVIEW (data);
+
+    lgw_vocabularywordview_save (self);
+}
+
+
+void
+lgw_vocabularywordview_revert_activated_cb (GSimpleAction *action,
+                                            GVariant      *parameter,
+                                            gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (data));
+
+    //Declarations
+    LgwVocabularyWordView *self = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYWORDVIEW (data);
+
+    lgw_vocabularywordview_revert (self);
+}
+
+
 gboolean
 lgw_vocabularywordview_focus_in_event_cb (LgwVocabularyWordView *self,
                                           GdkEvent              *event,

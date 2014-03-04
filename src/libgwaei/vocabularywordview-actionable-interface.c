@@ -85,6 +85,15 @@ _rebuild_actiongroup (LgwActionable *actionable)
       if (has_selection) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
       else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
     }
+
+    {
+      static GActionEntry entries[] = {
+        { "save-vocabulary-list", lgw_vocabularywordview_save_activated_cb, NULL, NULL, NULL },
+        { "revert-vocabulary-list", lgw_vocabularywordview_revert_activated_cb, NULL, NULL, NULL }
+      };
+      gint length = G_N_ELEMENTS (entries);
+      lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+    }
 }
 
 

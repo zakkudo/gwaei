@@ -38,6 +38,9 @@ GList* lgw_vocabularywordview_get_wordstores (LgwVocabularyWordView *self);
 
 void lgw_vocabularywordview_delete_selected (LgwVocabularyWordView *self);
 void lgw_vocabularywordview_add_new (LgwVocabularyWordView *self);
+void lgw_vocabularywordview_save (LgwVocabularyWordView *self);
+void lgw_vocabularywordview_revert (LgwVocabularyWordView *self);
+
 
 G_END_DECLS
 

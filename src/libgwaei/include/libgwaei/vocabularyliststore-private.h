@@ -22,6 +22,7 @@ struct _Index {
   GHashTable *filename;
   GHashTable *wordstore;
   GHashTable *update_filename_callback;
+  GHashTable *changed_callback;
 };
 
 struct _Data {

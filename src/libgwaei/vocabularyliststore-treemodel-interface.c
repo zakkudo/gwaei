@@ -141,8 +141,11 @@ _get_column_type (GtkTreeModel *tree_model,
       case LGW_VOCABULARYLISTSTORE_COLUMN_FILENAME:
         type = G_TYPE_STRING;
         break;
-      case LGW_VOCABULARYLISTSTORE_COLUMN_HAS_CHANGES:
-        type = G_TYPE_BOOLEAN;
+      case LGW_VOCABULARYLISTSTORE_COLUMN_STYLE_WEIGHT:
+        type = G_TYPE_INT;
+        break;
+      case LGW_VOCABULARYLISTSTORE_COLUMN_TOTAL_WORDS:
+        type = G_TYPE_STRING;
         break;
       case LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT:
         type = G_TYPE_OBJECT;
@@ -267,8 +270,18 @@ _get_value (GtkTreeModel *tree_model,
       case LGW_VOCABULARYLISTSTORE_COLUMN_FILENAME: //G_TYPE_STRING
         g_value_set_string (value, lw_vocabulary_get_filename (vocabulary));
         break;
-      case LGW_VOCABULARYLISTSTORE_COLUMN_HAS_CHANGES: //G_TYPE_BOOLEAN
-        g_value_set_boolean (value, lw_vocabulary_has_changes (vocabulary));
+      case LGW_VOCABULARYLISTSTORE_COLUMN_STYLE_WEIGHT: //G_TYPE_INT
+        {
+          gint weight = PANGO_WEIGHT_NORMAL;
+          if (lw_vocabulary_has_changes (vocabulary))
+          {
+            weight = PANGO_WEIGHT_BOLD;
+          }
+          g_value_set_int (value, weight);
+        }
+        break;
+      case LGW_VOCABULARYLISTSTORE_COLUMN_TOTAL_WORDS: //G_TYPE_STRING
+        g_value_take_string (value, g_strdup_printf ("%d", lw_vocabulary_length (vocabulary)));
         break;
       case LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT: //G_TYPE_OBJECT
         g_value_set_object (value, vocabulary_word_store);

@@ -18,22 +18,22 @@
       <section>
         <item>
           <attribute name="label" translatable="yes">_Save</attribute>
-          <attribute name="action">win.save-list</attribute>
+          <attribute name="action">win.save-vocabulary-list</attribute>
           <attribute name="accel">&lt;Primary&gt;s</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">_Revert</attribute>
-          <attribute name="action">win.revert-list</attribute>
+          <attribute name="label" translatable="yes">_Revert Changes</attribute>
+          <attribute name="action">win.revert-vocabulary-list</attribute>
         </item>
       </section>
       <section>
         <item>
           <attribute name="label" translatable="yes">_Import</attribute>
-          <attribute name="action">win.import</attribute>
+          <attribute name="action">win.import-vocabulary-list</attribute>
         </item>
         <item>
           <attribute name="label" translatable="yes">_Export</attribute>
-          <attribute name="action">win.export</attribute>
+          <attribute name="action">win.export-vocabulary-list</attribute>
         </item>
       </section>
       <section>

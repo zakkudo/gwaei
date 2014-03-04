@@ -168,7 +168,6 @@ lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
     GtkTreePath *tree_path = NULL;
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LwVocabulary *vocabulary = NULL;
-    GtkTreeIter iter;
     gchar *uri = NULL;
 
     //Initializations
@@ -179,19 +178,10 @@ lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
     vocabulary_word_store = lgw_vocabularyliststore_get_wordstore (vocabulary_list_store, tree_path);
     if (vocabulary_word_store == NULL) goto errored;
     vocabulary = LW_VOCABULARY (vocabulary_word_store);
-    gtk_tree_model_get_iter_from_string (tree_model, &iter, path_string);
     uri = lw_vocabulary_build_uri (new_text);
     if (uri == NULL) goto errored;
 
     lw_vocabulary_set_filename (vocabulary, new_text);
-
-    g_signal_emit_by_name (
-      G_OBJECT (vocabulary_list_store),
-      "row-changed",
-      tree_path,
-      &iter,
-      NULL
-    );
 
 errored:
 

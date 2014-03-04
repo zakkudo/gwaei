@@ -236,6 +236,7 @@ lgw_vocabularylistview_constructed (GObject *object)
                 gettext("#"),
                 renderer,
                 "text", LGW_VOCABULARYLISTSTORE_COLUMN_POSITION,
+                "weight", LGW_VOCABULARYLISTSTORE_COLUMN_STYLE_WEIGHT,
                 NULL
             );
             gtk_tree_view_append_column (priv->ui.tree_view, column);
@@ -252,6 +253,7 @@ lgw_vocabularylistview_constructed (GObject *object)
                 gettext("!#"),
                 renderer,
                 "text", LGW_VOCABULARYLISTSTORE_COLUMN_SAVED_POSITION,
+                "weight", LGW_VOCABULARYLISTSTORE_COLUMN_STYLE_WEIGHT,
                 NULL
             );
             gtk_tree_view_append_column (priv->ui.tree_view, column);
@@ -269,10 +271,28 @@ lgw_vocabularylistview_constructed (GObject *object)
                 gettext("Vocabulary List"),
                 renderer,
                 "text", LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
+                "weight", LGW_VOCABULARYLISTSTORE_COLUMN_STYLE_WEIGHT,
                 NULL
             );
             gtk_tree_view_append_column (priv->ui.tree_view, column);
             priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME] = column;
+          }
+        }
+
+        {
+          GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+          priv->ui.cell_renderer[CELLRENDERER_TOTAL_WORDS] = renderer;
+          g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+
+          {
+            GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes (
+                gettext("Total"),
+                renderer,
+                "text", LGW_VOCABULARYLISTSTORE_COLUMN_TOTAL_WORDS,
+                NULL
+            );
+            gtk_tree_view_append_column (priv->ui.tree_view, column);
+            priv->ui.tree_view_column[TREEVIEWCOLUMN_TOTAL_WORDS] = column;
           }
         }
       }
