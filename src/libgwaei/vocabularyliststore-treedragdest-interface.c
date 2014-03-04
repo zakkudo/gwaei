@@ -145,8 +145,6 @@ errored:
 
     if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
 
-    printf("BREAK drop possible? possible: %d, position: %d, depth: %d\n", possible, position, depth);
-
     return possible;
 }
 

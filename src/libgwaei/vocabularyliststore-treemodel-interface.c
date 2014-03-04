@@ -110,7 +110,7 @@ lgw_vocabularyliststore_invalidate_old_timestamps ()
 static GtkTreeModelFlags
 _get_flags (GtkTreeModel *tree_model)
 {
-    return GTK_TREE_MODEL_LIST_ONLY | GTK_TREE_MODEL_ITERS_PERSIST;
+    return GTK_TREE_MODEL_LIST_ONLY;
 }
 
 

@@ -208,7 +208,6 @@ lgw_vocabularylistview_drag_motion_cb (LgwVocabularyListView *self,
                                       guint                   time,
                                       GtkTreeView            *inner_tree_view)
 {
-  printf("BREAK lgw_vocabularylistview_drag_motion_cb\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
@@ -254,12 +253,10 @@ lgw_vocabularylistview_drag_motion_cb (LgwVocabularyListView *self,
 
     if (target == GDK_NONE)
     {
-      printf("BREAK GKD_NONE\n");
       gdk_drag_status (drag_context, 0, time);
     }
     else
     {
-      printf("BEEAK get data\n");
       priv->data.suggested_action = gdk_drag_context_get_suggested_action (drag_context);
       gtk_drag_get_data (GTK_WIDGET (inner_tree_view), drag_context, target, time);
     }
@@ -273,7 +270,6 @@ errored:
 static gint
 _get_insert_index (LgwVocabularyListView *self, gint x, gint y)
 {
-    printf("BREAK lgw_vocabularylistview_drag_drop_cb\n");
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
@@ -316,7 +312,6 @@ lgw_vocabularylistview_drag_drop_cb (LgwVocabularyListView *self,
                                      guint                  time,
                                      gpointer              *inner_text_view)
 {
-    printf("BREAK lgw_vocabularylistview_drag_drop_cb\n");
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
@@ -338,7 +333,6 @@ lgw_vocabularylistview_drag_drop_cb (LgwVocabularyListView *self,
       LgwVocabularyListStore *vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
       GList *wordstores = lgw_vocabularylistview_get_selected_wordstores (self);
       gint position = _get_insert_index (self, x, y);
-      printf("BREAK lgw_vocabularylistview_drag_drop_cb is a vocabulary list store %d\n", position);
       lgw_vocabularyliststore_insert_all (vocabulary_list_store, position, wordstores);
       success = TRUE;
     }
@@ -349,7 +343,7 @@ lgw_vocabularylistview_drag_drop_cb (LgwVocabularyListView *self,
 
 errored:
 
-    gtk_drag_finish (drag_context, success, TRUE, time);
+    gtk_drag_finish (drag_context, success, FALSE, time);
 
     return TRUE;
 }
@@ -365,7 +359,6 @@ lgw_vocabularylistview_drag_data_received_cb (LgwVocabularyListView *self,
                                               guint                  time,
                                               GtkTreeView           *inner_tree_view)
 {
-  printf("BREAK lgw_vocabularylistview_drag_data_received_cb\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
@@ -373,24 +366,35 @@ lgw_vocabularylistview_drag_data_received_cb (LgwVocabularyListView *self,
     LgwVocabularyListViewPrivate *priv = NULL;
     GtkWidget *source_widget = NULL;
     GtkTreeModel *tree_model = NULL;
+    GdkModifierType mask = 0;;
 
     //Initializations
     priv = self->priv;
     source_widget = gtk_drag_get_source_widget (drag_context);
     if (!GTK_IS_TREE_VIEW (source_widget)) goto errored;
     tree_model = gtk_tree_view_get_model (GTK_TREE_VIEW (source_widget));
+    gdk_window_get_device_position (gtk_widget_get_window (GTK_WIDGET (inner_tree_view)), gdk_drag_context_get_device (drag_context), NULL, NULL, &mask);
 
-    if (LGW_IS_VOCABULARYLISTVIEW (tree_model))
+    if (LGW_IS_VOCABULARYLISTSTORE (tree_model))
     {
-      printf("BREAK0\n");
+      if (mask & GDK_CONTROL_MASK)
+      {
+        priv->data.suggested_action = GDK_ACTION_COPY;
+      }
+      else
+      {
+        priv->data.suggested_action = GDK_ACTION_MOVE;
+      }
       gdk_drag_status (drag_context, priv->data.suggested_action, time);
+    }
+    else if (LGW_IS_VOCABULARYWORDSTORE (tree_model))
+    {
+      g_assert_not_reached ();
     }
     else
     {
-      printf("BREAK1\n");
       gdk_drag_status (drag_context, 0, time);
     }
-    priv->data.suggested_action = 0;
 
 errored:
 

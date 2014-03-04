@@ -503,7 +503,7 @@ lgw_vocabularylistview_get_selected_wordstores (LgwVocabularyListView *self)
       GList *link = NULL;
       for (link = selected_rows; link != NULL; link = link->next)
       {
-        GtkTreePath *tree_path = selected_rows->data;
+        GtkTreePath *tree_path = link->data;
         LgwVocabularyWordStore *vocabulary_word_store = lgw_vocabularyliststore_get_wordstore (priv->data.vocabulary_list_store, tree_path);
         selected_wordstores = g_list_prepend (selected_wordstores, vocabulary_word_store);
         printf("BREAK lgw_vocabularyliststore_get_wordstore %d\n", g_list_length (selected_wordstores));

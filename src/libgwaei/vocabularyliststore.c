@@ -524,6 +524,62 @@ errored:
 }
 
 
+static gint*
+_find_duplicates (LgwVocabularyListStore *self, 
+                  gint                    position, 
+                  GList                  *wordstorelist)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (self), NULL);
+    if (wordstorelist == NULL) return NULL;
+
+    //Declarations
+    gint length = -1;
+    gint *indices = NULL;
+
+    //Initializations
+    length = g_list_length (wordstorelist);
+printf("BREAK0 _find_duplicates %d %d\n", position, length);
+    if (position < 0) return NULL;
+    indices = g_new0 (gint, length + 1);
+    if (indices == NULL) goto errored;
+printf("BREAK1 _find_duplicates\n");
+
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = wordstorelist; link != NULL; link = link->next)
+      {
+printf("BREAK2 _find_duplicates\n");
+        LwVocabulary *a = LW_VOCABULARY (link->data);
+        if (a == NULL) continue;
+        LwVocabulary *b = LW_VOCABULARY (lgw_vocabularyliststore_nth (self, a->row.current_index));
+        if (b == NULL) continue;
+
+        if (a == b)
+        {
+          gint index = a->row.current_index;
+printf("BREAK3 _find_duplicates %d\n", index);
+          if (index >= position)
+          {
+            index += length;
+          }
+          indices[i] = index;
+          printf("BREAK _find_duplicates indices[%d] = %d\n", i, indices[i]);
+          i++;
+        }
+      }
+      indices[i] = -1;
+      printf("BREAK _find_duplicates indices[%d] = %d\n", i, indices[i]);
+    }
+
+errored:
+
+    return indices;
+}
+
+
+
 void
 lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *self,
                                     gint                    position,
@@ -534,15 +590,25 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *self,
     if (wordstorelist == NULL) return;
 
     //Declarations
+    gint *duplicates = NULL;
     gint number_inserted = 0;
+    GList *removed = NULL;
 
     //Initializations
+    duplicates = _find_duplicates (self, position, wordstorelist);
     number_inserted = _insert_all (self, &position, wordstorelist);
 
     _rebuild_array (self);
     _insert_all_propogate_changes (self, position, number_inserted);
 
+    if (duplicates == NULL) goto errored;
+
+    removed = lgw_vocabularyliststore_remove_all (self, duplicates);
+
 errored:
+
+    if (duplicates != NULL) g_free (duplicates); duplicates = NULL;
+    if (removed != NULL) g_list_free (removed); removed = NULL;
 
     return;
 }
@@ -637,15 +703,18 @@ _remove_all (LgwVocabularyListStore *self,
         if (link != NULL) 
         {
           LgwVocabularyWordStore *vocabulary_word_store = LGW_VOCABULARYWORDSTORE (link->data);
-          if (vocabulary_word_store != NULL)
+          LwVocabulary *vocabulary = (link->data);
+
+          priv->data.list = g_list_remove_link (priv->data.list, link);
+          removed = g_list_concat (link, removed);
+          priv->data.array[index] = NULL;
+
+          if (vocabulary != NULL && vocabulary->row.current_index == index)
           {
             _remove_from_index (self, vocabulary_word_store);
           }
 
           g_object_unref (vocabulary_word_store);
-          priv->data.list = g_list_remove_link (priv->data.list, link);
-          removed = g_list_concat (link, removed);
-          priv->data.array[index] = NULL;
         }
       }
       removed = g_list_reverse (removed);
