@@ -160,6 +160,9 @@ _get_column_type (GtkTreeModel *tree_model,
       case LGW_VOCABULARYWORDSTORE_COLUMN_WEIGHT:
         type = G_TYPE_INT;
         break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_WORD:
+        type = G_TYPE_POINTER;
+        break;
       default:
         g_assert_not_reached ();
     }
@@ -303,6 +306,9 @@ _get_value (GtkTreeModel *tree_model,
         break;
       case LGW_VOCABULARYWORDSTORE_COLUMN_WEIGHT:  //G_TYPE_INT
         g_value_set_int (value, lw_word_has_changes (word));
+        break;
+      case LGW_VOCABULARYWORDSTORE_COLUMN_WORD:  //G_TYPE_POINTER
+        g_value_set_pointer (value, word);
         break;
       default:
         g_assert_not_reached ();
@@ -467,20 +473,15 @@ _iter_n_children (GtkTreeModel *tree_model,
 
 errored:
 
-    if (!_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (self), iter))
-    {
-      _invalidate_tree_iter (iter);
-    }
-    
     return total;
 }
 
 
 static gboolean
 _iter_nth_child (GtkTreeModel *tree_model,
-                                        GtkTreeIter  *iter,
-                                        GtkTreeIter  *parent,
-                                        gint          n)
+                 GtkTreeIter  *iter,
+                 GtkTreeIter  *parent,
+                 gint          n)
 {
     //Sanity checks
     g_return_val_if_fail (iter != NULL, FALSE);

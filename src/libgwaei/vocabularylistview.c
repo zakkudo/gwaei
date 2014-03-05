@@ -500,22 +500,25 @@ lgw_vocabularylistview_get_wordview (LgwVocabularyListView *self)
 
 
 GList*
-lgw_vocabularylistview_get_selected_wordstores (LgwVocabularyListView *self)
+lgw_treeview_get_selected_wordstores (GtkTreeView *self)
 {
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+    g_return_if_fail (GTK_IS_TREE_VIEW (self));
 
     //Declarations
-    LgwVocabularyListViewPrivate *priv = NULL;
     GtkTreeModel *tree_model = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+    GtkTreeSelection *tree_selection = NULL;
     GList *selected_rows = NULL;
     GList *selected_wordstores = NULL;
 
     //Initializations
-    priv = self->priv;
-    if (priv->data.vocabulary_list_store == NULL) goto errored;
-    tree_model = GTK_TREE_MODEL (priv->data.vocabulary_list_store);
-    selected_rows = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
+    tree_model = GTK_TREE_MODEL (gtk_tree_view_get_model (self));
+    if (!LGW_IS_VOCABULARYLISTSTORE (tree_model)) goto errored;
+    vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
+    tree_selection = gtk_tree_view_get_selection (self);
+    if (tree_selection == NULL) goto errored;
+    selected_rows = gtk_tree_selection_get_selected_rows (tree_selection, &tree_model);
     printf("BREAK gtk_tree_selection_get_selected_rows %d\n", g_list_length (selected_rows));
     if (selected_rows == NULL) goto errored;
 
@@ -524,7 +527,7 @@ lgw_vocabularylistview_get_selected_wordstores (LgwVocabularyListView *self)
       for (link = selected_rows; link != NULL; link = link->next)
       {
         GtkTreePath *tree_path = link->data;
-        LgwVocabularyWordStore *vocabulary_word_store = lgw_vocabularyliststore_get_wordstore (priv->data.vocabulary_list_store, tree_path);
+        LgwVocabularyWordStore *vocabulary_word_store = lgw_vocabularyliststore_get_wordstore (vocabulary_list_store, tree_path);
         selected_wordstores = g_list_prepend (selected_wordstores, vocabulary_word_store);
         printf("BREAK lgw_vocabularyliststore_get_wordstore %d\n", g_list_length (selected_wordstores));
       }
@@ -539,6 +542,27 @@ errored:
     }
 
     selected_wordstores = g_list_reverse (selected_wordstores);
+
+    return selected_wordstores;
+}
+
+
+GList*
+lgw_vocabularylistview_get_selected_wordstores (LgwVocabularyListView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    GList *selected_wordstores = NULL;
+
+    //Initializations
+    priv = self->priv;
+    if (priv->ui.tree_view == NULL) goto errored;
+    selected_wordstores = lgw_treeview_get_selected_wordstores (priv->ui.tree_view);
+
+errored:
 
     return selected_wordstores;
 }
@@ -645,5 +669,45 @@ errored:
 }
 
 
+void
+lgw_vocabularylistview_select_wordstores (LgwVocabularyListView *self,
+                                          GList                 *wordstores)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary_list_store = priv->data.vocabulary_list_store;
+    if (vocabulary_list_store == NULL) goto errored;
+    if (priv->data.tree_selection == NULL) goto errored;
+
+    gtk_tree_selection_unselect_all (priv->data.tree_selection);
+
+    {
+      GList *link = NULL;
+      for (link = wordstores; link != NULL; link = link->next)
+      {
+        LgwVocabularyWordStore *wordstore = LGW_VOCABULARYWORDSTORE (link->data);
+        if (wordstore != NULL)
+        {
+          GtkTreePath *tree_path = lgw_vocabularyliststore_find_by_wordstore (vocabulary_list_store, wordstore);
+          if (tree_path != NULL)
+          {
+            gtk_tree_selection_select_path (priv->data.tree_selection, tree_path);
+            gtk_tree_path_free (tree_path); tree_path = NULL;
+          }
+        }
+      }
+    }
+
+errored:
+
+    return;
+}
 
 

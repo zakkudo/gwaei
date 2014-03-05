@@ -41,8 +41,12 @@
 
 #include <libgwaei/vocabularywordstore-private.h>
 
-G_DEFINE_TYPE_WITH_CODE (LgwVocabularyWordStore, lgw_vocabularywordstore, LW_TYPE_VOCABULARY,
-                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularywordstore_implement_treemodel_interface));
+G_DEFINE_TYPE_WITH_CODE (
+  LgwVocabularyWordStore, lgw_vocabularywordstore, LW_TYPE_VOCABULARY,
+  G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularywordstore_implement_treemodel_interface)
+  G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_SOURCE, lgw_vocabularywordstore_implement_treedragsource_interface)
+  G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_DEST, lgw_vocabularywordstore_implement_treedragdest_interface)
+);
 
 
 LgwVocabularyWordStore*
@@ -199,4 +203,31 @@ lgw_vocabularywordstore_calculate_weight (LgwVocabularyWordStore *store, GtkTree
 }
 DEPRICATED*/
 
+
+LwWord*
+lgw_vocabularywordstore_get_word (LgwVocabularyWordStore *self,
+                                  GtkTreePath            *tree_path)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (self));
+
+    //Declarations
+    GtkTreeModel *tree_model = NULL;
+    LwWord *word = NULL;
+    GtkTreeIter iter;
+
+    //Initializations
+    tree_model = GTK_TREE_MODEL (self);
+
+    if (gtk_tree_model_get_iter (tree_model, &iter, tree_path))
+    {
+      gpointer data = NULL;
+      gtk_tree_model_get (tree_model, &iter, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &data, -1);
+      word = LW_WORD (data);
+    }
+
+errored:
+
+    return word;
+}
 

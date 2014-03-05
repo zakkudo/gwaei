@@ -456,6 +456,7 @@ _insert_all (LgwVocabularyListStore *self,
              gint                   *position,
              GList                  *wordstorelist)
 {
+printf("BREAK0 _insert_all\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (self));
     if (wordstorelist == NULL) return 0;
@@ -500,14 +501,17 @@ _insert_all (LgwVocabularyListStore *self,
 
     else
     {
+printf("BREAK1 _insert_all\n");
       GList *insert_position = priv->data.array[*position];
       if (insert_position == NULL) goto errored;
       GList *link = NULL;
       for (link = g_list_last (wordstorelist); link != NULL; link = link->prev)
       {
+printf("BREAK2 _insert_all\n");
         LgwVocabularyWordStore *vocabulary_word_store = LGW_VOCABULARYWORDSTORE (link->data);
         if (vocabulary_word_store != NULL)
         {
+printf("BREAK3 _insert_all %s\n", lw_vocabulary_get_filename (LW_VOCABULARY (vocabulary_word_store)));
           g_object_ref (vocabulary_word_store);
           priv->data.list = g_list_insert_before (priv->data.list, insert_position, vocabulary_word_store);
           insert_position = insert_position->prev;
@@ -518,6 +522,7 @@ _insert_all (LgwVocabularyListStore *self,
           number_inserted--;
         }
       }
+printf("BREAK4 _insert_all number_inserted: %d\n", number_inserted);
     }
 
 errored:
@@ -533,6 +538,7 @@ _insert_all_propogate_changes (LgwVocabularyListStore *self,
                                gint                    position,
                                gint                    number_inserted)
 {
+printf("BREAK0 _insert_all_propogate_changes\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (self));
     if (number_inserted == 0) return;
@@ -550,6 +556,7 @@ _insert_all_propogate_changes (LgwVocabularyListStore *self,
     //Rows that were inserted
     for (i = position; i < position + number_inserted; i++)
     {
+printf("BREAK0 _insert_all_propogate_changes inserted %d\n", i);
       GtkTreePath *path = gtk_tree_path_new_from_indices (i, -1);
       if (path != NULL)
       {
@@ -567,6 +574,7 @@ _insert_all_propogate_changes (LgwVocabularyListStore *self,
     //Rows with modified indexes
     for (i = position + number_inserted; i < length; i++)
     {
+printf("BREAK0 _insert_all_propogate_changes update %d\n", i);
       GtkTreePath *path = gtk_tree_path_new_from_indices (i, -1);
       if (path != NULL) {
         gtk_tree_model_get_iter (tree_model, &iter, path);
@@ -602,7 +610,7 @@ _find_duplicates (LgwVocabularyListStore *self,
     //Initializations
     length = g_list_length (wordstorelist);
 printf("BREAK0 _find_duplicates %d %d\n", position, length);
-    if (position < 0) return NULL;
+    if (position < 0) position = lgw_vocabularyliststore_length (self);
     indices = g_new0 (gint, length + 1);
     if (indices == NULL) goto errored;
 printf("BREAK1 _find_duplicates\n");
@@ -647,9 +655,11 @@ lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *self,
                                     gint                    position,
                                     GList                  *wordstorelist)
 {
+printf("BREAK0 lgw_vocabularyliststore_insert_all\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (self));
     if (wordstorelist == NULL) return;
+printf("BREAK1 lgw_vocabularyliststore_insert_all\n");
 
     //Declarations
     gint *duplicates = NULL;
@@ -671,6 +681,7 @@ errored:
 
     if (duplicates != NULL) g_free (duplicates); duplicates = NULL;
     if (removed != NULL) g_list_free (removed); removed = NULL;
+printf("BREAK2 lgw_vocabularyliststore_insert_all\n");
 
     return;
 }

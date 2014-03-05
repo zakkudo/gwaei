@@ -296,8 +296,16 @@ lw_word_copy (LwWord *word)
 {
     if (word == NULL) return NULL;
 
-    //TODO
+    gchar *text = NULL;
+    LwWord *copy = NULL;
 
-    g_assert_not_reached ();
+    text = lw_word_to_string (word);
+    if (text == NULL) goto errored;
+    copy = lw_word_new_from_string (text);
+    if (copy == NULL) goto errored;
+
+errored:
+
+    return copy;
 }
 

@@ -14,6 +14,10 @@ typedef enum {
   SIGNALID_SELECTION_CHANGED,
   SIGNALID_FOCUS_IN_EVENT,
   SIGNALID_FOCUS_OUT_EVENT,
+  SIGNALID_DRAG_MOTION,
+  SIGNALID_DRAG_DROP,
+  SIGNALID_DRAG_DATA_RECEIVED,
+  SIGNALID_DRAG_LEAVE,
   TOTAL_SIGNALIDS
 } Signalid;
 
@@ -54,6 +58,7 @@ struct _Data {
   GList *action_group_list;
   guint signalid[TOTAL_SIGNALIDS];
   gboolean editable;
+  GdkDragAction suggested_action;
 };
 
 struct _LgwVocabularyWordViewPrivate {

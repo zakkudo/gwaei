@@ -470,8 +470,6 @@ lw_vocabulary_set_changed (LwVocabulary *self,
 
     priv->data.changed = changed_;
 
-    printf("BREAK vocabulary list has changes %d\n", changed_);
-
     if (changed || changed_) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_CHANGED]);
 }
 
@@ -759,6 +757,50 @@ lw_vocabulary_invalidate_length (LwVocabulary *self)
 
 
 static void
+_add_to_index (LwVocabulary *self,
+               LwWord       *word)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+    if (word == NULL) return;
+    
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+   
+    //CURRENTLY UNUSED
+
+errored:
+
+    return;
+}
+
+
+static void
+_remove_from_index (LwVocabulary *self,
+                    LwWord       *word)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+    if (word == NULL) return;
+    
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    //CURRENTLY UNUSED
+
+errored:
+
+    return;
+}
+
+
+static void
 _rebuild_array (LwVocabulary *self)
 {
     //Sanity checks
@@ -815,33 +857,46 @@ printf("BREAK0 _insert_all\n");
     append = (*position < 0 || *position >= length || length == 0);
     number_inserted = g_list_length (wordlist);
 
-printf("BREAK1 _insert_all\n");
     if (append)
     {
-printf("BREAK2 _insert_all\n");
       GList *copy = g_list_copy (wordlist);
       *position = length;
       priv->data.list = g_list_concat (priv->data.list, copy);
+
+      {
+        GList *link = NULL;
+        for (link = copy; link != NULL; link = link->next)
+        {
+          LwWord *word = LW_WORD (link->data);
+          if (word != NULL)
+          {
+            _add_to_index (self, word);
+          }
+        }
+      }
     }
     else
     {
+printf("BREAK1 _insert_all\n");
       GList *insert_link = g_list_nth (priv->data.list, *position);
       if (insert_link == NULL) goto errored;
       GList *link = NULL;
-      for (link = g_list_last (wordlist); link != NULL; link = link->next)
+      for (link = g_list_last (wordlist); link != NULL; link = link->prev)
       {
         LwWord *word = LW_WORD (link->data);
         if (word != NULL)
         {
+printf("BREAK2 _insert_all %s \n", lw_word_get_kanji (word));
           priv->data.list = g_list_insert_before (priv->data.list, insert_link, word);
           insert_link = insert_link->prev;
-          link->data = NULL;
+          _add_to_index (self, word);
         }
         else
         {
           number_inserted--;
         }
       }
+printf("BREAK3 _insert_all %d \n", number_inserted);
     }
 
 errored:
@@ -902,7 +957,7 @@ _find_duplicates (LwVocabulary *self,
     //Initializations
     length = g_list_length (wordlist);
 printf("BREAK0 _find_duplicates %d %d\n", position, length);
-    if (position < 0) return NULL;
+    if (position < 0) position = lw_vocabulary_length (self);
     indices = g_new0 (gint, length + 1);
     if (indices == NULL) goto errored;
 printf("BREAK1 _find_duplicates\n");
@@ -1076,6 +1131,11 @@ _remove_all (LwVocabulary *self,
           priv->data.list = g_list_remove_link (priv->data.list, link);
           list = g_list_concat (link, list);
           priv->data.array[index] = NULL;
+
+          if (word != NULL && word->row.current_index == index)
+          {
+            _remove_from_index (self, word);
+          }
         }
       }
       list = g_list_reverse (list);

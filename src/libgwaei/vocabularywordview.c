@@ -646,3 +646,158 @@ errored:
 }
 
 
+GList*
+lgw_treeview_get_selected_words (GtkTreeView *self)
+{
+    //Sanity checks
+    g_return_if_fail (GTK_IS_TREE_VIEW (self));
+
+    //Declarations
+    GtkTreeModel *tree_model = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LwVocabulary *vocabulary = NULL;
+    GtkTreeSelection *tree_selection = NULL;
+    GList *selected_rows = NULL;
+    GList *selected_wordstores = NULL;
+
+    //Initializations
+    tree_model = GTK_TREE_MODEL (gtk_tree_view_get_model (self));
+    if (!LGW_IS_VOCABULARYWORDSTORE (tree_model)) goto errored;
+    vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
+    vocabulary = LW_VOCABULARY (tree_model);
+    tree_selection = gtk_tree_view_get_selection (self);
+    selected_rows = gtk_tree_selection_get_selected_rows (tree_selection, &tree_model);
+    printf("BREAK gtk_tree_selection_get_selected_rows %d\n", g_list_length (selected_rows));
+    if (selected_rows == NULL) goto errored;
+
+    {
+      GList *link = NULL;
+      for (link = selected_rows; link != NULL; link = link->next)
+      {
+        GtkTreePath *tree_path = link->data;
+        LwWord *word = lgw_vocabularywordstore_get_word (vocabulary_word_store, tree_path);
+        selected_wordstores = g_list_prepend (selected_wordstores, word);
+        printf("BREAK lgw_vocabularyliststore_get_wordstore %d\n", g_list_length (selected_wordstores));
+      }
+    }
+
+errored:
+
+    if (selected_rows != NULL)
+    {
+      g_list_free_full (selected_rows, (GDestroyNotify) gtk_tree_path_free);
+      selected_rows = NULL;
+    }
+
+    selected_wordstores = g_list_reverse (selected_wordstores);
+
+    return selected_wordstores;
+}
+
+
+GList*
+lgw_vocabularywordview_get_selected_words (LgwVocabularyWordView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordViewPrivate *priv = NULL;
+    GList *selected_words = NULL;
+
+    //Initializations
+    priv = self->priv;
+    if (priv->ui.tree_view == NULL) goto errored;
+    selected_words = lgw_treeview_get_selected_words (priv->ui.tree_view);
+
+errored:
+
+    return selected_words;
+}
+
+
+void
+lgw_vocabularywordview_select_words (LgwVocabularyWordView *self,
+                                     GList                 *words)
+{
+printf("BREAK0 lgw_vocabularywordview_select_words\n");
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+printf("BREAK1 lgw_vocabularywordview_select_words\n");
+
+    //Declarations
+    LgwVocabularyWordViewPrivate *priv = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary_word_store = priv->data.vocabulary_word_store;
+    if (vocabulary_word_store == NULL) goto errored;
+printf("BREAK2 lgw_vocabularywordview_select_words\n");
+    if (priv->data.tree_selection == NULL) goto errored;
+printf("BREAK3 lgw_vocabularywordview_select_words\n");
+
+    gtk_tree_selection_unselect_all (priv->data.tree_selection);
+printf("BREAK4 lgw_vocabularywordview_select_words\n");
+
+    {
+      GList *link = NULL;
+      for (link = words; link != NULL; link = link->next)
+      {
+printf("BREAK5 lgw_vocabularywordview_select_words\n");
+        LwWord *word = LW_WORD (link->data);
+        if (word != NULL)
+        {
+printf("BREAK6 lgw_vocabularywordview_select_words\n");
+          GtkTreePath *tree_path = lgw_vocabularywordstore_find_by_word (vocabulary_word_store, word);
+          if (tree_path != NULL)
+          {
+printf("BREAK7 lgw_vocabularywordview_select_words\n");
+            gtk_tree_selection_select_path (priv->data.tree_selection, tree_path);
+            gtk_tree_path_free (tree_path); tree_path = NULL;
+          }
+        }
+      }
+    }
+
+errored:
+
+    return;
+}
+
+
+GtkTreePath*
+lgw_vocabularywordstore_find_by_word (LgwVocabularyWordStore *self,
+                                      LwWord                 *word)
+{
+printf("BREAK0 lgw_vocabularywordstore_find_by_word\n");
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (self));
+    if (word == NULL) return NULL;
+printf("BREAK1 lgw_vocabularywordstore_find_by_word\n");
+
+    //Declarations
+    LwVocabulary *vocabulary = NULL;
+    gint position = 0;
+    gint length = 0;
+    GtkTreePath *tree_path = NULL;
+
+    //Initializations
+    vocabulary = LW_VOCABULARY (self);
+    if (vocabulary == NULL) goto errored;
+printf("BREAK2 lgw_vocabularywordstore_find_by_word\n");
+    position = word->row.current_index;
+    length = lw_vocabulary_length (vocabulary);
+    if (position < 0 || position >= length) goto errored;
+printf("BREAK3 lgw_vocabularywordstore_find_by_word\n");
+    if (lw_vocabulary_nth (vocabulary, word->row.current_index) != word) goto errored;
+printf("BREAK4 lgw_vocabularywordstore_find_by_word\n");
+
+    tree_path = gtk_tree_path_new_from_indices (position, -1);
+
+errored:
+
+   return tree_path; 
+}
+
+

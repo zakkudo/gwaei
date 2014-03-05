@@ -26,8 +26,10 @@ struct _LgwVocabularyWordStorePrivate {
 
 G_END_DECLS
 
-#include <libgwaei/vocabularywordstore-treemodel-interface.h>
 #include <libgwaei/vocabularywordstore-callbacks.h>
+#include <libgwaei/vocabularywordstore-treemodel-interface.h>
+#include <libgwaei/vocabularywordstore-treedragsource-interface.h>
+#include <libgwaei/vocabularywordstore-treedragdest-interface.h>
 
 #endif
 

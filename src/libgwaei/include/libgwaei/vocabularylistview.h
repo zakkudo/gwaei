@@ -43,6 +43,8 @@ void lgw_vocabularylistview_delete_selected (LgwVocabularyListView *self);
 LgwVocabularyWordView* lgw_vocabularylistview_get_wordview (LgwVocabularyListView *self);
 void lgw_vocabularylistview_set_wordview (LgwVocabularyListView *self, LgwVocabularyWordView *vocabulary_word_view);
 
+GList* lgw_treeview_get_selected_wordstores (GtkTreeView *self);
+void lgw_vocabularylistview_select_wordstores (LgwVocabularyListView *self, GList *wordstores);
 
 G_END_DECLS
 

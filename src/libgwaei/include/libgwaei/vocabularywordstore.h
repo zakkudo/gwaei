@@ -15,6 +15,7 @@ typedef enum {
   LGW_VOCABULARYWORDSTORE_COLUMN_SCORE,
   LGW_VOCABULARYWORDSTORE_COLUMN_LAST_STUDIED,
   LGW_VOCABULARYWORDSTORE_COLUMN_WEIGHT,
+  LGW_VOCABULARYWORDSTORE_COLUMN_WORD,
   TOTAL_LGW_VOCABULARYWORDSTORE_COLUMNS
 } LgwVocabularyWordStoreColumn;
 
@@ -44,6 +45,8 @@ struct _LgwVocabularyWordStoreClass {
 LgwVocabularyWordStore* lgw_vocabularywordstore_new (const gchar* FILENAME);
 GType lgw_vocabularywordstore_get_type (void) G_GNUC_CONST;
 
+LwWord* lgw_vocabularywordstore_get_word (LgwVocabularyWordStore *self, GtkTreePath *tree_path);
+GtkTreePath* lgw_vocabularywordstore_find_by_word (LgwVocabularyWordStore *self, LwWord *word);
 
 G_END_DECLS
 

@@ -220,13 +220,12 @@ lgw_vocabularylistview_drag_motion_cb (LgwVocabularyListView *self,
     target = gtk_drag_dest_find_target (GTK_WIDGET (inner_tree_view), drag_context, NULL);
     depth = gtk_tree_path_get_depth (dest_path);
 
-//    gtk_drag_highlight (GTK_WIDGET (inner_tree_view));
-
     if (GTK_IS_TREE_VIEW (source_widget))
     {
       GtkTreeModel *tree_model = gtk_tree_view_get_model (GTK_TREE_VIEW (source_widget));
       if (LGW_IS_VOCABULARYLISTSTORE (tree_model))
       {
+        gtk_drag_highlight (GTK_WIDGET (inner_tree_view));
         if (drop_position == GTK_TREE_VIEW_DROP_INTO_OR_BEFORE)
           gtk_tree_view_set_drag_dest_row (inner_tree_view, dest_path, GTK_TREE_VIEW_DROP_BEFORE);
         else if (drop_position == GTK_TREE_VIEW_DROP_INTO_OR_AFTER)
@@ -234,6 +233,7 @@ lgw_vocabularylistview_drag_motion_cb (LgwVocabularyListView *self,
       }
       if (LGW_IS_VOCABULARYWORDSTORE (tree_model))
       {
+        gtk_drag_highlight (GTK_WIDGET (inner_tree_view));
         if (drop_position == GTK_TREE_VIEW_DROP_BEFORE)
           gtk_tree_view_set_drag_dest_row (inner_tree_view, dest_path, GTK_TREE_VIEW_DROP_INTO_OR_BEFORE);
         else if (drop_position == GTK_TREE_VIEW_DROP_AFTER)
@@ -302,33 +302,64 @@ lgw_vocabularylistview_drag_drop_cb (LgwVocabularyListView *self,
                                      guint                  time,
                                      gpointer              *inner_text_view)
 {
+printf("BREAK0 lgw_vocabularylistview_drag_drop_cb\n");
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyListStore *dest_list_store = NULL;
     GtkTreeSelection *selection = NULL;
-    GtkTreeModel *tree_model = NULL;
+    GtkTreeModel *source_tree_model = NULL;
+    GtkTreeView *source_tree_view = NULL;
     GList *rows = NULL;
     gint success = FALSE;
     GtkWidget *source_widget = NULL;
+    GdkDragAction action = 0;
 
     //Initializations
+    priv = self->priv;
+    dest_list_store = lgw_vocabularylistview_get_liststore (self);
     source_widget = gtk_drag_get_source_widget (drag_context);
     if (!GTK_IS_TREE_VIEW (source_widget)) goto errored;
-    tree_model = gtk_tree_view_get_model (GTK_TREE_VIEW (source_widget));
-    if (tree_model == NULL) goto errored;
+    source_tree_view = GTK_TREE_VIEW (source_widget);
+    source_tree_model = gtk_tree_view_get_model (source_tree_view);
+    if (source_tree_model == NULL) goto errored;
+    action = priv->data.suggested_action;
     
-    if (LGW_IS_VOCABULARYLISTSTORE (tree_model))
+    if (LGW_IS_VOCABULARYLISTSTORE (source_tree_model))
     {
-      LgwVocabularyListStore *vocabulary_list_store = LGW_VOCABULARYLISTSTORE (tree_model);
-      GList *wordstores = lgw_vocabularylistview_get_selected_wordstores (self);
-      gint position = _get_insert_index (self, x, y);
-      lgw_vocabularyliststore_insert_all (vocabulary_list_store, position, wordstores);
-      success = TRUE;
+      if (action == GDK_ACTION_MOVE)
+      {
+        GList *wordstores = lgw_treeview_get_selected_wordstores (source_tree_view);
+        gint position = _get_insert_index (self, x, y);
+        lgw_vocabularyliststore_insert_all (dest_list_store, position, wordstores);
+        lgw_vocabularylistview_select_wordstores (self, wordstores);
+
+        success = TRUE;
+      }
+      else if (action == GDK_ACTION_COPY)
+      {
+printf("BREAK4 lgw_vocabularylistview_drag_drop_cb\n");
+        //NOT IMPLEMENTED
+      }
     }
-    else if (LGW_IS_VOCABULARYWORDSTORE (tree_model))
+    else if (LGW_IS_VOCABULARYWORDSTORE (source_tree_model))
     {
-      g_assert_not_reached ();
+      if (action == GDK_ACTION_MOVE)
+      {
+        GList *words = lgw_treeview_get_selected_words (source_tree_view);
+        //TODO make a copy of the words if appropriate
+        gint position = _get_insert_index (self, x, y);
+        LgwVocabularyWordStore *vocabulary_word_store = lgw_vocabularyliststore_nth (dest_list_store, position);
+        LwVocabulary *vocabulary = LW_VOCABULARY (vocabulary_word_store);
+        lw_vocabulary_insert_all (vocabulary, -1, words);
+
+        success = TRUE;
+      }
+      else if (action == GDK_ACTION_COPY)
+      {
+        //NOT IMPLEMENTED
+      }
     }
 
 errored:
@@ -379,7 +410,15 @@ lgw_vocabularylistview_drag_data_received_cb (LgwVocabularyListView *self,
     }
     else if (LGW_IS_VOCABULARYWORDSTORE (tree_model))
     {
-      g_assert_not_reached ();
+      if (mask & GDK_CONTROL_MASK)
+      {
+        priv->data.suggested_action = GDK_ACTION_COPY;
+      }
+      else
+      {
+        priv->data.suggested_action = GDK_ACTION_MOVE;
+      }
+      gdk_drag_status (drag_context, priv->data.suggested_action, time);
     }
     else
     {
