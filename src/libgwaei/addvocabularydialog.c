@@ -186,6 +186,31 @@ lgw_addvocabularydialog_get_property (GObject      *object,
 }
 
 
+static void
+_init_accelerators (LgwAddVocabularyDialog *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self), NULL);
+
+    //Declarations
+    LgwAddVocabularyDialogPrivate *priv = NULL;
+    GtkAccelGroup *accel_group = NULL;
+    GtkWindow *window = NULL;
+
+    //Initializations
+    priv = self->priv;
+    accel_group = gtk_accel_group_new ();
+    window = GTK_WINDOW (self);
+
+    //Set menu accelerators
+    gtk_widget_add_accelerator (GTK_WIDGET (priv->ui.cancel_button), "activate",  accel_group, (GDK_KEY_Escape), 0, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (GTK_WIDGET (priv->ui.add_button), "activate",  accel_group, (GDK_KEY_Return), 0, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (GTK_WIDGET (priv->ui.add_button), "activate",  accel_group, (GDK_KEY_ISO_Enter), 0, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator (GTK_WIDGET (priv->ui.add_button), "activate",  accel_group, (GDK_KEY_KP_Enter), 0, GTK_ACCEL_VISIBLE);
+    gtk_window_add_accel_group (window, accel_group);
+}
+
+
 static void 
 lgw_addvocabularydialog_constructed (GObject *object)
 {
@@ -339,6 +364,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
                     gtk_widget_set_size_request (text_view, 250, 50);
                     priv->ui.definition_text_view = GTK_TEXT_VIEW (text_view);
                     gtk_text_view_set_wrap_mode (priv->ui.definition_text_view, GTK_WRAP_WORD);
+                    gtk_text_view_set_accepts_tab (priv->ui.definition_text_view, FALSE);
                     //gtk_entry_set_placeholder_text (priv->ui.definition_text_view, gettext("Definition"));
                     gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
                     gtk_container_set_border_width (GTK_CONTAINER (text_view), 4);
@@ -364,12 +390,16 @@ lgw_addvocabularydialog_constructed (GObject *object)
       NULL
     );
     gtk_dialog_set_default_response (dialog, LGW_ADDVOCABULARYDIALOG_RESPONSE_ADD);
+    priv->ui.add_button = GTK_BUTTON (gtk_dialog_get_widget_for_response (dialog, LGW_ADDVOCABULARYDIALOG_RESPONSE_ADD));
+    priv->ui.cancel_button = GTK_BUTTON (gtk_dialog_get_widget_for_response (dialog, LGW_ADDVOCABULARYDIALOG_RESPONSE_CANCEL));
 
-    gtk_window_set_title (GTK_WINDOW (dialog), gettext("Add New Vocabulary"));
+    gtk_window_set_title (GTK_WINDOW (dialog), gettext("Add Vocabulary Word"));
     gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
     gtk_window_set_resizable (GTK_WINDOW (dialog), FALSE);
 
     lgw_addvocabularydialog_connect_signals (self);
+
+    _init_accelerators (self);
 }
 
 
@@ -448,69 +478,6 @@ lgw_addvocabularydialog_class_init (LgwAddVocabularyDialogClass *klass)
     g_object_class_install_property (object_class, PROP_SAVE_ON_ADD, _klasspriv->pspec[PROP_SAVE_ON_ADD]);
 }
 
-/*
-
-static void
-lgw_addvocabularydialog_init_accelerators (LgwAddVocabularyDialog *self)
-{
-    GtkWidget *widget;
-    GtkAccelGroup *accelgroup;
-
-    accelgroup = gw_window_get_accel_group (LGW_WINDOW (self));
-
-    //Set menu accelerators
-    widget = GTK_WIDGET (gw_window_get_object (LGW_WINDOW (self), "cancel_button"));
-    gtk_widget_add_accelerator (GTK_WIDGET (widget), "activate", 
-      accelgroup, (GDK_KEY_Escape), 0, GTK_ACCEL_VISIBLE);
-
-    widget = GTK_WIDGET (gw_window_get_object (LGW_WINDOW (self), "add_button"));
-    gtk_widget_add_accelerator (GTK_WIDGET (widget), "activate", 
-      accelgroup, (GDK_KEY_ISO_Enter), 0, GTK_ACCEL_VISIBLE);
-}
-
-
-static void
-lgw_addvocabularydialog_init_combobox (LgwAddVocabularyDialog *self)
-{
-    LgwAddVocabularyDialogPrivate *priv;
-    LgwAddVocabularyDialogClass *klass;
-    GwApplication *application;
-    GtkListStore *store;
-    GtkTreeModel *model;
-
-    priv = self->priv;
-    klass = LGW_ADDVOCABULARYDIALOG_CLASS (G_OBJECT_GET_CLASS (self));
-    application = gw_window_get_application (LGW_WINDOW (self));
-    store = gw_application_get_vocabularyliststore (application);
-    model = GTK_TREE_MODEL (store);
-
-    //Initialize the combobox
-    gtk_combo_box_set_model (priv->vocabulary_list_combobox, model); 
-
-    //Remove the default entry since it doesn't seem to be editable for some reason
-    priv->list_entry = GTK_ENTRY (gtk_bin_get_child (GTK_BIN (priv->vocabulary_list_combobox)));
-    gtk_widget_destroy (GTK_WIDGET (priv->list_entry));
-
-    //Add our entry
-    priv->list_entry = GTK_ENTRY (gtk_entry_new ());
-    gtk_entry_set_activates_default (priv->list_entry, TRUE);
-    g_signal_connect (G_OBJECT (priv->list_entry), "changed", G_CALLBACK (gw_addvocabularydialog_list_changed_cb), self);
-    gtk_widget_show (GTK_WIDGET (priv->list_entry));
-    gtk_combo_box_set_entry_text_column (priv->vocabulary_list_combobox, LGW_VOCABULARYLISTSTORE_COLUMN_NAME);
-    gtk_container_add (GTK_CONTAINER (priv->vocabulary_list_combobox), GTK_WIDGET (priv->list_entry));
-
-    //Set the correct initial selection
-    if (klass->last_selected_list_name != NULL)
-    {
-      gtk_entry_set_text (priv->list_entry, klass->last_selected_list_name);
-    }
-    else
-    {
-      gtk_combo_box_set_active (priv->vocabulary_list_combobox, 0);
-    }
-    gtk_editable_select_region (GTK_EDITABLE (priv->list_entry), 0, 0);
-}
-*/
 
 const gchar*
 lgw_addvocabularydialog_get_kanji (LgwAddVocabularyDialog *self)
@@ -560,6 +527,7 @@ lgw_addvocabularydialog_set_kanji (LgwAddVocabularyDialog *self,
     if (INTERNAL_TEXT == NULL || strcmp(INTERNAL_TEXT, kanji) != 0)
     {
       lw_word_set_kanji (priv->data.word, kanji);
+      lgw_addvocabularydialog_validate (self);
       g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_KANJI]);
     }
 
@@ -619,6 +587,7 @@ lgw_addvocabularydialog_set_reading (LgwAddVocabularyDialog *self,
     if (INTERNAL_TEXT == NULL || strcmp(INTERNAL_TEXT, reading) != 0)
     {
       lw_word_set_reading (priv->data.word, reading);
+      lgw_addvocabularydialog_validate (self);
       g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_READING]);
     }
 
@@ -681,6 +650,7 @@ lgw_addvocabularydialog_set_definition (LgwAddVocabularyDialog *self,
     if (INTERNAL_TEXT == NULL || strcmp(INTERNAL_TEXT, definition) != 0)
     { 
       lw_word_set_definition (priv->data.word, definition);
+      lgw_addvocabularydialog_validate (self);
       g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DEFINITION]);
     }
 
@@ -758,6 +728,7 @@ lgw_addvocabularydialog_set_liststore (LgwAddVocabularyDialog *self,
     }
 
     lgw_addvocabularydialog_sync_list_store (self);
+    lgw_addvocabularydialog_validate (self);
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
 
 errored:
@@ -818,6 +789,7 @@ lgw_addvocabularydialog_set_wordstore (LgwAddVocabularyDialog *self,
     }
 
     lgw_addvocabularydialog_sync_list_store (self);
+    lgw_addvocabularydialog_validate (self);
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VOCABULARYWORDSTORE]);
 
 errored:
@@ -973,90 +945,37 @@ lgw_addvocabularydialog_steal_word (LgwAddVocabularyDialog *self)
 }
                              
 
-
-/*
 gboolean
 lgw_addvocabularydialog_validate (LgwAddVocabularyDialog *self)
 {
+    //Sanity checks
+    g_return_if_fail (LGW_IS_ADDVOCABULARYDIALOG (self));
+
+    //Declarations
     LgwAddVocabularyDialogPrivate *priv;
-    const gchar *kanji, *furigana, *definitions, *list;
-    gboolean has_kanji, has_furigana, has_definitions, has_list;
-    gboolean valid;
+    const gchar *KANJI = NULL, *READING = NULL, *DEFINITION = NULL;
+    gboolean has_kanji = FALSE, has_reading = FALSE, has_definition = FALSE, has_wordstore = FALSE;
+    gboolean valid = FALSE;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
 
+    //Initializations
     priv = self->priv;
-    kanji = gw_addvocabularydialog_get_kanji (self);
-    furigana = gw_addvocabularydialog_get_furigana (self);
-    definitions = gw_addvocabularydialog_get_definitions (self);
-    list = gw_addvocabularydialog_get_list (self);
 
-    has_kanji = (strlen (kanji) > 0);
-    has_furigana = (strlen (furigana) > 0);
-    has_definitions = (strlen (definitions) > 0);
-    has_list = (strlen (list) > 0);
-    valid = ((has_kanji || has_furigana || has_definitions) && has_list);
+    KANJI = lgw_addvocabularydialog_get_kanji (self);
+    READING = lgw_addvocabularydialog_get_reading (self);
+    DEFINITION = lgw_addvocabularydialog_get_definition (self);
+    vocabulary_word_store = lgw_addvocabularydialog_get_wordstore (self);
 
-    gtk_widget_set_sensitive (GTK_WIDGET (priv->add_button), valid);
+    has_kanji = (KANJI != NULL && strlen (KANJI) > 0);
+    has_reading = (READING != NULL && strlen (READING) > 0);
+    has_definition = (DEFINITION != NULL && strlen (DEFINITION) > 0);
+    has_wordstore = (vocabulary_word_store != NULL);
+
+    valid = ((has_kanji || has_reading || has_definition) && has_wordstore);
+
+    gtk_widget_set_sensitive (GTK_WIDGET (priv->ui.add_button), valid);
 
     return valid;
 }
 
 
-void
-lgw_addvocabularydialog_focus_add_button (LgwAddVocabularyDialog *self)
-{
-    if (gw_addvocabularydialog_validate (self))
-      gtk_widget_grab_focus (GTK_WIDGET (self->priv->add_button));
-}
-
-
-gboolean
-lgw_addvocabularydialog_get_iter (LgwAddVocabularyDialog *self, GtkTreeIter *iter)
-{
-    g_assert (iter != NULL);
-
-    *iter = self->priv->iter;
-
-    return self->priv->valid;
-}
-
-
-void
-lgw_addvocabularydialog_save (LgwAddVocabularyDialog *self)
-{
-   if (self->priv->wordstore != NULL)
-   {
-     gw_vocabularywordstore_save (self->priv->wordstore, NULL);
-   }
-}
-
-
-void
-lgw_addvocabularydialog_set_focus (LgwAddVocabularyDialog *self, LgwAddVocabularyDialogFocus focus)
-{
-    LgwAddVocabularyDialogPrivate *priv;
-
-    priv = self->priv;
-
-    switch (focus)
-    {
-      case LGW_ADDVOCABULARYDIALOG_FOCUS_LIST:
-        gtk_widget_grab_focus (GTK_WIDGET (priv->list_entry));
-        break;
-      case LGW_ADDVOCABULARYDIALOG_FOCUS_KANJI:
-        gtk_widget_grab_focus (GTK_WIDGET (priv->kanji_entry));
-        break;
-      case LGW_ADDVOCABULARYDIALOG_FOCUS_FURIGANA:
-        gtk_widget_grab_focus (GTK_WIDGET (priv->furigana_entry));
-        break;
-      case LGW_ADDVOCABULARYDIALOG_FOCUS_DEFINITIONS:
-        gtk_widget_grab_focus (GTK_WIDGET (priv->definitions_textview));
-        break;
-      case LGW_ADDVOCABULARYDIALOG_FOCUS_ADD_BUTTON:
-        gtk_widget_grab_focus (GTK_WIDGET (priv->add_button));
-        break;
-      default:
-        g_assert_not_reached ();
-        break;
-    }
-}
-*/

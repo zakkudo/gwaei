@@ -72,6 +72,7 @@ GList* lw_vocabulary_remove_all (LwVocabulary *self, gint *indices);
 
 LwWord* lw_vocabulary_nth (LwVocabulary *self, gint index);
 
+gchar* lw_vocabulary_to_string (LwVocabulary *self, LwProgressCallback cb);
 
 G_END_DECLS
 

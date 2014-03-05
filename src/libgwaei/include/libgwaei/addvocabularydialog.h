@@ -57,6 +57,8 @@ void lgw_addvocabularydialog_set_save_on_add (LgwAddVocabularyDialog *self, gboo
 
 LwWord* lgw_addvocabularydialog_steal_word (LgwAddVocabularyDialog *self);
 
+gboolean lgw_addvocabularydialog_validate (LgwAddVocabularyDialog *self);
+
 G_END_DECLS
 
 #endif

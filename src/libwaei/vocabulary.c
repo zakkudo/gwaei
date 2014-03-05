@@ -421,6 +421,7 @@ lw_vocabulary_load (LwVocabulary       *self,
     lw_vocabulary_set_loaded (self, TRUE);
 }
 
+
 void
 lw_vocabulary_save (LwVocabulary       *self, 
                     LwProgressCallback  cb)
@@ -429,46 +430,26 @@ lw_vocabulary_save (LwVocabulary       *self,
     g_return_if_fail (LW_IS_VOCABULARY (self));
 
     //Declarations
-    LwVocabularyPrivate *priv = NULL;
     const gchar *FILENAME = NULL;
     gchar *uri = NULL;
-    FILE *fd = NULL;
+    gchar *text = NULL;
 
     //Initializations
-    priv = self->priv;
     FILENAME = lw_vocabulary_get_filename (self);
     if (FILENAME == NULL) goto errored;
     uri = lw_vocabulary_build_uri (FILENAME);
     if (uri == NULL) goto errored;
-    fd = g_fopen (uri, "w");
-    if (fd = NULL) goto errored;
+    text = lw_vocabulary_to_string (self, cb);
+    if (text == NULL) goto errored;
 
-    {
-      GList *link = priv->data.list;
-      while (link != NULL)
-      {
-        LwWord *word = LW_WORD (link->data);
-        if (word != NULL)
-        {
-          gchar *text = lw_word_to_string (word);
-          if (text != NULL)
-          {
-            fputs(text, fd);
-            fputc('\n', fd);
-          }
-          if (text != NULL) g_free (text); text = NULL;
-        }
-
-        link = link->next;
-      }
-    }
+    g_file_set_contents (uri, text, -1, NULL);
 
     lw_vocabulary_set_changed (self, FALSE);
 
 errored:
 
-    if (fd != NULL) fclose(fd); fd = NULL;
     if (uri != NULL) g_free (uri); uri = NULL;
+    if (text != NULL) g_free (text); text = NULL;
 }
 
 
@@ -1291,4 +1272,51 @@ errored:
     return word;
 }
 
+
+gchar*
+lw_vocabulary_to_string (LwVocabulary       *self,
+                         LwProgressCallback  cb)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint length = -1;
+    gchar **line = NULL;
+    gchar *text = NULL;
+
+    //Initializations
+    priv = self->priv;
+    length = lw_vocabulary_length (self);
+    line = g_new0 (gchar*, length + 1);
+
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LwWord *word = LW_WORD (link->data);
+        if (word != NULL)
+        {
+          gchar *text = lw_word_to_string (word);
+          if (text != NULL)
+          {
+            line[i] = text;
+            text = NULL;
+            i++;
+          }
+        }
+      }
+      line[i] = NULL;
+    }
+    
+    text = g_strjoinv ("\n", line);
+
+errored:
+
+    if (line != NULL) g_strfreev (line); line = NULL;
+
+    return text;
+}
 
