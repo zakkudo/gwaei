@@ -62,8 +62,9 @@ void lw_vocabulary_save (LwVocabulary *self, LwProgressCallback cb);
 
 gint lw_vocabulary_length (LwVocabulary *self);
 
-gchar* lw_vocabulary_generate_filename (void);
-gboolean lw_vocabulary_file_exists (LwVocabulary *self);
+gchar* lw_vocabulary_generate_new_filename (void);
+gboolean lw_vocabulary_has_file (LwVocabulary *self);
+gboolean lw_vocabulary_filename_exists (const gchar *FILENAME);
 
 gchar* lw_vocabulary_build_uri (const gchar *FILENAME);
 
@@ -73,6 +74,7 @@ GList* lw_vocabulary_remove_all (LwVocabulary *self, gint *indices);
 LwWord* lw_vocabulary_nth (LwVocabulary *self, gint index);
 
 gchar* lw_vocabulary_to_string (LwVocabulary *self, LwProgressCallback cb);
+void lw_vocabulary_load_from_string (LwVocabulary *self, const gchar *TEXT, LwProgressCallback cb);
 
 G_END_DECLS
 

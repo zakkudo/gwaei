@@ -231,3 +231,13 @@ errored:
     return word;
 }
 
+
+LgwVocabularyWordStore*
+lgw_vocabularywordstore_copy (LgwVocabularyWordStore *self)
+{
+    //TODO
+    g_assert_not_reached ();
+    return NULL;
+}
+
+

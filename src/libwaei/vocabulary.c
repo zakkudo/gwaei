@@ -38,8 +38,6 @@
 
 static LwVocabularyClass *_klass = NULL;
 static LwVocabularyClassPrivate *_klasspriv = NULL;
-gint _new_filename_index = 0;
-const gchar* _BASE_FILENAME = NULL;
 
 G_DEFINE_TYPE (LwVocabulary, lw_vocabulary, G_TYPE_OBJECT)
 
@@ -377,25 +375,7 @@ lw_vocabulary_load_from_file (LwVocabulary       *self,
 
     if (!g_file_get_contents (uri, &contents, &length, NULL) || length == 0) goto errored;
 
-    if (length > 0)
-    {
-      lw_util_replace_linebreaks_with_nullcharacter (contents);
-
-      gchar *c = contents;
-      GList *list = NULL;
-      while (c != NULL && c < contents + length) 
-      {
-        LwWord *word = lw_word_new_from_string (c);
-        if (word != NULL)
-        {
-          list = g_list_prepend (list, word);
-        }
-        c += strlen(c) + 1;
-      }
-      lw_vocabulary_insert_all (self, -1, list);
-
-      if (list != NULL) g_list_free (list); list = NULL;
-    }
+    lw_vocabulary_load_from_string (self, contents, cb);
 
 errored:
 
@@ -655,7 +635,7 @@ lw_vocabulary_set_filename (LwVocabulary *self,
     //Initializations
     priv = self->priv;
     new_uri = lw_vocabulary_build_uri (FILENAME);
-    file_exists = lw_vocabulary_file_exists (self);
+    file_exists = lw_vocabulary_has_file (self);
     if (new_uri == NULL) FILENAME = NULL;
 
     //Delete
@@ -1217,36 +1197,35 @@ errored:
 }
 
 
-static void
-_initialize_filename_suffix ()
+static gint
+_initialize_new_filename_suffix (const gchar *BASE_NEW_FILENAME)
 {
     //Sanity checks
-    if (_BASE_FILENAME != NULL) return;
+    g_return_if_fail (BASE_NEW_FILENAME != NULL);
 
     //Declarations
     gchar **filenames = NULL;
     gint length = 0;
     gint i = 0;
+    gint new_filename_index = 0;
 
     //Initializations
-    _new_filename_index = 0;
-    _BASE_FILENAME = "New List ";
+    new_filename_index = 0;
 
-    length = strlen(_BASE_FILENAME);
+    length = strlen(BASE_NEW_FILENAME);
     filenames = lw_vocabulary_get_filenames ();
     if (filenames == NULL) goto errored;
 
-
     for (i = 0; filenames[i] != NULL; i++)
     {
-      if (strncmp(filenames[i], _BASE_FILENAME, length) == 0)
+      const gchar* FILENAME = filenames[i];
+      if (strncmp(FILENAME, BASE_NEW_FILENAME, length) == 0)
       {
-        const gchar* FILENAME = filenames[i];
         const gchar* SUFFIX = FILENAME + length;
         gchar* endptr = NULL;
         gint index = (gint) strtol(SUFFIX, &endptr, 10);
-        if (endptr != NULL && *endptr == '\0' && index > _new_filename_index) {
-          _new_filename_index = index;
+        if (endptr != NULL && *endptr == '\0' && index > new_filename_index) {
+          new_filename_index = index;
         }
       }
     }
@@ -1255,43 +1234,113 @@ errored:
 
     if (filenames != NULL) g_strfreev (filenames); filenames = NULL;
 
-    _new_filename_index++;
+    new_filename_index++;
+
+    return new_filename_index;
 }
 
 
 gchar*
-lw_vocabulary_generate_filename ()
+lw_vocabulary_generate_new_filename ()
 {
-    _initialize_filename_suffix ();
+    //Declarations
+    gchar *filename = NULL;
+    const gchar *BASE_NEW_FILENAME = gettext("New List %d");
+    gint index = -1;
+
+    //Initializations
+    index = _initialize_new_filename_suffix (BASE_NEW_FILENAME);
+
+    do {
+      if (filename != NULL) g_free (filename); filename = NULL;
+      filename = g_strdup_printf (BASE_NEW_FILENAME, index);
+       index++;
+    } while (lw_vocabulary_filename_exists (filename));
+
+    return filename;
+}
+
+
+static gint
+_initialize_copied_filename_suffix (const gchar *COPIED_FILENAME_SUFFIX,
+                                    const gchar *FILENAME)
+{
+    //Sanity checks
+    g_return_if_fail (COPIED_FILENAME_SUFFIX != NULL);
+    g_return_if_fail (FILENAME != NULL);
+
+    //Declarations
+    gchar **filenames = NULL;
+    gint length = 0;
+    gint i = 0;
+    gint copied_filename_index = 1;
+
+    //Initializations
+    copied_filename_index = 0;
+    length = strlen(FILENAME);
+    filenames = lw_vocabulary_get_filenames ();
+    if (filenames == NULL) goto errored;
+
+    for (i = 0; filenames[i] != NULL; i++)
+    {
+      const gchar* FILENAME = filenames[i];
+      gchar *position = g_strrstr (FILENAME, COPIED_FILENAME_SUFFIX); 
+      if (position != NULL)
+      {
+        const gchar* SUFFIX = FILENAME + length;
+        gchar* endptr = NULL;
+        gint index = (gint) strtol(SUFFIX, &endptr, 10);
+        if (endptr != NULL && *endptr == '\0' && index > copied_filename_index)
+        {
+          copied_filename_index = index;
+        }
+      }
+    }
+
+    copied_filename_index++;
+
+errored:
+
+    if (filenames != NULL) g_strfreev (filenames); filenames = NULL;
+
+
+    return copied_filename_index;
+}
+
+
+gchar*
+lw_vocabulary_generate_copied_filename (const gchar *COPIED_FILENAME_SUFFIX,
+                                        const gchar *FILENAME)
+{
 
     //Declarations
     gchar *filename = NULL;
-    
-    //Initializations
-    filename = g_strdup_printf ("%s%d", _BASE_FILENAME, _new_filename_index);
+    gint index = -1;
 
-    if (filename != NULL) {
-      _new_filename_index++;
-    }
+    //Initializations
+    index = _initialize_copied_filename_suffix (COPIED_FILENAME_SUFFIX, FILENAME);
+
+    do {
+      if (filename != NULL) g_free (filename); filename = NULL;
+      filename = g_strdup_printf ("%s%s%d", COPIED_FILENAME_SUFFIX, index);
+      index++;
+    } while (lw_vocabulary_filename_exists (filename));
 
     return filename;
 }
 
 
 gboolean
-lw_vocabulary_file_exists (LwVocabulary *self)
+lw_vocabulary_filename_exists (const gchar *FILENAME)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_VOCABULARY (self), FALSE);
+    if (FILENAME == NULL) return FALSE;
 
     //Declarations
-    const gchar *FILENAME = NULL;
     gchar *uri = NULL;
     gboolean exists = FALSE;
 
     //Initializations
-    FILENAME = lw_vocabulary_get_filename (self);
-    if (FILENAME == NULL) goto errored;
     uri = lw_vocabulary_build_uri (FILENAME);
     if (uri == NULL) goto errored;
     exists = g_file_test (uri, G_FILE_TEST_IS_REGULAR);
@@ -1299,6 +1348,27 @@ lw_vocabulary_file_exists (LwVocabulary *self)
 errored:
 
     if (uri != NULL) g_free (uri); uri = NULL;
+
+    return exists;
+}
+
+
+gboolean
+lw_vocabulary_has_file (LwVocabulary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), FALSE);
+
+    //Declarations
+    const gchar *FILENAME = NULL;
+    gboolean exists = FALSE;
+
+    //Initializations
+    FILENAME = lw_vocabulary_get_filename (self);
+    if (FILENAME == NULL) goto errored;
+    exists = lw_vocabulary_filename_exists (FILENAME);
+
+errored:
 
     return exists;
 }
@@ -1331,6 +1401,55 @@ errored:
 
     return word;
 }
+
+
+void
+lw_vocabulary_load_from_string (LwVocabulary       *self,
+                                const gchar        *TEXT,
+                                LwProgressCallback  cb)
+{
+    //Sanity checks
+    g_return_if_fail (LW_VOCABULARY (self));
+    if (TEXT == NULL) return;
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gchar *contents = NULL;
+    gsize length = 0;
+    GList *words = NULL;
+
+    //Initializations
+    priv = self->priv;
+    contents = g_strdup (TEXT);
+    if (contents == NULL || *contents == '\0') goto errored;
+
+    length = lw_util_replace_linebreaks_with_nullcharacter (contents);
+    if (length == 0) goto errored;
+
+    {
+      gchar *c = contents;
+      while (c != NULL && c < contents + length) 
+      {
+        LwWord *word = lw_word_new_from_string (c);
+        if (word != NULL)
+        {
+          words = g_list_prepend (words, word);
+        }
+        c += strlen(c) + 1;
+      }
+      words = g_list_reverse (words);
+    }
+
+    if (words == NULL) goto errored;
+
+    lw_vocabulary_insert_all (self, -1, words);
+
+errored:
+
+    if (words != NULL) g_list_free (words); words = NULL;
+    if (contents != NULL) g_free (contents); contents = NULL;
+}
+
 
 
 gchar*

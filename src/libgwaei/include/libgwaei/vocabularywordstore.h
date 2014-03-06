@@ -47,6 +47,7 @@ GType lgw_vocabularywordstore_get_type (void) G_GNUC_CONST;
 
 LwWord* lgw_vocabularywordstore_get_word (LgwVocabularyWordStore *self, GtkTreePath *tree_path);
 GtkTreePath* lgw_vocabularywordstore_find_by_word (LgwVocabularyWordStore *self, LwWord *word);
+LgwVocabularyWordStore* lgw_vocabularywordstore_copy (LgwVocabularyWordStore *self);
 
 G_END_DECLS
 

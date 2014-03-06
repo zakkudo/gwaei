@@ -588,7 +588,7 @@ lgw_vocabularylistview_add_new (LgwVocabularyListView *self)
     priv = self->priv;
     vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
     if (vocabulary_list_store == NULL) goto errored;
-    filename = lw_vocabulary_generate_filename ();
+    filename = lw_vocabulary_generate_new_filename ();
     if (filename == NULL) goto errored;
     vocabulary_word_store = lgw_vocabularywordstore_new (filename);
     if (vocabulary_word_store == NULL) goto errored;

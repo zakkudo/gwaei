@@ -61,6 +61,7 @@ GtkTreePath* lgw_vocabularyliststore_find_by_filename (LgwVocabularyListStore *s
 
 LgwVocabularyWordStore* lgw_vocabularyliststore_nth (LgwVocabularyListStore *self, gint position);
 
+
 G_END_DECLS
 
 #endif
