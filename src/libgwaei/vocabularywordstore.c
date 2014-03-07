@@ -237,6 +237,7 @@ lgw_vocabularywordstore_copy (LgwVocabularyWordStore *self)
 {
     //TODO
     g_assert_not_reached ();
+//    lw_vocabulary_generate_copied_filename (
     return NULL;
 }
 

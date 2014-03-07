@@ -63,6 +63,7 @@ void lw_vocabulary_save (LwVocabulary *self, LwProgressCallback cb);
 gint lw_vocabulary_length (LwVocabulary *self);
 
 gchar* lw_vocabulary_generate_new_filename (void);
+gchar* lw_vocabulary_generate_copied_filename (const gchar *FILENAME);
 gboolean lw_vocabulary_has_file (LwVocabulary *self);
 gboolean lw_vocabulary_filename_exists (const gchar *FILENAME);
 

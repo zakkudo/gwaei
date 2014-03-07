@@ -28,6 +28,7 @@
 #endif
 
 #include <stdlib.h>
+#include <ctype.h>
 
 #include <glib/gstdio.h>
 
@@ -1198,34 +1199,31 @@ errored:
 
 
 static gint
-_initialize_new_filename_suffix (const gchar *BASE_NEW_FILENAME)
+_initialize_new_filename_suffix (const gchar *PATTERN)
 {
     //Sanity checks
-    g_return_if_fail (BASE_NEW_FILENAME != NULL);
+    g_return_if_fail (PATTERN != NULL);
 
     //Declarations
     gchar **filenames = NULL;
-    gint length = 0;
-    gint i = 0;
     gint new_filename_index = 0;
 
     //Initializations
     new_filename_index = 0;
-
-    length = strlen(BASE_NEW_FILENAME);
     filenames = lw_vocabulary_get_filenames ();
     if (filenames == NULL) goto errored;
 
-    for (i = 0; filenames[i] != NULL; i++)
     {
-      const gchar* FILENAME = filenames[i];
-      if (strncmp(FILENAME, BASE_NEW_FILENAME, length) == 0)
+      gint i = 0;
+      for (i = 0; filenames[i] != NULL; i++)
       {
-        const gchar* SUFFIX = FILENAME + length;
-        gchar* endptr = NULL;
-        gint index = (gint) strtol(SUFFIX, &endptr, 10);
-        if (endptr != NULL && *endptr == '\0' && index > new_filename_index) {
-          new_filename_index = index;
+        gchar* f = filenames[i];
+        gint number = -1;
+        gint matches = sscanf(f, PATTERN, &number);
+
+        if (matches > 0 && number > 0 && number > new_filename_index)
+        {
+          new_filename_index = number;
         }
       }
     }
@@ -1245,16 +1243,16 @@ lw_vocabulary_generate_new_filename ()
 {
     //Declarations
     gchar *filename = NULL;
-    const gchar *BASE_NEW_FILENAME = gettext("New List %d");
+    const gchar *PATTERN = gettext("New List %d");
     gint index = -1;
 
     //Initializations
-    index = _initialize_new_filename_suffix (BASE_NEW_FILENAME);
+    index = _initialize_new_filename_suffix (PATTERN);
 
     do {
       if (filename != NULL) g_free (filename); filename = NULL;
-      filename = g_strdup_printf (BASE_NEW_FILENAME, index);
-       index++;
+      filename = g_strdup_printf (PATTERN, index);
+      index++;
     } while (lw_vocabulary_filename_exists (filename));
 
     return filename;
@@ -1262,37 +1260,70 @@ lw_vocabulary_generate_new_filename ()
 
 
 static gint
-_initialize_copied_filename_suffix (const gchar *COPIED_FILENAME_SUFFIX,
-                                    const gchar *FILENAME)
+_initialize_copied_filename_suffix ()
 {
-    //Sanity checks
-    g_return_if_fail (COPIED_FILENAME_SUFFIX != NULL);
-    g_return_if_fail (FILENAME != NULL);
-
     //Declarations
     gchar **filenames = NULL;
     gint length = 0;
     gint i = 0;
-    gint copied_filename_index = 1;
+    gint copied_filename_index = 0;
 
     //Initializations
-    copied_filename_index = 0;
-    length = strlen(FILENAME);
     filenames = lw_vocabulary_get_filenames ();
     if (filenames == NULL) goto errored;
 
     for (i = 0; filenames[i] != NULL; i++)
     {
-      const gchar* FILENAME = filenames[i];
-      gchar *position = g_strrstr (FILENAME, COPIED_FILENAME_SUFFIX); 
-      if (position != NULL)
+      gchar *f = filenames[i];
+      gint f_length = strlen(f);
+      gint *numbers = g_new0 (gint, f_length + 1);
+
+      //Find the numbers in the filename
       {
-        const gchar* SUFFIX = FILENAME + length;
-        gchar* endptr = NULL;
-        gint index = (gint) strtol(SUFFIX, &endptr, 10);
-        if (endptr != NULL && *endptr == '\0' && index > copied_filename_index)
+        gint j = 0;
+        gchar *c = NULL;
+        gchar *endptr = NULL;
+        gint n = -1;
+        for (c = f; *c != '\0'; c++)
         {
-          copied_filename_index = index;
+          while (c != '\0' && !isdigit(c)) c++;
+          n = (gint) strtol (c, &endptr, 10);
+          if (c != endptr)
+          {
+            if (n > 0)
+            {
+              numbers[j] = n;
+            }
+            j++;
+          }
+          if (endptr == '\0') endptr--;
+          c = endptr;
+        }
+      }
+
+      //Now use the numbers to do pattern matching
+      {
+        gint j = 0;
+        gchar *prefix = NULL;
+        gint n = -1;
+        const gchar *PATTERN = NULL;
+        gint matches = -1;
+        for (j = 0; numbers[j] > 0; j++)
+        {
+          n = numbers[j];
+          PATTERN = ngettext("%s Copy", "%s Copy %d", n);
+          matches = sscanf(f, PATTERN, &prefix, &n);
+
+          if (matches > 0)
+          {
+            if (matches > 1 && n > copied_filename_index)
+            {
+              copied_filename_index = n;
+            }
+            free(prefix); prefix = NULL;
+          }
+
+          if (prefix != NULL) free(prefix); prefix = NULL;
         }
       }
     }
@@ -1309,8 +1340,7 @@ errored:
 
 
 gchar*
-lw_vocabulary_generate_copied_filename (const gchar *COPIED_FILENAME_SUFFIX,
-                                        const gchar *FILENAME)
+lw_vocabulary_generate_copied_filename (const gchar *FILENAME)
 {
 
     //Declarations
@@ -1318,11 +1348,12 @@ lw_vocabulary_generate_copied_filename (const gchar *COPIED_FILENAME_SUFFIX,
     gint index = -1;
 
     //Initializations
-    index = _initialize_copied_filename_suffix (COPIED_FILENAME_SUFFIX, FILENAME);
+    index = _initialize_copied_filename_suffix ();
 
     do {
       if (filename != NULL) g_free (filename); filename = NULL;
-      filename = g_strdup_printf ("%s%s%d", COPIED_FILENAME_SUFFIX, index);
+      const gchar *TEXT = ngettext("%s Copy", "%s Copy %d", index);
+      filename = g_strdup_printf (TEXT, FILENAME, index);
       index++;
     } while (lw_vocabulary_filename_exists (filename));
 
