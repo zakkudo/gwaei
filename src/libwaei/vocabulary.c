@@ -28,7 +28,6 @@
 #endif
 
 #include <stdlib.h>
-#include <ctype.h>
 
 #include <glib/gstdio.h>
 
@@ -39,6 +38,8 @@
 
 static LwVocabularyClass *_klass = NULL;
 static LwVocabularyClassPrivate *_klasspriv = NULL;
+#define SINGLE_COPY_PATTERN "%s Copy"
+#define PLURAL_COPY_PATTERN "%s Copy %d"
 
 G_DEFINE_TYPE (LwVocabulary, lw_vocabulary, G_TYPE_OBJECT)
 
@@ -92,9 +93,6 @@ errored:
 LwVocabulary* 
 lw_vocabulary_new (const gchar *FILENAME)
 {
-    //Sanity checks
-    g_return_val_if_fail (FILENAME != NULL, NULL);
-    
     LwVocabulary *vocabulary = NULL;
 
     //Initializations
@@ -323,29 +321,17 @@ lw_vocabulary_clear (LwVocabulary *self)
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
-    gint *indices = NULL;
     GList *removed = NULL;
     gint length = 0;
 
     //Initializations
     priv = self->priv;
     length = lw_vocabulary_length (self);
-    indices = g_new0 (gint, length + 1);
 
-    {
-      gint i = 0;
-      for (i = 0; i < length; i++)
-      {
-        indices[i] = i;
-      }
-      indices[i] = -1;
-    }
-
-    removed = lw_vocabulary_remove_all (self, indices);
+    removed = lw_vocabulary_remove_all (self, NULL);
 
 errored:
 
-    if (indices != NULL) g_free (indices); indices = NULL;
     if (removed != NULL) g_list_free_full (removed, (GDestroyNotify) lw_word_free);
 }
 
@@ -937,7 +923,6 @@ _find_duplicates (LwVocabulary *self,
 
     //Initializations
     length = g_list_length (wordlist);
-printf("BREAK0 _find_duplicates %d %d\n", position, length);
     if (position < 0) position = lw_vocabulary_length (self);
     indices = g_new0 (gint, length + 1);
     if (indices == NULL) goto errored;
@@ -985,8 +970,6 @@ lw_vocabulary_insert_all (LwVocabulary *self,
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
     if (wordlist == NULL) return;
-
-    printf("BREAK0 lw_vocabulary_insert_all %d %d\n", position, g_list_length (wordlist));
 
     //Declarations
     gint number_inserted = 0;
@@ -1036,7 +1019,6 @@ _sanitize_indices (LwVocabulary *self,
                    gint         *indices)
 {
     g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
-    if (indices == NULL) return NULL;
 
     //Declarations
     gint size = 0;
@@ -1045,8 +1027,19 @@ _sanitize_indices (LwVocabulary *self,
     //Initializations
     length = lw_vocabulary_length (self);
 
-    //Copy
+    if (indices == NULL) //New
     {
+      indices = g_new0 (gint, length + 1);
+      {
+        gint i = 0;
+        for (i = 0; i < length; i++)
+        {
+          indices[i] = i;
+        }
+        indices[i] = -1;
+      }
+    }
+    else { //Copy
       gint *copy = NULL;
       gint i = 0;
       while (indices[i] > -1 && indices[i] < length && i < length) i++;
@@ -1172,7 +1165,6 @@ lw_vocabulary_remove_all (LwVocabulary *self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
-    if (indices == NULL) return NULL;
 
     //Declarations
     GList *removed = NULL;
@@ -1199,17 +1191,54 @@ errored:
 
 
 static gint
-_initialize_new_filename_suffix (const gchar *PATTERN)
+_get_new_filename_number (const gchar *PATTERN,
+                          const gchar *FILENAME)
+{
+    //Declarations
+    gint *numbers = NULL;
+    gint number = -1;
+
+    //Initializations
+    numbers = lw_util_get_numbers (FILENAME);
+
+    {
+      gint i = 0;
+      gchar *prototype = NULL;
+      for (i = 0; numbers[i] != 0 && number < 0; i++)
+      {
+        gint n = numbers[i];
+        prototype = g_strdup_printf (PATTERN, n);
+        if (prototype != NULL)
+        {
+          if (strcmp(prototype, FILENAME) == 0 && n > 0 && n > number)
+          {
+            number = n;
+          }
+          g_free (prototype); prototype = NULL;
+        }
+      }
+    }
+
+errored:
+
+    if (numbers != NULL) g_free (numbers); numbers = NULL;
+
+    return number;
+}
+
+
+static gint
+_initialize_new_filename_suffix_number (const gchar *PATTERN)
 {
     //Sanity checks
     g_return_if_fail (PATTERN != NULL);
 
     //Declarations
     gchar **filenames = NULL;
-    gint new_filename_index = 0;
+    gint number = 0;
 
     //Initializations
-    new_filename_index = 0;
+    number = 0;
     filenames = lw_vocabulary_get_filenames ();
     if (filenames == NULL) goto errored;
 
@@ -1218,12 +1247,10 @@ _initialize_new_filename_suffix (const gchar *PATTERN)
       for (i = 0; filenames[i] != NULL; i++)
       {
         gchar* f = filenames[i];
-        gint number = -1;
-        gint matches = sscanf(f, PATTERN, &number);
-
-        if (matches > 0 && number > 0 && number > new_filename_index)
+        gint n = _get_new_filename_number (PATTERN, f);
+        if (n > 0 && n > number)
         {
-          new_filename_index = number;
+          number = n;
         }
       }
     }
@@ -1232,9 +1259,9 @@ errored:
 
     if (filenames != NULL) g_strfreev (filenames); filenames = NULL;
 
-    new_filename_index++;
+    number++;
 
-    return new_filename_index;
+    return number;
 }
 
 
@@ -1243,119 +1270,197 @@ lw_vocabulary_generate_new_filename ()
 {
     //Declarations
     gchar *filename = NULL;
-    const gchar *PATTERN = gettext("New List %d");
-    gint index = -1;
+    const gchar *PATTERN = NULL;
+    gint number = -1;
 
     //Initializations
-    index = _initialize_new_filename_suffix (PATTERN);
+    PATTERN = gettext("New List %d");
+    number = _initialize_new_filename_suffix_number (PATTERN);
 
     do {
       if (filename != NULL) g_free (filename); filename = NULL;
-      filename = g_strdup_printf (PATTERN, index);
-      index++;
+      filename = g_strdup_printf (PATTERN, number);
+      number++;
     } while (lw_vocabulary_filename_exists (filename));
 
     return filename;
 }
 
 
-static gint
-_initialize_copied_filename_suffix ()
+static gchar*
+_get_copied_filename_base (const gchar *FILENAME,
+                           const gchar *PATTERN)
 {
+    //Sanity checks
+    if (FILENAME == NULL) return NULL;
+    if (PATTERN == NULL) return NULL;
+
     //Declarations
-    gchar **filenames = NULL;
-    gint length = 0;
-    gint i = 0;
-    gint copied_filename_index = 0;
+    gchar *pattern = NULL;
+    GRegex *regex = NULL;
+    gchar *base = NULL;
+    GMatchInfo *match_info = NULL;
 
     //Initializations
-    filenames = lw_vocabulary_get_filenames ();
-    if (filenames == NULL) goto errored;
+    pattern = lw_util_convert_printf_pattern_to_regex_pattern (PATTERN);
+    printf("BREAK _get_copied_filename_base %s\n", pattern);
+    if (pattern == NULL) goto errored;
+    regex = g_regex_new (pattern, 0, 0, NULL);
+    if (regex == NULL) goto errored;
+    base = g_strdup (FILENAME);
+    if (base == NULL) goto errored;
 
-    for (i = 0; filenames[i] != NULL; i++)
+    g_regex_match (regex, FILENAME, 0, &match_info);
+
+    while (g_match_info_matches (match_info))
     {
-      gchar *f = filenames[i];
-      gint f_length = strlen(f);
-      gint *numbers = g_new0 (gint, f_length + 1);
-
-      //Find the numbers in the filename
+      gchar *b = g_match_info_fetch_named (match_info, "text");
+      if (b != NULL)
       {
-        gint j = 0;
-        gchar *c = NULL;
-        gchar *endptr = NULL;
-        gint n = -1;
-        for (c = f; *c != '\0'; c++)
-        {
-          while (c != '\0' && !isdigit(c)) c++;
-          n = (gint) strtol (c, &endptr, 10);
-          if (c != endptr)
-          {
-            if (n > 0)
-            {
-              numbers[j] = n;
-            }
-            j++;
-          }
-          if (endptr == '\0') endptr--;
-          c = endptr;
-        }
+        printf("BREAK _get_copied_filename_base match: %s\n", b);
+        if (base != NULL) g_free (base);
+        base = b;
+        b = NULL;
       }
+      g_match_info_next (match_info, NULL);
+    }
 
-      //Now use the numbers to do pattern matching
+errored:
+
+    if (pattern != NULL) g_free (pattern); pattern = NULL;
+    if (match_info != NULL) g_match_info_free (match_info); match_info = NULL;
+    if (regex != NULL) g_regex_unref (regex); regex = NULL;
+
+    return base;
+}
+
+
+static gint
+_get_copied_filename_number (const gchar  *FILENAME,
+                             gchar       **filename_base_out)
+{
+    //Sanity checks
+    if (FILENAME == NULL) return 1;
+
+    //Declarations
+    gint *numbers = NULL;
+    gint number = 1;
+
+    //Initializations
+    numbers = lw_util_get_numbers (FILENAME);
+    if (numbers == NULL) goto errored;
+    if (filename_base_out != NULL) *filename_base_out = g_strdup (FILENAME);
+
+    //Now use the numbers to do pattern matching
+    {
+      gint i = 0;
+      for (i = 0; numbers[i] > 0; i++)
       {
-        gint j = 0;
-        gchar *prefix = NULL;
-        gint n = -1;
-        const gchar *PATTERN = NULL;
-        gint matches = -1;
-        for (j = 0; numbers[j] > 0; j++)
+        gint n = numbers[i];
+        const gchar *PATTERN = ngettext(SINGLE_COPY_PATTERN, PLURAL_COPY_PATTERN, n);
+        gchar *filename_base = _get_copied_filename_base (FILENAME, PATTERN);
+        if (filename_base != NULL)
         {
-          n = numbers[j];
-          PATTERN = ngettext("%s Copy", "%s Copy %d", n);
-          matches = sscanf(f, PATTERN, &prefix, &n);
-
-          if (matches > 0)
+          gchar *prototype = g_strdup_printf (PATTERN, filename_base, n);
+          if (prototype != NULL)
           {
-            if (matches > 1 && n > copied_filename_index)
+            if (strcmp(prototype, FILENAME) == 0 && n > 0 && n > number)
             {
-              copied_filename_index = n;
+              number = n;
+              if (filename_base_out != NULL)
+              {
+        printf("BREAK _get_copied_filename_number %s %d %s %s\n", filename_base, n, prototype, FILENAME);
+                g_free (*filename_base_out);
+                *filename_base_out = filename_base;
+                filename_base = NULL;
+              }
             }
-            free(prefix); prefix = NULL;
+            g_free (prototype); prototype = NULL;
           }
-
-          if (prefix != NULL) free(prefix); prefix = NULL;
+          g_free (filename_base); filename_base = NULL;
         }
       }
     }
 
-    copied_filename_index++;
+errored:
+
+    if (numbers != NULL) g_free (numbers); numbers = NULL;
+
+    return number;
+}
+
+
+static gint
+_initialize_copied_filename_suffix (const gchar  *FILENAME,
+                                    gchar       **filename_base_out)
+{
+    //Sanity checks
+    if (FILENAME == NULL) return 1;
+
+    //Declarations
+    gchar **filenames = NULL;
+    gint length = 0;
+    gint number = 0;
+    gchar *filename_base = NULL;
+
+    //Initializations
+    filenames = lw_vocabulary_get_filenames ();
+    if (filenames == NULL) goto errored;
+    number = _get_copied_filename_number (FILENAME, &filename_base);
+    if (filename_base_out != NULL) *filename_base_out = g_strdup (filename_base);
+
+    {
+      gint i = 0;
+      for (i = 0; filenames[i] != NULL; i++)
+      {
+        gchar *f = filenames[i];
+        gchar *other_filename_base = NULL;
+        gint n = _get_copied_filename_number (f, &other_filename_base);
+
+        if (n > 0 && n > number && strcmp(filename_base, other_filename_base) == 0)
+        {
+          number = n;
+        }
+
+        g_free (other_filename_base); other_filename_base = NULL;
+      }
+    }
+
+    number++;
 
 errored:
 
     if (filenames != NULL) g_strfreev (filenames); filenames = NULL;
 
 
-    return copied_filename_index;
+    return number;
 }
 
 
 gchar*
 lw_vocabulary_generate_copied_filename (const gchar *FILENAME)
 {
+    //Sanity checks
+    if (FILENAME == NULL) return NULL;
 
     //Declarations
     gchar *filename = NULL;
-    gint index = -1;
+    gint number = -1;
+    gchar *filename_base = NULL;
 
     //Initializations
-    index = _initialize_copied_filename_suffix ();
+    number = _initialize_copied_filename_suffix (FILENAME, &filename_base);
 
     do {
       if (filename != NULL) g_free (filename); filename = NULL;
-      const gchar *TEXT = ngettext("%s Copy", "%s Copy %d", index);
-      filename = g_strdup_printf (TEXT, FILENAME, index);
-      index++;
+      const gchar *TEXT = ngettext(SINGLE_COPY_PATTERN, PLURAL_COPY_PATTERN, number); 
+      filename = g_strdup_printf (TEXT, filename_base, number);
+      number++;
     } while (lw_vocabulary_filename_exists (filename));
+
+errored:
+
+    if (filename_base != NULL) g_free (filename_base); filename_base = NULL;
 
     return filename;
 }
@@ -1434,53 +1539,110 @@ errored:
 }
 
 
-void
+gchar* 
 lw_vocabulary_load_from_string (LwVocabulary       *self,
                                 const gchar        *TEXT,
                                 LwProgressCallback  cb)
 {
     //Sanity checks
     g_return_if_fail (LW_VOCABULARY (self));
-    if (TEXT == NULL) return;
+    if (TEXT == NULL) return NULL;
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
     gchar *contents = NULL;
     gsize length = 0;
     GList *words = NULL;
+    gchar *filename_hint = NULL;
+    gchar *end = NULL;
 
     //Initializations
     priv = self->priv;
-    contents = g_strdup (TEXT);
+    if (*TEXT == '#')
+      end = strchr(TEXT + 1, '#');
+    else
+      end = strchr(TEXT, '#');
+    if (end == NULL)
+      contents = g_strdup (TEXT);
+    else
+      contents = g_strndup (TEXT, end - TEXT);
     if (contents == NULL || *contents == '\0') goto errored;
 
     length = lw_util_replace_linebreaks_with_nullcharacter (contents);
     if (length == 0) goto errored;
 
     {
-      gchar *c = contents;
-      while (c != NULL && c < contents + length) 
+      gchar *c = NULL;
+      for (c = contents; c != NULL && c < contents + length; c += strlen(c) + 1) 
       {
-        LwWord *word = lw_word_new_from_string (c);
-        if (word != NULL)
+        gboolean is_filename_hint = (*c == '#' && *(c + 1) != '\0');
+        gboolean can_set_filename_hint = (filename_hint == NULL && words == NULL);
+
+        if (is_filename_hint && !can_set_filename_hint) break;
+
+        if (is_filename_hint)
         {
-          words = g_list_prepend (words, word);
+printf("lw_vocabulary_load_from_string creating filename from %s\n", c);
+          filename_hint = g_strdup (c + 1);
         }
-        c += strlen(c) + 1;
+        else
+        {
+printf("lw_vocabulary_load_from_string creating word from %s\n", c);
+          LwWord *word = lw_word_new_from_string (c);
+          if (word != NULL)
+          {
+            words = g_list_prepend (words, word);
+          }
+        }
       }
       words = g_list_reverse (words);
     }
 
     if (words == NULL) goto errored;
 
-    lw_vocabulary_insert_all (self, -1, words);
+
+    if (filename_hint != NULL && priv->config.filename == NULL)
+    {
+      if (lw_vocabulary_filename_exists (filename_hint))
+      {
+        gchar *filename = lw_vocabulary_generate_copied_filename (filename_hint);
+        g_free (filename_hint); filename_hint = filename;
+      }
+      lw_vocabulary_set_filename (self, filename_hint);
+      lw_vocabulary_insert_all (self, -1, words);
+      lw_vocabulary_save (self, NULL);
+    }
+    else if (filename_hint == NULL && priv->config.filename == NULL)
+    {
+      gchar *filename = lw_vocabulary_generate_new_filename ();
+      g_free (filename_hint); filename_hint = filename;
+      lw_vocabulary_set_filename (self, filename_hint);
+      lw_vocabulary_insert_all (self, -1, words);
+      lw_vocabulary_save (self, NULL);
+    }
+    else
+    {
+      lw_vocabulary_insert_all (self, -1, words);
+    }
+
 
 errored:
 
+    if (filename_hint != NULL) g_free (filename_hint); filename_hint = NULL;
     if (words != NULL) g_list_free (words); words = NULL;
     if (contents != NULL) g_free (contents); contents = NULL;
-}
 
+    if (end == NULL)
+    {
+      TEXT = NULL;
+    }
+    else
+    {
+      TEXT += length;
+    }
+
+    return (gchar*) TEXT;
+}
 
 
 gchar*
@@ -1499,11 +1661,17 @@ lw_vocabulary_to_string (LwVocabulary       *self,
     //Initializations
     priv = self->priv;
     length = lw_vocabulary_length (self);
-    line = g_new0 (gchar*, length + 1);
+    line = g_new0 (gchar*, length + 2);
 
     {
       GList *link = NULL;
       gint i = 0;
+
+      if (priv->config.filename != NULL)
+      {
+        line[i++] = g_strdup_printf ("#%s", priv->config.filename);
+      }
+
       for (link = priv->data.list; link != NULL; link = link->next)
       {
         LwWord *word = LW_WORD (link->data);
@@ -1518,7 +1686,7 @@ lw_vocabulary_to_string (LwVocabulary       *self,
           }
         }
       }
-      line[i] = NULL;
+      line[i++] = NULL;
     }
     
     text = g_strjoinv ("\n", line);

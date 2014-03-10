@@ -80,6 +80,9 @@ gchar* lw_util_get_environment_data_folder (void);
 gboolean lw_util_is_regex_pattern (const gchar *TEXT, GError **error);
 
 gint lw_util_replace_linebreaks_with_nullcharacter (gchar *TEXT);
+gchar* lw_util_convert_printf_pattern_to_regex_pattern (const gchar *PATTERN);
+gint* lw_util_get_numbers (const gchar *TEXT);
+
 
 G_END_DECLS
 

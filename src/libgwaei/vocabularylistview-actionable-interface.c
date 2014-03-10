@@ -85,6 +85,27 @@ _rebuild_actiongroup (LgwActionable *actionable)
       if (has_selection) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
       else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
     }
+
+    {
+      static GActionEntry entries[] = {
+        { "global-delete", lgw_vocabularylistview_delete_selected_activated_cb, NULL, NULL, NULL },
+        { "global-copy", lgw_vocabularylistview_copy_selected_activated_cb, NULL, NULL, NULL },
+        { "global-cut", lgw_vocabularylistview_cut_selected_activated_cb, NULL, NULL, NULL }
+      };
+      gint length = G_N_ELEMENTS (entries);
+      if (has_selection && has_focus) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+      else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
+    }
+
+    {
+      static GActionEntry entries[] = {
+        { "global-paste", lgw_vocabularylistview_paste_activated_cb, NULL, NULL, NULL }
+      };
+      gint length = G_N_ELEMENTS (entries);
+      if (has_focus) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+      else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
+    }
+
 }
 
 

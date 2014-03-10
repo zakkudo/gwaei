@@ -785,9 +785,8 @@ _remove_all (LgwVocabularyListStore *self,
           if (vocabulary != NULL && vocabulary->row.current_index == index)
           {
             _remove_from_index (self, vocabulary_word_store);
+            g_object_unref (vocabulary_word_store);
           }
-
-          g_object_unref (vocabulary_word_store);
         }
       }
       removed = g_list_reverse (removed);

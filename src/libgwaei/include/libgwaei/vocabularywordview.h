@@ -45,7 +45,12 @@ GList* lgw_vocabularywordview_get_selected_words (LgwVocabularyWordView *self);
 GList* lgw_treeview_get_selected_words (GtkTreeView *self);
 void lgw_vocabularywordview_select_words (LgwVocabularyWordView *self, GList *words);
 
+void lgw_vocabularywordview_cut_selected (LgwVocabularyWordView *self);
+void lgw_vocabularywordview_copy_selected (LgwVocabularyWordView *self);
+void lgw_vocabularywordview_paste (LgwVocabularyWordView *self);
+
+
 G_END_DECLS
 
-
 #endif
+

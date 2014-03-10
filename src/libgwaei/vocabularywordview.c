@@ -315,7 +315,7 @@ lgw_vocabularywordview_constructed (GObject *object)
               gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (item), "list-remove");
             }
             gtk_toolbar_insert (priv->ui.toolbar, item, -1);
-            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.remove-selected-words");
+            gtk_actionable_set_detailed_action_name (GTK_ACTIONABLE (item), "win.delete-selected-words");
             gtk_widget_show (GTK_WIDGET (item));
           }
         }
@@ -720,10 +720,8 @@ void
 lgw_vocabularywordview_select_words (LgwVocabularyWordView *self,
                                      GList                 *words)
 {
-printf("BREAK0 lgw_vocabularywordview_select_words\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
-printf("BREAK1 lgw_vocabularywordview_select_words\n");
 
     //Declarations
     LgwVocabularyWordViewPrivate *priv = NULL;
@@ -733,26 +731,20 @@ printf("BREAK1 lgw_vocabularywordview_select_words\n");
     priv = self->priv;
     vocabulary_word_store = priv->data.vocabulary_word_store;
     if (vocabulary_word_store == NULL) goto errored;
-printf("BREAK2 lgw_vocabularywordview_select_words\n");
     if (priv->data.tree_selection == NULL) goto errored;
-printf("BREAK3 lgw_vocabularywordview_select_words\n");
 
     gtk_tree_selection_unselect_all (priv->data.tree_selection);
-printf("BREAK4 lgw_vocabularywordview_select_words\n");
 
     {
       GList *link = NULL;
       for (link = words; link != NULL; link = link->next)
       {
-printf("BREAK5 lgw_vocabularywordview_select_words\n");
         LwWord *word = LW_WORD (link->data);
         if (word != NULL)
         {
-printf("BREAK6 lgw_vocabularywordview_select_words\n");
           GtkTreePath *tree_path = lgw_vocabularywordstore_find_by_word (vocabulary_word_store, word);
           if (tree_path != NULL)
           {
-printf("BREAK7 lgw_vocabularywordview_select_words\n");
             gtk_tree_selection_select_path (priv->data.tree_selection, tree_path);
             gtk_tree_path_free (tree_path); tree_path = NULL;
           }
@@ -766,38 +758,114 @@ errored:
 }
 
 
-GtkTreePath*
-lgw_vocabularywordstore_find_by_word (LgwVocabularyWordStore *self,
-                                      LwWord                 *word)
+void
+lgw_vocabularywordview_paste (LgwVocabularyWordView *self)
 {
-printf("BREAK0 lgw_vocabularywordstore_find_by_word\n");
+printf("BREAK0 lgw_vocabularywordview_paste\n");
     //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (self));
-    if (word == NULL) return NULL;
-printf("BREAK1 lgw_vocabularywordstore_find_by_word\n");
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
 
     //Declarations
+    LgwVocabularyWordViewPrivate *priv = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LwVocabulary *vocabulary = NULL;
-    gint position = 0;
-    gint length = 0;
+    GtkClipboard *clipboard = NULL;
+    gchar *text = NULL;
+    LwVocabulary *reader = NULL;
+    GList* words = NULL;
+    gint selection_count = -1;
     GtkTreePath *tree_path = NULL;
+    gint position = -1;
 
     //Initializations
-    vocabulary = LW_VOCABULARY (self);
+    priv = self->priv;
+    vocabulary_word_store = priv->data.vocabulary_word_store;
+    if (vocabulary_word_store == NULL) goto errored;
+printf("BREAK1 lgw_vocabularywordview_paste\n");
+    vocabulary = LW_VOCABULARY (vocabulary_word_store);
     if (vocabulary == NULL) goto errored;
-printf("BREAK2 lgw_vocabularywordstore_find_by_word\n");
-    position = word->row.current_index;
-    length = lw_vocabulary_length (vocabulary);
-    if (position < 0 || position >= length) goto errored;
-printf("BREAK3 lgw_vocabularywordstore_find_by_word\n");
-    if (lw_vocabulary_nth (vocabulary, word->row.current_index) != word) goto errored;
-printf("BREAK4 lgw_vocabularywordstore_find_by_word\n");
+printf("BREAK2 lgw_vocabularywordview_paste\n");
+    clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
+    if (clipboard == NULL) goto errored;
+printf("BREAK3 lgw_vocabularywordview_paste\n");
+    reader = lw_vocabulary_new (NULL);
+    if (reader == NULL) goto errored;
+printf("BREAK4 lgw_vocabularywordview_paste\n");
+    text = gtk_clipboard_wait_for_text (clipboard);
+    if (text == NULL) goto errored;
 
-    tree_path = gtk_tree_path_new_from_indices (position, -1);
+    lw_vocabulary_load_from_string (reader, text, NULL);
+
+printf("BREAK5 lgw_vocabularywordview_paste length: %d\n", lw_vocabulary_length (reader));
+    words = lw_vocabulary_remove_all (reader, NULL);
+    if (words == NULL) goto errored;
+printf("BREAK6 lgw_vocabularywordview_paste\n");
+    selection_count = gtk_tree_selection_count_selected_rows (priv->data.tree_selection);
+    gtk_tree_view_get_cursor (priv->ui.tree_view, &tree_path, NULL);
+    if (tree_path != NULL && selection_count > 0) position = gtk_tree_path_get_indices (tree_path)[0] + 1;
+printf("BREAK0 lgw_vocabularywordview_paste %d\n", position);
+
+    lw_vocabulary_insert_all (vocabulary, position, words);
+    lgw_vocabularywordview_select_words (self, words);
 
 errored:
 
-   return tree_path; 
+    g_free (text); text = NULL;
+    if (reader != NULL) g_object_unref (reader); reader = NULL;
+    if (words != NULL) g_list_free (words);
+    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
 }
 
+
+void
+lgw_vocabularywordview_cut_selected (LgwVocabularyWordView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    lgw_vocabularywordview_copy_selected (self);
+    lgw_vocabularywordview_delete_selected (self);
+}
+
+
+void
+lgw_vocabularywordview_copy_selected (LgwVocabularyWordView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    GtkClipboard *clipboard = NULL;
+    LwVocabulary *vocabulary = NULL;
+    LwVocabulary *writer = NULL;
+    GList* words = NULL;
+    GList *copy = NULL;
+    gchar *text = NULL;
+
+    //Initializations
+    clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
+    if (clipboard == NULL) goto errored;
+    writer = lw_vocabulary_new (NULL);
+    if (writer == NULL) goto errored;
+    words = lgw_vocabularywordview_get_selected_words (self);
+    if (words == NULL) goto errored;
+    copy = g_list_copy_deep (words, (GCopyFunc) lw_word_copy, NULL);
+    if (copy == NULL) goto errored;
+
+    lw_vocabulary_insert_all (writer, -1, copy);
+
+    text = lw_vocabulary_to_string (writer, NULL);
+    if (text == NULL) goto errored;
+
+    gtk_clipboard_set_text (clipboard, text, -1);
+
+errored:
+
+    if (words != NULL) g_list_free (words); words = NULL;
+    if (copy != NULL) g_list_free (copy); copy = NULL;
+    if (writer != NULL) g_object_unref (writer); writer = NULL;
+    g_free (text); text = NULL;
+
+    return;
+}
 

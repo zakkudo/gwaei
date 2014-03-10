@@ -519,7 +519,6 @@ lgw_treeview_get_selected_wordstores (GtkTreeView *self)
     tree_selection = gtk_tree_view_get_selection (self);
     if (tree_selection == NULL) goto errored;
     selected_rows = gtk_tree_selection_get_selected_rows (tree_selection, &tree_model);
-    printf("BREAK gtk_tree_selection_get_selected_rows %d\n", g_list_length (selected_rows));
     if (selected_rows == NULL) goto errored;
 
     {
@@ -529,7 +528,6 @@ lgw_treeview_get_selected_wordstores (GtkTreeView *self)
         GtkTreePath *tree_path = link->data;
         LgwVocabularyWordStore *vocabulary_word_store = lgw_vocabularyliststore_get_wordstore (vocabulary_list_store, tree_path);
         selected_wordstores = g_list_prepend (selected_wordstores, vocabulary_word_store);
-        printf("BREAK lgw_vocabularyliststore_get_wordstore %d\n", g_list_length (selected_wordstores));
       }
     }
 
@@ -660,6 +658,7 @@ lgw_vocabularylistview_delete_selected (LgwVocabularyListView *self)
     }
 
     wordstorelist = lgw_vocabularyliststore_delete_all (vocabulary_list_store, positions);
+    printf("BREAK refcount %d\n", G_OBJECT (wordstorelist->data)->ref_count);
 
 errored:
 
@@ -710,4 +709,131 @@ errored:
     return;
 }
 
+
+void
+lgw_vocabularylistview_paste (LgwVocabularyListView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+    GtkClipboard *clipboard = NULL;
+    gchar *text = NULL;
+
+    GList* wordstores = NULL;
+    gint selection_count = -1;
+    GtkTreePath *tree_path = NULL;
+    gint position = -1;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary_list_store = priv->data.vocabulary_list_store;
+    if (vocabulary_list_store == NULL) goto errored;
+    clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
+    if (clipboard == NULL) goto errored;
+    text = gtk_clipboard_wait_for_text (clipboard);
+    if (text == NULL) goto errored;
+    selection_count = gtk_tree_selection_count_selected_rows (priv->data.tree_selection);
+    gtk_tree_view_get_cursor (priv->ui.tree_view, &tree_path, NULL);
+    if (tree_path != NULL && selection_count > 0) position = gtk_tree_path_get_indices (tree_path)[0] + 1;
+
+    {
+      gchar *c = text;
+      while (c != NULL)
+      {
+        LgwVocabularyWordStore *vocabulary_word_store = lgw_vocabularywordstore_new (NULL);
+        if (vocabulary_word_store != NULL)
+        {
+          LwVocabulary *vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    printf("BREAK refcount %d\n", G_OBJECT (vocabulary)->ref_count);
+          c = lw_vocabulary_load_from_string (vocabulary, c, NULL);
+          wordstores = g_list_prepend (wordstores, vocabulary_word_store);
+        }
+      }
+      wordstores = g_list_reverse (wordstores);
+    }
+
+    if (wordstores == NULL) goto errored;
+
+    lgw_vocabularyliststore_insert_all (vocabulary_list_store, position, wordstores);
+    lgw_vocabularylistview_select_wordstores (self, wordstores);
+
+errored:
+
+    g_free (text); text = NULL;
+    printf("BREAK refcount %d\n", G_OBJECT (wordstores->data)->ref_count);
+    g_list_free (wordstores); wordstores = NULL;
+    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
+}
+
+
+void
+lgw_vocabularylistview_cut_selected (LgwVocabularyListView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    lgw_vocabularylistview_copy_selected (self);
+    lgw_vocabularylistview_delete_selected (self);
+}
+
+
+void
+lgw_vocabularylistview_copy_selected (LgwVocabularyListView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    GtkClipboard *clipboard = NULL;
+    LwVocabulary *vocabulary = NULL;
+    GList *wordstores = NULL;
+    gint length = -1;
+    gchar **array = NULL;
+    gchar *text = NULL;
+
+    //Initializations
+    priv = self->priv;
+    clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
+    if (clipboard == NULL) goto errored;
+    wordstores = lgw_vocabularylistview_get_selected_wordstores (self);
+    if (wordstores == NULL) goto errored;
+    length = g_list_length (wordstores);
+    if (length < 1) goto errored;
+    array = g_new0 (gchar*, length + 1);
+    if (array == NULL) goto errored;
+
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = wordstores; link != NULL; link = link->next)
+      {
+        LwVocabulary *vocabulary = LW_VOCABULARY (link->data);
+        if (vocabulary != NULL)
+        {
+          gchar *t = lw_vocabulary_to_string (vocabulary, NULL);
+          if (t != NULL)
+          {
+            array[i++] = t;
+          }
+        }
+      }
+      array[i++] = NULL;
+    }
+
+    text = g_strjoinv ("\n", array);
+    if (text == NULL) goto errored;
+
+    gtk_clipboard_set_text (clipboard, text, -1);
+
+errored:
+
+    if (array != NULL) g_strfreev (array); array = NULL;
+    g_free (text); text = NULL;
+
+    return;
+}
 

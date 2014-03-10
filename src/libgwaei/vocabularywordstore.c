@@ -53,7 +53,7 @@ LgwVocabularyWordStore*
 lgw_vocabularywordstore_new (const gchar *FILENAME)
 {
     //Declarations
-    LgwVocabularyWordStore *self = NULL;;
+    LgwVocabularyWordStore *self = NULL;
 
     //Initializations
     self = LGW_VOCABULARYWORDSTORE (g_object_new (LGW_TYPE_VOCABULARYWORDSTORE,
@@ -232,13 +232,37 @@ errored:
 }
 
 
-LgwVocabularyWordStore*
-lgw_vocabularywordstore_copy (LgwVocabularyWordStore *self)
+GtkTreePath*
+lgw_vocabularywordstore_find_by_word (LgwVocabularyWordStore *self,
+                                      LwWord                 *word)
 {
-    //TODO
-    g_assert_not_reached ();
-//    lw_vocabulary_generate_copied_filename (
-    return NULL;
-}
+printf("BREAK0 lgw_vocabularywordstore_find_by_word\n");
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (self));
+    if (word == NULL) return NULL;
+printf("BREAK1 lgw_vocabularywordstore_find_by_word\n");
 
+    //Declarations
+    LwVocabulary *vocabulary = NULL;
+    gint position = 0;
+    gint length = 0;
+    GtkTreePath *tree_path = NULL;
+
+    //Initializations
+    vocabulary = LW_VOCABULARY (self);
+    if (vocabulary == NULL) goto errored;
+printf("BREAK2 lgw_vocabularywordstore_find_by_word\n");
+    position = word->row.current_index;
+    length = lw_vocabulary_length (vocabulary);
+    if (position < 0 || position >= length) goto errored;
+printf("BREAK3 lgw_vocabularywordstore_find_by_word\n");
+    if (lw_vocabulary_nth (vocabulary, word->row.current_index) != word) goto errored;
+printf("BREAK4 lgw_vocabularywordstore_find_by_word\n");
+
+    tree_path = gtk_tree_path_new_from_indices (position, -1);
+
+errored:
+
+   return tree_path; 
+}
 

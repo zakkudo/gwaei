@@ -111,6 +111,60 @@ lgw_vocabularylistview_delete_selected_activated_cb (GSimpleAction *action,
 }
 
 
+void
+lgw_vocabularylistview_copy_selected_activated_cb (GSimpleAction *action,
+                                                   GVariant      *parameter,
+                                                   gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (data));
+
+    //Declarations
+    LgwVocabularyListView *self = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYLISTVIEW (data);
+
+    lgw_vocabularylistview_copy_selected (self);
+}
+
+
+void
+lgw_vocabularylistview_cut_selected_activated_cb (GSimpleAction *action,
+                                                  GVariant      *parameter,
+                                                  gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (data));
+
+    //Declarations
+    LgwVocabularyListView *self = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYLISTVIEW (data);
+
+    lgw_vocabularylistview_cut_selected (self);
+}
+
+
+void
+lgw_vocabularylistview_paste_activated_cb (GSimpleAction *action,
+                                           GVariant      *parameter,
+                                           gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (data));
+
+    //Declarations
+    LgwVocabularyListView *self = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYLISTVIEW (data);
+
+    lgw_vocabularylistview_paste (self);
+}
+
+
 gboolean
 lgw_vocabularylistview_focus_in_event_cb (LgwVocabularyListView *self,
                                           GdkEvent              *event,

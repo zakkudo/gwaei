@@ -29,6 +29,7 @@
 #endif
 
 #include <locale.h>
+#include <stdlib.h>
 
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
@@ -215,42 +216,60 @@ lw_word_new ()
 
 
 LwWord*
-lw_word_new_from_string (const gchar *text)
+lw_word_new_from_string (const gchar *TEXT)
 {
+    //Sanity checks
+    if (TEXT == NULL) return NULL;
+
     //Declarations
-    LwWord *word;
-    gchar *ptr;
-    gchar *endptr;
-    gchar **atoms;
-    gint i;
+    LwWord *word = NULL;
+    gchar **fields = NULL;
 
+    //Initializations
     word = g_new0 (LwWord, 1);
-    if (word != NULL)
+    if (word == NULL) goto errored;
+
+    fields = g_strsplit (TEXT, ";", TOTAL_LW_WORD_FIELDS);
+    if (fields == NULL) goto errored;
+
     {
-
-      atoms = g_strsplit (text, ";", TOTAL_LW_WORD_FIELDS);
-      if (atoms != NULL)
+      gint i = 0;
+      for (i = 0; fields[i] != NULL; i++)
       {
-        //Set up the strings
-        for (i = 0; atoms[i] != NULL && i < TOTAL_LW_WORD_FIELDS; i++)
+        if (fields[i] != NULL)
         {
-          word->fields[i] = g_strdup (g_strstrip(atoms[i]));
+          word->fields[i] = g_strdup (g_strstrip(fields[i]));
+          fields[i] = NULL;
         }
-        for (i = 0; i < TOTAL_LW_WORD_FIELDS; i++)
+        else
         {
-          if (word->fields[i] == NULL) word->fields[i] = g_strdup ("");
+          word->fields[i] = g_strdup("");
         }
-
-        //Set up the integers
-        ptr = word->fields[LW_WORD_FIELD_CORRECT_GUESSES];
-        word->correct_guesses = (gint) g_ascii_strtoll (ptr, &endptr, 10);
-        ptr = word->fields[LW_WORD_FIELD_INCORRECT_GUESSES];
-        word->incorrect_guesses =  (gint) g_ascii_strtoll (ptr, &endptr, 10);
-        ptr = word->fields[LW_WORD_FIELD_TIMESTAMP];
-        word->timestamp =  (guint32) g_ascii_strtoll (ptr, &endptr, 10);
       }
-      g_strfreev (atoms); atoms = NULL;
     }
+
+    //Set up the integers
+    const gchar *CORRECT_GUESSES = word->fields[LW_WORD_FIELD_CORRECT_GUESSES];
+    if (CORRECT_GUESSES != NULL)
+    {
+      word->correct_guesses = (gint) strtoll (CORRECT_GUESSES, NULL, 10);
+    }
+
+    const gchar *INCORRECT_GUESSES = word->fields[LW_WORD_FIELD_INCORRECT_GUESSES];
+    if (INCORRECT_GUESSES != NULL)
+    {
+      word->incorrect_guesses =  (gint) strtoll (INCORRECT_GUESSES, NULL, 10);
+    }
+
+    const gchar *TIMESTAMP = word->fields[LW_WORD_FIELD_TIMESTAMP];
+    if (TIMESTAMP != NULL)
+    {
+    word->timestamp =  (guint32) strtoll (TIMESTAMP, NULL, 10);
+    }
+
+errored:
+
+    if (fields != NULL) g_strfreev (fields); fields = NULL;
 
     return word;
 }
@@ -259,13 +278,18 @@ lw_word_new_from_string (const gchar *text)
 void
 lw_word_free (LwWord *word)
 {
-  gint i;
-  for (i = 0; i < TOTAL_LW_WORD_FIELDS; i++)
+  //Snaity checks
+  if (word == NULL) return;
+
   {
-    if (word->fields[i] != NULL)
+    gint i = 0;
+    for (i = 0; i < TOTAL_LW_WORD_FIELDS; i++)
     {
-      g_free (word->fields[i]);
-      word->fields[i] = NULL;
+      if (word->fields[i] != NULL)
+      {
+        g_free (word->fields[i]);
+        word->fields[i] = NULL;
+      }
     }
   }
 
@@ -279,14 +303,45 @@ lw_word_free (LwWord *word)
 gchar* 
 lw_word_to_string (LwWord *word)
 {
-    gchar* text;
-    text = lw_strjoinv (';', word->fields, TOTAL_LW_WORD_FIELDS);
+    //Sanity checks
+    if (word == NULL) return NULL;
+
+    //Delcarations
+    gchar* text = NULL;
+    gchar **fields = NULL;
+
+    //Initializations
+    fields = g_new0 (gchar*, TOTAL_LW_WORD_FIELDS + 1);
+    if (fields == NULL) goto errored;
+
+    {
+      gint i = 0;
+      gint j = 0;
+      for (i = 0; i < TOTAL_LW_WORD_FIELDS; i++)
+      {
+        if (word->fields[i] != NULL)
+        {
+          fields[j++] = g_uri_escape_string (word->fields[i], " ", TRUE);
+        }
+      }
+      fields[j++] = NULL;
+    }
+
+    text = g_strjoinv (";", fields);
+
+errored:
+
+    if (fields != NULL) g_strfreev (fields); fields = NULL;
+
     return text;
 }
 
 gboolean
 lw_word_has_changes (LwWord *word)
 {
+    //Sanity checks
+    g_return_val_if_fail (word != NULL, FALSE);
+
     return word->has_changes;
 }
 
@@ -294,11 +349,14 @@ lw_word_has_changes (LwWord *word)
 LwWord*
 lw_word_copy (LwWord *word)
 {
+    //Sanity checks
     if (word == NULL) return NULL;
 
+    //Declarations
     gchar *text = NULL;
     LwWord *copy = NULL;
 
+    //Initializations
     text = lw_word_to_string (word);
     if (text == NULL) goto errored;
     copy = lw_word_new_from_string (text);

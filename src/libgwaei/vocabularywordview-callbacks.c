@@ -81,7 +81,7 @@ lgw_vocabularywordview_add_new_activated_cb (GSimpleAction *action,
 }
 
 void
-lgw_vocabularywordview_remove_selected_activated_cb (GSimpleAction *action,
+lgw_vocabularywordview_delete_selected_activated_cb (GSimpleAction *action,
                                                      GVariant      *parameter,
                                                      gpointer       data)
 {
@@ -131,6 +131,60 @@ lgw_vocabularywordview_revert_activated_cb (GSimpleAction *action,
     self = LGW_VOCABULARYWORDVIEW (data);
 
     lgw_vocabularywordview_revert (self);
+}
+
+
+void
+lgw_vocabularywordview_copy_selected_activated_cb (GSimpleAction *action,
+                                                   GVariant      *parameter,
+                                                   gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (data));
+
+    //Declarations
+    LgwVocabularyWordView *self = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYWORDVIEW (data);
+
+    lgw_vocabularywordview_copy_selected (self);
+}
+
+
+void
+lgw_vocabularywordview_cut_selected_activated_cb (GSimpleAction *action,
+                                                  GVariant      *parameter,
+                                                  gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (data));
+
+    //Declarations
+    LgwVocabularyWordView *self = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYWORDVIEW (data);
+
+    lgw_vocabularywordview_cut_selected (self);
+}
+
+
+void
+lgw_vocabularywordview_paste_activated_cb (GSimpleAction *action,
+                                           GVariant      *parameter,
+                                           gpointer       data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (data));
+
+    //Declarations
+    LgwVocabularyWordView *self = NULL;
+
+    //Initializations
+    self = LGW_VOCABULARYWORDVIEW (data);
+
+    lgw_vocabularywordview_paste (self);
 }
 
 

@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <locale.h>
+#include <ctype.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -1657,4 +1658,100 @@ lw_util_replace_linebreaks_with_nullcharacter (gchar *TEXT)
     return length;
 }
 
+
+gint*
+lw_util_get_numbers (const gchar *TEXT)
+{
+    if (TEXT == NULL) return NULL;
+
+    //Declarations
+    gint length = -1;
+    gint *numbers = NULL;
+
+    //Initializations
+    length = strlen(TEXT);
+    numbers = g_new0 (gint, length + 1);
+
+    //Find the numbers in the filename
+    {
+      gint j = 0;
+      const gchar *c = TEXT;
+      gchar *endptr = NULL;
+      gint n = -1;
+
+      while (*c != '\0' && (c - TEXT) < length)
+      {
+        while (*c != '\0' && !isdigit(*c)) c++;
+
+        n = (gint) strtol (c, &endptr, 10);
+
+        if (c != endptr && n > 0)
+        {
+          numbers[j++] = n;
+          c = endptr;
+        }
+      }
+    }
+
+    return numbers;
+}
+
+
+//converts "%s Copy %d" to "(?P<text>.+) Copy (?P<number>[0-9]+)"
+//, accessable with (?P=number) or (?P=text>)
+gchar*
+lw_util_convert_printf_pattern_to_regex_pattern (const gchar *PATTERN)
+{
+    //Declarations
+    GRegex *number_pattern = NULL;
+    GRegex *string_pattern = NULL;
+    gchar *pattern = NULL;
+
+    //Initializations
+    number_pattern = g_regex_new ("%d", 0, 0, NULL);
+    if (number_pattern == NULL) goto errored;
+    string_pattern = g_regex_new ("%s", 0, 0, NULL);
+    if (string_pattern == NULL) goto errored;
+    pattern = g_strdup (PATTERN);
+    if (pattern == NULL) goto errored;
+
+    {
+      gchar *replaced = NULL;
+      replaced = g_regex_replace_literal (number_pattern, pattern, -1, 0, "(?P<number>[0-9]+)", 0, NULL);
+      if (replaced != NULL)
+      {
+        g_free (pattern);
+        pattern = replaced;
+        replaced = NULL;
+      }
+    }
+    {
+      gchar *replaced = NULL;
+      replaced = g_regex_replace_literal (string_pattern, pattern, -1, 0, "(?P<text>.+)", 0, NULL);
+      if (replaced != NULL)
+      {
+        g_free (pattern);
+        pattern = replaced;
+        replaced = NULL;
+      }
+    }
+
+    {
+      gchar *anchored = NULL;
+      anchored = g_strdup_printf ("^%s$", pattern);
+      if (anchored != NULL)
+      {
+        g_free (pattern);
+        pattern = anchored;
+        anchored = NULL;
+      }
+    }
+
+errored:
+
+    if (number_pattern != NULL) g_regex_unref (number_pattern); number_pattern = NULL;
+    if (string_pattern != NULL) g_regex_unref (string_pattern); string_pattern = NULL;
+
+    return pattern;
+}
 

@@ -79,10 +79,30 @@ _rebuild_actiongroup (LgwActionable *actionable)
 
     {
       static GActionEntry entries[] = {
-        { "remove-selected-words", lgw_vocabularywordview_remove_selected_activated_cb, NULL, NULL, NULL }
+        { "delete-selected-words", lgw_vocabularywordview_delete_selected_activated_cb, NULL, NULL, NULL }
       };
       gint length = G_N_ELEMENTS (entries);
       if (has_selection) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+      else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
+    }
+
+    {
+      static GActionEntry entries[] = {
+        { "global-delete", lgw_vocabularywordview_delete_selected_activated_cb, NULL, NULL, NULL },
+        { "global-copy", lgw_vocabularywordview_copy_selected_activated_cb, NULL, NULL, NULL },
+        { "global-cut", lgw_vocabularywordview_cut_selected_activated_cb, NULL, NULL, NULL }
+      };
+      gint length = G_N_ELEMENTS (entries);
+      if (has_selection && has_focus) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
+      else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
+    }
+
+    {
+      static GActionEntry entries[] = {
+        { "global-paste", lgw_vocabularywordview_paste_activated_cb, NULL, NULL, NULL }
+      };
+      gint length = G_N_ELEMENTS (entries);
+      if (has_focus) lgw_actiongroup_add_entries (priv->data.action_group, entries, length, NULL);
       else lgw_actiongroup_remove_entries (priv->data.action_group, entries, length, NULL);
     }
 

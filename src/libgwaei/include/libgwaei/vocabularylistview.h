@@ -46,6 +46,15 @@ void lgw_vocabularylistview_set_wordview (LgwVocabularyListView *self, LgwVocabu
 GList* lgw_treeview_get_selected_wordstores (GtkTreeView *self);
 void lgw_vocabularylistview_select_wordstores (LgwVocabularyListView *self, GList *wordstores);
 
+void lgw_vocabularylistview_paste (LgwVocabularyListView *self);
+void lgw_vocabularylistview_copy (LgwVocabularyListView *self);
+void lgw_vocabularylistview_cut (LgwVocabularyListView *self);
+
+void lgw_vocabularylistview_paste (LgwVocabularyListView *self);
+void lgw_vocabularylistview_cut_selected (LgwVocabularyListView *self);
+void lgw_vocabularylistview_copy_selected (LgwVocabularyListView *self);
+
+
 G_END_DECLS
 
 #endif
