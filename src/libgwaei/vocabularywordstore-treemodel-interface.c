@@ -278,10 +278,10 @@ _get_value (GtkTreeModel *tree_model,
     switch (column)
     {
       case LGW_VOCABULARYWORDSTORE_COLUMN_SAVED_POSITION: //G_TYPE_STRING
-        g_value_take_string (value, g_strdup_printf("%d", index + 1));
+        g_value_take_string (value, g_strdup_printf("%d", word->row.saved_index + 1));
         break;
       case LGW_VOCABULARYWORDSTORE_COLUMN_POSITION: //G_TYPE_STRING
-        g_value_take_string (value, g_strdup_printf("%d", index + 1));
+        g_value_take_string (value, g_strdup_printf("%d", word->row.current_index + 1));
         break;
       case LGW_VOCABULARYWORDSTORE_COLUMN_KANJI:  //G_TYPE_STRING
         g_value_set_string (value, lw_word_get_kanji (word));

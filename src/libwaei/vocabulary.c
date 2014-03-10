@@ -384,6 +384,20 @@ lw_vocabulary_load (LwVocabulary       *self,
 
     lw_vocabulary_load_from_file (self, cb);
 
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LwWord *w = LW_WORD (link->data);
+        if (w != NULL)
+        {
+          w->row.saved_index = i;
+          i++;
+        }
+      }
+    }
+
     lw_vocabulary_set_changed (self, FALSE);
     lw_vocabulary_set_loaded (self, TRUE);
 }
@@ -397,11 +411,13 @@ lw_vocabulary_save (LwVocabulary       *self,
     g_return_if_fail (LW_IS_VOCABULARY (self));
 
     //Declarations
+    LwVocabularyPrivate *priv = NULL;
     const gchar *FILENAME = NULL;
     gchar *uri = NULL;
     gchar *text = NULL;
 
     //Initializations
+    priv = self->priv;
     FILENAME = lw_vocabulary_get_filename (self);
     if (FILENAME == NULL) goto errored;
     uri = lw_vocabulary_build_uri (FILENAME);
@@ -410,6 +426,20 @@ lw_vocabulary_save (LwVocabulary       *self,
     if (text == NULL) goto errored;
 
     g_file_set_contents (uri, text, -1, NULL);
+
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LwWord *w = LW_WORD (link->data);
+        if (w != NULL)
+        {
+          w->row.saved_index = i;
+          i++;
+        }
+      }
+    }
 
     lw_vocabulary_set_changed (self, FALSE);
 
