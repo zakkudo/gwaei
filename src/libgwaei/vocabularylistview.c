@@ -576,6 +576,7 @@ lgw_vocabularylistview_add_new (LgwVocabularyListView *self)
     LgwVocabularyListViewPrivate *priv = NULL;
     LgwVocabularyListStore *vocabulary_list_store = NULL;
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    LwVocabulary *vocabulary = NULL;
     gchar *filename = NULL;
     GList *wordstorelist = NULL;
     gint length = 0;
@@ -590,6 +591,8 @@ lgw_vocabularylistview_add_new (LgwVocabularyListView *self)
     if (filename == NULL) goto errored;
     vocabulary_word_store = lgw_vocabularywordstore_new (filename);
     if (vocabulary_word_store == NULL) goto errored;
+    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+    if (vocabulary == NULL) goto errored;
     wordstorelist = g_list_prepend (wordstorelist, vocabulary_word_store);
     if (wordstorelist == NULL) goto errored;
 
@@ -597,6 +600,8 @@ lgw_vocabularylistview_add_new (LgwVocabularyListView *self)
 
     path = gtk_tree_path_new_from_indices (length, -1);
     if (path == NULL) goto errored;
+
+    lw_vocabulary_save (vocabulary, NULL);
 
     lgw_vocabularyliststore_insert_all (vocabulary_list_store, -1, wordstorelist);
     gtk_widget_grab_focus (GTK_WIDGET (priv->ui.tree_view));
