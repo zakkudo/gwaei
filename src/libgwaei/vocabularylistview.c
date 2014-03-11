@@ -842,3 +842,26 @@ errored:
     return;
 }
 
+
+void
+lgw_vocabularylistview_sync_editable (LgwVocabularyListView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    gint count = -1;
+    gboolean editable = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    count = gtk_tree_selection_count_selected_rows (priv->data.tree_selection);
+    editable = (count == 1);
+
+    {
+      GObject *o = G_OBJECT (priv->ui.cell_renderer[CELLRENDERER_NAME]);
+      g_object_set (o, "editable", editable, NULL);
+    }
+}
+

@@ -57,6 +57,7 @@ lgw_vocabularywordview_selection_changed_cb (LgwVocabularyWordView *self,
     actionable = LGW_ACTIONABLE (self);
 
     lgw_actionable_sync_actions (actionable);
+    lgw_vocabularywordview_sync_editable (self);
 
 errored:
 
@@ -227,6 +228,99 @@ lgw_vocabularywordview_focus_out_event_cb (LgwVocabularyWordView *self,
     lgw_actionable_sync_actions (actionable);
 
     return FALSE;
+}
+
+
+void
+lgw_vocabularywordview_kanji_edited_cb (LgwVocabularyWordView *self,
+                                        gchar                 *path_string,
+                                        gchar                 *new_text,
+                                        GtkCellRendererText   *renderer)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    GtkTreeModel *tree_model = NULL;
+    GtkTreePath *tree_path = NULL;
+    LwWord *word = NULL;
+
+    //Initializations
+    vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
+    tree_model = GTK_TREE_MODEL (vocabulary_word_store);
+    tree_path = gtk_tree_path_new_from_string (path_string);
+    if (tree_path == NULL) goto errored;
+    word = lgw_vocabularywordstore_get_word (vocabulary_word_store, tree_path);
+    if (word == NULL) goto errored;
+
+    lw_word_set_kanji (word, new_text);
+
+errored:
+
+    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
+}
+
+
+void
+lgw_vocabularywordview_reading_edited_cb (LgwVocabularyWordView *self,
+                                          gchar                 *path_string,
+                                          gchar                 *new_text,
+                                          GtkCellRendererText   *renderer)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    GtkTreeModel *tree_model = NULL;
+    GtkTreePath *tree_path = NULL;
+    LwWord *word = NULL;
+
+    //Initializations
+    vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
+    tree_model = GTK_TREE_MODEL (vocabulary_word_store);
+    tree_path = gtk_tree_path_new_from_string (path_string);
+    if (tree_path == NULL) goto errored;
+    word = lgw_vocabularywordstore_get_word (vocabulary_word_store, tree_path);
+    if (word == NULL) goto errored;
+
+    lw_word_set_reading (word, new_text);
+
+errored:
+
+    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
+}
+
+
+void
+lgw_vocabularywordview_definition_edited_cb (LgwVocabularyWordView *self,
+                                             gchar                 *path_string,
+                                             gchar                 *new_text,
+                                             GtkCellRendererText   *renderer)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
+    GtkTreeModel *tree_model = NULL;
+    GtkTreePath *tree_path = NULL;
+    LwWord *word = NULL;
+
+    //Initializations
+    vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
+    tree_model = GTK_TREE_MODEL (vocabulary_word_store);
+    tree_path = gtk_tree_path_new_from_string (path_string);
+    if (tree_path == NULL) goto errored;
+    word = lgw_vocabularywordstore_get_word (vocabulary_word_store, tree_path);
+    if (word == NULL) goto errored;
+
+    lw_word_set_definition (word, new_text);
+
+errored:
+
+    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
 }
 
 
@@ -479,6 +573,36 @@ lgw_vocabularywordview_connect_signals (LgwVocabularyWordView *self)
           G_OBJECT (priv->ui.tree_view),
           "focus-out-event",
           G_CALLBACK (lgw_vocabularywordview_focus_out_event_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_KANJI_EDITED] == 0)
+    {
+      priv->data.signalid[SIGNALID_KANJI_EDITED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.cell_renderer[CELLRENDERER_KANJI]),
+          "edited",
+          G_CALLBACK (lgw_vocabularywordview_kanji_edited_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_READING_EDITED] == 0)
+    {
+      priv->data.signalid[SIGNALID_READING_EDITED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.cell_renderer[CELLRENDERER_READING]),
+          "edited",
+          G_CALLBACK (lgw_vocabularywordview_reading_edited_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_DEFINITION_EDITED] == 0)
+    {
+      priv->data.signalid[SIGNALID_DEFINITION_EDITED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.cell_renderer[CELLRENDERER_DEFINITION]),
+          "edited",
+          G_CALLBACK (lgw_vocabularywordview_definition_edited_cb),
           self
       );
     }

@@ -54,6 +54,7 @@ void lgw_vocabularylistview_paste (LgwVocabularyListView *self);
 void lgw_vocabularylistview_cut_selected (LgwVocabularyListView *self);
 void lgw_vocabularylistview_copy_selected (LgwVocabularyListView *self);
 
+void lgw_vocabularylistview_sync_editable (LgwVocabularyListView *self);
 
 G_END_DECLS
 

@@ -13,6 +13,32 @@
         <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;n</attribute>
       </item>
     </section>
+
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Cut</attribute>
+        <attribute name="action">win.global-cut</attribute>
+        <attribute name="accel">&lt;Primary&gt;x</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Copy</attribute>
+        <attribute name="action">win.global-copy</attribute>
+        <attribute name="accel">&lt;Primary&gt;c</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Paste</attribute>
+        <attribute name="action">win.global-paste</attribute>
+        <attribute name="accel">&lt;Primary&gt;v</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Delete</attribute>
+        <attribute name="action">win.global-delete</attribute>
+        <attribute name="accel">Delete</attribute>
+      </item>
+    </section>
+
     <section>
       <item>
         <attribute name="label" translatable="yes">_Save</attribute>

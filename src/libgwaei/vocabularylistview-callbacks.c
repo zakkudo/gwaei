@@ -66,6 +66,7 @@ lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *self,
     lgw_vocabularywordview_set_wordstores (vocabulary_word_view, vocabulary_word_stores);
 
     lgw_actionable_sync_actions (actionable);
+    lgw_vocabularylistview_sync_editable (self);
 
 errored:
 

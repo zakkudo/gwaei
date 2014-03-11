@@ -869,3 +869,36 @@ errored:
     return;
 }
 
+
+void
+lgw_vocabularywordview_sync_editable (LgwVocabularyWordView *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
+
+    //Declarations
+    LgwVocabularyWordViewPrivate *priv = NULL;
+    gint count = -1;
+    gboolean editable = FALSE;
+    gint index[] = {
+      CELLRENDERER_KANJI,
+      CELLRENDERER_READING,
+      CELLRENDERER_DEFINITION,
+      TOTAL_CELLRENDERERS
+    };
+
+    //Initializations
+    priv = self->priv;
+    count = gtk_tree_selection_count_selected_rows (priv->data.tree_selection);
+    editable = (count == 1);
+
+    {
+      gint i = 0;
+      for (i = 0; index[i] != TOTAL_CELLRENDERERS; i++) {
+        GObject *o = G_OBJECT (priv->ui.cell_renderer[index[i]]);
+        g_object_set (o, "editable", editable, NULL);
+      }
+    }
+}
+
+

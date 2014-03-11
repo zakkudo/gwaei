@@ -49,6 +49,7 @@ void lgw_vocabularywordview_cut_selected (LgwVocabularyWordView *self);
 void lgw_vocabularywordview_copy_selected (LgwVocabularyWordView *self);
 void lgw_vocabularywordview_paste (LgwVocabularyWordView *self);
 
+void lgw_vocabularywordview_sync_editable (LgwVocabularyWordView *self);
 
 G_END_DECLS
 
