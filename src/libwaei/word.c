@@ -364,6 +364,8 @@ lw_word_copy (LwWord *word)
 
 errored:
 
+    if (text != NULL) g_free (text); text = NULL;
+
     return copy;
 }
 

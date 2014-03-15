@@ -5,14 +5,18 @@
 
 G_BEGIN_DECLS
 
+
 typedef enum { 
-  LGW_VOCABULARYLISTSTORE_COLUMN_POSITION,
-  LGW_VOCABULARYLISTSTORE_COLUMN_SAVED_POSITION,
-  LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
+  //Setable using lgw_vocabularyliststore_set
   LGW_VOCABULARYLISTSTORE_COLUMN_FILENAME,
+
+  //Not settable
+  LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
   LGW_VOCABULARYLISTSTORE_COLUMN_STYLE_WEIGHT,
   LGW_VOCABULARYLISTSTORE_COLUMN_TOTAL_WORDS,
   LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT,
+  LGW_VOCABULARYLISTSTORE_COLUMN_POSITION,
+  LGW_VOCABULARYLISTSTORE_COLUMN_SAVED_POSITION,
   TOTAL_LGW_VOCABULARYLISTSTORE_COLUMNS
 } LgwVocabularyListStoreColumn;
 
@@ -43,9 +47,9 @@ struct _LgwVocabularyListStoreClass {
 LgwVocabularyListStore* lgw_vocabularyliststore_new (LwPreferences *preferences);
 GType lgw_vocabularyliststore_get_type (void) G_GNUC_CONST;
 
-void lgw_vocabularyliststore_insert_all (LgwVocabularyListStore *self, gint position, GList *wordstorelist);
-GList* lgw_vocabularyliststore_remove_all (LgwVocabularyListStore *self, gint *positions);
-GList* lgw_vocabularyliststore_delete_all (LgwVocabularyListStore *self, gint *positions);
+GList* lgw_vocabularyliststore_insert (LgwVocabularyListStore *self, GtkTreePath *tree_path, GList *wordstorelist);
+GList* lgw_vocabularyliststore_remove (LgwVocabularyListStore *self, GList *tree_path_list);
+GList* lgw_vocabularyliststore_delete (LgwVocabularyListStore *self, GList *tree_path_list);
 void lgw_vocabularyliststore_clear (LgwVocabularyListStore *self);
 
 LwPreferences* lgw_vocabularyliststore_get_preferences (LgwVocabularyListStore *self);
@@ -59,8 +63,10 @@ LgwVocabularyWordStore* lgw_vocabularyliststore_get_wordstore (LgwVocabularyList
 GtkTreePath* lgw_vocabularyliststore_find_by_wordstore (LgwVocabularyListStore *self, LgwVocabularyWordStore *vocabulary_word_store);
 GtkTreePath* lgw_vocabularyliststore_find_by_filename (LgwVocabularyListStore *self, const gchar *FILENAME);
 
-LgwVocabularyWordStore* lgw_vocabularyliststore_nth (LgwVocabularyListStore *self, gint position);
+GList* lgw_vocabularyliststore_get_tree_paths (LgwVocabularyListStore *self, GList *wordstores);
 
+void lgw_vocabularyliststore_set (LgwVocabularyListStore *self, GtkTreePath *tree_path, ...);
+void lgw_vocabularyliststore_set_valist (LgwVocabularyListStore *self, GtkTreePath *tree_path, va_list va);
 
 G_END_DECLS
 

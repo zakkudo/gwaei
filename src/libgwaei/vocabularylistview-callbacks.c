@@ -227,6 +227,7 @@ lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
 
     //Initializations
     vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
+    if (vocabulary_list_store == NULL) goto errored;
     tree_model = GTK_TREE_MODEL (vocabulary_list_store);
     tree_path = gtk_tree_path_new_from_string (path_string);
     if (tree_path == NULL) goto errored;
@@ -236,7 +237,7 @@ lgw_vocabularylistview_name_edited_cb (LgwVocabularyListView *self,
     uri = lw_vocabulary_build_uri (new_text);
     if (uri == NULL) goto errored;
 
-    lw_vocabulary_set_filename (vocabulary, new_text);
+    lgw_vocabularyliststore_set (vocabulary_list_store, tree_path, LGW_VOCABULARYLISTSTORE_COLUMN_FILENAME, new_text, -1);
 
 errored:
 
@@ -264,7 +265,6 @@ lgw_vocabularylistview_drag_motion_cb (LgwVocabularyListView *self,
     GtkTreePath *dest_path = NULL;
     GtkTreeViewDropPosition drop_position = -1;
     gboolean block = FALSE;
-    gint depth = 0;
 
     //Initializations
     priv = self->priv;
@@ -273,7 +273,6 @@ lgw_vocabularylistview_drag_motion_cb (LgwVocabularyListView *self,
     if (block) goto errored;
     if (dest_path == NULL) goto errored;
     target = gtk_drag_dest_find_target (GTK_WIDGET (inner_tree_view), drag_context, NULL);
-    depth = gtk_tree_path_get_depth (dest_path);
 
     if (GTK_IS_TREE_VIEW (source_widget))
     {
@@ -312,40 +311,207 @@ errored:
 }
 
 
-static gint
-_get_insert_index (LgwVocabularyListView *self, gint x, gint y)
+static gboolean
+_move_from_liststore (LgwVocabularyListView *self,
+                      GtkTreePath           *destination_tree_path,
+                      GtkTreeView           *source_tree_view)
 {
+    //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+    g_return_if_fail (GTK_IS_TREE_VIEW (source_tree_view));
 
     //Declarations
-    LgwVocabularyListViewPrivate *priv = NULL;
-    LgwVocabularyListStore *vocabulary_list_store = NULL;
-    GtkTreePath *tree_path = NULL;
-    GtkTreeViewDropPosition drop_position = 0;
-    gint index = -1;
-    gint length = 0;
-
+    LgwVocabularyListStore *destination_list_store = NULL;
+    GtkTreeModel *source_tree_model = NULL;
+    GList *wordstores = NULL;
+    GList *copied_wordstores = NULL;
+    GList *inserted_tree_paths = NULL;
+    gboolean success = FALSE;
+    
     //Initializations
-    priv = self->priv;
-    vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
-    if (vocabulary_list_store == NULL) goto errored;
-    gtk_tree_view_get_dest_row_at_pos (priv->ui.tree_view, x, y, &tree_path, &drop_position);
-    if (tree_path == NULL) goto errored;
-    index = gtk_tree_path_get_indices (tree_path)[0];
-    length = lgw_vocabularyliststore_length (vocabulary_list_store);
+    destination_list_store = lgw_vocabularylistview_get_liststore (self);
+    if (destination_list_store == NULL) goto errored;
+    source_tree_model = gtk_tree_view_get_model (source_tree_view);
+    if (!LGW_IS_VOCABULARYLISTSTORE (source_tree_model)) goto errored;
+    wordstores = lgw_treeview_get_selected_wordstores (source_tree_view);
+    if (wordstores == NULL) goto errored;
+    inserted_tree_paths = lgw_vocabularyliststore_insert (destination_list_store, destination_tree_path, wordstores);
+    if (inserted_tree_paths == NULL) goto errored;
 
-    if (drop_position == GTK_TREE_VIEW_DROP_INTO_OR_AFTER || drop_position == GTK_TREE_VIEW_DROP_AFTER)
-    {
-      index++;
-    }
+    lgw_vocabularylistview_select (self, inserted_tree_paths);
 
-    if (index < 0 || index >= length) index = -1;
+    success = TRUE;
 
 errored:
 
-    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
+    g_list_free_full (inserted_tree_paths, (GDestroyNotify) gtk_tree_path_free); inserted_tree_paths = NULL;
+    g_list_free (wordstores); wordstores = NULL; 
 
-    return index;
+    return success;
+}
+
+
+static gboolean
+_copy_from_liststore (LgwVocabularyListView *self,
+                      GtkTreePath           *destination_tree_path,
+                      GtkTreeView           *source_tree_view)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+    g_return_if_fail (GTK_IS_TREE_VIEW (source_tree_view));
+
+    //Declarations
+    LgwVocabularyListStore *destination_list_store = NULL;
+    GtkTreeModel *source_tree_model = NULL;
+    GList *wordstores = NULL;
+    GList *copied_wordstores = NULL;
+    GList *inserted_tree_paths = NULL;
+    gboolean success = FALSE;
+    GList *original_tree_paths = NULL;
+    
+    //Initializations
+    destination_list_store = lgw_vocabularylistview_get_liststore (self);
+    if (destination_list_store == NULL) goto errored;
+    source_tree_model = gtk_tree_view_get_model (source_tree_view);
+    if (!LGW_IS_VOCABULARYLISTSTORE (source_tree_model)) goto errored;
+    wordstores = lgw_treeview_get_selected_wordstores (source_tree_view);
+    if (wordstores == NULL) goto errored;
+
+    {
+      GList *link = NULL;
+      for (link = wordstores; link != NULL; link = link->next)
+      {
+        LgwVocabularyWordStore *w = LGW_VOCABULARYWORDSTORE (link->data);
+        if (w != NULL)
+        {
+          LgwVocabularyWordStore *copy = lgw_vocabularywordstore_copy (w);
+          if (copy != NULL)
+          {
+            copied_wordstores = g_list_prepend (copied_wordstores, copy);
+            copy = NULL;
+          }
+        }
+      }
+      copied_wordstores = g_list_reverse (copied_wordstores);
+    }
+    if (copied_wordstores == NULL) goto errored;
+
+    inserted_tree_paths = lgw_vocabularyliststore_insert (destination_list_store, destination_tree_path, copied_wordstores);
+    if (inserted_tree_paths == NULL) goto errored;
+
+    lgw_vocabularylistview_select (self, inserted_tree_paths);
+
+    success = TRUE;
+
+errored:
+
+    g_list_free_full (inserted_tree_paths, (GDestroyNotify) gtk_tree_path_free); inserted_tree_paths = NULL;
+    g_list_free (wordstores); wordstores = NULL; 
+    g_list_free (copied_wordstores); copied_wordstores = NULL;
+
+    return success;
+}
+
+
+static gboolean
+_move_from_wordstore (LgwVocabularyListView *self,
+                      GtkTreePath           *destination_tree_path,
+                      GtkTreeView           *source_tree_view)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+    g_return_if_fail (GTK_IS_TREE_VIEW (source_tree_view));
+
+    //Declarations
+    LgwVocabularyListStore *destination_list_store = NULL;
+    LgwVocabularyWordStore *destination_word_store = NULL;
+    GtkTreeModel *source_tree_model = NULL;
+    LgwVocabularyWordStore *source_word_store = NULL;
+    GList *words = NULL;
+    GList *copied_words = NULL;
+    GList *inserted_tree_paths = NULL;
+    GList *source_tree_paths = NULL;
+    GList *removed = NULL;
+    gboolean success = FALSE;
+
+    //Initializations
+    destination_list_store = lgw_vocabularylistview_get_liststore (self);
+    if (destination_list_store == NULL) goto errored;
+    destination_word_store = lgw_vocabularyliststore_get_wordstore (destination_list_store, destination_tree_path);
+    if (destination_word_store == NULL) goto errored;
+    source_tree_model = gtk_tree_view_get_model (source_tree_view);
+    if (!LGW_IS_VOCABULARYWORDSTORE (source_tree_model)) goto errored;
+    source_word_store = LGW_VOCABULARYWORDSTORE (source_tree_model);
+    if (source_word_store == NULL) goto errored;
+    words = lgw_treeview_get_selected_words (source_tree_view);
+    if (words == NULL) goto errored;
+    copied_words = g_list_copy_deep (words, (GCopyFunc) lw_word_copy, NULL);
+    inserted_tree_paths = lgw_vocabularywordstore_insert (destination_word_store, NULL, copied_words);
+    if (inserted_tree_paths = NULL) goto errored;
+
+    success = TRUE;
+
+    source_tree_paths = lgw_vocabularywordstore_get_tree_paths (source_word_store, words);
+    if (source_tree_paths == NULL) goto errored;
+
+    removed = lgw_vocabularywordstore_remove (source_word_store, source_tree_paths);
+    if (removed == NULL) goto errored;
+
+errored:
+
+    g_list_free_full (removed, (GDestroyNotify) lw_word_free); removed = NULL;
+    g_list_free_full (inserted_tree_paths, (GDestroyNotify) gtk_tree_path_free); inserted_tree_paths = NULL;
+    g_list_free_full (source_tree_paths, (GDestroyNotify) gtk_tree_path_free); source_tree_paths = NULL;
+    g_list_free (words); words = NULL;
+    g_list_free (copied_words); copied_words = NULL;
+
+    return success;
+}
+
+
+static gboolean
+_copy_from_wordstore (LgwVocabularyListView *self,
+                      GtkTreePath           *destination_tree_path,
+                      GtkTreeView           *source_tree_view)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+    g_return_if_fail (GTK_IS_TREE_VIEW (source_tree_view));
+
+    //Declarations
+    LgwVocabularyListStore *destination_list_store = NULL;
+    LgwVocabularyWordStore *destination_word_store = NULL;
+    GtkTreeModel *source_tree_model = NULL;
+    LgwVocabularyWordStore *source_word_store = NULL;
+    GList *words = NULL;
+    GList *copied_words = NULL;
+    GList *inserted_tree_paths = NULL;
+    gboolean success = FALSE;
+
+    //Initializations
+    destination_list_store = lgw_vocabularylistview_get_liststore (self);
+    if (destination_list_store == NULL) goto errored;
+    destination_word_store = lgw_vocabularyliststore_get_wordstore (destination_list_store, destination_tree_path);
+    if (destination_word_store == NULL) goto errored;
+    source_tree_model = gtk_tree_view_get_model (source_tree_view);
+    if (!LGW_IS_VOCABULARYWORDSTORE (source_tree_model)) goto errored;
+    source_word_store = LGW_VOCABULARYWORDSTORE (source_tree_model);
+    if (source_word_store == NULL) goto errored;
+    words = lgw_treeview_get_selected_words (source_tree_view);
+    if (words == NULL) goto errored;
+    copied_words = g_list_copy_deep (words, (GCopyFunc) lw_word_copy, NULL);
+    inserted_tree_paths = lgw_vocabularywordstore_insert (destination_word_store, NULL, copied_words);
+    if (inserted_tree_paths = NULL) goto errored;
+
+    success = TRUE;
+
+errored:
+
+    g_list_free_full (inserted_tree_paths, (GDestroyNotify) gtk_tree_path_free); inserted_tree_paths = NULL;
+    g_list_free (words); words = NULL;
+    g_list_free (copied_words); copied_words = NULL;
+
+    return success;
 }
 
 
@@ -357,23 +523,21 @@ lgw_vocabularylistview_drag_drop_cb (LgwVocabularyListView *self,
                                      guint                  time,
                                      gpointer              *inner_text_view)
 {
-printf("BREAK0 lgw_vocabularylistview_drag_drop_cb\n");
+    //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
-    LgwVocabularyListStore *dest_list_store = NULL;
-    GtkTreeSelection *selection = NULL;
-    GtkTreeModel *source_tree_model = NULL;
-    GtkTreeView *source_tree_view = NULL;
-    GList *rows = NULL;
+    GtkTreePath *tree_path = NULL;
     gint success = FALSE;
     GtkWidget *source_widget = NULL;
+    GtkTreeView *source_tree_view = NULL;
+    GtkTreeModel *source_tree_model = NULL;
     GdkDragAction action = 0;
 
     //Initializations
     priv = self->priv;
-    dest_list_store = lgw_vocabularylistview_get_liststore (self);
+    tree_path = lgw_vocabularylistview_get_path (self, x, y);
     source_widget = gtk_drag_get_source_widget (drag_context);
     if (!GTK_IS_TREE_VIEW (source_widget)) goto errored;
     source_tree_view = GTK_TREE_VIEW (source_widget);
@@ -385,35 +549,22 @@ printf("BREAK0 lgw_vocabularylistview_drag_drop_cb\n");
     {
       if (action == GDK_ACTION_MOVE)
       {
-        GList *wordstores = lgw_treeview_get_selected_wordstores (source_tree_view);
-        gint position = _get_insert_index (self, x, y);
-        lgw_vocabularyliststore_insert_all (dest_list_store, position, wordstores);
-        lgw_vocabularylistview_select_wordstores (self, wordstores);
-
-        success = TRUE;
+        success = _move_from_liststore (self, tree_path, source_tree_view);
       }
       else if (action == GDK_ACTION_COPY)
       {
-printf("BREAK4 lgw_vocabularylistview_drag_drop_cb\n");
-        //NOT IMPLEMENTED
+        success = _copy_from_liststore (self, tree_path, source_tree_view);
       }
     }
     else if (LGW_IS_VOCABULARYWORDSTORE (source_tree_model))
     {
       if (action == GDK_ACTION_MOVE)
       {
-        GList *words = lgw_treeview_get_selected_words (source_tree_view);
-        //TODO make a copy of the words if appropriate
-        gint position = _get_insert_index (self, x, y);
-        LgwVocabularyWordStore *vocabulary_word_store = lgw_vocabularyliststore_nth (dest_list_store, position);
-        LwVocabulary *vocabulary = LW_VOCABULARY (vocabulary_word_store);
-        lw_vocabulary_insert_all (vocabulary, -1, words);
-
-        success = TRUE;
+        success = _move_from_wordstore (self, tree_path, source_tree_view);
       }
       else if (action == GDK_ACTION_COPY)
       {
-        //NOT IMPLEMENTED
+        success = _copy_from_wordstore (self, tree_path, source_tree_view);
       }
     }
 

@@ -44,7 +44,7 @@ LgwVocabularyWordView* lgw_vocabularylistview_get_wordview (LgwVocabularyListVie
 void lgw_vocabularylistview_set_wordview (LgwVocabularyListView *self, LgwVocabularyWordView *vocabulary_word_view);
 
 GList* lgw_treeview_get_selected_wordstores (GtkTreeView *self);
-void lgw_vocabularylistview_select_wordstores (LgwVocabularyListView *self, GList *wordstores);
+void lgw_vocabularylistview_select (LgwVocabularyListView *self, GList *tree_paths);
 
 void lgw_vocabularylistview_paste (LgwVocabularyListView *self);
 void lgw_vocabularylistview_copy (LgwVocabularyListView *self);
@@ -55,6 +55,8 @@ void lgw_vocabularylistview_cut_selected (LgwVocabularyListView *self);
 void lgw_vocabularylistview_copy_selected (LgwVocabularyListView *self);
 
 void lgw_vocabularylistview_sync_editable (LgwVocabularyListView *self);
+
+GtkTreePath* lgw_vocabularylistview_get_path (LgwVocabularyListView *self, gint x, gint y);
 
 G_END_DECLS
 

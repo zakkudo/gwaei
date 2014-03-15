@@ -58,6 +58,15 @@ struct _LgwVocabularyListStoreClassPrivate {
 
 void lgw_vocabularyliststore_invalidate_length (LgwVocabularyListStore *self);
 
+//In general, the methods using indices should not be exposed publicly
+LgwVocabularyWordStore* lgw_vocabularyliststore_nth (LgwVocabularyListStore *self, gint position);
+GList* lgw_vocabularyliststore_remove_by_indices (LgwVocabularyListStore *self, gint *indices);
+GList* lgw_vocabularyliststore_delete_by_indices (LgwVocabularyListStore *self, gint *indices);
+
+gint* lgw_vocabularyliststore_tree_paths_to_indices (LgwVocabularyListStore *self, GList *tree_paths);
+GList* lgw_vocabularyliststore_indices_to_tree_paths (LgwVocabularyListStore *self, gint *indices);
+
+
 G_END_DECLS
 
 #include <libgwaei/vocabularyliststore-treemodel-interface.h>

@@ -24,6 +24,9 @@ struct _LgwVocabularyWordStorePrivate {
 
 #define LGW_VOCABULARYWORDSTORE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_VOCABULARYWORDSTORE, LgwVocabularyWordStorePrivate))
 
+gint* lgw_vocabulary_wordstore_tree_paths_to_indices (LgwVocabularyWordStore *self, GList *tree_paths);
+GList* lgw_vocabularywordstore_indices_to_tree_paths (LgwVocabularyWordStore *self, gint* indices);
+
 G_END_DECLS
 
 #include <libgwaei/vocabularywordstore-callbacks.h>

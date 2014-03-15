@@ -242,19 +242,14 @@ lgw_vocabularywordview_kanji_edited_cb (LgwVocabularyWordView *self,
 
     //Declarations
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
-    GtkTreeModel *tree_model = NULL;
     GtkTreePath *tree_path = NULL;
-    LwWord *word = NULL;
 
     //Initializations
     vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
-    tree_model = GTK_TREE_MODEL (vocabulary_word_store);
     tree_path = gtk_tree_path_new_from_string (path_string);
     if (tree_path == NULL) goto errored;
-    word = lgw_vocabularywordstore_get_word (vocabulary_word_store, tree_path);
-    if (word == NULL) goto errored;
 
-    lw_word_set_kanji (word, new_text);
+    lgw_vocabularywordstore_set (vocabulary_word_store, tree_path, LW_WORD_FIELD_KANJI, new_text, -1);
 
 errored:
 
@@ -273,19 +268,14 @@ lgw_vocabularywordview_reading_edited_cb (LgwVocabularyWordView *self,
 
     //Declarations
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
-    GtkTreeModel *tree_model = NULL;
     GtkTreePath *tree_path = NULL;
-    LwWord *word = NULL;
 
     //Initializations
     vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
-    tree_model = GTK_TREE_MODEL (vocabulary_word_store);
     tree_path = gtk_tree_path_new_from_string (path_string);
     if (tree_path == NULL) goto errored;
-    word = lgw_vocabularywordstore_get_word (vocabulary_word_store, tree_path);
-    if (word == NULL) goto errored;
 
-    lw_word_set_reading (word, new_text);
+    lgw_vocabularywordstore_set (vocabulary_word_store, tree_path, LW_WORD_FIELD_READING, new_text, -1);
 
 errored:
 
@@ -304,19 +294,14 @@ lgw_vocabularywordview_definition_edited_cb (LgwVocabularyWordView *self,
 
     //Declarations
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
-    GtkTreeModel *tree_model = NULL;
     GtkTreePath *tree_path = NULL;
-    LwWord *word = NULL;
 
     //Initializations
     vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
-    tree_model = GTK_TREE_MODEL (vocabulary_word_store);
     tree_path = gtk_tree_path_new_from_string (path_string);
     if (tree_path == NULL) goto errored;
-    word = lgw_vocabularywordstore_get_word (vocabulary_word_store, tree_path);
-    if (word == NULL) goto errored;
 
-    lw_word_set_definition (word, new_text);
+    lgw_vocabularywordstore_set (vocabulary_word_store, tree_path, LW_WORD_FIELD_DEFINITION, new_text, -1);
 
 errored:
 
@@ -343,7 +328,6 @@ lgw_vocabularywordview_drag_motion_cb (LgwVocabularyWordView *self,
     GtkTreePath *dest_path = NULL;
     GtkTreeViewDropPosition drop_position = -1;
     gboolean block = FALSE;
-    gint depth = 0;
 
     //Initializations
     priv = self->priv;
@@ -352,7 +336,6 @@ lgw_vocabularywordview_drag_motion_cb (LgwVocabularyWordView *self,
     if (block) goto errored;
     if (dest_path == NULL) goto errored;
     target = gtk_drag_dest_find_target (GTK_WIDGET (inner_tree_view), drag_context, NULL);
-    depth = gtk_tree_path_get_depth (dest_path);
 
 
     if (GTK_IS_TREE_VIEW (source_widget))
@@ -384,46 +367,6 @@ errored:
 }
 
 
-static gint
-_get_insert_index (LgwVocabularyWordView *self, gint x, gint y)
-{
-    g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
-
-    //Declarations
-    LgwVocabularyWordViewPrivate *priv = NULL;
-    LgwVocabularyWordStore *vocabulary_word_store = NULL;
-    LwVocabulary *vocabulary = NULL;
-    GtkTreePath *tree_path = NULL;
-    GtkTreeViewDropPosition drop_position = 0;
-    gint index = -1;
-    gint length = 0;
-
-    //Initializations
-    priv = self->priv;
-    vocabulary_word_store = lgw_vocabularywordview_get_wordstore (self);
-    if (vocabulary_word_store == NULL) goto errored;
-    vocabulary = LW_VOCABULARY (vocabulary_word_store);
-    if (vocabulary == NULL) goto errored;
-    gtk_tree_view_get_dest_row_at_pos (priv->ui.tree_view, x, y, &tree_path, &drop_position);
-    if (tree_path == NULL) goto errored;
-    index = gtk_tree_path_get_indices (tree_path)[0];
-    length = lw_vocabulary_length (vocabulary);
-
-    if (drop_position == GTK_TREE_VIEW_DROP_INTO_OR_AFTER || drop_position == GTK_TREE_VIEW_DROP_AFTER)
-    {
-      index++;
-    }
-
-    if (index < 0 || index >= length) index = -1;
-
-errored:
-
-    if (tree_path != NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
-
-    return index;
-}
-
-
 gboolean
 lgw_vocabularywordview_drag_drop_cb (LgwVocabularyWordView *self,
                                      GdkDragContext        *drag_context,
@@ -439,27 +382,31 @@ lgw_vocabularywordview_drag_drop_cb (LgwVocabularyWordView *self,
     GtkTreeSelection *selection = NULL;
     GtkTreeModel *tree_model = NULL;
     GList *rows = NULL;
-    gint success = FALSE;
+    gboolean success = FALSE;
     GtkWidget *source_widget = NULL;
+    GtkTreePath *dest_tree_path = NULL;
+    GList *inserted_tree_paths = NULL;
 
     //Initializations
     source_widget = gtk_drag_get_source_widget (drag_context);
     if (!GTK_IS_TREE_VIEW (source_widget)) goto errored;
     tree_model = gtk_tree_view_get_model (GTK_TREE_VIEW (source_widget));
     if (tree_model == NULL) goto errored;
+    dest_tree_path = lgw_vocabularywordview_get_insert_path (self, x, y);
     
     if (LGW_IS_VOCABULARYWORDSTORE (tree_model))
     {
       LgwVocabularyWordStore *vocabulary_word_store = LGW_VOCABULARYWORDSTORE (tree_model);
-      LwVocabulary *vocabulary = LW_VOCABULARY (tree_model);
       GList *words = lgw_vocabularywordview_get_selected_words (self);
-      gint position = _get_insert_index (self, x, y);
-      lw_vocabulary_insert_all (vocabulary, position, words);
-      lgw_vocabularywordview_select_words (self, words);
+      inserted_tree_paths = lgw_vocabularywordstore_insert (vocabulary_word_store, dest_tree_path, words);
+      lgw_vocabularywordview_select (self, inserted_tree_paths);
       success = TRUE;
     }
 
 errored:
+
+    if (dest_tree_path != NULL) gtk_tree_path_free (dest_tree_path); dest_tree_path = NULL;
+    if (inserted_tree_paths != NULL) g_list_free_full (inserted_tree_paths, (GDestroyNotify) gtk_tree_path_free); inserted_tree_paths = NULL;
 
     gtk_drag_finish (drag_context, success, FALSE, time);
 

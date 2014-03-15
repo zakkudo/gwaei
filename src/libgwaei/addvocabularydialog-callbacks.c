@@ -332,13 +332,16 @@ lgw_addvocabularydialog_response_cb (LgwAddVocabularyDialog *self,
 
     //Declarations
     LgwAddVocabularyDialogPrivate *priv = NULL;
+    LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LwVocabulary *vocabulary = NULL;
     LwWord *word = NULL;
     GList *wordlist = NULL;
 
     //Initializations
     priv = self->priv;
-    vocabulary = LW_VOCABULARY (priv->data.store.vocabulary_word);
+    vocabulary_word_store = priv->data.store.vocabulary_word;
+    if (vocabulary_word_store == NULL) goto errored;
+    vocabulary = LW_VOCABULARY (vocabulary_word_store);
     if (vocabulary == NULL) goto errored;
     word = lgw_addvocabularydialog_steal_word (self);
     if (word == NULL) goto errored;
@@ -347,7 +350,7 @@ lgw_addvocabularydialog_response_cb (LgwAddVocabularyDialog *self,
 
     if (response_id == LGW_ADDVOCABULARYDIALOG_RESPONSE_ADD)
     {
-      lw_vocabulary_insert_all (vocabulary, -1, wordlist);
+      lgw_vocabularywordstore_insert (vocabulary_word_store, NULL, wordlist);
     }
 
     if (priv->config.save_on_add)

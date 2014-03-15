@@ -121,7 +121,7 @@ _drag_data_delete (GtkTreeDragSource *drag_source,
     indices[0] = index;
     indices[1] = -1;
 
-    removed = lgw_vocabularyliststore_remove_all (self, indices);
+    removed = lgw_vocabularyliststore_remove_by_indices (self, indices);
     if (removed != NULL) success = TRUE;
 
 errored:

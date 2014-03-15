@@ -54,21 +54,16 @@ _drag_data_received (GtkTreeDragDest  *drag_dest,
 
     //Declarations
     LgwVocabularyWordStore *self = NULL;
-    LwVocabulary *vocabulary = NULL;
     GtkTreeModel *tree_model = NULL;
     gboolean success = FALSE;
     GtkTreePath *src = NULL;
-    GList *list = NULL;
     gint *indices = NULL;
-    gint position = 0;
     gint depth = 0;
 
     //Initializations
     self = LGW_VOCABULARYWORDSTORE (drag_dest);
-    vocabulary = LW_VOCABULARY (drag_dest);
     tree_model = GTK_TREE_MODEL (self);
     indices = gtk_tree_path_get_indices_with_depth (dest, &depth);
-    position = indices[0];
 
     success = gtk_tree_get_row_drag_data (selection_data, &tree_model, &src);
     if (success == FALSE) goto errored;
@@ -76,24 +71,23 @@ _drag_data_received (GtkTreeDragDest  *drag_dest,
     if (LGW_IS_VOCABULARYWORDSTORE (tree_model) && depth == 1)
     {
       LwWord *word = NULL;
+      GList *words = NULL;
       word = lw_word_copy (lgw_vocabularywordstore_get_word (self, src));
       if (word != NULL)
       {
-        list = g_list_prepend (list, word);
-        lw_vocabulary_insert_all (vocabulary, position, list);
+        words = g_list_prepend (words, word);
+        lgw_vocabularywordstore_insert (self, dest, words);
       }
-      printf("gtk_tree_drag_dest_drag_data_received: position: %d, depth %d\n", position, depth);
+      if (words != NULL) g_list_free (words); words = NULL;
     }
     else
     {
-      printf("gtk_tree_drag_dest_drag_data_received: failed\n");
       success = FALSE;
     }
 
 errored:
 
     if (src != NULL) gtk_tree_path_free (src); src = NULL;
-    if (list != NULL) g_list_free (list); list = NULL;
 
     return success;
 }

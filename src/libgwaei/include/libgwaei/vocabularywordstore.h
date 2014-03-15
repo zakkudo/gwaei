@@ -4,18 +4,22 @@
 G_BEGIN_DECLS
 
 
+//The first items MUST be in the same order as LwWordField
 typedef enum { 
-  LGW_VOCABULARYWORDSTORE_COLUMN_SAVED_POSITION,
-  LGW_VOCABULARYWORDSTORE_COLUMN_POSITION,
-  LGW_VOCABULARYWORDSTORE_COLUMN_KANJI,
-  LGW_VOCABULARYWORDSTORE_COLUMN_READING,
-  LGW_VOCABULARYWORDSTORE_COLUMN_DEFINITION,
-  LGW_VOCABULARYWORDSTORE_COLUMN_CORRECT_GUESSES,
-  LGW_VOCABULARYWORDSTORE_COLUMN_INCORRECT_GUESSES,
+  //Settable using lgw_vocabularywordstore_set
+  LGW_VOCABULARYWORDSTORE_COLUMN_KANJI,              //LW_WORD_FIELD_KANJI
+  LGW_VOCABULARYWORDSTORE_COLUMN_READING,            //LW_WORD_FIELD_READING
+  LGW_VOCABULARYWORDSTORE_COLUMN_DEFINITION,         //LW_WORD_FIELD_DEFINITION
+
+  //Not settable
+  LGW_VOCABULARYWORDSTORE_COLUMN_CORRECT_GUESSES,    //LW_WORD_FIELD_CORRECT_GUESSES
+  LGW_VOCABULARYWORDSTORE_COLUMN_INCORRECT_GUESSES,  //LW_WORD_FIELD_INCORRECT_GUESSES
+  LGW_VOCABULARYWORDSTORE_COLUMN_LAST_STUDIED,       //LW_WORD_FIELD_TIMESTAMP
   LGW_VOCABULARYWORDSTORE_COLUMN_SCORE,
-  LGW_VOCABULARYWORDSTORE_COLUMN_LAST_STUDIED,
   LGW_VOCABULARYWORDSTORE_COLUMN_WEIGHT,
   LGW_VOCABULARYWORDSTORE_COLUMN_WORD,
+  LGW_VOCABULARYWORDSTORE_COLUMN_SAVED_POSITION,
+  LGW_VOCABULARYWORDSTORE_COLUMN_POSITION,
   TOTAL_LGW_VOCABULARYWORDSTORE_COLUMNS
 } LgwVocabularyWordStoreColumn;
 
@@ -47,6 +51,15 @@ GType lgw_vocabularywordstore_get_type (void) G_GNUC_CONST;
 
 LwWord* lgw_vocabularywordstore_get_word (LgwVocabularyWordStore *self, GtkTreePath *tree_path);
 GtkTreePath* lgw_vocabularywordstore_find_by_word (LgwVocabularyWordStore *self, LwWord *word);
+
+GList* lgw_vocabularywordstore_get_tree_paths (LgwVocabularyWordStore *self, GList *words);
+
+GList* lgw_vocabularywordstore_insert (LgwVocabularyWordStore *self, GtkTreePath *tree_path, GList *words);
+GList* lgw_vocabularywordstore_remove (LgwVocabularyWordStore *self, GList *tree_path_list);
+
+void lgw_vocabularywordstore_set (LgwVocabularyWordStore *self, GtkTreePath *tree_path, ...);
+
+LgwVocabularyWordStore* lgw_vocabularywordstore_copy (LgwVocabularyWordStore *self);
 
 G_END_DECLS
 
