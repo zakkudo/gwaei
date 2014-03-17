@@ -5,16 +5,14 @@ G_BEGIN_DECLS
 
 
 typedef enum {
-  SIGNALID_CHANGED,
-  SIGNALID_DELETED,
-  SIGNALID_INSERTED,
-  SIGNALID_REORDERED,
+  SIGNALID_INTERNAL_ORDER_CHANGED,
   TOTAL_SIGNALIDS
 } SignalId;
 
 typedef enum {
   PROP_0,
   PROP_PREFERENCES,
+  PROP_ORDER,
   TOTAL_PROPS
 } Prop;
 
@@ -33,6 +31,8 @@ struct _Data {
   gint length;
   struct _Index index;
   GList **array;
+  gchar *order;
+  guint signalid[TOTAL_SIGNALIDS];
 };
 
 
@@ -69,6 +69,7 @@ GList* lgw_vocabularyliststore_indices_to_tree_paths (LgwVocabularyListStore *se
 
 G_END_DECLS
 
+#include <libgwaei/vocabularyliststore-callbacks.h>
 #include <libgwaei/vocabularyliststore-treemodel-interface.h>
 #include <libgwaei/vocabularyliststore-treedragdest-interface.h>
 #include <libgwaei/vocabularyliststore-treedragsource-interface.h>

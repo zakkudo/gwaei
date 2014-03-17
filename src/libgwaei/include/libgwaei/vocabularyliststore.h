@@ -55,6 +55,9 @@ void lgw_vocabularyliststore_clear (LgwVocabularyListStore *self);
 LwPreferences* lgw_vocabularyliststore_get_preferences (LgwVocabularyListStore *self);
 void lgw_vocabularyliststore_set_preferences (LgwVocabularyListStore *self, LwPreferences *preferences);
 
+void lgw_vocabularyliststore_set_order (LgwVocabularyListStore *self, const gchar *order);
+gchar* lgw_vocabularyliststore_get_order (LgwVocabularyListStore *self);
+
 void lgw_vocabularyliststore_load (LgwVocabularyListStore *self);
 
 gint lgw_vocabularyliststore_length (LgwVocabularyListStore *self);

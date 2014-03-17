@@ -188,6 +188,15 @@ lgw_vocabularyliststore_class_init (LgwVocabularyListStoreClass *klass)
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_PREFERENCES, klasspriv->pspec[PROP_PREFERENCES]);
+
+    klasspriv->pspec[PROP_ORDER] = g_param_spec_object (
+        "order",
+        "order",
+        "order",
+        G_TYPE_STRING,
+        G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_ORDER, klasspriv->pspec[PROP_ORDER]);
 }
 
 
@@ -1352,4 +1361,131 @@ lgw_vocabularyliststore_indices_to_tree_paths (LgwVocabularyListStore *self,
 
     return tree_paths;
 }
+
+
+static gint
+_sort_filenames (gconstpointer a, gconstpointer b, GHashTable *table)
+{
+    LgwVocabularyWordStore *aw = LGW_VOCABULARYWORDSTORE (a);
+    LgwVocabularyWordStore *bw = LGW_VOCABULARYWORDSTORE (b);
+    
+    const gchar *an = lw_vocabulary_get_filename (LW_VOCABULARY (aw));
+    const gchar *bn = lw_vocabulary_get_filename (LW_VOCABULARY (bw));
+
+    gint ap = G_MAXINT;
+    gint bp = G_MAXINT;
+
+    if (g_hash_table_contains (table, an)) ap = GPOINTER_TO_INT (g_hash_table_lookup (table, an));
+    if (g_hash_table_contains (table, bn)) bp = GPOINTER_TO_INT (g_hash_table_lookup (table, bn));
+
+    if (a < b) return -1;
+    else if (a == b) return 0;
+    else if (a > b) return 1;
+    
+    g_assert_not_reached ();
+}
+
+
+void
+lgw_vocabularyliststore_set_order (LgwVocabularyListStore *self,
+                                   const gchar            *order)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (self), NULL);
+    if (order == NULL) return;
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    gchar **filenames = NULL;
+    GHashTable *table = NULL;
+    gint length = -1;
+    gint *reordered = NULL;
+    GtkTreePath *parent_path = NULL;
+    LwPreferences *preferences = NULL;
+
+    //Initializations
+    priv = self->priv;
+    filenames = g_strsplit (order, ";", -1);
+    if (filenames == NULL) goto errored;
+    table = g_hash_table_new (g_str_hash, g_str_equal);
+    if (table == NULL) goto errored;
+    length = lgw_vocabularyliststore_length (self);
+    if (length < 1) goto errored;
+    reordered = g_new0 (gint, length);
+    if (reordered == NULL) goto errored;
+    parent_path = gtk_tree_path_new ();
+    preferences = lgw_vocabularyliststore_get_preferences (self);
+
+    //Build the index lookup from the filename list
+    {
+      gint i = 0;
+      for (i = 0; filenames[i] != NULL; i++)
+      {
+        g_hash_table_insert (table, filenames[i], GINT_TO_POINTER (i));
+      }
+    }
+
+    //Sort
+    priv->data.list = g_list_sort_with_data (priv->data.list, (GCompareDataFunc) _sort_filenames, table);
+
+    //Create the mapping
+    {
+      gint i = 0;
+      GList *link = NULL;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LgwVocabularyWordStore *w = LGW_VOCABULARYWORDSTORE (link->data);
+        if (w != NULL)
+        {
+          reordered[i] = LW_VOCABULARY (w)->row.current_index;
+        }
+        else
+        {
+          reordered[i] = G_MAXINT;
+        }
+        i++;
+      }
+    }
+
+    //Update the internal array
+    _rebuild_array (self);
+
+    //Inform the view of the updated order
+    g_signal_emit_by_name (G_OBJECT (self),
+      "rows-reordered",
+      parent_path,
+      NULL,
+      reordered,
+      NULL
+    );
+
+    priv->data.order = g_strdup (order);
+    if (preferences != NULL)
+    {
+      lw_preferences_set_string_by_schema (preferences, LW_SCHEMA_VOCABULARY, LW_KEY_LIST_ORDER, order);
+    }
+
+errored:
+
+    if (table != NULL) g_hash_table_unref (table); table = NULL;
+    if (reordered != NULL) g_free (reordered); reordered = NULL;
+    if (parent_path != NULL) gtk_tree_path_free (parent_path); parent_path = NULL;
+}
+
+
+gchar*
+lgw_vocabularyliststore_get_order (LgwVocabularyListStore *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (self), NULL);
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.order;
+}
+
 
