@@ -362,9 +362,12 @@ GList*
 lgw_vocabularywordstore_indices_to_tree_paths (LgwVocabularyWordStore *self,
                                                gint                   *indices)
 {
+printf("BREAK0 lgw_vocabularywordstore_indices_to_tree_paths\n");
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYWORDSTORE (self), NULL);
     if (indices == NULL) return NULL;
+
+printf("BREAK1 lgw_vocabularywordstore_indices_to_tree_paths\n");
 
     //Declarations
     GList *tree_paths = NULL;
@@ -373,14 +376,16 @@ lgw_vocabularywordstore_indices_to_tree_paths (LgwVocabularyWordStore *self,
     
     {
       gint i = 0;
-      for (i = 0; indices[i] > 0; i++)
+      for (i = 0; indices[i] > -1; i++)
       {
+        printf("BREAK lgw_vocabularywordstore_indices_to_tree_paths indices[%d] = %d\n", i, indices[i]);
         GtkTreePath *tree_path = gtk_tree_path_new_from_indices (indices[i], -1);
         if (tree_path != NULL)
         {
           tree_paths = g_list_prepend (tree_paths, tree_path);
         }
       }
+      tree_paths = g_list_reverse (tree_paths);
     }
 
     return tree_paths;
@@ -394,6 +399,7 @@ lgw_vocabularywordstore_insert (LgwVocabularyWordStore *self,
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (self));
+printf("BREAK0 lgw_vocabularywordstore_insert\n");
 
     //Declarations
     gint position = -1;
@@ -408,10 +414,13 @@ lgw_vocabularywordstore_insert (LgwVocabularyWordStore *self,
       position = -1;
     vocabulary = LW_VOCABULARY (self);
     if (vocabulary == NULL) goto errored;
+printf("BREAK1 lgw_vocabularywordstore_insert\n");
     indices = lw_vocabulary_insert (vocabulary, position, words);
     if (indices == NULL) goto errored;
+printf("BREAK2 lgw_vocabularywordstore_insert %d\n", indices[0]);
     inserted_tree_paths = lgw_vocabularywordstore_indices_to_tree_paths (self, indices);
     if (inserted_tree_paths == NULL) goto errored;
+printf("BREAK3 lgw_vocabularywordstore_insert\n");
 
 errored:
 
@@ -435,7 +444,6 @@ lgw_vocabularywordstore_remove (LgwVocabularyWordStore *self,
 
     //Initializations
     vocabulary = LW_VOCABULARY (self);
-    printf("BREAK LENGTH %d\n", g_list_length (tree_paths));
     indices = lgw_vocabularywordstore_tree_paths_to_indices (self, tree_paths);
     if (indices == NULL) goto errored;
     removed = lw_vocabulary_remove (vocabulary, indices);

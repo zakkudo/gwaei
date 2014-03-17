@@ -56,7 +56,7 @@ void lgw_vocabularylistview_copy_selected (LgwVocabularyListView *self);
 
 void lgw_vocabularylistview_sync_editable (LgwVocabularyListView *self);
 
-GtkTreePath* lgw_vocabularylistview_get_path (LgwVocabularyListView *self, gint x, gint y);
+GtkTreePath* lgw_vocabularylistview_get_tree_path (LgwVocabularyListView *self, GdkDragContext *drag_context, gint x, gint y);
 
 G_END_DECLS
 

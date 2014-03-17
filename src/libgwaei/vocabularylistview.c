@@ -131,9 +131,9 @@ lgw_vocabularylistview_set_property (GObject      *object,
 
 static void 
 lgw_vocabularylistview_get_property (GObject      *object,
-                                    guint         property_id,
-                                    GValue       *value,
-                                    GParamSpec   *pspec)
+                                     guint         property_id,
+                                     GValue       *value,
+                                     GParamSpec   *pspec)
 {
     LgwVocabularyListView *self = NULL;
     LgwVocabularyListViewPrivate *priv = NULL;
@@ -577,7 +577,7 @@ lgw_vocabularylistview_add_new (LgwVocabularyListView *self)
     LgwVocabularyWordStore *vocabulary_word_store = NULL;
     LwVocabulary *vocabulary = NULL;
     gchar *filename = NULL;
-    GList *wordstorelist = NULL;
+    GList *wordstores = NULL;
     gint length = 0;
 
     GtkTreePath *path = NULL;
@@ -592,8 +592,8 @@ lgw_vocabularylistview_add_new (LgwVocabularyListView *self)
     if (vocabulary_word_store == NULL) goto errored;
     vocabulary = LW_VOCABULARY (vocabulary_word_store);
     if (vocabulary == NULL) goto errored;
-    wordstorelist = g_list_prepend (wordstorelist, vocabulary_word_store);
-    if (wordstorelist == NULL) goto errored;
+    wordstores = g_list_prepend (wordstores, vocabulary_word_store);
+    if (wordstores == NULL) goto errored;
 
     length = lgw_vocabularyliststore_length (vocabulary_list_store);
 
@@ -602,14 +602,14 @@ lgw_vocabularylistview_add_new (LgwVocabularyListView *self)
 
     lw_vocabulary_save (vocabulary, NULL);
 
-    lgw_vocabularyliststore_insert (vocabulary_list_store, NULL, wordstorelist);
+    lgw_vocabularyliststore_insert (vocabulary_list_store, NULL, wordstores);
     gtk_widget_grab_focus (GTK_WIDGET (priv->ui.tree_view));
     gtk_tree_view_set_cursor (priv->ui.tree_view, path, priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME], TRUE);
 
 errored:
 
     if (filename != NULL) g_free (filename); filename = NULL;
-    if (wordstorelist != NULL) g_list_free (wordstorelist); wordstorelist = NULL;
+    if (wordstores != NULL) g_list_free (wordstores); wordstores = NULL;
     if (path != NULL) gtk_tree_path_free (path); path = NULL;
 }
 
@@ -623,9 +623,9 @@ lgw_vocabularylistview_delete_selected (LgwVocabularyListView *self)
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
     LgwVocabularyListStore *vocabulary_list_store = NULL;
-    GList *pathlist = NULL;
+    GList *tree_paths = NULL;
     GtkTreeModel *tree_model = NULL;
-    GList *wordstorelist = NULL;
+    GList *wordstores = NULL;
 
     //Initializations
     priv = self->priv;
@@ -633,15 +633,15 @@ lgw_vocabularylistview_delete_selected (LgwVocabularyListView *self)
     if (vocabulary_list_store == NULL) goto errored;
     tree_model = GTK_TREE_MODEL (vocabulary_list_store);
     if (tree_model == NULL) goto errored;
-    pathlist = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
-    if (pathlist == NULL) goto errored;
+    tree_paths = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
+    if (tree_paths == NULL) goto errored;
 
-    wordstorelist = lgw_vocabularyliststore_delete (vocabulary_list_store, pathlist);
+    wordstores = lgw_vocabularyliststore_delete (vocabulary_list_store, tree_paths);
 
 errored:
 
-    if (pathlist != NULL) g_list_free_full (pathlist, (GDestroyNotify) gtk_tree_path_free); pathlist = NULL;
-    if (wordstorelist != NULL) g_list_free_full (wordstorelist, (GDestroyNotify) g_object_unref);
+    if (tree_paths != NULL) g_list_free_full (tree_paths, (GDestroyNotify) gtk_tree_path_free); tree_paths = NULL;
+    if (wordstores != NULL) g_list_free_full (wordstores, (GDestroyNotify) g_object_unref);
 }
 
 
@@ -834,12 +834,19 @@ lgw_vocabularylistview_sync_editable (LgwVocabularyListView *self)
 
 
 GtkTreePath*
-lgw_vocabularylistview_get_path (LgwVocabularyListView *self, gint x, gint y)
+lgw_vocabularylistview_get_tree_path (LgwVocabularyListView *self,
+                                      GdkDragContext        *drag_context,
+                                      gint                   x,
+                                      gint                   y)
 {
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+    g_return_if_fail (drag_context != NULL);
 
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
+    GtkWidget *source_widget = NULL;
+    GtkTreeView *source_tree_view = NULL;
+    GtkTreeModel *source_tree_model = NULL;
     LgwVocabularyListStore *vocabulary_list_store = NULL;
     GtkTreePath *tree_path = NULL;
     GtkTreeViewDropPosition drop_position = 0;
@@ -847,18 +854,31 @@ lgw_vocabularylistview_get_path (LgwVocabularyListView *self, gint x, gint y)
 
     //Initializations
     priv = self->priv;
+    source_widget = gtk_drag_get_source_widget (drag_context);
+    if (source_widget == NULL || !GTK_IS_TREE_VIEW (source_widget)) goto errored;
+    source_tree_view = GTK_TREE_VIEW (source_widget);
+    if (source_tree_view == NULL) goto errored;
+    source_tree_model = gtk_tree_view_get_model (source_tree_view);
+    if (source_tree_model == NULL) goto errored;
     vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
     if (vocabulary_list_store == NULL) goto errored;
     gtk_tree_view_get_dest_row_at_pos (priv->ui.tree_view, x, y, &tree_path, &drop_position);
     if (tree_path == NULL) goto errored;
     length = lgw_vocabularyliststore_length (vocabulary_list_store);
 
-    if (drop_position == GTK_TREE_VIEW_DROP_INTO_OR_AFTER || drop_position == GTK_TREE_VIEW_DROP_AFTER)
+    if (LGW_IS_VOCABULARYLISTSTORE (source_tree_model))
     {
-      gtk_tree_path_next (tree_path);
+      if (drop_position == GTK_TREE_VIEW_DROP_INTO_OR_AFTER || drop_position == GTK_TREE_VIEW_DROP_AFTER)
+      {
+        printf("PATH INCREMENT!!!\n");
+        gtk_tree_path_next (tree_path);
+      }
     }
+
+    printf("BREAK lgw_vocabularylistview_get_tree_path %d\n", gtk_tree_path_get_indices (tree_path)[0]);
 
 errored:
 
     return tree_path;
 }
+

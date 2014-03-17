@@ -647,36 +647,29 @@ lw_vocabulary_set_filename (LwVocabulary *self,
     gboolean changed = FALSE;
     gchar *previous_filename = NULL;
     gboolean file_exists = FALSE;
-    gchar *new_uri = NULL;
 
     //Initializations
     priv = self->priv;
-    new_uri = lw_vocabulary_build_uri (FILENAME);
-    if (new_uri == NULL) goto errored;
     file_exists = lw_vocabulary_has_file (self);
 
     //Delete
     if (FILENAME == NULL && file_exists)
     {
-      printf("BREAK delete file %s\n", FILENAME);
       changed = lw_vocabulary_delete_file (self);
     }
     //Rename
     else if (FILENAME != NULL && priv->config.filename != NULL && file_exists)
     {
-      printf("BREAK rename file %s\n", FILENAME);
       changed = lw_vocabulary_rename_file (self, FILENAME);
     }
     //Create
     else if (FILENAME != NULL && priv->config.filename != NULL && !file_exists)
     {
-      printf("BREAK create file %s\n", FILENAME);
       changed = lw_vocabulary_create_file (self, FILENAME);
     }
     //Initialize
     else if (priv->config.filename == NULL && FILENAME != NULL)
     {
-      printf("BREAK initialize %s\n", FILENAME);
       changed = TRUE;
     }
 
@@ -689,7 +682,6 @@ lw_vocabulary_set_filename (LwVocabulary *self,
 
 errored:
 
-    if (new_uri != NULL) g_free (new_uri); new_uri = NULL;
     if (previous_filename != NULL) g_free (previous_filename); previous_filename = NULL;
 
     return;
@@ -837,7 +829,6 @@ _insert (LwVocabulary *self,
          gint         *position,
          GList        *wordlist)
 {
-printf("BREAK0 _insert\n");
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
     if (wordlist == NULL) return 0;
@@ -874,7 +865,6 @@ printf("BREAK0 _insert\n");
     }
     else
     {
-printf("BREAK1 _insert\n");
       GList *insert_link = g_list_nth (priv->data.list, *position);
       if (insert_link == NULL) goto errored;
       GList *link = NULL;
@@ -883,7 +873,6 @@ printf("BREAK1 _insert\n");
         LwWord *word = LW_WORD (link->data);
         if (word != NULL)
         {
-printf("BREAK2 _insert %s \n", lw_word_get_kanji (word));
           priv->data.list = g_list_insert_before (priv->data.list, insert_link, word);
           insert_link = insert_link->prev;
           _add_to_index (self, word);
@@ -893,7 +882,6 @@ printf("BREAK2 _insert %s \n", lw_word_get_kanji (word));
           number_inserted--;
         }
       }
-printf("BREAK3 _insert %d \n", number_inserted);
     }
 
 errored:
@@ -984,47 +972,12 @@ errored:
 }
 
 
-static gint*
-_words_to_indices (GList *words)
-{
-    //Sanity checks
-    if (words == NULL) return NULL;
-
-    //Declarations
-    gint length = -1;
-    gint *array = NULL;
-
-    //Initializations
-    length = g_list_length (words);
-    if (length < 1) goto errored;
-    array = g_new0 (gint, length + 1);
-    if (array == NULL) goto errored;
-
-    {
-      gint i = 0;
-      GList *link = NULL;
-      for (link = words; link != NULL; link = link->next)
-      {
-        LwWord *word = LW_WORD (link->data);
-        if (word != NULL)
-        {
-          array[i++] = word->row.current_index;
-        }
-      }
-      array[i++] = -1;
-    }
-
-errored:
-
-    return array;
-}
-
-
 gint*
 lw_vocabulary_insert (LwVocabulary *self, 
                       gint          position,
                       GList        *words)
 {
+printf("BREAK0 lw_vocabulary_insert\n");
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
     if (words == NULL) return NULL;
@@ -1053,9 +1006,11 @@ errored:
     if (duplicates != NULL) g_free (duplicates); duplicates = NULL;
     if (removed != NULL) g_list_free (removed); removed;
 
+printf("BREAK1 lw_vocabulary_insert\n");
     if (changed) lw_vocabulary_set_changed (self, TRUE);
+printf("BREAK2 lw_vocabulary_insert\n");
     
-    return _words_to_indices (words);
+    return lw_vocabulary_get_indices (self, words);
 }
 
 
@@ -1243,6 +1198,28 @@ errored:
 }
 
 
+void
+lw_vocabulary_remove_words (LwVocabulary *self,
+                               GList        *words)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+    if (words == NULL) return;
+
+    //Declarations
+    gint *indices = NULL;
+
+    //Initializations
+    indices = lw_vocabulary_get_indices (self, words);
+    if (indices == NULL) goto errored;
+    lw_vocabulary_remove (self, indices);
+
+errored:
+
+    return;
+}
+
+
 static gint
 _get_new_filename_number (const gchar *PATTERN,
                           const gchar *FILENAME)
@@ -1356,7 +1333,6 @@ _get_copied_filename_base (const gchar *FILENAME,
 
     //Initializations
     pattern = lw_util_convert_printf_pattern_to_regex_pattern (PATTERN);
-    printf("BREAK _get_copied_filename_base %s\n", pattern);
     if (pattern == NULL) goto errored;
     regex = g_regex_new (pattern, 0, 0, NULL);
     if (regex == NULL) goto errored;
@@ -1370,7 +1346,6 @@ _get_copied_filename_base (const gchar *FILENAME,
       gchar *b = g_match_info_fetch_named (match_info, "text");
       if (b != NULL)
       {
-        printf("BREAK _get_copied_filename_base match: %s\n", b);
         if (base != NULL) g_free (base);
         base = b;
         b = NULL;
@@ -1422,7 +1397,6 @@ _get_copied_filename_number (const gchar  *FILENAME,
               number = n;
               if (filename_base_out != NULL)
               {
-        printf("BREAK _get_copied_filename_number %s %d %s %s\n", filename_base, n, prototype, FILENAME);
                 g_free (*filename_base_out);
                 *filename_base_out = filename_base;
                 filename_base = NULL;
@@ -1837,5 +1811,48 @@ errored:
     }
 
     va_end(va);
+}
+
+
+gint*
+lw_vocabulary_get_indices (LwVocabulary *self,
+                           GList        *words)
+{
+printf("BREAK0 lw_vocabulary_get_indices\n");
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+    if (words == NULL) return NULL;
+
+    //Declarations
+    gint* indices = NULL;
+    gint length = NULL;
+
+    //Initializations
+    length = g_list_length (words);
+    if (length < 1) goto errored;
+printf("BREAK1 lw_vocabulary_get_indices\n");
+    indices = g_new0 (gint, length + 1);
+    if (indices == NULL) goto errored;
+printf("BREAK2 lw_vocabulary_get_indices\n");
+
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = words; link != NULL; link = link->next)
+      {
+printf("BREAK3 lw_vocabulary_get_indices\n");
+        LwWord *word = LW_WORD (link->data);
+        if (word != NULL && word->row.current_index > -1)
+        {
+printf("BREAK0 lw_vocabulary_insert indices[%d] = %d\n", i, indices[i]);
+          indices[i++] = word->row.current_index;
+        }
+      }
+      indices[i++] = -1;
+    }
+
+errored:
+
+    return indices;
 }
 

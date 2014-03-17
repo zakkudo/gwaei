@@ -276,6 +276,7 @@ lgw_vocabularylistview_drag_motion_cb (LgwVocabularyListView *self,
 
     if (GTK_IS_TREE_VIEW (source_widget))
     {
+      printf("BREAK %d\n", drop_position);
       GtkTreeModel *tree_model = gtk_tree_view_get_model (GTK_TREE_VIEW (source_widget));
       if (LGW_IS_VOCABULARYLISTSTORE (tree_model))
       {
@@ -430,8 +431,6 @@ _move_from_wordstore (LgwVocabularyListView *self,
     GList *words = NULL;
     GList *copied_words = NULL;
     GList *inserted_tree_paths = NULL;
-    GList *source_tree_paths = NULL;
-    GList *removed = NULL;
     gboolean success = FALSE;
 
     //Initializations
@@ -451,17 +450,11 @@ _move_from_wordstore (LgwVocabularyListView *self,
 
     success = TRUE;
 
-    source_tree_paths = lgw_vocabularywordstore_get_tree_paths (source_word_store, words);
-    if (source_tree_paths == NULL) goto errored;
-
-    removed = lgw_vocabularywordstore_remove (source_word_store, source_tree_paths);
-    if (removed == NULL) goto errored;
+    lw_vocabulary_remove_words (LW_VOCABULARY (source_word_store), words);
 
 errored:
 
-    g_list_free_full (removed, (GDestroyNotify) lw_word_free); removed = NULL;
     g_list_free_full (inserted_tree_paths, (GDestroyNotify) gtk_tree_path_free); inserted_tree_paths = NULL;
-    g_list_free_full (source_tree_paths, (GDestroyNotify) gtk_tree_path_free); source_tree_paths = NULL;
     g_list_free (words); words = NULL;
     g_list_free (copied_words); copied_words = NULL;
 
@@ -537,7 +530,7 @@ lgw_vocabularylistview_drag_drop_cb (LgwVocabularyListView *self,
 
     //Initializations
     priv = self->priv;
-    tree_path = lgw_vocabularylistview_get_path (self, x, y);
+    tree_path = lgw_vocabularylistview_get_tree_path (self, drag_context, x, y);
     source_widget = gtk_drag_get_source_widget (drag_context);
     if (!GTK_IS_TREE_VIEW (source_widget)) goto errored;
     source_tree_view = GTK_TREE_VIEW (source_widget);
