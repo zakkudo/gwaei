@@ -54,21 +54,19 @@ lgw_vocabularyliststore_sync_order_cb (GSettings *settings,
     //Declarations
     LgwVocabularyListStore *self = NULL;
     LgwVocabularyListStorePrivate *priv = NULL;
-    gchar *order = NULL;
     
     //Initializations
     self = LGW_VOCABULARYLISTSTORE (data);
     priv = self->priv;
-    order = lw_preferences_get_string (settings, key);
-    if (order == NULL) goto errored;
+    if (priv->data.signalid[SIGNALID_INTERNAL_ORDER_CHANGED] == 0) goto errored;
 
-    g_signal_handler_block (self, priv->data.signalid[SIGNALID_INTERNAL_ORDER_CHANGED]);
-    lgw_vocabularyliststore_set_order (self, order);
-    g_signal_handler_unblock (self, priv->data.signalid[SIGNALID_INTERNAL_ORDER_CHANGED]);
+    g_signal_handler_block (settings, priv->data.signalid[SIGNALID_INTERNAL_ORDER_CHANGED]);
+    lgw_vocabularyliststore_sync_order (self);
+    g_signal_handler_unblock (settings, priv->data.signalid[SIGNALID_INTERNAL_ORDER_CHANGED]);
 
 errored:
 
-    g_free (order); order = NULL; 
+    return;
 }
 
 
@@ -91,11 +89,10 @@ lgw_vocabularyliststore_connect_signals (LgwVocabularyListStore *self)
       priv->data.signalid[SIGNALID_INTERNAL_ORDER_CHANGED] = lw_preferences_add_change_listener_by_schema (
           preferences,
           LW_SCHEMA_VOCABULARY,
-          LW_KEY_LIST_ORDER,
+          LW_KEY_ORDER,
           lgw_vocabularyliststore_sync_order_cb,
           self
       );
-      priv->data.signalid[SIGNALID_INTERNAL_ORDER_CHANGED] = 0;
     }
 }
 

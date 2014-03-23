@@ -372,7 +372,6 @@ _move_from_wordstore (LgwVocabularyWordView *self,
                       GtkTreePath           *destination_tree_path,
                       GtkTreeView           *source_tree_view)
 {
-printf("BREAK0 _move_from_wordstore\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
     g_return_if_fail (GTK_IS_TREE_VIEW (source_tree_view));

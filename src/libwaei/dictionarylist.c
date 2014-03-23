@@ -777,7 +777,7 @@ lw_dictionarylist_save_order (LwDictionaryList *dictionary_list)
     order = g_strjoinv (";", atoms);
     if (order == NULL) goto errored;
 
-    lw_preferences_set_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, LW_KEY_LOAD_ORDER, order);
+    lw_preferences_set_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, LW_KEY_ORDER, order);
 
 errored:
 
@@ -808,7 +808,7 @@ lw_dictionarylist_build_order_map (LwDictionaryList *dictionary_list)
     preferences = lw_dictionarylist_get_preferences (dictionary_list);;
     if (preferences == NULL) goto errored;
 
-    order = lw_preferences_get_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, LW_KEY_LOAD_ORDER);
+    order = lw_preferences_get_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, LW_KEY_ORDER);
     if (order == NULL) goto errored;
 
     atoms = g_strsplit_set (order, ";", -1);
@@ -968,6 +968,7 @@ lw_dictionarylist_sort_compare_function (gconstpointer a,
 void 
 lw_dictionarylist_load_order (LwDictionaryList *dictionary_list)
 {
+  /*TODO
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
 
@@ -1001,6 +1002,7 @@ errored:
 
     g_free (new_order); new_order = NULL;
     if (order_map != NULL) g_hash_table_destroy (order_map); order_map = NULL;
+    */
 }
 
 

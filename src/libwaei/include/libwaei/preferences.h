@@ -34,17 +34,6 @@ G_BEGIN_DECLS
 #define LW_KEY_ONTLY_EXACT_MATCHES  "only-exact-matches"
 
 //////////////////////////
-#define LW_SCHEMA_VOCABULARY         "org.gnome.gwaei.vocabulary"
-#define LW_KEY_TRIM_FLASHCARDS       "trim-flashcards"
-#define LW_KEY_SHUFFLE_FLASHCARDS    "shuffle-flashcards"
-#define LW_KEY_FLASHCARD_DECK_SIZE   "flashcard-deck-size"
-#define LW_KEY_TRACK_RESULTS         "track-results"
-#define LW_KEY_LIST_ORDER            "list-order"
-#define LW_KEY_POSITION_COLUMN_SHOW  "position-column-show"
-#define LW_KEY_SCORE_COLUMN_SHOW     "score-column-show"
-#define LW_KEY_TIMESTAMP_COLUMN_SHOW "timestamp-column-show"
-
-//////////////////////////
 #define LW_SCHEMA_FONT               "org.gnome.gwaei.fonts"
 #define LW_KEY_FONT_USE_GLOBAL_FONT  "use-global-document-font"
 #define LW_KEY_FONT_CUSTOM_FONT      "custom-document-font"
@@ -64,13 +53,6 @@ G_BEGIN_DECLS
 #define LW_HEADER_BG_DEFAULT      "#FFDEDE"
 #define LW_COMMENT_FG_DEFAULT     "#2222DD"
 
-////////////////////////////
-#define LW_SCHEMA_DICTIONARY       "org.gnome.gwaei.dictionary"
-#define LW_KEY_ENGLISH_SOURCE      "english-source"
-#define LW_KEY_KANJI_SOURCE        "kanji-source"
-#define LW_KEY_NAMES_PLACES_SOURCE "names-places-source"
-#define LW_KEY_EXAMPLES_SOURCE     "examples-source"
-#define LW_KEY_LOAD_ORDER          "load-order"
 
 
 //Boilerplate
@@ -126,6 +108,12 @@ gchar* lw_preferences_get_string_by_schema (LwPreferences*, const gchar*, const 
 
 void lw_preferences_set_string (GSettings*, const gchar*, const gchar*);
 void lw_preferences_set_string_by_schema (LwPreferences*, const gchar*, const gchar*, const gchar*);
+
+gchar** lw_preferences_get_strv (GSettings *settings, const gchar *KEY);
+gchar** lw_preferences_get_strv_by_schema (LwPreferences *preferences, const gchar *SCHEMA, const gchar *KEY);
+
+void lw_preferences_set_strv (GSettings  *settings, const gchar *KEY, const gchar *const *REQUEST);
+void  lw_preferences_set_strv_by_schema (LwPreferences *preferences, const gchar *SCHEMA, const gchar *KEY, const gchar *const *REQUEST);
 
 gulong lw_preferences_add_change_listener (GSettings*, const gchar*, void (*callback_function) (GSettings*, gchar*, gpointer), gpointer);
 gulong lw_preferences_add_change_listener_by_schema (LwPreferences*, const gchar*, const gchar*, void (*callback_function) (GSettings*, gchar*, gpointer), gpointer);

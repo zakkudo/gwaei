@@ -31,8 +31,9 @@ struct _Data {
   gint length;
   struct _Index index;
   GList **array;
-  gchar *order;
+  gchar **order;
   guint signalid[TOTAL_SIGNALIDS];
+  gboolean loaded;
 };
 
 
@@ -66,6 +67,7 @@ GList* lgw_vocabularyliststore_delete_by_indices (LgwVocabularyListStore *self, 
 gint* lgw_vocabularyliststore_tree_paths_to_indices (LgwVocabularyListStore *self, GList *tree_paths);
 GList* lgw_vocabularyliststore_indices_to_tree_paths (LgwVocabularyListStore *self, gint *indices);
 
+gchar** lgw_vocabularyliststore_get_actual_order (LgwVocabularyListStore *self);
 
 G_END_DECLS
 

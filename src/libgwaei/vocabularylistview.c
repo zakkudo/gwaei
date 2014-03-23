@@ -870,12 +870,9 @@ lgw_vocabularylistview_get_tree_path (LgwVocabularyListView *self,
     {
       if (drop_position == GTK_TREE_VIEW_DROP_INTO_OR_AFTER || drop_position == GTK_TREE_VIEW_DROP_AFTER)
       {
-        printf("PATH INCREMENT!!!\n");
         gtk_tree_path_next (tree_path);
       }
     }
-
-    printf("BREAK lgw_vocabularylistview_get_tree_path %d\n", gtk_tree_path_get_indices (tree_path)[0]);
 
 errored:
 

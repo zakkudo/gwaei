@@ -929,8 +929,6 @@ lgw_vocabularywordview_get_tree_path (LgwVocabularyWordView *self,
       gtk_tree_path_next (tree_path);
     }
 
-    printf("BREAK lgw_vocabularywordview_get_tree_path %d\n", gtk_tree_path_get_indices (tree_path)[0]);
-
 errored:
 
     return tree_path;

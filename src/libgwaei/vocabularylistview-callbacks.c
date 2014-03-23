@@ -276,7 +276,6 @@ lgw_vocabularylistview_drag_motion_cb (LgwVocabularyListView *self,
 
     if (GTK_IS_TREE_VIEW (source_widget))
     {
-      printf("BREAK %d\n", drop_position);
       GtkTreeModel *tree_model = gtk_tree_view_get_model (GTK_TREE_VIEW (source_widget));
       if (LGW_IS_VOCABULARYLISTSTORE (tree_model))
       {

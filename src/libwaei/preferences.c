@@ -79,6 +79,12 @@ lw_preferences_init (LwPreferences *preferences)
 {
     preferences->priv = LW_PREFERENCES_GET_PRIVATE (preferences);
     memset(preferences->priv, 0, sizeof(LwPreferencesPrivate));
+
+    //Declarations
+    LwPreferencesPrivate *priv = preferences->priv;
+
+    //Initializations
+    priv->settings = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 }
 
 
@@ -93,24 +99,8 @@ lw_preferences_finalize (GObject *object)
     preferences = LW_PREFERENCES (object);
     priv = preferences->priv;
 
-    {
-      GList *iter = NULL;
-      GSettings *settings = NULL;
-      for (iter = priv->settingslist; iter != NULL; iter = iter->next)
-      {
-        settings = (GSettings*) iter->data;
-        g_object_unref (settings);
-        iter->data = NULL;
-      }
-        g_list_free (priv->settingslist);
-        priv->settingslist = NULL;
-    }
-
-    if (priv->backend != NULL)
-    {
-      g_object_unref (priv->backend);
-      priv->backend = NULL;
-    }
+    if (priv->settings != NULL) g_hash_table_unref (priv->settings); priv->settings = NULL;
+    if (priv->backend != NULL) g_object_unref (priv->backend); priv->backend = NULL;
 
     memset(preferences->priv, 0, sizeof(LwPreferencesPrivate));
 
@@ -192,11 +182,12 @@ lw_preferences_class_init (LwPreferencesClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwPreferencesPrivate));
 
-    pspec = g_param_spec_object ("backend",
-                                 "The backend used by GSettings",
-                                 "Set the preferences's backend",
-                                 G_TYPE_SETTINGS_BACKEND,
-                                 G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    pspec = g_param_spec_object (
+      "backend",
+      "The backend used by GSettings",
+      "Set the preferences's backend",
+      G_TYPE_SETTINGS_BACKEND,
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_BACKEND, pspec);
 }
@@ -233,6 +224,44 @@ lw_preferences_schema_is_installed (const gchar *SCHEMA)
 }
 
 
+static GSettings*
+lw_preferences_create_settings_object (LwPreferences *preferences,
+                                       const gchar   *SCHEMA)
+{
+    //Sanity checks
+    g_return_val_if_fail (preferences != NULL, NULL);
+    g_assert (lw_preferences_schema_is_installed (SCHEMA));
+
+    //Declarations
+    LwPreferencesPrivate *priv = NULL;
+    gchar *schema = NULL;
+    GSettings *settings = NULL;
+
+    //Initializations
+    priv = preferences->priv;
+    schema = g_strdup (SCHEMA);
+    if (schema == NULL) goto errored;
+
+    if (priv->backend == NULL)
+    {
+      settings = g_settings_new (schema);
+    }
+    else
+    {
+      settings = g_settings_new_with_backend (schema, priv->backend);
+    }
+
+    if (settings != NULL)
+    {
+      g_hash_table_insert (priv->settings, schema, settings);
+    }
+
+errored:
+
+    return settings;
+}
+
+
 //!
 //! @brief Fetches a gsettings object by id, and stores it, using the cached one if available
 //!
@@ -251,43 +280,15 @@ lw_preferences_get_settings_object (LwPreferences *preferences,
 
     //Initializations
     priv = preferences->priv;
+    settings = g_hash_table_lookup (priv->settings, SCHEMA);
 
-    //Look for an already created gsetting object
-    {
-      GList *iter = NULL;
-      for (iter = priv->settingslist; iter != NULL; iter = iter->next)
-      {
-        settings = (GSettings*) iter->data;
-        g_object_get (G_OBJECT (settings), "schema", &schema, NULL);
-        if (schema != NULL && strcmp(schema, SCHEMA) == 0)
-          break;
-        if (schema != NULL)
-          g_free (schema);
-        settings = NULL;
-      }
-      if (settings != NULL) 
-      {
-        g_free (schema);
-      }
-      else
-      {
-      }
-    }
-
-    //If not found, create our own and add it to the list
+    //If settings is null, it wasn't found.  We will create one
     if (settings == NULL)
     {
-      g_assert (lw_preferences_schema_is_installed (SCHEMA));
-
-      if (priv->backend == NULL)
-        settings = g_settings_new (SCHEMA);
-      else
-        settings = g_settings_new_with_backend (SCHEMA, priv->backend);
-      if (settings != NULL)
-      {
-        priv->settingslist = g_list_append (priv->settingslist, settings);
-      }
+      settings = lw_preferences_create_settings_object (preferences, SCHEMA);
     }
+
+errored:
 
     return settings;
 }
@@ -619,7 +620,7 @@ lw_preferences_set_string (GSettings  *settings,
 
 
 //!
-//! @brief Sets the string to the key in the preferences backend
+//! @brief Sets the string array to the key in the preferences backend
 //! @param preferences The LwPreferences to fetch the GSettings object matching the schema
 //! @param schema The schema to look for
 //! @param key The key to use to look up the pref inside of the schema
@@ -627,9 +628,9 @@ lw_preferences_set_string (GSettings  *settings,
 //!
 void 
 lw_preferences_set_string_by_schema (LwPreferences *preferences,
-                                     const gchar    *SCHEMA,
-                                     const gchar    *KEY,
-                                     const gchar    *REQUEST)
+                                     const gchar   *SCHEMA,
+                                     const gchar   *KEY,
+                                     const gchar   *REQUEST)
 {
     //Declarations
     GSettings *settings = NULL;
@@ -639,6 +640,113 @@ lw_preferences_set_string_by_schema (LwPreferences *preferences,
     if (settings == NULL) goto errored;
 
     lw_preferences_set_string (settings, KEY, REQUEST);
+
+errored:
+
+    return;
+}
+
+
+//!
+//! @brief Returns an string array from the preference backend 
+//! @param output string array to copy the pref to
+//! @param settings The GSettings object to act on You will have to get it yourself using lw_preferences_get_settings_object
+//! @param key The key to use to look up the pref
+//! @param n The max characters to copy to output
+//!
+gchar**
+lw_preferences_get_strv (GSettings  *settings,
+                         const gchar *KEY)
+{
+    //Sanity checks
+    g_return_val_if_fail (settings != NULL, NULL);
+    g_return_val_if_fail (KEY != NULL, NULL);
+
+    //Declarations
+    gchar **text = NULL;
+
+    //Initializations
+    text = g_settings_get_strv (settings, KEY);
+
+    return text;
+}
+
+
+//!
+//! @brief Returns an string array from the preference backend 
+//! @param preferences The LwPreferences to fetch the GSettings object matching the schema
+//! @param output string array to copy the pref to
+//! @param schema The key to use to look up the pref
+//! @param key The key to use to look up the pref
+//! @param n The max characters to copy to output
+//!
+gchar**
+lw_preferences_get_strv_by_schema (LwPreferences *preferences,
+                                   const gchar    *SCHEMA,
+                                   const gchar    *KEY)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PREFERENCES(preferences));
+    g_return_if_fail (SCHEMA != NULL);
+    g_return_if_fail (KEY != NULL);
+
+    //Declarations
+    GSettings* settings = NULL;
+    gchar **text = NULL;
+    
+    //Initializations
+    settings = lw_preferences_get_settings_object (preferences, SCHEMA);
+    if (settings == NULL) goto errored;
+
+    text = lw_preferences_get_strv (settings, KEY);
+
+errored:
+
+    return text;
+}
+
+
+//!
+//! @brief Sets the string array array to the key in the preferences backend
+//! @param settings The GSettings object to act on You will have to get it yourself using lw_preferences_get_settings_object
+//! @param key The key to use to look up the pref
+//! @param request The value to set
+//!
+void 
+lw_preferences_set_strv (GSettings  *settings,
+                         const gchar *KEY,
+                         const gchar *const *REQUEST)
+{
+    //Sanity checks
+    g_return_if_fail (G_IS_SETTINGS (settings));
+    g_return_if_fail (KEY != NULL);
+    g_return_if_fail (REQUEST != NULL);
+
+    g_settings_set_strv (settings, KEY, REQUEST);
+}
+
+
+//!
+//! @brief Sets the string array to the key in the preferences backend
+//! @param preferences The LwPreferences to fetch the GSettings object matching the schema
+//! @param schema The schema to look for
+//! @param key The key to use to look up the pref inside of the schema
+//! @param request The value to set
+//!
+void 
+lw_preferences_set_strv_by_schema (LwPreferences      *preferences,
+                                   const gchar        *SCHEMA,
+                                   const gchar        *KEY,
+                                   const gchar *const *REQUEST)
+{
+    //Declarations
+    GSettings *settings = NULL;
+
+    //Initializations
+    settings = lw_preferences_get_settings_object (preferences, SCHEMA);
+    if (settings == NULL) goto errored;
+
+    lw_preferences_set_strv (settings, KEY, REQUEST);
 
 errored:
 

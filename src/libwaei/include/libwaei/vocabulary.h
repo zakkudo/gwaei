@@ -5,6 +5,19 @@
 
 G_BEGIN_DECLS
 
+//Preference Schema
+#define LW_SCHEMA_VOCABULARY         "org.gnome.gwaei.vocabulary"
+
+//Preference Settings
+#define LW_KEY_TRIM_FLASHCARDS       "trim-flashcards"
+#define LW_KEY_SHUFFLE_FLASHCARDS    "shuffle-flashcards"
+#define LW_KEY_FLASHCARD_DECK_SIZE   "flashcard-deck-size"
+#define LW_KEY_TRACK_RESULTS         "track-results"
+#define LW_KEY_ORDER                 "order"
+#define LW_KEY_POSITION_COLUMN_SHOW  "position-column-show"
+#define LW_KEY_SCORE_COLUMN_SHOW     "score-column-show"
+#define LW_KEY_TIMESTAMP_COLUMN_SHOW "timestamp-column-show"
+
 //Boilerplate
 typedef struct _LwVocabulary LwVocabulary;
 typedef struct _LwVocabularyClass LwVocabularyClass;

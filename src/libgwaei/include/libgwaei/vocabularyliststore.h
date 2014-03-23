@@ -55,8 +55,9 @@ void lgw_vocabularyliststore_clear (LgwVocabularyListStore *self);
 LwPreferences* lgw_vocabularyliststore_get_preferences (LgwVocabularyListStore *self);
 void lgw_vocabularyliststore_set_preferences (LgwVocabularyListStore *self, LwPreferences *preferences);
 
-void lgw_vocabularyliststore_set_order (LgwVocabularyListStore *self, const gchar *order);
-gchar* lgw_vocabularyliststore_get_order (LgwVocabularyListStore *self);
+void lgw_vocabularyliststore_set_order (LgwVocabularyListStore *self, const gchar *const *order);
+const gchar *const *lgw_vocabularyliststore_get_order (LgwVocabularyListStore *self);
+void lgw_vocabularyliststore_sync_order (LgwVocabularyListStore *self);
 
 void lgw_vocabularyliststore_load (LgwVocabularyListStore *self);
 
@@ -70,6 +71,8 @@ GList* lgw_vocabularyliststore_get_tree_paths (LgwVocabularyListStore *self, GLi
 
 void lgw_vocabularyliststore_set (LgwVocabularyListStore *self, GtkTreePath *tree_path, ...);
 void lgw_vocabularyliststore_set_valist (LgwVocabularyListStore *self, GtkTreePath *tree_path, va_list va);
+
+gboolean lgw_vocabularyliststore_contains_filename (LgwVocabularyListStore *self, const gchar *FILENAME);
 
 G_END_DECLS
 
