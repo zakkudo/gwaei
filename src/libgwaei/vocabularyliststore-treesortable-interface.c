@@ -46,6 +46,7 @@
 static void
 _sort_column_changed (GtkTreeSortable *sortable)
 {
+printf("BREAK _sort_column_changed\n");
     g_signal_emit_by_name (G_OBJECT (sortable), "sort-coumn-changed", NULL);
 }
 
@@ -55,6 +56,7 @@ _get_sort_column_id (GtkTreeSortable *sortable,
                      gint            *sort_column_id,
                      GtkSortType     *order)
 {
+printf("BREAK _get_sort_column_id\n");
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (sortable), FALSE);
 
@@ -66,10 +68,17 @@ _get_sort_column_id (GtkTreeSortable *sortable,
     self = LGW_VOCABULARYLISTSTORE (sortable);
     priv = self->priv;
 
-    *sort_column_id = priv->config.sort_column_id;
-    *order = priv->config.order;
+    if (sort_column_id != NULL)
+    {
+      *sort_column_id = priv->config.sort_column_id;
+    }
 
-    return !(GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID || GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID);
+    if (order != NULL)
+    {
+      *order = priv->config.order;
+    }
+
+    return (*sort_column_id != GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID && *sort_column_id != GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID);
 }
 
 
@@ -78,6 +87,7 @@ _set_sort_column_id (GtkTreeSortable *sortable,
                      gint             sort_column_id,
                      GtkSortType      order)
 {
+printf("BREAK _set_sort_column_id %d %d\n", sort_column_id, order);
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (sortable), FALSE);
 
@@ -101,6 +111,7 @@ _set_sort_func (GtkTreeSortable        *sortable,
                 gpointer                user_data,
                 GDestroyNotify          destroy)
 {
+printf("BREAK _set_sort_func\n");
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (sortable), FALSE);
 
@@ -151,6 +162,7 @@ _set_default_sort_func (GtkTreeSortable        *sortable,
 static gboolean
 _has_default_sort_func (GtkTreeSortable *sortable)
 {
+printf("BREAK _has_default_sort_func\n");
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (sortable), FALSE);
 

@@ -51,6 +51,7 @@ G_DEFINE_TYPE_WITH_CODE (
   G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularyliststore_implement_treemodel_interface)
   G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_SOURCE, lgw_vocabularyliststore_implement_treedragsource_interface)
   G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_DEST, lgw_vocabularyliststore_implement_treedragdest_interface)
+  G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_SORTABLE, lgw_vocabularyliststore_implement_treesortable_interface)
 );
 
 

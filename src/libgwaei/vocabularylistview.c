@@ -218,6 +218,8 @@ lgw_vocabularylistview_constructed (GObject *object)
           GDK_ACTION_MOVE | GDK_ACTION_COPY
         );
 
+        gtk_tree_view_set_headers_clickable (priv->ui.tree_view, TRUE);
+
         gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
         gtk_widget_show (tree_view);
 
@@ -239,6 +241,7 @@ lgw_vocabularylistview_constructed (GObject *object)
                 "weight", LGW_VOCABULARYLISTSTORE_COLUMN_STYLE_WEIGHT,
                 NULL
             );
+            gtk_tree_view_column_set_clickable (column, TRUE);
             gtk_tree_view_append_column (priv->ui.tree_view, column);
             priv->ui.tree_view_column[TREEVIEWCOLUMN_POSITION] = column;
           }
@@ -274,6 +277,7 @@ lgw_vocabularylistview_constructed (GObject *object)
                 "weight", LGW_VOCABULARYLISTSTORE_COLUMN_STYLE_WEIGHT,
                 NULL
             );
+            gtk_tree_view_column_set_clickable (column, TRUE);
             gtk_tree_view_append_column (priv->ui.tree_view, column);
             priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME] = column;
           }

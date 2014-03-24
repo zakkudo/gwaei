@@ -649,6 +649,51 @@ lgw_vocabularylistview_drag_leave_cb (LgwVocabularyListView *self,
 
 
 void
+lgw_vocabularylistview_filename_column_clicked_cb (LgwVocabularyListView *self,
+                                                   GtkTreeViewColumn     *tree_view_column)
+{
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+    g_return_if_fail (GTK_IS_TREE_VIEW_COLUMN (tree_view_column));
+
+    //Declarations
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+    GtkTreeSortable *tree_sortable = NULL;
+    gint sort_column_id = 0;
+    GtkSortType order = 0;
+    gboolean default_column = TRUE;
+
+    //Initializations
+    vocabulary_list_store = lgw_vocabularylistview_get_liststore (self);
+    tree_sortable = GTK_TREE_SORTABLE (vocabulary_list_store);
+    default_column = gtk_tree_sortable_get_sort_column_id (tree_sortable, &sort_column_id, &order);
+
+    if (sort_column_id == TREEVIEWCOLUMN_NAME && order == GTK_SORT_ASCENDING)
+    {
+      sort_column_id = TREEVIEWCOLUMN_NAME;
+      order = GTK_SORT_DESCENDING;
+      gtk_tree_view_column_set_sort_indicator (tree_view_column, TRUE);
+      gtk_tree_view_column_set_sort_order (tree_view_column, order);
+    }
+    else if (sort_column_id == TREEVIEWCOLUMN_NAME && order == GTK_SORT_DESCENDING)
+    {
+      sort_column_id = GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID;
+      order = GTK_SORT_ASCENDING;
+      gtk_tree_view_column_set_sort_indicator (tree_view_column, FALSE);
+      gtk_tree_view_column_set_sort_order (tree_view_column, order);
+    }
+    else
+    {
+      sort_column_id = TREEVIEWCOLUMN_NAME;
+      order = GTK_SORT_ASCENDING;
+      gtk_tree_view_column_set_sort_indicator (tree_view_column, TRUE);
+      gtk_tree_view_column_set_sort_order (tree_view_column, order);
+    }
+
+    gtk_tree_sortable_set_sort_column_id (tree_sortable, sort_column_id, order);
+}
+
+
+void
 lgw_vocabularylistview_connect_signals (LgwVocabularyListView *self)
 {
     //Sanity checks
@@ -736,6 +781,16 @@ lgw_vocabularylistview_connect_signals (LgwVocabularyListView *self)
           G_OBJECT (priv->ui.tree_view),
           "drag-leave",
           G_CALLBACK (lgw_vocabularylistview_drag_leave_cb),
+          self
+      );
+    }
+
+    if (priv->data.signalid[SIGNALID_FILENAME_COLUMN_CLICKED] == 0)
+    {
+      priv->data.signalid[SIGNALID_FILENAME_COLUMN_CLICKED] = g_signal_connect_swapped (
+          G_OBJECT (priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME]),
+          "clicked",
+          G_CALLBACK (lgw_vocabularylistview_filename_column_clicked_cb),
           self
       );
     }
@@ -827,6 +882,15 @@ lgw_vocabularylistview_disconnect_signals (LgwVocabularyListView *self)
         priv->data.signalid[SIGNALID_DRAG_LEAVE]
       );
       priv->data.signalid[SIGNALID_DRAG_LEAVE] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_FILENAME_COLUMN_CLICKED] != 0)
+    {
+      g_signal_handler_disconnect (
+        G_OBJECT (priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME]),
+        priv->data.signalid[SIGNALID_FILENAME_COLUMN_CLICKED]
+      );
+      priv->data.signalid[SIGNALID_FILENAME_COLUMN_CLICKED] = 0;
     }
 }
 
