@@ -101,13 +101,34 @@ lgw_vocabularyliststore_constructor (GType                  gtype,
                                      GObjectConstructParam *properties)
 {
    GObject *self = NULL;
+   GtkTreeSortable *tree_sortable = NULL;
 
     {
       /* Always chain up to the parent constructor */
       self = G_OBJECT_CLASS (lgw_vocabularyliststore_parent_class)->constructor (gtype, n_properties, properties);
     }
+    if (self == NULL) goto errored;
+    tree_sortable = GTK_TREE_SORTABLE (self);
+    if (tree_sortable == NULL) goto errored;
+
+    gtk_tree_sortable_set_default_sort_func (
+      tree_sortable,
+      lgw_vocabularyliststore_saved_position_compare_func,
+      NULL,
+      NULL
+    );
+
+    gtk_tree_sortable_set_sort_func (
+      tree_sortable,
+      LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
+      lgw_vocabularyliststore_name_compare_func,
+      NULL,
+      NULL
+    );
     
     lgw_vocabularyliststore_load (LGW_VOCABULARYLISTSTORE (self));
+
+errored:
 
     return self;
 }
@@ -1620,4 +1641,192 @@ errored:
     if (order != NULL) g_strfreev (order); order = NULL;
 }
 
+
+gint
+lgw_vocabularyliststore_name_compare_func (GtkTreeModel *model,
+                                           GtkTreeIter *a,
+                                           GtkTreeIter *b,
+                                           gpointer user_data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (model));
+
+    printf("BREAK lgw_vocabularyliststore_name_compare_func\n");
+
+    //Declarations
+    LwVocabulary *va = NULL;
+    LwVocabulary *vb = NULL;
+    const gchar *fa = NULL;
+    const gchar *fb = NULL;
+    gint result = 0;
+
+    //Initializations
+    gtk_tree_model_get (model, a, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &va, -1);
+    if (va == NULL) goto errored;
+    gtk_tree_model_get (model, b, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &vb, -1);
+    if (vb == NULL) goto errored;
+    fa = lw_vocabulary_get_filename (va);
+    fb = lw_vocabulary_get_filename (vb);
+
+errored:
+
+    result = g_strcmp0 (fa, fb);
+
+    if (va != NULL) g_object_unref (va); va = NULL;
+    if (vb != NULL) g_object_unref (vb); va = NULL;
+
+    return result;
+}
+
+
+gint
+lgw_vocabularyliststore_saved_position_compare_func (GtkTreeModel *model,
+                                                     GtkTreeIter *a,
+                                                     GtkTreeIter *b,
+                                                     gpointer user_data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (model));
+
+    printf("BREAK lgw_vocabularyliststore_saved_position_compare_func\n");
+
+    //Declarations
+    LwVocabulary *va = NULL;
+    LwVocabulary *vb = NULL;
+    gint pa = -1;
+    gint pb = -1;
+    gint result = 0;
+
+    //Initializations
+    gtk_tree_model_get (model, a, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &va, -1);
+    if (va == NULL) goto errored;
+    gtk_tree_model_get (model, b, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &vb, -1);
+    if (vb == NULL) goto errored;
+    pa = va->row.current_index;
+    pb = vb->row.current_index;
+
+errored:
+
+    result = pb - pa;
+
+    if (va != NULL) g_object_unref (va); va = NULL;
+    if (vb != NULL) g_object_unref (vb); va = NULL;
+
+    return result;
+}
+
+
+static gint
+_compare_func (LwVocabulary *va,
+               LwVocabulary *vb,
+               LgwVocabularyListStore *self)
+{
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    GtkTreeSortable *tree_sortable = NULL;
+    GtkTreeModel *tree_model = GTK_TREE_MODEL (self);
+    GtkTreeIterCompareFunc sort_func = NULL;
+    gint sort_column_id = -1;
+    GtkSortType order = 0;
+    gboolean is_special_sort_column = FALSE;
+    GtkTreeIter a_iter;
+    GtkTreeIter b_iter;
+    gboolean has_a = FALSE;
+    gboolean has_b = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    tree_model = GTK_TREE_MODEL (self);
+    tree_sortable = GTK_TREE_SORTABLE (self);
+    is_special_sort_column = gtk_tree_sortable_get_sort_column_id (tree_sortable, &sort_column_id, &order);
+    if (sort_column_id == GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID) goto errored;
+    else if (sort_column_id == GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID) sort_func = priv->config.default_sort_func;
+    else sort_func = priv->config.sort_func[sort_column_id];
+
+    if (sort_func == NULL) goto errored;
+
+    {
+      lgw_vocabularyliststore_initialize_tree_iter (self, &a_iter, va->row.current_index);
+    }
+
+    {
+      lgw_vocabularyliststore_initialize_tree_iter (self, &b_iter, vb->row.current_index);
+    }
+
+errored:
+
+    return (has_a && has_b && sort_func (tree_model, &a_iter, &b_iter, NULL));
+}
+
+
+void
+lgw_vocabularyliststore_sort (LgwVocabularyListStore *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (self));
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    gint length = -1;
+    gint *new_order = NULL;
+    GtkTreePath *tree_path = NULL;
+    
+    //Initializations
+    priv = self->priv;
+    length = lgw_vocabularyliststore_length (self);
+    new_order = g_new0 (gint, length + 1);
+    if (new_order == NULL) goto errored;
+    tree_path = gtk_tree_path_new ();
+    if (tree_path == NULL) goto errored;
+
+    lgw_vocabularyliststore_sync_previous_indices (self);
+
+    priv->data.list = g_list_sort_with_data (priv->data.list, (GCompareDataFunc) _compare_func, self);
+
+    {
+      GList *link = NULL;
+      gint j = 0;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LwVocabulary *v = LW_VOCABULARY (link->data);
+        new_order[j++] = v->row.previous_index;
+      }
+      new_order[j++] = -1;
+    }
+
+    _rebuild_array (self);
+
+    g_signal_emit_by_name (self, "rows-reordered", tree_path, NULL, new_order);
+
+errored:
+
+    if (new_order != NULL) g_free (new_order); new_order = NULL;
+    if (tree_path == NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
+}
+
+
+void
+lgw_vocabularyliststore_sync_previous_indices (LgwVocabularyListStore *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (self));
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    
+    //Initializations
+    priv = self->priv;
+        
+    {
+      GList *link = NULL;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LwVocabulary *v = LW_VOCABULARY (link->data);
+        if (v != NULL)
+        {
+          v->row.previous_index = v->row.current_index;
+        }
+      }
+    }
+}
 

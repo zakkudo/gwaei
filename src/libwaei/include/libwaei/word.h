@@ -15,6 +15,7 @@ typedef enum {
 
 struct _Row {
   gint current_index;
+  gint previous_index;
   gint saved_index;
 };
 

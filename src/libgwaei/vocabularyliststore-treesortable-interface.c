@@ -47,7 +47,6 @@ static void
 _sort_column_changed (GtkTreeSortable *sortable)
 {
 printf("BREAK _sort_column_changed\n");
-    g_signal_emit_by_name (G_OBJECT (sortable), "sort-coumn-changed", NULL);
 }
 
 
@@ -87,7 +86,8 @@ _set_sort_column_id (GtkTreeSortable *sortable,
                      gint             sort_column_id,
                      GtkSortType      order)
 {
-printf("BREAK _set_sort_column_id %d %d\n", sort_column_id, order);
+    printf("BREAK _set_sort_column_id %d %d\n", sort_column_id, order);
+
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYLISTSTORE (sortable), FALSE);
 
@@ -101,6 +101,10 @@ printf("BREAK _set_sort_column_id %d %d\n", sort_column_id, order);
 
     priv->config.sort_column_id = sort_column_id;
     priv->config.order = order;
+
+    g_signal_emit_by_name (sortable, "sort-column-changed", NULL);
+
+    lgw_vocabularyliststore_sort (self);
 }
 
 
@@ -123,18 +127,7 @@ printf("BREAK _set_sort_func\n");
     self = LGW_VOCABULARYLISTSTORE (sortable);
     priv = self->priv;
 
-    priv->config.sort_func = sort_func;
-}
-
-
-static gint
-_default_sort_func (GtkTreeModel *model,
-                    GtkTreeIter  *a,
-                    GtkTreeIter *b,
-                    gpointer user_data)
-{
-    g_assert_not_reached ();
-    return 0;
+    priv->config.sort_func[sort_column_id] = sort_func;
 }
 
 
@@ -155,7 +148,7 @@ _set_default_sort_func (GtkTreeSortable        *sortable,
     self = LGW_VOCABULARYLISTSTORE (sortable);
     priv = self->priv;
 
-    priv->config.sort_func = _default_sort_func;
+    priv->config.default_sort_func = sort_func;
 }
 
 
@@ -174,7 +167,7 @@ printf("BREAK _has_default_sort_func\n");
     self = LGW_VOCABULARYLISTSTORE (sortable);
     priv = self->priv;
 
-    return TRUE;
+    return (priv->config.default_sort_func != NULL);
 }
 
 

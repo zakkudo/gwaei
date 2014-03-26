@@ -74,6 +74,12 @@ void lgw_vocabularyliststore_set_valist (LgwVocabularyListStore *self, GtkTreePa
 
 gboolean lgw_vocabularyliststore_contains_filename (LgwVocabularyListStore *self, const gchar *FILENAME);
 
+gint lgw_vocabularyliststore_name_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
+gint lgw_vocabularyliststore_saved_position_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
+
+void lgw_vocabularyliststore_sort (LgwVocabularyListStore *self);
+
+
 G_END_DECLS
 
 #endif
