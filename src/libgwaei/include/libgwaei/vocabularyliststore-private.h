@@ -69,7 +69,6 @@ gint* lgw_vocabularyliststore_tree_paths_to_indices (LgwVocabularyListStore *sel
 GList* lgw_vocabularyliststore_indices_to_tree_paths (LgwVocabularyListStore *self, gint *indices);
 
 gchar** lgw_vocabularyliststore_get_actual_order (LgwVocabularyListStore *self);
-void lgw_vocabularyliststore_sync_previous_indices (LgwVocabularyListStore *self);
 
 G_END_DECLS
 

@@ -78,6 +78,7 @@ gint lgw_vocabularyliststore_name_compare_func (GtkTreeModel *model, GtkTreeIter
 gint lgw_vocabularyliststore_saved_position_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
 
 void lgw_vocabularyliststore_sort (LgwVocabularyListStore *self);
+void lgw_vocabularyliststore_cycle_sort_order (LgwVocabularyListStore *self, gint column_id);
 
 
 G_END_DECLS

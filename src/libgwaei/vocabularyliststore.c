@@ -120,7 +120,7 @@ lgw_vocabularyliststore_constructor (GType                  gtype,
 
     gtk_tree_sortable_set_sort_func (
       tree_sortable,
-      LGW_VOCABULARYLISTSTORE_COLUMN_NAME,
+      LGW_VOCABULARYLISTSTORE_COLUMN_FILENAME, 
       lgw_vocabularyliststore_name_compare_func,
       NULL,
       NULL
@@ -1573,7 +1573,7 @@ lgw_vocabularyliststore_sync_order (LgwVocabularyListStore *self)
     LwPreferences *preferences = NULL;
     GHashTable *table = NULL;
     gint length = -1;
-    gint index = -1;
+    gint index = 0;
     gchar **order = NULL;
     gboolean inconsistant = FALSE;
 
@@ -1634,6 +1634,8 @@ lgw_vocabularyliststore_sync_order (LgwVocabularyListStore *self)
     {
       lgw_vocabularyliststore_set_order (self, NULL);
     }
+
+    gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (self), GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
 
 errored:
 
@@ -1702,12 +1704,12 @@ lgw_vocabularyliststore_saved_position_compare_func (GtkTreeModel *model,
     if (va == NULL) goto errored;
     gtk_tree_model_get (model, b, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &vb, -1);
     if (vb == NULL) goto errored;
-    pa = va->row.current_index;
-    pb = vb->row.current_index;
+    pa = va->row.saved_index;
+    pb = vb->row.saved_index;
 
 errored:
 
-    result = pb - pa;
+    result = pa - pb;
 
     if (va != NULL) g_object_unref (va); va = NULL;
     if (vb != NULL) g_object_unref (vb); va = NULL;
@@ -1728,34 +1730,46 @@ _compare_func (LwVocabulary *va,
     GtkTreeIterCompareFunc sort_func = NULL;
     gint sort_column_id = -1;
     GtkSortType order = 0;
-    gboolean is_special_sort_column = FALSE;
+    gboolean is_normal_column = FALSE;
     GtkTreeIter a_iter;
     GtkTreeIter b_iter;
-    gboolean has_a = FALSE;
-    gboolean has_b = FALSE;
 
     //Initializations
     priv = self->priv;
     tree_model = GTK_TREE_MODEL (self);
     tree_sortable = GTK_TREE_SORTABLE (self);
-    is_special_sort_column = gtk_tree_sortable_get_sort_column_id (tree_sortable, &sort_column_id, &order);
-    if (sort_column_id == GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID) goto errored;
-    else if (sort_column_id == GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID) sort_func = priv->config.default_sort_func;
-    else sort_func = priv->config.sort_func[sort_column_id];
+    is_normal_column = gtk_tree_sortable_get_sort_column_id (tree_sortable, &sort_column_id, &order);
+printf("BREAK _compare_func %d %d %d\n", is_normal_column, sort_column_id, order);
+
+    if (sort_column_id == GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID) 
+    {
+      goto errored;
+    }
+    else if (sort_column_id == GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID) 
+    {
+      printf("BREAK _compare_func GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID\n");
+      sort_func = priv->config.default_sort_func;
+    }
+    else 
+    {
+      printf("BREAK _compare_func %d \n", sort_column_id);
+      sort_func = priv->config.sort_func[sort_column_id];
+    }
 
     if (sort_func == NULL) goto errored;
 
-    {
-      lgw_vocabularyliststore_initialize_tree_iter (self, &a_iter, va->row.current_index);
-    }
+    lgw_vocabularyliststore_initialize_tree_iter (self, &a_iter, va->row.current_index);
+    lgw_vocabularyliststore_initialize_tree_iter (self, &b_iter, vb->row.current_index);
 
-    {
-      lgw_vocabularyliststore_initialize_tree_iter (self, &b_iter, vb->row.current_index);
-    }
+    gint direction = (order == GTK_SORT_DESCENDING) ? -1 : 1;
+
+    return (sort_func (tree_model, &a_iter, &b_iter, NULL) * direction);
 
 errored:
 
-    return (has_a && has_b && sort_func (tree_model, &a_iter, &b_iter, NULL));
+    g_warning ("There is no sort function set for column %d", sort_column_id);
+
+    return 0;
 }
 
 
@@ -1779,17 +1793,30 @@ lgw_vocabularyliststore_sort (LgwVocabularyListStore *self)
     tree_path = gtk_tree_path_new ();
     if (tree_path == NULL) goto errored;
 
-    lgw_vocabularyliststore_sync_previous_indices (self);
-
-    priv->data.list = g_list_sort_with_data (priv->data.list, (GCompareDataFunc) _compare_func, self);
-
+    //Map the old order to the new order
     {
       GList *link = NULL;
       gint j = 0;
       for (link = priv->data.list; link != NULL; link = link->next)
       {
         LwVocabulary *v = LW_VOCABULARY (link->data);
-        new_order[j++] = v->row.previous_index;
+        new_order[j++] = v->row.current_index;
+        printf("BREAK before new_order[%d] = %d %s\n", (j-1), new_order[j-1], lw_vocabulary_get_filename (v));
+      }
+      new_order[j++] = -1;
+    }
+
+    priv->data.list = g_list_sort_with_data (priv->data.list, (GCompareDataFunc) _compare_func, self);
+
+    //Map the old order to the new order
+    {
+      GList *link = NULL;
+      gint j = 0;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LwVocabulary *v = LW_VOCABULARY (link->data);
+        new_order[j++] = v->row.current_index;
+        printf("BREAK after new_order[%d] = %d %s\n", (j-1), new_order[j-1], lw_vocabulary_get_filename (v));
       }
       new_order[j++] = -1;
     }
@@ -1804,29 +1831,4 @@ errored:
     if (tree_path == NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
 }
 
-
-void
-lgw_vocabularyliststore_sync_previous_indices (LgwVocabularyListStore *self)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (self));
-
-    //Declarations
-    LgwVocabularyListStorePrivate *priv = NULL;
-    
-    //Initializations
-    priv = self->priv;
-        
-    {
-      GList *link = NULL;
-      for (link = priv->data.list; link != NULL; link = link->next)
-      {
-        LwVocabulary *v = LW_VOCABULARY (link->data);
-        if (v != NULL)
-        {
-          v->row.previous_index = v->row.current_index;
-        }
-      }
-    }
-}
 

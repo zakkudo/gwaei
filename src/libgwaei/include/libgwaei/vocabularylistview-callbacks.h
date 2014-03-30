@@ -13,6 +13,9 @@ void lgw_vocabularylistview_copy_selected_activated_cb (GSimpleAction *action, G
 void lgw_vocabularylistview_cut_selected_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 void lgw_vocabularylistview_paste_activated_cb (GSimpleAction *action, GVariant *parameter, gpointer data);
 
+void lgw_vocabularylistview_sort_column_changed_cb (LgwVocabularyListView *self, GtkTreeSortable *sortable);
+
+
 G_END_DECLS
 
 #endif

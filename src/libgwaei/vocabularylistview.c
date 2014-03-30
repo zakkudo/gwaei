@@ -218,8 +218,6 @@ lgw_vocabularylistview_constructed (GObject *object)
           GDK_ACTION_MOVE | GDK_ACTION_COPY
         );
 
-        gtk_tree_view_set_headers_clickable (priv->ui.tree_view, TRUE);
-
         gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
         gtk_widget_show (tree_view);
 
@@ -241,7 +239,6 @@ lgw_vocabularylistview_constructed (GObject *object)
                 "weight", LGW_VOCABULARYLISTSTORE_COLUMN_STYLE_WEIGHT,
                 NULL
             );
-            gtk_tree_view_column_set_clickable (column, TRUE);
             gtk_tree_view_append_column (priv->ui.tree_view, column);
             priv->ui.tree_view_column[TREEVIEWCOLUMN_POSITION] = column;
           }
@@ -277,7 +274,8 @@ lgw_vocabularylistview_constructed (GObject *object)
                 "weight", LGW_VOCABULARYLISTSTORE_COLUMN_STYLE_WEIGHT,
                 NULL
             );
-            gtk_tree_view_column_set_clickable (column, TRUE);
+            gtk_tree_view_column_set_sort_column_id (column, LGW_VOCABULARYLISTSTORE_COLUMN_FILENAME);
+            gtk_tree_view_column_set_expand (column, TRUE);
             gtk_tree_view_append_column (priv->ui.tree_view, column);
             priv->ui.tree_view_column[TREEVIEWCOLUMN_NAME] = column;
           }
@@ -882,4 +880,43 @@ errored:
 
     return tree_path;
 }
+
+
+gint
+lgw_vocabularylistview_get_liststore_column (LgwVocabularyListView *self,
+                                             gint                   treeview_column)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
+    if (treeview_column < 0) return -1;
+
+    //Declarations
+    LgwVocabularyListViewPrivate *priv = NULL;
+    GtkCellLayout *cell_layout = NULL;
+    GList *cells = NULL;
+    GtkCellRenderer *cell_renderer = NULL;
+    gint liststore_column = -1;
+
+    //Initializations
+    priv = self->priv;
+    cell_layout = GTK_CELL_LAYOUT (priv->ui.tree_view);
+    if (cell_layout == NULL) goto errored;
+    cells = gtk_cell_layout_get_cells (cell_layout);
+    if (cells == NULL) goto errored;
+    cell_renderer = GTK_CELL_RENDERER (g_list_nth_data (cells, treeview_column));
+    if (cell_renderer == NULL) goto errored;
+    {
+      if (GTK_IS_CELL_RENDERER_TEXT (cell_renderer))
+      {
+        g_object_get (cell_renderer, "text", &liststore_column, NULL);
+      }
+    }
+
+errored:
+
+    if (cells != NULL) g_list_free (cells); cells = NULL;
+
+    return liststore_column;
+}
+
 

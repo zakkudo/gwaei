@@ -241,7 +241,7 @@ lgw_vocabularywordview_constructed (GObject *object)
               "text", LGW_VOCABULARYWORDSTORE_COLUMN_KANJI,
               NULL
           );
-          gtk_tree_view_column_set_clickable (column, TRUE);
+          gtk_tree_view_column_set_sort_column_id (column, LGW_VOCABULARYWORDSTORE_COLUMN_KANJI);
           gtk_tree_view_append_column (priv->ui.tree_view, column);
           priv->ui.cell_renderer[CELLRENDERER_KANJI] = renderer;
           priv->ui.tree_view_column[TREEVIEWCOLUMN_KANJI] = column;
@@ -255,7 +255,7 @@ lgw_vocabularywordview_constructed (GObject *object)
               "text", LGW_VOCABULARYWORDSTORE_COLUMN_READING,
               NULL
           );
-          gtk_tree_view_column_set_clickable (column, TRUE);
+          gtk_tree_view_column_set_sort_column_id (column, LGW_VOCABULARYWORDSTORE_COLUMN_READING);
           gtk_tree_view_append_column (priv->ui.tree_view, column);
           priv->ui.cell_renderer[CELLRENDERER_READING] = renderer;
           priv->ui.tree_view_column[TREEVIEWCOLUMN_READING] = column;
@@ -269,7 +269,7 @@ lgw_vocabularywordview_constructed (GObject *object)
               "text", LGW_VOCABULARYWORDSTORE_COLUMN_DEFINITION,
               NULL
           );
-          gtk_tree_view_column_set_clickable (column, TRUE);
+          gtk_tree_view_column_set_sort_column_id (column, LGW_VOCABULARYWORDSTORE_COLUMN_DEFINITION);
           gtk_tree_view_append_column (priv->ui.tree_view, column);
           priv->ui.cell_renderer[CELLRENDERER_DEFINITION] = renderer;
           priv->ui.tree_view_column[TREEVIEWCOLUMN_DEFINITION] = column;
