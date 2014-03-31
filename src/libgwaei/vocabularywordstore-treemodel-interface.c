@@ -270,6 +270,7 @@ _get_value (GtkTreeModel *tree_model,
     index = GPOINTER_TO_INT (iter->user_data2);
     vocabulary = LW_VOCABULARY (self);
     word = lw_vocabulary_nth (vocabulary, index);
+    g_assert(word != NULL);
     g_value_init (value, type);
 
     if (self == NULL) goto errored;

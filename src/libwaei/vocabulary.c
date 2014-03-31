@@ -713,24 +713,26 @@ lw_vocabulary_length (LwVocabulary *self)
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
-    gint length = 0;
 
     //Initializations
     priv = self->priv;
-    length = priv->data.length;
 
-    if (length < 0)
+    printf("BREAK0 lw_vocabulary_length %d\n", priv->data.length);
+
+    if (priv->data.length < 0)
     {
-      length = g_list_length (priv->data.list);
+      priv->data.length = g_list_length (priv->data.list);
+      printf("BREAK1 lw_vocabulary_length %d\n", priv->data.length);
     }
 
-    return length;
+    return priv->data.length;
 }
 
 
 void
 lw_vocabulary_invalidate_length (LwVocabulary *self)
 {
+  printf("BREAK lgw_vocabulary_invalidate_length\n");
     //Sanity checks
     g_return_val_if_fail (LW_IS_VOCABULARY (self), 0);
 
@@ -1538,6 +1540,7 @@ LwWord*
 lw_vocabulary_nth (LwVocabulary *self,
                    gint          index)
 {
+printf("BREAK0 lw_vocabulary_nth\n");
     //Sanity checks
     g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
     if (index < 0) return NULL;
@@ -1551,13 +1554,20 @@ lw_vocabulary_nth (LwVocabulary *self,
     //Initializations
     priv = self->priv;
     length = lw_vocabulary_length (self);
+printf("BREAK1 lw_vocabulary_nth length: %d, index: %d\n", length, index);
     if (index >= length) goto errored;
+printf("BREAK2 lw_vocabulary_nth\n");
 
     link = priv->data.array[index];
+printf("BREAK3 lw_vocabulary_nth\n");
     if (link == NULL) goto errored;
     word = LW_WORD (link->data);
+printf("BREAK4 lw_vocabulary_nth\n");
+
 
 errored:
+
+printf("BREAK5 lw_vocabulary_nth\n");
 
     return word;
 }
@@ -1607,12 +1617,12 @@ lw_vocabulary_load_from_string (LwVocabulary       *self,
 
         if (is_filename_hint)
         {
-printf("lw_vocabulary_load_from_string creating filename from %s\n", c);
+printf("BREAK0 lw_vocabulary_load_from_string creating filename from %s\n", c);
           filename_hint = g_strdup (c + 1);
         }
         else
         {
-printf("lw_vocabulary_load_from_string creating word from %s\n", c);
+printf("BREAK1 lw_vocabulary_load_from_string creating word from %s\n", c);
           LwWord *word = lw_word_new_from_string (c);
           if (word != NULL)
           {
@@ -1623,8 +1633,9 @@ printf("lw_vocabulary_load_from_string creating word from %s\n", c);
       words = g_list_reverse (words);
     }
 
+printf("BREAK2 lw_vocabulary_load_from_string \n");
     if (words == NULL) goto errored;
-
+printf("BREAK3 lw_vocabulary_load_from_string \n");
 
     if (filename_hint != NULL && priv->config.filename == NULL)
     {
@@ -1650,6 +1661,8 @@ printf("lw_vocabulary_load_from_string creating word from %s\n", c);
       indices = lw_vocabulary_insert (self, -1, words);
     }
 
+printf("BREAK4 lw_vocabulary_load_from_string lw_vocabulary_invalidate_length\n");
+    lw_vocabulary_invalidate_length (self);
 
 errored:
 
@@ -1880,6 +1893,8 @@ lw_vocabulary_sort (LwVocabulary     *self,
       new_order[j++] = -1;
     }
 
+printf("BREAK lw_vocabulary_sort %d\n", length);
+printf("BREAK lw_vocabulary_sort %d\n", lw_vocabulary_length (self));
     priv->data.list = g_list_sort_with_data (priv->data.list, compare_func, self);
 
     //Map the old order to the new order

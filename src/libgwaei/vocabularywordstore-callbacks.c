@@ -143,6 +143,7 @@ lgw_vocabularywordstore_reordered_cb (LgwVocabularyWordStore *self,
                                       gint                   *new_order,
                                       gpointer                data)
 {
+printf("BREAK lgw_vocabularywordstore_reordered_cb\n");
     //Sanity checks
     g_return_if_fail (self != NULL);
 
@@ -152,7 +153,7 @@ lgw_vocabularywordstore_reordered_cb (LgwVocabularyWordStore *self,
 
     //Initializations
     priv = self->priv;
-    path = gtk_tree_path_new_from_indices (-1);
+    path = gtk_tree_path_new ();
     if (path == NULL) goto errored;
 
     g_signal_emit_by_name (G_OBJECT (self),

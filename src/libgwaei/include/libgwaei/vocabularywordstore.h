@@ -61,7 +61,13 @@ void lgw_vocabularywordstore_set (LgwVocabularyWordStore *self, GtkTreePath *tre
 
 LgwVocabularyWordStore* lgw_vocabularywordstore_copy (LgwVocabularyWordStore *self);
 
+gint lgw_vocabularywordstore_kanji_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
+gint lgw_vocabularywordstore_reading_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
+gint lgw_vocabularywordstore_definition_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
+gint lgw_vocabularywordstore_saved_position_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
+
 void lgw_vocabularywordstore_sort (LgwVocabularyWordStore *vocabulary_word_store);
+
 G_END_DECLS
 
 #endif
