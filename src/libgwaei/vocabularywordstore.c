@@ -46,6 +46,7 @@ G_DEFINE_TYPE_WITH_CODE (
   G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, lgw_vocabularywordstore_implement_treemodel_interface)
   G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_SOURCE, lgw_vocabularywordstore_implement_treedragsource_interface)
   G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_DEST, lgw_vocabularywordstore_implement_treedragdest_interface)
+  G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_SORTABLE, lgw_vocabularywordstore_implement_treesortable_interface)
 );
 
 
@@ -469,5 +470,147 @@ errored:
     if (text != NULL) g_free (text); text = NULL;
 
     return copy;
+}
+
+
+gint
+lgw_vocabularywordstore_kanji_compare_func (GtkTreeModel *model,
+                                            GtkTreeIter *a,
+                                            GtkTreeIter *b,
+                                            gpointer user_data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (model));
+
+    printf("BREAK lgw_vocabularywordstore_name_compare_func\n");
+
+    //Declarations
+    LwVocabulary *va = NULL;
+    LwVocabulary *vb = NULL;
+    const gchar *fa = NULL;
+    const gchar *fb = NULL;
+    gint result = 0;
+
+    //Initializations
+    gtk_tree_model_get (model, a, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &va, -1);
+    if (va == NULL) goto errored;
+    gtk_tree_model_get (model, b, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &vb, -1);
+    if (vb == NULL) goto errored;
+    fa = lw_vocabulary_get_filename (va);
+    fb = lw_vocabulary_get_filename (vb);
+
+errored:
+
+    result = g_strcmp0 (fa, fb);
+
+    if (va != NULL) g_object_unref (va); va = NULL;
+    if (vb != NULL) g_object_unref (vb); va = NULL;
+
+    return result;
+}
+
+
+gint
+lgw_vocabularywordstore_saved_position_compare_func (GtkTreeModel *model,
+                                                     GtkTreeIter  *a,
+                                                     GtkTreeIter  *b,
+                                                     gpointer      user_data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (model));
+
+    printf("BREAK lgw_vocabularywordstore_saved_position_compare_func\n");
+
+    //Declarations
+    LwWord *wa = NULL;
+    LwWord *wb = NULL;
+    gint pa = -1;
+    gint pb = -1;
+    gint result = 0;
+
+    //Initializations
+    gtk_tree_model_get (model, a, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &wa, -1);
+    if (wa == NULL) goto errored;
+    gtk_tree_model_get (model, b, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &wb, -1);
+    if (wb == NULL) goto errored;
+    pa = wa->row.saved_index;
+    pb = wb->row.saved_index;
+
+errored:
+
+    result = pa - pb;
+
+    return result;
+}
+
+
+static gint
+_compare_func (LwWord                 *wa,
+               LwWord                 *wb,
+               LgwVocabularyWordStore *self)
+{
+    //Declarations
+    LgwVocabularyWordStorePrivate *priv = NULL;
+    GtkTreeSortable *tree_sortable = NULL;
+    GtkTreeModel *tree_model = GTK_TREE_MODEL (self);
+    GtkTreeIterCompareFunc sort_func = NULL;
+    gint sort_column_id = -1;
+    GtkSortType order = 0;
+    gboolean is_normal_column = FALSE;
+    GtkTreeIter a_iter;
+    GtkTreeIter b_iter;
+
+    //Initializations
+    priv = self->priv;
+    tree_model = GTK_TREE_MODEL (self);
+    tree_sortable = GTK_TREE_SORTABLE (self);
+    is_normal_column = gtk_tree_sortable_get_sort_column_id (tree_sortable, &sort_column_id, &order);
+printf("BREAK _compare_func %d %d %d\n", is_normal_column, sort_column_id, order);
+
+    if (sort_column_id == GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID) 
+    {
+      goto errored;
+    }
+    else if (sort_column_id == GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID) 
+    {
+      printf("BREAK _compare_func GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID\n");
+      sort_func = priv->config.default_sort_func;
+    }
+    else 
+    {
+      printf("BREAK _compare_func %d \n", sort_column_id);
+      sort_func = priv->config.sort_func[sort_column_id];
+    }
+
+    if (sort_func == NULL) goto errored;
+
+    lgw_vocabularywordstore_initialize_tree_iter (self, &a_iter, wa->row.current_index);
+    lgw_vocabularywordstore_initialize_tree_iter (self, &b_iter, wb->row.current_index);
+
+    gint direction = (order == GTK_SORT_DESCENDING) ? -1 : 1;
+
+    return (sort_func (tree_model, &a_iter, &b_iter, NULL) * direction);
+
+errored:
+
+    g_warning ("There is no sort function set for column %d", sort_column_id);
+
+    return 0;
+}
+
+
+void
+lgw_vocabularywordstore_sort (LgwVocabularyWordStore *vocabulary_word_store)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (vocabulary_word_store));
+
+    //Declarations
+    LwVocabulary *vocabulary = NULL;
+
+    //Initializations
+    vocabulary = LW_VOCABULARY (vocabulary_word_store);
+
+    lw_vocabulary_sort (vocabulary, (GCompareDataFunc) _compare_func);
 }
 

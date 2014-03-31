@@ -10,6 +10,8 @@ void lgw_vocabularywordstore_invalidate_tree_iter (GtkTreeIter *iter);
 gboolean lgw_vocabularywordstore_tree_iter_is_valid (LgwVocabularyWordStore *self, GtkTreeIter *iter);
 void lgw_vocabularywordstore_invalidate_old_timestamps ();
 
+void lgw_vocabularywordstore_initialize_tree_iter (LgwVocabularyWordStore *self, GtkTreeIter *iter, gint index_);
+
 G_END_DECLS
 
 #endif

@@ -93,6 +93,8 @@ gchar* lw_vocabulary_load_from_string (LwVocabulary *self, const gchar *TEXT, Lw
 void lw_vocabulary_set (LwVocabulary *self, gint position, ...);
 void lw_vocabulary_set_valist (LwVocabulary *self, gint position, va_list va);
 
+void lw_vocabulary_sort (LwVocabulary *self, GCompareDataFunc compare_func);
+
 G_END_DECLS
 
 #endif

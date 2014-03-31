@@ -1849,3 +1849,58 @@ errored:
 }
 
 
+void
+lw_vocabulary_sort (LwVocabulary     *self,
+                    GCompareDataFunc  compare_func)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_VOCABULARY (self));
+
+    //Declarations
+    LwVocabularyPrivate *priv = NULL;
+    gint length = -1;
+    gint *new_order = NULL;
+    
+    //Initializations
+    priv = self->priv;
+    length = lw_vocabulary_length (self);
+    new_order = g_new0 (gint, length + 1);
+    if (new_order == NULL) goto errored;
+
+    //Map the old order to the new order
+    {
+      GList *link = NULL;
+      gint j = 0;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LwWord *w = LW_WORD (link->data);
+        new_order[j++] = w->row.current_index;
+        printf("BREAK before new_order[%d] = %d %s\n", (j-1), new_order[j-1], lw_word_get_kanji (w));
+      }
+      new_order[j++] = -1;
+    }
+
+    priv->data.list = g_list_sort_with_data (priv->data.list, compare_func, self);
+
+    //Map the old order to the new order
+    {
+      GList *link = NULL;
+      gint j = 0;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LwWord *w = LW_WORD (link->data);
+        new_order[j++] = w->row.current_index;
+        printf("BREAK after new_order[%d] = %d %s\n", (j-1), new_order[j-1], lw_word_get_kanji (w));
+      }
+      new_order[j++] = -1;
+    }
+
+    _rebuild_array (self);
+
+    g_signal_emit_by_name (self, "internal-rows-reordered", new_order);
+
+errored:
+
+    if (new_order != NULL) g_free (new_order); new_order = NULL;
+}
+

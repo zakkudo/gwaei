@@ -46,10 +46,10 @@ static gint stamp = 0;
 static gint valid_stamp = 0;
 
 
-static void
-_initialize_tree_iter (LgwVocabularyWordStore *self,
-                       GtkTreeIter            *iter,
-                       gint                    index_)
+void
+lgw_vocabularywordstore_initialize_tree_iter (LgwVocabularyWordStore *self,
+                                              GtkTreeIter            *iter,
+                                              gint                    index_)
 {
     //Sanity checks
     g_return_val_if_fail (LGW_IS_VOCABULARYWORDSTORE (self), 0);
@@ -205,7 +205,7 @@ _get_iter (GtkTreeModel *tree_model,
 
     if (iter != NULL && is_valid)
     {
-      _initialize_tree_iter (LGW_VOCABULARYWORDSTORE (self), iter, index);
+      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (self), iter, index);
     }
 
 errored:
@@ -426,7 +426,7 @@ _iter_children (GtkTreeModel *tree_model,
 
     if (parent == NULL && length > 0)
     {
-      _initialize_tree_iter (LGW_VOCABULARYWORDSTORE (self), iter, 0);
+      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (self), iter, 0);
     }
 
 errored:
@@ -511,7 +511,7 @@ errored:
 
     if (exists)
     {
-      _initialize_tree_iter (LGW_VOCABULARYWORDSTORE (self), iter, n);
+      lgw_vocabularywordstore_initialize_tree_iter (LGW_VOCABULARYWORDSTORE (self), iter, n);
     }
 
     if (!_tree_iter_is_valid (LGW_VOCABULARYWORDSTORE (self), iter))

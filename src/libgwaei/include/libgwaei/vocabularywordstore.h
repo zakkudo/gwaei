@@ -61,6 +61,7 @@ void lgw_vocabularywordstore_set (LgwVocabularyWordStore *self, GtkTreePath *tre
 
 LgwVocabularyWordStore* lgw_vocabularywordstore_copy (LgwVocabularyWordStore *self);
 
+void lgw_vocabularywordstore_sort (LgwVocabularyWordStore *vocabulary_word_store);
 G_END_DECLS
 
 #endif
