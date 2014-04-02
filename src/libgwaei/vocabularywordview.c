@@ -445,8 +445,18 @@ lgw_vocabularywordview_set_wordstores (LgwVocabularyWordView  *self,
     if (wordstores != NULL)
     {
       priv->data.vocabulary_word_stores = g_list_copy (wordstores);
-      priv->data.vocabulary_word_store = LGW_VOCABULARYWORDSTORE (wordstores->data);
-      gtk_tree_view_set_model (priv->ui.tree_view, GTK_TREE_MODEL (wordstores->data));
+
+      if (g_list_length (wordstores) > 1)
+      {
+        priv->data.vocabulary_word_store = lgw_vocabularywordstore_new_from_wordstores (wordstores, NULL); 
+      }
+      else
+      {
+        priv->data.vocabulary_word_store = LGW_VOCABULARYWORDSTORE (wordstores->data);
+      }
+
+      gtk_tree_view_set_model (priv->ui.tree_view, GTK_TREE_MODEL (priv->data.vocabulary_word_store));
+
     }
     else
     {
@@ -795,7 +805,7 @@ lgw_vocabularywordview_paste (LgwVocabularyWordView *self)
     text = gtk_clipboard_wait_for_text (clipboard);
     if (text == NULL) goto errored;
 
-    lw_vocabulary_load_from_string (reader, text, NULL);
+    lw_vocabulary_load_from_string (reader, text, TRUE, NULL);
 
     words = lw_vocabulary_remove (reader, NULL);
     if (words == NULL) goto errored;

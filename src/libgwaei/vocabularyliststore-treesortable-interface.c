@@ -171,6 +171,80 @@ printf("BREAK _has_default_sort_func\n");
 }
 
 
+gint
+lgw_vocabularyliststore_name_compare_func (GtkTreeModel *model,
+                                           GtkTreeIter *a,
+                                           GtkTreeIter *b,
+                                           gpointer user_data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (model));
+
+    printf("BREAK lgw_vocabularyliststore_name_compare_func\n");
+
+    //Declarations
+    LwVocabulary *va = NULL;
+    LwVocabulary *vb = NULL;
+    const gchar *fa = NULL;
+    const gchar *fb = NULL;
+    gint result = 0;
+
+    //Initializations
+    gtk_tree_model_get (model, a, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &va, -1);
+    if (va == NULL) goto errored;
+    gtk_tree_model_get (model, b, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &vb, -1);
+    if (vb == NULL) goto errored;
+    fa = lw_vocabulary_get_filename (va);
+    fb = lw_vocabulary_get_filename (vb);
+
+errored:
+
+    result = g_strcmp0 (fa, fb);
+
+    if (va != NULL) g_object_unref (va); va = NULL;
+    if (vb != NULL) g_object_unref (vb); va = NULL;
+
+    return result;
+}
+
+
+gint
+lgw_vocabularyliststore_saved_position_compare_func (GtkTreeModel *model,
+                                                     GtkTreeIter *a,
+                                                     GtkTreeIter *b,
+                                                     gpointer user_data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (model));
+
+    printf("BREAK lgw_vocabularyliststore_saved_position_compare_func\n");
+
+    //Declarations
+    LwVocabulary *va = NULL;
+    LwVocabulary *vb = NULL;
+    gint pa = -1;
+    gint pb = -1;
+    gint result = 0;
+
+    //Initializations
+    gtk_tree_model_get (model, a, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &va, -1);
+    if (va == NULL) goto errored;
+    gtk_tree_model_get (model, b, LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT, &vb, -1);
+    if (vb == NULL) goto errored;
+    pa = va->row.saved_index;
+    pb = vb->row.saved_index;
+
+errored:
+
+    result = pa - pb;
+
+    if (va != NULL) g_object_unref (va); va = NULL;
+    if (vb != NULL) g_object_unref (vb); va = NULL;
+
+    return result;
+}
+
+
 void
 lgw_vocabularyliststore_implement_treesortable_interface (GtkTreeSortableIface *iface)
 {
@@ -181,5 +255,4 @@ lgw_vocabularyliststore_implement_treesortable_interface (GtkTreeSortableIface *
     iface->set_default_sort_func = _set_default_sort_func;
     iface->has_default_sort_func = _has_default_sort_func;
 }
-
 

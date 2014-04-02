@@ -171,6 +171,31 @@ errored:
 
 
 void
+lgw_vocabularywordstore_loaded_notify_cb (LgwVocabularyWordStore *self,
+                                          GParamSpec             *spec,
+                                          gpointer                data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (self));
+
+    //Declarations
+    GtkTreeSortable *tree_sortable = NULL;
+    LwVocabulary *vocabulary  = NULL;
+    gboolean is_loaded = FALSE;
+
+    //Initializations
+    tree_sortable = GTK_TREE_SORTABLE (self);
+    vocabulary = LW_VOCABULARY (self);
+    is_loaded = lw_vocabulary_is_loaded (vocabulary);
+
+    if (is_loaded)
+    {
+      gtk_tree_sortable_set_sort_column_id (tree_sortable, GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+    }
+}
+
+
+void
 lgw_vocabularywordstore_connect_signals (LgwVocabularyWordStore *self)
 {
     //Sanity checks
@@ -221,6 +246,17 @@ lgw_vocabularywordstore_connect_signals (LgwVocabularyWordStore *self)
         NULL
       );
     }
+
+    if (priv->data.signalid[SIGNALID_LOADED] == 0)
+    {
+      priv->data.signalid[SIGNALID_LOADED] = g_signal_connect (
+        G_OBJECT (self),
+        "notify::loaded",
+        G_CALLBACK (lgw_vocabularywordstore_loaded_notify_cb),
+        NULL
+      );
+    }
+
 }
 
 

@@ -362,7 +362,7 @@ lw_vocabulary_load_from_file (LwVocabulary       *self,
 
     if (!g_file_get_contents (uri, &contents, &length, NULL) || length == 0) goto errored;
 
-    lw_vocabulary_load_from_string (self, contents, cb);
+    lw_vocabulary_load_from_string (self, contents, TRUE, cb);
 
 errored:
 
@@ -383,20 +383,6 @@ lw_vocabulary_load (LwVocabulary       *self,
     LwVocabularyPrivate *priv = self->priv;
 
     lw_vocabulary_load_from_file (self, cb);
-
-    {
-      GList *link = NULL;
-      gint i = 0;
-      for (link = priv->data.list; link != NULL; link = link->next)
-      {
-        LwWord *w = LW_WORD (link->data);
-        if (w != NULL)
-        {
-          w->row.saved_index = i;
-          i++;
-        }
-      }
-    }
 
     lw_vocabulary_set_changed (self, FALSE);
     lw_vocabulary_set_loaded (self, TRUE);
@@ -503,6 +489,20 @@ lw_vocabulary_set_loaded (LwVocabulary *self,
     changed = (loaded != priv->data.loaded);
 
     priv->data.loaded = loaded;
+
+    if (loaded) {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = priv->data.list; link != NULL; link = link->next)
+      {
+        LwWord *w = LW_WORD (link->data);
+        if (w != NULL)
+        {
+          w->row.saved_index = i;
+          i++;
+        }
+      }
+    }
 
     if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_LOADED]);
 }
@@ -717,12 +717,9 @@ lw_vocabulary_length (LwVocabulary *self)
     //Initializations
     priv = self->priv;
 
-    printf("BREAK0 lw_vocabulary_length %d\n", priv->data.length);
-
     if (priv->data.length < 0)
     {
       priv->data.length = g_list_length (priv->data.list);
-      printf("BREAK1 lw_vocabulary_length %d\n", priv->data.length);
     }
 
     return priv->data.length;
@@ -732,7 +729,6 @@ lw_vocabulary_length (LwVocabulary *self)
 void
 lw_vocabulary_invalidate_length (LwVocabulary *self)
 {
-  printf("BREAK lgw_vocabulary_invalidate_length\n");
     //Sanity checks
     g_return_val_if_fail (LW_IS_VOCABULARY (self), 0);
 
@@ -1540,7 +1536,6 @@ LwWord*
 lw_vocabulary_nth (LwVocabulary *self,
                    gint          index)
 {
-printf("BREAK0 lw_vocabulary_nth\n");
     //Sanity checks
     g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
     if (index < 0) return NULL;
@@ -1554,20 +1549,15 @@ printf("BREAK0 lw_vocabulary_nth\n");
     //Initializations
     priv = self->priv;
     length = lw_vocabulary_length (self);
-printf("BREAK1 lw_vocabulary_nth length: %d, index: %d\n", length, index);
     if (index >= length) goto errored;
-printf("BREAK2 lw_vocabulary_nth\n");
 
     link = priv->data.array[index];
-printf("BREAK3 lw_vocabulary_nth\n");
     if (link == NULL) goto errored;
     word = LW_WORD (link->data);
-printf("BREAK4 lw_vocabulary_nth\n");
 
 
 errored:
 
-printf("BREAK5 lw_vocabulary_nth\n");
 
     return word;
 }
@@ -1576,6 +1566,7 @@ printf("BREAK5 lw_vocabulary_nth\n");
 gchar* 
 lw_vocabulary_load_from_string (LwVocabulary       *self,
                                 const gchar        *TEXT,
+                                gboolean            take_filename_from_text,
                                 LwProgressCallback  cb)
 {
     //Sanity checks
@@ -1637,7 +1628,7 @@ printf("BREAK2 lw_vocabulary_load_from_string \n");
     if (words == NULL) goto errored;
 printf("BREAK3 lw_vocabulary_load_from_string \n");
 
-    if (filename_hint != NULL && priv->config.filename == NULL)
+    if (take_filename_from_text && filename_hint != NULL && priv->config.filename == NULL)
     {
       if (lw_vocabulary_filename_exists (filename_hint))
       {
@@ -1648,7 +1639,7 @@ printf("BREAK3 lw_vocabulary_load_from_string \n");
       indices = lw_vocabulary_insert (self, -1, words);
       lw_vocabulary_save (self, NULL);
     }
-    else if (filename_hint == NULL && priv->config.filename == NULL)
+    else if (take_filename_from_text && filename_hint == NULL && priv->config.filename == NULL)
     {
       gchar *filename = lw_vocabulary_generate_new_filename ();
       g_free (filename_hint); filename_hint = filename;
@@ -1658,6 +1649,7 @@ printf("BREAK3 lw_vocabulary_load_from_string \n");
     }
     else
     {
+      printf("BREAK lw_vocabulary_load_from_string insert indices\n");
       indices = lw_vocabulary_insert (self, -1, words);
     }
 

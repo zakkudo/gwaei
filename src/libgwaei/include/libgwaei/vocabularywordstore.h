@@ -47,6 +47,7 @@ struct _LgwVocabularyWordStoreClass {
 
 //Methods
 LgwVocabularyWordStore* lgw_vocabularywordstore_new (const gchar* FILENAME);
+LgwVocabularyWordStore* lgw_vocabularywordstore_new_from_wordstores (GList *wordstores, LwProgressCallback cb);
 GType lgw_vocabularywordstore_get_type (void) G_GNUC_CONST;
 
 LwWord* lgw_vocabularywordstore_get_word (LgwVocabularyWordStore *self, GtkTreePath *tree_path);
@@ -60,11 +61,6 @@ GList* lgw_vocabularywordstore_remove (LgwVocabularyWordStore *self, GList *tree
 void lgw_vocabularywordstore_set (LgwVocabularyWordStore *self, GtkTreePath *tree_path, ...);
 
 LgwVocabularyWordStore* lgw_vocabularywordstore_copy (LgwVocabularyWordStore *self);
-
-gint lgw_vocabularywordstore_kanji_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
-gint lgw_vocabularywordstore_reading_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
-gint lgw_vocabularywordstore_definition_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
-gint lgw_vocabularywordstore_saved_position_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
 
 void lgw_vocabularywordstore_sort (LgwVocabularyWordStore *vocabulary_word_store);
 

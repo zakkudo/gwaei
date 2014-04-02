@@ -171,6 +171,145 @@ printf("BREAK _has_default_sort_func\n");
 }
 
 
+gint
+lgw_vocabularywordstore_kanji_compare_func (GtkTreeModel *model,
+                                            GtkTreeIter  *a,
+                                            GtkTreeIter  *b,
+                                            gpointer      user_data)
+{
+printf("BREAK lgw_vocabularywordstore_kanji_compare_func %d\n", lw_vocabulary_length (LW_VOCABULARY (model)));
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (model));
+
+    //Declarations
+    LwWord *wa = NULL;
+    LwWord *wb = NULL;
+    const gchar *ka = NULL;
+    const gchar *kb = NULL;
+    gint result = 0;
+
+    //Initializations
+    gtk_tree_model_get (model, a, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &wa, -1);
+    if (wa == NULL) goto errored;
+    gtk_tree_model_get (model, b, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &wb, -1);
+    if (wb == NULL) goto errored;
+    ka = lw_word_get_kanji (wa);
+    kb = lw_word_get_kanji (wb);
+
+    printf("BREAK lgw_vocabularywordstore_kanji_compare_func\n");
+
+errored:
+
+    result = g_strcmp0 (ka, kb);
+
+    return result;
+}
+
+
+gint
+lgw_vocabularywordstore_reading_compare_func (GtkTreeModel *model,
+                                              GtkTreeIter  *a,
+                                              GtkTreeIter  *b,
+                                              gpointer      user_data)
+{
+printf("BREAK lgw_vocabularywordstore_reading_compare_func\n");
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (model));
+
+    //Declarations
+    LwWord *wa = NULL;
+    LwWord *wb = NULL;
+    const gchar *ra = NULL;
+    const gchar *rb = NULL;
+    gint result = 0;
+
+    //Initializations
+    gtk_tree_model_get (model, a, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &wa, -1);
+    if (wa == NULL) goto errored;
+    gtk_tree_model_get (model, b, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &wb, -1);
+    if (wb == NULL) goto errored;
+    ra = lw_word_get_reading (wa);
+    rb = lw_word_get_reading (wb);
+
+    printf("BREAK1 lgw_vocabularywordstore_reading_compare_func\n");
+
+errored:
+
+    result = g_strcmp0 (ra, rb);
+
+    return result;
+}
+
+
+gint
+lgw_vocabularywordstore_definition_compare_func (GtkTreeModel *model,
+                                                 GtkTreeIter  *a,
+                                                 GtkTreeIter  *b,
+                                                 gpointer      user_data)
+{
+printf("BREAK lgw_vocabularywordstore_definition_compare_func\n");
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (model));
+
+    //Declarations
+    LwWord *wa = NULL;
+    LwWord *wb = NULL;
+    const gchar *da = NULL;
+    const gchar *db = NULL;
+    gint result = 0;
+
+    //Initializations
+    gtk_tree_model_get (model, a, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &wa, -1);
+    if (wa == NULL) goto errored;
+    gtk_tree_model_get (model, b, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &wb, -1);
+    if (wb == NULL) goto errored;
+    da = lw_word_get_definition (wa);
+    db = lw_word_get_definition (wb);
+
+    printf("BREAK1 lgw_vocabularywordstore_definition_compare_func\n");
+
+errored:
+
+    result = g_strcmp0 (da, db);
+
+    return result;
+}
+
+
+gint
+lgw_vocabularywordstore_saved_position_compare_func (GtkTreeModel *model,
+                                                     GtkTreeIter  *a,
+                                                     GtkTreeIter  *b,
+                                                     gpointer      user_data)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYWORDSTORE (model));
+
+    printf("BREAK lgw_vocabularywordstore_saved_position_compare_func\n");
+
+    //Declarations
+    LwWord *wa = NULL;
+    LwWord *wb = NULL;
+    gint pa = -1;
+    gint pb = -1;
+    gint result = 0;
+
+    //Initializations
+    gtk_tree_model_get (model, a, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &wa, -1);
+    if (wa == NULL) goto errored;
+    gtk_tree_model_get (model, b, LGW_VOCABULARYWORDSTORE_COLUMN_WORD, &wb, -1);
+    if (wb == NULL) goto errored;
+    pa = wa->row.saved_index;
+    pb = wb->row.saved_index;
+
+errored:
+
+    result = pa - pb;
+
+    return result;
+}
+
+
 void
 lgw_vocabularywordstore_implement_treesortable_interface (GtkTreeSortableIface *iface)
 {
@@ -181,5 +320,4 @@ lgw_vocabularywordstore_implement_treesortable_interface (GtkTreeSortableIface *
     iface->set_default_sort_func = _set_default_sort_func;
     iface->has_default_sort_func = _has_default_sort_func;
 }
-
 

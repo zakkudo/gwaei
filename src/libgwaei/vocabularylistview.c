@@ -722,7 +722,7 @@ lgw_vocabularylistview_paste (LgwVocabularyListView *self)
         if (vocabulary_word_store != NULL)
         {
           LwVocabulary *vocabulary = LW_VOCABULARY (vocabulary_word_store);
-          c = lw_vocabulary_load_from_string (vocabulary, c, NULL);
+          c = lw_vocabulary_load_from_string (vocabulary, c, TRUE, NULL);
           wordstores = g_list_prepend (wordstores, vocabulary_word_store);
         }
       }
