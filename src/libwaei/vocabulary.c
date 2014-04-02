@@ -98,6 +98,9 @@ lw_vocabulary_new (const gchar *FILENAME)
     //Initializations
     vocabulary = LW_VOCABULARY (g_object_new (LW_TYPE_VOCABULARY, "filename", FILENAME, NULL));
 
+    vocabulary->row.current_index = -1;
+    vocabulary->row.saved_index = -1;
+
     return vocabulary;
 }
 
@@ -892,8 +895,8 @@ errored:
 
 static void
 _insert_propogate_changes (LwVocabulary *self,
-                               gint          position,
-                               gint          number_inserted)
+                               gint      position,
+                               gint      number_inserted)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
@@ -908,7 +911,7 @@ _insert_propogate_changes (LwVocabulary *self,
     length = lw_vocabulary_length (self);
 
     //Rows that were inserted
-    for (i = position; i < position + number_inserted; i ++)
+    for (i = position; i < position + number_inserted; i++)
     {
       g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, i);
     }

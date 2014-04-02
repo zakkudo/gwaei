@@ -400,6 +400,19 @@ _move_from_wordstore (LgwVocabularyWordView *self,
     source_word_store = LGW_VOCABULARYWORDSTORE (source_tree_model);
     if (source_word_store == NULL) goto errored;
 
+    {
+      GList *link1 = words;
+      GList *link2 = copied_words;
+      while (link1 != NULL && link2 != NULL)
+      {
+        LwWord *w1 = LW_WORD (link1->data);
+        LwWord *w2 = LW_WORD (link2->data);
+        w2->row.saved_index = w1->row.saved_index;
+        link1 = link1->next;
+        link2 = link2->next;
+      }
+    }
+
     inserted_tree_paths = lgw_vocabularywordstore_insert (destination_word_store, destination_tree_path, copied_words);
     if (inserted_tree_paths == NULL) goto errored;
     lw_vocabulary_remove_words (LW_VOCABULARY (source_word_store), words);

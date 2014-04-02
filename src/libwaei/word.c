@@ -210,6 +210,8 @@ lw_word_new ()
     LwWord *word;
 
     word = g_new0 (LwWord, 1);
+    word->row.current_index = -1;
+    word->row.saved_index = -1;
 
     return word;
 }
@@ -266,6 +268,9 @@ lw_word_new_from_string (const gchar *TEXT)
     {
     word->timestamp =  (guint32) strtoll (TIMESTAMP, NULL, 10);
     }
+
+    word->row.current_index = -1;
+    word->row.saved_index = -1;
 
 errored:
 
