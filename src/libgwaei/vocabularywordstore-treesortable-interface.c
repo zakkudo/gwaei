@@ -304,7 +304,9 @@ lgw_vocabularywordstore_saved_position_compare_func (GtkTreeModel *model,
 
 errored:
 
-    result = pa - pb;
+    if (pa < 0 && pb >= 0) result = 1;
+    else if (pb < 00 && pa >= 0) result = -1;
+    else result = pa - pb;
 
     return result;
 }

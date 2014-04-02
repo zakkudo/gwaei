@@ -236,7 +236,9 @@ lgw_vocabularyliststore_saved_position_compare_func (GtkTreeModel *model,
 
 errored:
 
-    result = pa - pb;
+    if (pa < 0 && pb >= 0) result = 1;
+    else if (pb < 00 && pa >= 0) result = -1;
+    else result = pa - pb;
 
     if (va != NULL) g_object_unref (va); va = NULL;
     if (vb != NULL) g_object_unref (vb); va = NULL;

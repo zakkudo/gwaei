@@ -285,7 +285,7 @@ _get_value (GtkTreeModel *tree_model,
           g_value_set_string (value, "");
         break;
       case LGW_VOCABULARYWORDSTORE_COLUMN_POSITION: //G_TYPE_STRING
-        if (word->row.saved_index >= 0)
+        if (word->row.current_index >= 0)
           g_value_take_string (value, g_strdup_printf("%d", word->row.current_index + 1));
         else
           g_value_set_string (value, "");
