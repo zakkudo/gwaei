@@ -317,6 +317,7 @@ lgw_vocabularywordview_drag_motion_cb (LgwVocabularyWordView *self,
                                       guint                   time,
                                       GtkTreeView            *inner_tree_view)
 {
+  printf("BREAK lgw_vocabularywordview_drag_motion_cb\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYWORDVIEW (self));
 

@@ -197,6 +197,26 @@ lgw_vocabularywordview_constructed (GObject *object)
       {
         GtkWidget *tree_view = gtk_tree_view_new ();
         priv->ui.tree_view = GTK_TREE_VIEW (tree_view);
+
+        const GtkTargetEntry row_targets[] = {
+          { "GTK_TREE_MODEL_ROW", GTK_TARGET_SAME_APP, 0 }
+        };
+
+        gtk_tree_view_enable_model_drag_source (
+          priv->ui.tree_view,
+          GDK_BUTTON1_MASK,
+          row_targets,
+          G_N_ELEMENTS (row_targets),
+          GDK_ACTION_MOVE
+        );
+
+        gtk_tree_view_enable_model_drag_dest (
+          priv->ui.tree_view,
+          row_targets,
+          G_N_ELEMENTS (row_targets),
+          GDK_ACTION_MOVE | GDK_ACTION_COPY
+        );
+
         gtk_tree_view_set_headers_clickable (priv->ui.tree_view, TRUE);
         gtk_container_add (GTK_CONTAINER (scrolled_window), tree_view);
         gtk_widget_show (tree_view);
