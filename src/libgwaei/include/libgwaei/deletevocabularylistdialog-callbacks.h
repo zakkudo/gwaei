@@ -1,0 +1,11 @@
+#ifndef LGW_DELETEVOCABULARYLISTDIALOG_CALLBACKS_INCLUDED
+#define LGW_DELETEVOCABULARYLISTDIALOG_CALLBACKS_INCLUDED
+
+G_BEGIN_DECLS
+
+void lgw_deletevocabularylistdialog_connect_signals (LgwDeleteVocabularyListDialog *self);
+void lgw_deletevocabularylistdialog_disconnect_signals (LgwDeleteVocabularyListDialog *self);
+
+G_END_DECLS
+
+#endif

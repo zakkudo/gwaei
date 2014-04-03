@@ -60,4 +60,6 @@ GtkTreePath* lgw_vocabularylistview_get_tree_path (LgwVocabularyListView *self, 
 
 G_END_DECLS
 
+#include <libgwaei/deletevocabularylistdialog.h>
+
 #endif
