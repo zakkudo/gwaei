@@ -42,6 +42,9 @@ void lgw_deletevocabularylistdialog_set_liststore (LgwDeleteVocabularyListDialog
 gboolean lgw_deletevocabularylistdialog_get_delete_on_response (LgwDeleteVocabularyListDialog *self);
 void lgw_deletevocabularylistdialog_set_delete_on_response (LgwDeleteVocabularyListDialog *self, gboolean delete_on_response);
 
+GList* lgw_deletevocabularylistdialog_get_treepaths (LgwDeleteVocabularyListDialog *self);
+void lgw_deletevocabularylistdialog_set_treepaths (LgwDeleteVocabularyListDialog *self, GList *tree_paths);
+
 
 G_END_DECLS
 

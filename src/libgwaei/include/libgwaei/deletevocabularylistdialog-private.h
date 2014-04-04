@@ -22,6 +22,8 @@ struct _UI {
   GtkButton *cancel_button;
   GtkGrid *grid;
   GtkBox *layout_box;
+  GtkLabel *primary_label;
+  GtkLabel *secondary_label;
 };
 
 struct _Data {
@@ -45,6 +47,8 @@ struct _LgwDeleteVocabularyListDialogClassPrivate {
 };
 
 #define LGW_DELETEVOCABULARYLISTDIALOG_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LGW_TYPE_DELETEVOCABULARYLISTDIALOG, LgwDeleteVocabularyListDialogPrivate));
+
+void lgw_deletevocabularylistdialog_sync_labels (LgwDeleteVocabularyListDialog *self);
 
 G_END_DECLS
 

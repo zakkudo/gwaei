@@ -622,6 +622,7 @@ lgw_vocabularylistview_delete_selected (LgwVocabularyListView *self)
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
+/*
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
     LgwVocabularyListStore *vocabulary_list_store = NULL;
@@ -644,6 +645,17 @@ errored:
 
     if (tree_paths != NULL) g_list_free_full (tree_paths, (GDestroyNotify) gtk_tree_path_free); tree_paths = NULL;
     if (wordstores != NULL) g_list_free_full (wordstores, (GDestroyNotify) g_object_unref);
+    */
+    GtkWidget *toplevel = gtk_widget_get_toplevel (GTK_WIDGET (self));
+    GtkWindow *window = NULL;
+    if (gtk_widget_is_toplevel (toplevel))
+    {
+      window = GTK_WINDOW (toplevel);
+    }
+
+    GtkWidget *dialog = lgw_deletevocabularylistdialog_new (window);
+    gint response = gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
 }
 
 

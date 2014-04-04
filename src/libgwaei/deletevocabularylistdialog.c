@@ -117,6 +117,9 @@ lgw_deletevocabularylistdialog_set_property (GObject      *object,
 
     switch (property_id)
     {
+      case PROP_TREEPATHS:
+        lgw_deletevocabularylistdialog_set_treepaths (self, g_value_get_pointer (value));
+        break;
       case PROP_VOCABULARYLISTSTORE:
         lgw_deletevocabularylistdialog_set_liststore (self, g_value_get_object (value));
         break;
@@ -146,6 +149,9 @@ lgw_deletevocabularylistdialog_get_property (GObject      *object,
 
     switch (property_id)
     {
+      case PROP_TREEPATHS:
+        g_value_set_pointer (value, lgw_deletevocabularylistdialog_get_treepaths (self));
+        break;
       case PROP_VOCABULARYLISTSTORE:
         g_value_set_object (value, lgw_deletevocabularylistdialog_get_liststore (self));
         break;
@@ -156,31 +162,6 @@ lgw_deletevocabularylistdialog_get_property (GObject      *object,
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
     }
-}
-
-
-static void
-_init_accelerators (LgwDeleteVocabularyListDialog *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self), NULL);
-
-    //Declarations
-    LgwDeleteVocabularyListDialogPrivate *priv = NULL;
-    GtkAccelGroup *accel_group = NULL;
-    GtkWindow *window = NULL;
-
-    //Initializations
-    priv = self->priv;
-    accel_group = gtk_accel_group_new ();
-    window = GTK_WINDOW (self);
-
-    //Set menu accelerators
-    gtk_widget_add_accelerator (GTK_WIDGET (priv->ui.cancel_button), "activate",  accel_group, (GDK_KEY_Escape), 0, GTK_ACCEL_VISIBLE);
-    gtk_widget_add_accelerator (GTK_WIDGET (priv->ui.delete_button), "activate",  accel_group, (GDK_KEY_Return), 0, GTK_ACCEL_VISIBLE);
-    gtk_widget_add_accelerator (GTK_WIDGET (priv->ui.delete_button), "activate",  accel_group, (GDK_KEY_ISO_Enter), 0, GTK_ACCEL_VISIBLE);
-    gtk_widget_add_accelerator (GTK_WIDGET (priv->ui.delete_button), "activate",  accel_group, (GDK_KEY_KP_Enter), 0, GTK_ACCEL_VISIBLE);
-    gtk_window_add_accel_group (window, accel_group);
 }
 
 
@@ -214,10 +195,19 @@ lgw_deletevocabularylistdialog_constructed (GObject *object)
 
         {
           {
-            GtkWidget *image = gtk_image_new_from_icon_name ("delete", GTK_ICON_SIZE_DIALOG);
+            GtkWidget *image = NULL;
+            GtkIconTheme *theme = gtk_icon_theme_get_default ();
+            if (gtk_icon_theme_has_icon (theme, "edit-delete"))
+            {
+              image = gtk_image_new_from_icon_name ("edit-delete-symbolic", GTK_ICON_SIZE_DIALOG);
+            }
+            else
+            {
+              image = gtk_image_new_from_icon_name ("edit-delete-symbolic", GTK_ICON_SIZE_DIALOG);
+            }
             if (image != NULL)
             {
-              gtk_misc_set_alignment (GTK_MISC (image), .5, 0);
+              gtk_misc_set_alignment (GTK_MISC (image), 0.0, 0.0);
               gtk_box_pack_start (priv->ui.layout_box, image, FALSE, FALSE, 0);
               gtk_widget_show (image);
             }
@@ -231,6 +221,24 @@ lgw_deletevocabularylistdialog_constructed (GObject *object)
             gtk_box_pack_start (priv->ui.layout_box, grid, TRUE, TRUE, 0);
             gtk_widget_show (grid);
           }
+
+          {
+            GtkWidget *primary_label = gtk_label_new (NULL);
+            priv->ui.primary_label = GTK_LABEL (primary_label);
+            gtk_label_set_text (priv->ui.primary_label, "Delete?");
+            gtk_misc_set_alignment (GTK_MISC (primary_label), 0.0, 0.0);
+            gtk_grid_attach (priv->ui.grid, primary_label, 0, 0, 1, 1);
+            gtk_widget_show (primary_label);
+          }
+
+          {
+            GtkWidget *secondary_label = gtk_label_new (NULL);
+            priv->ui.secondary_label = GTK_LABEL (secondary_label);
+            gtk_label_set_text (priv->ui.secondary_label, "These items will be perminently deleted.");
+            gtk_misc_set_alignment (GTK_MISC (secondary_label), 0.0, 0.0);
+            gtk_grid_attach (priv->ui.grid, secondary_label, 0, 1, 1, 1);
+            gtk_widget_show (secondary_label);
+          }
         }
       }
     }
@@ -239,21 +247,21 @@ lgw_deletevocabularylistdialog_constructed (GObject *object)
       dialog,
       gettext("_Cancel"),
       LGW_DELETEVOCABULARYLISTDIALOG_RESPONSE_CANCEL,
-      gettext("_Add"),
+      gettext("_Delete"),
       LGW_DELETEVOCABULARYLISTDIALOG_RESPONSE_DELETE,
       NULL
     );
-    gtk_dialog_set_default_response (dialog, LGW_DELETEVOCABULARYLISTDIALOG_RESPONSE_DELETE);
+    gtk_dialog_set_default_response (dialog, LGW_DELETEVOCABULARYLISTDIALOG_RESPONSE_CANCEL);
     priv->ui.delete_button = GTK_BUTTON (gtk_dialog_get_widget_for_response (dialog, LGW_DELETEVOCABULARYLISTDIALOG_RESPONSE_DELETE));
     priv->ui.cancel_button = GTK_BUTTON (gtk_dialog_get_widget_for_response (dialog, LGW_DELETEVOCABULARYLISTDIALOG_RESPONSE_CANCEL));
 
-    gtk_window_set_title (GTK_WINDOW (dialog), gettext("Delete Vocabulary List"));
+    gtk_window_set_title (GTK_WINDOW (dialog), "");
     gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
     gtk_window_set_resizable (GTK_WINDOW (dialog), FALSE);
 
     lgw_deletevocabularylistdialog_connect_signals (self);
 
-    _init_accelerators (self);
+    lgw_deletevocabularylistdialog_sync_labels (self);
 }
 
 
@@ -276,6 +284,14 @@ lgw_deletevocabularylistdialog_class_init (LgwDeleteVocabularyListDialogClass *k
 
     _klass = klass;
     _klasspriv = klass->priv;
+
+    _klasspriv->pspec[PROP_TREEPATHS] = g_param_spec_pointer (
+        "tree-paths",
+        "prop",
+        "object",
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_TREEPATHS, _klasspriv->pspec[PROP_TREEPATHS]);
 
     _klasspriv->pspec[PROP_VOCABULARYLISTSTORE] = g_param_spec_object (
         "vocabulary-list-store",
@@ -345,6 +361,7 @@ lgw_deletevocabularylistdialog_set_liststore (LgwDeleteVocabularyListDialog *sel
     }
 
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
+    lgw_deletevocabularylistdialog_sync_labels (self);
 
 errored:
   
@@ -392,4 +409,101 @@ errored:
 
     return;
 }
+
+GList*
+lgw_deletevocabularylistdialog_get_treepaths (LgwDeleteVocabularyListDialog *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
+
+    //Declarations
+    LgwDeleteVocabularyListDialogPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.tree_paths;
+}
+
+
+void
+lgw_deletevocabularylistdialog_set_treepaths (LgwDeleteVocabularyListDialog *self,
+                                              GList                         *tree_paths)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
+
+    //Declarations
+    LgwDeleteVocabularyListDialogPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (priv->data.tree_paths != tree_paths);
+    if (!changed) goto errored;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_TREEPATHS]);
+    lgw_deletevocabularylistdialog_sync_labels (self);
+
+errored:
+
+
+    return;
+}
+
+
+void
+lgw_deletevocabularylistdialog_sync_labels (LgwDeleteVocabularyListDialog *self)
+{
+  printf("BREAK lgw_deletevocabularylistdialog_sync_labels\n");
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
+
+    //Declarations
+    LgwDeleteVocabularyListDialogPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->ui.primary_label != NULL)
+    {
+      gchar *markup = g_markup_printf_escaped ("<b><big>%s</big></b>", "Are you sure you want to delete these vocabulary lists?");
+      if (markup != NULL)
+      {
+        gtk_label_set_markup (priv->ui.primary_label, markup);
+        g_free (markup); markup = NULL;
+      }
+    }
+
+    if (priv->ui.secondary_label != NULL)
+    {
+      gchar *markup = g_markup_printf_escaped ("%s\n\n%s", "The below vocabulary lists will be perminently deleted:", "Vocabulary List");
+      if (markup != NULL)
+      {
+        gtk_label_set_markup (priv->ui.secondary_label, markup);
+        g_free (markup); markup = NULL;
+      }
+    }
+}
+
+
+gboolean
+lgw_deletevocabularylistdialog_validate (LgwDeleteVocabularyListDialog *self)
+{
+  /*TODO
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
+
+    //Declarations
+    LgwDeleteVocabularyListDialogPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    gtk_widget_set_sensitive ();
+
+    return FALSE;
+    */
+}
+
 
