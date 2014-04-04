@@ -190,6 +190,7 @@ lgw_deletevocabularylistdialog_constructed (GObject *object)
         GtkWidget *layout_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
         priv->ui.layout_box = GTK_BOX (layout_box);
         gtk_container_set_border_width (GTK_CONTAINER (layout_box), 6);
+        gtk_widget_set_margin_top (layout_box, 6);
         gtk_box_pack_start (box, layout_box, TRUE, TRUE, 0);
         gtk_widget_show (layout_box);
 
@@ -216,8 +217,9 @@ lgw_deletevocabularylistdialog_constructed (GObject *object)
           {
             GtkWidget *grid = gtk_grid_new ();
             priv->ui.grid = GTK_GRID (grid);
-            gtk_grid_set_row_spacing (priv->ui.grid, 6);
+            gtk_grid_set_row_spacing (priv->ui.grid, 8);
             gtk_grid_set_column_spacing (priv->ui.grid, 6);
+            gtk_widget_set_margin_bottom (grid, 6);
             gtk_box_pack_start (priv->ui.layout_box, grid, TRUE, TRUE, 0);
             gtk_widget_show (grid);
           }
@@ -479,7 +481,7 @@ lgw_deletevocabularylistdialog_sync_labels (LgwDeleteVocabularyListDialog *self)
 
     if (priv->ui.secondary_label != NULL)
     {
-      gchar *markup = g_markup_printf_escaped ("%s\n\n%s", "The below vocabulary lists will be perminently deleted:", "Vocabulary List");
+      gchar *markup = g_markup_printf_escaped ("%s\n\n%s", "The following vocabulary lists will be perminently deleted:", "Vocabulary List");
       if (markup != NULL)
       {
         gtk_label_set_markup (priv->ui.secondary_label, markup);

@@ -236,6 +236,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
         GtkWidget *layout_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
         priv->ui.layout_box = GTK_BOX (layout_box);
         gtk_container_set_border_width (GTK_CONTAINER (layout_box), 6);
+        gtk_widget_set_margin_top (layout_box, 6);
         gtk_box_pack_start (box, layout_box, TRUE, TRUE, 0);
         gtk_widget_show (layout_box);
 
@@ -264,6 +265,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
             priv->ui.grid = GTK_GRID (grid);
             gtk_grid_set_row_spacing (priv->ui.grid, 6);
             gtk_grid_set_column_spacing (priv->ui.grid, 6);
+            gtk_widget_set_margin_bottom (grid, 6);
             gtk_box_pack_start (priv->ui.layout_box, grid, TRUE, TRUE, 0);
             gtk_widget_show (grid);
 
@@ -274,6 +276,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
                 priv->ui.primary_label = GTK_LABEL (label);
                 gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
                 gtk_label_set_markup (priv->ui.primary_label, markup);
+                gtk_widget_set_margin_bottom (label, 6);
                 gtk_grid_attach (priv->ui.grid, label, 0, 0, 2, 1);
                 gtk_widget_show (label);
                 if (markup != NULL) g_free (markup); markup = NULL;
@@ -283,8 +286,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
                 gchar *markup = g_markup_printf_escaped ("%s:", gettext("List"));
                 GtkWidget *label = gtk_label_new (NULL);
                 priv->ui.list_label = GTK_LABEL (label);
-                gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
-                gtk_misc_set_padding (GTK_MISC (label), 6, 6);
+                gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
                 gtk_label_set_markup (priv->ui.list_label, markup);
                 gtk_grid_attach (priv->ui.grid, label, 0, 1, 1, 1);
                 if (markup != NULL) g_free (markup); markup = NULL;
@@ -303,8 +305,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
               {
                 gchar *markup = g_markup_printf_escaped ("%s:", gettext("Word"));
                 GtkWidget *label = gtk_label_new (NULL);
-                gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
-                gtk_misc_set_padding (GTK_MISC (label), 6, 6);
+                gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
                 gtk_label_set_markup (GTK_LABEL (label), markup);
                 gtk_grid_attach (priv->ui.grid, label, 0, 2, 1, 1);
                 gtk_widget_show (label);
@@ -325,8 +326,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
               {
                 gchar *markup = g_markup_printf_escaped ("%s:", gettext("Reading"));
                 GtkWidget *label = gtk_label_new (NULL);
-                gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
-                gtk_misc_set_padding (GTK_MISC (label), 6, 6);
+                gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
                 gtk_label_set_markup (GTK_LABEL (label), markup);
                 gtk_grid_attach (priv->ui.grid, label, 0, 3, 1, 1);
                 gtk_widget_show (label);
@@ -347,8 +347,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
               {
                 gchar *markup = g_markup_printf_escaped ("%s:", gettext("Definition"));
                 GtkWidget *label = gtk_label_new (NULL);
-                gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
-                gtk_misc_set_padding (GTK_MISC (label), 6, 6);
+                gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
                 gtk_label_set_markup (GTK_LABEL (label), markup);
                 gtk_grid_attach (priv->ui.grid, label, 0, 4, 1, 1);
                 gtk_widget_show (label);
