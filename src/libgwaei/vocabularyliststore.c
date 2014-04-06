@@ -879,6 +879,8 @@ _remove (LgwVocabularyListStore *self,
     length = lgw_vocabularyliststore_length (self);
     if (length == 0) goto errored;
 
+    printf("BREAK0 _remove\n");
+
     //Remove from the objects main model
     {
       gint i = 0;
@@ -895,7 +897,8 @@ _remove (LgwVocabularyListStore *self,
           removed = g_list_concat (link, removed);
           priv->data.array[index] = NULL;
 
-          if (vocabulary != NULL && vocabulary->row.current_index == index)
+          //if (vocabulary != NULL && vocabulary->row.current_index == index)
+          if (vocabulary != NULL)
           {
             _remove_from_index (self, vocabulary_word_store);
             g_object_unref (vocabulary_word_store);
