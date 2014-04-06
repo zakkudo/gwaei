@@ -63,11 +63,14 @@ void lgw_vocabularyliststore_load (LgwVocabularyListStore *self);
 
 gint lgw_vocabularyliststore_length (LgwVocabularyListStore *self);
 
+
 LgwVocabularyWordStore* lgw_vocabularyliststore_get_wordstore (LgwVocabularyListStore *self, GtkTreePath *tree_path);
 GtkTreePath* lgw_vocabularyliststore_find_by_wordstore (LgwVocabularyListStore *self, LgwVocabularyWordStore *vocabulary_word_store);
 GtkTreePath* lgw_vocabularyliststore_find_by_filename (LgwVocabularyListStore *self, const gchar *FILENAME);
+gboolean lgw_vocabularyliststore_contains_wordstore (LgwVocabularyListStore *self, LgwVocabularyWordStore *wordstore);
 
 GList* lgw_vocabularyliststore_get_tree_paths (LgwVocabularyListStore *self, GList *wordstores);
+GList* lgw_vocabularyliststore_get_wordstores (LgwVocabularyListStore *self, GList *tree_paths);
 
 void lgw_vocabularyliststore_set (LgwVocabularyListStore *self, GtkTreePath *tree_path, ...);
 void lgw_vocabularyliststore_set_valist (LgwVocabularyListStore *self, GtkTreePath *tree_path, va_list va);

@@ -466,6 +466,9 @@ lgw_vocabularywordview_set_wordstores (LgwVocabularyWordView  *self,
     {
       priv->data.vocabulary_word_stores = g_list_copy (wordstores);
 
+      if (priv->data.vocabulary_word_store != NULL)
+        printf("BREAK0 lgw_vocabularywordview_set_wordstores refs %d\n", G_OBJECT (priv->data.vocabulary_word_store)->ref_count);
+
       if (g_list_length (wordstores) > 1)
       {
         priv->data.vocabulary_word_store = lgw_vocabularywordstore_new_from_wordstores (wordstores, NULL); 
@@ -476,6 +479,8 @@ lgw_vocabularywordview_set_wordstores (LgwVocabularyWordView  *self,
       }
 
       gtk_tree_view_set_model (priv->ui.tree_view, GTK_TREE_MODEL (priv->data.vocabulary_word_store));
+      if (priv->data.vocabulary_word_store != NULL)
+        printf("BREAK1 lgw_vocabularywordview_set_wordstores refs %d\n", G_OBJECT (priv->data.vocabulary_word_store)->ref_count);
 
     }
     else

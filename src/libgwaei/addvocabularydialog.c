@@ -316,7 +316,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
                 GtkWidget *entry = gtk_entry_new ();
                 priv->ui.kanji_entry = GTK_ENTRY (entry);
                 gtk_entry_set_placeholder_text (priv->ui.kanji_entry, gettext("Word"));
-                gtk_entry_set_width_chars (priv->ui.kanji_entry, 20);
+                gtk_entry_set_width_chars (priv->ui.kanji_entry, 10);
                 gtk_grid_attach (priv->ui.grid, entry, 1, 2, 1, 1);
                 gtk_widget_show (entry);
               }
@@ -337,7 +337,7 @@ lgw_addvocabularydialog_constructed (GObject *object)
                 GtkWidget *entry = gtk_entry_new ();
                 priv->ui.reading_entry = GTK_ENTRY (entry);
                 gtk_entry_set_placeholder_text (priv->ui.reading_entry, gettext("Reading"));
-                gtk_entry_set_width_chars (priv->ui.reading_entry, 20);
+                gtk_entry_set_width_chars (priv->ui.reading_entry, 10);
                 gtk_grid_attach (priv->ui.grid, entry, 1, 3, 1, 1);
                 gtk_widget_show (entry);
               }

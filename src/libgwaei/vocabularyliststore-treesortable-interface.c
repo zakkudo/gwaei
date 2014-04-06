@@ -94,17 +94,21 @@ _set_sort_column_id (GtkTreeSortable *sortable,
     //Declarations
     LgwVocabularyListStore *self = NULL;
     LgwVocabularyListStorePrivate *priv = NULL;
+    gboolean should_sort = FALSE;
     
     //Initializations
     self = LGW_VOCABULARYLISTSTORE (sortable);
     priv = self->priv;
 
+    should_sort = ((priv->config.sort_column_id != sort_column_id) || (priv->config.order != order));
     priv->config.sort_column_id = sort_column_id;
     priv->config.order = order;
 
-    g_signal_emit_by_name (sortable, "sort-column-changed", NULL);
-
-    lgw_vocabularyliststore_sort (self);
+    if (should_sort)
+    {
+      g_signal_emit_by_name (sortable, "sort-column-changed", NULL);
+      lgw_vocabularyliststore_sort (self);
+    }
 }
 
 

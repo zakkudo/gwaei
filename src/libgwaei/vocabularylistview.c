@@ -528,8 +528,13 @@ lgw_treeview_get_selected_wordstores (GtkTreeView *self)
       {
         GtkTreePath *tree_path = link->data;
         LgwVocabularyWordStore *vocabulary_word_store = lgw_vocabularyliststore_get_wordstore (vocabulary_list_store, tree_path);
-        selected_wordstores = g_list_prepend (selected_wordstores, vocabulary_word_store);
+        if (vocabulary_word_store != NULL)
+        {
+          selected_wordstores = g_list_prepend (selected_wordstores, vocabulary_word_store);
+        }
       }
+
+      selected_wordstores = g_list_reverse (selected_wordstores);
     }
 
 errored:
@@ -540,7 +545,6 @@ errored:
       selected_rows = NULL;
     }
 
-    selected_wordstores = g_list_reverse (selected_wordstores);
 
     return selected_wordstores;
 }
@@ -622,13 +626,11 @@ lgw_vocabularylistview_delete_selected (LgwVocabularyListView *self)
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (self));
 
-/*
     //Declarations
     LgwVocabularyListViewPrivate *priv = NULL;
     LgwVocabularyListStore *vocabulary_list_store = NULL;
     GList *tree_paths = NULL;
     GtkTreeModel *tree_model = NULL;
-    GList *wordstores = NULL;
 
     //Initializations
     priv = self->priv;
@@ -639,13 +641,6 @@ lgw_vocabularylistview_delete_selected (LgwVocabularyListView *self)
     tree_paths = gtk_tree_selection_get_selected_rows (priv->data.tree_selection, &tree_model);
     if (tree_paths == NULL) goto errored;
 
-    wordstores = lgw_vocabularyliststore_delete (vocabulary_list_store, tree_paths);
-
-errored:
-
-    if (tree_paths != NULL) g_list_free_full (tree_paths, (GDestroyNotify) gtk_tree_path_free); tree_paths = NULL;
-    if (wordstores != NULL) g_list_free_full (wordstores, (GDestroyNotify) g_object_unref);
-    */
     GtkWidget *toplevel = gtk_widget_get_toplevel (GTK_WIDGET (self));
     GtkWindow *window = NULL;
     if (gtk_widget_is_toplevel (toplevel))
@@ -653,9 +648,14 @@ errored:
       window = GTK_WINDOW (toplevel);
     }
 
-    GtkWidget *dialog = lgw_deletevocabularylistdialog_new (window);
+    GtkWidget *dialog = lgw_deletevocabularylistdialog_new (window, vocabulary_list_store);
+    lgw_deletevocabularylistdialog_set_wordstores_by_treepaths (LGW_DELETEVOCABULARYLISTDIALOG (dialog), tree_paths);
     gint response = gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
+
+errored:
+
+    if (tree_paths != NULL) g_list_free_full (tree_paths, (GDestroyNotify) gtk_tree_path_free); tree_paths = NULL;
 }
 
 

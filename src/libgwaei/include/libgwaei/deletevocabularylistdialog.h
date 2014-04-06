@@ -33,7 +33,7 @@ struct _LgwDeleteVocabularyListDialogClass {
   void (*word_added) (LgwDeleteVocabularyListDialog *dialog);
 };
 
-GtkWidget* lgw_deletevocabularylistdialog_new (GtkWindow *window);
+GtkWidget* lgw_deletevocabularylistdialog_new (GtkWindow *window, LgwVocabularyListStore *vocabulary_list_store);
 GType lgw_deletevocabularylistdialog_get_type (void) G_GNUC_CONST;
 
 LgwVocabularyListStore* lgw_deletevocabularylistdialog_get_liststore (LgwDeleteVocabularyListDialog *self);
@@ -42,8 +42,9 @@ void lgw_deletevocabularylistdialog_set_liststore (LgwDeleteVocabularyListDialog
 gboolean lgw_deletevocabularylistdialog_get_delete_on_response (LgwDeleteVocabularyListDialog *self);
 void lgw_deletevocabularylistdialog_set_delete_on_response (LgwDeleteVocabularyListDialog *self, gboolean delete_on_response);
 
-GList* lgw_deletevocabularylistdialog_get_treepaths (LgwDeleteVocabularyListDialog *self);
-void lgw_deletevocabularylistdialog_set_treepaths (LgwDeleteVocabularyListDialog *self, GList *tree_paths);
+GList* lgw_deletevocabularylistdialog_get_wordstores (LgwDeleteVocabularyListDialog *self);
+void lgw_deletevocabularylistdialog_set_wordstores (LgwDeleteVocabularyListDialog *self, GList *wordstores);
+void lgw_deletevocabularylistdialog_set_wordstores_by_treepaths (LgwDeleteVocabularyListDialog *self, GList *treepaths);
 
 
 G_END_DECLS

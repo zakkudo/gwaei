@@ -48,8 +48,24 @@ lgw_deletevocabularylistdialog_response_cb (LgwDeleteVocabularyListDialog *self,
 
     //Declarations
     LgwDeleteVocabularyListDialogPrivate *priv = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
 
     //Initializations
+    priv = self->priv;
+    vocabulary_list_store = priv->data.vocabulary_list_store;
+
+    if (response_id == LGW_DELETEVOCABULARYLISTDIALOG_RESPONSE_DELETE)
+    {
+      if (vocabulary_list_store != NULL)
+      {
+        GList *tree_paths = lgw_vocabularyliststore_get_tree_paths (vocabulary_list_store, priv->data.wordstores);
+        if (tree_paths != NULL)
+        {
+          GList *wordstores = lgw_vocabularyliststore_delete (vocabulary_list_store, tree_paths);
+          g_list_free_full (tree_paths, (GDestroyNotify) gtk_tree_path_free);
+        }
+      }
+    }
 
 errored:
 

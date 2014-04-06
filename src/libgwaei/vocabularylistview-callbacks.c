@@ -62,6 +62,7 @@ lgw_vocabularylistview_selection_changed_cb (LgwVocabularyListView *self,
     if (vocabulary_word_view == NULL) goto errored;
     vocabulary_word_stores = lgw_vocabularylistview_get_selected_wordstores (self);
     actionable = LGW_ACTIONABLE (self);
+    printf("BREAK lgw_vocabularylistview_selection_changed_cb %d\n", g_list_length (vocabulary_word_stores));
 
     lgw_vocabularywordview_set_wordstores (vocabulary_word_view, vocabulary_word_stores);
 
@@ -99,6 +100,7 @@ lgw_vocabularylistview_delete_selected_activated_cb (GSimpleAction *action,
                                                      GVariant      *parameter,
                                                      gpointer       data)
 {
+    printf("BREAK0 lgw_vocabularylistview_delete_selected_activated_cb\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTVIEW (data));
 
@@ -109,6 +111,7 @@ lgw_vocabularylistview_delete_selected_activated_cb (GSimpleAction *action,
     self = LGW_VOCABULARYLISTVIEW (data);
 
     lgw_vocabularylistview_delete_selected (self);
+    printf("BREAK1 lgw_vocabularylistview_delete_selected_activated_cb\n");
 }
 
 

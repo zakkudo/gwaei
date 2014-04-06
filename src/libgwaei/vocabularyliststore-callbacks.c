@@ -48,6 +48,7 @@ lgw_vocabularyliststore_sync_order_cb (GSettings *settings,
                                        gchar     *key,
                                        gpointer   data)
 {
+  printf("BREAK lgw_vocabularyliststore_sync_order_cb\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (data));
 

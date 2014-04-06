@@ -731,6 +731,37 @@ lgw_vocabularyliststore_get_tree_paths (LgwVocabularyListStore *self,
 
 
 GList*
+lgw_vocabularyliststore_get_wordstores (LgwVocabularyListStore *self,
+                                        GList                  *tree_paths)
+{
+    //Sanity checks
+    if (tree_paths == NULL) return NULL;
+
+    //Declarations
+    GList *wordstores = NULL;
+
+    {
+      GList *link = NULL;
+      for (link = tree_paths; link != NULL; link = link->next)
+      {
+        GtkTreePath *tree_path = link->data;
+        if (tree_path != NULL)
+        {
+          LgwVocabularyWordStore *w = lgw_vocabularyliststore_get_wordstore (self, tree_path);
+          if (w != NULL)
+          {
+            wordstores = g_list_prepend (wordstores, w);
+          }
+        }
+      }
+      wordstores = g_list_reverse (wordstores);
+    }
+
+    return wordstores;
+}
+
+
+GList*
 lgw_vocabularyliststore_insert (LgwVocabularyListStore *self,
                                 GtkTreePath            *tree_path,
                                 GList                  *wordstores)
@@ -1491,7 +1522,19 @@ lgw_vocabularyliststore_set_order (LgwVocabularyListStore *self,
     if (priv->data.order != NULL) g_strfreev (priv->data.order); priv->data.order = NULL;
     if (preferences != NULL)
     {
-      if (order == NULL) priv->data.order = lgw_vocabularyliststore_get_actual_order (self);
+      if (order == NULL) 
+      {
+        priv->data.order = lgw_vocabularyliststore_get_actual_order (self);
+        { //This is equivalent to a save in these circumstances
+          GList *link = NULL;
+          gint i = 0;
+          for (link = priv->data.list; link != NULL; link = link->next)
+          {
+            LwVocabulary *v = LW_VOCABULARY (link->data);
+            v->row.saved_index = i++;
+          }
+        }
+      }
       else priv->data.order = g_strdupv ((gchar**) order);
       lw_preferences_set_strv_by_schema (preferences, LW_SCHEMA_VOCABULARY, LW_KEY_ORDER, (const gchar* const*) priv->data.order);
     }
@@ -1608,6 +1651,7 @@ lgw_vocabularyliststore_sync_order (LgwVocabularyListStore *self)
 
     {
       GList *link = NULL;
+      gint current_index = 0;
       for (link = priv->data.list; link != NULL; link = link->next)
       {
         LwVocabulary *v = LW_VOCABULARY (link->data);
@@ -1665,7 +1709,6 @@ _compare_func (LwVocabulary *va,
     tree_model = GTK_TREE_MODEL (self);
     tree_sortable = GTK_TREE_SORTABLE (self);
     is_normal_column = gtk_tree_sortable_get_sort_column_id (tree_sortable, &sort_column_id, &order);
-printf("BREAK _compare_func %d %d %d\n", is_normal_column, sort_column_id, order);
 
     if (sort_column_id == GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID) 
     {
@@ -1673,12 +1716,10 @@ printf("BREAK _compare_func %d %d %d\n", is_normal_column, sort_column_id, order
     }
     else if (sort_column_id == GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID) 
     {
-      printf("BREAK _compare_func GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID\n");
       sort_func = priv->config.default_sort_func;
     }
     else 
     {
-      printf("BREAK _compare_func %d \n", sort_column_id);
       sort_func = priv->config.sort_func[sort_column_id];
     }
 
@@ -1710,6 +1751,7 @@ lgw_vocabularyliststore_sort (LgwVocabularyListStore *self)
     gint length = -1;
     gint *new_order = NULL;
     GtkTreePath *tree_path = NULL;
+    gint changed = FALSE;
     
     //Initializations
     priv = self->priv;
@@ -1727,7 +1769,7 @@ lgw_vocabularyliststore_sort (LgwVocabularyListStore *self)
       {
         LwVocabulary *v = LW_VOCABULARY (link->data);
         new_order[j++] = v->row.current_index;
-        printf("BREAK before new_order[%d] = %d %s\n", (j-1), new_order[j-1], lw_vocabulary_get_filename (v));
+        printf("BREAK before lgw_vocabularyliststore_sort new_order[%d] = %d\n", j - 1, new_order[j - 1]);
       }
       new_order[j++] = -1;
     }
@@ -1741,14 +1783,18 @@ lgw_vocabularyliststore_sort (LgwVocabularyListStore *self)
       for (link = priv->data.list; link != NULL; link = link->next)
       {
         LwVocabulary *v = LW_VOCABULARY (link->data);
+        if (j != v->row.current_index) changed = TRUE;
         new_order[j++] = v->row.current_index;
-        printf("BREAK after new_order[%d] = %d %s\n", (j-1), new_order[j-1], lw_vocabulary_get_filename (v));
+        printf("BREAK after lgw_vocabularyliststore_sort new_order[%d] = %d %s\n", j - 1, new_order[j - 1], lw_vocabulary_get_filename (v));
       }
       new_order[j++] = -1;
     }
 
-    _rebuild_array (self);
+    if (!changed) goto errored;
 
+    printf("BREAK CHAAAAAAANGED!\n");
+
+    _rebuild_array (self);
     g_signal_emit_by_name (self, "rows-reordered", tree_path, NULL, new_order);
 
 errored:
@@ -1756,4 +1802,22 @@ errored:
     if (new_order != NULL) g_free (new_order); new_order = NULL;
     if (tree_path == NULL) gtk_tree_path_free (tree_path); tree_path = NULL;
 }
+
+
+gboolean
+lgw_vocabularyliststore_contains_wordstore (LgwVocabularyListStore *self,
+                                            LgwVocabularyWordStore *wordstore)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_VOCABULARYLISTSTORE (self));
+
+    //Declarations
+    LgwVocabularyListStorePrivate *priv = NULL;
+    
+    //Initializations
+    priv = self->priv;
+
+    return (priv->data.index.wordstore != NULL && g_hash_table_contains (priv->data.index.wordstore, wordstore));
+}
+
 

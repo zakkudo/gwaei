@@ -281,6 +281,7 @@ _get_value (GtkTreeModel *tree_model,
         }
         break;
       case LGW_VOCABULARYLISTSTORE_COLUMN_TOTAL_WORDS: //G_TYPE_STRING
+        lw_vocabulary_load (vocabulary, NULL);
         g_value_take_string (value, g_strdup_printf ("%d", lw_vocabulary_length (vocabulary)));
         break;
       case LGW_VOCABULARYLISTSTORE_COLUMN_OBJECT: //G_TYPE_OBJECT

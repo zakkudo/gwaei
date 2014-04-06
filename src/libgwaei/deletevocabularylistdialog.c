@@ -37,6 +37,7 @@
 #include <libgwaei/gettext.h>
 #include <libgwaei/libgwaei.h>
 
+#include <libgwaei/deletevocabularylistdialog.h>
 #include <libgwaei/deletevocabularylistdialog-private.h>
 
 
@@ -50,14 +51,15 @@ G_DEFINE_TYPE (LgwDeleteVocabularyListDialog, lgw_deletevocabularylistdialog, GT
 //! @brief Sets up the variables in main-interface.c and main-callbacks.c for use
 //!
 GtkWidget* 
-lgw_deletevocabularylistdialog_new (GtkWindow *window)
+lgw_deletevocabularylistdialog_new (GtkWindow              *window,
+                                    LgwVocabularyListStore *vocabulary_list_store)
 {
   g_return_val_if_fail (window != NULL, NULL);
     //Declarations
     LgwDeleteVocabularyListDialog *dialog = NULL;
 
     //Initializations
-    dialog = LGW_DELETEVOCABULARYLISTDIALOG (g_object_new (LGW_TYPE_DELETEVOCABULARYLISTDIALOG, "transient-for", window, NULL));
+    dialog = LGW_DELETEVOCABULARYLISTDIALOG (g_object_new (LGW_TYPE_DELETEVOCABULARYLISTDIALOG, "transient-for", window, "vocabulary-list-store", vocabulary_list_store, NULL));
 
     return GTK_WIDGET (dialog);
 }
@@ -68,6 +70,8 @@ lgw_deletevocabularylistdialog_init (LgwDeleteVocabularyListDialog *self)
 {
     self->priv = LGW_DELETEVOCABULARYLISTDIALOG_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LgwDeleteVocabularyListDialogPrivate));
+
+    self->priv->data.index = g_hash_table_new (g_direct_hash, g_direct_equal);
 }
 
 
@@ -96,6 +100,7 @@ lgw_deletevocabularylistdialog_finalize (GObject *object)
     priv = self->priv;
 
     if (priv->data.vocabulary_list_store != NULL) g_object_unref (priv->data.vocabulary_list_store); priv->data.vocabulary_list_store = NULL;
+    if (priv->data.index != NULL) g_hash_table_unref (priv->data.index); priv->data.index = NULL;
 
     G_OBJECT_CLASS (lgw_deletevocabularylistdialog_parent_class)->finalize (object);
 }
@@ -117,8 +122,8 @@ lgw_deletevocabularylistdialog_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_TREEPATHS:
-        lgw_deletevocabularylistdialog_set_treepaths (self, g_value_get_pointer (value));
+      case PROP_WORDSTORES:
+        lgw_deletevocabularylistdialog_set_wordstores (self, g_value_get_pointer (value));
         break;
       case PROP_VOCABULARYLISTSTORE:
         lgw_deletevocabularylistdialog_set_liststore (self, g_value_get_object (value));
@@ -149,8 +154,8 @@ lgw_deletevocabularylistdialog_get_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_TREEPATHS:
-        g_value_set_pointer (value, lgw_deletevocabularylistdialog_get_treepaths (self));
+      case PROP_WORDSTORES:
+        g_value_set_pointer (value, lgw_deletevocabularylistdialog_get_wordstores (self));
         break;
       case PROP_VOCABULARYLISTSTORE:
         g_value_set_object (value, lgw_deletevocabularylistdialog_get_liststore (self));
@@ -225,21 +230,31 @@ lgw_deletevocabularylistdialog_constructed (GObject *object)
           }
 
           {
-            GtkWidget *primary_label = gtk_label_new (NULL);
-            priv->ui.primary_label = GTK_LABEL (primary_label);
+            GtkWidget *label = gtk_label_new (NULL);
+            priv->ui.primary_label = GTK_LABEL (label);
             gtk_label_set_text (priv->ui.primary_label, "Delete?");
-            gtk_misc_set_alignment (GTK_MISC (primary_label), 0.0, 0.0);
-            gtk_grid_attach (priv->ui.grid, primary_label, 0, 0, 1, 1);
-            gtk_widget_show (primary_label);
+            gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
+            gtk_grid_attach (priv->ui.grid, label, 0, 0, 1, 1);
+            gtk_widget_show (label);
           }
 
           {
-            GtkWidget *secondary_label = gtk_label_new (NULL);
-            priv->ui.secondary_label = GTK_LABEL (secondary_label);
+            GtkWidget *label = gtk_label_new (NULL);
+            priv->ui.secondary_label = GTK_LABEL (label);
             gtk_label_set_text (priv->ui.secondary_label, "These items will be perminently deleted.");
-            gtk_misc_set_alignment (GTK_MISC (secondary_label), 0.0, 0.0);
-            gtk_grid_attach (priv->ui.grid, secondary_label, 0, 1, 1, 1);
-            gtk_widget_show (secondary_label);
+            gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
+            gtk_grid_attach (priv->ui.grid, label, 0, 1, 1, 1);
+            gtk_widget_show (label);
+          }
+
+          {
+            GtkWidget *label = gtk_label_new (NULL);
+            priv->ui.list_label = GTK_LABEL (label);
+            gtk_label_set_text (priv->ui.list_label, "LIST");
+            gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
+            gtk_widget_set_margin_left (GTK_WIDGET (label), 6);
+            gtk_grid_attach (priv->ui.grid, label, 0, 2, 1, 1);
+            gtk_widget_show (label);
           }
         }
       }
@@ -287,13 +302,13 @@ lgw_deletevocabularylistdialog_class_init (LgwDeleteVocabularyListDialogClass *k
     _klass = klass;
     _klasspriv = klass->priv;
 
-    _klasspriv->pspec[PROP_TREEPATHS] = g_param_spec_pointer (
+    _klasspriv->pspec[PROP_WORDSTORES] = g_param_spec_pointer (
         "tree-paths",
         "prop",
         "object",
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_TREEPATHS, _klasspriv->pspec[PROP_TREEPATHS]);
+    g_object_class_install_property (object_class, PROP_WORDSTORES, _klasspriv->pspec[PROP_WORDSTORES]);
 
     _klasspriv->pspec[PROP_VOCABULARYLISTSTORE] = g_param_spec_object (
         "vocabulary-list-store",
@@ -333,7 +348,7 @@ lgw_deletevocabularylistdialog_get_liststore (LgwDeleteVocabularyListDialog *sel
 
 void
 lgw_deletevocabularylistdialog_set_liststore (LgwDeleteVocabularyListDialog *self,
-                                              LgwVocabularyListStore *vocabulary_list_store)
+                                              LgwVocabularyListStore        *vocabulary_list_store)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
@@ -361,6 +376,10 @@ lgw_deletevocabularylistdialog_set_liststore (LgwDeleteVocabularyListDialog *sel
       g_object_unref (priv->data.vocabulary_list_store);
       priv->data.vocabulary_list_store = NULL;
     }
+
+    priv->data.vocabulary_list_store = vocabulary_list_store;
+
+    lgw_deletevocabularylistdialog_set_wordstores (self, priv->data.wordstores);
 
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VOCABULARYLISTSTORE]);
     lgw_deletevocabularylistdialog_sync_labels (self);
@@ -413,7 +432,7 @@ errored:
 }
 
 GList*
-lgw_deletevocabularylistdialog_get_treepaths (LgwDeleteVocabularyListDialog *self)
+lgw_deletevocabularylistdialog_get_wordstores (LgwDeleteVocabularyListDialog *self)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
@@ -425,13 +444,56 @@ lgw_deletevocabularylistdialog_get_treepaths (LgwDeleteVocabularyListDialog *sel
     //Initializations
     priv = self->priv;
 
-    return priv->data.tree_paths;
+    return priv->data.wordstores;
+}
+
+
+gboolean
+_internal_wordlist_equals (LgwDeleteVocabularyListDialog *self,
+                           GList                         *wordstores)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
+
+    //Declarations
+    LgwDeleteVocabularyListDialogPrivate *priv = NULL;
+    gboolean equals = TRUE;
+
+    //Initializations
+    priv = self->priv;
+
+    if ((priv->data.wordstores == NULL && wordstores != NULL) || (priv->data.wordstores != NULL && wordstores == NULL))
+    {
+      equals = FALSE;
+      goto errored;
+    }
+
+    if (g_list_length (wordstores) != g_list_length (priv->data.wordstores))
+    {
+      equals = FALSE;
+      goto errored;
+    }
+
+    {
+      GList *link = NULL;
+      for (link = wordstores; link != NULL; link = link->next)
+      {
+        if (!g_hash_table_contains (priv->data.index, link->data)) 
+        {
+          equals = FALSE;
+          goto errored;
+        }
+      }
+    }
+
+errored:
+
+    return equals;
 }
 
 
 void
-lgw_deletevocabularylistdialog_set_treepaths (LgwDeleteVocabularyListDialog *self,
-                                              GList                         *tree_paths)
+_rebuild_index (LgwDeleteVocabularyListDialog *self)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
@@ -442,23 +504,142 @@ lgw_deletevocabularylistdialog_set_treepaths (LgwDeleteVocabularyListDialog *sel
 
     //Initializations
     priv = self->priv;
-    changed = (priv->data.tree_paths != tree_paths);
-    if (!changed) goto errored;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_TREEPATHS]);
-    lgw_deletevocabularylistdialog_sync_labels (self);
+    g_hash_table_remove_all (priv->data.index);
+
+    {
+      GList *link = NULL;
+      for (link = priv->data.wordstores; link != NULL; link = link->next)
+      {
+        LgwVocabularyWordStore *w = LGW_VOCABULARYWORDSTORE (link->data);
+        g_hash_table_add (priv->data.index, w);
+      }
+    }
+}
+
+
+void
+lgw_deletevocabularylistdialog_set_wordstores_by_treepaths (LgwDeleteVocabularyListDialog *self,
+                                                            GList                         *treepaths)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
+
+    //Declarations
+    LgwDeleteVocabularyListDialogPrivate *priv = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+    GList *wordstores = NULL;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary_list_store = priv->data.vocabulary_list_store;
+    if (vocabulary_list_store == NULL) goto errored;
+    wordstores = lgw_vocabularyliststore_get_wordstores (priv->data.vocabulary_list_store, treepaths);
+
+    lgw_deletevocabularylistdialog_set_wordstores (self, wordstores);
 
 errored:
-
 
     return;
 }
 
 
 void
+lgw_deletevocabularylistdialog_set_wordstores (LgwDeleteVocabularyListDialog *self,
+                                               GList                         *wordstores)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
+
+    //Declarations
+    LgwDeleteVocabularyListDialogPrivate *priv = NULL;
+    LgwVocabularyListStore *vocabulary_list_store = NULL;
+    gboolean changed = FALSE;
+    GList *sanitized_wordstores = NULL;
+
+    //Initializations
+    priv = self->priv;
+    vocabulary_list_store = priv->data.vocabulary_list_store;
+    changed = !_internal_wordlist_equals (self, wordstores);
+    if (!changed) goto errored;
+
+    if (wordstores != NULL)
+    {
+      GList *link = NULL;
+      for (link = wordstores; link != NULL; link = link->next)
+      {
+        LgwVocabularyWordStore *w = LGW_VOCABULARYWORDSTORE (link->data);
+        if (vocabulary_list_store != NULL && lgw_vocabularyliststore_contains_wordstore (vocabulary_list_store, w)) 
+        {
+          g_object_ref (G_OBJECT (w));
+          printf("BREAK lgw_deletevocabularylistdialog_set_wordstores refs %s %d\n", lw_vocabulary_get_filename (LW_VOCABULARY (w)), G_OBJECT (w)->ref_count);
+          sanitized_wordstores = g_list_prepend (sanitized_wordstores, w);
+        }
+      }
+      sanitized_wordstores = g_list_reverse (sanitized_wordstores);
+    }
+
+    if (priv->data.wordstores != NULL)
+    {
+      g_list_free_full (priv->data.wordstores, (GDestroyNotify) g_object_unref);
+      priv->data.wordstores = NULL;
+    }
+
+    priv->data.wordstores = sanitized_wordstores;
+
+    _rebuild_index (self);
+
+    lgw_deletevocabularylistdialog_sync_labels (self);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_WORDSTORES]);
+
+errored:
+
+    return;
+}
+
+
+gchar*
+_get_filenames (LgwDeleteVocabularyListDialog *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
+
+    //Declarations
+    LgwDeleteVocabularyListDialogPrivate *priv = NULL;
+    gchar **filenames = NULL;
+    gint length = -1;
+    gchar *joined = NULL;
+
+    //Initializations
+    priv = self->priv;
+    length = g_list_length (priv->data.wordstores);
+    filenames = g_new0 (gchar*, length + 1);
+
+    {
+      GList *link = NULL;
+      gint i = 0;
+      for (link = priv->data.wordstores; link != NULL; link = link->next)
+      {
+        LwVocabulary *v  = LW_VOCABULARY (link->data);
+        filenames[i++] = (gchar*) lw_vocabulary_get_filename (v);
+      }
+
+      filenames[i++] = NULL;
+    }
+
+    joined = g_strjoinv ("\n", filenames);
+
+errored:
+
+    if (filenames != NULL) g_free (filenames); filenames = NULL;
+
+    return joined;
+}
+
+
+void
 lgw_deletevocabularylistdialog_sync_labels (LgwDeleteVocabularyListDialog *self)
 {
-  printf("BREAK lgw_deletevocabularylistdialog_sync_labels\n");
     //Sanity checks
     g_return_if_fail (LGW_IS_DELETEVOCABULARYLISTDIALOG (self));
 
@@ -481,12 +662,24 @@ lgw_deletevocabularylistdialog_sync_labels (LgwDeleteVocabularyListDialog *self)
 
     if (priv->ui.secondary_label != NULL)
     {
-      gchar *markup = g_markup_printf_escaped ("%s\n\n%s", "The following vocabulary lists will be perminently deleted:", "Vocabulary List");
+      gchar *markup = g_markup_printf_escaped ("%s", "The following vocabulary lists will be perminently deleted:");
       if (markup != NULL)
       {
         gtk_label_set_markup (priv->ui.secondary_label, markup);
         g_free (markup); markup = NULL;
       }
+    }
+
+    if (priv->ui.list_label != NULL)
+    {
+      gchar *filenames = _get_filenames (self);
+      gchar *markup = g_markup_printf_escaped ("%s", filenames);
+      if (markup != NULL)
+      {
+        gtk_label_set_markup (priv->ui.list_label, markup);
+        g_free (markup); markup = NULL;
+      }
+      if (filenames != NULL) g_free (filenames); filenames = NULL;
     }
 }
 

@@ -11,7 +11,7 @@ typedef enum {
 
 typedef enum {
     PROP_0,
-    PROP_TREEPATHS,
+    PROP_WORDSTORES,
     PROP_VOCABULARYLISTSTORE,
     PROP_DELETE_ON_RESPONSE,
     TOTAL_PROPS
@@ -24,12 +24,15 @@ struct _UI {
   GtkBox *layout_box;
   GtkLabel *primary_label;
   GtkLabel *secondary_label;
+  GtkLabel *list_label;
 };
 
 struct _Data {
   guint signalid[TOTAL_SIGNALIDS];
-  GList *tree_paths;
   LgwVocabularyListStore *vocabulary_list_store;
+  GList *treepaths;
+  GList *wordstores;
+  GHashTable *index;
 };
 
 struct _Config {
