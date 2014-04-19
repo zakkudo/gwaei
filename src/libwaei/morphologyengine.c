@@ -43,24 +43,22 @@
 #include <libwaei/morphologyengine-hunspell.h>
 #endif
 
+#include <libwaei/morphologyengine-private.h>
+
+static LwMorphologyEngineClass *_klass = NULL;
+static LwMorphologyEngineClassPrivate *_klasspriv = NULL;
+
 G_DEFINE_TYPE (LwMorphologyEngine, lw_morphologyengine, G_TYPE_OBJECT)
-
-typedef enum
-{
-  PROP_0,
-  PROP_LOCALE
-} LwMorphologyEngineProps;
-
 
 LwMorphologyEngine* lw_morphologyengine_new (const gchar *HUNSPELL_PREFERED_LOCALE)
 {
     //Declarations
-    LwMorphologyEngine *engine;
+    LwMorphologyEngine *self;
 
     //Initializations
-    engine = LW_MORPHOLOGYENGINE (g_object_new (LW_TYPE_MORPHOLOGYENGINE, "locale", HUNSPELL_PREFERED_LOCALE, NULL));
+    self = LW_MORPHOLOGYENGINE (g_object_new (LW_TYPE_MORPHOLOGYENGINE, "locale", HUNSPELL_PREFERED_LOCALE, NULL));
 
-    return engine;
+    return self;
 }
 
 
@@ -71,16 +69,15 @@ lw_morphologyengine_set_property (GObject      *object,
                                   GParamSpec   *pspec)
 {
     //Declarations
-    LwMorphologyEngine *engine;
+    LwMorphologyEngine *self = NULL;
 
     //Initializations
-    engine = LW_MORPHOLOGYENGINE (object);
+    self = LW_MORPHOLOGYENGINE (object);
 
     switch (property_id)
     {
       case PROP_LOCALE:
-        if (engine->locale != NULL) g_free (engine->locale);
-        engine->locale = g_value_dup_string (value);
+        lw_morphologyengine_set_locale (self, g_value_get_string (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -90,21 +87,21 @@ lw_morphologyengine_set_property (GObject      *object,
 
 
 static void 
-lw_morphologyengine_get_property (GObject      *object,
-                                  guint         property_id,
-                                  GValue       *value,
-                                  GParamSpec   *pspec)
+lw_morphologyengine_get_property (GObject    *object,
+                                  guint       property_id,
+                                  GValue     *value,
+                                  GParamSpec *pspec)
 {
     //Declarations
-    LwMorphologyEngine *engine;
+    LwMorphologyEngine *self = NULL;
 
     //Initializations
-    engine = LW_MORPHOLOGYENGINE (object);
+    self = LW_MORPHOLOGYENGINE (object);
 
     switch (property_id)
     {
       case PROP_LOCALE:
-        g_value_set_string (value, engine->locale);
+        g_value_set_string (value, lw_morphologyengine_get_locale (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -114,8 +111,10 @@ lw_morphologyengine_get_property (GObject      *object,
 
 
 static void 
-lw_morphologyengine_init (LwMorphologyEngine *engine)
+lw_morphologyengine_init (LwMorphologyEngine *self)
 {
+    self->priv = LW_MORPHOLOGYENGINE_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LwMorphologyEnginePrivate));
 }
 
 
@@ -127,25 +126,28 @@ lw_morphologyengine_constructed (GObject *object)
       G_OBJECT_CLASS (lw_morphologyengine_parent_class)->constructed (object);
     }
 
-    LwMorphologyEngine *engine;
+    LwMorphologyEngine *self = NULL;
+    LwMorphologyEnginePrivate *priv = NULL;
 
-    engine = LW_MORPHOLOGYENGINE (object);
+    self = LW_MORPHOLOGYENGINE (object);
+    priv = self->priv;
 
+/*TODO
 #ifdef HAVE_MECAB
-    engine->mecab = lw_morphologyengine_mecab_new ();
+    priv->mecab = lw_morphologyengine_mecab_new ();
 #endif
 #ifdef HAVE_HUNSPELL
-    engine->hunspell = lw_morphologyengine_hunspell_new (engine->locale);
+    priv->hunspell = lw_morphologyengine_hunspell_new (priv->locale);
 #endif
-    g_mutex_init (&engine->mutex);
+    */
 
 #ifdef HAVE_MECAB
-    if (engine->mecab == NULL) 
+    if (priv->mecab == NULL) 
         g_message (gettext("Mecab had errors loading.  You may need to install mecab-ipadic. "
                            "Until then, libwaei will not try to conjugate words to their root form for Japanese."));
 #endif
 #ifdef HAVE_HUNSPELL
-    if (engine->hunspell == NULL)
+    if (priv->hunspell == NULL)
         g_message (gettext("Hunspell had errors loading.  You may need to install some hunspell/myspell dictionaries. "
                            "Until then, libwaei will not try to conjugate words to their root form for english or spellcheck."));
 #endif
@@ -157,18 +159,19 @@ lw_morphologyengine_finalize (GObject *object)
 {
     G_OBJECT_CLASS (lw_morphologyengine_parent_class)->finalize (object);
 
-    LwMorphologyEngine *engine;
+    LwMorphologyEngine *self = NULL;
+    LwMorphologyEnginePrivate *priv = NULL;
 
-    engine = LW_MORPHOLOGYENGINE (object);
+    self = LW_MORPHOLOGYENGINE (object);
+    priv = self->priv;
 
 #ifdef HAVE_MECAB
-    if (engine->mecab != NULL) mecab_destroy (engine->mecab); 
+    if (priv->mecab != NULL) mecab_destroy (priv->mecab); 
 #endif
 #ifdef HAVE_HUNSPELL
-    if (engine->hunspell != NULL) Hunspell_destroy (engine->hunspell); 
+    if (priv->hunspell != NULL) Hunspell_destroy (priv->hunspell); 
 #endif
-    g_mutex_clear (&engine->mutex);
-    if (engine->locale != NULL) g_free (engine->locale); 
+    if (priv->locale != NULL) g_free (priv->locale); 
 
     memset(object + sizeof(GObject), 0, sizeof(LwMorphologyEngine) - sizeof(GObject));
 }
@@ -189,37 +192,175 @@ lw_morphologyengine_class_init (LwMorphologyEngineClass *klass)
     object_class->finalize = lw_morphologyengine_finalize;
     object_class->constructed = lw_morphologyengine_constructed;
 
-    pspec = g_param_spec_string ("locale",
-                                 "Locale for european morphology",
-                                 "Set the european morphology locale",
-                                 "",
-                                 G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    g_type_class_add_private (object_class, sizeof (LwMorphologyEnginePrivate));
+
+    _klass = klass;
+    _klasspriv = klass->priv;
+
+    _klasspriv->pspec[PROP_LOCALE] = g_param_spec_string (
+      "locale",
+      "Locale for european morphology",
+      "Set the european morphology locale",
+      "",
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_LOCALE, pspec);
+    g_object_class_install_property (object_class, PROP_LOCALE, _klasspriv->pspec[PROP_LOCALE]);
+}
+
+
+void
+lw_morphologyengine_set_locale (LwMorphologyEngine *self,
+                                const gchar        *LOCALE)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_MORPHOLOGYENGINE (self));
+
+    //Declarations
+    LwMorphologyEnginePrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = g_strcmp0 (LOCALE, priv->locale);
+
+    if (priv->locale != NULL) g_free (priv->locale);
+    priv->locale = g_strdup (LOCALE);
+
+errored:
+
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_LOCALE]);
+}
+
+
+const gchar*
+lw_morphologyengine_get_locale (LwMorphologyEngine *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_MORPHOLOGYENGINE (self), NULL);
+
+    //Declarations
+    LwMorphologyEnginePrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->locale;
+}
+
+
+GList*
+lw_morphologyengine_tokenize (LwMorphologyEngine *self,
+                             const gchar        *TEXT)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+    if (TEXT == NULL) return NULL;
+
+    //Declarations
+    gchar **tokens = NULL;
+    GList *list = NULL;
+    gchar *copy = NULL;
+
+    //Initializations
+    copy = g_strdup (TEXT);
+    
+    //Generate copy
+    {
+      const gchar *p = NULL;
+      gchar *output = copy;
+      GUnicodeScript prev_script = G_UNICODE_SCRIPT_INVALID_CODE;
+      for (p = TEXT; *p != '\0'; p = g_utf8_next_char (p))
+      {
+        gunichar c = g_utf8_get_char (p);
+        GUnicodeScript script = g_unichar_get_script (c);
+
+        if (g_unichar_ispunct (c) || g_unichar_isspace (c))
+        {
+          *output = '_';
+          output++;
+          script = G_UNICODE_SCRIPT_INVALID_CODE;
+        }
+        else
+        {
+          if (script != prev_script && prev_script != G_UNICODE_SCRIPT_INVALID_CODE)
+          {
+            *output = '_';
+            output++;
+          }
+
+          gint bytes = g_unichar_to_utf8 (c, output);
+          output += bytes;
+        }
+
+        prev_script = script;
+      }
+      *output = '\0';
+    }
+
+    //Initializations
+    tokens = g_strsplit (copy, "_", -1);
+    if (tokens == NULL) goto errored;
+
+    {
+      gint i = 0;
+      for (i = 0; tokens[i] != NULL; i++)
+      {
+          if (strlen(tokens[i]) > 0)
+          {
+            list = g_list_prepend (list, tokens[i]);
+          }
+      }
+      list = g_list_reverse (list);
+    }
+
+    g_free (tokens); tokens = NULL;
+
+errored:
+
+    if (copy != NULL) g_free (copy); copy = NULL;
+    if (tokens != NULL) g_strfreev (tokens); tokens = NULL;
+
+    return list;
 }
 
 
 //!
 //! @brief Will analyze the sentence and return an array of non-trivial root form words
 //!
-LwMorphologyList*
-lw_morphologyengine_analyze (LwMorphologyEngine *engine, const gchar *TEXT, gboolean spellcheck)
+LwMorphologyString*
+lw_morphologyengine_parse (LwMorphologyEngine   *self, 
+                           const gchar          *TEXT,
+                           LwNormalizationFlags  flags)
 {
     //Sanity checks
-    g_return_val_if_fail (engine != NULL, NULL);
+    g_return_val_if_fail (self != NULL, NULL);
     if (TEXT == NULL) return NULL;
 
-    //Declarations and initializations
-    GList *list= NULL;
+    //Declarations
+    LwMorphologyEnginePrivate *priv = NULL;
+    LwMorphologyString *morphologystring = NULL;
 
+    //Initializations
+    priv = self->priv;
+    morphologystring = lw_morphologystring_new (TEXT, flags);
+    if (morphologystring == NULL) goto errored;
+
+    if (morphologystring->tokens != NULL) g_list_free_full (morphologystring->tokens, g_free);
+    morphologystring->tokens = lw_morphologyengine_tokenize (self, TEXT);
+
+/*
 #ifdef HAVE_MECAB
-    if (engine->mecab != NULL) list = g_list_concat (list, lw_morphologyengine_mecab_analyze (engine, TEXT));
-#endif
-#ifdef HAVE_HUNSPELL
-    if (engine->hunspell != NULL) list = g_list_concat (list, lw_morphologyengine_hunspell_analyze (engine, TEXT, spellcheck));
+    if (priv->mecab != NULL) lw_morphologyengine_mecab_parse (self, morphologystring);
 #endif
 
-    return lw_morphologylist_new_from_list (list);
+#ifdef HAVE_HUNSPELL
+    if (priv->hunspell != NULL) lw_morphologyengine_hunspell_parse (self, morphologystring, spellcheck);
+#endif
+*/
+
+errored:
+
+    return morphologystring;
 }
 
 

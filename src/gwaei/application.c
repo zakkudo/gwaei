@@ -58,20 +58,23 @@ GApplication*
 gw_application_new ()
 {
     //Declarations
-    GwApplication *application;
-    const gchar *id;
-    GApplicationFlags flags;
+    GwApplication *self = NULL;
+    const gchar *id = NULL;
+    GApplicationFlags flags = 0;
 
     //Initializations
     id = "gtk.org.gWaei";
     flags = G_APPLICATION_FLAGS_NONE;
-    application = g_object_new (GW_TYPE_APPLICATION, 
-                                "application-id", id, 
-                                "flags", flags,
-                                "register-session", TRUE,
-                                NULL);
 
-    return G_APPLICATION (application);
+    self = g_object_new (
+      GW_TYPE_APPLICATION, 
+      "application-id", id, 
+      "flags", flags,
+      "register-session", TRUE,
+      NULL
+    );
+
+    return G_APPLICATION (self);
 }
 
 

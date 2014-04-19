@@ -44,7 +44,7 @@
 
 G_DEFINE_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
 
-static gint lw_kanjidictionary_parse_result (LwDictionary*, LwResult*, const gchar*);
+static LwResult* lw_kanjidictionary_parse (LwDictionary*, const gchar*);
 static gboolean lw_kanjidictionary_installer_postprocess (LwDictionary*, gchar**, gchar**, LwProgress*);
 
 
@@ -113,7 +113,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
     object_class->constructed = lw_kanjidictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse_result = lw_kanjidictionary_parse_result;
+    dictionary_class->priv->parse = lw_kanjidictionary_parse;
     dictionary_class->priv->installer_postprocess = lw_kanjidictionary_installer_postprocess;
 }
 
@@ -121,16 +121,18 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
 //!
 //! @brief, Retrieve a line from FILE, parse it according to the LwKanjiDictionary rules and put the results into the LwResult
 //!
-static gint
-lw_kanjidictionary_parse_result (LwDictionary       *dictionary, 
-                                 LwResult           *result, 
-                                 const gchar        *TEXT)
+static LwResult*
+lw_kanjidictionary_parse (LwDictionary       *dictionary, 
+                          const gchar        *TEXT)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, 0);
-    g_return_val_if_fail (result != NULL, 0);
-    g_return_val_if_fail (TEXT != NULL, 0);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
+    if (TEXT == NULL) return NULL;
 
+    //Declarations
+    LwResult *result = NULL;
+
+/*TODO
     //Declarations
     GMatchInfo* match_info = NULL;
     gint start[LW_RE_TOTAL];
@@ -141,7 +143,6 @@ lw_kanjidictionary_parse_result (LwDictionary       *dictionary,
 
     //First generate the grade, stroke, frequency, and jlpt fields
 
-/*TODO
     //Get strokes
     result->strokes = NULL;
     g_regex_match (lw_re[LW_RE_STROKES], ptr, 0, &match_info);
@@ -182,7 +183,6 @@ lw_kanjidictionary_parse_result (LwDictionary       *dictionary,
       result->jlpt = ptr + start[LW_RE_JLPT] + 1;
     }
     g_match_info_free (match_info);
-*/
 
 
     //Get the kanji character
@@ -260,6 +260,9 @@ lw_kanjidictionary_parse_result (LwDictionary       *dictionary,
     if (result->jlpt)      *(result->text + end[LW_RE_JLPT]) = '\0';
 
     return 1;
+*/
+
+    return result;
 }
 
 

@@ -47,26 +47,21 @@ lgw_resultsview_default_init (LgwResultsViewInterface *class)
 
 
 void
-lgw_resultsview_set_searchlist (LgwResultsView *self, GList* searchlist)
+lgw_resultsview_set_search (LgwResultsView *self, LwSearch* search)
 {
-    LGW_RESULTSVIEW_GET_INTERFACE (self)->set_search (self, searchlist);
+    LGW_RESULTSVIEW_GET_INTERFACE (self)->set_search (self, search);
 }
 
-GList*
-lgw_resultsview_get_searchlist (LgwResultsView *self)
+LwSearch*
+lgw_resultsview_get_search (LgwResultsView *self)
 {
     return LGW_RESULTSVIEW_GET_INTERFACE (self)->get_search (self);
 }
 
 void
-lgw_resultsview_clear_searchlist (LgwResultsView *self)
+lgw_resultsview_clear (LgwResultsView *self)
 {
-    LGW_RESULTSVIEW_GET_INTERFACE (self)->clear_search (self);
+    LGW_RESULTSVIEW_GET_INTERFACE (self)->clear (self);
 }
 
-
-void
-lgw_resultsview_get_dictionarystatus (LgwResultsView *self)
-{
-}
 

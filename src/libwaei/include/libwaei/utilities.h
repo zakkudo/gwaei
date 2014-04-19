@@ -4,6 +4,12 @@
 G_BEGIN_DECLS
 
 typedef enum {
+  LW_NORMALIZATION_CASE_INSENSITIVE = (1 << 0),
+  LW_NORMALIZATION_FURIGANA_INSENSITIVE = (1 << 1),
+  LW_NORMALIZATION_INSENSITIVE = (LW_NORMALIZATION_CASE_INSENSITIVE | LW_NORMALIZATION_FURIGANA_INSENSITIVE)
+} LwNormalizationFlags;
+
+typedef enum {
   LW_PATH_BASE, 
   LW_PATH_DICTIONARY,
   LW_PATH_PLUGIN,
@@ -57,7 +63,7 @@ gboolean lw_util_all_chars_are_in_range (char*, int, int);
 
 void lw_util_sanitize_string (gchar *buffer);
 
-gchar* lw_util_normalize_string (const gchar *TEXT, gboolean make_case_insensitive, gboolean make_furigana_insensitive);
+gchar* lw_util_normalize_string (const gchar *TEXT, LwNormalizationFlags flags);
 
 gboolean lw_util_contains_halfwidth_japanese (const gchar*);
 gchar* lw_util_enlarge_halfwidth_japanese (const gchar*);

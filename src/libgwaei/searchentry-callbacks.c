@@ -134,6 +134,7 @@ lgw_searchentry_changed_cb (LgwSearchEntry *self,
                             GtkSearchEntry *inner_search_entry)
 {
     printf("BREAK changed\n");
+    lgw_searchentry_start_search (self);
 }
 
 

@@ -31,6 +31,7 @@ struct _Config {
 
 struct _Data {
     LgwDictionaryListStore *dictionary_list_store;
+    LgwResultsStore *results_store;
 };
 
 struct _LgwDictionaryListBoxPrivate {

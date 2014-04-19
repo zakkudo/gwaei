@@ -197,19 +197,17 @@ gboolean
 lw_preferences_schema_is_installed (const gchar *SCHEMA)
 {
     //Sanity checks
-    g_return_val_if_fail (SCHEMA != NULL, FALSE);
+    if (SCHEMA == NULL) return FALSE;
 
     //Declarations
-    const gchar * const * iter = NULL;
+    GSettingsSchemaSource *source = NULL;
+    GSettingsSchema *schema = NULL;
     gboolean exists = FALSE;
 
     //Initializations
-    iter = g_settings_list_schemas ();
-
-    while (iter != NULL && *iter != NULL && strcmp(*iter, SCHEMA) != 0)
-      iter++;
-
-    exists = (iter != NULL && *iter != NULL);
+    source = g_settings_schema_source_get_default ();
+    schema = g_settings_schema_source_lookup (source, SCHEMA, TRUE);
+    exists = (schema != NULL);;
 
     if (!exists)
     {

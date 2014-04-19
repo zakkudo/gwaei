@@ -137,6 +137,33 @@ lgw_dictionarylistbox_get_property (GObject      *object,
 }
 
 
+static void
+_update_header (GtkListBoxRow        *row,
+                GtkListBoxRow        *before,
+                LgwDictionaryListBox *list_box)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_DICTIONARYLISTBOX (list_box));
+    if (before != NULL) return;
+
+/* CURRENTLY UNUSED
+    //Declarations
+    GtkWidget *current_header = NULL;
+
+    //Initializations
+    current_header = gtk_list_box_row_get_header (row);
+
+    if (current_header == NULL)
+    {
+      GtkWidget *label = gtk_label_new (gettext("Dictionary"));
+      if (label != NULL)
+      {
+        gtk_list_box_row_set_header (row, label);
+      }
+    }
+*/
+}
+
 
 static void 
 lgw_dictionarylistbox_constructed (GObject *object)
@@ -145,7 +172,7 @@ lgw_dictionarylistbox_constructed (GObject *object)
     g_return_if_fail (object != NULL);
 
     //Declarations
-    LgwDictionaryListBox *widget = NULL;
+    LgwDictionaryListBox *self = NULL;
     LgwDictionaryListBoxPrivate *priv = NULL;
 
     //Chain the parent class
@@ -154,9 +181,9 @@ lgw_dictionarylistbox_constructed (GObject *object)
     }
 
     //Initializations
-    widget = LGW_DICTIONARYLISTBOX (object);
-    priv = widget->priv;
-    priv->ui.box = GTK_BOX (widget);
+    self = LGW_DICTIONARYLISTBOX (object);
+    priv = self->priv;
+    priv->ui.box = GTK_BOX (self);
 
     {
       GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
@@ -234,7 +261,10 @@ lgw_dictionarylistbox_constructed (GObject *object)
         }
       }
     }
+
+    gtk_list_box_set_header_func (priv->ui.list_box, (GtkListBoxUpdateHeaderFunc) _update_header, self, (GDestroyNotify) gtk_widget_destroy);
 }
+
 
 static GtkWidget*
 lgw_dictionarylist_create_row (LwDictionary *dictionary)
@@ -242,7 +272,7 @@ lgw_dictionarylist_create_row (LwDictionary *dictionary)
     //Sanity checks;
     g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
 
-    GtkWidget *row = gtk_list_box_new ();
+    GtkWidget *row = gtk_list_box_row_new ();
     {
       GtkWidget *columns = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
       {

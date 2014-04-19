@@ -322,7 +322,6 @@ _lw_morphologylist_get_section_score (LwMorphologyList  *morphologylist,
     if (strlen(HAYSTACK) == 0) return G_MININT;
 
     //Declarations
-    GList *link = morphologylist->list;
     GList *resultlist = NULL;
     gint index = 0;
     gint score = 0;
@@ -332,31 +331,34 @@ _lw_morphologylist_get_section_score (LwMorphologyList  *morphologylist,
     const gint STARTS_WITH_SCORE_WEIGHT = 5;
 
     //Calculate the LwMorphologyIndex
-    for (link = morphologylist->list; link != NULL; link = link->next)
     {
-      LwMorphology *morphology = LW_MORPHOLOGY (link->data);
-      GMatchInfo *match_info = NULL;
-
-      if (lw_morphology_regex_search (morphology, HAYSTACK, &match_info))
+      GList *link = NULL;
+      for (link = morphologylist->list; link != NULL; link = link->next)
       {
-        while (g_match_info_matches (match_info))
-        {
-          gint start_offset = 0;
-          gint end_offset = 0;
-          if (g_match_info_fetch_pos (match_info, 0, &start_offset, &end_offset))
-          {
-            LwMorphologyIndex *morphologyindex = lw_morphologyindex_new (index, HAYSTACK, start_offset, end_offset);
-            resultlist = g_list_append (resultlist, morphologyindex);
-            index++;
-          }
+        LwMorphology *morphology = LW_MORPHOLOGY (link->data);
+        GMatchInfo *match_info = NULL;
 
-          g_match_info_next (match_info, NULL);
+        if (lw_morphology_regex_search (morphology, HAYSTACK, &match_info))
+        {
+          while (g_match_info_matches (match_info))
+          {
+            gint start_offset = 0;
+            gint end_offset = 0;
+            if (g_match_info_fetch_pos (match_info, 0, &start_offset, &end_offset))
+            {
+              LwMorphologyIndex *morphologyindex = lw_morphologyindex_new (index, HAYSTACK, start_offset, end_offset);
+              resultlist = g_list_prepend (resultlist, morphologyindex);
+              index++;
+            }
+
+            g_match_info_next (match_info, NULL);
+          }
+         
+          if (match_info != NULL) g_match_info_free (match_info); match_info = NULL;
         }
-       
-        if (match_info != NULL) g_match_info_free (match_info); match_info = NULL;
       }
+      resultlist = g_list_sort (resultlist, _sort);
     }
-    resultlist = g_list_sort (resultlist, _sort);
 
     if (resultlist == NULL) return G_MININT;
 
@@ -364,7 +366,7 @@ _lw_morphologylist_get_section_score (LwMorphologyList  *morphologylist,
     gint starts_with_score = 0;
     {
       //Get the ratio of correct charaters to incorrect
-      link = resultlist;
+      GList *link = resultlist;
       if (link != NULL)
       {
         LwMorphologyIndex *morphologyindex = link->data;
@@ -381,6 +383,7 @@ _lw_morphologylist_get_section_score (LwMorphologyList  *morphologylist,
     {
       //Get the ratio of correct charaters to incorrect
       difference_score = -g_utf8_strlen (HAYSTACK, -1);
+      GList *link = NULL;
       for (link = resultlist; link != NULL; link = link->next)
       {
         LwMorphologyIndex *morphologyindex = link->data;

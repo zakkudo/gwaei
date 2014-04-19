@@ -1,49 +1,28 @@
 #ifndef LW_RESULT_INCLUDED
-#define LW_RESULT_INCLUDED
-
-#include <libwaei/io.h>
+#define LW_RESULT_INCLUDED 
 
 G_BEGIN_DECLS
 
-#define LW_RESULT(object) (LwResult*) object
-
-//!
-//! @brief Primitive for storing lists of dictionaries
-//!
-
 struct _LwResult {
-    gchar *text;     //!< Character array holding the result line for the pointers to reference
-    LwDictionary *dictionary;
-
-    //General result things
-    gchar *def_start[50];        //!< Pointer to the definitions
-    gint def_total;              //!< Total definitions found for a result
-    gchar *number[50];           //!< Pointer to the numbers of the definitions
-    gchar *kanji_start;          //!< The kanji portion of the definition
-    gchar *furigana_start;       //!< The furigana portion of a definition
-    gchar *classification_start; //!< The classification of the word type of the Japanese word.
-
-    //Kanji things
-    gchar *strokes;      //!< Pointer to the number of strokes of a kanji
-    gchar *frequency;    //!< Pointer to the frequency number of a kanji
-    gchar *readings[3];  //!< Pointer to the readings of a kanji
-    gchar *meanings;     //!< Pointer to the meanings of a kanji
-    gchar *grade;        //!< Pointer to the grade of a kanji
-    gchar *jlpt;         //!< Pointer to the JLPT level of a kanji
-    gchar *kanji;        //!< Pointer to the kanji itself
-    gchar *radicals;     //!< Pointer to a kanji's radicals
-
-    gboolean important; //!< Weather a word/phrase has a high frequency of usage.
-
+  GHashTable *data;
+  GList *lexicon;
+  gboolean common;
 };
+
 typedef struct _LwResult LwResult;
+#define LW_RESULT(obj) (LwResult*)obj
 
-
+//Methods
 LwResult* lw_result_new (void);
-void lw_result_free (LwResult*);
+void lw_result_free (LwResult *self);
 
-gboolean lw_result_is_similar (LwResult*, LwResult*);
+void lw_result_take_data (LwResult *self, const gchar *KEY, GList *data);
+GList* lw_result_get_data (LwResult *self, const gchar *KEY);
+
+void lw_result_take_lexicon (LwResult *self, GList *lexicon);
+GList* lw_result_get_lexicon (LwResult *self);
 
 G_END_DECLS
 
 #endif
+

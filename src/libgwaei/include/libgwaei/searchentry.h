@@ -34,6 +34,8 @@ GtkEntry* lgw_searchentry_get_entry (LgwSearchEntry *self);
 void lgw_searchentry_set_text (LgwSearchEntry *self, const gchar *TEXT);
 void lgw_searchentry_insert_text (LgwSearchEntry *self, const gchar *TEXT);
 
+void lgw_searchentry_start_search (LgwSearchEntry *self);
+
 G_END_DECLS
 
 #endif

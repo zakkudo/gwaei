@@ -41,6 +41,7 @@
 #include <waei/waei.h>
 
 
+/*
 static void w_console_append_edict_result (WApplication*, LwSearchIterator*);
 static void w_console_append_kanjidict_result (WApplication*, LwSearchIterator*);
 static void w_console_append_examplesdict_result (WApplication*, LwSearchIterator*);
@@ -81,7 +82,7 @@ errored:
 
 
 static void
-lw_printf_highlighted (LwSearchIterator *iterator, 
+w_printf_highlighted (LwSearchIterator *iterator, 
                        const gchar            *FORMATTED, 
                        const gchar            *CONTENT, 
                        const gchar            *ORIGINAL_COLOR)
@@ -410,4 +411,5 @@ w_console_no_result (WApplication           *application,
     else
       printf("%s\n\n", gettext("No results found!"));
 }
+*/
 

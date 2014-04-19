@@ -42,7 +42,7 @@
 #include <libwaei/dictionary-private.h>
 #include <libwaei/gettext.h>
 
-static gint lw_unknowndictionary_parse_result (LwDictionary*, LwResult*, const gchar*);
+static LwResult* lw_unknowndictionary_parse (LwDictionary*, const gchar*);
 
 
 G_DEFINE_TYPE (LwUnknownDictionary, lw_unknowndictionary, LW_TYPE_DICTIONARY)
@@ -108,7 +108,7 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
     object_class->constructed = lw_unknowndictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse_result = lw_unknowndictionary_parse_result;
+    dictionary_class->priv->parse = lw_unknowndictionary_parse;
 }
 
 
@@ -117,19 +117,17 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
 //! @brief Parses a string for an unknown format string
 //! @param rl The Resultline object this method works on
 //!
-static gint
-lw_unknowndictionary_parse_result (LwDictionary       *dictionary, 
-                                   LwResult           *result, 
-                                   const gchar        *TEXT)
+static LwResult*
+lw_unknowndictionary_parse (LwDictionary       *dictionary, 
+                            const gchar        *TEXT)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, 0);
-    g_return_val_if_fail (result != NULL, 0);
-    g_return_val_if_fail (TEXT != NULL, 0);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
+    if (TEXT == NULL) return NULL;
 
     //Declarations
-    //gchar *ptr = result->text = g_strdup (TEXT);
+    LwResult *result = NULL;
 
-    return 1;
+    return result;
 }
 

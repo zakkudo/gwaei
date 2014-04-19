@@ -44,7 +44,7 @@
 
 G_DEFINE_TYPE (LwExampleDictionary, lw_exampledictionary, LW_TYPE_DICTIONARY)
 
-static gint lw_exampledictionary_parse_result (LwDictionary*, LwResult*, const gchar*);
+static LwResult* lw_exampledictionary_parse (LwDictionary*, const gchar*);
 
 
 LwDictionary* lw_exampledictionary_new (const gchar        *FILENAME,
@@ -111,7 +111,7 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
     object_class->constructed = lw_exampledictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse_result = lw_exampledictionary_parse_result;
+    dictionary_class->priv->parse = lw_exampledictionary_parse;
 }
 
 
@@ -134,16 +134,18 @@ lw_exampledictionary_is_b (gchar *text)
 //!
 //! @brief, Retrieve a line from FILE, parse it according to the LwExampleDictionary rules and put the results into the LwResult
 //!
-static gint
-lw_exampledictionary_parse_result (LwDictionary       *dictionary, 
-                                   LwResult           *result, 
-                                   const gchar        *TEXT)
+static LwResult*
+lw_exampledictionary_parse(LwDictionary       *dictionary, 
+                           const gchar        *TEXT)
 {
     //Sanity checks
     g_return_val_if_fail (dictionary != NULL, 0);
-    g_return_val_if_fail (result != NULL, 0);
     g_return_val_if_fail (TEXT != NULL, 0);
 
+    //Declarations
+    LwResult *result = NULL;
+
+/*TODO
     //Declarations
     gchar *ptr;
     //gint length;
@@ -170,7 +172,6 @@ lw_exampledictionary_parse_result (LwDictionary       *dictionary,
     while (*ptr != '\n') ptr++;
     *ptr = '\0';
 
-/*
     //Set the "furigana" string
     ptr = fgets(ptr, LW_IO_MAX_FGETS_LINE - length, fd);
     if (ptr != NULL && lw_exampledictionary_is_b (ptr))
@@ -182,11 +183,13 @@ lw_exampledictionary_parse_result (LwDictionary       *dictionary,
 
       if (*ptr == '\n') *ptr = '\0';
     }
-*/
 
 errored:
 
     return 1;
+*/
+
+    return result;
 }
 
 

@@ -44,16 +44,16 @@
 int 
 main (int argc, char *argv[])
 {
-    GObject *application;
-    int resolution;
+    GApplication *application = NULL;
+    int resolution = -1;
 
     setlocale(LC_ALL, "");
     bindtextdomain(GETTEXT_PACKAGE, GWAEI_LOCALEDIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain(GETTEXT_PACKAGE);
 
-    application = w_application_new ();
-    resolution = w_application_run (W_APPLICATION (application), &argc, &argv);
+    application = G_APPLICATION (w_application_new ());
+    resolution = g_application_run (G_APPLICATION (application), argc, argv);
 
     g_object_unref (application);
     application = NULL;

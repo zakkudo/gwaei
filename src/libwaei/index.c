@@ -34,10 +34,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <libwaei/utilities.h>
-#include <libwaei/io.h>
-#include <libwaei/morphology.h>
-#include <libwaei/index.h>
+#include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
 
 
@@ -166,6 +163,7 @@ _lw_index_create_add_string (LwIndex     *index,
                              const gchar *TEXT, 
                              LwOffset     offset)
 {
+  /*TODO
     //Sanity checks
     g_return_if_fail (index != NULL);
     g_return_if_fail (TEXT != NULL);
@@ -174,7 +172,7 @@ _lw_index_create_add_string (LwIndex     *index,
 
     //Declarations
     LwMorphology *morphology = NULL;
-    LwMorphologyList *list = NULL;
+    LwMorphologyString *list = NULL;
     gchar *key = NULL;
     
     list = lw_morphologyengine_analyze (index->morphologyengine, TEXT, FALSE);
@@ -206,6 +204,7 @@ _lw_index_create_add_string (LwIndex     *index,
       }
     }
     lw_morphologylist_free (list); list = NULL;
+    */
 }
 
 
@@ -591,6 +590,7 @@ errored:
 }
 
 
+/*TODO
 ///!
 ///! @brief Returns a hash table of results based on a morphology query from a specific LwIndexTableType
 ///!
@@ -644,6 +644,7 @@ errored:
   
     return table;
 }
+*/
 
 
 static gboolean
@@ -655,6 +656,7 @@ _prune (gpointer key, gpointer value, gpointer data)
 }
 
 
+  /*TODO
 ///!
 ///! @brief Removes keys from the previous_table if they are not in the new table
 ///!
@@ -681,22 +683,24 @@ errored:
 
     if (table != NULL) g_hash_table_unref (table); table = NULL;
 }
+    */
 
 
 GList*
-lw_index_get_matches_for_morphologylist (LwIndex           *index, 
-                                         LwIndexTableType   type, 
-                                         LwMorphologyList  *morphologylist)
+lw_index_get_matches_for_morphologylist (LwIndex            *index, 
+                                         LwIndexTableType    type, 
+                                         LwMorphologyString  *morphologystring)
 {
+  /*TODO
     //Sanity checks
     g_return_val_if_fail (index != NULL, NULL);
-    g_return_val_if_fail (morphologylist != NULL, NULL);
-    if (lw_morphologylist_length (morphologylist) == 0) return NULL;
+    g_return_val_if_fail (morphologystring != NULL, NULL);
+    if (lw_morphologylist_length (morphologystring) == 0) return NULL;
 
     //Declarations
     GHashTable *table = NULL;
-    GList *link = morphologylist->list;
     GList *keylist = NULL;
+    GList *link = morphologystring->list;
 
     while (link != NULL)
     {
@@ -719,6 +723,8 @@ errored:
     if (table != NULL) g_hash_table_unref (table); table = NULL;
 
     return keylist;
+    */
+    return NULL;
 }
 
 

@@ -1,6 +1,8 @@
 #ifndef LW_DICTIONARY_INCLUDED
 #define LW_DICTIONARY_INCLUDED
 
+#include <libwaei/result.h>
+
 G_BEGIN_DECLS
 
 //Boilerplate
@@ -9,14 +11,6 @@ typedef struct _LwDictionaryClass LwDictionaryClass;
 typedef struct _LwDictionaryPrivate LwDictionaryPrivate;
 typedef struct _LwDictionaryClassPrivate LwDictionaryClassPrivate;
 typedef struct _LwDictionaryInstall LwDictionaryInstall;
-
-G_END_DECLS
-
-#include <stdio.h>
-#include "result.h"
-#include "morphology.h"
-
-G_BEGIN_DECLS
 
 #define LW_TYPE_DICTIONARY              (lw_dictionary_get_type())
 #define LW_DICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARY, LwDictionary))

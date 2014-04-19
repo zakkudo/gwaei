@@ -17,7 +17,7 @@ const gchar* lw_dictionarydata_get_string (LwDictionaryData *dictionarydata, LwO
 const gchar* lw_dictionarydata_get_buffer (LwDictionaryData *dictionarydata);
 const gchar* lw_dicionarydata_buffer_next (LwDictionaryData *dictionarydata, const gchar *BUFFER);
 GList* lw_dictionarydata_get_strings (LwDictionaryData *dictionarydata, GList *offsets);
-gint lw_dictionarydata_get_accuracy_weight_delta (LwDictionaryData *dictionarydata, LwOffset offset, LwMorphologyList *morphologylist);
+gint lw_dictionarydata_get_accuracy_weight_delta (LwDictionaryData *dictionarydata, LwOffset offset, LwMorphologyString *morphologystring);
 void lw_dictionarydata_free (LwDictionaryData* dictionarydata);
 const gchar* lw_dictionarydata_get_checksum (LwDictionaryData *dictionarydata);
 LwOffset lw_dictionarydata_get_length (LwDictionaryData *dictionarydata);

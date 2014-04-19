@@ -52,11 +52,12 @@ static gint _sort_func (gconstpointer a, gconstpointer b, GHashTable *weight_tab
 
 
 GHashTable*
-lw_dictionary_index_search (LwDictionary     *dictionary, 
-                            LwMorphologyList *morphologylist,
-                            LwIndexFlag       flags,
-                            LwProgress       *progress)
+lw_dictionary_index_search (LwDictionary       *dictionary, 
+                            LwMorphologyString *morphologystring,
+                            LwIndexFlag         flags,
+                            LwProgress         *progress)
 {
+  /*TODO
     //Sanity checks
     g_return_val_if_fail (dictionary != NULL, NULL);
     if (morphologylist == NULL) return NULL;
@@ -126,7 +127,7 @@ lw_dictionary_index_search (LwDictionary     *dictionary,
 errored:
 
     if (resulttable != NULL) g_hash_table_unref (resulttable); resulttable = NULL;
-
+*/
     return NULL;
 }
 

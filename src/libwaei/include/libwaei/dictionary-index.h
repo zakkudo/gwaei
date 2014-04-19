@@ -4,7 +4,7 @@
 G_BEGIN_DECLS
 
 
-GHashTable* lw_dictionary_index_search (LwDictionary *dictionary, LwMorphologyList *morphologylist, LwIndexFlag flags, LwProgress *progress);
+GHashTable* lw_dictionary_index_search (LwDictionary *dictionary, LwMorphologyString *morphologystring, LwIndexFlag flags, LwProgress *progress);
 void lw_dictionary_index_create (LwDictionary *dictionary, LwProgress*progress);
 gboolean lw_dictionary_index_load (LwDictionary *dictionary, LwProgress*progress);
 

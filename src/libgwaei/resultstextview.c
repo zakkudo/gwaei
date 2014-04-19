@@ -101,14 +101,19 @@ lgw_resultstextview_set_property (GObject      *object,
     LgwResultsTextView *self = NULL;
     LgwActionable *actionable = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
+    LgwResultsView *results_view = NULL;
 
     //Initializations
     self = LGW_RESULTSTEXTVIEW (object);
     actionable = LGW_ACTIONABLE (object);
     priv = self->priv;
+    results_view = LGW_RESULTSVIEW (self);
 
     switch (property_id)
     {
+      case PROP_SEARCH:
+        lgw_resultsview_set_search (results_view, g_value_get_pointer (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -126,14 +131,19 @@ lgw_resultstextview_get_property (GObject      *object,
     LgwResultsTextView *self = NULL;
     LgwActionable *actionable = NULL;
     LgwResultsTextViewPrivate *priv = NULL;
+    LgwResultsView *results_view = NULL;
 
     //Initializations
     self = LGW_RESULTSTEXTVIEW (object);
     actionable = LGW_ACTIONABLE (object);
     priv = self->priv;
+    self = LGW_RESULTSTEXTVIEW (object);
 
     switch (property_id)
     {
+      case PROP_SEARCH:
+        g_value_set_pointer (value, lgw_resultsview_get_search (results_view));
+        break;
       case PROP_ACTIONS:
         g_value_set_pointer (value, lgw_actionable_get_actions (actionable));
         break;
@@ -240,43 +250,6 @@ lgw_resultstextview_class_init (LgwResultsTextViewClass *klass)
     g_type_class_add_private (object_class, sizeof (LgwResultsTextViewPrivate));
 
     g_object_class_override_property (object_class, PROP_ACTIONS, "actions");
-}
-
-
-void
-lgw_resultstextview_add_search (LgwResultsView *self,
-                                LwSearch       *search)
-{
-    //Sanity checks
-    g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
-
-    //Declarations
-    LgwResultsTextView *text_view = NULL;
-    LgwResultsTextViewPrivate *priv = NULL;
-    gboolean found = FALSE;
-
-    //Initializations
-    text_view = LGW_RESULTSTEXTVIEW (self);
-    priv = text_view->priv;
-
-    {
-      GList *link = priv->data.searchlist;
-      while (link != NULL)
-      {
-        if (lw_search_is_equal (LW_SEARCH (link->data), search)) {
-          found = TRUE;
-        }
-        link = link->next;
-      }
-      
-    }
-
-    if (!found)
-    {
-      priv->data.searchlist = g_list_append (priv->data.searchlist, search);
-      priv->data.searchiteratorlist = g_list_append (priv->data.searchiteratorlist, lw_searchiterator_new (search, "raw"));
-    }
-
 }
 
 

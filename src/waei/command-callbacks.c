@@ -40,7 +40,7 @@
 
 
 void
-w_console_progress_cb (LwDictionary *dictionary, 
+w_command_progress_cb (LwDictionary *dictionary, 
                        LwProgress   *progress, 
                        WApplication *application)
 {
@@ -76,11 +76,11 @@ w_console_progress_cb (LwDictionary *dictionary,
 
 
 gboolean 
-w_console_append_result_timeout (gpointer data)
+w_command_append_result_timeout (gpointer data)
 {
   //Sanity checks
   g_return_val_if_fail (data != NULL, FALSE);
-
+/*TODO
   //Declarations
   LwSearchIterator *iterator = NULL;
   LwSearch *search = NULL;
@@ -98,7 +98,7 @@ w_console_append_result_timeout (gpointer data)
   {
     if (lw_searchiterator_empty (iterator))
     {
-      w_console_no_result (sdata->application, iterator);
+      w_command_no_result (sdata->application, iterator);
     }
     g_main_loop_quit (sdata->loop);
     keep_appending = FALSE;
@@ -107,11 +107,13 @@ w_console_append_result_timeout (gpointer data)
   {
     while (lw_searchiterator_next (iterator))
     {
-      w_console_append_result (sdata->application, iterator);
+      w_command_append_result (sdata->application, iterator);
     }
     keep_appending = TRUE;
   }
 
   return keep_appending;
+  */
+  return FALSE;
 }
 

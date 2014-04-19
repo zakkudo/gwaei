@@ -282,7 +282,7 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
 
     klass->priv = g_new0 (LwDictionaryClassPrivate, 1);
     klasspriv = klass->priv;
-    klasspriv->parse_result = NULL;
+    klasspriv->parse = NULL;
 
     klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED] = g_signal_new (
         "progress-changed",
@@ -455,10 +455,10 @@ lw_dictionary_get_path (LwDictionary *dictionary)
 }
 
 
-gboolean 
-lw_dictionary_parse_result (LwDictionary *dictionary, 
-                            LwResult     *result, 
-                            const gchar  *TEXT)
+LwResult*
+lw_dictionary_parse (LwDictionary *dictionary, 
+                     LwResult     *result, 
+                     const gchar  *TEXT)
 {
     //Sanity checks
     g_return_val_if_fail (dictionary != NULL, FALSE);
@@ -470,10 +470,9 @@ lw_dictionary_parse_result (LwDictionary *dictionary,
 
     //Initializations
     klass = LW_DICTIONARY_CLASS (G_OBJECT_GET_CLASS (dictionary));
-    g_return_val_if_fail (klass->priv->parse_result != NULL, FALSE);
-    result->dictionary = dictionary;
+    g_return_val_if_fail (klass->priv->parse != NULL, FALSE);
 
-    return klass->priv->parse_result (dictionary, result, TEXT);
+    return klass->priv->parse (dictionary, TEXT);
 }
 
 

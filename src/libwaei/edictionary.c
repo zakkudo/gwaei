@@ -45,7 +45,7 @@
 G_DEFINE_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 
 static gchar* FIRST_DEFINITION_PREFIX_STR = "(1)";
-static gboolean lw_edictionary_parse_result (LwDictionary*, LwResult*, const gchar*);
+static LwResult* lw_edictionary_parse (LwDictionary*, const gchar*);
 static gboolean lw_edictionary_installer_postprocess (LwDictionary*, gchar**, gchar**, LwProgress*);
 
 
@@ -128,7 +128,7 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
     object_class->constructed = lw_edictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse_result = lw_edictionary_parse_result;
+    dictionary_class->priv->parse = lw_edictionary_parse;
     dictionary_class->priv->installer_postprocess = lw_edictionary_installer_postprocess;
 }
 
@@ -136,16 +136,19 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
 //!
 //! @brief, Retrieve a line from FILE, parse it according to the LwEDictionary rules and put the results into the LwResult
 //!
-static gint 
-lw_edictionary_parse_result (LwDictionary       *dictionary,
-                             LwResult           *result, 
-                             const gchar        *TEXT)
+static LwResult*
+lw_edictionary_parse (LwDictionary       *dictionary,
+                      const gchar        *TEXT)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, 0);
-    g_return_val_if_fail (result != NULL, 0);
-    g_return_val_if_fail (TEXT != NULL, 0);
+    g_return_val_if_fail (dictionary != NULL, NULL);
+    if (TEXT == NULL) return NULL;
 
+    //Declarations
+    LwResult *result = NULL;
+
+
+/*TODO
     //Declarations
     gchar *ptr = NULL;
     gchar *next = NULL;
@@ -242,6 +245,9 @@ lw_edictionary_parse_result (LwDictionary       *dictionary,
     }
 
     return 1;
+    */
+
+    return result;
 }
 
 

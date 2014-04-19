@@ -6,7 +6,8 @@
 #include <libwaei/progress.h>
 #include <libwaei/io.h>
 #include <libwaei/utilities.h>
-#include <libwaei/morphology.h>
+#include <libwaei/morphologystring.h>
+#include <libwaei/morphologyengine.h>
 #include <libwaei/index.h>
 #include <libwaei/preferences.h>
 #include <libwaei/vocabulary.h>
@@ -18,8 +19,6 @@
 #include <libwaei/dictionarylist.h>
 #include <libwaei/result.h>
 #include <libwaei/search.h>
-#include <libwaei/searchiterator.h>
-#include <libwaei/history.h>
 
 
 #endif

@@ -300,7 +300,7 @@ GtkEntry*
 lgw_searchentry_get_entry (LgwSearchEntry *self)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (LGW_IS_SEARCHENTRY (self), NULL);
 
     //Declarations
     LgwSearchEntryPrivate *priv = NULL;
@@ -317,7 +317,7 @@ lgw_searchentry_insert_text (LgwSearchEntry *self,
                              const gchar    *TEXT)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_if_fail (LGW_IS_SEARCHENTRY (self));
     if (TEXT == NULL) TEXT = "";
 
     //Declarations
@@ -350,7 +350,7 @@ lgw_searchentry_set_text (LgwSearchEntry *self,
                           const gchar    *TEXT)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_if_fail (LGW_IS_SEARCHENTRY (self));
     if (TEXT == NULL) TEXT = "";
 
     //Declarations
@@ -365,6 +365,35 @@ lgw_searchentry_set_text (LgwSearchEntry *self,
 
     gtk_entry_set_text (entry, TEXT);
     gtk_editable_set_position (editable, -1);
+
+errored:
+
+    return;
+}
+
+
+void
+lgw_searchentry_start_search (LgwSearchEntry *self)
+{
+    //Sanity checks
+    g_return_if_fail (LGW_IS_SEARCHENTRY (self));
+    if (self->priv->data.results_view == NULL) return;
+
+    //Declarations
+    LgwSearchEntryPrivate *priv = NULL;
+    const gchar *TEXT = NULL;
+    GtkEntry *entry = NULL;
+    LwSearch *search = NULL;
+
+    //Initializations
+    priv = self->priv;
+    entry = GTK_ENTRY (priv->ui.search_entry);
+    if (entry == NULL) goto errored;
+    TEXT = gtk_entry_get_text (entry);
+    if (TEXT == NULL) goto errored;
+    search = lw_search_new (NULL, NULL, TEXT, LW_SEARCH_FLAG_RAW);
+
+    lgw_resultsview_set_search (priv->data.results_view, search);
 
 errored:
 

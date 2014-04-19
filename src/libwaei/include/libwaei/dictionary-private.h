@@ -32,7 +32,7 @@ struct _LwDictionaryClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 
   //Virtual methods
-  gint (*parse_result) (LwDictionary *dictionary, LwResult *result, const gchar* TEXT);
+  LwResult* (*parse) (LwDictionary *dictionary, const gchar* TEXT);
   gboolean (*installer_postprocess) (LwDictionary *dictionary, gchar** sourcelist, gchar** targetlist, LwProgress*);
 };
 

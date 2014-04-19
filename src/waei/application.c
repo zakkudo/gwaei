@@ -40,32 +40,40 @@
 #include <waei/waei.h>
 #include <waei/application-private.h>
 
+static WApplicationClass *_klass = NULL;
+static WApplicationClassPrivate *_klasspriv = NULL;
 
-G_DEFINE_TYPE (WApplication, w_application, G_TYPE_OBJECT)
-
-static void w_application_parse_args (WApplication*, int*, char***);
+G_DEFINE_TYPE (WApplication, w_application, G_TYPE_APPLICATION)
 
 //!
 //! @brief creates a new instance of the gwaei applicaiton
 //!
-GObject* 
+GApplication* 
 w_application_new ()
 {
     //Declarations
-    WApplication *application;
+    WApplication *self = NULL;
+    const gchar *id = "glib.org.waei";
+    GApplicationFlags flags = G_APPLICATION_HANDLES_COMMAND_LINE;
 
     //Initializations
-    application = g_object_new (W_TYPE_APPLICATION, NULL);
+    self = g_object_new (
+      W_TYPE_APPLICATION,
+      "application-id", id,
+      "flags", flags,
+      NULL
+    );
+    g_application_set_inactivity_timeout (G_APPLICATION (self), 60 * 100);
 
-    return G_OBJECT (application);
+    return G_APPLICATION (self);
 }
 
 
 static void 
-w_application_init (WApplication *application)
+w_application_init (WApplication *self)
 {
-    application->priv = W_APPLICATION_GET_PRIVATE (application);
-    memset(application->priv, 0, sizeof(WApplicationPrivate));
+    self->priv = W_APPLICATION_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(WApplicationPrivate));
 }
 
 
@@ -77,26 +85,105 @@ w_application_constructed (GObject *object)
       G_OBJECT_CLASS (w_application_parent_class)->constructed (object);
     }
 
+    //Declarations
+    WApplication *self = NULL;
+    WApplicationPrivate *priv = NULL;
+
+    //Initializations
+    self = W_APPLICATION (object);
+    priv = self->priv;
+
     lw_regex_initialize ();
 }
+
+
+static void 
+w_application_set_property (GObject      *object,
+                            guint         property_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
+{
+    //Declarations
+    WApplication *self = NULL;
+    WApplicationPrivate *priv = NULL;
+
+    //Initializations
+    self = W_APPLICATION (object);
+    priv = self->priv;
+
+    switch (property_id)
+    {
+      case PROP_MORPHOLOGYENGINE:
+        w_application_set_morphologyengine (self, g_value_get_object (value));
+        break;
+      case PROP_PREFERENCES:
+        w_application_set_preferences (self, g_value_get_object (value));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void 
+w_application_get_property (GObject    *object,
+                            guint       property_id,
+                            GValue     *value,
+                            GParamSpec *pspec)
+{
+    //Declarations
+    WApplication *self = NULL;
+    WApplicationPrivate *priv = NULL;
+
+    //Initializations
+    self = W_APPLICATION (object);
+    priv = self->priv;
+
+    switch (property_id)
+    {
+      case PROP_MORPHOLOGYENGINE:
+        g_value_set_object (value, w_application_get_morphologyengine (self));
+        break;
+      case PROP_PREFERENCES:
+        g_value_set_object (value, w_application_get_preferences (self));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void
+w_application_dispose (GObject *object)
+{
+    //Declarations
+    WApplication *self = NULL;
+
+    //Initializations
+    self = W_APPLICATION (object);
+
+    G_OBJECT_CLASS (w_application_parent_class)->dispose (object);
+}
+
 
 
 static void 
 w_application_finalize (GObject *object)
 {
     //Declarations
-    WApplication *application;
-    WApplicationPrivate *priv;
+    WApplication *self = NULL;
+    WApplicationPrivate *priv = NULL;
 
-    application = W_APPLICATION (object);
-    priv = application->priv;
+    //Initializations
+    self = W_APPLICATION (object);
+    priv = self->priv;
 
-    if (priv->installed_dictionarylist != NULL) g_object_unref (priv->installed_dictionarylist); priv->installed_dictionarylist = NULL;
-    if (priv->installable_dictionarylist != NULL) g_object_unref (priv->installable_dictionarylist); priv->installable_dictionarylist = NULL;
-    if (priv->context != NULL) g_option_context_free (priv->context); priv->context = NULL;
-    if (priv->arg_query_text_data != NULL) g_free(priv->arg_query_text_data); priv->arg_query_text_data = NULL;
+    if (priv->data.installed_dictionarylist != NULL) g_object_unref (priv->data.installed_dictionarylist); priv->data.installed_dictionarylist = NULL;
+    if (priv->data.installable_dictionarylist != NULL) g_object_unref (priv->data.installable_dictionarylist); priv->data.installable_dictionarylist = NULL;
 
-    w_application_set_preferences (application, NULL);
+    w_application_set_preferences (self, NULL);
 
     lw_regex_free ();
 
@@ -104,91 +191,111 @@ w_application_finalize (GObject *object)
 }
 
 
-static void
-w_application_class_init (WApplicationClass *klass)
+static int 
+w_application_command_line (GApplication            *application,
+                            GApplicationCommandLine *command_line)
 {
-  GObjectClass *object_class;
+    g_return_val_if_fail (G_IS_APPLICATION (application), 1);
 
-  object_class = G_OBJECT_CLASS (klass);
+    printf("BREAK global w_application_command_line\n");
 
-  object_class->constructed = w_application_constructed;
-  object_class->finalize = w_application_finalize;
+    //Declarations
+    WApplication *self = NULL;
+    WApplicationPrivate *priv = NULL;
+    gchar **argv = NULL;
+    gint argc = 0;
+    gint resolution = -1;
 
-  g_type_class_add_private (object_class, sizeof (WApplicationPrivate));
+    //Initializations
+    self = W_APPLICATION (application);
+    priv = self->priv;
+    argv = g_application_command_line_get_arguments (command_line, &argc);
+
+    g_application_hold (application);
+
+    if (g_application_command_line_get_is_remote (command_line))
+    {
+      printf("BREAK is remote\n");
+      WCommand *command = w_command_new (self, command_line);
+      resolution = w_command_run (command);
+      g_object_unref (command); command = NULL;
+    }
+    else
+    {
+      resolution = 0;
+    }
+
+
+    g_application_release (application);
+
+    return resolution;
 }
 
 
-//!
-//! @brief Loads the arguments from the command line into the app instance
-//!
-static void 
-w_application_parse_args (WApplication *application, int *argc, char** argv[])
+static void
+w_application_activate (GApplication *self)
 {
-    //Sanity checks
-    g_return_if_fail (W_IS_APPLICATION (application));
+}
 
-    //Declarations
-    WApplicationPrivate *priv = NULL;
-    const gchar *summary_text = NULL;
-    gchar *description_text = NULL;
-    GError *error = NULL;
 
-    priv = application->priv;
+gboolean
+w_application_local_command_line (GApplication              *application,
+                                  gchar                   ***arguments,
+                                  int                       *exit_status)
+{
+    return FALSE;
+}
 
-    //Reset the switches to their default state
-    if (priv->arg_dictionary_switch_data != NULL) g_free (priv->arg_dictionary_switch_data); priv->arg_dictionary_switch_data = NULL;
-    if (priv->arg_query_text_data != NULL) g_free (priv->arg_query_text_data); priv->arg_query_text_data = NULL;
-    priv->arg_version_switch = FALSE;
-    error = NULL;
-    if (priv->context != NULL) g_option_context_free (priv->context); priv->context = NULL;
 
-    priv->context = g_option_context_new (gettext("- A dictionary program for Japanese-English translation."));
-    summary_text = gettext("waei generally outputs directly to the console.");
-    description_text = g_strdup_printf(
-        gettext(
-           "Examples:\n"
-           "  waei English               Search for the english word English\n"
-           "  waei \"cats&dogs\"           Search for results containing cats and dogs\n"
-           "  waei \"cats|dogs\"           Search for results containing cats or dogs\n"
-           "  waei cats dogs             Search for results containing \"cats dogs\"\n"
-           "  waei %s                Search for the Japanese word %s\n"
-           "  waei -e %s               Search for %s and ignore similar results\n"
-           "  waei %s                 When you don't know a kanji character\n"
-           "  waei -d Kanji %s           Find a kanji character in the kanji dictionary\n"
-           "  waei -d Names %s       Look up a name in the names dictionary\n"
-           "  waei -d Places %s       Look up a place in the places dictionary"
-         )
-         , "にほん", "にほん", "日本", "日本", "日.語", "魚", "Miyabe", "Tokyo"
+static void
+w_application_startup (GApplication *self)
+{
+    G_APPLICATION_CLASS (w_application_parent_class)->startup (self);
+}
+
+
+static void
+w_application_class_init (WApplicationClass *klass)
+{
+    GObjectClass *object_class = NULL;
+    GApplicationClass *application_class = NULL;
+
+    object_class = G_OBJECT_CLASS (klass);
+    klass->priv = g_new0 (WApplicationClassPrivate, 1);
+    application_class = G_APPLICATION_CLASS (klass);
+
+    object_class->constructed = w_application_constructed;
+    object_class->set_property = w_application_set_property;
+    object_class->get_property = w_application_get_property;
+    application_class->command_line = w_application_command_line;
+    application_class->local_command_line = w_application_local_command_line;
+    application_class->startup = w_application_startup;
+    application_class->activate = w_application_activate;
+    object_class->dispose = w_application_dispose;
+    object_class->finalize = w_application_finalize;
+
+    g_type_class_add_private (object_class, sizeof (WApplicationPrivate));
+
+    _klass = klass;
+    _klasspriv = klass->priv;
+
+    _klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
+        "preferences",
+        "FIlename construct prop",
+        "Set the filename",
+        LW_TYPE_PREFERENCES,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    GOptionEntry entries[] = {
-      { "exact", 'e', 0, G_OPTION_ARG_NONE, &(priv->arg_exact_switch), gettext("Do not display less relevant results"), NULL },
-      { "quiet", 'q', 0, G_OPTION_ARG_NONE, &(priv->arg_quiet_switch), gettext("Display less information"), NULL },
-      { "color", 'c', 0, G_OPTION_ARG_NONE, &(priv->arg_color_switch), gettext("Display results with color"), NULL },
-      { "dictionary", 'd', 0, G_OPTION_ARG_STRING, &(priv->arg_dictionary_switch_data), gettext("Search using a chosen dictionary"), NULL },
-      { "list", 'l', 0, G_OPTION_ARG_NONE, &(priv->arg_list_switch), gettext("Show available dictionaries for searches"), NULL },
-      { "install", 'i', 0, G_OPTION_ARG_STRING, &(priv->arg_install_switch_data), gettext("Install dictionary"), NULL },
-      { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &(priv->arg_uninstall_switch_data), gettext("Uninstall dictionary"), NULL },
-      { "rebuild-index", 0, 0, G_OPTION_ARG_NONE, &(priv->arg_rebuild_index), gettext("Rebuild dictionary indexes"), NULL },
-      { "version", 'v', 0, G_OPTION_ARG_NONE, &(priv->arg_version_switch), gettext("Check the waei version information"), NULL },
-      { NULL }
-    };
+    g_object_class_install_property (object_class, PROP_PREFERENCES, _klasspriv->pspec[PROP_PREFERENCES]);
 
-    g_option_context_set_description (priv->context, description_text);
-    g_option_context_set_summary (priv->context, summary_text);
-    g_option_context_add_main_entries (priv->context, entries, PACKAGE);
-    g_option_context_set_ignore_unknown_options (priv->context, TRUE);
-    g_option_context_parse (priv->context, argc, argv, &error);
-
-    if (error != NULL)
-    {
-      w_application_handle_error (application, &error);
-      exit(1);
-    }
-
-    //Get the query after the flags have been parsed out
-    priv->arg_query_text_data = lw_util_get_query_from_args (*argc, *argv);
-
-    if (description_text != NULL) g_free (description_text); description_text = NULL;
+    _klasspriv->pspec[PROP_MORPHOLOGYENGINE] = g_param_spec_object (
+        "morphology-engine",
+        "FIlename construct prop",
+        "Set the filename",
+        LW_TYPE_MORPHOLOGYENGINE,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_MORPHOLOGYENGINE, _klasspriv->pspec[PROP_MORPHOLOGYENGINE]);
 }
 
 
@@ -196,10 +303,10 @@ w_application_parse_args (WApplication *application, int *argc, char** argv[])
 //! @brief Prints to the terminal the about message for the program.
 //!
 void 
-w_application_print_about (WApplication *application)
+w_application_print_about (WApplication *self)
 {
     const gchar *name;
-    name = w_application_get_program_name (W_APPLICATION (application));
+    name = w_application_get_program_name (W_APPLICATION (self));
 
     printf (gettext ("%s version %s"), name, VERSION);
 
@@ -221,45 +328,76 @@ w_application_print_about (WApplication *application)
 //! @returns A constanst string representing the program name
 //!
 const char*
-w_application_get_program_name (WApplication *application) 
+w_application_get_program_name (WApplication *self) 
 {
   return gettext("Waei Japanese-English Dictionary");
 }
 
 
-void 
-w_application_handle_error (WApplication *application, GError **error)
+void
+w_application_set_morphologyengine (WApplication       *self,
+                                    LwMorphologyEngine *morphologyengine)
 {
     //Sanity checks
-    if (error == NULL || *error == NULL) return;
+    g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
 
-    fprintf(stderr, "ERROR: %s\n", (*error)->message);
+    //Declaration
+    WApplicationPrivate *priv = NULL;
 
-    //Cleanup
-    g_error_free (*error);
-    *error = NULL;
+    //Initializations
+    priv = self->priv;
+
+    if (morphologyengine != NULL)
+    {
+      g_object_ref (morphologyengine);
+    }
+
+    if (priv->data.morphologyengine != NULL)
+    {
+      g_object_remove_weak_pointer (
+        G_OBJECT (priv->data.morphologyengine),
+        (gpointer*) &priv->data.morphologyengine
+      );
+    }
+
+    priv->data.morphologyengine = morphologyengine;
+
+    if (priv->data.morphologyengine != NULL)
+    {
+      g_object_add_weak_pointer (
+        G_OBJECT (priv->data.morphologyengine),
+        (gpointer*) &priv->data.morphologyengine
+      );
+    }
 }
 
 
 LwMorphologyEngine*
-w_application_get_morphologyengine (WApplication *application)
+w_application_get_morphologyengine (WApplication *self)
 {
-    WApplicationPrivate *priv = application->priv;
+    //Sanity checks
+    g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
 
-    if (priv->morphologyengine == NULL)
+    //Declaration
+    WApplicationPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->data.morphologyengine == NULL)
     {
-      priv->morphologyengine = lw_morphologyengine_new ("en_US");
+      w_application_set_morphologyengine (self, lw_morphologyengine_new ("en_US"));
     }
 
-    return priv->morphologyengine;
+    return priv->data.morphologyengine;
 }
 
 
 LwDictionaryList* 
-w_application_get_installed_dictionarylist (WApplication *application)
+w_application_get_installed_dictionarylist (WApplication *self)
 {
     //Sanity checks
-    g_return_val_if_fail (W_IS_APPLICATION (application), NULL);
+    g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
 
     //Declarations
     WApplicationPrivate *priv = NULL;
@@ -267,234 +405,97 @@ w_application_get_installed_dictionarylist (WApplication *application)
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = application->priv;
-    morphologyengine = w_application_get_morphologyengine (application);
-    preferences = w_application_get_preferences (application);
+    priv = self->priv;
+    morphologyengine = w_application_get_morphologyengine (self);
+    preferences = w_application_get_preferences (self);
 
-    if (priv->installed_dictionarylist == NULL)
+    if (priv->data.installed_dictionarylist == NULL)
     {
-      priv->installed_dictionarylist = lw_dictionarylist_new (preferences);
-      lw_dictionarylist_load_installed (priv->installed_dictionarylist, morphologyengine);
-      lw_dictionarylist_load_order (priv->installed_dictionarylist);
+      priv->data.installed_dictionarylist = lw_dictionarylist_new (preferences);
+      lw_dictionarylist_load_installed (priv->data.installed_dictionarylist, morphologyengine);
+      lw_dictionarylist_load_order (priv->data.installed_dictionarylist);
     }
 
-    return priv->installed_dictionarylist;
+    return priv->data.installed_dictionarylist;
 }
 
 
 LwDictionaryList* 
-w_application_get_installable_dictionarylist (WApplication *application)
+w_application_get_installable_dictionarylist (WApplication *self)
 {
     //Sanity checks
-    g_return_val_if_fail (W_IS_APPLICATION (application), NULL);
+    g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
 
     //Declarations
     WApplicationPrivate *priv = NULL;
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = application->priv;
-    preferences = w_application_get_preferences (application);
+    priv = self->priv;
+    preferences = w_application_get_preferences (self);
 
-    if (priv->installable_dictionarylist == NULL)
+    if (priv->data.installable_dictionarylist == NULL)
     {
-      priv->installable_dictionarylist = lw_dictionarylist_new (preferences);
-      lw_dictionarylist_load_installable (priv->installable_dictionarylist);
+      priv->data.installable_dictionarylist = lw_dictionarylist_new (preferences);
+      lw_dictionarylist_load_installable (priv->data.installable_dictionarylist);
     }
 
-    return priv->installable_dictionarylist;
-}
-
-
-//!
-//! @brief Equivalent to the main function for many programs.  This is what starts the program
-//! @param argc Your argc from your main function
-//! @param argv Your array of strings from main
-//!
-gint 
-w_application_run (WApplication *application, int *argc, char **argv[])
-{
-    w_application_parse_args (application, argc, argv);
-
-    //Declarations
-    WApplicationPrivate *priv = NULL;
-    LwProgress *progress = NULL;
-    int resolution;
-
-    //Initializations
-    resolution = 0;
-    priv = application->priv;
-    progress = lw_progress_new (NULL, (LwProgressCallback) w_console_progress_cb, application);
-    lw_progress_set_required_ratio_delta (progress, 0.01);
-
-    //User wants to see what dictionaries are available
-    if (priv->arg_list_switch)
-      w_console_list (application);
-
-    //User wants to see the version of waei
-    else if (priv->arg_version_switch)
-      w_console_about (application);
-
-    //User wants to install a dictionary
-    else if (priv->arg_install_switch_data != NULL)
-      resolution = w_console_install_dictionary (application, progress);
-
-    //User wants to uninstall a dictionary
-    else if (priv->arg_uninstall_switch_data != NULL)
-      resolution = w_console_uninstall_dictionary (application, progress);
-
-    //User wants to do a search
-    else if (priv->arg_query_text_data != NULL)
-      resolution = w_console_search (application, progress);
-
-    //User didn't specify enough information for an action
-    else 
-    {
-      gchar *text = g_option_context_get_help (priv->context, FALSE, NULL);
-      if (text != NULL)
-      {
-        printf("%s\n", text);
-        g_free (text); text = NULL;
-      }
-    }
-
-    //Cleanup
-    w_application_handle_error (application, &progress->error);
-
-    lw_progress_free (progress); progress = NULL;
-
-    return resolution;
-}
-
-
-gboolean
-w_application_get_quiet_switch (WApplication *application)
-{
-  WApplicationPrivate *priv;
-  priv = application->priv;
-  return priv->arg_quiet_switch;
-}
-
-
-gboolean
-w_application_get_exact_switch (WApplication *application)
-{
-  WApplicationPrivate *priv;
-  priv = application->priv;
-  return priv->arg_exact_switch;
-}
-
-
-gboolean
-w_application_get_list_switch (WApplication *application)
-{
-  WApplicationPrivate *priv;
-  priv = application->priv;
-  return priv->arg_list_switch;
-}
-
-
-gboolean
-w_application_get_version_switch (WApplication *application)
-{
-  WApplicationPrivate *priv;
-  priv = application->priv;
-  return priv->arg_version_switch;
-}
-
-
-gboolean
-w_application_get_color_switch (WApplication *application)
-{
-  WApplicationPrivate *priv;
-  priv = application->priv;
-  return priv->arg_color_switch;
-}
-
-
-const gchar*
-w_application_get_dictionary_switch_data (WApplication *application)
-{
-  WApplicationPrivate *priv;
-  priv = application->priv;
-  return priv->arg_dictionary_switch_data;
-}
-
-
-const gchar*
-w_application_get_install_switch_data (WApplication *application)
-{
-  WApplicationPrivate *priv;
-  priv = application->priv;
-  return priv->arg_install_switch_data;
-}
-
-
-const gchar*
-w_application_get_uninstall_switch_data (WApplication *application)
-{
-  WApplicationPrivate *priv;
-  priv = application->priv;
-  return priv->arg_uninstall_switch_data;
-}
-
-
-const gchar*
-w_application_get_query_text_data (WApplication *application)
-{
-  WApplicationPrivate *priv;
-  priv = application->priv;
-  return priv->arg_query_text_data;
+    return priv->data.installable_dictionarylist;
 }
 
 
 LwPreferences*
-w_application_get_preferences (WApplication *application)
+w_application_get_preferences (WApplication *self)
 {
     //Sanity checks
-    g_return_val_if_fail (W_IS_APPLICATION (application), NULL);
+    g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
 
     //Declarations
     WApplicationPrivate *priv = NULL;
 
     //Initializations
-    priv = application->priv;
+    priv = self->priv;
 
-    if (priv->config.preferences == NULL)
+    if (priv->data.preferences == NULL)
     {
       g_io_extension_point_register ("gsettings-backend");
-      w_application_set_preferences (application, lw_preferences_new (g_memory_settings_backend_new ()));
+      w_application_set_preferences (self, lw_preferences_new (g_memory_settings_backend_new ()));
     }
 
-    return priv->config.preferences;
+    return priv->data.preferences;
 }
 
 
 void
-w_application_set_preferences (WApplication *application,
+w_application_set_preferences (WApplication *self,
                                LwPreferences *preferences)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_APPLICATION (application));
+    g_return_if_fail (W_IS_APPLICATION (self));
 
     //Declarations
     WApplicationPrivate *priv = NULL;
+    gboolean changed = FALSE;
 
     //Initializations
-    priv = application->priv;
+    priv = self->priv;
+    changed = (preferences != priv->data.preferences);
 
-    if (priv->config.preferences != NULL)
+    if (priv->data.preferences != NULL)
     {
-      g_object_remove_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
-      g_object_unref (priv->config.preferences);
-      priv->config.preferences = NULL;
+      g_object_remove_weak_pointer (G_OBJECT (priv->data.preferences), (gpointer*) &(priv->data.preferences));
+      g_object_unref (priv->data.preferences);
+      priv->data.preferences = NULL;
     }
 
-    priv->config.preferences = preferences;
+    priv->data.preferences = preferences;
 
-    if (priv->config.preferences != NULL) {
-      g_object_ref (priv->config.preferences);
-      g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
+    if (priv->data.preferences != NULL) {
+      g_object_ref (priv->data.preferences);
+      g_object_add_weak_pointer (G_OBJECT (priv->data.preferences), (gpointer*) &(priv->data.preferences));
     }
+
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PREFERENCES]);
 }
+
 

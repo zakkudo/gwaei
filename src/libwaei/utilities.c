@@ -1030,31 +1030,33 @@ lw_util_sanitize_string (gchar *buffer)
 //! @brief Will change a query into a & delimited set of tokens (logical and)
 //!
 gchar*
-lw_util_normalize_string (const gchar        *TEXT,
-                          gboolean            make_case_insensitive,
-                          gboolean            make_furigana_insensitive)
+lw_util_normalize_string (const gchar          *TEXT,
+                          LwNormalizationFlags  flags)
 {
     //Sanity checks
-    g_return_val_if_fail (TEXT != NULL, NULL);
+    if (TEXT == NULL) return NULL;
 
     //Declarations
-    gchar *buffer;
-    gchar *temp;
+    gchar *buffer = NULL;
+    gchar *temp = NULL;
     
     //Initializations
     buffer = g_utf8_normalize (TEXT, -1, G_NORMALIZE_ALL);
+    if (buffer == NULL) goto errored;
 
-    if (make_case_insensitive && buffer != NULL)
+    if (flags | LW_NORMALIZATION_CASE_INSENSITIVE)
     {
       temp = g_utf8_casefold (buffer, -1);
       g_free (buffer); buffer = temp; temp = NULL;
     }
 
-    if (make_furigana_insensitive && buffer != NULL)
+    if (flags | LW_NORMALIZATION_FURIGANA_INSENSITIVE)
     {
       temp = lw_util_furiganafold (buffer); 
       g_free (buffer); buffer = temp; temp = NULL;
     }
+
+errored:
 
     return buffer;
 }

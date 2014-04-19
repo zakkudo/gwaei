@@ -7,6 +7,7 @@ typedef enum {
     PROP_0,
     PROP_ACTIONS,
     PROP_TEXTTAGTABLE,
+    PROP_SEARCH,
     TOTAL_PROPS
 } Props;
 
@@ -31,12 +32,12 @@ struct _Config {
 struct _Data {
   guint signalid[TOTAL_SIGNALIDS];
   LwSearch *search;
-  GList *searchlist;
   GList *searchiteratorlist;
   guint timeoutid;
   GList *action_group_list;
   LgwActionGroup *action_group;
   GtkTextBuffer *text_buffer;
+  LgwResultsStore *results_store;
 };
 
 struct _LgwResultsTextViewPrivate {

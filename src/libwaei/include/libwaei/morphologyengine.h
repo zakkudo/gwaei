@@ -9,15 +9,13 @@
 #include <hunspell/hunspell.h>
 #endif
 
-#include "morphologyindex.h"
-#include "morphologylist.h"
-
 G_BEGIN_DECLS
 
 //Boilerplate
 typedef struct _LwMorphologyEngine LwMorphologyEngine;
 typedef struct _LwMorphologyEngineClass LwMorphologyEngineClass;
 typedef struct _LwMorphologyEnginePrivate LwMorphologyEnginePrivate;
+typedef struct _LwMorphologyEngineClassPrivate LwMorphologyEngineClassPrivate;
 
 #define LW_TYPE_MORPHOLOGYENGINE              (lw_morphologyengine_get_type())
 #define LW_MORPHOLOGYENGINE(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_MORPHOLOGYENGINE, LwMorphologyEngine))
@@ -28,29 +26,25 @@ typedef struct _LwMorphologyEnginePrivate LwMorphologyEnginePrivate;
 
 #define LW_MORPHOLOGY_SPELLCHECK_DELIMITOR ";"
 
-
 struct _LwMorphologyEngine {
   GObject object;
-  GMutex mutex;
-#ifdef HAVE_MECAB
-  mecab_t *mecab;
-#endif
-#ifdef HAVE_HUNSPELL
-  Hunhandle *hunspell;
-#endif
-  gchar *locale;
+  LwMorphologyEnginePrivate *priv;
 };
 
 struct _LwMorphologyEngineClass {
   GObjectClass parent_class;
+  LwMorphologyEngineClassPrivate *priv;
 };
 
 //Methods
 GType lw_morphologyengine_get_type (void) G_GNUC_CONST;
 
 //Methods
-LwMorphologyEngine* lw_morphologyengine_new (const gchar*);
-LwMorphologyList* lw_morphologyengine_analyze (LwMorphologyEngine *engine, const gchar *TEXT, gboolean spellcheck);
+LwMorphologyEngine* lw_morphologyengine_new (const gchar *TEXT);
+LwMorphologyString* lw_morphologyengine_parse (LwMorphologyEngine *self, const gchar *TEXT, LwNormalizationFlags flags);
+
+void lw_morphologyengine_set_locale (LwMorphologyEngine *self, const gchar *LOCALE);
+const gchar* lw_morphologyengine_get_locale (LwMorphologyEngine *self);
 
 #endif
 

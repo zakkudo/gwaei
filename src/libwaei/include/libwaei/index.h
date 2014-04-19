@@ -50,7 +50,7 @@ typedef struct _LwIndex LwIndex;
 LwIndex* lw_index_new (LwMorphologyEngine *morphologyengine);
 void lw_index_free (LwIndex *index);
 
-GList* lw_index_search (LwIndex *index, LwMorphologyList *morphologylist, LwIndexFlag flags, LwDictionaryData *dictionarydata);
+GList* lw_index_search (LwIndex *index, LwMorphologyString *morphologystring, LwIndexFlag flags, LwDictionaryData *dictionarydata);
 gboolean lw_index_data_is_valid (LwIndex *index, LwDictionaryData *dictionarydata);
 
 void lw_index_append_data_offset (LwIndex *index, const gchar *KEY, LwOffset offset);
@@ -67,7 +67,7 @@ void lw_index_create (LwIndex *index, LwDictionaryData *dictionarydata, LwProgre
 
 gboolean lw_index_exists (const gchar *PATH);
 
-GList* lw_index_get_matches_for_morphologylist (LwIndex *index, LwIndexTableType type, LwMorphologyList *morphologylist);
+GList* lw_index_get_matches_for_morphologylist (LwIndex *index, LwIndexTableType type, LwMorphologyString *morphologystring);
 
 const gchar* lw_index_table_type_to_string (LwIndexTableType type);
 

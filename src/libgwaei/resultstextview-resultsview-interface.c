@@ -41,7 +41,7 @@
 
 
 static void
-_clear_searchlist (LgwResultsView *self)
+_clear (LgwResultsView *self)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
@@ -55,16 +55,15 @@ _clear_searchlist (LgwResultsView *self)
     priv = text_view->priv;
 
     g_list_free_full (priv->data.searchiteratorlist, (GDestroyNotify) lw_searchiterator_free);
-    g_list_free_full (priv->data.searchlist, (GDestroyNotify) lw_search_free);
 
     priv->data.searchiteratorlist = NULL;
-    priv->data.searchlist = NULL;
+    priv->data.search = NULL;
 }
 
 
 static void
-_set_searchlist (LgwResultsView *self,
-                                    GList          *searchlist)
+_set_search (LgwResultsView *self,
+             LwSearch       *search)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
@@ -77,24 +76,16 @@ _set_searchlist (LgwResultsView *self,
     text_view = LGW_RESULTSTEXTVIEW (self);
     priv = text_view->priv;
 
-    _clear_searchlist (self);
+    _clear (self);
 
-    {
-      GList *link = searchlist;
-      while (link != NULL)
-      {
-        LwSearch *search = LW_SEARCH (link->data);
-        lgw_resultstextview_add_search (self, search);
-        link = link->next;
-      }
-    }
-    
+    TODO
+
     printf("set search\n");
 }
 
 
-static GList*
-_get_searchlist (LgwResultsView *self)
+static LwSearch*
+_get_search (LgwResultsView *self)
 {
     //Sanity checks
     g_return_if_fail (LGW_IS_RESULTSTEXTVIEW (self));
@@ -106,15 +97,17 @@ _get_searchlist (LgwResultsView *self)
     //Initializations
     text_view = LGW_RESULTSTEXTVIEW (self);
     priv = text_view->priv;
+
+    return NULL;
 }
 
 
 void
 lgw_resultstextview_implement_resultsview_interface (LgwResultsViewInterface *iface)
 {
-    iface->set_search = _set_searchlist;
-    iface->get_search = _get_searchlist;
-    iface->clear_search = _clear_searchlist;
+    iface->set_search = _set_search;
+    iface->get_search = _get_search;
+    iface->clear = _clear;
 }
 
 
