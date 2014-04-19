@@ -61,13 +61,13 @@ lw_dictionarylist_new (LwPreferences *preferences)
 
 
 static void 
-lw_dictionarylist_init (LwDictionaryList *dictionary_list)
+lw_dictionarylist_init (LwDictionaryList *self)
 {
-    dictionary_list->priv = LW_DICTIONARYLIST_GET_PRIVATE (dictionary_list);
-    memset(dictionary_list->priv, 0, sizeof(LwDictionaryListPrivate));
-    g_mutex_init (&dictionary_list->priv->mutex);
+    self->priv = LW_DICTIONARYLIST_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LwDictionaryListPrivate));
+    g_mutex_init (&self->priv->mutex);
 
-    lw_dictionarylist_connect_signals (dictionary_list);
+    lw_dictionarylist_connect_signals (self);
 }
 
 
@@ -78,17 +78,17 @@ lw_dictionarylist_set_property (GObject      *object,
                                 GParamSpec   *pspec)
 {
     //Declarations
-    LwDictionaryList *dictionary_list;
+    LwDictionaryList *self;
     LwDictionaryListPrivate *priv;
 
     //Initializations
-    dictionary_list = LW_DICTIONARYLIST (object);
-    priv = dictionary_list->priv;
+    self = LW_DICTIONARYLIST (object);
+    priv = self->priv;
 
     switch (property_id)
     {
       case PROP_PREFERENCES:
-        lw_dictionarylist_set_preferences (dictionary_list, g_value_get_object (value));
+        lw_dictionarylist_set_preferences (self, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -104,17 +104,17 @@ lw_dictionarylist_get_property (GObject      *object,
                                 GParamSpec   *pspec)
 {
     //Declarations
-    LwDictionaryList *dictionary_list;
+    LwDictionaryList *self;
     LwDictionaryListPrivate *priv;
 
     //Initializations
-    dictionary_list = LW_DICTIONARYLIST (object);
-    priv = dictionary_list->priv;
+    self = LW_DICTIONARYLIST (object);
+    priv = self->priv;
 
     switch (property_id)
     {
       case PROP_PREFERENCES:
-        g_value_set_object (value, lw_dictionarylist_get_preferences (dictionary_list));
+        g_value_set_object (value, lw_dictionarylist_get_preferences (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -127,14 +127,14 @@ static void
 lw_dictionarylist_finalize (GObject *object)
 {
     //Declarations
-    LwDictionaryList *dictionary_list = NULL;
+    LwDictionaryList *self = NULL;
     LwDictionaryListPrivate *priv = NULL;
 
     //Initalizations
-    dictionary_list = LW_DICTIONARYLIST (object);
-    priv = dictionary_list->priv;
+    self = LW_DICTIONARYLIST (object);
+    priv = self->priv;
 
-    lw_dictionarylist_set_menumodel (dictionary_list, NULL);
+    lw_dictionarylist_set_menumodel (self, NULL);
     g_mutex_clear (&priv->mutex);
 
     G_OBJECT_CLASS (lw_dictionarylist_parent_class)->finalize (object);
@@ -145,13 +145,13 @@ static void
 lw_dictionarylist_dispose (GObject *object)
 {
     //Declarations
-    LwDictionaryList *dictionary_list = NULL;
+    LwDictionaryList *self = NULL;
 
     //Initializations
-    dictionary_list = LW_DICTIONARYLIST (object);
+    self = LW_DICTIONARYLIST (object);
 
-    lw_dictionarylist_clear (dictionary_list);
-    lw_dictionarylist_disconnect_signals (dictionary_list);
+    lw_dictionarylist_clear (self);
+    lw_dictionarylist_disconnect_signals (self);
 
     G_OBJECT_CLASS (lw_dictionarylist_parent_class)->dispose (object);
 }
@@ -232,11 +232,11 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
 
 
 void
-lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_list,
+lw_dictionarylist_set_preferences (LwDictionaryList *self,
                                    LwPreferences    *preferences)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -244,8 +244,8 @@ lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_list,
     LwDictionaryListClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
-    klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
+    priv = self->priv;
+    klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (preferences != NULL)
@@ -265,25 +265,25 @@ lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_list,
       g_object_add_weak_pointer (G_OBJECT (priv->preferences), (gpointer*) &(priv->preferences));
     }
 
-    g_object_notify_by_pspec (G_OBJECT (dictionary_list), klasspriv->pspec[PROP_PREFERENCES]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PREFERENCES]);
 }
 
 
 LwPreferences*
-lw_dictionarylist_get_preferences (LwDictionaryList *dictionary_list)
+lw_dictionarylist_get_preferences (LwDictionaryList *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
 
     if (priv->preferences == NULL)
     {
-      lw_dictionarylist_set_preferences (dictionary_list, lw_preferences_get_default ());
+      lw_dictionarylist_set_preferences (self, lw_preferences_get_default ());
     }
 
     return priv->preferences;
@@ -291,18 +291,18 @@ lw_dictionarylist_get_preferences (LwDictionaryList *dictionary_list)
 
 
 void 
-lw_dictionarylist_clear (LwDictionaryList *dictionary_list)
+lw_dictionarylist_clear (LwDictionaryList *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
     LwDictionaryListClass *klass = NULL;
     LwDictionaryListClassPrivate *klasspriv = NULL;
 
-    priv = dictionary_list->priv;
-    klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
+    priv = self->priv;
+    klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
 
     while (priv->list != NULL)
@@ -314,18 +314,18 @@ lw_dictionarylist_clear (LwDictionaryList *dictionary_list)
         g_object_unref (dictionary); link->data = NULL;
       }
       priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (G_OBJECT (dictionary_list), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, 0);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, 0);
     }
     priv->list = NULL;
 }
 
 
 void 
-lw_dictionarylist_load_installed (LwDictionaryList   *dictionary_list, 
+lw_dictionarylist_load_installed (LwDictionaryList   *self, 
                                   LwMorphologyEngine *morphologyengine)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
     LwDictionaryListClass *klass = NULL;
@@ -339,8 +339,8 @@ lw_dictionarylist_load_installed (LwDictionaryList   *dictionary_list,
     const gchar *FILENAME = NULL;
 
     //Initializations
-    lw_dictionarylist_clear (dictionary_list);
-    klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
+    lw_dictionarylist_clear (self);
+    klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
 
     idlist = lw_dictionary_get_installed_idlist (G_TYPE_NONE);
@@ -356,7 +356,7 @@ lw_dictionarylist_load_installed (LwDictionaryList   *dictionary_list,
           FILENAME = pair[1];
           dictionary = LW_DICTIONARY (g_object_new (type, "filename", FILENAME, "morphologyengine", morphologyengine, NULL));
           if (dictionary != NULL && LW_IS_DICTIONARY (dictionary))
-            lw_dictionarylist_append (dictionary_list, dictionary);
+            lw_dictionarylist_append (self, dictionary);
           if (typename != NULL) g_free (typename); typename = NULL;
         }
         g_strfreev (pair); pair = NULL;
@@ -373,37 +373,37 @@ lw_dictionarylist_load_installed (LwDictionaryList   *dictionary_list,
 //! @return The position in the LwDictionaryList of the LwDictionary
 //!
 LwDictionary* 
-lw_dictionarylist_get_dictionary_by_position (LwDictionaryList* dictionary_list,
+lw_dictionarylist_get_dictionary_by_position (LwDictionaryList* self,
                                               gint              position)
 {
     //Declarations
     LwDictionary *dictionary;
 
     //Initializiations
-    dictionary = g_list_nth_data (dictionary_list->priv->list, position);
+    dictionary = g_list_nth_data (self->priv->list, position);
 
     return dictionary;
 }
 
 
 gint
-lw_dictionarylist_get_position (LwDictionaryList *dictionary_list,
+lw_dictionarylist_get_position (LwDictionaryList *self,
                                 LwDictionary     *dictionary)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list != NULL, -1);
+    g_return_val_if_fail (self != NULL, -1);
     g_return_val_if_fail (dictionary != NULL, -1);
 
-    return g_list_index (dictionary_list->priv->list, dictionary);
+    return g_list_index (self->priv->list, dictionary);
 }
 
 
 LwDictionary*
-lw_dictionarylist_remove_by_position (LwDictionaryList *dictionary_list,
+lw_dictionarylist_remove_by_position (LwDictionaryList *self,
                                       gint              position)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -413,8 +413,8 @@ lw_dictionarylist_remove_by_position (LwDictionaryList *dictionary_list,
     LwDictionary *removed_dictionary = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
-    klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
+    priv = self->priv;
+    klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
     removed_dictionary = NULL;
     link = g_list_nth (priv->list, position);
@@ -423,7 +423,7 @@ lw_dictionarylist_remove_by_position (LwDictionaryList *dictionary_list,
     {
       removed_dictionary = link->data;
       priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (G_OBJECT (dictionary_list), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
     }
 
     return removed_dictionary;
@@ -431,11 +431,11 @@ lw_dictionarylist_remove_by_position (LwDictionaryList *dictionary_list,
 
 
 LwDictionary*
-lw_dictionarylist_remove (LwDictionaryList *dictionary_list,
+lw_dictionarylist_remove (LwDictionaryList *self,
                           LwDictionary     *dictionary)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
     g_return_val_if_fail (dictionary != NULL, NULL);
 
     //Declarations
@@ -447,8 +447,8 @@ lw_dictionarylist_remove (LwDictionaryList *dictionary_list,
     gint position = 0;
 
     //Initializations
-    priv = dictionary_list->priv;
-    klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
+    priv = self->priv;
+    klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
     removed_dictionary = NULL;
     link = g_list_find (priv->list, dictionary);
@@ -458,7 +458,7 @@ lw_dictionarylist_remove (LwDictionaryList *dictionary_list,
     {
       removed_dictionary = link->data;
       priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (G_OBJECT (dictionary_list), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
     }
         
     return removed_dictionary;
@@ -471,13 +471,13 @@ lw_dictionarylist_remove (LwDictionaryList *dictionary_list,
 //! @param FILENAME Name of the dictionary to add
 //!
 void 
-lw_dictionarylist_append (LwDictionaryList *dictionary_list,
+lw_dictionarylist_append (LwDictionaryList *self,
                           LwDictionary     *dictionary)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
     g_return_if_fail (LW_IS_DICTIONARY (dictionary));
-    if (lw_dictionarylist_dictionary_exists (dictionary_list, dictionary)) return;
+    if (lw_dictionarylist_dictionary_exists (self, dictionary)) return;
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -485,8 +485,8 @@ lw_dictionarylist_append (LwDictionaryList *dictionary_list,
     LwDictionaryListClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
-    klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
+    priv = self->priv;
+    klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
 
     //Append to the dictionary  if was loadable
@@ -494,7 +494,7 @@ lw_dictionarylist_append (LwDictionaryList *dictionary_list,
 
     {
       gint index = g_list_index (priv->list, dictionary);
-      g_signal_emit (G_OBJECT (dictionary_list), klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, index);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, index);
     }
 }
 
@@ -510,12 +510,12 @@ lw_dictionarylist_append (LwDictionaryList *dictionary_list,
 //! @returns The requested LwDictionary object if found or null.
 //!
 LwDictionary* 
-lw_dictionarylist_get_dictionary (LwDictionaryList* dictionary_list,
+lw_dictionarylist_get_dictionary (LwDictionaryList* self,
                                   const GType       TYPE,
                                   const gchar*      FILENAME)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list != NULL && FILENAME != NULL, NULL);
+    g_return_val_if_fail (self != NULL && FILENAME != NULL, NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -525,7 +525,7 @@ lw_dictionarylist_get_dictionary (LwDictionaryList* dictionary_list,
     const gchar *FILENAME2 = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
     dictionary = NULL;
 
     for (iter = priv->list; iter != NULL; iter = iter->next)
@@ -551,18 +551,18 @@ lw_dictionarylist_get_dictionary (LwDictionaryList* dictionary_list,
 //!  @returns A matching LwDictionary object or NULL
 //!
 LwDictionary* 
-lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *dictionary_list,
+lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *self,
                                         const gchar      *FUZZY_DESCRIPTION)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
     LwDictionary *dictionary = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
     dictionary = NULL;
 
     //Try getting the first dictionary if none is specified
@@ -578,9 +578,9 @@ lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *dictionary_list,
     else
     {
       if (dictionary == NULL)
-        dictionary = lw_dictionarylist_get_dictionary_by_id (dictionary_list, FUZZY_DESCRIPTION);
+        dictionary = lw_dictionarylist_get_dictionary_by_id (self, FUZZY_DESCRIPTION);
       if (dictionary == NULL)
-        dictionary = lw_dictionarylist_get_dictionary_by_filename (dictionary_list, FUZZY_DESCRIPTION);
+        dictionary = lw_dictionarylist_get_dictionary_by_filename (self, FUZZY_DESCRIPTION);
     }
 
     return dictionary;
@@ -596,7 +596,7 @@ lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *dictionary_list,
 //! @returns The requested LwDictionary object if found or null.
 //!
 LwDictionary* 
-lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *dictionary_list,
+lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *self,
                                               const gchar      *FILENAME)
 {
     //Sanity checks
@@ -609,7 +609,7 @@ lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *dictionary_list,
     const gchar *FILENAME2;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
     dictionary = NULL;
 
     for (iter = priv->list; iter != NULL; iter = iter->next)
@@ -633,11 +633,11 @@ lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *dictionary_list,
 //! @returns The requested LwDictionary object if found or NULL.
 //!
 LwDictionary* 
-lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *dictionary_list,
+lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *self,
                                         const gchar      *ENGINE_AND_FILENAME)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list != NULL && ENGINE_AND_FILENAME != NULL, NULL);
+    g_return_val_if_fail (self != NULL && ENGINE_AND_FILENAME != NULL, NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv;
@@ -649,7 +649,7 @@ lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *dictionary_list,
     GType type1, type2;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
     link = NULL;
     dictionary = NULL;
     pair = g_strsplit (ENGINE_AND_FILENAME, "/", 2);
@@ -686,7 +686,7 @@ lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *dictionary_list,
 //! @return returns true if the dictionary is installed
 //!
 gboolean 
-lw_dictionarylist_dictionary_exists (LwDictionaryList *dictionary_list,
+lw_dictionarylist_dictionary_exists (LwDictionaryList *self,
                                      LwDictionary     *dictionary)
 {
     //Sanity checks
@@ -699,7 +699,7 @@ lw_dictionarylist_dictionary_exists (LwDictionaryList *dictionary_list,
     GList *link;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
     exists = FALSE;
     link = priv->list;
 
@@ -727,13 +727,13 @@ lw_dictionarylist_dictionary_exists (LwDictionaryList *dictionary_list,
 //! @return Integer representing the number of installed dictionaries
 //!
 gint 
-lw_dictionarylist_get_total (LwDictionaryList *dictionary_list)
+lw_dictionarylist_get_total (LwDictionaryList *self)
 {
     //Sanity check
-    g_return_val_if_fail (dictionary_list != NULL, 0);
+    g_return_val_if_fail (self != NULL, 0);
 
     LwDictionaryListPrivate *priv;
-    priv = dictionary_list->priv;
+    priv = self->priv;
 
     return g_list_length (priv->list);
 }
@@ -743,7 +743,7 @@ lw_dictionarylist_get_total (LwDictionaryList *dictionary_list)
 //! @brief Saves the current load order to the preferences
 //
 void 
-lw_dictionarylist_save_order (LwDictionaryList *dictionary_list)
+lw_dictionarylist_save_order (LwDictionaryList *self)
 {
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -753,10 +753,10 @@ lw_dictionarylist_save_order (LwDictionaryList *dictionary_list)
     gchar **atoms = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
-    preferences = lw_dictionarylist_get_preferences (dictionary_list);
+    priv = self->priv;
+    preferences = lw_dictionarylist_get_preferences (self);
 
-    atoms = g_new0 (gchar*, lw_dictionarylist_get_total (dictionary_list) + 1);
+    atoms = g_new0 (gchar*, lw_dictionarylist_get_total (self) + 1);
     if (atoms == NULL) goto errored;
 
     //Construct the preference string
@@ -787,10 +787,10 @@ errored:
 
 
 static GHashTable*
-lw_dictionarylist_build_order_map (LwDictionaryList *dictionary_list)
+lw_dictionarylist_build_order_map (LwDictionaryList *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -801,11 +801,11 @@ lw_dictionarylist_build_order_map (LwDictionaryList *dictionary_list)
     GHashTable *hashtable = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
     hashtable = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
     if (hashtable == NULL) goto errored;
 
-    preferences = lw_dictionarylist_get_preferences (dictionary_list);;
+    preferences = lw_dictionarylist_get_preferences (self);;
     if (preferences == NULL) goto errored;
 
     order = lw_preferences_get_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, LW_KEY_ORDER);
@@ -834,11 +834,11 @@ errored:
 
 
 static gint*
-lw_dictionarylist_convert_order_map_to_array (LwDictionaryList *dictionary_list, 
+lw_dictionarylist_convert_order_map_to_array (LwDictionaryList *self, 
                                               GHashTable       *hashtable)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
     g_return_val_if_fail (hashtable != NULL, NULL);
 
     //Declarations
@@ -848,7 +848,7 @@ lw_dictionarylist_convert_order_map_to_array (LwDictionaryList *dictionary_list,
     gint missing_index = 0;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
     if (priv == NULL) goto errored;
     link = priv->list;
     if (link == NULL) goto errored;
@@ -966,11 +966,11 @@ lw_dictionarylist_sort_compare_function (gconstpointer a,
 //! @brief Loads the load order from the preferences
 //
 void 
-lw_dictionarylist_load_order (LwDictionaryList *dictionary_list)
+lw_dictionarylist_load_order (LwDictionaryList *self)
 {
   /*TODO
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -980,23 +980,23 @@ lw_dictionarylist_load_order (LwDictionaryList *dictionary_list)
     GHashTable *order_map = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
-    klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
+    priv = self->priv;
+    klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (priv->list == NULL) goto errored;
 
-    order_map = lw_dictionarylist_build_order_map (dictionary_list);
+    order_map = lw_dictionarylist_build_order_map (self);
     if (order_map == NULL) goto errored;
 
-    new_order = lw_dictionarylist_convert_order_map_to_array (dictionary_list, order_map);
+    new_order = lw_dictionarylist_convert_order_map_to_array (self, order_map);
     if (new_order == NULL) goto errored;
 
     priv->list = g_list_sort_with_data (priv->list, lw_dictionarylist_sort_compare_function, order_map);
     if (priv->list == NULL) goto errored;
 
     printf("BREAk lw_dictionarylist_load_order CLASS_SIGNALID_REORDERED\n");
-    g_signal_emit (G_OBJECT (dictionary_list), klasspriv->signalid[CLASS_SIGNALID_REORDERED], 0, new_order);
+    g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_REORDERED], 0, new_order);
 
 errored:
 
@@ -1010,10 +1010,10 @@ errored:
 //! @brief Sets up the built-in installabale dictionaries
 //!
 void
-lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
+lw_dictionarylist_load_installable (LwDictionaryList *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -1023,10 +1023,10 @@ lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
-    klass = LW_DICTIONARYLIST_GET_CLASS (dictionary_list);
+    priv = self->priv;
+    klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
-    preferences = lw_dictionarylist_get_preferences (dictionary_list);
+    preferences = lw_dictionarylist_get_preferences (self);
     if (preferences == NULL) goto errored;
 
     {
@@ -1041,7 +1041,7 @@ lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
         FALSE
       );
       priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
+      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 
     {
@@ -1056,7 +1056,7 @@ lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
         TRUE
       );
       priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
+      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 
     {
@@ -1071,7 +1071,7 @@ lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
         TRUE
       );
       priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
+      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 
     {
@@ -1087,7 +1087,7 @@ lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
         TRUE
       );
       priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
+      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 
 /*
@@ -1105,7 +1105,7 @@ lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list)
         FALSE
       );
       priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (dictionary_list, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
+      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
 */
 
@@ -1119,10 +1119,10 @@ errored:
 //! @brief Checks to see if the current InstallDictionaryList is installation ready
 //!
 gboolean 
-lw_dictionarylist_installer_is_valid (LwDictionaryList *dictionary_list)
+lw_dictionarylist_installer_is_valid (LwDictionaryList *self)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary_list != NULL, FALSE);
+    g_return_val_if_fail (self != NULL, FALSE);
 
     //Declarations
     LwDictionaryListPrivate *priv;
@@ -1133,7 +1133,7 @@ lw_dictionarylist_installer_is_valid (LwDictionaryList *dictionary_list)
     gboolean valid;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
     link = priv->list;
     number_selected = 0;
 
@@ -1154,39 +1154,39 @@ lw_dictionarylist_installer_is_valid (LwDictionaryList *dictionary_list)
 
 
 GList*
-lw_dictionarylist_get_list (LwDictionaryList *dictionary_list)
+lw_dictionarylist_dictionaries (LwDictionaryList *self)
 {
-    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
 
-    return g_list_copy (dictionary_list->priv->list);
+    return g_list_copy (self->priv->list);
 }
 
 
 void
-lw_dictionarylist_sort_with_data (LwDictionaryList *dictionary_list, 
+lw_dictionarylist_sort_with_data (LwDictionaryList *self, 
                                   GCompareDataFunc  compare_func, 
                                   gpointer          user_data)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
     LwDictionaryListPrivate *priv;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
 
     priv->list = g_list_sort_with_data (priv->list, compare_func, user_data);
 }
 
 
 void
-lw_dictionarylist_menumodel_insert (LwDictionaryList *dictionary_list,
+lw_dictionarylist_menumodel_insert (LwDictionaryList *self,
                                     LwDictionary     *dictionary,
                                     gint              index_)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
     g_return_if_fail (LW_IS_DICTIONARY (dictionary));
 
     //Declarations
@@ -1198,7 +1198,7 @@ lw_dictionarylist_menumodel_insert (LwDictionaryList *dictionary_list,
     gchar *longname = NULL;
 
     //Initializations
-    menu_model = lw_dictionarylist_get_menumodel (dictionary_list);
+    menu_model = lw_dictionarylist_get_menumodel (self);
     menu = G_MENU (menu_model);
     longname = NULL;
     detailed_action = NULL;
@@ -1223,11 +1223,11 @@ errored:
 
 
 void
-lw_dictionarylist_menumodel_append (LwDictionaryList *dictionary_list, 
+lw_dictionarylist_menumodel_append (LwDictionaryList *self, 
                                     LwDictionary     *dictionary)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
     g_return_if_fail (LW_IS_DICTIONARY (dictionary));
 
     //Declarations
@@ -1235,11 +1235,11 @@ lw_dictionarylist_menumodel_append (LwDictionaryList *dictionary_list,
     gint index = 0;
 
     //Initializations
-    menu_model = lw_dictionarylist_get_menumodel (dictionary_list);
+    menu_model = lw_dictionarylist_get_menumodel (self);
     if (menu_model == NULL) goto errored;
     index = g_menu_model_get_n_items (menu_model);
 
-    lw_dictionarylist_menumodel_insert (dictionary_list, dictionary, index);
+    lw_dictionarylist_menumodel_insert (self, dictionary, index);
 
 errored:
 
@@ -1248,10 +1248,10 @@ errored:
 
 
 void
-lw_dictionarylist_sync_menumodel (LwDictionaryList *dictionary_list)
+lw_dictionarylist_sync_menumodel (LwDictionaryList *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -1259,8 +1259,8 @@ lw_dictionarylist_sync_menumodel (LwDictionaryList *dictionary_list)
     GMenu *menu = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
-    menu_model = lw_dictionarylist_get_menumodel (dictionary_list);
+    priv = self->priv;
+    menu_model = lw_dictionarylist_get_menumodel (self);
     menu = G_MENU (menu_model);
 
     //Clear the old menu items
@@ -1277,7 +1277,7 @@ lw_dictionarylist_sync_menumodel (LwDictionaryList *dictionary_list)
         LwDictionary *dictionary = LW_DICTIONARY (link->data);
         if (dictionary != NULL)
         {
-          lw_dictionarylist_menumodel_append (dictionary_list, dictionary);
+          lw_dictionarylist_menumodel_append (self, dictionary);
         }
         link = link->next;
       }
@@ -1285,17 +1285,17 @@ lw_dictionarylist_sync_menumodel (LwDictionaryList *dictionary_list)
 }
 
 void
-lw_dictionarylist_set_menumodel (LwDictionaryList *dictionary_list,
+lw_dictionarylist_set_menumodel (LwDictionaryList *self,
                                  GMenuModel       *menu_model)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (dictionary_list));
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
 
     if (menu_model != NULL)
     {
@@ -1319,22 +1319,22 @@ lw_dictionarylist_set_menumodel (LwDictionaryList *dictionary_list,
 
 
 GMenuModel*
-lw_dictionarylist_get_menumodel (LwDictionaryList *dictionary_list)
+lw_dictionarylist_get_menumodel (LwDictionaryList *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYLIST (dictionary_list), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
 
     //Initializations
-    priv = dictionary_list->priv;
+    priv = self->priv;
     if (priv == NULL) goto errored;
 
     if (priv->menu_model == NULL)
     {
       GMenuModel *menu_model = G_MENU_MODEL (g_menu_new ());
-      lw_dictionarylist_set_menumodel (dictionary_list, menu_model);
+      lw_dictionarylist_set_menumodel (self, menu_model);
       g_object_unref (G_OBJECT (menu_model));
       menu_model = NULL;
     }

@@ -51,27 +51,27 @@ LwDictionaryList* lw_dictionarylist_new (LwPreferences *preferences);
 GType lw_dictionarylist_get_type (void) G_GNUC_CONST;
 
 
-gint lw_dictionarylist_get_total (LwDictionaryList *dictionary_list);
+gint lw_dictionarylist_get_total (LwDictionaryList *self);
 
-void lw_dictionarylist_load_installed (LwDictionaryList *dictionary_list, LwMorphologyEngine *morphologyengine);
-void lw_dictionarylist_load_installable (LwDictionaryList *dictionary_list);
+void lw_dictionarylist_load_installed (LwDictionaryList *self, LwMorphologyEngine *morphologyengine);
+void lw_dictionarylist_load_installable (LwDictionaryList *self);
 
-void  lw_dictionarylist_load_order (LwDictionaryList *dictionary_list);
+void  lw_dictionarylist_load_order (LwDictionaryList *self);
 
-void lw_dictionarylist_load_order (LwDictionaryList *dictionary_list);
+void lw_dictionarylist_load_order (LwDictionaryList *self);
 
-GList* lw_dictionarylist_get_list (LwDictionaryList *dictionary_list);
+GList* lw_dictionarylist_dictionaries (LwDictionaryList *self);
 
-LwDictionary* lw_dictionarylist_get_dictionary_by_position (LwDictionaryList* dictionary_list, gint position);
-LwDictionary* lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *dictionary_list, const gchar *FILENAME);
-LwDictionary* lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *dictionary_list, const gchar *FUZZY_DESCRIPTION);
-LwDictionary* lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *dictionary_list, const gchar *ENGINE_AND_FILENAME);
+LwDictionary* lw_dictionarylist_get_dictionary_by_position (LwDictionaryList* self, gint position);
+LwDictionary* lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *self, const gchar *FILENAME);
+LwDictionary* lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *self, const gchar *FUZZY_DESCRIPTION);
+LwDictionary* lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *self, const gchar *ENGINE_AND_FILENAME);
 
-GMenuModel* lw_dictionarylist_get_menumodel (LwDictionaryList *dictionary_list);
+GMenuModel* lw_dictionarylist_get_menumodel (LwDictionaryList *self);
 
-gboolean lw_dictionarylist_dictionary_exists (LwDictionaryList *dictionary_list, LwDictionary *dictionary);
-void lw_dictionarylist_append (LwDictionaryList *dictionary_list, LwDictionary *dictionary);
-void lw_dictionarylist_clear (LwDictionaryList *dictionary_list);
+gboolean lw_dictionarylist_dictionary_exists (LwDictionaryList *self, LwDictionary *dictionary);
+void lw_dictionarylist_append (LwDictionaryList *self, LwDictionary *dictionary);
+void lw_dictionarylist_clear (LwDictionaryList *self);
 
 G_END_DECLS
 

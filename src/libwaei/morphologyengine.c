@@ -187,6 +187,7 @@ lw_morphologyengine_class_init (LwMorphologyEngineClass *klass)
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
+    klass->priv = g_new0 (LwMorphologyEngineClassPrivate, 1);
     object_class->set_property = lw_morphologyengine_set_property;
     object_class->get_property = lw_morphologyengine_get_property;
     object_class->finalize = lw_morphologyengine_finalize;

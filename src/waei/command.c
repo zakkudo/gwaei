@@ -53,7 +53,8 @@ G_DEFINE_TYPE (WCommand, w_command, G_TYPE_OBJECT)
 //! @brief creates a new instance of the gwaei applicaiton
 //!
 WCommand*
-w_command_new (WApplication *application, GApplicationCommandLine *command_line)
+w_command_new (WApplication            *application,
+               GApplicationCommandLine *command_line)
 {
     //Sanity checks
     g_return_val_if_fail (command_line != NULL, NULL);
@@ -119,9 +120,9 @@ w_command_constructed (GObject *object)
 
 static void 
 w_command_set_property (GObject      *object,
-                            guint         property_id,
-                            const GValue *value,
-                            GParamSpec   *pspec)
+                        guint         property_id,
+                        const GValue *value,
+                        GParamSpec   *pspec)
 {
     //Declarations
     WCommand *self = NULL;
@@ -148,9 +149,9 @@ w_command_set_property (GObject      *object,
 
 static void 
 w_command_get_property (GObject    *object,
-                            guint       property_id,
-                            GValue     *value,
-                            GParamSpec *pspec)
+                        guint       property_id,
+                        GValue     *value,
+                        GParamSpec *pspec)
 {
     //Declarations
     WCommand *self = NULL;
@@ -539,44 +540,52 @@ w_command_about (WCommand *self)
 void 
 w_command_print_installable_dictionaries (WCommand *self)
 {
-  /*
-    printf(gettext("Installable dictionaries are:\n"));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
     //Declarations
-    gint i;
-    gint j;
-    GList *list;
-    GList *iter;
-    LwDictionaryList *dictionarylist;
-    LwDictionary* dictionary;
-    const gchar* filename;
+    WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
+    WApplication *application = NULL;
+    LwDictionaryList *dictionary_list = NULL;
+    GList *dictionaries = NULL;
 
     //Initializations
-    i = 0; 
-    dictionarylist = w_application_get_installable_dictionarylist (self);
-    list = iter = lw_dictionarylist_get_list (dictionarylist);
+    priv = self->priv;
+    command_line = priv->data.command_line;
+    if (command_line == NULL) goto errored;
+    application = priv->data.application;
+    if (application == NULL) goto errored;
+    dictionary_list = w_application_get_installable_dictionarylist (application);
+    if (dictionary_list == NULL) goto errored;
+    dictionaries = lw_dictionarylist_dictionaries (dictionary_list);
 
-    while (iter != NULL)
+    g_application_command_line_print (command_line, gettext("Installable dictionaries are:\n"));
+
+    if (dictionaries == NULL)
     {
-      dictionary = LW_DICTIONARY (iter->data);
-      if (lw_dictionary_installer_is_valid (dictionary))
+      g_application_command_line_print (command_line, "  %s\n", gettext("none"));
+    }
+    else {
+      GList *link = NULL;
+      for (link = dictionaries; link != NULL; link = link->next)
       {
-        filename = lw_dictionary_get_filename (dictionary);
-        printf("  %s", filename);
-        for (j = strlen(filename); j < 20; j++) printf(" ");
-        printf("(AKA: %s Dictionary)\n", lw_dictionary_get_name (dictionary));
-        i++;
+        LwDictionary *dictionary = LW_DICTIONARY (link->data);
+        if (lw_dictionary_installer_is_valid (dictionary))
+        {
+          const gchar *FILENAME = lw_dictionary_get_filename (dictionary);
+          gint j = 0;
+
+          g_application_command_line_print (command_line, "  %s", FILENAME);
+          for (j = strlen(FILENAME); j < 20; j++) g_application_command_line_print (command_line, " ");
+          g_application_command_line_print (command_line, "(AKA: %s Dictionary)\n", lw_dictionary_get_name (dictionary));
+        }
       }
-      iter = iter->next;
     }
 
-    if (i == 0)
-    {
-      printf("  %s\n", gettext("none"));
-    }
+errored:
 
-    if (list != NULL) g_list_free (list); list = NULL;
-    */
+    if (dictionaries != NULL) g_list_free (dictionaries); dictionaries = NULL;
 }
 
 
@@ -586,43 +595,53 @@ w_command_print_installable_dictionaries (WCommand *self)
 void 
 w_command_print_available_dictionaries (WCommand *self)
 {
-  /*
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+
     //Declarations
-    gint i;
-    gint j;
-    LwDictionaryList *dictionarylist;
-    LwDictionary* dictionary;
-    GList *list;
-    GList *link;
-    const gchar *filename;
+    WCommandPrivate *priv = NULL;
+    WApplication *application = NULL;
+    GApplicationCommandLine *command_line = NULL;
+    LwDictionaryList *dictionary_list = NULL;
+    GList *dictionaries = NULL;
 
     //Initializations
-    i = 0;
-    j = 0;
-    dictionarylist = w_application_get_installed_dictionarylist (self);
-	  list = link = lw_dictionarylist_get_list (dictionarylist);
+    priv = self->priv;
+    application = priv->data.application;
+    if (application == NULL) goto errored;
+    command_line = priv->data.command_line;
+    if (command_line == NULL) goto errored;
+    dictionary_list = w_application_get_installed_dictionarylist (application);
+    if (dictionary_list == NULL) goto errored;
+    dictionaries = lw_dictionarylist_dictionaries (dictionary_list);
 
-    printf(gettext("Available dictionaries are:\n"));
+    g_application_command_line_print (command_line, gettext("Available dictionaries are:\n"));
 
-    while (link != NULL) {
-      dictionary = LW_DICTIONARY (link->data);
-      filename = lw_dictionary_get_filename (dictionary);
-
-      printf("  %s", filename);
-      for (j = strlen(filename); j < 20; j++) printf(" ");
-      printf("(AKA: %s Dictionary)\n", lw_dictionary_get_name (dictionary));
-
-      i++;
-      link = link->next;
-    }
-
-    if (i == 0)
+    if (dictionaries == NULL)
     {
-      printf("  %s\n", gettext("none"));
+      g_application_command_line_print (command_line, "  %s\n", gettext("none"));
+    }
+    else {
+      GList *link = NULL;
+      for (link = dictionaries; link != NULL; link = link->next) {
+        LwDictionary *dictionary = LW_DICTIONARY (link->data);
+        if (dictionary != NULL)
+        {
+          const gchar *FILENAME = lw_dictionary_get_filename (dictionary);
+          gint j = 0;
+          g_application_command_line_print (command_line, "  %s", FILENAME);
+          for (j = strlen(FILENAME); j < 20; j++) g_application_command_line_print (command_line, " ");
+          g_application_command_line_print (command_line, "(AKA: %s Dictionary)\n", lw_dictionary_get_name (dictionary));
+        }
+      }
     }
 
-    if (list != NULL) g_list_free (list); list = NULL;
-    */
+
+errored:
+
+    if (dictionaries != NULL) g_list_free (dictionaries); dictionaries = NULL;
+
+    return;
 }
 
 
@@ -632,6 +651,7 @@ w_command_print_available_dictionaries (WCommand *self)
 void 
 w_command_list (WCommand *self)
 {
+printf("BREAK w_command_list\n");
     w_command_print_available_dictionaries (self);
     w_command_print_installable_dictionaries (self);
 }
