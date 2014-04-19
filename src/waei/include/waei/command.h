@@ -40,9 +40,14 @@ GApplicationCommandLine* w_command_get_command_line (WCommand *self);
 
 void w_command_about (WCommand *self);
 void w_command_list (WCommand *self);
+void w_command_print_installable_dictionaries (WCommand *self);
+void w_command_print_available_dictionaries (WCommand *self);
 gint w_command_search (WCommand *self, LwProgress *progress);
-gint  w_command_install_dictionary (WCommand *self, LwProgress *progress);
+gint w_command_install_dictionary (WCommand *self, LwProgress *progress);
 gint w_command_uninstall_dictionary (WCommand *self, LwProgress *progress);
+
+const gchar* w_command_get_install_switch_data (WCommand *self);
+const gchar* w_command_get_uninstall_switch_data (WCommand *self);
 
 #include "command-output.h"
 #include "command-callbacks.h"

@@ -341,12 +341,14 @@ w_command_run (WCommand *self)
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
     LwProgress *progress = NULL;
-    gint resolution;
+    gint resolution = -1;
 
     //Initializations
-    resolution = 0;
     priv = self->priv;
+    command_line = priv->data.command_line;
+    if (command_line == NULL) goto errored;
 
 /*
     progress = lw_progress_new (NULL, (LwProgressCallback) w_command_progress_cb, self);
@@ -389,10 +391,12 @@ w_command_run (WCommand *self)
       gchar *text = g_option_context_get_help (priv->data.context, FALSE, NULL);
       if (text != NULL)
       {
-        printf("%s\n", text);
+        g_application_command_line_print (command_line, "%s\n", text);
         g_free (text); text = NULL;
       }
     }
+
+errored:
 
     //Cleanup
     //w_application_handle_error (self, &progress->error); TODO
@@ -412,21 +416,30 @@ gint
 w_command_uninstall_dictionary (WCommand   *self, 
                                 LwProgress *progress)
 {
-  /*
     //Sanity check
+    g_return_val_if_fail (W_IS_COMMAND (self), -1);
     if (lw_progress_should_abort (progress)) return 1;
 
     //Declarations
-    LwDictionaryList *dictionarylist;
-    LwDictionary *dictionary;
-    gint resolution;
-    const gchar *uninstall_switch_data;
+    WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
+    WApplication *application = NULL;
+    LwDictionaryList *dictionary_list = NULL;
+    LwDictionary *dictionary = NULL;
+    gint resolution = -1;
+    const gchar *uninstall_switch_data = NULL;
 
     //Initializations
-    uninstall_switch_data = w_application_get_uninstall_switch_data (self);
-    dictionarylist = w_application_get_installed_dictionarylist (self);
-    dictionary = lw_dictionarylist_get_dictionary_fuzzy (dictionarylist, uninstall_switch_data);
-    resolution = 0;
+    priv = self->priv;
+    command_line = priv->data.command_line;
+    if (command_line == NULL) goto errored;
+    application = priv->data.application;
+    if (application == NULL) goto errored;
+    uninstall_switch_data = w_command_get_uninstall_switch_data (self);
+    dictionary_list = w_application_get_installed_dictionarylist (application);
+    if (dictionary_list == NULL) goto errored;
+    dictionary = lw_dictionarylist_get_dictionary_fuzzy (dictionary_list, uninstall_switch_data);
+    resolution = -1;
 
     if (dictionary != NULL)
     {
@@ -434,7 +447,7 @@ w_command_uninstall_dictionary (WCommand   *self,
     }
     else
     {
-      printf("\n\"%s\" Dictionary was not found!\n\n", uninstall_switch_data);
+      g_application_command_line_print (command_line, "\n\"%s\" Dictionary was not found!\n\n", uninstall_switch_data);
       w_command_print_available_dictionaries (self);
     }
 
@@ -443,9 +456,9 @@ w_command_uninstall_dictionary (WCommand   *self,
       resolution = 1;
     }
 
+errored:
+
     return resolution;
-    */
-    return 0;
 }
 
 
@@ -458,20 +471,29 @@ gint
 w_command_install_dictionary (WCommand   *self, 
                               LwProgress *progress)
 {
-  /*
     //Sanity check
+    g_return_val_if_fail (W_IS_COMMAND (self), -1);
     if (lw_progress_should_abort (progress)) return 1;
 
     //Declarations
-    LwDictionaryList *dictionarylist;
-    LwDictionary *dictionary;
-    gint resolution;
-    const gchar *install_switch_data;
+    WCommandPrivate *priv = NULL;
+    WApplication *application = NULL;
+    GApplicationCommandLine *command_line = NULL;
+    LwDictionaryList *dictionary_list = NULL;
+    LwDictionary *dictionary = NULL;
+    gint resolution = -1;
+    const gchar *install_switch_data = NULL;
 
     //Initializations
-    install_switch_data = w_application_get_install_switch_data (self);
-    dictionarylist = w_application_get_installable_dictionarylist (self);
-    dictionary = lw_dictionarylist_get_dictionary_fuzzy (dictionarylist, install_switch_data);
+    priv = self->priv;
+    application = priv->data.application;
+    if (application == NULL) goto errored;
+    command_line = priv->data.command_line;
+    if (command_line == NULL) goto errored;
+    install_switch_data = w_command_get_install_switch_data (self);
+    dictionary_list = w_application_get_installable_dictionarylist (application);
+    if (dictionary_list == NULL) goto errored;
+    dictionary = lw_dictionarylist_get_dictionary_fuzzy (dictionary_list, install_switch_data);
     resolution = 0;
 
     if (dictionary != NULL)
@@ -479,13 +501,13 @@ w_command_install_dictionary (WCommand   *self,
       lw_dictionary_install (dictionary, progress);
 
       if (lw_progress_errored (progress)) 
-        fprintf (stderr, "\n%s\n", gettext("Installation failed!"));
+        g_application_command_line_printerr (command_line, "\n%s\n", gettext("Installation failed!"));
       else
-        fprintf(stderr, "%s\n", gettext("Installation complete."));
+        g_application_command_line_printerr (command_line, "%s\n", gettext("Installation complete."));
     }
     else
     {
-      printf("\n%s \"was not\" found!\n\n", install_switch_data);
+      g_application_command_line_print (command_line, "\n%s \"was not\" found!\n\n", install_switch_data);
       w_command_print_installable_dictionaries (self);
     }
 
@@ -494,9 +516,9 @@ w_command_install_dictionary (WCommand   *self,
       resolution = 1;
     }
 
+errored:
+
     return resolution;
-    */
-    return 0;
 }
 
 
@@ -522,15 +544,31 @@ w_command_rebuild_index (WCommand *self)
 void 
 w_command_about (WCommand *self)
 {
-    printf ("waei version %s", VERSION);
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-    printf ("\n\n");
+    //Declarations
+    WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
 
-    printf ("Check for the latest updates at <http://gwaei.sourceforge.net/>\n");
-    printf ("Code Copyright (C) 2009-2013 Zachary Dovel\n\n");
+    //Initializations
+    priv = self->priv;
+    command_line = priv->data.command_line;
+    if (command_line == NULL) goto errored;
 
-    printf ("License:\n");
-    printf ("Copyright (C) 2008 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\n");
+    g_application_command_line_print (command_line, "waei version %s", VERSION);
+
+    g_application_command_line_print (command_line, "\n\n");
+
+    g_application_command_line_print (command_line, "Check for the latest updates at <http://gwaei.sourceforge.net/>\n");
+    g_application_command_line_print (command_line, "Code Copyright (C) 2009-2013 Zachary Dovel\n\n");
+
+    g_application_command_line_print (command_line, "License:\n");
+    g_application_command_line_print (command_line, "Copyright (C) 2008 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\n");
+
+errored:
+
+    return;
 }
 
 
