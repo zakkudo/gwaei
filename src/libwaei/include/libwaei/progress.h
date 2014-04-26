@@ -1,95 +1,73 @@
 #ifndef LW_PROGRESS_INCLUDED
 #define LW_PROGRESS_INCLUDED
 
-#include <glib.h>
 #include <gio/gio.h>
 
 G_BEGIN_DECLS
 
+//Boilerplate
 typedef struct _LwProgress LwProgress;
+typedef struct _LwProgressClass LwProgressClass;
+typedef struct _LwProgressPrivate LwProgressPrivate;
+typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
 
-#define LW_PROGRESS(obj) (LwProgress*) obj
+#define LW_TYPE_PROGRESS              (lw_progress_get_type())
+#define LW_PROGRESS(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_PROGRESS, LwProgress))
+#define LW_PROGRESS_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_PROGRESS, LwProgressClass))
+#define LW_IS_PROGRESS(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_PROGRESS))
+#define LW_IS_PROGRESS_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_PROGRESS))
+#define LW_PROGRESS_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_PROGRESS, LwProgressClass))
 
-//Callback prototype
-typedef gint (*LwProgressCallback) (gpointer object, LwProgress *progress, gpointer data);
+typedef gint (*LwProgressCallback) (LwProgress *progress, gpointer data);
 
-//Class
 struct _LwProgress {
-  GMutex mutex;
-
-  gpointer object;
-  LwProgressCallback cb;
-  gpointer data;
-  GCancellable *cancellable;
-
-  gdouble previous_progress;
-  gdouble current_progress;
-  gdouble total_progress;
-
-  gdouble ratio_delta;
-  gdouble required_ratio_delta;
-  gboolean reached_ratio_delta;
-
-  gchar *step_message;
-  gint current_step;
-  gint total_steps;
-
-  GError *error;
-
-  gint64 start_time;
-
-  gchar *job_title;
-  gchar *primary_message;
-  gchar *secondary_message;
-  gchar *units;
-
-  gchar *source_filename;
-  gchar *target_filename;
-
-  gboolean finished;
-  gboolean changed;
+  GObject object;
+  LwProgressPrivate *priv;
 };
+
+struct _LwProgressClass {
+  GObjectClass parent_class;
+  LwProgressClassPrivate *priv;
+
+  //Signals
+  void (*changed) (LwProgress* progress, gpointer data);
+};
+
 
 //Methods
-LwProgress* lw_progress_new (GCancellable *cancellable, LwProgressCallback cb, gpointer data);
-void lw_progress_free (LwProgress *progress);
+LwProgress* lw_progress_new (void);
+GType lw_progress_get_type (void) G_GNUC_CONST;
 
-void lw_progress_set_fraction (LwProgress *progress, gdouble current_progress, gdouble total_progress);
-gdouble lw_progress_get_fraction (LwProgress *progress);
+gboolean lw_progress_should_abort (LwProgress *self);
 
-gboolean lw_progress_changed (LwProgress *progress);
-void lw_progress_clear_changed (LwProgress *progress);
-gboolean lw_progress_errored (LwProgress *progress);
-gboolean lw_progress_is_cancelled (LwProgress *progress);
-void lw_progress_cancel (LwProgress *progress);
+void lw_progress_cancel (LwProgress *self);
+gboolean lw_progress_is_cancelled (LwProgress *self);
 
-void lw_progress_set_object (LwProgress *progress, gpointer object);
+void lw_progress_set_cancellable (LwProgress *self, GCancellable *cancellable);
+GCancellable* lw_progress_get_cancellable (LwProgress *self);
 
-gboolean lw_progress_should_abort (LwProgress *progress);
+void lw_progress_set_error (LwProgress *self, GError *error);
+void lw_progress_take_error (LwProgress *self, GError **source);
+GError* lw_progress_get_error (LwProgress  *self);
+gboolean lw_progress_errored (LwProgress *self);
 
-void lw_progress_run_callback (LwProgress *progress);
+void lw_progress_set_completed (LwProgress *self, gboolean complete);
+gboolean lw_progress_completed (LwProgress *self);
 
-void lw_progress_set_finished (LwProgress *progress, gboolean finished);
-gboolean lw_progress_is_finished (LwProgress *progress);
+void lw_progress_set_fraction (LwProgress *self, gdouble current_progress, gdouble total_progress);
+gdouble lw_progress_get_fraction (LwProgress *self);
 
-void lw_progress_set_primary_message (LwProgress *progress, const gchar *FORMAT, ...);
-const gchar* lw_progress_get_primary_message (LwProgress *progress);
-void lw_progress_set_secondary_message (LwProgress *progress, const gchar *FORMAT, ...);
-const gchar* lw_progress_get_secondary_message (LwProgress *progress);
+void lw_progress_set_primary_message (LwProgress *self, const gchar *MESSAGE);
+void lw_progress_set_primary_message_printf (LwProgress *self, const gchar *FORMAT, ...);
+const gchar* lw_progress_get_primary_message (LwProgress *self);
 
-void lw_progress_set_step_message (LwProgress *progress, const gchar *FORMAT, gint current_step, gint total_steps);
-const gchar* lw_progress_get_step_message (LwProgress *progress);
+void lw_progress_set_secondary_message (LwProgress *self, const gchar *MESSAGE);
+void lw_progress_set_secondary_message_printf (LwProgress *self, const gchar *FORMAT, ...);
+const gchar* lw_progress_get_secondary_message (LwProgress *self);
 
-void lw_progress_set_required_ratio_delta (LwProgress *progress, gdouble delta);
-
-
-struct _LwProgressCallbackWithData {
-  LwProgressCallback cb;
-  gpointer data;
-  GCancellable *cancellable;
-};
-typedef struct _LwProgressCallbackWithData LwProgressCallbackWithData;
-
+void lw_progress_set_step_message (LwProgress *self, const gchar *MESSAGE);
+void lw_progress_set_step_message_printf (LwProgress *self, const gchar *FORMAT, ...);
+const gchar* lw_progress_get_step_message (LwProgress *self);
 
 G_END_DECLS
 

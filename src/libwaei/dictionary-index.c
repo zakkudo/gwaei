@@ -63,8 +63,6 @@ lw_dictionary_index_search (LwDictionary       *dictionary,
     if (morphologylist == NULL) return NULL;
     g_return_val_if_fail (lw_dictionary_index_is_loaded (dictionary), NULL);
 
-    lw_progress_set_object (progress, dictionary);
-
     //Declarations
     LwDictionaryPrivate *priv = dictionary->priv;
     LwIndex *index = priv->index;
@@ -237,7 +235,6 @@ lw_dictionary_index_create (LwDictionary *dictionary,
     dictionary_path = lw_dictionary_get_path (dictionary); if (dictionary_path == NULL) goto errored;
     index_path = lw_dictionary_index_get_path (dictionary); if (index_path == NULL) goto errored;
 
-    lw_progress_set_object (progress, dictionary);
     lw_progress_set_secondary_message (progress, "Creating index...");
 
     if (g_file_test (dictionary_path, G_FILE_TEST_IS_REGULAR) == FALSE) goto errored;
@@ -284,7 +281,6 @@ lw_dictionary_index_load (LwDictionary *dictionary,
 
     if (g_file_test (dictionary_path, G_FILE_TEST_IS_REGULAR) == FALSE) goto errored;
 
-    lw_progress_set_object (progress, dictionary);
     lw_progress_set_secondary_message (progress, "Loading index...");
 
     //Load the dictionary data for the index

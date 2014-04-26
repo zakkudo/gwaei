@@ -340,8 +340,7 @@ errored:
 
 
 static void
-lw_vocabulary_load_from_file (LwVocabulary       *self, 
-                              LwProgressCallback  cb)
+lw_vocabulary_load_from_file (LwVocabulary *self)
 {
     //Sanity checks
     g_return_if_fail (LW_VOCABULARY (self));
@@ -365,7 +364,7 @@ lw_vocabulary_load_from_file (LwVocabulary       *self,
 
     if (!g_file_get_contents (uri, &contents, &length, NULL) || length == 0) goto errored;
 
-    lw_vocabulary_load_from_string (self, contents, TRUE, cb);
+    lw_vocabulary_load_from_string (self, contents, TRUE);
 
 errored:
 
@@ -375,8 +374,7 @@ errored:
 
 
 void
-lw_vocabulary_load (LwVocabulary       *self, 
-                    LwProgressCallback  cb)
+lw_vocabulary_load (LwVocabulary *self)
 {
     //Sanity checks
     g_return_if_fail (LW_VOCABULARY (self));
@@ -385,7 +383,7 @@ lw_vocabulary_load (LwVocabulary       *self,
     //Declarations
     LwVocabularyPrivate *priv = self->priv;
 
-    lw_vocabulary_load_from_file (self, cb);
+    lw_vocabulary_load_from_file (self);
 
     lw_vocabulary_set_changed (self, FALSE);
     lw_vocabulary_set_loaded (self, TRUE);
@@ -393,8 +391,7 @@ lw_vocabulary_load (LwVocabulary       *self,
 
 
 void
-lw_vocabulary_save (LwVocabulary       *self, 
-                    LwProgressCallback  cb)
+lw_vocabulary_save (LwVocabulary       *self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
@@ -411,7 +408,7 @@ lw_vocabulary_save (LwVocabulary       *self,
     if (FILENAME == NULL) goto errored;
     uri = lw_vocabulary_build_uri (FILENAME);
     if (uri == NULL) goto errored;
-    text = lw_vocabulary_to_string (self, cb);
+    text = lw_vocabulary_to_string (self);
     if (text == NULL) goto errored;
 
     g_file_set_contents (uri, text, -1, NULL);
@@ -1569,8 +1566,7 @@ errored:
 gchar* 
 lw_vocabulary_load_from_string (LwVocabulary       *self,
                                 const gchar        *TEXT,
-                                gboolean            take_filename_from_text,
-                                LwProgressCallback  cb)
+                                gboolean            take_filename_from_text)
 {
     //Sanity checks
     g_return_if_fail (LW_VOCABULARY (self));
@@ -1640,7 +1636,7 @@ printf("BREAK3 lw_vocabulary_load_from_string \n");
       }
       lw_vocabulary_set_filename (self, filename_hint);
       indices = lw_vocabulary_insert (self, -1, words);
-      lw_vocabulary_save (self, NULL);
+      lw_vocabulary_save (self);
     }
     else if (take_filename_from_text && filename_hint == NULL && priv->config.filename == NULL)
     {
@@ -1648,7 +1644,7 @@ printf("BREAK3 lw_vocabulary_load_from_string \n");
       g_free (filename_hint); filename_hint = filename;
       lw_vocabulary_set_filename (self, filename_hint);
       indices = lw_vocabulary_insert (self, -1, words);
-      lw_vocabulary_save (self, NULL);
+      lw_vocabulary_save (self);
     }
     else
     {
@@ -1680,8 +1676,7 @@ errored:
 
 
 gchar*
-lw_vocabulary_to_string (LwVocabulary       *self,
-                         LwProgressCallback  cb)
+lw_vocabulary_to_string (LwVocabulary *self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
@@ -1745,7 +1740,9 @@ lw_vocabulary_set (LwVocabulary *self, gint position, ...)
 }
 
 void
-lw_vocabulary_set_valist (LwVocabulary *self, gint position, va_list va) 
+lw_vocabulary_set_valist (LwVocabulary *self,
+                          gint          position,
+                          va_list       va) 
 {
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));

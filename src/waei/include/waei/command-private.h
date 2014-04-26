@@ -7,6 +7,7 @@ typedef enum {
   PROP_0,
   PROP_APPLICATION,
   PROP_COMMAND_LINE,
+  PROP_PROGRESS,
   TOTAL_PROPS
 } Props;
 
@@ -19,6 +20,7 @@ struct _Data {
   WApplication *application;
   GApplicationCommandLine *command_line;
   GMainLoop *loop;
+  LwProgress *progress;
 };
 
 struct _Argument {

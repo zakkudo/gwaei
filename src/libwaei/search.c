@@ -134,6 +134,9 @@ lw_search_set_property (GObject      *object,
       case PROP_MAX_RESULTS:
         lw_search_set_max_results (self, g_value_get_int (value));
         break;
+      case PROP_PROGRESS:
+        lw_search_set_progress (self, g_value_get_object (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -171,6 +174,9 @@ lw_search_get_property (GObject    *object,
         break;
       case PROP_MAX_RESULTS:
         g_value_set_int (value, lw_search_get_max_results (self));
+        break;
+      case PROP_PROGRESS:
+        g_value_set_object (value, lw_search_get_progress (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -321,6 +327,15 @@ lw_search_class_init (LwSearchClass *klass)
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_MAX_RESULTS, _klasspriv->pspec[PROP_MAX_RESULTS]);
+
+    _klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
+        "progress",
+        "loaded construct prop",
+        "Set the loaded",
+        LW_TYPE_PROGRESS,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_PROGRESS, _klasspriv->pspec[PROP_PROGRESS]);
 }
 
 
@@ -361,7 +376,6 @@ lw_search_get_query (LwSearch *self)
 
     return priv->data.query->raw;
 }
-
 
 
 LwDictionary*
@@ -409,6 +423,54 @@ lw_search_set_dictionary (LwSearch     *self,
     if (dictionary != NULL)
     {
       g_object_add_weak_pointer (G_OBJECT (priv->data.dictionary), (gpointer*) &(priv->data.dictionary));
+    }
+}
+
+LwProgress*
+lw_search_get_progress (LwSearch *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_SEARCH (self));
+
+    //Declarations
+    LwSearchPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.progress;
+}
+
+
+void
+lw_search_set_progress (LwSearch   *self,
+                        LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_SEARCH (self));
+
+    //Declarations
+    LwSearchPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (progress != NULL)
+    {
+      g_object_ref (progress);
+    }
+
+    if (priv->data.progress != NULL)
+    {
+      g_object_remove_weak_pointer (G_OBJECT (priv->data.progress), (gpointer*) &(priv->data.progress));
+      g_object_unref (priv->data.progress);
+    }
+
+    priv->data.progress = progress;
+
+    if (progress != NULL)
+    {
+      g_object_add_weak_pointer (G_OBJECT (priv->data.progress), (gpointer*) &(priv->data.progress));
     }
 }
 
@@ -665,58 +727,42 @@ errored:
 //! @param exact Whether to show only exact matches for this self
 //!
 void 
-lw_search_start (LwSearch   *self)
+lw_search_start (LwSearch *self)
 {
+    //Sanity checks
+    g_return_if_fail (LW_IS_SEARCH (self));
+
     lw_search_stream_results_thread ((gpointer) self);
 }
 
 
 void
-lw_search_start_async (LwSearch   *self,
-                       LwProgress *progress)
+lw_search_start_async (LwSearch *self)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (progress != NULL);
+    g_return_if_fail (LW_IS_SEARCH (self));
 
     //Declarations
     LwSearchPrivate *priv = NULL;
+    GError *error = NULL;
 
     //Initializations
     priv = self->priv;
     priv->data.thread = NULL;
     priv->data.status = LW_SEARCHSTATUS_SEARCHING;
 
-    if (priv->data.progress != NULL) lw_progress_free (priv->data.progress);
-    priv->data.progress = progress;
-
     priv->data.thread = g_thread_try_new (
-      "libwaei-self",
+      "libwaei-search-thread",
       (GThreadFunc) lw_search_stream_results_thread, 
       (gpointer) self, 
-      &progress->error
+      &error
     );
-    if (priv->data.thread == NULL && progress->error != NULL)
+
+    if (error != NULL)
     {
-      g_warning ("Thread Creation Error: %s\n", progress->error->message);
-      g_error_free (progress->error); progress->error = NULL;
+      g_warning ("Thread Creation Error: %s\n", error->message);
+      g_clear_error (&error);
     }
-}
-
-
-LwProgress*
-lw_search_get_progress (LwSearch *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    //Declarations
-    LwSearchPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    return priv->data.progress;
 }
 
 

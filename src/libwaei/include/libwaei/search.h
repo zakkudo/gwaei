@@ -79,12 +79,12 @@ gint lw_search_get_max_results (LwSearch *self);
 void lw_search_set_status (LwSearch *self, LwSearchStatus status);
 LwSearchStatus lw_search_get_status (LwSearch *self);
 
+void lw_search_set_progress (LwSearch *self, LwProgress *progress);
+LwProgress* lw_search_get_progress (LwSearch *self);
+
 LwSearchFlag lw_search_get_flags (LwSearch *self);
 void lw_search_set_flags (LwSearch *self, LwSearchFlag flags);
 LwSearchFlag lw_search_get_flags_from_preferences (LwPreferences *preferences);
-
-
-//Methods
 
 G_END_DECLS
 

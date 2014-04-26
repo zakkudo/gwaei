@@ -7,11 +7,12 @@ typedef enum
 {
   PROP_0,
   PROP_FILENAME,
-  PROP_MORPHOLOGYENGINE
+  PROP_MORPHOLOGYENGINE,
+  PROP_PROGRESS
 } LwDictionaryProps;
 
 typedef enum {
-  CLASS_SIGNALID_PROGRESS_CHANGED,
+  CLASS_SIGNALID_UNUSED,
   TOTAL_CLASS_SIGNALIDS
 } ClassSignalId;
 
@@ -21,11 +22,10 @@ struct _LwDictionaryPrivate {
     LwIndex *index;
     LwDictionaryData *data;
     LwMorphologyEngine *morphologyengine;
-    gdouble progress;
-    size_t length;       //!< Length of the file
     GMutex mutex;
     LwDictionaryInstall *install;
     gboolean selected;
+    gint length;
 };
 
 struct _LwDictionaryClassPrivate {

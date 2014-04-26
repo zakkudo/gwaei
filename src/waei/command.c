@@ -342,18 +342,12 @@ w_command_run (WCommand *self)
     //Declarations
     WCommandPrivate *priv = NULL;
     GApplicationCommandLine *command_line = NULL;
-    LwProgress *progress = NULL;
     gint resolution = -1;
 
     //Initializations
     priv = self->priv;
     command_line = priv->data.command_line;
     if (command_line == NULL) goto errored;
-
-/*
-    progress = lw_progress_new (NULL, (LwProgressCallback) w_command_progress_cb, self);
-    lw_progress_set_required_ratio_delta (progress, 0.01);
-    */
 
     //User wants to see what dictionaries are available
     if (priv->argument.list_switch)
@@ -370,19 +364,19 @@ w_command_run (WCommand *self)
     //User wants to install a dictionary
     else if (priv->argument.install_switch_data != NULL)
     {
-      resolution = w_command_install_dictionary (self, progress);
+      resolution = w_command_install_dictionary (self);
     }
 
     //User wants to uninstall a dictionary
     else if (priv->argument.uninstall_switch_data != NULL)
     {
-      resolution = w_command_uninstall_dictionary (self, progress);
+      resolution = w_command_uninstall_dictionary (self);
     }
 
     //User wants to do a search
     else if (priv->argument.query_text_data != NULL)
     {
-      resolution = w_command_search (self, progress);
+      resolution = w_command_search (self);
     }
 
     //User didn't specify enough information for an action
@@ -401,8 +395,6 @@ errored:
     //Cleanup
     //w_application_handle_error (self, &progress->error); TODO
 
-    lw_progress_free (progress); progress = NULL;
-
     return resolution;
 }
 
@@ -413,12 +405,10 @@ errored:
 //! @param name A string of the name of the dictionary to uninstall.
 //!
 gint 
-w_command_uninstall_dictionary (WCommand   *self, 
-                                LwProgress *progress)
+w_command_uninstall_dictionary (WCommand   *self)
 {
     //Sanity check
     g_return_val_if_fail (W_IS_COMMAND (self), -1);
-    if (lw_progress_should_abort (progress)) return 1;
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -468,12 +458,10 @@ errored:
 //! @param name A string of the name of the dictionary to install.
 //!
 gint 
-w_command_install_dictionary (WCommand   *self, 
-                              LwProgress *progress)
+w_command_install_dictionary (WCommand   *self)
 {
     //Sanity check
     g_return_val_if_fail (W_IS_COMMAND (self), -1);
-    if (lw_progress_should_abort (progress)) return 1;
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -498,6 +486,7 @@ w_command_install_dictionary (WCommand   *self,
 
     if (dictionary != NULL)
     {
+      TODO
       lw_dictionary_install (dictionary, progress);
 
       if (lw_progress_errored (progress)) 
@@ -713,12 +702,10 @@ w_command_handle_error (WCommand  *self,
 
 
 gint 
-w_command_search (WCommand   *self, 
-                  LwProgress *progress)
+w_command_search (WCommand   *self)
 {
     //Sanity check
     g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
-    if (lw_progress_should_abort (progress)) return FALSE;
 
     //Declarations
     LwSearch *search = NULL;

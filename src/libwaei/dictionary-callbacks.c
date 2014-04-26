@@ -73,6 +73,7 @@ void
 lw_dictionary_sync_progress_cb (LwDictionary *dictionary, 
                                 LwProgress   *progress)
 {
+  /*TODO
     LwDictionaryPrivate *priv;
     LwDictionaryClass *klass;
     
@@ -84,5 +85,6 @@ lw_dictionary_sync_progress_cb (LwDictionary *dictionary,
       priv->progress = lw_progress_get_fraction (progress);
       g_signal_emit (G_OBJECT (dictionary), klass->priv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 0);    
     }
+    */
 }
 

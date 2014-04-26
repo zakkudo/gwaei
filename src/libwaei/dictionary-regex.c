@@ -46,18 +46,19 @@
 
 
 GHashTable*
-lw_dictionary_regex_search (LwDictionary  *dictionary,
+lw_dictionary_regex_search (LwDictionary  *self,
                             const gchar   *PATTERN,
                             LwIndexFlag    flags,
                             LwProgress    *progress)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
     g_return_val_if_fail (PATTERN != NULL, NULL);
-    g_return_val_if_fail (progress != NULL, NULL);
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), NULL);
 
     //Declarations
-    LwDictionaryData *dictionarydata = dictionary->priv->data;
+    LwDictionaryPrivate *priv = NULL;
+    LwDictionaryData *dictionarydata = NULL;
     GHashTable *resulttable = NULL;
     GList *matchlist = NULL;
     GRegex *regex = NULL;
@@ -66,14 +67,17 @@ lw_dictionary_regex_search (LwDictionary  *dictionary,
     gint chunk = 0;
     LwOffset length = 0;
     const gchar *DICTIONARY_NAME = NULL;
+    GError *error = NULL;
 
     //Initializations
-    regex = g_regex_new (PATTERN, G_REGEX_OPTIMIZE, 0, &progress->error); if (regex == NULL) goto errored;
-    BUFFER = lw_dictionary_get_buffer (dictionary); if (BUFFER == NULL) goto errored;
-    length = lw_dictionarydata_get_length (dictionary->priv->data);
-    DICTIONARY_NAME = lw_dictionary_get_name (dictionary);
+    priv = self->priv;
+    dictionarydata = priv->data;
+    regex = g_regex_new (PATTERN, G_REGEX_OPTIMIZE, 0, &error); if (regex == NULL || error != NULL) goto errored;
+    BUFFER = lw_dictionary_get_buffer (self); if (BUFFER == NULL) goto errored;
+    length = lw_dictionarydata_get_length (priv->data);
+    DICTIONARY_NAME = lw_dictionary_get_name (self);
 
-    lw_progress_set_primary_message (progress, "Searching %d dictionary...", DICTIONARY_NAME);
+    lw_progress_set_primary_message_printf (progress, "Searching %d self...", DICTIONARY_NAME);
 
     do {
       offset = lw_dictionarydata_get_offset (dictionarydata, BUFFER);
@@ -100,6 +104,17 @@ lw_dictionary_regex_search (LwDictionary  *dictionary,
     g_hash_table_insert (resulttable, g_strdup (CATEGORY), matchlist);
 
 errored:
+
+    if (progress != NULL)
+    {
+      lw_progress_set_error (progress, error);
+      error = NULL;
+    }
+    else
+    {
+      g_clear_error (&error);
+      error = NULL;
+    }
 
     if (regex != NULL) g_regex_unref (regex); regex = NULL;
 

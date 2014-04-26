@@ -29,7 +29,6 @@ struct _Data {
   GList **array;
   gint length;
   gboolean changed; //<!-- hint of there are any savable changes
-  gdouble progress;
   gboolean loaded;
 };
 

@@ -194,7 +194,6 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
       position = ftell(readfd);
 
       lw_progress_set_fraction (progress, position, filesize);
-      lw_progress_run_callback (progress);
     }
 
     //Cleanup
@@ -250,12 +249,10 @@ static int _libcurl_update_progress (LwProgress *progress,
     if (dltotal > 0.0 && dlnow > 0.0)
     {
       lw_progress_set_fraction (progress, dlnow, dltotal);
-      lw_progress_run_callback (progress);
     }
     else
     {
       lw_progress_set_fraction (progress, 0.0, dltotal);
-      lw_progress_run_callback (progress);
     }
 
     //Update the interface
@@ -324,7 +321,7 @@ lw_io_download (const gchar *SOURCE_PATH,
 
       message = gettext(curl_easy_strerror(res));
       quark = g_quark_from_string (LW_IO_ERROR);
-      progress->error = g_error_new_literal (quark, LW_IO_DOWNLOAD_ERROR, message);
+      lw_progress_set_error (progress, g_error_new_literal (quark, LW_IO_DOWNLOAD_ERROR, message));
     }
 
   curl_global_cleanup ();
@@ -371,14 +368,12 @@ lw_io_copy (const gchar *SOURCE_PATH,
       if (lw_progress_should_abort (progress)) break; 
 
       lw_progress_set_fraction (progress, curpos, end);
-      lw_progress_run_callback (progress);
       chunk = fread(buffer, sizeof(char), MAX, infd);
       chunk = fwrite(buffer, sizeof(char), chunk, outfd);
       curpos += chunk;
     }
 
     lw_progress_set_fraction (progress, curpos, end);
-    lw_progress_run_callback (progress);
 
     //Cleanup
     fclose(infd); infd = NULL;
@@ -433,7 +428,6 @@ lw_io_create_mix_dictionary (const gchar  *OUTPUT_PATH,
       if (lw_progress_should_abort (progress)) break;
 
       lw_progress_set_fraction (progress, curpos, end);
-      lw_progress_run_callback (progress);
 
       curpos += strlen (kanji_input);
 
@@ -497,7 +491,6 @@ lw_io_create_mix_dictionary (const gchar  *OUTPUT_PATH,
     }
 
     lw_progress_set_fraction (progress, curpos, end);
-    lw_progress_run_callback (progress);
 
     //Cleanup
     fclose(kanji_file); kanji_file = NULL;
@@ -547,6 +540,7 @@ lw_io_split_places_from_names_dictionary (const gchar *OUTPUT_NAMES_PATH,
     size_t end;
     double fraction;
     gboolean is_cancelled;
+    GError *error = NULL;
 
     FILE *placesf;
     GRegex *re_place;
@@ -564,11 +558,13 @@ lw_io_split_places_from_names_dictionary (const gchar *OUTPUT_NAMES_PATH,
     end = lw_io_get_filesize (INPUT_NAMES_PLACES_PATH);
     fraction = 0.0;
 
-    re_place = g_regex_new (place_pattern, G_REGEX_OPTIMIZE, 0, &progress->error);
+    re_place = g_regex_new (place_pattern, G_REGEX_OPTIMIZE, 0, &error);
+    if (error != NULL) goto errored;
     placesf = g_fopen (OUTPUT_PLACES_PATH, "w");
     place_write_error = 0;
 
-    re_name = g_regex_new (name_pattern, G_REGEX_OPTIMIZE, 0, &progress->error);
+    re_name = g_regex_new (name_pattern, G_REGEX_OPTIMIZE, 0, &error);
+    if (error != NULL) goto errored;
     namesf = g_fopen (OUTPUT_NAMES_PATH, "w");
     name_write_error  = 0;
 
@@ -582,7 +578,6 @@ lw_io_split_places_from_names_dictionary (const gchar *OUTPUT_NAMES_PATH,
       if (lw_progress_should_abort (progress)) break;
 
       lw_progress_set_fraction (progress, curpos, end);
-      lw_progress_run_callback (progress);
 
       if (placesf != NULL && g_regex_match (re_place, buffer, 0, NULL))
         place_write_error = fputs(buffer, placesf);
@@ -592,14 +587,24 @@ lw_io_split_places_from_names_dictionary (const gchar *OUTPUT_NAMES_PATH,
     }
 
     lw_progress_set_fraction (progress, curpos, end);
-    lw_progress_run_callback (progress);
+
+errored:
 
     //Cleanup
-    fclose(inputf);
-    fclose(placesf);
-    fclose(namesf);
-    g_regex_unref (re_place);
-    g_regex_unref (re_name);
+    if (inputf != NULL) fclose(inputf);
+    if (placesf != NULL) fclose(placesf);
+    if (namesf != NULL) fclose(namesf);
+    if (re_place != NULL) g_regex_unref (re_place);
+    if (re_name != NULL) g_regex_unref (re_name);
+
+    if (progress != NULL)
+    {
+      lw_progress_take_error (progress, &error);
+    }
+    else
+    {
+      g_clear_error (&error);
+    }
 
     return (place_write_error != EOF && name_write_error != EOF);
 }
@@ -644,7 +649,6 @@ lw_io_gunzip_file (const gchar *SOURCE_PATH,
             position += MAX;
             if (position > filesize) position = filesize;
             lw_progress_set_fraction (progress, position, filesize);
-            lw_progress_run_callback (progress);
             fwrite(buffer, sizeof(char), read, target);
           }
         } while (read > 0);
@@ -716,12 +720,10 @@ lw_io_remove (const gchar   *URI,
   if (lw_progress_should_abort (progress)) return FALSE;
 
   lw_progress_set_fraction (progress, 0.0, 1.0);
-  lw_progress_run_callback (progress);
 
   g_remove (URI);
 
   lw_progress_set_fraction (progress, 1.0, 1.0);
-  lw_progress_run_callback (progress);
 
   return (!lw_progress_errored (progress));
 }

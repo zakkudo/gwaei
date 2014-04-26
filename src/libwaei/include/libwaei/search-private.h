@@ -10,6 +10,7 @@ typedef enum {
     PROP_QUERY,
     PROP_FLAGS,
     PROP_MAX_RESULTS,
+    PROP_PROGRESS,
     TOTAL_PROPS
 } Props;
 
@@ -36,9 +37,9 @@ struct _Data {
   LwMorphologyEngine *morphologyengine;
   GMutex mutex;
   GThread *thread;
-  LwProgress *progress;
   LwDictionary *dictionary;
   GQueue *results;
+  LwProgress *progress;
 };
 
 struct _Config {

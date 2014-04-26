@@ -28,7 +28,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -38,21 +37,33 @@
 #include <waei/gettext.h>
 #include <waei/waei.h>
 
+#include <waei/command-private.h>
+
 
 void
 w_command_progress_cb (LwDictionary *dictionary, 
                        LwProgress   *progress, 
-                       WApplication *application)
+                       WCommand     *self)
 {
+  TODO
     //Sanity checks
-    g_return_if_fail (dictionary != NULL);
+    g_return_if_fail (LW_IS_DICTIONARY (dictionary));
     g_return_if_fail (progress != NULL);
-    g_return_if_fail (application != NULL);
+    g_return_if_fail (W_IS_COMMAND (self));
+
+    //Declarations
+    WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
+
+    //Initializations
+    priv = self->priv;
+    command_line = priv->data.command_line;
+    if (command_line == NULL) goto errored;
 
     if (progress->primary_message != NULL)
     {
-      fprintf(stderr, progress->primary_message);
-      fprintf(stderr, "\n");
+      g_application_command_line_printerr (command_line, progress->primary_message);
+      g_application_command_line_printerr (command_line, "\n");
       g_free (progress->primary_message); progress->primary_message = NULL;
     }
 
@@ -62,16 +73,18 @@ w_command_progress_cb (LwDictionary *dictionary,
       gdouble fraction = progress->current_progress / progress->total_progress;
       gint percent = (gint) (100.0 * fraction);
 
-      fprintf(stderr, "\r    [%3d%%] %s", percent, progress->secondary_message); 
+      g_application_command_line_printerr (command_line, "\r    [%3d%%] %s", percent, progress->secondary_message); 
 
-      if (fraction == 1.0) fprintf(stderr, "\n");
-
-      fflush(stdout);
+      if (fraction == 1.0) g_application_command_line_printerr (command_line, "\n");
 
       progress->changed = FALSE;
       progress->previous_progress = progress->current_progress;
       progress->reached_ratio_delta = FALSE;
     }
+
+errored:
+
+    return;
 }
 
 

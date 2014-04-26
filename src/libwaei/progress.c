@@ -43,423 +43,1022 @@
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
 
-#include <libwaei/dictionary-private.h>
+#include <libwaei/progress-private.h>
 
+static LwProgressClass *_klass = NULL;
+static LwProgressClassPrivate *_klasspriv = NULL;
+G_DEFINE_TYPE (LwProgress, lw_progress, G_TYPE_OBJECT)
 
 
 LwProgress* 
-lw_progress_new (GCancellable       *cancellable,
-                 LwProgressCallback  cb, 
-                 gpointer            data)
+lw_progress_new ()
 {
+    //Declarations
+    LwProgress *self = NULL;
+    GCancellable *cancellable = NULL;
+
     //Initializations
-    LwProgress *temp = NULL;
+    cancellable = g_cancellable_new ();
+    self = LW_PROGRESS (g_object_new (LW_TYPE_PROGRESS, "cancellable", cancellable, NULL));
 
-    temp = g_new0 (LwProgress, 1); if (temp == NULL) goto errored;
-  
-    temp->cb = cb;
-    temp->data = data;
-    temp->current_progress = -1.0;
-    temp->total_progress = -1.0;
-    temp->ratio_delta = 0.0;
-    temp->required_ratio_delta = 0.01;
-    temp->reached_ratio_delta = FALSE;
-    temp->current_step = -1;
-    temp->total_steps = -1;
-    temp->finished = FALSE;
-    temp->start_time = g_get_monotonic_time ();
-    temp->cancellable = cancellable; if (cancellable != NULL) g_object_ref_sink (cancellable);
+    return self;
+}
 
-    g_mutex_init (&temp->mutex);
 
-    return temp;
+static void 
+lw_progress_init (LwProgress *self)
+{
+    self->priv = LW_PROGRESS_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LwProgressPrivate));
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    priv->data.current_progress = -1.0;
+    priv->data.total_progress = -1.0;
+    priv->data.ratio_delta = 0.0;
+    priv->data.complete = FALSE;
+    priv->data.start_time = g_get_monotonic_time ();
+
+    priv->config.required_ratio_delta = 0.01;
+
+    g_mutex_init (&priv->data.mutex);
+}
+
+
+static void 
+lw_progress_set_property (GObject      *object,
+                            guint         property_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
+{
+    //Declarations
+    LwProgress *self = NULL;
+    LwProgressPrivate *priv = NULL;
+
+    //Initializations
+    self = LW_PROGRESS (object);
+    priv = self->priv;
+
+    switch (property_id)
+    {
+      case PROP_CANCELLABLE:
+        lw_progress_set_cancellable (self, g_value_get_object (value));
+        break;
+      case PROP_ERROR:
+        lw_progress_set_error (self, g_value_get_object (value));
+        break;
+      case PROP_PRIMARY_MESSAGE:
+        lw_progress_set_primary_message (self, g_value_get_string (value));
+        break;
+      case PROP_SECONDARY_MESSAGE:
+        lw_progress_set_secondary_message (self, g_value_get_string (value));
+        break;
+      case PROP_STEP_MESSAGE:
+        lw_progress_set_step_message (self, g_value_get_string (value));
+        break;
+      case PROP_COMPLETED:
+        lw_progress_set_completed (self, g_value_get_boolean (value));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void 
+lw_progress_get_property (GObject    *object,
+                          guint       property_id,
+                          GValue     *value,
+                          GParamSpec *pspec)
+{
+    //Declarations
+    LwProgress *self = NULL;
+    LwProgressPrivate *priv = NULL;
+
+    //Initializations
+    self = LW_PROGRESS (object);
+    priv = self->priv;
+
+    switch (property_id)
+    {
+      case PROP_CANCELLABLE:
+        g_value_set_object (value, lw_progress_get_cancellable (self));
+        break;
+      case PROP_ERROR:
+        g_value_set_object (value, lw_progress_get_error (self));
+        break;
+      case PROP_ERRORED:
+        g_value_set_boolean (value, lw_progress_errored (self));
+        break;
+      case PROP_PRIMARY_MESSAGE:
+        g_value_set_string (value, lw_progress_get_primary_message (self));
+        break;
+      case PROP_SECONDARY_MESSAGE:
+        g_value_set_string (value, lw_progress_get_secondary_message (self));
+        break;
+      case PROP_STEP_MESSAGE:
+        g_value_set_string (value, lw_progress_get_step_message (self));
+        break;
+      case PROP_COMPLETED:
+        g_value_set_boolean (value, lw_progress_completed (self));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void 
+lw_progress_finalize (GObject *object)
+{
+    //Declarations
+    LwProgress *self = NULL;
+    LwProgressPrivate *priv = NULL;
+
+    //Initalizations
+    self = LW_PROGRESS (object);
+    priv = self->priv;
+
+    if (priv->data.primary_message != NULL) g_free (priv->data.primary_message);
+    if (priv->data.secondary_message != NULL) g_free (priv->data.secondary_message); 
+    if (priv->data.step_message != NULL) g_free (priv->data.step_message); 
+    if (priv->data.units != NULL) g_free (priv->data.units);
+
+    if (priv->data.error != NULL) g_error_free (priv->data.error);
+    if (priv->data.cancellable != NULL) g_object_unref (priv->data.cancellable); 
+
+    g_mutex_clear (&priv->data.mutex);
+
+    G_OBJECT_CLASS (lw_progress_parent_class)->finalize (object);
+}
+
+
+static void
+lw_progress_dispose (GObject *object)
+{
+    //Declarations
+    LwProgress *self = NULL;
+
+    //Initializations
+    self = LW_PROGRESS (object);
+
+    G_OBJECT_CLASS (lw_progress_parent_class)->dispose (object);
+}
+
+
+static void
+lw_progress_class_init (LwProgressClass *klass)
+{
+    //Declarations
+    GObjectClass *object_class = NULL;
+
+    //Initializations
+    object_class = G_OBJECT_CLASS (klass);
+    klass->priv = g_new0 (LwProgressClassPrivate, 1);
+    object_class->set_property = lw_progress_set_property;
+    object_class->get_property = lw_progress_get_property;
+    object_class->dispose = lw_progress_dispose;
+    object_class->finalize = lw_progress_finalize;
+
+    g_type_class_add_private (object_class, sizeof (LwProgressPrivate));
+
+    _klass = klass;
+    _klasspriv = klass->priv;
+
+    _klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED] = g_signal_new (
+        "self-changed",
+        G_OBJECT_CLASS_TYPE (object_class),
+        G_SIGNAL_RUN_FIRST,
+        G_STRUCT_OFFSET (LwProgressClass, changed),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0
+    );
+
+    _klasspriv->pspec[PROP_ERROR] = g_param_spec_object (
+        "error",
+        "FIlename construct prop",
+        "Set the filename",
+        G_TYPE_ERROR,
+        G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_ERROR, _klasspriv->pspec[PROP_ERROR]);
+
+    _klasspriv->pspec[PROP_ERRORED] = g_param_spec_boolean (
+        "errored",
+        "FIlename construct prop",
+        "Set the filename",
+        FALSE,
+        G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_ERRORED, _klasspriv->pspec[PROP_ERRORED]);
+
+    _klasspriv->pspec[PROP_CANCELLABLE] = g_param_spec_object (
+        "cancellable",
+        "FIlename construct prop",
+        "Set the filename",
+        G_TYPE_CANCELLABLE,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_CANCELLABLE, _klasspriv->pspec[PROP_CANCELLABLE]);
+
+    _klasspriv->pspec[PROP_CANCELLED] = g_param_spec_boolean (
+        "cancelled",
+        "FIlename construct prop",
+        "Set the filename",
+        FALSE,
+        G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_CANCELLABLE, _klasspriv->pspec[PROP_CANCELLABLE]);
+
+    _klasspriv->pspec[PROP_PRIMARY_MESSAGE] = g_param_spec_string (
+        "primary-message",
+        "FIlename construct prop",
+        "Set the filename",
+        "",
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_PRIMARY_MESSAGE, _klasspriv->pspec[PROP_PRIMARY_MESSAGE]);
+
+    _klasspriv->pspec[PROP_SECONDARY_MESSAGE] = g_param_spec_string (
+        "secondary-message",
+        "changed construct prop",
+        "Set the changed",
+        "",
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_SECONDARY_MESSAGE, _klasspriv->pspec[PROP_SECONDARY_MESSAGE]);
+
+    _klasspriv->pspec[PROP_COMPLETED] = g_param_spec_boolean (
+        "completed",
+        "changed construct prop",
+        "Set the changed",
+        FALSE,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_COMPLETED, _klasspriv->pspec[PROP_COMPLETED]);
+
+    _klasspriv->pspec[PROP_CURRENT_PROGRESS] = g_param_spec_double (
+        "current-progress",
+        "changed construct prop",
+        "Set the changed",
+        0.0,
+        G_MAXDOUBLE,
+        0.0,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_CURRENT_PROGRESS, _klasspriv->pspec[PROP_CURRENT_PROGRESS]);
+
+    _klasspriv->pspec[PROP_TOTAL_PROGRESS] = g_param_spec_double (
+        "total-progress",
+        "changed construct prop",
+        "Set the changed",
+        0.0,
+        G_MAXDOUBLE,
+        0.0,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_TOTAL_PROGRESS, _klasspriv->pspec[PROP_TOTAL_PROGRESS]);
+
+    _klasspriv->pspec[PROP_PROGRESS_FRACTION] = g_param_spec_double (
+        "progress-fraction",
+        "changed construct prop",
+        "Set the changed",
+        0.0,
+        G_MAXDOUBLE,
+        0.0,
+        G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_PROGRESS_FRACTION, _klasspriv->pspec[PROP_PROGRESS_FRACTION]);
+}
+
+
+void
+lw_progress_set_cancellable (LwProgress   *self,
+                             GCancellable *cancellable)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (cancellable != priv->data.cancellable);
+
+    if (cancellable != NULL)
+    {
+      g_object_ref (cancellable);
+    }
+
+    if (priv->data.cancellable != NULL)
+    {
+      g_object_remove_weak_pointer (
+        G_OBJECT (priv->data.cancellable),
+        (gpointer*) &(priv->data.cancellable)
+      );
+      g_object_unref (priv->data.cancellable);
+    }
+
+    priv->data.cancellable = cancellable;
+
+    if (priv->data.cancellable != NULL)
+    {
+      g_object_add_weak_pointer (
+        G_OBJECT (priv->data.cancellable),
+        (gpointer*) &(priv->data.cancellable)
+      );
+    }
+
+    if (changed)
+    {
+      g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_CANCELLABLE]);
+    }
+    
+}
+
+
+GCancellable*
+lw_progress_get_cancellable (LwProgress *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_PROGRESS (self), NULL);
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.cancellable;
+}
+
+void
+lw_progress_set_current_progress (LwProgress *self,
+                                  gdouble     current_progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_PROGRESS (self), NULL);
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gboolean changed = FALSE;
+    gdouble epsilon = 0.0000001;
+
+    //Initializations
+    priv = self->priv;
+
+    if (current_progress < 0)
+    {
+      current_progress = 0;
+    }
+    if (current_progress > priv->data.total_progress)
+    {
+      current_progress = priv->data.total_progress;
+    }
+
+    changed = (fabs(priv->data.current_progress - current_progress) > epsilon);
+    if (!changed) goto errored;
+
+    priv->data.current_progress = current_progress;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_CURRENT_PROGRESS]);
+
+    lw_progress_sync_ratio_delta (self);
 
 errored:
 
-    lw_progress_free (temp); temp = NULL;
-
-    return temp;
-}
-
-
-void 
-lw_progress_free (LwProgress *progress) 
-{
-    if (progress == NULL) return; 
-
-    if (progress->job_title != NULL) g_free (progress->job_title);
-    if (progress->primary_message != NULL) g_free (progress->primary_message);
-    if (progress->secondary_message != NULL) g_free (progress->secondary_message); 
-    if (progress->step_message != NULL) g_free (progress->step_message); 
-    if (progress->units != NULL) g_free (progress->units);
-    if (progress->source_filename != NULL) g_free (progress->source_filename);
-    if (progress->target_filename != NULL) g_free (progress->target_filename);
-
-
-    if (progress->error != NULL) g_error_free (progress->error);
-    if (progress->cancellable != NULL) g_object_unref (progress->cancellable); 
-
-    g_mutex_clear (&progress->mutex);
-
-    memset(progress, 0, sizeof(LwProgress));
-
-    g_free (progress);
+    return;
 }
 
 
 void
-lw_progress_set_fraction (LwProgress *progress,
-                          gdouble     current_progress,
-                          gdouble     total_progress)
+lw_progress_set_total_progress (LwProgress *self,
+                                gdouble     total_progress)
 {
     //Sanity checks
-    g_return_if_fail (progress != NULL);
+    g_return_val_if_fail (LW_IS_PROGRESS (self), NULL);
 
-    g_mutex_lock (&progress->mutex);
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gboolean changed = FALSE;
+    gboolean sync_current_progress = FALSE;
+    gdouble epsilon = 0.0000001;
 
-    if (progress->current_progress != current_progress ||
-        progress->total_progress != total_progress)
+    //Initializations
+    priv = self->priv;
+
+    if (total_progress < 0.0)
     {
-      progress->current_progress = current_progress;
-      if (progress->total_progress != total_progress) progress->previous_progress = current_progress;
-      progress->total_progress = total_progress;
-      progress->ratio_delta = fabs((progress->previous_progress / progress->total_progress) - (progress->current_progress / progress->total_progress));
-      progress->reached_ratio_delta = (progress->current_progress == 0 || (progress->current_progress / progress->total_progress == 1.0) || progress->ratio_delta > progress->required_ratio_delta);
-      progress->changed = TRUE;
+      total_progress = 0.0;
+      sync_current_progress = TRUE;
     }
 
-    g_mutex_unlock (&progress->mutex);
-}
+    priv->data.total_progress = total_progress;
 
-
-void
-lw_progress_set_required_ratio_delta (LwProgress *progress,
-                                             gdouble     delta)
-{
-  //Sanity checks
-  g_return_if_fail (progress != NULL);
-
-  progress->required_ratio_delta = delta;
-}
-
-
-void
-lw_progress_set_object (LwProgress *progress, 
-                        gpointer    object)
-{
-    //Sanity checks
-    g_return_if_fail (progress != NULL);
-
-    g_mutex_lock (&progress->mutex);
-
-    if (progress->object != object) progress->changed = TRUE;
-    progress->object = object;
-
-    g_mutex_unlock (&progress->mutex);
-}
-
-
-gboolean
-lw_progress_changed (LwProgress *progress)
-{
-    //Sanity checks
-    g_return_val_if_fail (progress != NULL, FALSE);
-
-    g_mutex_lock (&progress->mutex);
-
-    gboolean changed = (progress->changed && progress->reached_ratio_delta);
-
-    g_mutex_unlock (&progress->mutex);
-
-    return changed;
-}
-
-
-void
-lw_progress_clear_changed (LwProgress *progress)
-{
-    //Sanity checks
-    g_return_if_fail (progress != NULL);
-
-    g_mutex_lock (&progress->mutex);
-
-    progress->changed = FALSE;
-    progress->previous_progress = progress->current_progress;
-    progress->reached_ratio_delta = FALSE;
-
-    g_mutex_unlock (&progress->mutex);
-}
-
-
-void
-lw_progress_run_callback (LwProgress *progress)
-{
-    //Sanity checks
-    g_return_if_fail (progress != NULL);
-
-    g_mutex_lock (&progress->mutex);
-
-    if (progress->cb != NULL)
+    if (priv->data.current_progress > priv->data.total_progress)
     {
-      progress->cb (progress->object, progress, progress->data);
+      sync_current_progress = TRUE;
     }
 
-    g_mutex_unlock (&progress->mutex);
+    changed = (fabs(priv->data.total_progress - total_progress) > epsilon);
+    if (!changed) goto errored;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_TOTAL_PROGRESS]);
+
+    if (sync_current_progress)
+    {
+      lw_progress_set_current_progress (self, priv->data.total_progress);
+    }
+
+    lw_progress_sync_ratio_delta (self);
+
+errored:
+
+    return;
 }
 
 
 gdouble
-lw_progress_get_fraction (LwProgress *progress)
+lw_progress_get_fraction (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (progress != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&progress->mutex);
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gdouble fraction = 0.0;
 
-    gdouble fraction = progress->current_progress / progress->total_progress;
-    if (progress->finished) fraction = 1.0;
+    //Initializations
+    priv = self->priv;
 
-    g_mutex_unlock (&progress->mutex);
+    g_mutex_lock (&priv->data.mutex);
+
+    fraction = priv->data.current_progress / priv->data.total_progress;
+    if (priv->data.complete) fraction = 1.0;
+
+    g_mutex_unlock (&priv->data.mutex);
 
     return fraction;
 }
 
 
 void
-lw_progress_set_finished (LwProgress *progress,
-                          gboolean    finished)
+lw_progress_sync_ratio_delta (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (progress != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&progress->mutex);
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gboolean ratio_reached = FALSE;
+    gdouble previous_fraction = (priv->data.previous_progress / priv->data.total_progress);
+    gdouble current_progress = (priv->data.current_progress / priv->data.total_progress);
+    gdouble delta = fabs(previous_fraction - current_progress);
+    gboolean reached = FALSE;
+
+    //Initializations
+    priv = self->priv;
+
+    reached = (
+        delta > priv->config.required_ratio_delta ||
+        priv->data.current_progress == 0.0 ||
+        priv->data.current_progress == priv->data.total_progress
+    );
+    if (!reached) goto errored;
+
+    g_signal_emit (
+      G_OBJECT (self),
+      _klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
+      0
+    );
+
+errored:
+
+    return;
+}
+
+
+void
+lw_progress_set_required_ratio_delta (LwProgress *self,
+                                      gdouble     delta)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    priv->config.required_ratio_delta = delta;
+
+    g_signal_emit (
+      G_OBJECT (self),
+      _klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
+      0
+    );
+}
+
+
+void
+lw_progress_set_completed (LwProgress *self,
+                          gboolean    complete)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (priv->data.complete != complete);
+    if (!changed) goto errored;
+
+    g_mutex_lock (&priv->data.mutex);
     
-    if (progress->finished != finished)
-    {
-      progress->finished = finished;
-      progress->changed = TRUE;
-    }
+    priv->data.complete = complete;
 
-    g_mutex_unlock (&progress->mutex);
+    g_mutex_unlock (&priv->data.mutex);
+
+    g_signal_emit (
+      G_OBJECT (self),
+      _klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
+      0
+    );
+
+errored:
+
+    if (!changed) g_mutex_unlock (&self->priv->data.mutex);
+
+    return;
 }
 
 
 gboolean
-lw_progress_is_finished (LwProgress *progress)
+lw_progress_completed (LwProgress *self)
 {
     //Sanity checks
-    g_return_val_if_fail (progress != NULL, FALSE);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&progress->mutex);
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gboolean complete = FALSE;
 
-    gboolean finished = progress->finished;
+    //Initializations
+    priv = self->priv;
 
-    g_mutex_unlock (&progress->mutex);
+    g_mutex_lock (&priv->data.mutex);
 
-    return finished;
+    complete = priv->data.complete;
+
+    g_mutex_unlock (&priv->data.mutex);
+
+    return complete;
+}
+
+
+void
+lw_progress_set_error (LwProgress *self,
+                       GError     *error)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (error != priv->data.error);
+    if (!changed) goto errored;
+
+    priv->data.error = error;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_ERROR]);
+
+errored:
+
+    return;
+}
+
+
+void
+lw_progress_take_error (LwProgress  *self,
+                        GError     **source)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    lw_progress_set_error (self, *source);
+    *source = NULL;
+}
+
+
+GError*
+lw_progress_get_error (LwProgress  *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.error;
 }
 
 
 gboolean
-lw_progress_errored (LwProgress *progress)
+lw_progress_errored (LwProgress *self)
 {
     //Sanity checks
-    g_return_val_if_fail (progress != NULL, FALSE);
+    g_return_val_if_fail (LW_IS_PROGRESS (self), FALSE);
 
-    g_mutex_lock (&progress->mutex);
+    //Declarations
+    LwProgressPrivate *priv = NULL;
 
-    gboolean errored = (progress->error != NULL);
+    //Initialization
+    priv = self->priv;
 
-    g_mutex_unlock (&progress->mutex);
+    g_mutex_lock (&priv->data.mutex);
+
+    gboolean errored = (priv->data.error != NULL);
+
+    g_mutex_unlock (&priv->data.mutex);
 
     return errored;
 }
 
 
 gboolean
-lw_progress_is_cancelled (LwProgress *progress)
+lw_progress_is_cancelled (LwProgress *self)
 {
     //Sanity checks
-    g_return_val_if_fail (progress != NULL, FALSE);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&progress->mutex);
+    //Declarations
+    LwProgressPrivate *priv = NULL;
 
-    gboolean is_cancelled = (progress->cancellable != NULL && g_cancellable_is_cancelled (progress->cancellable));
+    //Initializations
+    priv = self->priv;
 
-    g_mutex_unlock (&progress->mutex);
+    g_mutex_lock (&priv->data.mutex);
+
+    gboolean is_cancelled = (priv->data.cancellable != NULL && g_cancellable_is_cancelled (priv->data.cancellable));
+
+    g_mutex_unlock (&priv->data.mutex);
 
     return is_cancelled;
 }
 
 
 void
-lw_progress_cancel (LwProgress *progress)
+lw_progress_cancel (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (progress != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&progress->mutex);
+    //Declarations
+    LwProgressPrivate *priv = NULL;
 
-    if (progress->cancellable != NULL) 
+    //Initializations
+    priv = self->priv;
+
+    g_mutex_lock (&priv->data.mutex);
+
+    if (priv->data.cancellable != NULL) 
     {
-      g_cancellable_cancel (progress->cancellable);
+      g_cancellable_cancel (priv->data.cancellable);
     }
 
-    g_mutex_unlock (&progress->mutex);
+    g_mutex_unlock (&priv->data.mutex);
 }
 
 
 gboolean 
-lw_progress_should_abort (LwProgress *progress)
+lw_progress_should_abort (LwProgress *self)
 {
     //Sanity checks
-    g_return_val_if_fail (progress != NULL, FALSE);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    return (lw_progress_is_cancelled (progress) || lw_progress_errored (progress));
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return (lw_progress_is_cancelled (self) || lw_progress_errored (self));
 }
 
 
 void
-lw_progress_set_primary_message (LwProgress  *progress, 
-                                 const gchar *FORMAT, 
-                                 ...)
+lw_progress_set_primary_message (LwProgress *self,
+                                 const gchar *MESSAGE)
 {
     //Sanity checks
-    g_return_if_fail (progress != NULL);
-    g_return_if_fail (FORMAT != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&progress->mutex);
+    g_mutex_lock (&self->priv->data.mutex);
 
     //Declarations
-    va_list args;
-    gchar *message = NULL;
-
-    va_start (args, FORMAT);
+    LwProgressPrivate *priv = NULL;
+    gboolean changed = FALSE;
 
     //Initializations
-    message = g_strdup_vprintf (FORMAT, args); if (message == NULL) goto errored;
-    if (progress->primary_message == NULL || strcmp(progress->primary_message, message) != 0) progress->changed = TRUE;
-    if (progress->primary_message != NULL) g_free (progress->primary_message);
-    progress->primary_message = message; message = NULL;
+    priv = self->priv;
+    changed = (g_strcmp0 (MESSAGE, priv->data.primary_message) != 0);
+    if (!changed) goto errored;
+
+    g_free (priv->data.primary_message);
+    priv->data.primary_message = g_strdup (MESSAGE);
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PRIMARY_MESSAGE]);
 
 errored:
 
-    va_end (args);
+    if (!changed) g_mutex_unlock (&self->priv->data.mutex);
+}
+
+
+void
+lw_progress_set_primary_message_vprintf (LwProgress  *self,
+                                         const gchar *FORMAT,
+                                         va_list      va)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_if_fail (FORMAT != NULL);
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gchar *message = NULL;
+
+    //Initializations
+    priv = self->priv;
+    message = g_strdup_vprintf (FORMAT, va); 
+    if (message == NULL) goto errored;
+
+    lw_progress_set_primary_message (self, message);
+
+errored:
 
     if (message != NULL) g_free (message); message = NULL;
+}
 
-    g_mutex_unlock (&progress->mutex);
+
+void
+lw_progress_set_primary_message_printf (LwProgress  *self, 
+                                        const gchar *FORMAT, 
+                                        ...)
+{
+    //Declarations
+    va_list va;
+
+    //Initializations
+    va_start(va, FORMAT);
+
+    lw_progress_set_primary_message_vprintf (self, FORMAT, va);
+
+    va_end (va);
 }
 
 
 const gchar*
-lw_progress_get_primary_message (LwProgress *progress)
+lw_progress_get_primary_message (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (progress != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&progress->mutex);
+    //Declarations
+    LwProgressPrivate *priv = NULL;
 
-    gchar *primary_message = progress->primary_message;
+    //Initializations
+    priv = self->priv;
+
+    g_mutex_lock (&priv->data.mutex);
+
+    gchar *primary_message = priv->data.primary_message;
     if (primary_message == NULL) primary_message = "";
 
-    g_mutex_unlock (&progress->mutex);
+    g_mutex_unlock (&priv->data.mutex);
 
     return primary_message;
 }
 
 
 void
-lw_progress_set_secondary_message (LwProgress  *progress, 
-                                   const gchar *FORMAT,
-                                   ...)
+lw_progress_set_secondary_message (LwProgress  *self,
+                                   const gchar *MESSAGE)
 {
     //Sanity checks
-    g_return_if_fail (progress != NULL);
-    g_return_if_fail (FORMAT != NULL);
+    g_return_if_fail (self != NULL);
 
-    g_mutex_lock (&progress->mutex);
+    g_mutex_lock (&self->priv->data.mutex);
 
     //Declarations
-    va_list args;
-    gchar *message = NULL;
+    LwProgressPrivate *priv = NULL;
+    gboolean changed = FALSE;
 
-    va_start (args, FORMAT);
+    //Initializations
+    changed = (g_strcmp0 (MESSAGE, priv->data.secondary_message) != 0);
+    if (!changed) goto errored;
 
-    message = g_strdup_vprintf (FORMAT, args); if (message == NULL) goto errored;
-    if (progress->secondary_message == NULL || strcmp(progress->secondary_message, message) != 0) progress->changed = TRUE;
-    if (progress->secondary_message != NULL) g_free (progress->secondary_message);
-    progress->secondary_message = message; message = NULL;
+    g_free (priv->data.secondary_message);
+    priv->data.secondary_message = g_strdup (MESSAGE);
+
+    g_mutex_unlock (&self->priv->data.mutex);
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_SECONDARY_MESSAGE]);
 
 errored:
 
-    va_end (args);
+    if (!changed) g_mutex_unlock (&self->priv->data.mutex);
+
+    return;
+}
+
+
+void
+lw_progress_set_secondary_message_vprintf (LwProgress  *self,
+                                           const gchar *FORMAT,
+                                           va_list      va)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (FORMAT != NULL);
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gchar *message = NULL;
+
+    //Initializations
+    priv = self->priv;
+    message = g_strdup_vprintf (FORMAT, va); 
+    if (message == NULL) goto errored;
+
+    lw_progress_set_secondary_message (self, message);
+    
+errored:
 
     if (message != NULL) g_free (message); message = NULL;
+}
 
-    g_mutex_unlock (&progress->mutex);
+
+void
+lw_progress_set_secondary_message_printf (LwProgress  *self, 
+                                          const gchar *FORMAT,
+                                          ...)
+{
+    //Declarations
+    va_list va;
+
+    //Initializations
+    va_start(va, FORMAT);
+
+    lw_progress_set_secondary_message_vprintf (self, FORMAT, va);
+
+    va_end (va);
 }
 
 
 const gchar*
-lw_progress_get_secondary_message (LwProgress *progress)
+lw_progress_get_secondary_message (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (progress != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&progress->mutex);
+    g_mutex_lock (&self->priv->data.mutex);
 
-    gchar *secondary_message = progress->secondary_message;
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    gchar *secondary_message = priv->data.secondary_message;
     if (secondary_message == NULL) secondary_message = "";
 
-    g_mutex_unlock (&progress->mutex);
+    g_mutex_unlock (&priv->data.mutex);
 
     return secondary_message;
 }
 
 
 void
-lw_progress_set_step_message (LwProgress  *progress,
-                              const gchar *FORMAT,
-                              gint         current_step,
-                              gint         total_steps)
+lw_progress_set_step_message (LwProgress  *self,
+                              const gchar *MESSAGE)
 {
     //Sanity checks
-    g_return_if_fail (progress != NULL);
-    g_return_if_fail (FORMAT != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&progress->mutex);
+    g_mutex_lock (&self->priv->data.mutex);
 
     //Declarations
+    LwProgressPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (g_strcmp0(MESSAGE, priv->data.step_message) != 0);
+    if (changed == FALSE) goto errored;
+    
+    g_free (priv->data.step_message);
+    priv->data.step_message = g_strdup (MESSAGE);
+
+    g_mutex_unlock (&self->priv->data.mutex);
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_STEP_MESSAGE]);
+
+errored:
+
+    if (!changed) g_mutex_unlock (&self->priv->data.mutex);
+  
+    return;
+}
+
+
+void
+lw_progress_set_step_message_vprintf (LwProgress  *self,
+                                      const gchar *FORMAT,
+                                      va_list      va)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_if_fail (FORMAT != NULL);
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
     gchar *message = NULL;
 
-    progress->current_step = current_step;
-    progress->total_steps = total_steps;
-    message = g_strdup_printf (FORMAT, current_step + 1, total_steps); if (message == NULL) goto errored;
-    if (progress->step_message == NULL || strcmp(message, progress->step_message) != 0) progress->changed = TRUE;
-    if (progress->step_message != NULL) g_free (progress->step_message);
-    progress->step_message = message; message = NULL;
+    //Initializations
+    priv = self->priv;
+    message = g_strdup_vprintf (FORMAT, va);
+    if (message == NULL) goto errored;
+
+    lw_progress_set_step_message (self, message);
 
 errored:
 
     if (message != NULL) g_free (message); message = NULL;
+}
 
-    g_mutex_unlock (&progress->mutex);
+
+void
+lw_progress_set_step_message_printf (LwProgress  *self,
+                                     const gchar *FORMAT,
+                                     ...)
+{
+    //Declarations
+    va_list va;
+
+    //Initializations
+    va_start(va, FORMAT);
+
+    lw_progress_set_step_message_vprintf (self, FORMAT, va);
+
+    va_end (va);
 }
 
 
 const gchar*
-lw_progress_get_step_message (LwProgress *progress)
+lw_progress_get_step_message (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (progress != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&progress->mutex);
+    g_mutex_lock (&self->priv->data.mutex);
 
-    gchar *step_message = progress->step_message;
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    gchar *step_message = NULL;
+
+    //Initializations
+    priv = self->priv;
+    step_message = priv->data.step_message;
     if (step_message == NULL) step_message = "";
 
-    g_mutex_unlock (&progress->mutex);
+    g_mutex_unlock (&self->priv->data.mutex);
 
     return step_message;
 }
