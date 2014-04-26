@@ -327,7 +327,7 @@ printf("BREAK lw_index_create\n");
     if (lw_progress_should_abort (progress)) return;
 
     //Declarations
-    glong length = lw_dictionarydata_get_length (dictionarydata);
+    glong length = lw_dictionarydata_length (dictionarydata);
     gdouble fraction = 0.0;
     LwIndexTableType type = 0;
  

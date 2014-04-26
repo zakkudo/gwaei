@@ -1012,6 +1012,7 @@ errored:
 void
 lw_dictionarylist_load_installable (LwDictionaryList *self)
 {
+  /*TODO
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
@@ -1089,7 +1090,7 @@ lw_dictionarylist_load_installable (LwDictionaryList *self)
       priv->list = g_list_append (priv->list, dictionary);
       g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
     }
-
+*/
 /*
     {
       dictionary = lw_dictionary_new (
@@ -1121,6 +1122,7 @@ errored:
 gboolean 
 lw_dictionarylist_installer_is_valid (LwDictionaryList *self)
 {
+  /*TODO
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
 
@@ -1150,6 +1152,8 @@ lw_dictionarylist_installer_is_valid (LwDictionaryList *self)
     }
 
     return (number_selected > 0);
+    */
+    return FALSE;
 }
 
 

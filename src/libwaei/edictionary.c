@@ -85,25 +85,25 @@ lw_edictionary_constructed (GObject *object)
     dictionary = LW_DICTIONARY (object);
     priv = dictionary->priv;
 
-    if (strcmp(priv->filename, "English") == 0)
+    if (strcmp(priv->config.filename, "English") == 0)
     {
-      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
-      priv->name = g_strdup (gettext("English"));
+      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
+      priv->data.name = g_strdup (gettext("English"));
     }
-    else if (strcmp(priv->filename, "Names") == 0)
+    else if (strcmp(priv->config.filename, "Names") == 0)
     {
-      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
-      priv->name = g_strdup (gettext("Names"));
+      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
+      priv->data.name = g_strdup (gettext("Names"));
     }
-    else if (strcmp(priv->filename, "Places") == 0)
+    else if (strcmp(priv->config.filename, "Places") == 0)
     {
-      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
-      priv->name = g_strdup (gettext("Places"));
+      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
+      priv->data.name = g_strdup (gettext("Places"));
     }
-    else if (strcmp(priv->filename, "Names and Places") == 0)
+    else if (strcmp(priv->config.filename, "Names and Places") == 0)
     {
-      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
-      priv->name = g_strdup (gettext("Names and Places"));
+      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
+      priv->data.name = g_strdup (gettext("Names and Places"));
     }
 }
 
@@ -257,6 +257,7 @@ lw_edictionary_installer_postprocess (LwDictionary  *dictionary,
                                       gchar        **targetlist, 
                                       LwProgress    *progress)
 {
+  /*TODO
     //Sanity checks
     g_return_val_if_fail (dictionary != NULL, FALSE);
     g_return_val_if_fail (sourcelist != NULL, FALSE);
@@ -286,6 +287,7 @@ lw_edictionary_installer_postprocess (LwDictionary  *dictionary,
       g_return_val_if_fail (g_strv_length (targetlist) > 1, FALSE);
       return lw_io_split_places_from_names_dictionary (targetlist[0], targetlist[1], sourcelist[0], progress);
     }
+    */
 
     return FALSE;
 }

@@ -184,7 +184,7 @@ lw_dictionarydata_get_checksum (LwDictionaryData *dictionarydata)
 
 
 LwOffset
-lw_dictionarydata_get_length (LwDictionaryData *dictionarydata)
+lw_dictionarydata_length (LwDictionaryData *dictionarydata)
 {
     return dictionarydata->length;
 }

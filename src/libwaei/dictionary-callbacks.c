@@ -54,6 +54,7 @@ lw_dictionary_sync_downloadlist_cb (GSettings *settings,
                                     gchar     *key, 
                                     gpointer   data)
 {
+  /*TODO
     //Declarations
     LwDictionary *dictionary;
     LwDictionaryPrivate *priv;
@@ -66,6 +67,7 @@ lw_dictionary_sync_downloadlist_cb (GSettings *settings,
 
     if (install->downloads != NULL) g_free (install->downloads); install->downloads = NULL;
     install->downloads = lw_preferences_get_string (settings, key);
+    */
 }
 
 

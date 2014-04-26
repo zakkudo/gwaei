@@ -71,10 +71,11 @@ lw_dictionary_regex_search (LwDictionary  *self,
 
     //Initializations
     priv = self->priv;
-    dictionarydata = priv->data;
+    dictionarydata = priv->data.data;
     regex = g_regex_new (PATTERN, G_REGEX_OPTIMIZE, 0, &error); if (regex == NULL || error != NULL) goto errored;
-    BUFFER = lw_dictionary_get_buffer (self); if (BUFFER == NULL) goto errored;
-    length = lw_dictionarydata_get_length (priv->data);
+    BUFFER = lw_dictionary_get_buffer (self);
+    if (BUFFER == NULL) goto errored;
+    length = lw_dictionary_length (self);
     DICTIONARY_NAME = lw_dictionary_get_name (self);
 
     lw_progress_set_primary_message_printf (progress, "Searching %d self...", DICTIONARY_NAME);

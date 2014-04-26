@@ -84,10 +84,10 @@ lw_kanjidictionary_constructed (GObject *object)
     dictionary = LW_DICTIONARY (object);
     priv = dictionary->priv;
 
-    if (strcmp(priv->filename, "Kanji") == 0)
+    if (strcmp(priv->config.filename, "Kanji") == 0)
     {
-      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
-      priv->name = g_strdup (gettext("Kanji"));
+      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
+      priv->data.name = g_strdup (gettext("Kanji"));
     }
 
 }

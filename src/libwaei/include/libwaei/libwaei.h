@@ -17,6 +17,7 @@
 #include <libwaei/exampledictionary.h>
 #include <libwaei/unknowndictionary.h>
 #include <libwaei/dictionarylist.h>
+#include <libwaei/dictionaryinstall.h>
 #include <libwaei/result.h>
 #include <libwaei/search.h>
 

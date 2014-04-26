@@ -7,8 +7,10 @@ typedef enum
 {
   PROP_0,
   PROP_FILENAME,
+  PROP_NAME,
   PROP_MORPHOLOGYENGINE,
-  PROP_PROGRESS
+  PROP_PROGRESS,
+  TOTAL_PROPS
 } LwDictionaryProps;
 
 typedef enum {
@@ -16,59 +18,39 @@ typedef enum {
   TOTAL_CLASS_SIGNALIDS
 } ClassSignalId;
 
+struct _Data {
+  LwMorphologyEngine *morphology_engine;
+  LwIndex *index;
+  LwDictionaryData *data;
+  GMutex mutex;
+  gchar *name;
+  LwProgress *progress;
+};
+
+struct _Config {
+  gchar *filename;
+  gboolean selected;
+};
+
 struct _LwDictionaryPrivate {
-    gchar *name;
-    gchar *filename;
-    LwIndex *index;
-    LwDictionaryData *data;
-    LwMorphologyEngine *morphologyengine;
-    GMutex mutex;
-    LwDictionaryInstall *install;
-    gboolean selected;
-    gint length;
+  struct _Data data;
+  struct _Config config;
 };
 
 struct _LwDictionaryClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
+  GParamSpec *pspec[TOTAL_PROPS];
 
   //Virtual methods
   LwResult* (*parse) (LwDictionary *dictionary, const gchar* TEXT);
   gboolean (*installer_postprocess) (LwDictionary *dictionary, gchar** sourcelist, gchar** targetlist, LwProgress*);
 };
 
-struct _LwDictionaryInstall {
-  gchar *name;
-  gchar *description;
-
-  LwDictionaryInstallerStatus status;
-  gint index;
-
-  gchar *files;
-  gchar *downloads;
-
-  gchar **filelist;
-  gchar **downloadlist;
-  gchar **decompresslist;
-  gchar **encodelist;
-  gchar **postprocesslist;
-  gchar **installlist;
-  gchar **installedlist;
-
-  LwPreferences *preferences;
-  const gchar *key;
-  gboolean builtin;
-  gulong listenerid;            //!< An id to hold the g_signal_connect value when the source copy uri pref is set
-  LwEncoding encoding;          //!< Path to the raw unziped dictionary file
-  gboolean postprocess;
-};
-
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));
-
-LwPreferences* lw_dictionarylist_get_preferences (LwDictionaryList *dictionary_list);
-void lw_dictionarylist_set_preferences (LwDictionaryList *dictionary_listi, LwPreferences *preferences);
 
 G_END_DECLS
 
 #include <libwaei/dictionary-callbacks.h>
 
 #endif
+

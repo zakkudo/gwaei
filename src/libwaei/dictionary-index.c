@@ -65,7 +65,7 @@ lw_dictionary_index_search (LwDictionary       *dictionary,
 
     //Declarations
     LwDictionaryPrivate *priv = dictionary->priv;
-    LwIndex *index = priv->index;
+    LwIndex *index = priv->data.index;
     LwIndexFlag flag_list[] = {
       LW_INDEX_FLAG_RAW,
       LW_INDEX_FLAG_NORMALIZED,
@@ -136,14 +136,24 @@ lw_dictionary_index_is_valid (LwDictionary *dictionary)
     //Sanity checks
     g_return_val_if_fail (dictionary != NULL, FALSE);
 
-    LwDictionaryPrivate *priv = dictionary->priv;
-    LwIndex *index = priv->index;
-    LwDictionaryData *dictionarydata = priv->data;
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
+    LwIndex *index = NULL;
+    LwDictionaryData *dictionarydata = NULL;
+    gboolean valid = FALSE;
 
-    if (index == NULL || index->checksum == NULL) return FALSE;
-    if (dictionarydata == NULL || dictionarydata->checksum == NULL) return FALSE;
+    //Initializations
+    priv = dictionary->priv;
+    index = priv->data.index;
+    if (index == NULL) goto errored;
+    dictionarydata = priv->data.data;
+    if (dictionarydata == NULL) goto errored;
 
-    return (strcmp(index->checksum, dictionarydata->checksum) == 0);
+    valid = (g_strcmp0 (index->checksum, dictionarydata->checksum) == 0);
+
+errored:
+
+    return valid;
 }
 
 
@@ -205,7 +215,7 @@ lw_dictionary_index_is_loaded (LwDictionary *dictionary)
 
     LwDictionaryPrivate *priv = dictionary->priv;
 
-    return (priv->index != NULL);
+    return (priv->data.index != NULL);
 }
 
 
@@ -218,10 +228,11 @@ void
 lw_dictionary_index_create (LwDictionary *dictionary, 
                             LwProgress   *progress)
 {
+  /*TODO
     //Sanity checks
     g_return_if_fail (dictionary != NULL);
     g_return_if_fail (dictionary->priv != NULL);
-    g_return_if_fail (dictionary->priv->morphologyengine != NULL);
+    g_return_if_fail (dictionary->priv->data.morphology_engine != NULL);
     g_return_if_fail (dictionary->priv->filename != NULL);
 
     if (lw_progress_should_abort (progress)) return;
@@ -246,15 +257,16 @@ lw_dictionary_index_create (LwDictionary *dictionary,
       lw_dictionarydata_create (priv->data, dictionary_path);
     }
 
-    index = lw_index_new (priv->morphologyengine); if (index == NULL) goto errored;
+    index = lw_index_new (priv->data.morphology_engine); if (index == NULL) goto errored;
     lw_index_create (index, priv->data, progress); if (lw_progress_should_abort (progress)) goto errored;
-//    lw_index_validate_offsetlists (priv->index, priv->data);
+//    lw_index_validate_offsetlists (priv->data.index, priv->data);
     lw_index_write (index, index_path, progress); if (lw_progress_should_abort (progress)) goto errored;
 
 errored:
     if (dictionary_path != NULL) g_free (dictionary_path); dictionary_path = NULL;
     if (index_path != NULL) g_free (index_path); index_path = NULL;
     if (index != NULL) lw_index_free (index); index = NULL;
+    */
 }
 
 
@@ -265,10 +277,11 @@ gboolean
 lw_dictionary_index_load (LwDictionary *dictionary, 
                           LwProgress   *progress)
 {
+  /*TODO
     //Sanity checks
     g_return_val_if_fail (dictionary != NULL, FALSE);
     g_return_val_if_fail (dictionary->priv != NULL, FALSE);
-    g_return_val_if_fail (dictionary->priv->morphologyengine != NULL, FALSE);
+    g_return_val_if_fail (dictionary->priv->data.morphology_engine != NULL, FALSE);
     g_return_val_if_fail (dictionary->priv->filename != NULL, FALSE);
 
     //Declarations
@@ -284,37 +297,39 @@ lw_dictionary_index_load (LwDictionary *dictionary,
     lw_progress_set_secondary_message (progress, "Loading index...");
 
     //Load the dictionary data for the index
-    if (priv->data == NULL)
+    if (priv->data.data == NULL)
     {
-      priv->data = lw_dictionarydata_new ();
-      lw_dictionarydata_create (priv->data, dictionary_path);
+      priv->data.data = lw_dictionarydata_new ();
+      lw_dictionarydata_create (priv->data.data, dictionary_path);
     }
 
     //Unload the current index if it is invalid
     if (lw_dictionary_index_is_loaded (dictionary) && !lw_dictionary_index_is_valid (dictionary))
     {
-      lw_index_free (priv->index); priv->index = NULL;
+      lw_index_free (priv->data.index); priv->data.index = NULL;
     }
 
     //Try reading the index file
     if (!lw_dictionary_index_is_loaded (dictionary) && lw_dictionary_index_exists (dictionary)) 
     {
-      priv->index = lw_index_new (priv->morphologyengine);
-      lw_index_read (priv->index, index_path, progress);
-//      lw_index_validate_offsetlists (priv->index, priv->data);
+      priv->data.index = lw_index_new (priv->data.morphology_engine);
+      lw_index_read (priv->data.index, index_path, progress);
+//      lw_index_validate_offsetlists (priv->data.index, priv->data);
     }
 
     //Check if it is valid
     if (lw_dictionary_index_is_loaded (dictionary) && !lw_dictionary_index_is_valid (dictionary))
     {
-      lw_index_free (priv->index); priv->index = NULL;
+      lw_index_free (priv->data.index); priv->data.index = NULL;
     }
 
 errored:
     if (dictionary_path != NULL) g_free (dictionary_path); dictionary_path = NULL;
     if (index_path != NULL) g_free (index_path); index_path = NULL;
 
-    return (priv->index != NULL);
+    return (priv->data.index != NULL);
+    */
+    return FALSE;
 }
 
 

@@ -33,11 +33,33 @@ struct _LwDictionaryClass {
 //Methods
 GType lw_dictionary_get_type (void) G_GNUC_CONST;
 
+gchar* lw_dictionary_get_path (LwDictionary *self);
+
+void lw_dictionary_set_filename (LwDictionary *self, const gchar *FILENAME);
+const gchar* lw_dictionary_get_filename (LwDictionary *self);
+
+const gchar* lw_dictionary_get_name (LwDictionary *self);
+
+LwMorphologyEngine* lw_dictionary_get_morphologyengine (LwDictionary *self);
+void lw_dictionary_set_morphologyengine (LwDictionary *self, LwMorphologyEngine *morphology_engine);
+
+LwProgress* lw_dictionary_get_progress (LwDictionary *self);
+void lw_dictionary_set_progress (LwDictionary *self, LwProgress *progress);
+
+size_t lw_dictionary_length (LwDictionary *self);
+const gchar* lw_dictionary_get_buffer (LwDictionary *self);
+
+gboolean lw_dictionary_equals (LwDictionary *dictionary1, LwDictionary *dictionary2);
+
+gchar** lw_dictionary_get_installed_idlist (GType type_filter);
+gchar* lw_dictionary_get_directoryname (GType dictionary_type);
+gchar* lw_dictionary_build_id (LwDictionary *self);
+gchar* lw_dictionary_build_id_from_type (GType type, const gchar *FILENAME);
+gchar* lw_dictionary_directoryname_to_typename (const gchar *DIRECTORYNAME);
 
 G_END_DECLS
 
 #include <libwaei/dictionary-index.h>
-#include <libwaei/dictionary-installer.h>
 #include <libwaei/dictionary-callbacks.h>
 
 #endif

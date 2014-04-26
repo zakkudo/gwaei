@@ -70,11 +70,11 @@ lw_dictionary_finalize (GObject *object)
     self = LW_DICTIONARY (object);
     priv = self->priv;
 
-    if (priv->filename != NULL) g_free (priv->filename); 
-    if (priv->name != NULL) g_free (priv->name);
+    g_free (priv->config.filename); priv->config.filename = NULL;
+    g_free (priv->data.name); priv->data.name = NULL;
 
-    if (priv->index != NULL) lw_index_free (priv->index); 
-    if (priv->data != NULL) lw_dictionarydata_free (priv->data);
+    lw_index_free (priv->data.index); priv->data.index = NULL;
+    lw_dictionarydata_free (priv->data.data); priv->data.data = NULL;
 
     memset(self->priv, 0, sizeof(LwDictionaryPrivate));
 
@@ -99,18 +99,14 @@ lw_dictionary_set_property (GObject      *object,
     switch (property_id)
     {
       case PROP_FILENAME:
-        if (priv->filename != NULL) g_free (priv->filename); priv->filename = g_value_dup_string (value);
-        if (priv->name != NULL) g_free (priv->name); priv->name = g_strdup (priv->filename);
-        if (priv->index != NULL) lw_index_free (priv->index); priv->index = NULL;
-        if (priv->data != NULL) lw_dictionarydata_free (priv->data); priv->data = NULL;
+        lw_dictionary_set_filename (self, g_value_get_string (value));
         break;
       case PROP_MORPHOLOGYENGINE:
-        if (priv->morphologyengine != NULL) g_object_unref (priv->morphologyengine); 
-        priv->morphologyengine = g_value_get_object (value);
-        if (priv->morphologyengine != NULL) g_object_ref_sink (priv->morphologyengine);
+        lw_dictionary_set_morphologyengine (self, g_value_get_object (value));
         break;
       case PROP_PROGRESS:
-        break
+        lw_dictionary_set_progress (self, g_value_get_object (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -135,10 +131,16 @@ lw_dictionary_get_property (GObject      *object,
     switch (property_id)
     {
       case PROP_FILENAME:
-        g_value_set_string (value, priv->filename);
+        g_value_set_string (value, lw_dictionary_get_filename (self));
+        break;
+      case PROP_NAME:
+        g_value_set_string (value, lw_dictionary_get_name (self));
         break;
       case PROP_MORPHOLOGYENGINE:
-        g_value_set_object (value, priv->morphologyengine);
+        g_value_set_object (value, lw_dictionary_get_morphologyengine (self));
+        break;
+      case PROP_PROGRESS:
+        g_value_set_object (value, lw_dictionary_get_progress (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -148,28 +150,24 @@ lw_dictionary_get_property (GObject      *object,
 
 
 size_t
-lw_dictionary_get_length (LwDictionary *self)
+lw_dictionary_length (LwDictionary *self)
 {
     g_return_val_if_fail (self != NULL, -1);
 
     //Declarations
-    LwDictionaryPrivate *priv;
-    gchar *uri;
+    LwDictionaryPrivate *priv = NULL;
+    LwDictionaryData *data = NULL;
+    size_t length = 0;
 
     //Initializations
     priv = self->priv;
+    data = priv->data.data;
+    if (data == NULL) goto errored;
+    length = lw_dictionarydata_length (data);
 
-    if (priv->length == 0)
-    {
-      uri = lw_dictionary_get_path (self);
-      if (uri != NULL)
-      {
-        priv->length = lw_io_get_size_for_uri (uri);
-        g_free (uri); uri = NULL;
-      }
-    }
+errored:
 
-    return priv->length;
+    return length;
 }
 
 
@@ -177,7 +175,6 @@ static void
 lw_dictionary_class_init (LwDictionaryClass *klass)
 {
     //Declarations
-    GParamSpec *pspec = NULL;
     GObjectClass *object_class = NULL;
     LwDictionaryClassPrivate *klasspriv = NULL;
 
@@ -193,21 +190,23 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
     _klass = klass;
     _klasspriv = klass->priv;
 
-    pspec = g_param_spec_string ("filename",
-                                 "Filename of the self",
-                                 "Set the self's filename",
-                                 "",
-                                 G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    _klasspriv->pspec[PROP_FILENAME] = g_param_spec_string (
+      "filename",
+      "Filename of the self",
+      "Set the self's config.filename",
+      "",
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_FILENAME, pspec);
+    g_object_class_install_property (object_class, PROP_FILENAME, _klasspriv->pspec[PROP_FILENAME]);
 
-    pspec = g_param_spec_object ("morphologyengine",
-                                 "Morphology Engine referenced by the self",
-                                 "Set the self's Morphology Engine used for indexing",
-                                 LW_TYPE_MORPHOLOGYENGINE,
-                                 G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    _klasspriv->pspec[PROP_MORPHOLOGYENGINE] = g_param_spec_object (
+      "morphology-engine",
+      "Morphology Engine referenced by the self",
+      "Set the self's Morphology Engine used for indexing",
+      LW_TYPE_MORPHOLOGYENGINE,
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_MORPHOLOGYENGINE, pspec);
+    g_object_class_install_property (object_class, PROP_MORPHOLOGYENGINE, _klasspriv->pspec[PROP_MORPHOLOGYENGINE]);
 }
 
 
@@ -224,15 +223,19 @@ lw_dictionary_uninstall (LwDictionary *self)
 {
     //Sanity check
     g_return_val_if_fail (self != NULL, FALSE);
-    if (lw_progress_errored (progress)) return FALSE;
 
     //Declarations
+    LwDictionaryPrivate *priv = NULL;
+    LwProgress *progress = NULL;
     gchar *uri = NULL;
     const gchar *MESSAGE = NULL;
     const gchar *name = lw_dictionary_get_name (self);
 
     //Initializations
+    priv = self->priv;
+    progress = priv->data.progress;
     uri = lw_dictionary_get_path (self);
+    if (uri == NULL) goto errored;
 
     MESSAGE = gettext("Uninstalling %s Dictionary...");
     lw_progress_set_primary_message_printf (progress, MESSAGE, name);
@@ -240,11 +243,11 @@ lw_dictionary_uninstall (LwDictionary *self)
     MESSAGE = gettext("Removing %s...");
     lw_progress_set_secondary_message_printf (progress, MESSAGE, uri);
 
-    if (uri != NULL)
-    {
-      lw_io_remove (uri, progress);
-      g_free (uri); uri = NULL;
-    }
+    lw_io_remove (uri, progress);
+
+errored:
+
+    g_free (uri); uri = NULL;
 
     return (!lw_progress_errored (progress));
 }
@@ -328,14 +331,13 @@ lw_dictionary_get_path (LwDictionary *self)
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
-    gchar *directory;
-    const gchar *filename;
-    gchar *path;
+    gchar *directory = NULL;
+    const gchar *filename = NULL;
+    gchar *path = NULL;
 
     //Initializations
     directory = lw_dictionary_get_directory (G_OBJECT_TYPE (self));
     filename = lw_dictionary_get_filename (self);
-    path = NULL;
 
     if (directory != NULL)
     {
@@ -377,7 +379,7 @@ lw_dictionary_get_name (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    return priv->name;
+    return priv->data.name;
 }
 
 
@@ -385,7 +387,7 @@ const gchar*
 lw_dictionary_get_filename (LwDictionary *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self));
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
     LwDictionaryPrivate *priv = NULL;
@@ -393,13 +395,150 @@ lw_dictionary_get_filename (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    return priv->filename;
+    return priv->config.filename;
 }
 
 
 void
-lw_dictionary_set_filename (LwDictionary *self)
+lw_dictionary_set_filename (LwDictionary *self,
+                            const gchar *FILENAME)
 {
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARY (self));
+
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
+    gboolean changed = FALSE;
+    
+    //Initializations
+    priv = self->priv;
+    changed = (g_strcmp0 (FILENAME, priv->config.filename) != 0);
+    if (!changed) goto errored;
+
+    g_free (priv->config.filename);
+    priv->config.filename = g_strdup (FILENAME);
+
+    g_free (priv->data.name);
+    priv->data.name = g_strdup (gettext(priv->config.filename));
+
+    lw_index_free (priv->data.index); priv->data.index = NULL;
+    lw_dictionarydata_free (priv->data.data); priv->data.data = NULL;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FILENAME]);
+
+errored:
+
+    return;
+}
+
+
+LwMorphologyEngine*
+lw_dictionary_get_morphologyengine (LwDictionary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.morphology_engine;
+}
+
+
+void
+lw_dictionary_set_morphologyengine (LwDictionary *self,
+                                    LwMorphologyEngine *morphology_engine)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARY (self));
+
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (morphology_engine != NULL)
+    {
+      g_object_ref_sink (morphology_engine);
+    }
+
+    if (priv->data.morphology_engine != NULL)
+    {
+      g_object_remove_weak_pointer (
+        G_OBJECT (priv->data.morphology_engine),
+        (gpointer*) &(priv->data.morphology_engine)
+      );
+      g_object_unref (priv->data.morphology_engine);
+    }
+
+    priv->data.morphology_engine = morphology_engine;
+
+    if (priv->data.morphology_engine != NULL)
+    {
+      g_object_add_weak_pointer (
+        G_OBJECT (priv->data.morphology_engine),
+        (gpointer*) &(priv->data.morphology_engine)
+      );
+    }
+}
+
+
+LwProgress*
+lw_dictionary_get_progress (LwDictionary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.progress;
+}
+
+
+void
+lw_dictionary_set_progress (LwDictionary *self,
+                            LwProgress   *progress)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARY (self));
+
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (progress != NULL)
+    {
+      g_object_ref_sink (progress);
+    }
+
+    if (priv->data.progress != NULL)
+    {
+      g_object_remove_weak_pointer (
+        G_OBJECT (priv->data.progress),
+        (gpointer*) &(priv->data.progress)
+      );
+      g_object_unref (priv->data.progress);
+    }
+
+    priv->data.progress = progress;
+
+    if (priv->data.progress != NULL)
+    {
+      g_object_add_weak_pointer (
+        G_OBJECT (priv->data.progress),
+        (gpointer*) &(priv->data.progress)
+      );
+    }
 }
 
 
@@ -508,7 +647,7 @@ lw_dictionary_is_selected (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    return priv->selected;
+    return priv->config.selected;
 }
 
 
@@ -525,7 +664,7 @@ lw_dictionary_set_selected (LwDictionary *self,
     //Initializations
     priv = self->priv;
 
-    priv->selected = selected;
+    priv->config.selected = selected;
 }
 
 
@@ -610,24 +749,19 @@ lw_dictionary_get_buffer (LwDictionary *self)
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
-    LwDictionaryPrivate *priv;
-    gchar *path = NULL;
+    LwDictionaryPrivate *priv = NULL;
+    LwDictionaryData *data = NULL;
+    const gchar *BUFFER = NULL;
 
     //Initializations
     priv = self->priv;
-    path = lw_dictionary_get_path (self); if (path == NULL) goto errored;
-    if (priv->data == NULL) priv->data = lw_dictionarydata_new (); if (priv->data == NULL) goto errored;
-    if (priv->data->buffer == NULL) lw_dictionarydata_create (priv->data, path); if (priv->data->buffer == NULL) goto errored;
-
-    if (path != NULL) g_free (path);
-
-    return priv->data->buffer;
+    data = priv->data.data;
+    if (data == NULL) goto errored;
+    BUFFER = lw_dictionarydata_get_buffer (data);
 
 errored:
 
-    if (path != NULL) g_free (path);
-
-    return NULL;
+    return BUFFER;
 }
 
 
@@ -644,6 +778,6 @@ lw_dictionary_get_string (LwDictionary *self,
     //Initializations
     priv = self->priv;
 
-    return lw_dictionarydata_get_string (priv->data, offset);
+    return lw_dictionarydata_get_string (priv->data.data, offset);
 }
 
