@@ -1,18 +1,18 @@
-#ifndef LW_DICTIONARYINSTALLER_INCLUDED
-#define LW_DICTIONARYINSTALLER_INCLUDED
+#ifndef LW_DICTIONARYINSTALL_INCLUDED
+#define LW_DICTIONARYINSTALL_INCLUDED
 
 G_BEGIN_DECLS
 
 typedef enum {
-  LW_DICTIONARYINSTALLER_STATUS_UNINSTALLED,
-  LW_DICTIONARYINSTALLER_STATUS_DOWNLOADING,
-  LW_DICTIONARYINSTALLER_STATUS_DECOMPRESSING,
-  LW_DICTIONARYINSTALLER_STATUS_ENCODING,
-  LW_DICTIONARYINSTALLER_STATUS_POSTPROCESSING,
-  LW_DICTIONARYINSTALLER_STATUS_FINISHING,
-  LW_DICTIONARYINSTALLER_STATUS_INSTALLED,
-  TOTAL_LW_DICTIONARYINSTALLER_STATUSES
-} LwDictionaryInstallerStatus;
+  LW_DICTIONARYINSTALL_STATUS_UNINSTALLED,
+  LW_DICTIONARYINSTALL_STATUS_DOWNLOADING,
+  LW_DICTIONARYINSTALL_STATUS_DECOMPRESSING,
+  LW_DICTIONARYINSTALL_STATUS_ENCODING,
+  LW_DICTIONARYINSTALL_STATUS_POSTPROCESSING,
+  LW_DICTIONARYINSTALL_STATUS_FINISHING,
+  LW_DICTIONARYINSTALL_STATUS_INSTALLED,
+  TOTAL_LW_DICTIONARYINSTALL_STATUSES
+} LwDictionaryInstallStatus;
 
 
 //Boilerplate
@@ -41,9 +41,38 @@ struct _LwDictionaryInstallClass {
 
 
 //Methods
-LwDictionaryInstall* lw_dictionaryinstall_new (const gchar* NAME);
+LwDictionaryInstall* lw_dictionaryinstall_new (void);
 GType lw_dictionaryinstall_get_type (void) G_GNUC_CONST;
 
+void lw_dictionaryinstall_set_name (LwDictionaryInstall *self, const gchar *NAME);
+const gchar* lw_dictionaryinstall_get_name (LwDictionaryInstall *self);
+
+void lw_dictionaryinstall_set_description (LwDictionaryInstall *self, const gchar *DESCRIPTION);
+const gchar* lw_dictionaryinstall_get_description (LwDictionaryInstall *self);
+
+void lw_dictionaryinstall_set_text_encoding (LwDictionaryInstall *self, const gchar *TEXT_ENCODING);
+const gchar* lw_dictionaryinstall_get_text_encoding (LwDictionaryInstall *self);
+
+void lw_dictionaryinstall_set_gtype (LwDictionaryInstall *self, GType gtype);
+GType lw_dictionaryinstall_get_gtype (LwDictionaryInstall *self);
+
+void lw_dictionaryinstall_set_download_key (LwDictionaryInstall *self, const gchar *DOWNLOAD_KEY);
+const gchar* lw_dictionaryinstall_get_download_key (LwDictionaryInstall *self);
+
+void lw_dictionaryinstall_set_preferences (LwDictionaryInstall *self, LwPreferences *preferences);
+LwPreferences* lw_dictionaryinstall_get_preferences (LwDictionaryInstall *self);
+
+void lw_dictionaryinstall_set_merge_radicals_into_kanji (LwDictionaryInstall *self, gboolean merge);
+gboolean lw_dictionaryinstall_get_merge_radicals_into_kanji (LwDictionaryInstall *self);
+
+void lw_dictionaryinstall_set_progress (LwDictionaryInstall *self, LwProgress *progress);
+LwProgress* lw_dictionaryinstall_get_progress (LwDictionaryInstall *self);
+
+void lw_dictionaryinstall_set_split_places_from_names (LwDictionaryInstall *self, gboolean split);
+gboolean lw_dictionaryinstall_get_split_places_from_names (LwDictionaryInstall *self);
+
+void lw_dictionaryinstall_set_dependencies (LwDictionaryInstall *self, gchar **dependencies);
+gchar** lw_dictionaryinstall_get_dependencies (LwDictionaryInstall *self);
 
 G_END_DECLS
 

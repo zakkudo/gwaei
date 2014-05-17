@@ -54,7 +54,7 @@ G_DEFINE_TYPE (LwDictionaryInstall, lw_dictionaryinstall, G_TYPE_OBJECT)
 //! @return An allocated LwDictionaryList that will be needed to be freed by lw_dictionary_free.
 //!
 LwDictionaryInstall* 
-lw_dictionaryinstall_new (const gchar *FILENAME)
+lw_dictionaryinstall_new ()
 {
     LwDictionaryInstall *dictionaryinstall = NULL;
 
@@ -89,6 +89,33 @@ lw_dictionaryinstall_set_property (GObject      *object,
 
     switch (property_id)
     {
+      case PROP_NAME:
+        lw_dictionaryinstall_set_name (self, g_value_get_string (value));
+        break;
+      case PROP_DESCRIPTION:
+        lw_dictionaryinstall_set_description (self, g_value_get_string (value));
+        break;
+      case PROP_GTYPE:
+        lw_dictionaryinstall_set_gtype (self, g_value_get_gtype (value));        
+        break;
+      case PROP_TEXT_ENCODING:
+        lw_dictionaryinstall_set_text_encoding (self, g_value_get_string (value));
+        break;
+      case PROP_DOWNLOAD_PREFERENCE_KEY:
+        lw_dictionaryinstall_set_download_key (self, g_value_get_string (value));
+        break;
+      case PROP_PREFERENCES:
+        lw_dictionaryinstall_set_preferences (self, g_value_get_object (value));
+        break;
+      case PROP_SPLIT_PLACES_FROM_NAMES:
+        lw_dictionaryinstall_set_split_places_from_names (self, g_value_get_boolean (value));
+        break;
+      case PROP_MERGE_RADICALS_INTO_KANJI:
+        lw_dictionaryinstall_set_merge_radicals_into_kanji (self, g_value_get_boolean (value));
+        break;
+      case PROP_PROGRESS:
+        lw_dictionaryinstall_set_progress (self, g_value_get_object (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -112,6 +139,16 @@ lw_dictionaryinstall_get_property (GObject    *object,
 
     switch (property_id)
     {
+      case PROP_NAME:
+        g_value_set_string (value,lw_dictionaryinstall_get_name (self));
+        break;
+      case PROP_DESCRIPTION:
+        g_value_set_string (value,lw_dictionaryinstall_get_description (self));
+        break;
+      case PROP_TEXT_ENCODING:
+        g_value_set_string (value, lw_dictionaryinstall_get_text_encoding (self));
+      case PROP_DEPENDENCIES:
+        g_value_set_pointer (value, lw_dictionaryinstall_get_dependencies (self));
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -139,9 +176,28 @@ lw_dictionaryinstall_dispose (GObject *object)
 {
     //Declarations
     LwDictionaryInstall *self = NULL;
+    LwDictionaryInstallPrivate *priv = NULL;
 
     //Initializations
     self = LW_DICTIONARYINSTALL (object);
+    priv = self->priv;
+
+/*
+    if (install->files != NULL) g_free (install->files); install->files = NULL;
+    if (install->downloads != NULL) g_free (install->downloads); install->downloads = NULL;
+
+    if (install->decompresslist != NULL) g_strfreev (install->decompresslist); install->decompresslist = NULL;
+    if (install->encodelist) g_strfreev (install->encodelist); install->encodelist = NULL;
+    if (install->postprocesslist) g_strfreev (install->postprocesslist); install->postprocesslist = NULL;
+    if (install->installlist) g_strfreev (install->installlist); install->installlist = NULL;
+    if (install->installedlist) g_strfreev (install->installedlist); install->installedlist = NULL;
+
+    if (install->preferences != NULL && install->listenerid != 0)
+    {
+      lw_preferences_remove_change_listener_by_schema (install->preferences, LW_SCHEMA_DICTIONARY, install->listenerid);
+      install->listenerid = 0;
+    }
+*/
 
     G_OBJECT_CLASS (lw_dictionaryinstall_parent_class)->dispose (object);
 }
@@ -170,51 +226,6 @@ lw_dictionaryinstall_class_init (LwDictionaryInstallClass *klass)
 
 
 /*
-
-LwDictionaryInstall*
-lw_dictionaryinstall_new ()
-{
-		LwDictionaryInstall *install;
-
-    install = g_new0 (LwDictionaryInstall, 1);
-
-    return install;
-}
-
-
-void
-lw_dictionaryinstall_free (LwDictionaryInstall *install)
-{
-    if (install->files != NULL) g_free (install->files); install->files = NULL;
-    if (install->downloads != NULL) g_free (install->downloads); install->downloads = NULL;
-
-    if (install->decompresslist != NULL) g_strfreev (install->decompresslist); install->decompresslist = NULL;
-    if (install->encodelist) g_strfreev (install->encodelist); install->encodelist = NULL;
-    if (install->postprocesslist) g_strfreev (install->postprocesslist); install->postprocesslist = NULL;
-    if (install->installlist) g_strfreev (install->installlist); install->installlist = NULL;
-    if (install->installedlist) g_strfreev (install->installedlist); install->installedlist = NULL;
-
-    if (install->preferences != NULL && install->listenerid != 0)
-    {
-      lw_preferences_remove_change_listener_by_schema (install->preferences, LW_SCHEMA_DICTIONARY, install->listenerid);
-      install->listenerid = 0;
-    }
-}
-
-
-LwDictionary* lw_dictionary_installer_new (GType type)
-{
-    g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY) != FALSE, NULL);
-
-    //Declarations
-    LwDictionary *self;
-
-    //Initializations
-    self = LW_DICTIONARY (g_object_new (type, NULL));
-
-    return self;
-}
-
 
 gchar**
 lw_dictionary_installer_get_filelist (LwDictionary *self)
@@ -246,7 +257,7 @@ lw_dictionary_installer_get_filelist (LwDictionary *self)
 //! @param ENCODING Tells the LwDictInfo object what the initial character encoding of the downloaded file will be
 //!
 void 
-lw_dictionary_installer_set_encoding (LwDictionary *self, const LwEncoding ENCODING)
+lw_dictionary_installer_set_text_encoding (LwDictionary *self, const LwEncoding ENCODING)
 {
 		LwDictionaryPrivate *priv;
 
@@ -1416,4 +1427,463 @@ lw_dictionary_set_builtin_installer_full (LwDictionary  *self,
     install->builtin = TRUE;
 }
 */
+
+
+void
+lw_dictionaryinstall_set_name (LwDictionaryInstall *self,
+                               const gchar         *NAME)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (g_strcmp0 (NAME, priv->data.name) != 0);
+
+    if (priv->data.name != NULL)
+    {
+      g_free (priv->data.name);
+    }
+
+    priv->data.name = g_strdup (NAME);
+
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_NAME]);
+}
+
+
+const gchar*
+lw_dictionaryinstall_get_name (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.name;
+}
+                        
+
+void
+lw_dictionaryinstall_set_description (LwDictionaryInstall *self,
+                                      const gchar         *DESCRIPTION)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (g_strcmp0 (DESCRIPTION, priv->data.description) != 0);
+
+    if (priv->data.description != NULL)
+    {
+      g_free (priv->data.description);
+    }
+
+    priv->data.description = g_strdup (DESCRIPTION);
+
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DESCRIPTION]);
+}
+
+
+const gchar*
+lw_dictionaryinstall_get_description (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.description;
+}
+
+
+void
+lw_dictionaryinstall_set_text_encoding (LwDictionaryInstall *self,
+                                        const gchar         *TEXT_ENCODING)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (g_strcmp0 (TEXT_ENCODING, priv->data.text_encoding) != 0);
+
+    if (priv->data.text_encoding != NULL)
+    {
+      g_free (priv->data.text_encoding);
+    }
+
+    priv->data.text_encoding = g_strdup (TEXT_ENCODING);
+
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_TEXT_ENCODING]);
+}
+
+
+const gchar*
+lw_dictionaryinstall_get_text_encoding (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.text_encoding;
+}
+
+void
+lw_dictionaryinstall_set_gtype (LwDictionaryInstall *self,
+                                GType                gtype)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (gtype != priv->data.gtype);
+    
+    priv->data.gtype = gtype;
+
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_GTYPE]);
+}
+
+
+GType
+lw_dictionaryinstall_get_gtype (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    
+    return priv->data.gtype;
+}
+
+
+void
+lw_dictionaryinstall_set_download_key (LwDictionaryInstall *self,
+                                       const gchar         *DOWNLOAD_KEY)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (g_strcmp0 (DOWNLOAD_KEY, priv->data.download_key) != 0);
+    if (changed == FALSE) goto errored;
+
+    g_free (priv->data.download_key);
+    priv->data.download_key = g_strdup (DOWNLOAD_KEY);
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DOWNLOAD_PREFERENCE_KEY]);
+
+errored:
+
+    return;
+}
+
+
+const gchar*
+lw_dictionaryinstall_get_download_key (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.download_key;
+}
+
+void
+lw_dictionaryinstall_set_preferences (LwDictionaryInstall *self,
+                                      LwPreferences       *preferences)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (preferences != priv->data.preferences);
+    if (!changed) goto errored;
+
+    if (preferences != NULL)
+    {
+      g_object_ref (preferences);
+    }
+
+    if (priv->data.preferences != NULL)
+    {
+      g_object_remove_weak_pointer (
+        G_OBJECT (priv->data.preferences),
+        (gpointer) &(priv->data.preferences)
+      );
+      g_object_unref (priv->data.preferences);
+    }
+
+    priv->data.preferences = preferences;
+
+    if (priv->data.preferences != NULL)
+    {
+      g_object_add_weak_pointer (
+        G_OBJECT (priv->data.preferences),
+        (gpointer*) &(priv->data.preferences)
+      );
+    }
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PREFERENCES]);
+
+errored:
+
+    return;
+}
+
+LwPreferences*
+lw_dictionaryinstall_get_preferences (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.preferences;
+}
+
+
+void
+lw_dictionaryinstall_set_merge_radicals_into_kanji (LwDictionaryInstall *self,
+                                                    gboolean             merge)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (merge != priv->config.merge_radicals_into_kanji);
+    if (!changed) goto errored;
+
+    priv->config.merge_radicals_into_kanji = merge;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_MERGE_RADICALS_INTO_KANJI]);
+
+errored:
+
+    return;
+}
+
+
+gboolean
+lw_dictionaryinstall_get_merge_radicals_into_kanji (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->config.merge_radicals_into_kanji;
+}
+
+
+void
+lw_dictionaryinstall_set_progress (LwDictionaryInstall *self,
+                                   LwProgress          *progress)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (progress != priv->data.progress);
+    if (!changed) goto errored;
+
+    if (progress != NULL)
+    {
+      g_object_ref (progress);
+    }
+
+    if (priv->data.progress != NULL)
+    {
+      g_object_remove_weak_pointer (
+        G_OBJECT (priv->data.progress),
+        (gpointer*) &(priv->data.progress)
+      );
+      g_object_unref (priv->data.progress);
+    }
+
+    priv->data.progress = progress;
+
+    if (priv->data.progress != NULL)
+    {
+      g_object_add_weak_pointer (
+        G_OBJECT (priv->data.progress),
+        (gpointer*) &(priv->data.progress)
+      );
+    }
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PROGRESS]);
+
+errored:
+
+    return;
+}
+
+
+LwProgress*
+lw_dictionaryinstall_get_progress (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.progress;
+}
+
+
+void
+lw_dictionaryinstall_set_split_places_from_names (LwDictionaryInstall *self,
+                                                  gboolean             split)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (split != priv->config.split_places_from_names);
+    if (!changed) goto errored;
+
+    priv->config.split_places_from_names = split;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_SPLIT_PLACES_FROM_NAMES]);
+
+errored:
+
+    return;
+}
+
+
+gboolean
+lw_dictionaryinstall_get_split_places_from_names (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->config.split_places_from_names;
+}
+
+
+gchar**
+lw_dictionaryinstall_get_dependencies (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.dependencies;
+}
+
+
+void
+lw_dictionaryinstall_set_dependencies (LwDictionaryInstall *self,
+                                       gchar               **dependencies)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    changed = (dependencies != priv->data.dependencies);
+    if (!changed) goto errored;
+
+    g_strfreev (priv->data.dependencies);
+    priv->data.dependencies = g_strdupv (dependencies);
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DEPENDENCIES]);
+
+errored:
+
+    return;
+}
+
 

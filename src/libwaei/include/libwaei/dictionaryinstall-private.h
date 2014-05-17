@@ -5,7 +5,17 @@ G_BEGIN_DECLS
 
 typedef enum {
     PROP_0,
+    PROP_NAME,
+    PROP_DESCRIPTION,
+    PROP_GTYPE,
+    PROP_TEXT_ENCODING,
+    PROP_PREFERENCES,
+    PROP_DOWNLOAD_PREFERENCE_KEY,
+    PROP_DOWNLOAD_URI,
+    PROP_SPLIT_PLACES_FROM_NAMES,
+    PROP_MERGE_RADICALS_INTO_KANJI,
     PROP_PROGRESS,
+    PROP_DEPENDENCIES,
     TOTAL_PROPS
 } Props;
 
@@ -16,44 +26,26 @@ typedef enum {
 
 
 struct _Data {
+  gchar *name;
+  gchar *description;
+  LwDictionaryInstallStatus status;
+  LwPreferences *preferences;
+  gchar *download_key;
+  gchar *text_encoding;
+  gchar **dependencies;
+  GType gtype;
+  LwProgress *progress;
 };
 
 struct _Config {
+  gboolean merge_radicals_into_kanji;
+  gboolean split_places_from_names;
 };
 
 struct _LwDictionaryInstallPrivate {
   struct _Data data;
   struct _Config config;
 };
-
-
-/*TODO
-struct _LwDictionaryInstall {
-  gchar *name;
-  gchar *description;
-
-  LwDictionaryInstallerStatus status;
-  gint index;
-
-  gchar *files;
-  gchar *downloads;
-
-  gchar **filelist;
-  gchar **downloadlist;
-  gchar **decompresslist;
-  gchar **encodelist;
-  gchar **postprocesslist;
-  gchar **installlist;
-  gchar **installedlist;
-
-  LwPreferences *preferences;
-  const gchar *key;
-  gboolean builtin;
-  gulong listenerid;            //!< An id to hold the g_signal_connect value when the source copy uri pref is set
-  LwEncoding encoding;          //!< Path to the raw unziped dictionary file
-  gboolean postprocess;
-};
-*/
 
 
 struct _LwDictionaryInstallClassPrivate {
