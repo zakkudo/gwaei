@@ -30,6 +30,7 @@ struct _Argument {
   gboolean version_switch;
   gboolean color_switch;
   gboolean rebuild_index;
+  gboolean start_server;
 
   gchar* dictionary_switch_data;
   gchar* install_switch_data;

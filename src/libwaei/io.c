@@ -193,7 +193,8 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
       }
       position = ftell(readfd);
 
-      lw_progress_set_fraction (progress, position, filesize);
+      lw_progress_set_total (progress, filesize);
+      lw_progress_set_current (progress, position);
     }
 
     //Cleanup
@@ -248,11 +249,13 @@ static int _libcurl_update_progress (LwProgress *progress,
     
     if (dltotal > 0.0 && dlnow > 0.0)
     {
-      lw_progress_set_fraction (progress, dlnow, dltotal);
+      lw_progress_set_total (progress, dltotal);
+      lw_progress_set_current (progress, dlnow);
     }
     else
     {
-      lw_progress_set_fraction (progress, 0.0, dltotal);
+      lw_progress_set_total (progress, dltotal);
+      lw_progress_set_current (progress, 0.0);
     }
 
     //Update the interface
@@ -367,13 +370,15 @@ lw_io_copy (const gchar *SOURCE_PATH,
     {
       if (lw_progress_should_abort (progress)) break; 
 
-      lw_progress_set_fraction (progress, curpos, end);
+      lw_progress_set_total (progress, end);
+      lw_progress_set_current (progress, curpos);
       chunk = fread(buffer, sizeof(char), MAX, infd);
       chunk = fwrite(buffer, sizeof(char), chunk, outfd);
       curpos += chunk;
     }
 
-    lw_progress_set_fraction (progress, curpos, end);
+    lw_progress_set_total (progress, end);
+    lw_progress_set_current (progress, curpos);
 
     //Cleanup
     fclose(infd); infd = NULL;
@@ -427,7 +432,8 @@ lw_io_create_mix_dictionary (const gchar  *OUTPUT_PATH,
     {
       if (lw_progress_should_abort (progress)) break;
 
-      lw_progress_set_fraction (progress, curpos, end);
+      lw_progress_set_total (progress, end);
+      lw_progress_set_current (progress, curpos);
 
       curpos += strlen (kanji_input);
 
@@ -490,7 +496,8 @@ lw_io_create_mix_dictionary (const gchar  *OUTPUT_PATH,
       output[0] = '\0';
     }
 
-    lw_progress_set_fraction (progress, curpos, end);
+    lw_progress_set_total (progress, end);
+    lw_progress_set_current (progress, curpos);
 
     //Cleanup
     fclose(kanji_file); kanji_file = NULL;
@@ -577,7 +584,8 @@ lw_io_split_places_from_names_dictionary (const gchar *OUTPUT_NAMES_PATH,
     {
       if (lw_progress_should_abort (progress)) break;
 
-      lw_progress_set_fraction (progress, curpos, end);
+      lw_progress_set_total (progress, end);
+      lw_progress_set_current (progress, curpos);
 
       if (placesf != NULL && g_regex_match (re_place, buffer, 0, NULL))
         place_write_error = fputs(buffer, placesf);
@@ -586,7 +594,8 @@ lw_io_split_places_from_names_dictionary (const gchar *OUTPUT_NAMES_PATH,
       curpos += strlen(buffer);
     }
 
-    lw_progress_set_fraction (progress, curpos, end);
+    lw_progress_set_total (progress, end);
+    lw_progress_set_current (progress, curpos);
 
 errored:
 
@@ -648,7 +657,8 @@ lw_io_gunzip_file (const gchar *SOURCE_PATH,
           {
             position += MAX;
             if (position > filesize) position = filesize;
-            lw_progress_set_fraction (progress, position, filesize);
+            lw_progress_set_total (progress, filesize);
+            lw_progress_set_current (progress, position);
             fwrite(buffer, sizeof(char), read, target);
           }
         } while (read > 0);
@@ -719,11 +729,12 @@ lw_io_remove (const gchar   *URI,
 {
   if (lw_progress_should_abort (progress)) return FALSE;
 
-  lw_progress_set_fraction (progress, 0.0, 1.0);
+  lw_progress_set_total (progress, 1.0);
+  lw_progress_set_current (progress, 0.0);
 
   g_remove (URI);
 
-  lw_progress_set_fraction (progress, 1.0, 1.0);
+  lw_progress_set_current (progress, 1.0);
 
   return (!lw_progress_errored (progress));
 }

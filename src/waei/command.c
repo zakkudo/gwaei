@@ -307,6 +307,7 @@ w_command_parse_args (WCommand  *self)
       { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &(priv->argument.uninstall_switch_data), gettext("Uninstall dictionary"), NULL },
       { "rebuild-index", 0, 0, G_OPTION_ARG_NONE, &(priv->argument.rebuild_index), gettext("Rebuild dictionary indexes"), NULL },
       { "version", 'v', 0, G_OPTION_ARG_NONE, &(priv->argument.version_switch), gettext("Check the waei version information"), NULL },
+      { "start-server", 0, 0, G_OPTION_ARG_NONE, &(priv->argument.start_server), gettext("Star the waei server"), NULL },
       { NULL }
     };
 
@@ -418,6 +419,7 @@ w_command_uninstall_dictionary (WCommand   *self)
     LwDictionary *dictionary = NULL;
     gint resolution = -1;
     const gchar *uninstall_switch_data = NULL;
+  /*TODO
 
     //Initializations
     priv = self->priv;
@@ -433,7 +435,7 @@ w_command_uninstall_dictionary (WCommand   *self)
 
     if (dictionary != NULL)
     {
-      lw_dictionary_uninstall (dictionary, progress);
+      lw_dictionary_uninstall (dictionary);
     }
     else
     {
@@ -447,6 +449,7 @@ w_command_uninstall_dictionary (WCommand   *self)
     }
 
 errored:
+*/
 
     return resolution;
 }
@@ -458,7 +461,7 @@ errored:
 //! @param name A string of the name of the dictionary to install.
 //!
 gint 
-w_command_install_dictionary (WCommand   *self)
+w_command_install_dictionary (WCommand *self)
 {
     //Sanity check
     g_return_val_if_fail (W_IS_COMMAND (self), -1);
@@ -486,13 +489,14 @@ w_command_install_dictionary (WCommand   *self)
 
     if (dictionary != NULL)
     {
-      TODO
+      /*TODO
       lw_dictionary_install (dictionary, progress);
 
       if (lw_progress_errored (progress)) 
         g_application_command_line_printerr (command_line, "\n%s\n", gettext("Installation failed!"));
       else
         g_application_command_line_printerr (command_line, "%s\n", gettext("Installation complete."));
+        */
     }
     else
     {
@@ -500,10 +504,12 @@ w_command_install_dictionary (WCommand   *self)
       w_command_print_installable_dictionaries (self);
     }
 
+/*TODO
     if (lw_progress_errored (progress))
     {
       resolution = 1;
     }
+    */
 
 errored:
 
@@ -597,6 +603,7 @@ w_command_print_installable_dictionaries (WCommand *self)
       GList *link = NULL;
       for (link = dictionaries; link != NULL; link = link->next)
       {
+        /*TODO
         LwDictionary *dictionary = LW_DICTIONARY (link->data);
         if (lw_dictionary_installer_is_valid (dictionary))
         {
@@ -607,6 +614,7 @@ w_command_print_installable_dictionaries (WCommand *self)
           for (j = strlen(FILENAME); j < 20; j++) g_application_command_line_print (command_line, " ");
           g_application_command_line_print (command_line, "(AKA: %s Dictionary)\n", lw_dictionary_get_name (dictionary));
         }
+        */
       }
     }
 

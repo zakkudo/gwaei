@@ -45,7 +45,7 @@ w_command_progress_cb (LwDictionary *dictionary,
                        LwProgress   *progress, 
                        WCommand     *self)
 {
-  TODO
+  /* TODO
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (dictionary));
     g_return_if_fail (progress != NULL);
@@ -83,6 +83,7 @@ w_command_progress_cb (LwDictionary *dictionary,
     }
 
 errored:
+*/
 
     return;
 }

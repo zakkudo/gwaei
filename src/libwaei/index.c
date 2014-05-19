@@ -294,7 +294,8 @@ printf("BREAK _lw_index_deep_index\n");
         const gchar *KEY = key;
         _lw_index_index_subkeys (index, KEY);
 
-        lw_progress_set_fraction (progress, i, length);
+        lw_progress_set_total (progress, length);
+        lw_progress_set_current (progress, i);
 
         if (lw_progress_should_abort (progress)) goto errored;
 
@@ -352,7 +353,8 @@ printf("BREAK lw_index_create\n");
 
       _lw_index_create_add_string (index, BUFFER, offset);
 
-      lw_progress_set_fraction (progress, offset, length);
+      lw_progress_set_total (progress, length);
+      lw_progress_set_current (progress, offset);
 
       if (lw_progress_should_abort (progress)) goto errored;
 
@@ -831,7 +833,8 @@ _lw_index_write_by_type (LwIndex          *index,
 
       //Update progress
       i++;
-      lw_progress_set_fraction (progress, i + current_progress, total_progress);
+      lw_progress_set_total (progress, total_progress);
+      lw_progress_set_current (progress, i + current_progress);
     }
 
 errored:
@@ -966,7 +969,8 @@ _lw_index_read_by_type (LwIndex          *index,
       g_hash_table_insert (table, key, offsets);
 
       //Update progress
-      lw_progress_set_fraction (progress, ptr - buffer + current_progress, total_progress);
+      lw_progress_set_total (progress, total_progress);
+      lw_progress_set_current (progress, ptr - buffer + current_progress);
       
     } while (ptr - buffer < length);
 

@@ -86,7 +86,8 @@ lw_dictionary_regex_search (LwDictionary  *self,
       {
         matchlist = g_list_append (matchlist, LW_OFFSET_TO_POINTER (offset));
       }
-      lw_progress_set_fraction (progress, offset, length);
+      lw_progress_set_current (progress, offset);
+      lw_progress_set_total (progress, length);
 
 /* TODO
       if (chunk > LW_SEARCH_MAX_CHUNK) 

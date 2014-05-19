@@ -42,9 +42,9 @@ void w_command_about (WCommand *self);
 void w_command_list (WCommand *self);
 void w_command_print_installable_dictionaries (WCommand *self);
 void w_command_print_available_dictionaries (WCommand *self);
-gint w_command_search (WCommand *self, LwProgress *progress);
-gint w_command_install_dictionary (WCommand *self, LwProgress *progress);
-gint w_command_uninstall_dictionary (WCommand *self, LwProgress *progress);
+gint w_command_search (WCommand *self);
+gint w_command_install_dictionary (WCommand *self);
+gint w_command_uninstall_dictionary (WCommand *self);
 
 const gchar* w_command_get_install_switch_data (WCommand *self);
 const gchar* w_command_get_uninstall_switch_data (WCommand *self);

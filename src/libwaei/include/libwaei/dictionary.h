@@ -57,6 +57,8 @@ gchar* lw_dictionary_build_id (LwDictionary *self);
 gchar* lw_dictionary_build_id_from_type (GType type, const gchar *FILENAME);
 gchar* lw_dictionary_directoryname_to_typename (const gchar *DIRECTORYNAME);
 
+gboolean  lw_dictionary_uninstall (LwDictionary *self);
+
 G_END_DECLS
 
 #include <libwaei/dictionary-index.h>

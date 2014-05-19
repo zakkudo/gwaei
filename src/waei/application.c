@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <glib.h>
 
@@ -49,12 +50,14 @@ G_DEFINE_TYPE (WApplication, w_application, G_TYPE_APPLICATION)
 //! @brief creates a new instance of the gwaei applicaiton
 //!
 GApplication* 
-w_application_new ()
+w_application_new (GApplicationFlags flags)
 {
     //Declarations
     WApplication *self = NULL;
     const gchar *id = "glib.org.waei";
-    GApplicationFlags flags = G_APPLICATION_HANDLES_COMMAND_LINE;
+    //GApplicationFlags flags = G_APPLICATION_HANDLES_COMMAND_LINE | G_APPLICATION_IS_SERVICE;
+    //GApplicationFlags flags = G_APPLICATION_HANDLES_COMMAND_LINE | G_APPLICATION_IS_LAUNCHER;
+    flags |= G_APPLICATION_HANDLES_COMMAND_LINE;
 
     //Initializations
     self = g_object_new (
@@ -195,6 +198,7 @@ static int
 w_application_command_line (GApplication            *application,
                             GApplicationCommandLine *command_line)
 {
+    //Sanity checks
     g_return_val_if_fail (G_IS_APPLICATION (application), 1);
 
     printf("BREAK global w_application_command_line\n");
@@ -225,8 +229,13 @@ w_application_command_line (GApplication            *application,
       resolution = 0;
     }
 
-
     g_application_release (application);
+
+    if (!g_application_command_line_get_is_remote (command_line))
+    {
+    }
+
+    
 
     return resolution;
 }
@@ -243,6 +252,7 @@ w_application_local_command_line (GApplication              *application,
                                   gchar                   ***arguments,
                                   int                       *exit_status)
 {
+  printf("BREAK local_command_line\n");
     return FALSE;
 }
 

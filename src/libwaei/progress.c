@@ -402,7 +402,7 @@ lw_progress_get_cancellable (LwProgress *self)
 }
 
 void
-lw_progress_set_current_progress (LwProgress *self,
+lw_progress_set_current (LwProgress *self,
                                   gdouble     current_progress)
 {
     //Sanity checks
@@ -441,8 +441,8 @@ errored:
 
 
 void
-lw_progress_set_total_progress (LwProgress *self,
-                                gdouble     total_progress)
+lw_progress_set_total (LwProgress *self,
+                       gdouble     total_progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_PROGRESS (self), NULL);
@@ -476,7 +476,7 @@ lw_progress_set_total_progress (LwProgress *self,
 
     if (sync_current_progress)
     {
-      lw_progress_set_current_progress (self, priv->data.total_progress);
+      lw_progress_set_current (self, priv->data.total_progress);
     }
 
     lw_progress_sync_ratio_delta (self);
