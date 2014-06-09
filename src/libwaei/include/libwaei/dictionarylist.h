@@ -70,8 +70,12 @@ LwDictionary* lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *self, co
 GMenuModel* lw_dictionarylist_get_menumodel (LwDictionaryList *self);
 
 gboolean lw_dictionarylist_dictionary_exists (LwDictionaryList *self, LwDictionary *dictionary);
-void lw_dictionarylist_append (LwDictionaryList *self, LwDictionary *dictionary);
+
+LwDictionary* lw_dictionarylist_nth (LwDictionaryList *self, gint index);
+GList* lw_dictionarylist_remove (LwDictionaryList *self, gint *indices);
 void lw_dictionarylist_clear (LwDictionaryList *self);
+gint lw_dictionarylist_length (LwDictionaryList *self);
+gint* lw_dictionarylist_get_indices (LwDictionaryList *self, GList *dictionaries);
 
 G_END_DECLS
 
