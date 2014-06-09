@@ -52,9 +52,9 @@ lw_dictionarylist_connect_signals (LwDictionaryList *dictionary_list)
     //Initializations
     priv = dictionary_list->priv;
 
-    if (priv->signalid[SIGNALID_INSERTED] == 0)
+    if (priv->data.signalid[SIGNALID_INSERTED] == 0)
     {
-      priv->signalid[SIGNALID_INSERTED] = g_signal_connect (
+      priv->data.signalid[SIGNALID_INSERTED] = g_signal_connect (
         G_OBJECT (dictionary_list),
         "internal-row-inserted",
         G_CALLBACK (lw_dictionarylist_inserted_cb),
@@ -62,9 +62,9 @@ lw_dictionarylist_connect_signals (LwDictionaryList *dictionary_list)
       );
     }
 
-    if (priv->signalid[SIGNALID_DELETED] == 0)
+    if (priv->data.signalid[SIGNALID_DELETED] == 0)
     {
-      priv->signalid[SIGNALID_DELETED] = g_signal_connect (
+      priv->data.signalid[SIGNALID_DELETED] = g_signal_connect (
         G_OBJECT (dictionary_list),
         "internal-row-deleted",
         G_CALLBACK (lw_dictionarylist_deleted_cb),
@@ -72,9 +72,9 @@ lw_dictionarylist_connect_signals (LwDictionaryList *dictionary_list)
       );
     }
 
-    if (priv->signalid[SIGNALID_REORDERED] == 0)
+    if (priv->data.signalid[SIGNALID_REORDERED] == 0)
     {
-      priv->signalid[SIGNALID_REORDERED] = g_signal_connect (
+      priv->data.signalid[SIGNALID_REORDERED] = g_signal_connect (
         G_OBJECT (dictionary_list),
         "internal-rows-reordered",
         G_CALLBACK (lw_dictionarylist_reordered_cb),
@@ -100,10 +100,10 @@ lw_dictionarylist_disconnect_signals (LwDictionaryList *dictionary_list)
       gint i = 0;
       for (i = 0; i < TOTAL_SIGNALIDS; i++)
       {
-        if (priv->signalid[i] != 0)
+        if (priv->data.signalid[i] != 0)
         {
-          g_signal_handler_disconnect (G_OBJECT (dictionary_list), priv->signalid[i]);
-          priv->signalid[i] = 0;
+          g_signal_handler_disconnect (G_OBJECT (dictionary_list), priv->data.signalid[i]);
+          priv->data.signalid[i] = 0;
         }
       }
     }

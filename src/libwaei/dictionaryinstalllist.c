@@ -53,6 +53,7 @@ G_DEFINE_TYPE (LwDictionaryInstallList, lw_dictionaryinstalllist, G_TYPE_OBJECT)
 LwDictionaryInstallList* 
 lw_dictionaryinstalllist_new (LwPreferences *preferences)
 {
+    //Declarations
     LwDictionaryInstallList *dictionary = NULL;
 
     //Initializations
@@ -79,8 +80,8 @@ lw_dictionaryinstalllist_set_property (GObject      *object,
                                        GParamSpec   *pspec)
 {
     //Declarations
-    LwDictionaryInstallList *self;
-    LwDictionaryInstallListPrivate *priv;
+    LwDictionaryInstallList *self = NULL;
+    LwDictionaryInstallListPrivate *priv = NULL;
 
     //Initializations
     self = LW_DICTIONARYINSTALLLIST (object);
@@ -105,8 +106,8 @@ lw_dictionaryinstalllist_get_property (GObject      *object,
                                        GParamSpec   *pspec)
 {
     //Declarations
-    LwDictionaryInstallList *self;
-    LwDictionaryInstallListPrivate *priv;
+    LwDictionaryInstallList *self = NULL;
+    LwDictionaryInstallListPrivate *priv = NULL;
 
     //Initializations
     self = LW_DICTIONARYINSTALLLIST (object);
@@ -987,8 +988,7 @@ lw_dictionaryinstalllist_dictionaryinstalls (LwDictionaryInstallList *self)
     //Initializations
     priv = self->priv;
 
-    dictionaryinstalls = priv->data.list;
-    //dictionaryinstalls = g_list_copy (priv->data.list);
+    dictionaryinstalls = g_list_copy (priv->data.list);
     g_list_foreach (dictionaryinstalls, (GFunc) g_object_ref, NULL);
 
     return dictionaryinstalls;

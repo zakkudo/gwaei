@@ -65,7 +65,6 @@ lw_dictionarylist_init (LwDictionaryList *self)
 {
     self->priv = LW_DICTIONARYLIST_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwDictionaryListPrivate));
-    g_mutex_init (&self->priv->mutex);
 
     lw_dictionarylist_connect_signals (self);
 }
@@ -135,7 +134,6 @@ lw_dictionarylist_finalize (GObject *object)
     priv = self->priv;
 
     lw_dictionarylist_set_menumodel (self, NULL);
-    g_mutex_clear (&priv->mutex);
 
     G_OBJECT_CLASS (lw_dictionarylist_parent_class)->finalize (object);
 }
@@ -176,7 +174,7 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwDictionaryListPrivate));
 
-    klasspriv->signalid[CLASS_SIGNALID_CHANGED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
         "internal-row-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -187,7 +185,7 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
         G_TYPE_INT
     );
 
-    klasspriv->signalid[CLASS_SIGNALID_INSERTED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
         "internal-row-inserted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -198,7 +196,7 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
         G_TYPE_INT
     );
 
-    klasspriv->signalid[CLASS_SIGNALID_DELETED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
         "internal-row-deleted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -209,7 +207,7 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
         G_TYPE_INT
     );
 
-    klasspriv->signalid[CLASS_SIGNALID_REORDERED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
         "internal-rows-reordered",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -253,16 +251,16 @@ lw_dictionarylist_set_preferences (LwDictionaryList *self,
       g_object_ref (preferences);
     }
 
-    if (priv->preferences != NULL) {
-      g_object_remove_weak_pointer (G_OBJECT (priv->preferences), (gpointer*) &(priv->preferences));
-      g_object_unref (priv->preferences);
-      priv->preferences = NULL;
+    if (priv->config.preferences != NULL) {
+      g_object_remove_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
+      g_object_unref (priv->config.preferences);
+      priv->config.preferences = NULL;
     }
 
-    priv->preferences = preferences;
+    priv->config.preferences = preferences;
 
-    if (priv->preferences != NULL) {
-      g_object_add_weak_pointer (G_OBJECT (priv->preferences), (gpointer*) &(priv->preferences));
+    if (priv->config.preferences != NULL) {
+      g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
     }
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PREFERENCES]);
@@ -281,12 +279,12 @@ lw_dictionarylist_get_preferences (LwDictionaryList *self)
     //Initializations
     priv = self->priv;
 
-    if (priv->preferences == NULL)
+    if (priv->config.preferences == NULL)
     {
       lw_dictionarylist_set_preferences (self, lw_preferences_get_default ());
     }
 
-    return priv->preferences;
+    return priv->config.preferences;
 }
 
 
@@ -305,18 +303,18 @@ lw_dictionarylist_clear (LwDictionaryList *self)
     klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
 
-    while (priv->list != NULL)
+    while (priv->data.list != NULL)
     {
-      GList *link = priv->list;
+      GList *link = priv->data.list;
       LwDictionary *dictionary = LW_DICTIONARY (link->data);
       if (dictionary != NULL)
       {
         g_object_unref (dictionary); link->data = NULL;
       }
-      priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, 0);
+      priv->data.list = g_list_delete_link (priv->data.list, link);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, 0);
     }
-    priv->list = NULL;
+    priv->data.list = NULL;
 }
 
 
@@ -380,7 +378,7 @@ lw_dictionarylist_get_dictionary_by_position (LwDictionaryList* self,
     LwDictionary *dictionary;
 
     //Initializiations
-    dictionary = g_list_nth_data (self->priv->list, position);
+    dictionary = g_list_nth_data (self->priv->data.list, position);
 
     return dictionary;
 }
@@ -394,7 +392,7 @@ lw_dictionarylist_get_position (LwDictionaryList *self,
     g_return_val_if_fail (self != NULL, -1);
     g_return_val_if_fail (dictionary != NULL, -1);
 
-    return g_list_index (self->priv->list, dictionary);
+    return g_list_index (self->priv->data.list, dictionary);
 }
 
 
@@ -417,13 +415,13 @@ lw_dictionarylist_remove_by_position (LwDictionaryList *self,
     klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
     removed_dictionary = NULL;
-    link = g_list_nth (priv->list, position);
+    link = g_list_nth (priv->data.list, position);
 
     if (link != NULL)
     {
       removed_dictionary = link->data;
-      priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
+      priv->data.list = g_list_delete_link (priv->data.list, link);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, position);
     }
 
     return removed_dictionary;
@@ -451,14 +449,14 @@ lw_dictionarylist_remove (LwDictionaryList *self,
     klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
     removed_dictionary = NULL;
-    link = g_list_find (priv->list, dictionary);
-    position = g_list_index (priv->list, dictionary);
+    link = g_list_find (priv->data.list, dictionary);
+    position = g_list_index (priv->data.list, dictionary);
 
     if (link != NULL)
     {
       removed_dictionary = link->data;
-      priv->list = g_list_delete_link (priv->list, link);
-      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_DELETED], 0, position);
+      priv->data.list = g_list_delete_link (priv->data.list, link);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, position);
     }
         
     return removed_dictionary;
@@ -490,11 +488,11 @@ lw_dictionarylist_append (LwDictionaryList *self,
     klasspriv = klass->priv;
 
     //Append to the dictionary  if was loadable
-    priv->list = g_list_append (priv->list, dictionary);
+    priv->data.list = g_list_append (priv->data.list, dictionary);
 
     {
-      gint index = g_list_index (priv->list, dictionary);
-      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, index);
+      gint index = g_list_index (priv->data.list, dictionary);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, index);
     }
 }
 
@@ -528,7 +526,7 @@ lw_dictionarylist_get_dictionary (LwDictionaryList* self,
     priv = self->priv;
     dictionary = NULL;
 
-    for (iter = priv->list; iter != NULL; iter = iter->next)
+    for (iter = priv->data.list; iter != NULL; iter = iter->next)
     {
       dictionary = LW_DICTIONARY (iter->data);
       type = G_OBJECT_TYPE (dictionary);
@@ -568,8 +566,8 @@ lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *self,
     //Try getting the first dictionary if none is specified
     if (FUZZY_DESCRIPTION == NULL)
     {
-      if (priv->list != NULL)
-        dictionary = LW_DICTIONARY (priv->list->data);
+      if (priv->data.list != NULL)
+        dictionary = LW_DICTIONARY (priv->data.list->data);
       else
         dictionary = NULL;
     }
@@ -612,7 +610,7 @@ lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *self,
     priv = self->priv;
     dictionary = NULL;
 
-    for (iter = priv->list; iter != NULL; iter = iter->next)
+    for (iter = priv->data.list; iter != NULL; iter = iter->next)
     {
       dictionary = LW_DICTIONARY (iter->data);
       FILENAME2 = lw_dictionary_get_filename (dictionary);
@@ -661,7 +659,7 @@ lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *self,
         type1 = g_type_from_name (pair[0]);
         FILENAME1 = pair[1];
 
-        for (link = priv->list; link != NULL; link = link->next)
+        for (link = priv->data.list; link != NULL; link = link->next)
         {
           dictionary = LW_DICTIONARY (link->data);
           FILENAME2 = lw_dictionary_get_filename (dictionary);
@@ -701,7 +699,7 @@ lw_dictionarylist_dictionary_exists (LwDictionaryList *self,
     //Initializations
     priv = self->priv;
     exists = FALSE;
-    link = priv->list;
+    link = priv->data.list;
 
     //Return true if the dictionary exists
     while (link != NULL && exists == FALSE)
@@ -735,7 +733,7 @@ lw_dictionarylist_get_total (LwDictionaryList *self)
     LwDictionaryListPrivate *priv;
     priv = self->priv;
 
-    return g_list_length (priv->list);
+    return g_list_length (priv->data.list);
 }
 
 
@@ -762,7 +760,7 @@ lw_dictionarylist_save_order (LwDictionaryList *self)
     //Construct the preference string
     {
       gchar **ptr = atoms;
-      GList *link = priv->list;
+      GList *link = priv->data.list;
       while (link != NULL)
       {
         dictionary = LW_DICTIONARY (link->data);
@@ -850,9 +848,9 @@ lw_dictionarylist_convert_order_map_to_array (LwDictionaryList *self,
     //Initializations
     priv = self->priv;
     if (priv == NULL) goto errored;
-    link = priv->list;
+    link = priv->data.list;
     if (link == NULL) goto errored;
-    missing_index = g_list_length (priv->list);
+    missing_index = g_list_length (priv->data.list);
     if (missing_index == 0) goto errored;
     new_order = g_new0 (gint, missing_index);
     if (new_order == NULL) goto errored;
@@ -984,7 +982,7 @@ lw_dictionarylist_load_order (LwDictionaryList *self)
     klass = LW_DICTIONARYLIST_GET_CLASS (self);
     klasspriv = klass->priv;
 
-    if (priv->list == NULL) goto errored;
+    if (priv->data.list == NULL) goto errored;
 
     order_map = lw_dictionarylist_build_order_map (self);
     if (order_map == NULL) goto errored;
@@ -992,11 +990,11 @@ lw_dictionarylist_load_order (LwDictionaryList *self)
     new_order = lw_dictionarylist_convert_order_map_to_array (self, order_map);
     if (new_order == NULL) goto errored;
 
-    priv->list = g_list_sort_with_data (priv->list, lw_dictionarylist_sort_compare_function, order_map);
-    if (priv->list == NULL) goto errored;
+    priv->data.list = g_list_sort_with_data (priv->data.list, lw_dictionarylist_sort_compare_function, order_map);
+    if (priv->data.list == NULL) goto errored;
 
-    printf("BREAk lw_dictionarylist_load_order CLASS_SIGNALID_REORDERED\n");
-    g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_REORDERED], 0, new_order);
+    printf("BREAk lw_dictionarylist_load_order CLASS_SIGNALID_ROWS_REORDERED\n");
+    g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED], 0, new_order);
 
 errored:
 
@@ -1006,163 +1004,22 @@ errored:
 }
 
 
-//!
-//! @brief Sets up the built-in installabale dictionaries
-//!
-void
-lw_dictionarylist_load_installable (LwDictionaryList *self)
-{
-  /*TODO
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
-
-    //Declarations
-    LwDictionaryListPrivate *priv = NULL;
-    LwDictionaryListClass *klass = NULL;
-    LwDictionaryListClassPrivate *klasspriv = NULL;
-    LwDictionary* dictionary = NULL;
-    LwPreferences *preferences = NULL;
-
-    //Initializations
-    priv = self->priv;
-    klass = LW_DICTIONARYLIST_GET_CLASS (self);
-    klasspriv = klass->priv;
-    preferences = lw_dictionarylist_get_preferences (self);
-    if (preferences == NULL) goto errored;
-
-    {
-      dictionary = lw_edictionary_new ("English", NULL);
-      lw_dictionary_set_builtin_installer_full (
-        dictionary, 
-        "English",
-        preferences,
-        LW_KEY_ENGLISH_SOURCE,
-        gettext("The venerable edict by Jim Breen."),
-        LW_ENCODING_EUC_JP,
-        FALSE
-      );
-      priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
-    }
-
-    {
-      dictionary = lw_kanjidictionary_new ("Kanji", NULL);
-      lw_dictionary_set_builtin_installer_full (
-        dictionary, 
-        "Kanji",
-        preferences,
-        LW_KEY_KANJI_SOURCE,
-        gettext("A Kanji dictionary based off of kanjidic with radical information combined."),
-        LW_ENCODING_EUC_JP,
-        TRUE
-      );
-      priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
-    }
-
-    {
-      dictionary = lw_edictionary_new ("Names and Places", NULL);
-      lw_dictionary_set_builtin_installer_full (
-        dictionary, 
-        "Names;Places",
-        preferences,
-        LW_KEY_NAMES_PLACES_SOURCE,
-        gettext("Based off of Enamdic, but with the names split from the places for 2 separate dictionaries."),
-        LW_ENCODING_EUC_JP,
-        TRUE
-      );
-      priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
-    }
-
-    {
-      dictionary = lw_exampledictionary_new ("Examples", NULL);
-      lw_dictionary_set_builtin_installer_full (
-        dictionary, 
-        "Examples",
-        preferences,
-        LW_KEY_EXAMPLES_SOURCE,
-        gettext("A collection of Japanese/English sentences initially compiled "
-                "by Professor Yasuhito Tanaka at Hyogo University and his students."),
-        LW_ENCODING_EUC_JP,
-        TRUE
-      );
-      priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
-    }
-*/
-/*
-    {
-      dictionary = lw_dictionary_new (
-        "",
-        gettext("Other"),
-        gettext("Other Dictionary"),
-        gettext("Install a custom dictionary."),
-        "",
-        LW_TYPE_UNKNOWNDICTIONARY,
-        LW_COMPRESSION_NONE,
-        LW_ENCODING_UTF8,
-        FALSE,
-        FALSE
-      );
-      priv->list = g_list_append (priv->list, dictionary);
-      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_INSERTED], 0, g_list_index (priv->list, dictionary));
-    }
-*/
-
-errored:
-    
-    return;
-}
-
-
-//!
-//! @brief Checks to see if the current InstallDictionaryList is installation ready
-//!
-gboolean 
-lw_dictionarylist_installer_is_valid (LwDictionaryList *self)
-{
-  /*TODO
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-
-    //Declarations
-    LwDictionaryListPrivate *priv;
-    GList *link;
-    LwDictionary* dictionary;
-    gint number_selected;
-    gboolean selected;
-    gboolean valid;
-
-    //Initializations
-    priv = self->priv;
-    link = priv->list;
-    number_selected = 0;
-
-    while (link != NULL)
-    {
-      dictionary = LW_DICTIONARY (link->data);
-      valid = lw_dictionary_installer_is_valid (dictionary);
-      selected = lw_dictionary_is_selected (dictionary);
-
-      if (!valid && selected) return FALSE;
-      if (selected) number_selected++;
-
-      link = link->next;
-    }
-
-    return (number_selected > 0);
-    */
-    return FALSE;
-}
-
-
 GList*
 lw_dictionarylist_dictionaries (LwDictionaryList *self)
 {
     g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
 
-    return g_list_copy (self->priv->list);
+    //Declarations
+    LwDictionaryListPrivate *priv = NULL;
+    GList *dictionaries = NULL;
+
+    //Initializations
+    priv = self->priv;
+    dictionaries = g_list_copy (priv->data.list);
+
+    g_list_foreach (dictionaries, (GFunc) g_object_ref, NULL);
+
+    return dictionaries;
 }
 
 
@@ -1180,7 +1037,7 @@ lw_dictionarylist_sort_with_data (LwDictionaryList *self,
     //Initializations
     priv = self->priv;
 
-    priv->list = g_list_sort_with_data (priv->list, compare_func, user_data);
+    priv->data.list = g_list_sort_with_data (priv->data.list, compare_func, user_data);
 }
 
 
@@ -1275,7 +1132,7 @@ lw_dictionarylist_sync_menumodel (LwDictionaryList *self)
 
     //Repopulate with the new menu items
     {
-      GList *link = priv->list;
+      GList *link = priv->data.list;
       while (link != NULL)
       {
         LwDictionary *dictionary = LW_DICTIONARY (link->data);
@@ -1306,18 +1163,18 @@ lw_dictionarylist_set_menumodel (LwDictionaryList *self,
       g_object_ref (G_OBJECT (menu_model));
     }
 
-    if (priv->menu_model != NULL)
+    if (priv->data.menu_model != NULL)
     {
-      g_object_remove_weak_pointer (G_OBJECT (priv->menu_model), (gpointer*) &(priv->menu_model));
-      g_object_unref (G_OBJECT (priv->menu_model));
-      priv->menu_model = NULL;
+      g_object_remove_weak_pointer (G_OBJECT (priv->data.menu_model), (gpointer*) &(priv->data.menu_model));
+      g_object_unref (G_OBJECT (priv->data.menu_model));
+      priv->data.menu_model = NULL;
     }
 
-    priv->menu_model = menu_model;
+    priv->data.menu_model = menu_model;
 
-    if (priv->menu_model != NULL)
+    if (priv->data.menu_model != NULL)
     {
-      g_object_add_weak_pointer (G_OBJECT (priv->menu_model), (gpointer*) &(priv->menu_model));
+      g_object_add_weak_pointer (G_OBJECT (priv->data.menu_model), (gpointer*) &(priv->data.menu_model));
     }
 }
 
@@ -1335,7 +1192,7 @@ lw_dictionarylist_get_menumodel (LwDictionaryList *self)
     priv = self->priv;
     if (priv == NULL) goto errored;
 
-    if (priv->menu_model == NULL)
+    if (priv->data.menu_model == NULL)
     {
       GMenuModel *menu_model = G_MENU_MODEL (g_menu_new ());
       lw_dictionarylist_set_menumodel (self, menu_model);
@@ -1345,7 +1202,7 @@ lw_dictionarylist_get_menumodel (LwDictionaryList *self)
 
 errored:
 
-    return priv->menu_model;
+    return priv->data.menu_model;
 }
 
 

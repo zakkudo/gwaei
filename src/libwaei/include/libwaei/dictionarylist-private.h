@@ -19,20 +19,31 @@ typedef enum {
 } SignalId;
 
 typedef enum {
-  CLASS_SIGNALID_CHANGED,
-  CLASS_SIGNALID_INSERTED,
-  CLASS_SIGNALID_DELETED,
-  CLASS_SIGNALID_REORDERED,
+  CLASS_SIGNALID_ROW_CHANGED,
+  CLASS_SIGNALID_ROW_INSERTED,
+  CLASS_SIGNALID_ROW_DELETED,
+  CLASS_SIGNALID_ROWS_REORDERED,
   TOTAL_CLASS_SIGNALIDS
 } ClassSignalId;
 
 
-struct _LwDictionaryListPrivate {
-  GList *list;
-  GMutex mutex;
+struct _Data {
+  GList *list; //<!-- A Glist of LwWord
+  GList **array;
+  gint length;
+  gboolean changed; //<!-- hint of there are any savable changes
+  gboolean loaded;
   GMenuModel *menu_model;
   guint signalid[TOTAL_SIGNALIDS];
+};
+
+struct _Config {
   LwPreferences *preferences;
+};
+
+struct _LwDictionaryListPrivate {
+  struct _Data data;
+  struct _Config config;
 };
 
 struct _LwDictionaryListClassPrivate {
