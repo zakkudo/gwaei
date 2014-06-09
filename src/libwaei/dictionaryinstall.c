@@ -116,6 +116,9 @@ lw_dictionaryinstall_set_property (GObject      *object,
       case PROP_PROGRESS:
         lw_dictionaryinstall_set_progress (self, g_value_get_object (value));
         break;
+      case PROP_DEPENDENCIES:
+        lw_dictionaryinstall_set_dependencies (self, g_value_get_pointer (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -221,6 +224,95 @@ lw_dictionaryinstall_class_init (LwDictionaryInstallClass *klass)
 
     _klass = klass;
     _klasspriv = klass->priv;
+
+    _klasspriv->pspec[PROP_NAME] = g_param_spec_string (
+        "name",
+        "dictionary install name",
+        "Set the preferences object",
+        "Unnamed",
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_NAME, _klasspriv->pspec[PROP_NAME]);
+
+    _klasspriv->pspec[PROP_DESCRIPTION] = g_param_spec_string (
+        "description",
+        "dictionary install name",
+        "Set the preferences object",
+        "No Description",
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_DESCRIPTION, _klasspriv->pspec[PROP_DESCRIPTION]);
+
+    _klasspriv->pspec[PROP_GTYPE] = g_param_spec_gtype (
+        "dictionary-gtype",
+        "dictionary install name",
+        "Set the preferences object",
+        LW_TYPE_DICTIONARY,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_GTYPE, _klasspriv->pspec[PROP_GTYPE]);
+
+    _klasspriv->pspec[PROP_TEXT_ENCODING] = g_param_spec_string (
+        "text-encoding",
+        "dictionary install name",
+        "Set the preferences object",
+        "utf-8",
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_TEXT_ENCODING, _klasspriv->pspec[PROP_TEXT_ENCODING]);
+
+    _klasspriv->pspec[PROP_DOWNLOAD_PREFERENCE_KEY] = g_param_spec_string (
+        "download-preference-key",
+        "dictionary install name",
+        "Set the preferences object",
+        NULL,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_DOWNLOAD_PREFERENCE_KEY, _klasspriv->pspec[PROP_DOWNLOAD_PREFERENCE_KEY]);
+
+    _klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
+        "preferences",
+        "dictionary install name",
+        "Set the preferences object",
+        LW_TYPE_PREFERENCES,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_PREFERENCES, _klasspriv->pspec[PROP_PREFERENCES]);
+
+    _klasspriv->pspec[PROP_SPLIT_PLACES_FROM_NAMES] = g_param_spec_boolean (
+        "split-places-from-names",
+        "dictionary install name",
+        "Set the preferences object",
+        FALSE,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_SPLIT_PLACES_FROM_NAMES, _klasspriv->pspec[PROP_SPLIT_PLACES_FROM_NAMES]);
+
+    _klasspriv->pspec[PROP_MERGE_RADICALS_INTO_KANJI] = g_param_spec_boolean (
+        "merge-radicals-into-kanji",
+        "dictionary install name",
+        "Set the preferences object",
+        FALSE,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_MERGE_RADICALS_INTO_KANJI, _klasspriv->pspec[PROP_MERGE_RADICALS_INTO_KANJI]);
+
+    _klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
+        "progress",
+        "dictionary install name",
+        "Set the preferences object",
+        LW_TYPE_PROGRESS,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_PROGRESS, _klasspriv->pspec[PROP_PROGRESS]);
+
+    _klasspriv->pspec[PROP_DEPENDENCIES] = g_param_spec_pointer (
+        "dependencies",
+        "Required dictionaries to be install",
+        "A list of the prerequisite dictionaries for this to be installed.",
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_DEPENDENCIES, _klasspriv->pspec[PROP_DEPENDENCIES]);
 }
 
 
@@ -1148,7 +1240,7 @@ lw_dictionary_installer_set_postprocessing (LwDictionary *self, gboolean postpro
 */
 
 
-LwEncoding 
+const gchar*
 lw_dictionary_installer_get_encoding (LwDictionary *self)
 {
   /*TODO

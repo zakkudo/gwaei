@@ -139,37 +139,6 @@ lw_util_get_compressionname (const LwCompression COMPRESSION)
 
 
 //!
-//! @brief Gets the encoding type as a string
-//! @param ENCODING The LwEncoding type to use
-//! @returns A constant string that should not be freed
-//!
-const char* 
-lw_util_get_encodingname (const LwEncoding ENCODING)
-{
-    char *type;
-
-    switch (ENCODING)
-    {
-      case LW_ENCODING_EUC_JP:
-        type = "EUC-JP";
-        break;
-      case LW_ENCODING_SHIFT_JS:
-        type = "Shift-JS";
-        break;
-      case LW_ENCODING_UTF8:
-        type = "UTF-8";
-        break;
-      default:
-        g_assert_not_reached ();
-        type = NULL;
-        break;
-    }
-
-    return type;
-}
-
-
-//!
 //! @brief Convenience function for seeing if a string is hiragana
 //! @param input The string to check
 //! @return Returns true if it is in the range

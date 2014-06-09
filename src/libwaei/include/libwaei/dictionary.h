@@ -23,6 +23,7 @@ typedef struct _LwDictionaryInstall LwDictionaryInstall;
 struct _LwDictionary {
   GObject object;
   LwDictionaryPrivate *priv;
+  struct _Row row; 
 };
 
 struct _LwDictionaryClass {

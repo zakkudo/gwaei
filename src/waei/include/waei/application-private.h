@@ -11,8 +11,8 @@ typedef enum {
 } Props;
 
 struct _Data {
-  LwDictionaryList *installed_dictionarylist;
-  LwDictionaryList *installable_dictionarylist;
+  LwDictionaryList *dictionarylist;
+  LwDictionaryInstallList *dictionaryinstalllist;
   LwMorphologyEngine *morphologyengine;
   LwPreferences *preferences;
 };

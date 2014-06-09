@@ -183,8 +183,8 @@ w_application_finalize (GObject *object)
     self = W_APPLICATION (object);
     priv = self->priv;
 
-    if (priv->data.installed_dictionarylist != NULL) g_object_unref (priv->data.installed_dictionarylist); priv->data.installed_dictionarylist = NULL;
-    if (priv->data.installable_dictionarylist != NULL) g_object_unref (priv->data.installable_dictionarylist); priv->data.installable_dictionarylist = NULL;
+    if (priv->data.dictionarylist != NULL) g_object_unref (priv->data.dictionarylist); priv->data.dictionarylist = NULL;
+    if (priv->data.dictionaryinstalllist != NULL) g_object_unref (priv->data.dictionaryinstalllist); priv->data.dictionaryinstalllist = NULL;
 
     w_application_set_preferences (self, NULL);
 
@@ -404,7 +404,7 @@ w_application_get_morphologyengine (WApplication *self)
 
 
 LwDictionaryList* 
-w_application_get_installed_dictionarylist (WApplication *self)
+w_application_get_dictionarylist (WApplication *self)
 {
     //Sanity checks
     g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
@@ -419,19 +419,19 @@ w_application_get_installed_dictionarylist (WApplication *self)
     morphologyengine = w_application_get_morphologyengine (self);
     preferences = w_application_get_preferences (self);
 
-    if (priv->data.installed_dictionarylist == NULL)
+    if (priv->data.dictionarylist == NULL)
     {
-      priv->data.installed_dictionarylist = lw_dictionarylist_new (preferences);
-      lw_dictionarylist_load_installed (priv->data.installed_dictionarylist, morphologyengine);
-      lw_dictionarylist_load_order (priv->data.installed_dictionarylist);
+      priv->data.dictionarylist = lw_dictionarylist_new (preferences);
+      lw_dictionarylist_load_installed (priv->data.dictionarylist, morphologyengine);
+      lw_dictionarylist_load_order (priv->data.dictionarylist);
     }
 
-    return priv->data.installed_dictionarylist;
+    return priv->data.dictionarylist;
 }
 
 
-LwDictionaryList* 
-w_application_get_installable_dictionarylist (WApplication *self)
+LwDictionaryInstallList* 
+w_application_get_dictionaryinstalllist (WApplication *self)
 {
     //Sanity checks
     g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
@@ -444,13 +444,13 @@ w_application_get_installable_dictionarylist (WApplication *self)
     priv = self->priv;
     preferences = w_application_get_preferences (self);
 
-    if (priv->data.installable_dictionarylist == NULL)
+    if (priv->data.dictionaryinstalllist == NULL)
     {
-      priv->data.installable_dictionarylist = lw_dictionarylist_new (preferences);
-      lw_dictionarylist_load_installable (priv->data.installable_dictionarylist);
+      priv->data.dictionaryinstalllist = lw_dictionaryinstalllist_new (preferences);
+      lw_dictionaryinstalllist_load_default (priv->data.dictionaryinstalllist);
     }
 
-    return priv->data.installable_dictionarylist;
+    return priv->data.dictionaryinstalllist;
 }
 
 

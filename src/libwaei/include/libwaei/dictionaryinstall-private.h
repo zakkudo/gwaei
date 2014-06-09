@@ -24,8 +24,12 @@ typedef enum {
     TOTAL_CLASS_SIGNALIDS
 } SignalId;
 
+struct _Index {
+  GHashTable *id;
+};
 
 struct _Data {
+  struct _Index index;
   gchar *name;
   gchar *description;
   LwDictionaryInstallStatus status;

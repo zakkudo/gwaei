@@ -474,6 +474,7 @@ w_command_install_dictionary (WCommand *self)
     LwDictionary *dictionary = NULL;
     gint resolution = -1;
     const gchar *install_switch_data = NULL;
+      /*TODO
 
     //Initializations
     priv = self->priv;
@@ -489,20 +490,19 @@ w_command_install_dictionary (WCommand *self)
 
     if (dictionary != NULL)
     {
-      /*TODO
       lw_dictionary_install (dictionary, progress);
 
       if (lw_progress_errored (progress)) 
         g_application_command_line_printerr (command_line, "\n%s\n", gettext("Installation failed!"));
       else
         g_application_command_line_printerr (command_line, "%s\n", gettext("Installation complete."));
-        */
     }
     else
     {
       g_application_command_line_print (command_line, "\n%s \"was not\" found!\n\n", install_switch_data);
       w_command_print_installable_dictionaries (self);
     }
+        */
 
 /*TODO
     if (lw_progress_errored (progress))
@@ -580,8 +580,8 @@ w_command_print_installable_dictionaries (WCommand *self)
     WCommandPrivate *priv = NULL;
     GApplicationCommandLine *command_line = NULL;
     WApplication *application = NULL;
-    LwDictionaryList *dictionary_list = NULL;
-    GList *dictionaries = NULL;
+    LwDictionaryInstallList *dictionaryinstalllist = NULL;
+    GList *dictionaryinstalls = NULL;
 
     //Initializations
     priv = self->priv;
@@ -589,38 +589,36 @@ w_command_print_installable_dictionaries (WCommand *self)
     if (command_line == NULL) goto errored;
     application = priv->data.application;
     if (application == NULL) goto errored;
-    dictionary_list = w_application_get_installable_dictionarylist (application);
-    if (dictionary_list == NULL) goto errored;
-    dictionaries = lw_dictionarylist_dictionaries (dictionary_list);
+    dictionaryinstalllist = w_application_get_dictionaryinstalllist (application);
+    if (dictionaryinstalllist == NULL) goto errored;
+    dictionaryinstalls = lw_dictionaryinstalllist_dictionaryinstalls (dictionaryinstalllist);
 
     g_application_command_line_print (command_line, gettext("Installable dictionaries are:\n"));
 
-    if (dictionaries == NULL)
+    if (dictionaryinstalls == NULL)
     {
       g_application_command_line_print (command_line, "  %s\n", gettext("none"));
     }
     else {
       GList *link = NULL;
-      for (link = dictionaries; link != NULL; link = link->next)
+      for (link = dictionaryinstalls; link != NULL; link = link->next)
       {
-        /*TODO
-        LwDictionary *dictionary = LW_DICTIONARY (link->data);
-        if (lw_dictionary_installer_is_valid (dictionary))
+        LwDictionaryInstall *dictionaryinstall = LW_DICTIONARYINSTALL (link->data);
         {
-          const gchar *FILENAME = lw_dictionary_get_filename (dictionary);
+          const gchar *FILENAME = lw_dictionaryinstall_get_name (dictionaryinstall);
+          const gchar *NAME = lw_dictionaryinstall_get_name (dictionaryinstall);
           gint j = 0;
 
           g_application_command_line_print (command_line, "  %s", FILENAME);
           for (j = strlen(FILENAME); j < 20; j++) g_application_command_line_print (command_line, " ");
-          g_application_command_line_print (command_line, "(AKA: %s Dictionary)\n", lw_dictionary_get_name (dictionary));
+          g_application_command_line_print (command_line, "(AKA: %s Dictionary)\n", NAME);
         }
-        */
       }
     }
 
 errored:
 
-    if (dictionaries != NULL) g_list_free (dictionaries); dictionaries = NULL;
+    if (dictionaryinstalls != NULL) g_list_free (dictionaryinstalls); dictionaryinstalls = NULL;
 }
 
 
@@ -646,7 +644,7 @@ w_command_print_available_dictionaries (WCommand *self)
     if (application == NULL) goto errored;
     command_line = priv->data.command_line;
     if (command_line == NULL) goto errored;
-    dictionary_list = w_application_get_installed_dictionarylist (application);
+    dictionary_list = w_application_get_dictionarylist (application);
     if (dictionary_list == NULL) goto errored;
     dictionaries = lw_dictionarylist_dictionaries (dictionary_list);
 

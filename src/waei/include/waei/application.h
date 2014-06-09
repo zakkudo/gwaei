@@ -32,8 +32,8 @@ GType w_application_get_type (void) G_GNUC_CONST;
 
 const char* w_application_get_program_name (WApplication*);
 
-LwDictionaryList* w_application_get_installed_dictionarylist (WApplication*);
-LwDictionaryList* w_application_get_installable_dictionarylist (WApplication*);
+LwDictionaryList* w_application_get_dictionarylist (WApplication*);
+LwDictionaryInstallList* w_application_get_dictionaryinstalllist (WApplication*);
 
 LwMorphologyEngine* w_application_get_morphologyengine (WApplication *application);
 void w_application_set_morphologyengine (WApplication *application, LwMorphologyEngine *morphologyengine);

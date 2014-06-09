@@ -1555,9 +1555,7 @@ lw_vocabulary_nth (LwVocabulary *self,
     if (link == NULL) goto errored;
     word = LW_WORD (link->data);
 
-
 errored:
-
 
     return word;
 }

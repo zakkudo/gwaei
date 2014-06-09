@@ -27,17 +27,8 @@ typedef enum {
   LW_COMPRESSION_TOTAL
 } LwCompression;
 
-typedef enum {
-  LW_ENCODING_UTF8,
-  LW_ENCODING_EUC_JP,
-  LW_ENCODING_SHIFT_JS,
-  LW_ENCODING_TOTAL
-} LwEncoding;
-
-
 gchar* lw_util_build_filename (const LwFolderPath, const char*);
 const char* lw_util_get_compressionname (const LwCompression);
-const char* lw_util_get_encodingname (const LwEncoding);
 
 
 const char* lw_util_next_hira_char_from_roma (const char*);
