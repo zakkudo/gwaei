@@ -957,7 +957,7 @@ lw_dictionarylist_find (LwDictionaryList* self,
     //Initializations
     priv = self->priv;
     id = g_ascii_strdown (lw_dictionary_build_id_from_type (TYPE, FILENAME), -1);
-    dictionary = g_hash_table_lookup (priv->data.index.id, id);
+    dictionary = lw_dictionarylist_find_by_id (self, id);
 
 errored:
 
@@ -968,8 +968,8 @@ errored:
 
 
 LwDictionary* 
-lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *self,
-                                        const gchar      *FUZZY_DESCRIPTION)
+lw_dictionarylist_fuzzy_find (LwDictionaryList *self,
+                              const gchar      *FUZZY_DESCRIPTION)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
@@ -995,9 +995,9 @@ lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *self,
     else
     {
       if (dictionary == NULL)
-        dictionary = lw_dictionarylist_get_dictionary_by_id (self, FUZZY_DESCRIPTION);
+        dictionary = lw_dictionarylist_find_by_id (self, FUZZY_DESCRIPTION);
       if (dictionary == NULL)
-        dictionary = lw_dictionarylist_get_dictionary_by_filename (self, FUZZY_DESCRIPTION);
+        dictionary = lw_dictionarylist_find_by_filename (self, FUZZY_DESCRIPTION);
     }
 
     return dictionary;
@@ -1005,8 +1005,8 @@ lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *self,
 
 
 LwDictionary* 
-lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *self,
-                                              const gchar      *FILENAME)
+lw_dictionarylist_find_by_filename (LwDictionaryList *self,
+                                    const gchar      *FILENAME)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
@@ -1031,8 +1031,8 @@ errored:
 
 
 LwDictionary* 
-lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *self,
-                                        const gchar      *ID)
+lw_dictionarylist_find_by_id (LwDictionaryList *self,
+                              const gchar      *ID)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);

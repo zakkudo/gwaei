@@ -51,21 +51,14 @@ LwDictionaryList* lw_dictionarylist_new (LwPreferences *preferences);
 GType lw_dictionarylist_get_type (void) G_GNUC_CONST;
 
 
-gint lw_dictionarylist_get_total (LwDictionaryList *self);
-
-void lw_dictionarylist_load_installed (LwDictionaryList *self, LwMorphologyEngine *morphologyengine);
-void lw_dictionarylist_load_installable (LwDictionaryList *self);
-
-void  lw_dictionarylist_load_order (LwDictionaryList *self);
-
 void lw_dictionarylist_load_order (LwDictionaryList *self);
 
 GList* lw_dictionarylist_dictionaries (LwDictionaryList *self);
 
-LwDictionary* lw_dictionarylist_get_dictionary_by_position (LwDictionaryList* self, gint position);
-LwDictionary* lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *self, const gchar *FILENAME);
-LwDictionary* lw_dictionarylist_get_dictionary_fuzzy (LwDictionaryList *self, const gchar *FUZZY_DESCRIPTION);
-LwDictionary* lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *self, const gchar *ENGINE_AND_FILENAME);
+LwDictionary* lw_dictionarylist_find (LwDictionaryList* self, const GType TYPE, const gchar* FILENAME);
+LwDictionary* lw_dictionarylist_fuzzy_find (LwDictionaryList *self, const gchar *FUZZY_DESCRIPTION);
+LwDictionary* lw_dictionarylist_find_by_filename (LwDictionaryList *self, const gchar *FILENAME);
+LwDictionary* lw_dictionarylist_find_by_id (LwDictionaryList *self, const gchar *ID);
 
 GMenuModel* lw_dictionarylist_get_menumodel (LwDictionaryList *self);
 

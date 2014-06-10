@@ -119,7 +119,7 @@ lw_dictionarylist_inserted_cb (LwDictionaryList *dictionary_list,
     LwDictionary *dictionary = NULL;
 
     //Initializations
-    dictionary = lw_dictionarylist_get_dictionary_by_position (dictionary_list, position);
+    dictionary = lw_dictionarylist_nth (dictionary_list, position);
     printf("lw_dictionarylist_inserted_cb\n");
 
     lw_dictionarylist_menumodel_insert (dictionary_list, dictionary, position);
