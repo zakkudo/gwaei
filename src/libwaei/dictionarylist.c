@@ -53,6 +53,7 @@ G_DEFINE_TYPE (LwDictionaryList, lw_dictionarylist, G_TYPE_OBJECT)
 LwDictionaryList* 
 lw_dictionarylist_new (LwPreferences *preferences)
 {
+    //Declarations
     LwDictionaryList *dictionary = NULL;
 
     //Initializations
@@ -68,6 +69,14 @@ lw_dictionarylist_init (LwDictionaryList *self)
     self->priv = LW_DICTIONARYLIST_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwDictionaryListPrivate));
 
+    LwDictionaryListPrivate *priv = NULL;
+
+    priv = self->priv;
+
+    priv->data.index.typename = g_hash_table_new (g_str_hash, g_str_equal);
+    priv->data.index.filename = g_hash_table_new (g_str_hash, g_str_equal);
+    priv->data.index.id = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
+
     lw_dictionarylist_connect_signals (self);
 }
 
@@ -79,8 +88,8 @@ lw_dictionarylist_set_property (GObject      *object,
                                 GParamSpec   *pspec)
 {
     //Declarations
-    LwDictionaryList *self;
-    LwDictionaryListPrivate *priv;
+    LwDictionaryList *self = NULL;
+    LwDictionaryListPrivate *priv = NULL;
 
     //Initializations
     self = LW_DICTIONARYLIST (object);
@@ -105,8 +114,8 @@ lw_dictionarylist_get_property (GObject      *object,
                                 GParamSpec   *pspec)
 {
     //Declarations
-    LwDictionaryList *self;
-    LwDictionaryListPrivate *priv;
+    LwDictionaryList *self = NULL;
+    LwDictionaryListPrivate *priv = NULL;
 
     //Initializations
     self = LW_DICTIONARYLIST (object);
@@ -337,13 +346,36 @@ _add_to_index (LwDictionaryList *self,
     
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
+    gchar *id = NULL;
+    gchar *typename = NULL;
+    gchar *filename = NULL;
 
     //Initializations
     priv = self->priv;
+    id = g_ascii_strdown (lw_dictionary_build_id (dictionary), -1);
+    typename = g_ascii_strdown (g_strdup (G_OBJECT_TYPE_NAME (dictionary)), -1);
+    filename = g_ascii_strdown (g_strdup (lw_dictionary_get_filename (dictionary)), -1);
    
-    //CURRENTLY UNUSED
+    if (typename != NULL && !g_hash_table_contains (priv->data.index.typename, typename))
+    {
+      g_hash_table_insert (priv->data.index.typename, typename, dictionary);
+    }
+
+    if (filename != NULL && !g_hash_table_contains (priv->data.index.filename, filename))
+    {
+      g_hash_table_insert (priv->data.index.filename, filename, dictionary);
+    }
+
+    if (id != NULL && !g_hash_table_contains (priv->data.index.id, id))
+    {
+      g_hash_table_insert (priv->data.index.id, id, dictionary);
+    }
 
 errored:
+
+    if (id != NULL) g_free (id); id = NULL;
+    if (typename != NULL) g_free (typename); typename = NULL;
+    if (filename != NULL) g_free (filename); filename = NULL;
 
     return;
 }
@@ -359,13 +391,36 @@ _remove_from_index (LwDictionaryList *self,
     
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
+    gchar *id = NULL;
+    gchar *typename = NULL;
+    gchar *filename = NULL;
 
     //Initializations
     priv = self->priv;
+    id = g_ascii_strdown (lw_dictionary_build_id (dictionary), -1);
+    typename = g_ascii_strdown (g_strdup (G_OBJECT_TYPE_NAME (dictionary)), -1);
+    filename = g_ascii_strdown (g_strdup (lw_dictionary_get_filename (dictionary)), -1);
+   
+    if (g_hash_table_lookup (priv->data.index.typename, typename) == dictionary)
+    {
+      g_hash_table_remove (priv->data.index.typename, typename);
+    }
 
-    //CURRENTLY UNUSED
+    if (g_hash_table_lookup (priv->data.index.filename, filename) == dictionary)
+    {
+      g_hash_table_remove (priv->data.index.filename, filename);
+    }
+
+    if (g_hash_table_lookup (priv->data.index.id, id) == dictionary)
+    {
+      g_hash_table_remove (priv->data.index.id, id);
+    }
 
 errored:
+
+    if (id != NULL) g_free (id); id = NULL;
+    if (typename != NULL) g_free (typename); typename = NULL;
+    if (filename != NULL) g_free (filename); filename = NULL;
 
     return;
 }
@@ -408,8 +463,8 @@ _rebuild_array (LwDictionaryList *self)
 
 static gint
 _insert (LwDictionaryList *self,
-         gint                    *position,
-         GList                   *dictionaries)
+         gint             *position,
+         GList            *dictionaries)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYLIST (self));
@@ -478,8 +533,8 @@ errored:
 
 static void
 _insert_propogate_changes (LwDictionaryList *self,
-                               gint      position,
-                               gint      number_inserted)
+                           gint              position,
+                           gint              number_inserted)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYLIST (self));
@@ -509,8 +564,8 @@ _insert_propogate_changes (LwDictionaryList *self,
 
 static gint*
 _find_duplicates (LwDictionaryList *self, 
-                  gint                     position, 
-                  GList                   *dictionaries)
+                  gint              position, 
+                  GList            *dictionaries)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
@@ -608,7 +663,7 @@ _remove_sort (gconstpointer a, gconstpointer b)
 
 static gint* 
 _sanitize_indices (LwDictionaryList *self,
-                   gint         *indices)
+                   gint             *indices)
 {
     g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
 
@@ -667,7 +722,7 @@ _sanitize_indices (LwDictionaryList *self,
 
 static GList*
 _remove (LwDictionaryList *self,
-         gint         *indices)
+         gint             *indices)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYLIST (self));
@@ -887,35 +942,26 @@ errored:
 
 
 LwDictionary* 
-lw_dictionarylist_get_dictionary (LwDictionaryList* self,
-                                  const GType       TYPE,
-                                  const gchar*      FILENAME)
+lw_dictionarylist_find (LwDictionaryList* self,
+                        const GType       TYPE,
+                        const gchar*      FILENAME)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL && FILENAME != NULL, NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
-    GList *iter = NULL;
+    gchar *id = NULL;
     LwDictionary *dictionary = NULL;
-    GType type = 0;
-    const gchar *FILENAME2 = NULL;
 
     //Initializations
     priv = self->priv;
-    dictionary = NULL;
+    id = g_ascii_strdown (lw_dictionary_build_id_from_type (TYPE, FILENAME), -1);
+    dictionary = g_hash_table_lookup (priv->data.index.id, id);
 
-    for (iter = priv->data.list; iter != NULL; iter = iter->next)
-    {
-      dictionary = LW_DICTIONARY (iter->data);
-      type = G_OBJECT_TYPE (dictionary);
-      FILENAME2 = lw_dictionary_get_filename (dictionary);
-      if (dictionary != NULL && g_type_is_a (type, TYPE) && strcmp (FILENAME2, FILENAME) == 0)
-      {
-        break;
-      }
-      dictionary = NULL;
-    }
+errored:
+
+    if (id != NULL) g_free (id); id = NULL;
 
     return dictionary;
 }
@@ -963,26 +1009,22 @@ lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *self,
                                               const gchar      *FILENAME)
 {
     //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
     g_assert (FILENAME != NULL);
 
     //Declarations
-    LwDictionaryListPrivate *priv;
-    GList *iter;
-    LwDictionary *dictionary;
-    const gchar *FILENAME2;
+    LwDictionaryListPrivate *priv = NULL;
+    gchar *filename = NULL;
+    LwDictionary *dictionary = NULL;
 
     //Initializations
     priv = self->priv;
-    dictionary = NULL;
+    filename = g_ascii_strdown (g_strdup (FILENAME), -1);
+    dictionary = g_hash_table_lookup (priv->data.index.filename, filename);
 
-    for (iter = priv->data.list; iter != NULL; iter = iter->next)
-    {
-      dictionary = LW_DICTIONARY (iter->data);
-      FILENAME2 = lw_dictionary_get_filename (dictionary);
-      if (FILENAME2 != NULL && g_ascii_strcasecmp (FILENAME2, FILENAME) == 0)
-        break;
-      dictionary = NULL;
-    }
+errored:
+
+    if (filename != NULL) g_free (filename); filename = NULL;
 
     return dictionary;
 }
@@ -990,46 +1032,25 @@ lw_dictionarylist_get_dictionary_by_filename (LwDictionaryList *self,
 
 LwDictionary* 
 lw_dictionarylist_get_dictionary_by_id (LwDictionaryList *self,
-                                        const gchar      *ENGINE_AND_FILENAME)
+                                        const gchar      *ID)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL && ENGINE_AND_FILENAME != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
+    g_return_val_if_fail (ID != NULL, NULL);
 
     //Declarations
-    LwDictionaryListPrivate *priv;
-    GList *link;
-    LwDictionary *dictionary;
-    gchar **pair;
-    const gchar *FILENAME1;
-    const gchar *FILENAME2;
-    GType type1, type2;
+    LwDictionaryListPrivate *priv = NULL;
+    gchar *id = NULL;
+    LwDictionary *dictionary = NULL;
 
     //Initializations
     priv = self->priv;
-    link = NULL;
-    dictionary = NULL;
-    pair = g_strsplit (ENGINE_AND_FILENAME, "/", 2);
+    id = g_ascii_strdown (g_strdup (ID), -1);
+    dictionary = g_hash_table_lookup (priv->data.index.id, id);
 
-    if (pair != NULL)
-    {
-      if (g_strv_length (pair) == 2)
-      {
-        type1 = g_type_from_name (pair[0]);
-        FILENAME1 = pair[1];
+errored:
 
-        for (link = priv->data.list; link != NULL; link = link->next)
-        {
-          dictionary = LW_DICTIONARY (link->data);
-          FILENAME2 = lw_dictionary_get_filename (dictionary);
-          type2 = G_OBJECT_TYPE (dictionary);
-          if (g_type_is_a (type1, type2) && g_ascii_strcasecmp (FILENAME1, FILENAME2) == 0)
-            break;
-          dictionary = NULL;
-        }
-      }
-
-      g_strfreev (pair); pair = NULL;
-    }
+    if (id != NULL) g_free (id); id = NULL;
 
     return dictionary;
 }
@@ -1044,9 +1065,9 @@ lw_dictionarylist_dictionary_exists (LwDictionaryList *self,
     g_return_val_if_fail (dictionary != NULL, FALSE);
 
     //Declarations
-    LwDictionaryListPrivate *priv;
-    gboolean exists;
-    GList *link;
+    LwDictionaryListPrivate *priv = NULL;
+    gboolean exists = NULL;
+    GList *link = NULL;
 
     //Initializations
     priv = self->priv;

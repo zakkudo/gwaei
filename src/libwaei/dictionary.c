@@ -63,8 +63,8 @@ static void
 lw_dictionary_finalize (GObject *object)
 {
     //Declarations
-    LwDictionary *self;
-    LwDictionaryPrivate *priv;
+    LwDictionary *self = NULL;
+    LwDictionaryPrivate *priv = NULL;
 
     //Initalizations
     self = LW_DICTIONARY (object);
@@ -121,8 +121,8 @@ lw_dictionary_get_property (GObject      *object,
                             GParamSpec   *pspec)
 {
     //Declarations
-    LwDictionary *self;
-    LwDictionaryPrivate *priv;
+    LwDictionary *self = NULL;
+    LwDictionaryPrivate *priv = NULL;
 
     //Initializations
     self = LW_DICTIONARY (object);
