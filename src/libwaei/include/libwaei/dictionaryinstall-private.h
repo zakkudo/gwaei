@@ -59,6 +59,9 @@ struct _LwDictionaryInstallClassPrivate {
 
 #define LW_DICTIONARYINSTALL_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYINSTALL, LwDictionaryInstallPrivate));
 
+const gchar* lw_dictionaryinstall_get_name (LwDictionaryInstall *self);
+void lw_dictionaryinstall_set_name (LwDictionaryInstall *self, const gchar *NAME);
+
 G_END_DECLS
 
 #endif

@@ -69,6 +69,14 @@ lw_dictionaryinstalllist_init (LwDictionaryInstallList *self)
     self->priv = LW_DICTIONARYINSTALLLIST_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwDictionaryInstallListPrivate));
 
+    LwDictionaryInstallListPrivate *priv = NULL;
+
+    priv = self->priv;
+
+    priv->data.index.typename = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
+    priv->data.index.filename = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
+    priv->data.index.id = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
+
     lw_dictionaryinstalllist_connect_signals (self);
 }
 
@@ -336,13 +344,49 @@ _add_to_index (LwDictionaryInstallList *self,
     
     //Declarations
     LwDictionaryInstallListPrivate *priv = NULL;
+    const gchar *FILENAME = NULL;
+    const gchar *TYPENAME = NULL;
+    GType type = NULL;
+    gchar *id = NULL;
+    gchar *normalized_filename = NULL;
+    gchar *normalized_typename = NULL;
+    gchar *normalized_id = NULL;
 
     //Initializations
     priv = self->priv;
+    FILENAME = lw_dictionaryinstall_get_name (dictionaryinstall);
+    type = lw_dictionaryinstall_get_gtype (dictionaryinstall);
+    TYPENAME = g_type_name (type);
+    id = lw_dictionary_build_id_from_type (type, FILENAME);
+
+    normalized_filename = lw_util_normalize_string (FILENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized_typename = lw_util_normalize_string (TYPENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized_id = lw_util_normalize_string (id, LW_NORMALIZATION_CASE_INSENSITIVE);
    
-    //CURRENTLY UNUSED
+    if (normalized_filename != NULL && !g_hash_table_contains (priv->data.index.filename, normalized_filename))
+    {
+      g_hash_table_insert (priv->data.index.filename, normalized_filename, dictionaryinstall);
+      normalized_filename = NULL;
+    }
+
+    if (normalized_typename != NULL && !g_hash_table_contains (priv->data.index.typename, normalized_typename))
+    {
+      g_hash_table_insert (priv->data.index.typename, normalized_typename, dictionaryinstall);
+      normalized_typename = NULL;
+    }
+
+    if (normalized_id != NULL && !g_hash_table_contains (priv->data.index.id, normalized_id))
+    {
+      g_hash_table_insert (priv->data.index.id, normalized_id, dictionaryinstall);
+      normalized_id = NULL;
+    }
 
 errored:
+
+    if (normalized_filename != NULL) g_free (normalized_filename); normalized_filename = NULL;
+    if (normalized_typename != NULL) g_free (normalized_typename); normalized_typename = NULL;
+    if (id != NULL) g_free (id); id = NULL;
+    if (normalized_id != NULL) g_free (normalized_id); normalized_id = NULL;
 
     return;
 }
@@ -358,13 +402,46 @@ _remove_from_index (LwDictionaryInstallList *self,
     
     //Declarations
     LwDictionaryInstallListPrivate *priv = NULL;
+    const gchar *FILENAME = NULL;
+    const gchar *TYPENAME = NULL;
+    GType type = NULL;
+    gchar *id = NULL;
+    gchar *normalized_filename = NULL;
+    gchar *normalized_typename = NULL;
+    gchar *normalized_id = NULL;
 
     //Initializations
     priv = self->priv;
+    FILENAME = lw_dictionaryinstall_get_name (dictionaryinstall);
+    type = lw_dictionaryinstall_get_gtype (dictionaryinstall);
+    TYPENAME = g_type_name (type);
+    id = lw_dictionary_build_id_from_type (type, FILENAME);
 
-    //CURRENTLY UNUSED
+    normalized_filename = lw_util_normalize_string (FILENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized_typename = lw_util_normalize_string (TYPENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized_id = lw_util_normalize_string (id, LW_NORMALIZATION_CASE_INSENSITIVE);
+   
+    if (normalized_filename != NULL && g_hash_table_lookup (priv->data.index.filename, normalized_filename) != dictionaryinstall)
+    {
+      g_hash_table_remove (priv->data.index.filename, normalized_filename);
+    }
+
+    if (normalized_typename != NULL && g_hash_table_lookup (priv->data.index.typename, normalized_typename) != dictionaryinstall)
+    {
+      g_hash_table_remove (priv->data.index.typename, normalized_typename);
+    }
+
+    if (normalized_id != NULL && g_hash_table_lookup (priv->data.index.id, normalized_id) != dictionaryinstall)
+    {
+      g_hash_table_remove (priv->data.index.id, normalized_id);
+    }
 
 errored:
+
+    if (normalized_filename != NULL) g_free (normalized_filename); normalized_filename = NULL;
+    if (normalized_typename != NULL) g_free (normalized_typename); normalized_typename = NULL;
+    if (id != NULL) g_free (id); id = NULL;
+    if (normalized_id != NULL) g_free (normalized_id); normalized_id = NULL;
 
     return;
 }
@@ -993,4 +1070,45 @@ lw_dictionaryinstalllist_dictionaryinstalls (LwDictionaryInstallList *self)
 
     return dictionaryinstalls;
 }
+
+
+LwDictionaryInstall*
+lw_dictionaryinstalllist_fuzzy_find (LwDictionaryInstallList *self,
+                                     const gchar             *DESCRIPTION)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+
+    //Declarations
+    LwDictionaryInstallListPrivate *priv = NULL;
+    GList *dictionaryinstalls = NULL;
+    LwDictionaryInstall *dictionaryinstall = NULL;
+    gchar *normalized = NULL;
+
+    //Initializations
+    priv = self->priv;
+    normalized = lw_util_normalize_string (DESCRIPTION, LW_NORMALIZATION_CASE_INSENSITIVE);
+
+    if (dictionaryinstall == NULL)
+    {
+      dictionaryinstall = g_hash_table_lookup (priv->data.index.id, normalized);
+    }
+
+    if (dictionaryinstall == NULL)
+    {
+      dictionaryinstall = g_hash_table_lookup (priv->data.index.filename, normalized);
+    }
+
+    if (dictionaryinstall == NULL)
+    {
+      dictionaryinstall = g_hash_table_lookup (priv->data.index.typename, normalized);
+    }
+
+errored:
+
+    if (normalized != NULL) g_free (normalized); normalized = NULL;
+
+    return dictionaryinstall;
+}
+
 

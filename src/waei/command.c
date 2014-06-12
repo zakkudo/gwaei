@@ -470,11 +470,10 @@ w_command_install_dictionary (WCommand *self)
     WCommandPrivate *priv = NULL;
     WApplication *application = NULL;
     GApplicationCommandLine *command_line = NULL;
-    LwDictionaryList *dictionary_list = NULL;
-    LwDictionary *dictionary = NULL;
+    LwDictionaryInstallList *dictionaryinstalllist = NULL;
+    LwDictionaryInstall *dictionaryinstall = NULL;
     gint resolution = -1;
     const gchar *install_switch_data = NULL;
-      /*TODO
 
     //Initializations
     priv = self->priv;
@@ -483,14 +482,14 @@ w_command_install_dictionary (WCommand *self)
     command_line = priv->data.command_line;
     if (command_line == NULL) goto errored;
     install_switch_data = w_command_get_install_switch_data (self);
-    dictionary_list = w_application_get_installable_dictionarylist (application);
-    if (dictionary_list == NULL) goto errored;
-    dictionary = lw_dictionarylist_get_dictionary_fuzzy (dictionary_list, install_switch_data);
+    dictionaryinstalllist = w_application_get_dictionaryinstalllist (application);
+    if (dictionaryinstalllist == NULL) goto errored;
+    dictionaryinstall = lw_dictionaryinstalllist_fuzzy_find (dictionaryinstalllist, install_switch_data);
     resolution = 0;
 
-    if (dictionary != NULL)
+    if (dictionaryinstall != NULL)
     {
-      lw_dictionary_install (dictionary, progress);
+      lw_dictionaryinstall_install (dictionaryinstall, progress);
 
       if (lw_progress_errored (progress)) 
         g_application_command_line_printerr (command_line, "\n%s\n", gettext("Installation failed!"));
@@ -502,14 +501,11 @@ w_command_install_dictionary (WCommand *self)
       g_application_command_line_print (command_line, "\n%s \"was not\" found!\n\n", install_switch_data);
       w_command_print_installable_dictionaries (self);
     }
-        */
 
-/*TODO
     if (lw_progress_errored (progress))
     {
       resolution = 1;
     }
-    */
 
 errored:
 

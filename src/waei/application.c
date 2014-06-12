@@ -409,6 +409,8 @@ w_application_get_dictionarylist (WApplication *self)
     //Sanity checks
     g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
 
+printf("BREAK w_application_get_dictionarylist\n");
+
     //Declarations
     WApplicationPrivate *priv = NULL;
     LwMorphologyEngine *morphologyengine = NULL;

@@ -932,6 +932,8 @@ lw_dictionarylist_load_installed (LwDictionaryList   *self,
 
     dictionaries = g_list_reverse (dictionaries);
 
+    printf("BREAK loading %d dictionaries\n", g_list_length (dictionaries));
+
     lw_dictionarylist_insert (self, -1, dictionaries);
 
 errored:

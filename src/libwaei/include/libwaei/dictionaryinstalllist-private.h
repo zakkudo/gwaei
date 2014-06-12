@@ -26,7 +26,14 @@ typedef enum {
   TOTAL_CLASS_SIGNALIDS
 } ClassSignalId;
 
+struct _Index {
+  GHashTable *typename;
+  GHashTable *filename;
+  GHashTable *id;
+};
+
 struct _Data {
+  struct _Index index;
   GList *list; //<!-- A Glist of LwWord
   GList **array;
   gint length;
