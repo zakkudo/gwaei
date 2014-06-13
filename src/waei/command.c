@@ -474,6 +474,7 @@ w_command_install_dictionary (WCommand *self)
     LwDictionaryInstall *dictionaryinstall = NULL;
     gint resolution = -1;
     const gchar *install_switch_data = NULL;
+    LwProgress *progress = NULL;
 
     //Initializations
     priv = self->priv;
@@ -485,6 +486,7 @@ w_command_install_dictionary (WCommand *self)
     dictionaryinstalllist = w_application_get_dictionaryinstalllist (application);
     if (dictionaryinstalllist == NULL) goto errored;
     dictionaryinstall = lw_dictionaryinstalllist_fuzzy_find (dictionaryinstalllist, install_switch_data);
+    progress = lw_progress_new ();
     resolution = 0;
 
     if (dictionaryinstall != NULL)

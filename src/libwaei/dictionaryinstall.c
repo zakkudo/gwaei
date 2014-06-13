@@ -1384,42 +1384,32 @@ lw_dictionary_installer_is_builtin (LwDictionary *self)
 }
 
 
-//!
-//! @brief Installs a LwDictionary object using the provided gui update callback
-//!        This function should normally only be used in the lw_installdictionary_install function.
-//! @param self The LwDictionary object to use for installing the self with.
-//! @param cb A LwIoProgressCallback used to giver user feedback on how far the installation is.
-//! @param data A gpointer to data to pass to the LwIoProgressCallback.
-//! @param error A pointer to a GError object to pass errors to or NULL.
-//! @see lw_installdictionary_download
-//! @see lw_installdictionary_convert_encoding
-//! @see lw_installdictionary_postprocess
-//! @see lw_installdictionary_install
-//!
 gboolean 
-lw_dictionary_install (LwDictionary *self)
+lw_dictionaryinstall_install (LwDictionaryInstall *self,
+                              LwProgress          *progress)
 {
-  /*TODO
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), FALSE);
-    g_return_val_if_fail (self->priv != NULL, FALSE);
-    g_assert (self->priv->install != NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
+
     if (lw_progress_errored (progress)) return FALSE;
 
-    const gchar *name = lw_dictionary_get_name (self);
+    //Declarations
+    const gchar *NAME = lw_dictionaryinstall_get_name (self);
     const gchar *MESSAGE = gettext("Installing %s Dictionary...");
-    lw_progress_set_primary_message_printf (progress, MESSAGE, name);
+    lw_progress_set_primary_message_printf (progress, MESSAGE, NAME);
 
+    //Initializations
+
+/*
     lw_dictionary_installer_download (self, progress);
     lw_dictionary_installer_decompress (self, progress);
     lw_dictionary_installer_convert_encoding (self, progress);
     lw_dictionary_installer_postprocess (self, progress);
     lw_dictionary_installer_install (self, progress);
     lw_dictionary_installer_clean (self, progress);
+    */
 
     return (!lw_progress_errored (progress));
-    */
-    return FALSE;
 }
 
 

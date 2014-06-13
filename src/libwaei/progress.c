@@ -90,7 +90,7 @@ lw_progress_init (LwProgress *self)
 
 
 static void 
-lw_progress_set_property (GObject      *object,
+lw_progress_set_property (GObject        *object,
                             guint         property_id,
                             const GValue *value,
                             GParamSpec   *pspec)
@@ -241,7 +241,7 @@ lw_progress_class_init (LwProgressClass *klass)
         G_TYPE_NONE, 0
     );
 
-    _klasspriv->pspec[PROP_ERROR] = g_param_spec_object (
+    _klasspriv->pspec[PROP_ERROR] = g_param_spec_boxed (
         "error",
         "FIlename construct prop",
         "Set the filename",
@@ -275,7 +275,7 @@ lw_progress_class_init (LwProgressClass *klass)
         FALSE,
         G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_CANCELLABLE, _klasspriv->pspec[PROP_CANCELLABLE]);
+    g_object_class_install_property (object_class, PROP_CANCELLED, _klasspriv->pspec[PROP_CANCELLED]);
 
     _klasspriv->pspec[PROP_PRIMARY_MESSAGE] = g_param_spec_string (
         "primary-message",
@@ -580,27 +580,26 @@ lw_progress_set_completed (LwProgress *self,
     //Declarations
     LwProgressPrivate *priv = NULL;
     gboolean changed = FALSE;
+    gboolean is_locked = TRUE;
 
     //Initializations
     priv = self->priv;
-    changed = (priv->data.complete != complete);
-    if (!changed) goto errored;
 
     g_mutex_lock (&priv->data.mutex);
+
+    changed = (priv->data.complete != complete);
+    if (!changed) goto errored;
     
     priv->data.complete = complete;
 
-    g_mutex_unlock (&priv->data.mutex);
+errored:
 
-    g_signal_emit (
+    if (is_locked) g_mutex_unlock (&self->priv->data.mutex);
+    if (changed) g_signal_emit (
       G_OBJECT (self),
       _klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
       0
     );
-
-errored:
-
-    if (!changed) g_mutex_unlock (&self->priv->data.mutex);
 
     return;
 }
@@ -697,13 +696,14 @@ lw_progress_errored (LwProgress *self)
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    gboolean errored = FALSE;
 
     //Initialization
     priv = self->priv;
 
     g_mutex_lock (&priv->data.mutex);
 
-    gboolean errored = (priv->data.error != NULL);
+    errored = (priv->data.error != NULL);
 
     g_mutex_unlock (&priv->data.mutex);
 
@@ -719,13 +719,14 @@ lw_progress_is_cancelled (LwProgress *self)
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    gboolean is_cancelled = FALSE;
 
     //Initializations
     priv = self->priv;
 
     g_mutex_lock (&priv->data.mutex);
 
-    gboolean is_cancelled = (priv->data.cancellable != NULL && g_cancellable_is_cancelled (priv->data.cancellable));
+    is_cancelled = (priv->data.cancellable != NULL && g_cancellable_is_cancelled (priv->data.cancellable));
 
     g_mutex_unlock (&priv->data.mutex);
 
@@ -779,25 +780,26 @@ lw_progress_set_primary_message (LwProgress *self,
     //Sanity checks
     g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&self->priv->data.mutex);
-
     //Declarations
     LwProgressPrivate *priv = NULL;
     gboolean changed = FALSE;
+    gboolean is_locked = TRUE;
 
     //Initializations
     priv = self->priv;
+
+    g_mutex_lock (&self->priv->data.mutex);
+
     changed = (g_strcmp0 (MESSAGE, priv->data.primary_message) != 0);
     if (!changed) goto errored;
 
     g_free (priv->data.primary_message);
     priv->data.primary_message = g_strdup (MESSAGE);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PRIMARY_MESSAGE]);
-
 errored:
 
-    if (!changed) g_mutex_unlock (&self->priv->data.mutex);
+    if (is_locked) g_mutex_unlock (&self->priv->data.mutex);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PRIMARY_MESSAGE]);
 }
 
 
@@ -852,13 +854,14 @@ lw_progress_get_primary_message (LwProgress *self)
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    gchar *primary_message = NULL;
 
     //Initializations
     priv = self->priv;
 
     g_mutex_lock (&priv->data.mutex);
 
-    gchar *primary_message = priv->data.primary_message;
+    primary_message = priv->data.primary_message;
     if (primary_message == NULL) primary_message = "";
 
     g_mutex_unlock (&priv->data.mutex);
@@ -874,26 +877,26 @@ lw_progress_set_secondary_message (LwProgress  *self,
     //Sanity checks
     g_return_if_fail (self != NULL);
 
-    g_mutex_lock (&self->priv->data.mutex);
-
     //Declarations
     LwProgressPrivate *priv = NULL;
     gboolean changed = FALSE;
+    gboolean is_locked = TRUE;
 
     //Initializations
+    priv = self->priv;
+
+    g_mutex_lock (&self->priv->data.mutex);
+
     changed = (g_strcmp0 (MESSAGE, priv->data.secondary_message) != 0);
     if (!changed) goto errored;
 
     g_free (priv->data.secondary_message);
     priv->data.secondary_message = g_strdup (MESSAGE);
 
-    g_mutex_unlock (&self->priv->data.mutex);
-
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_SECONDARY_MESSAGE]);
-
 errored:
 
-    if (!changed) g_mutex_unlock (&self->priv->data.mutex);
+    if (is_locked) g_mutex_unlock (&self->priv->data.mutex);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_SECONDARY_MESSAGE]);
 
     return;
 }
@@ -948,15 +951,16 @@ lw_progress_get_secondary_message (LwProgress *self)
     //Sanity checks
     g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&self->priv->data.mutex);
-
     //Declarations
     LwProgressPrivate *priv = NULL;
+    gchar *secondary_message = NULL;
 
     //Initializations
     priv = self->priv;
 
-    gchar *secondary_message = priv->data.secondary_message;
+    g_mutex_lock (&self->priv->data.mutex);
+
+    secondary_message = priv->data.secondary_message;
     if (secondary_message == NULL) secondary_message = "";
 
     g_mutex_unlock (&priv->data.mutex);
@@ -972,27 +976,26 @@ lw_progress_set_step_message (LwProgress  *self,
     //Sanity checks
     g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&self->priv->data.mutex);
-
     //Declarations
     LwProgressPrivate *priv = NULL;
     gboolean changed = FALSE;
+    gboolean is_locked = TRUE;
 
     //Initializations
     priv = self->priv;
+
+    g_mutex_lock (&self->priv->data.mutex);
+
     changed = (g_strcmp0(MESSAGE, priv->data.step_message) != 0);
     if (changed == FALSE) goto errored;
     
     g_free (priv->data.step_message);
     priv->data.step_message = g_strdup (MESSAGE);
 
-    g_mutex_unlock (&self->priv->data.mutex);
-
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_STEP_MESSAGE]);
-
 errored:
 
-    if (!changed) g_mutex_unlock (&self->priv->data.mutex);
+    if (is_locked) g_mutex_unlock (&self->priv->data.mutex);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_STEP_MESSAGE]);
   
     return;
 }
@@ -1047,14 +1050,15 @@ lw_progress_get_step_message (LwProgress *self)
     //Sanity checks
     g_return_if_fail (LW_IS_PROGRESS (self));
 
-    g_mutex_lock (&self->priv->data.mutex);
-
     //Declarations
     LwProgressPrivate *priv = NULL;
     gchar *step_message = NULL;
 
     //Initializations
     priv = self->priv;
+
+    g_mutex_lock (&self->priv->data.mutex);
+
     step_message = priv->data.step_message;
     if (step_message == NULL) step_message = "";
 
