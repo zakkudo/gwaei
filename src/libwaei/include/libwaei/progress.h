@@ -54,7 +54,10 @@ gboolean lw_progress_errored (LwProgress *self);
 void lw_progress_set_completed (LwProgress *self, gboolean complete);
 gboolean lw_progress_completed (LwProgress *self);
 
+gdouble lw_progress_get_current (LwProgress *self);
 void lw_progress_set_current (LwProgress *self, gdouble current_progress);
+
+gboolean lw_progress_get_total (LwProgress *self);
 void lw_progress_set_total (LwProgress *self, gdouble total_progress);
 
 gdouble lw_progress_get_fraction (LwProgress *self);
