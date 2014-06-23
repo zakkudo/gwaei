@@ -10,7 +10,7 @@ typedef enum {
     PROP_GTYPE,
     PROP_TEXT_ENCODING,
     PROP_PREFERENCES,
-    PROP_DOWNLOAD_PREFERENCE_KEY,
+    PROP_DOWNLOAD_KEY,
     PROP_DOWNLOAD_URI,
     PROP_SPLIT_PLACES_FROM_NAMES,
     PROP_MERGE_RADICALS_INTO_KANJI,
@@ -35,6 +35,7 @@ struct _Data {
   LwDictionaryInstallStatus status;
   LwPreferences *preferences;
   gchar *download_key;
+  gchar *download_uri;
   gchar *text_encoding;
   gchar **dependencies;
   GType gtype;
@@ -63,6 +64,8 @@ const gchar* lw_dictionaryinstall_get_name (LwDictionaryInstall *self);
 void lw_dictionaryinstall_set_name (LwDictionaryInstall *self, const gchar *NAME);
 
 G_END_DECLS
+
+#include "dictionaryinstallstatehistory.h"
 
 #endif
 

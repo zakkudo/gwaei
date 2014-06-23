@@ -60,6 +60,9 @@ GType lw_dictionaryinstall_get_gtype (LwDictionaryInstall *self);
 void lw_dictionaryinstall_set_download_key (LwDictionaryInstall *self, const gchar *DOWNLOAD_KEY);
 const gchar* lw_dictionaryinstall_get_download_key (LwDictionaryInstall *self);
 
+void lw_dictionaryinstall_set_download_uri (LwDictionaryInstall *self, const gchar *DOWNLOAD_URI);
+const gchar* lw_dictionaryinstall_get_download_uri (LwDictionaryInstall *self);
+
 void lw_dictionaryinstall_set_preferences (LwDictionaryInstall *self, LwPreferences *preferences);
 LwPreferences* lw_dictionaryinstall_get_preferences (LwDictionaryInstall *self);
 
