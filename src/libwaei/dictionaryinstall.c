@@ -1109,101 +1109,95 @@ lw_dictionaryinstall_download (LwDictionaryInstall             *self,
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
     const gchar *URI = NULL;
+    gchar *filename = NULL;
+    gchar *base = NULL;
     gchar *target = NULL;
 
     //Initializations
     priv = self->priv;
-
     URI = lw_dictionaryinstall_get_download_uri (self);
     if (URI == NULL) goto errored;
-    priv->data.status = LW_DICTIONARYINSTALL_STATUS_DOWNLOADING;
+    filename = g_filename_from_uri (URI, NULL, NULL);
+    if (filename == NULL) goto errored;
+    base = g_path_get_basename (filename);
+    if (base == NULL) goto errored;
+    target = lw_util_build_filename (LW_PATH_CACHE, base);
+    if (target == NULL) goto errored;
 
-    if (URI != NULL) {
-      //File is located locally so copy it
-      if (g_file_test (URI, G_FILE_TEST_IS_REGULAR))
-      {
-        const gchar *MESSAGE = gettext("Copying from %s...");
-        lw_progress_set_secondary_message_printf (progress, MESSAGE, URI);
-        lw_io_copy (URI, target, progress);
-      }
-      //Download the file
-      else
-      {
-        const gchar *MESSAGE = gettext("Downloading from %s...");
-        lw_progress_set_secondary_message_printf (progress, MESSAGE, URI);
-        lw_io_download (URI, target, progress);
-      }
+    lw_dictionaryinstallstatehistory_add_full (state_history, "download", target);
+
+    //File is located locally so copy it
+    if (g_file_test (URI, G_FILE_TEST_IS_REGULAR))
+    {
+      const gchar *MESSAGE = gettext("Copying from %s...");
+      lw_progress_set_secondary_message_printf (progress, MESSAGE, URI);
+      lw_io_copy (URI, target, progress);
+    }
+    //Download the file
+    else
+    {
+      const gchar *MESSAGE = gettext("Downloading from %s...");
+      lw_progress_set_secondary_message_printf (progress, MESSAGE, URI);
+      lw_io_download (URI, target, progress);
     }
 
 errored:
 
-    if (target != NULL) g_free (target); target = NULL;
+    g_free (filename); filename = NULL;
+    g_free (base); base = NULL;
+    g_free (target); target = NULL;
 
     return (!lw_progress_errored (progress));
 }
 
 
-//!
-//! @brief Detects the compression scheme of a file and decompresses it using the approprate function.
-//!        This function should normally only be used in the lw_installdictionary_install function.
-//! @param self The LwDictionary object to use to decompress the self with.
-//! @param data A gpointer to data to pass to the LwIoProgressCallback.
-//! @param error A pointer to a GError object to pass errors to or NULL.
-//! @see lw_installdictionary_download
-//! @see lw_installdictionary_convert_encoding
-//! @see lw_installdictionary_postprocess
-//! @see lw_installdictionary_install
-//!
 gboolean 
-lw_dictionary_installer_decompress (LwDictionary *self, 
-                                    LwProgress   *progress)
+lw_dictionaryinstall_installer_decompress (LwDictionaryInstall             *self, 
+                                           LwProgress                      *progress,
+                                           LwDictionaryInstallStateHistory *state_history)
 {
-  /*TODO
     //Sanity check
     g_return_val_if_fail (self != NULL, FALSE);
     if (lw_progress_should_abort (progress)) return FALSE;
 
     //Declarations
-		LwDictionaryPrivate *priv;
-    gchar **sourcelist, **sourceiter;
-    gchar **targetlist, **targetiter;
+		LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallState *state = NULL;
+    const gchar *SOURCE = NULL;
+    gchar *target = NULL;
 
     //Initializations
 		priv = self->priv;
-    sourceiter = sourcelist = lw_dictionary_installer_get_decompresslist (self);
-    targetiter = targetlist = lw_dictionary_installer_get_encodelist (self);
+    state = lw_dictionaryinstallstatehistory_current (state_history);
+    if (state == NULL) goto errored;
+    SOURCE = state->path;
+    if (SOURCE == NULL) goto errored;
+    if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) goto errored;
 
-    priv->install->status = LW_DICTIONARY_INSTALLER_STATUS_DECOMPRESSING;
-
-    if (sourcelist != NULL && targetlist != NULL)
     {
-      priv->install->index = 0;
-      while (*sourceiter != NULL && *targetiter != NULL)
+      const gchar *MESSAGE = gettext("Decompressing %s...");
+      lw_progress_set_secondary_message_printf (progress, MESSAGE, state->basename);
+      if (g_strcmp0 (state->SUFFIX, ".gz") || g_strcmp0 (state->SUFFIX, ".gzip"))
       {
-        if (g_file_test (*sourceiter, G_FILE_TEST_IS_REGULAR))
-        {
-          gchar *filename = g_path_get_basename (*sourceiter);
-          if (filename != NULL)
-          {
-            const gchar *MESSAGE = gettext("Decompressing %s...");
-            lw_progress_set_secondary_message_printf (progress, MESSAGE, filename);
-            g_free (filename); filename = NULL;
-          }
-          if (g_str_has_suffix (*sourceiter, "gz") || g_str_has_suffix (*sourceiter, "gzip"))
-            lw_io_gunzip_file (*sourceiter, *targetiter, progress);
-          else
-            lw_io_copy (*sourceiter, *targetiter, progress);
-        }
-
-
-        sourceiter++;
-        targetiter++;
-        priv->install->index++;
+        target = g_strjoin(".", state->suffixless, "decompressed");
+        lw_dictionaryinstallstatehistory_add_full (state_history, "decompress", target);
+        lw_io_gunzip_file (state->path, target, progress);
+      }
+      else
+      {
+        target = g_strjoin(".", state->path, "decompressed");
+        lw_dictionaryinstallstatehistory_add_full (state_history, "decompress", target);
+        lw_io_copy (state->path, target, progress);
       }
     }
 
+
+
+errored:
+
+    g_free (target); target = NULL;
+
     return (!lw_progress_errored (progress));
-    */
 }
 
 
@@ -1377,7 +1371,6 @@ lw_dictionary_installer_get_stage_progress (LwDictionary *self)
     current = final = 0.0;
 
     //Get the current progress
-    status = lw_dictionary_installer_get_status (self);
     index = lw_dictionary_installer_get_file_index (self);
 
     switch (status)
@@ -1491,42 +1484,6 @@ lw_dictionary_installer_get_total_progress (LwDictionary *self)
 
 
 /*TODO
-LwDictionaryInstallerStatus
-lw_dictionary_installer_get_status (LwDictionary *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, -1);
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-
-    //Initializations;
-    priv = self->priv;
-    install = priv->install;
-
-    return install->status;
-}
-
-
-void 
-lw_dictionary_installer_set_status (LwDictionary *self, LwDictionaryInstallerStatus status)
-{
-    //Sanity checks
-    g_return_if_fail (self != NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-
-    //Initializations
-    priv = self->priv;
-    install = priv->install;
-
-    install->status = status;
-}
-
-
 gint
 lw_dictionary_installer_get_file_index (LwDictionary *self)
 {

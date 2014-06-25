@@ -7,6 +7,9 @@ G_BEGIN_DECLS
 struct _LwDictionaryInstallState {
   gchar *name;
   gchar *path;
+  gchar *basename;
+  const gchar *SUFFIX;
+  gchar *suffixless;
 };
 
 
@@ -25,7 +28,9 @@ LwDictionaryInstallStateHistory* lw_dictionaryinstallstatehistory_new (void);
 void lw_dictionaryinstallstatehistory_free (LwDictionaryInstallStateHistory *self);
 
 void lw_dictionaryinstallstatehistory_add (LwDictionaryInstallStateHistory *self, LwDictionaryInstallState *state);
+void lw_dictionaryinstallstatehistory_add_full (LwDictionaryInstallStateHistory *self, const gchar *NAME, const gchar *PATH);
 
+LwDictionaryInstallState* lw_dictionaryinstallstatehistory_current (LwDictionaryInstallStateHistory *self);
 
 G_END_DECLS
 

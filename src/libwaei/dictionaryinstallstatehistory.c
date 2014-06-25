@@ -55,6 +55,10 @@ lw_dictionaryinstallstate_new (const gchar *NAME,
 
     self->name = g_strdup (NAME);
     self->path = g_strdup (PATH);
+    self->basename = g_path_get_basename (PATH);
+    self->SUFFIX = g_utf8_strrchr (self->basename, strlen(self->basename), '.');
+    if (self->SUFFIX == NULL) self->SUFFIX = "";
+    self->suffixless = g_strndup(self->path, strlen(self->path) - strlen(self->SUFFIX));
 
     return self;
 }
@@ -69,6 +73,7 @@ lw_dictionaryinstallstate_free (LwDictionaryInstallState *self)
     //Declarations
     g_free (self->name);
     g_free (self->path);
+    g_free (self->basename);
 
     memset(self, 0, sizeof(self));
 }
