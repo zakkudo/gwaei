@@ -1,6 +1,8 @@
 #ifndef LW_DICTIONARYINSTALL_PRIVATE_INCLUDED
 #define LW_DICTIONARYINSTALL_PRIVATE_INCLUDED
 
+#include "dictionaryinstallstatehistory.h"
+
 G_BEGIN_DECLS
 
 typedef enum {
@@ -41,6 +43,7 @@ struct _Data {
   gchar **dependencies;
   GType gtype;
   LwProgress *progress;
+  LwDictionaryInstallStateHistory *history;
 };
 
 struct _Config {
@@ -65,8 +68,6 @@ const gchar* lw_dictionaryinstall_get_name (LwDictionaryInstall *self);
 void lw_dictionaryinstall_set_name (LwDictionaryInstall *self, const gchar *NAME);
 
 G_END_DECLS
-
-#include "dictionaryinstallstatehistory.h"
 
 #endif
 

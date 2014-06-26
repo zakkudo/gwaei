@@ -32,6 +32,8 @@ void lw_dictionaryinstallstatehistory_add_full (LwDictionaryInstallStateHistory 
 
 LwDictionaryInstallState* lw_dictionaryinstallstatehistory_current (LwDictionaryInstallStateHistory *self);
 
+void lw_dictionaryinstallstatehistory_clear (LwDictionaryInstallStateHistory *self);
+
 G_END_DECLS
 
 #endif

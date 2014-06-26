@@ -160,6 +160,17 @@ lw_dictionaryinstallstatehistory_current (LwDictionaryInstallStateHistory *self)
 
 
 void
+lw_dictionaryinstallstatehistory_clear (LwDictionaryInstallStateHistory *self)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    g_list_free_full (self->states, (GDestroyNotify) lw_dictionaryinstallstate_free);
+    self->states = NULL;
+}
+
+
+void
 lw_dictionaryinstallstatehistory_foreach (LwDictionaryInstallStateHistory            *self, 
                                           LwDictionaryInstallStateHistoryForeachFunc  func,
                                           gpointer                                    user_data)

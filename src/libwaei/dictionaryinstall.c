@@ -70,6 +70,14 @@ lw_dictionaryinstall_init (LwDictionaryInstall *self)
 {
     self->priv = LW_DICTIONARYINSTALL_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwDictionaryInstallPrivate));
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    priv->data.history = lw_dictionaryinstallstatehistory_new ();
 }
 
 
@@ -1098,16 +1106,15 @@ lw_dictionary_installer_is_valid (LwDictionary *self)
 */
 
 gboolean 
-lw_dictionaryinstall_download (LwDictionaryInstall             *self, 
-                               LwProgress                      *progress,
-                               LwDictionaryInstallStateHistory *state_history)
+lw_dictionaryinstall_download (LwDictionaryInstall *self)
 {
     //Sanity check
-    if (lw_progress_should_abort (progress)) return FALSE;
-    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
+    if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwProgress *progress = NULL;
     const gchar *URI = NULL;
     gchar *filename = NULL;
     gchar *base = NULL;
@@ -1115,6 +1122,7 @@ lw_dictionaryinstall_download (LwDictionaryInstall             *self,
 
     //Initializations
     priv = self->priv;
+    progress = priv->data.progress;
     URI = lw_dictionaryinstall_get_download_uri (self);
     if (URI == NULL) goto errored;
     filename = g_filename_from_uri (URI, NULL, NULL);
@@ -1124,7 +1132,8 @@ lw_dictionaryinstall_download (LwDictionaryInstall             *self,
     target = lw_util_build_filename (LW_PATH_CACHE, base);
     if (target == NULL) goto errored;
 
-    lw_dictionaryinstallstatehistory_add_full (state_history, "download", target);
+    lw_dictionaryinstallstatehistory_clear (priv->data.history);
+    lw_dictionaryinstallstatehistory_add_full (priv->data.history, "download", target);
 
     //File is located locally so copy it
     if (g_file_test (URI, G_FILE_TEST_IS_REGULAR))
@@ -1152,23 +1161,24 @@ errored:
 
 
 gboolean 
-lw_dictionaryinstall_installer_decompress (LwDictionaryInstall             *self, 
-                                           LwProgress                      *progress,
-                                           LwDictionaryInstallStateHistory *state_history)
+lw_dictionaryinstall_decompress (LwDictionaryInstall *self)
 {
     //Sanity check
-    g_return_val_if_fail (self != NULL, FALSE);
-    if (lw_progress_should_abort (progress)) return FALSE;
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
+    if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
 
     //Declarations
 		LwDictionaryInstallPrivate *priv = NULL;
+    LwProgress *progress = NULL;
     LwDictionaryInstallState *state = NULL;
     const gchar *SOURCE = NULL;
     gchar *target = NULL;
+    const gchar *STAGE_NAME = "decompressed";
 
     //Initializations
 		priv = self->priv;
-    state = lw_dictionaryinstallstatehistory_current (state_history);
+    progress = priv->data.progress;
+    state = lw_dictionaryinstallstatehistory_current (priv->data.history);
     if (state == NULL) goto errored;
     SOURCE = state->path;
     if (SOURCE == NULL) goto errored;
@@ -1179,19 +1189,17 @@ lw_dictionaryinstall_installer_decompress (LwDictionaryInstall             *self
       lw_progress_set_secondary_message_printf (progress, MESSAGE, state->basename);
       if (g_strcmp0 (state->SUFFIX, ".gz") || g_strcmp0 (state->SUFFIX, ".gzip"))
       {
-        target = g_strjoin(".", state->suffixless, "decompressed");
-        lw_dictionaryinstallstatehistory_add_full (state_history, "decompress", target);
+        target = g_strjoin(".", state->suffixless, STAGE_NAME);
+        lw_dictionaryinstallstatehistory_add_full (priv->data.history, STAGE_NAME, target);
         lw_io_gunzip_file (state->path, target, progress);
       }
       else
       {
-        target = g_strjoin(".", state->path, "decompressed");
-        lw_dictionaryinstallstatehistory_add_full (state_history, "decompress", target);
+        target = g_strjoin(".", state->path, STAGE_NAME);
+        lw_dictionaryinstallstatehistory_add_full (priv->data.history, STAGE_NAME, target);
         lw_io_copy (state->path, target, progress);
       }
     }
-
-
 
 errored:
 
@@ -1201,90 +1209,71 @@ errored:
 }
 
 
-//!
-//! @brief Converts the encoding to UTF8 for the file
-//!        This function should normally only be used in the lw_installdictionary_install function.
-//! @param self The LwDictionary object to use to convert the text encoding the self with.
-//! @param data A gpointer to data to pass to the LwIoProgressCallback.
-//! @param error A pointer to a GError object to pass errors to or NULL.
-//! @see lw_installdictionary_download
-//! @see lw_installdictionary_convert_encoding
-//! @see lw_installdictionary_postprocess
-//! @see lw_installdictionary_install
-//!
 gboolean 
-lw_dictionary_installer_convert_encoding (LwDictionary *self,
-                                          LwProgress   *progress) 
+lw_dictionaryinstall_convert_encoding (LwDictionaryInstall *self)
 {
-  /*TODO
     //Sanity check
-    if (lw_progress_should_abort (progress)) return FALSE;
-    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
+    if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
 
     //Declarations
-		LwDictionaryPrivate *priv;
-    gchar **sourcelist, **sourceiter;
-    gchar **targetlist, **targetiter;
-    const gchar *encodingname;
+		LwDictionaryInstallPrivate *priv = NULL;
+    LwProgress *progress = NULL;
+    const gchar *TEXT_ENCODING = NULL;
+    LwDictionaryInstallState *state = NULL;
+    const gchar *SOURCE = NULL;
+    gchar *target = NULL;
+    const gchar *STAGE_NAME = "encoding";
 
     //Initializations
 		priv = self->priv;
-    sourceiter = sourcelist = lw_dictionary_installer_get_encodelist (self);
-    targetiter = targetlist = lw_dictionary_installer_get_postprocesslist (self);
-    encodingname = lw_util_get_encodingname (priv->install->encoding);
+    progress = priv->data.progress;
+    TEXT_ENCODING = priv->data.text_encoding;
+    if (TEXT_ENCODING == NULL) goto errored;
+    state = lw_dictionaryinstallstatehistory_current (priv->data.history);
+    if (state == NULL) goto errored;
+    SOURCE = state->path;
+    if (SOURCE == NULL) goto errored;
+    if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) goto errored;
 
-    priv->install->status = LW_DICTIONARY_INSTALLER_STATUS_ENCODING;
-
-    if (sourcelist != NULL && targetlist != NULL)
+    lw_progress_set_secondary_message_printf (
+      progress,
+      gettext("Converting encoding to UTF from %s..."),
+      TEXT_ENCODING
+    );
+    
+    if (g_strcmp0 (TEXT_ENCODING, "UTF-8") == 0)
     {
-      priv->install->index = 0;
-      while (*sourceiter != NULL && *targetiter != NULL)
-      {
-        const gchar *MESSAGE = gettext("Converting encoding to UTF from %s...");
-        lw_progress_set_secondary_message_printf (progress, MESSAGE, encodingname);
-        if (priv->install->encoding == LW_ENCODING_UTF8)
-          lw_io_copy (*sourceiter, *targetiter, progress);
-        else
-          lw_io_copy_with_encoding (*sourceiter, *targetiter, encodingname, "UTF-8", progress);
-
-        sourceiter++;
-        targetiter++;
-        priv->install->index++;
-      }
+      target = g_strjoin(".", state->suffixless, STAGE_NAME);
+      lw_dictionaryinstallstatehistory_add_full (priv->data.history, STAGE_NAME, target);
+      lw_io_copy (SOURCE, target, progress);
+    }
+    else
+    {
+      target = g_strjoin(".", state->suffixless, STAGE_NAME);
+      lw_dictionaryinstallstatehistory_add_full (priv->data.history, STAGE_NAME, target);
+      lw_io_copy_with_encoding (SOURCE, target, TEXT_ENCODING, "UTF-8", progress);
     }
 
+errored:
+
+    g_free (target); target = NULL;
+
     return (!lw_progress_errored (progress));
-    */
-  return FALSE;
 }
 
 
-//!
-//! @brief does the required postprocessing on a self
-//!        This function should normally only be used in the lw_installdictionary_install function.
-//! @param self The LwDictionary object to use for postprocessing the self with.
-//! @param data A gpointer to data to pass to the LwIoProgressCallback.
-//! @param error A pointer to a GError object to pass errors to or NULL.
-//! @see lw_installdictionary_download
-//! @see lw_installdictionary_convert_encoding
-//! @see lw_installdictionary_postprocess
-//! @see lw_installdictionary_install
-//!
 gboolean 
-lw_dictionary_installer_postprocess (LwDictionary *self, 
-                                     LwProgress   *progress)
+lw_dictionaryinstall_postprocess (LwDictionaryInstall *self)
 {
-  /*TODO
     //Sanity check
-    g_return_val_if_fail (self != NULL, FALSE);
-    g_return_val_if_fail (progress != NULL, FALSE);
-    if (lw_progress_should_abort (progress)) return FALSE;
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
+    if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
 
     //Declarations
+/*
     LwDictionaryClass *klass = NULL;
 		LwDictionaryPrivate *priv = NULL;
-    gchar **sourcelist = NULL, **sourceiter = NULL;
-    gchar **targetlist = NULL, **targetiter = NULL;
 
     //Initializations
     klass = LW_DICTIONARY_CLASS (G_OBJECT_GET_CLASS (self));
@@ -1297,31 +1286,26 @@ lw_dictionary_installer_postprocess (LwDictionary *self,
     const gchar *MESSAGE = gettext("Postprocessing...");
     lw_progress_set_secondary_message (progress, MESSAGE);
 
-    if (sourcelist != NULL && targetlist != NULL)
+    if (klass->priv->installer_postprocess != NULL)
+    {        
+      klass->priv->installer_postprocess (self, sourcelist, targetlist, progress);
+      priv->install->index++;
+    }
+    else
     {
-      priv->install->index = 0;
-      if (klass->priv->installer_postprocess != NULL)
-      {        
-        klass->priv->installer_postprocess (self, sourcelist, targetlist, progress);
-        priv->install->index++;
-      }
-      else
+      while (*sourceiter != NULL && *targetiter != NULL)
       {
-        while (*sourceiter != NULL && *targetiter != NULL)
-        {
-          lw_io_copy (*sourceiter, *targetiter, progress);
+        lw_io_copy (*sourceiter, *targetiter, progress);
 
-          sourceiter++;
-          targetiter++;
-          priv->install->index++;
-        }
+        sourceiter++;
+        targetiter++;
+        priv->install->index++;
       }
     }
 
     //Finish
     return (!lw_progress_errored (progress));
-    */
-  return FALSE;
+*/
 }
 
 
@@ -1638,28 +1622,24 @@ lw_dictionaryinstall_install (LwDictionaryInstall *self,
     //Declarations
     const gchar *NAME = NULL;
     const gchar *MESSAGE = NULL;
-    LwDictionaryInstallStateHistory *state_history = NULL;
 
     //Initializations
     NAME = lw_dictionaryinstall_get_name (self);
     MESSAGE = gettext("Installing %s Dictionary...");
-    state_history = lw_dictionaryinstallstatehistory_new ();
 
     lw_progress_set_primary_message_printf (progress, MESSAGE, NAME);
 
-    lw_dictionaryinstall_download (self, progress, state_history);
-/*
-    lw_dictionary_installer_decompress (self, progress);
-    lw_dictionary_installer_convert_encoding (self, progress);
-    lw_dictionary_installer_postprocess (self, progress);
-    lw_dictionary_installer_install (self, progress);
-    lw_dictionary_installer_clean (self, progress);
+    lw_dictionaryinstall_download (self);
+    lw_dictionaryinstall_decompress (self);
+    /*
+    lw_dictionary_installer_convert_encoding (self);
+    lw_dictionary_installer_postprocess (self);
+    lw_dictionary_installer_install (self);
+    lw_dictionary_installer_clean (self);
     */
 
 errored:
   
-    lw_dictionaryinstallstatehistory_free (state_history); state_history = NULL;
-
     return (!lw_progress_errored (progress));
 }
 
