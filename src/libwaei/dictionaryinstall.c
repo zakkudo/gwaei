@@ -1484,146 +1484,26 @@ lw_dictionary_installer_get_file_index (LwDictionary *self)
 
     return install->index;
 }
-
-
-gboolean 
-lw_dictionary_installer_get_postprocessing (LwDictionary *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-    g_return_val_if_fail (self->priv != NULL, FALSE);
-    g_return_val_if_fail (self->priv->install != NULL, FALSE);
-
-    return self->priv->install->postprocess;
-}
-
-
-void
-lw_dictionary_installer_set_postprocessing (LwDictionary *self, gboolean postprocess)
-{
-    //Sanity checks
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (self->priv != NULL);
-    g_return_if_fail (self->priv->install != NULL);
-
-    self->priv->install->postprocess = postprocess;
-}
 */
 
 
-const gchar*
-lw_dictionary_installer_get_encoding (LwDictionary *self)
-{
-  /*TODO
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-    g_return_val_if_fail (self->priv != NULL, FALSE);
-    g_return_val_if_fail (self->priv->install != NULL, FALSE);
-
-    return self->priv->install->encoding;
-    */
-    return 0;
-}
-
-
-void
-lw_dictionary_installer_set_downloads (LwDictionary *self, 
-                                       const gchar  *DOWNLOADS)
-{
-  /*TODO
-    //Sanity checks
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (DOWNLOADS != NULL);
-    g_assert (self->priv->install != NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-    LwPreferences *preferences;
-    const gchar *KEY;
-
-    //Initializations
-    priv = self->priv;
-    install = priv->install;
-    preferences = install->preferences;
-    KEY = install->key;
-
-    lw_preferences_set_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, KEY, DOWNLOADS);
-    */
-}
-
-
-void
-lw_dictionary_installer_reset_downloads (LwDictionary *self)
-{
-  /*TODO
-    //Sanity checks
-    g_return_if_fail (self != NULL);
-    g_assert (self->priv->install != NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-    LwPreferences *preferences;
-    const gchar *KEY;
-
-    //Initializations
-    priv = self->priv;
-    install = priv->install;
-    preferences = install->preferences;
-    KEY = install->key;
-
-    lw_preferences_reset_value_by_schema (preferences, LW_SCHEMA_DICTIONARY, KEY);
-    */
-}
-
-
-const gchar* 
-lw_dictionary_installer_get_files (LwDictionary *self)
-{
-  /*TODO
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-    g_return_val_if_fail (self->priv != NULL, FALSE);
-    g_return_val_if_fail (self->priv->install != NULL, FALSE);
-
-    return self->priv->install->files;
-    */
-  return NULL;
-}
-
-
-void
-lw_dictionary_installer_set_files (LwDictionary *self, const gchar *files)
-{
-  /*TODO
-    //Sanity checks
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (self->priv != NULL);
-    g_return_if_fail (self->priv->install != NULL);
-
-    if (self->priv->install->files != NULL)
-      g_free (self->priv->install->files);
-    
-    self->priv->install->files = g_strdup (files);
-    */
-}
-
-
 gboolean 
-lw_dictionaryinstall_install (LwDictionaryInstall *self,
-                              LwProgress          *progress)
+lw_dictionaryinstall_install (LwDictionaryInstall *self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
 
-    if (lw_progress_errored (progress)) return FALSE;
+    if (lw_progress_errored (self->priv->data.progress)) return FALSE;
 
     //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    LwProgress *progress = NULL;
     const gchar *NAME = NULL;
     const gchar *MESSAGE = NULL;
 
     //Initializations
+    priv = self->priv;
+    progress = priv->data.progress;
     NAME = lw_dictionaryinstall_get_name (self);
     MESSAGE = gettext("Installing %s Dictionary...");
 
@@ -1641,5 +1521,47 @@ lw_dictionaryinstall_install (LwDictionaryInstall *self,
 errored:
   
     return (!lw_progress_errored (progress));
+}
+
+
+static gboolean
+lw_dictionaryinstall_split_places_from_names (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
+    g_return_val_if_fail (self->priv->data.gtype == LW_TYPE_EDICTIONARY, FALSE);
+    if (self->priv->config.split_places_from_names == FALSE) return FALSE;
+    if (lw_progress_errored (self->priv->data.progress)) return FALSE;
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    //return lw_io_split_places_from_names_dictionary (targetlist[0], targetlist[1], sourcelist[0], progress);
+    return FALSE;
+}
+
+
+static gboolean
+lw_dictionaryinstall_merge_radicals_into_kanji (LwDictionaryInstall *self,
+                                                LwDictionaryInstall *radicalsDictionaryInstall)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
+    g_return_val_if_fail (self->priv->data.gtype == LW_TYPE_KANJIDICTIONARY, FALSE);
+    if (self->priv->config.merge_radicals_into_kanji == FALSE) return FALSE;
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (radicalsDictionaryInstall), FALSE);
+    g_return_val_if_fail (self->priv->data.gtype == LW_TYPE_UNKNOWNDICTIONARY, FALSE);
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return FALSE;
+    //return lw_io_create_mix_dictionary (targetlist[0], sourcelist[0], sourcelist[1], progress);
 }
 

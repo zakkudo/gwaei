@@ -1111,4 +1111,65 @@ errored:
     return dictionaryinstall;
 }
 
+static GList*
+_create_dependency_chain (LwDictionaryInstallList *self,
+                          LwDictionaryInstall     *dictionaryinstall)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
+    g_return_val_if_fail (dictionaryinstall != NULL, NULL);
+
+    //Declarations
+    GList *chain = NULL;
+    gchar **dependency_names = NULL;
+
+    //Initializations
+    chain = g_list_prepend (chain, dictionaryinstall);
+    dependency_names = lw_dictionaryinstall_get_dependencies (dictionaryinstall);
+
+    {
+      gint i = 0;
+      for (i = 0; dependency_names != NULL; i++)
+      {
+        LwDictionaryInstall *d = lw_dictionaryinstalllist_fuzzy_find (self, dependency_names[i]);
+        if (d != NULL)
+        {
+          chain = g_list_prepend (chain, d);
+        }
+      }
+    }
+}
+
+GList*
+lw_dictionaryinstalllist_create_transaction (LwDictionaryInstallList *self,
+                                             gint                    *indices)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
+
+
+    //Declarations
+    {
+      gint i = 0;
+      for (i = 0; indices[i] > -1; i++)
+      {
+        LwDictionaryInstall *di = lw_dictionaryinstalllist_nth (self, i);
+        _create_dependency_chain (self, di);
+      }
+    }
+}
+
+
+LwDictionaryInstall*
+lw_dictioanryinstalllist_install (LwDictionaryInstallList *self,
+                                  gint                    *indices)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
+
+    //Declarations
+    GList *dependencies = NULL;
+
+}
+
 

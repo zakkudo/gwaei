@@ -45,7 +45,6 @@
 G_DEFINE_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
 
 static LwResult* lw_kanjidictionary_parse (LwDictionary*, const gchar*);
-static gboolean lw_kanjidictionary_installer_postprocess (LwDictionary*, gchar**, gchar**, LwProgress*);
 
 
 LwDictionary* lw_kanjidictionary_new (const gchar        *FILENAME, 
@@ -114,7 +113,6 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
     dictionary_class->priv->parse = lw_kanjidictionary_parse;
-    dictionary_class->priv->installer_postprocess = lw_kanjidictionary_installer_postprocess;
 }
 
 
@@ -266,18 +264,5 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
 }
 
 
-static gboolean
-lw_kanjidictionary_installer_postprocess (LwDictionary  *dictionary, 
-                                          gchar        **sourcelist, 
-                                          gchar        **targetlist, 
-                                          LwProgress    *progress)
-{
-    g_return_val_if_fail (dictionary != NULL, FALSE);
-    g_return_val_if_fail (progress != NULL, FALSE);
-    g_return_val_if_fail (g_strv_length (sourcelist) > 1, FALSE);
-    g_return_val_if_fail (g_strv_length (targetlist) > 0, FALSE);
-
-    return lw_io_create_mix_dictionary (targetlist[0], sourcelist[0], sourcelist[1], progress);
-}
 
 

@@ -46,7 +46,6 @@ G_DEFINE_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 
 static gchar* FIRST_DEFINITION_PREFIX_STR = "(1)";
 static LwResult* lw_edictionary_parse (LwDictionary*, const gchar*);
-static gboolean lw_edictionary_installer_postprocess (LwDictionary*, gchar**, gchar**, LwProgress*);
 
 
 LwDictionary* lw_edictionary_new (const gchar        *FILENAME, 
@@ -129,7 +128,6 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
     dictionary_class->priv->parse = lw_edictionary_parse;
-    dictionary_class->priv->installer_postprocess = lw_edictionary_installer_postprocess;
 }
 
 
@@ -249,48 +247,4 @@ lw_edictionary_parse (LwDictionary       *dictionary,
 
     return result;
 }
-
-
-static gboolean
-lw_edictionary_installer_postprocess (LwDictionary  *dictionary, 
-                                      gchar        **sourcelist, 
-                                      gchar        **targetlist, 
-                                      LwProgress    *progress)
-{
-  /*TODO
-    //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, FALSE);
-    g_return_val_if_fail (sourcelist != NULL, FALSE);
-    g_return_val_if_fail (targetlist != NULL, FALSE);
-    if (lw_progress_errored (progress)) return FALSE;
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-    gint i;
-
-    //Initializations
-    priv = dictionary->priv;
-    install = priv->install;
-
-    if (install->postprocess == FALSE)
-    {
-      for (i = 0; targetlist[i] != NULL && sourcelist[i] != NULL; i++)
-      {
-        if (g_file_test (sourcelist[i], G_FILE_TEST_IS_REGULAR))
-          lw_io_copy (sourcelist[i], targetlist[i], progress);
-      }
-    }
-    else
-    {
-      g_return_val_if_fail (g_strv_length (sourcelist) > 0, FALSE);
-      g_return_val_if_fail (g_strv_length (targetlist) > 1, FALSE);
-      return lw_io_split_places_from_names_dictionary (targetlist[0], targetlist[1], sourcelist[0], progress);
-    }
-    */
-
-    return FALSE;
-}
-
-
 

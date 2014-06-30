@@ -78,7 +78,7 @@ gboolean lw_dictionaryinstall_get_split_places_from_names (LwDictionaryInstall *
 void lw_dictionaryinstall_set_dependencies (LwDictionaryInstall *self, gchar **dependencies);
 gchar** lw_dictionaryinstall_get_dependencies (LwDictionaryInstall *self);
 
-gboolean lw_dictionaryinstall_install (LwDictionaryInstall *self, LwProgress *progress);
+gboolean lw_dictionaryinstall_install (LwDictionaryInstall *self);
 
 G_END_DECLS
 

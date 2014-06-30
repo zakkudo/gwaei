@@ -43,7 +43,6 @@ struct _LwDictionaryClassPrivate {
 
   //Virtual methods
   LwResult* (*parse) (LwDictionary *dictionary, const gchar* TEXT);
-  gboolean (*installer_postprocess) (LwDictionary *dictionary, gchar** sourcelist, gchar** targetlist, LwProgress*);
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));
