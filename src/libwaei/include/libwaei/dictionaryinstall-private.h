@@ -7,6 +7,7 @@ G_BEGIN_DECLS
 
 typedef enum {
     PROP_0,
+    PROP_ID,
     PROP_NAME,
     PROP_DESCRIPTION,
     PROP_GTYPE,
@@ -33,6 +34,7 @@ struct _Index {
 
 struct _Data {
   struct _Index index;
+  gchar *id;
   gchar *name;
   gchar *description;
   LwDictionaryInstallStatus status;

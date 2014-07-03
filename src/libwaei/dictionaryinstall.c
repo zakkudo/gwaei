@@ -97,6 +97,9 @@ lw_dictionaryinstall_set_property (GObject      *object,
 
     switch (property_id)
     {
+      case PROP_ID:
+        lw_dictionaryinstall_set_id (self, g_value_get_string (value));
+        break;
       case PROP_NAME:
         lw_dictionaryinstall_set_name (self, g_value_get_string (value));
         break;
@@ -150,8 +153,11 @@ lw_dictionaryinstall_get_property (GObject    *object,
 
     switch (property_id)
     {
+      case PROP_ID:
+        g_value_set_string (value, lw_dictionaryinstall_get_id (self));
+        break;
       case PROP_NAME:
-        g_value_set_string (value,lw_dictionaryinstall_get_name (self));
+        g_value_set_string (value, lw_dictionaryinstall_get_name (self));
         break;
       case PROP_DESCRIPTION:
         g_value_set_string (value, lw_dictionaryinstall_get_description (self));
@@ -255,6 +261,15 @@ lw_dictionaryinstall_class_init (LwDictionaryInstallClass *klass)
     _klass = klass;
     _klasspriv = klass->priv;
 
+    _klasspriv->pspec[PROP_ID] = g_param_spec_string (
+        "id",
+        "dictionary install name",
+        "Set the preferences object",
+        "",
+        G_PARAM_CONSTRUCT | G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_ID, _klasspriv->pspec[PROP_ID]);
+
     _klasspriv->pspec[PROP_NAME] = g_param_spec_string (
         "name",
         "dictionary install name",
@@ -355,20 +370,24 @@ lw_dictionaryinstall_set_name (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
-    gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
-    changed = (g_strcmp0 (NAME, priv->data.name) != 0);
-
-    if (priv->data.name != NULL)
+    if (g_strcmp0 (NAME, priv->data.name) == 0)
     {
-      g_free (priv->data.name);
+      goto errored;
     }
 
+    g_free (priv->data.name);
     priv->data.name = g_strdup (NAME);
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_NAME]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_NAME]);
+
+    lw_dictionaryinstall_sync_id (self);
+
+errored:
+
+    return;
 }
 
 
@@ -480,15 +499,23 @@ lw_dictionaryinstall_set_gtype (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
-    gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
-    changed = (gtype != priv->data.gtype);
+    if (gtype != priv->data.gtype)
+    {
+      goto errored;
+    }
     
     priv->data.gtype = gtype;
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_GTYPE]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_GTYPE]);
+
+    lw_dictionaryinstall_sync_id (self);
+
+errored:
+
+    return;
 }
 
 
@@ -847,6 +874,66 @@ errored:
     return;
 }
 
+
+const gchar*
+lw_dictionaryinstall_get_id (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.id;
+}
+
+
+void
+lw_dictionaryinstall_set_id (LwDictionaryInstall *self,
+                             const gchar         *ID)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    if (g_strcmp0 (priv->data.id, ID) == 0) goto errored;
+
+    g_free (priv->data.id);
+    priv->data.id = g_strdup (ID);
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_ID]);
+
+errored:
+
+    return;
+}
+
+
+void
+lw_dictionaryinstall_sync_id (LwDictionaryInstall *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+
+    //Declarations
+    LwDictionaryInstallPrivate *priv = NULL;
+    gchar *id = NULL;
+
+    //Initializations
+    priv = self->priv;
+    id = lw_dictionary_build_id_from_type (priv->data.gtype, priv->data.name);
+
+    g_free (priv->data.id);
+    priv->data.id = id;
+    id = NULL;
+}
 
 
 /*
@@ -1564,4 +1651,6 @@ lw_dictionaryinstall_merge_radicals_into_kanji (LwDictionaryInstall *self,
     return FALSE;
     //return lw_io_create_mix_dictionary (targetlist[0], sourcelist[0], sourcelist[1], progress);
 }
+
+
 

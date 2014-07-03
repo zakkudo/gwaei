@@ -1140,23 +1140,103 @@ _create_dependency_chain (LwDictionaryInstallList *self,
     }
 }
 
+static GList*
+_merge_chain_element_into_transaction (GList *transaction,
+                                       GHashTable *table,
+                                       LwDictionaryInstall *previous,
+                                       LwDictionaryInstall *current)
+{
+    //Sanity checks
+    if (table == NULL) return transaction;
+    if (current == NULL) return transaction;
+
+    //Declarations
+    const gchar *ID = NULL;
+    gboolean exist = FALSE;
+    GList *insertion_point = NULL;
+
+    //Initializations
+    ID = lw_dictionaryinstall_get_id (current);
+    exist = g_hash_table_contains (table, ID);
+    if (exist) goto errored;
+
+    if (previous != NULL)
+    {
+      insertion_point = g_hash_table_lookup (table, lw_dictionaryinstall_get_id (previous));
+    }
+
+    if (transaction == NULL || insertion_point == NULL)
+    {
+      transaction = g_list_prepend (transaction, current);
+      g_hash_table_insert (table, (gchar*) ID, transaction);
+    }
+    else
+    {
+      transaction = g_list_append (insertion_point, current);
+      g_hash_table_insert (table, (gchar*) ID, insertion_point->next);
+    }
+
+errored:
+
+    return transaction;
+}
+
+static GList*
+_merge_chain_into_transaction (GList *transaction,
+                               GHashTable *table,
+                               GList *chain)
+{
+  //Declarations
+  GList *link = NULL;
+  LwDictionaryInstall *previous = NULL;
+  LwDictionaryInstall *current = NULL;
+
+  for (link = chain; link != NULL; link = link->next)
+  {
+    current = LW_DICTIONARYINSTALL (link->data);
+
+    transaction = _merge_chain_element_into_transaction (transaction, table, previous, current);
+
+    previous = current;
+  }
+    
+  return transaction;
+}
+
 GList*
-lw_dictionaryinstalllist_create_transaction (LwDictionaryInstallList *self,
-                                             gint                    *indices)
+lw_dictionaryinstalllist_build_transaction (LwDictionaryInstallList *self,
+                                            gint                    *indices)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
 
-
     //Declarations
+    GList *transaction = NULL;
+    GHashTable *table = NULL;
+
+    //Initializations
+    table = g_hash_table_new (g_str_hash, g_str_equal);
+    if (table == NULL) goto errored;
+
     {
       gint i = 0;
       for (i = 0; indices[i] > -1; i++)
       {
         LwDictionaryInstall *di = lw_dictionaryinstalllist_nth (self, i);
-        _create_dependency_chain (self, di);
+        GList *chain = _create_dependency_chain (self, di);
+        if (chain != NULL)
+        {
+          _merge_chain_into_transaction (transaction, table, chain);
+          g_list_free (chain); chain = NULL;
+        }
       }
     }
+
+errored:
+
+    if (table != NULL) g_hash_table_unref (table); table = NULL;
+
+    return transaction;
 }
 
 
