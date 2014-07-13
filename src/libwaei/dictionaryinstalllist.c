@@ -1205,10 +1205,11 @@ _merge_chain_into_transaction (GList *transaction,
 
 GList*
 lw_dictionaryinstalllist_build_transaction (LwDictionaryInstallList *self,
-                                            gint                    *indices)
+                                            GList                   *dictionaryinstalls)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
+    if (dictionaryinstalls == NULL) return NULL;
 
     //Declarations
     GList *transaction = NULL;
@@ -1219,15 +1220,18 @@ lw_dictionaryinstalllist_build_transaction (LwDictionaryInstallList *self,
     if (table == NULL) goto errored;
 
     {
-      gint i = 0;
-      for (i = 0; indices[i] > -1; i++)
+      GList *link = NULL;
+      for (link = dictionaryinstalls; link != NULL; link = link->next)
       {
-        LwDictionaryInstall *di = lw_dictionaryinstalllist_nth (self, i);
-        GList *chain = _create_dependency_chain (self, di);
-        if (chain != NULL)
+        LwDictionaryInstall *di = LW_DICTIONARYINSTALL (link->data);
+        if (di != NULL)
         {
-          _merge_chain_into_transaction (transaction, table, chain);
-          g_list_free (chain); chain = NULL;
+          GList *chain = _create_dependency_chain (self, di);
+          if (chain != NULL)
+          {
+            _merge_chain_into_transaction (transaction, table, chain);
+            g_list_free (chain); chain = NULL;
+          }
         }
       }
     }
@@ -1236,20 +1240,10 @@ errored:
 
     if (table != NULL) g_hash_table_unref (table); table = NULL;
 
+    g_list_foreach (transaction, (GFunc) g_object_ref, NULL);
+
     return transaction;
 }
 
-
-LwDictionaryInstall*
-lw_dictioanryinstalllist_install (LwDictionaryInstallList *self,
-                                  gint                    *indices)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
-
-    //Declarations
-    GList *dependencies = NULL;
-
-}
 
 

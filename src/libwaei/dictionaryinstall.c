@@ -1579,7 +1579,6 @@ lw_dictionaryinstall_install (LwDictionaryInstall *self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
-
     if (lw_progress_errored (self->priv->data.progress)) return FALSE;
 
     //Declarations

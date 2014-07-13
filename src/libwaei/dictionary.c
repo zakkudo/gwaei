@@ -277,25 +277,32 @@ errored:
 
 
 gchar*
-lw_dictionary_get_directoryname (GType dictionary_type)
+lw_dictionary_get_directoryname (GType type)
 {
+    //Sanity checks
+    if (!g_type_is_a (type, LW_TYPE_DICTIONARY)) return NULL;
+
     //Declarations
     const gchar* TYPENAME = NULL;
     const gchar *start = NULL;
     const gchar *end = NULL;
     gchar *name = NULL;
     gchar *lowercase = NULL;
-    
+
     //Initializations
-    TYPENAME = g_type_name (dictionary_type);
+    TYPENAME = g_type_name (type);
+    if (!g_strcmp0(TYPENAME, "Lw") == 0) goto errored;
     start = TYPENAME + strlen("Lw");
-    end = TYPENAME + strlen(TYPENAME) - strlen("Dictionary"); if (strcmp(end, "Dictionary") != 0 || start > end) goto errored;
-    name = g_strndup (start, end - start); if (name == NULL) goto errored;
+    if (!(g_str_has_prefix (start, "Dictionary"))) goto errored;
+    end = TYPENAME + strlen(TYPENAME) - strlen("Dictionary");
+    if (start >= end) goto errored;
+    name = g_strndup (start, end - start);
+    if (name == NULL) goto errored;
     lowercase = g_ascii_strdown (name, -1);
 
 errored:
 
-    if (name != NULL) g_free (name); name = NULL;
+    g_free (name); name = NULL;
 
     return lowercase;
 }
@@ -311,14 +318,15 @@ lw_dictionary_get_directory (GType dictionary_type)
     //Initializations
     path = NULL;
     directoryname = lw_dictionary_get_directoryname (dictionary_type);
-
-    if (directoryname != NULL) 
-    {
-      path = lw_util_build_filename (LW_PATH_DICTIONARY, directoryname);
-      g_free (directoryname); directoryname = NULL;
-    }
+    if (directoryname == NULL) goto errored;
+    path = lw_util_build_filename (LW_PATH_DICTIONARY, directoryname);
+    if (path == NULL) goto errored;
 
     g_mkdir_with_parents (path, 0755);
+
+errored:
+
+    g_free (directoryname);
   
     return path;
 }
@@ -332,18 +340,20 @@ lw_dictionary_get_path (LwDictionary *self)
 
     //Declarations
     gchar *directory = NULL;
-    const gchar *filename = NULL;
+    const gchar *FILENAME = NULL;
     gchar *path = NULL;
 
     //Initializations
     directory = lw_dictionary_get_directory (G_OBJECT_TYPE (self));
-    filename = lw_dictionary_get_filename (self);
+    if (directory == NULL) goto errored;
+    FILENAME = lw_dictionary_get_filename (self);
+    if (FILENAME == NULL) goto errored;
 
-    if (directory != NULL)
-    {
-      path = g_build_filename (directory, filename, NULL);
-      g_free (directory); directory = NULL;
-    }
+    path = g_build_filename (directory, FILENAME, NULL);
+
+errored:
+
+    g_free (directory); directory = NULL;
 
     return path;
 }
@@ -622,14 +632,17 @@ lw_dictionary_build_id (LwDictionary *self)
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
-    gchar *id;
-    GType type;
-    const gchar *FILENAME;
+    gchar *id = NULL;
+    GType type = G_TYPE_INVALID;
+    const gchar *FILENAME = NULL;
 
     //Initializations
     type = G_OBJECT_TYPE (self);
     FILENAME = lw_dictionary_get_filename (self);
+    if (FILENAME == NULL) goto errored;
     id = lw_dictionary_build_id_from_type (type, FILENAME);
+
+errored:
 
     return id;
 }

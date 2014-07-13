@@ -67,6 +67,8 @@ void lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self);
 
 LwDictionaryInstall* lw_dictionaryinstalllist_fuzzy_find (LwDictionaryInstallList *self, const gchar *DESCRIPTION);
 
+GList* lw_dictionaryinstalllist_build_transaction (LwDictionaryInstallList *self, GList *dictionaryinstalls);
+
 G_END_DECLS
 
 
