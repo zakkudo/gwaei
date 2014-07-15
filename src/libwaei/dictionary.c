@@ -280,7 +280,7 @@ gchar*
 lw_dictionary_get_directoryname (GType type)
 {
     //Sanity checks
-    if (!g_type_is_a (type, LW_TYPE_DICTIONARY)) return NULL;
+    g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);
 
     //Declarations
     const gchar* TYPENAME = NULL;
@@ -291,9 +291,9 @@ lw_dictionary_get_directoryname (GType type)
 
     //Initializations
     TYPENAME = g_type_name (type);
-    if (!g_strcmp0(TYPENAME, "Lw") == 0) goto errored;
+    if (strncmp(TYPENAME, "Lw", 2) != 0) goto errored;
     start = TYPENAME + strlen("Lw");
-    if (!(g_str_has_prefix (start, "Dictionary"))) goto errored;
+    if (!(g_str_has_suffix (start, "Dictionary"))) goto errored;
     end = TYPENAME + strlen(TYPENAME) - strlen("Dictionary");
     if (start >= end) goto errored;
     name = g_strndup (start, end - start);
@@ -309,15 +309,18 @@ errored:
 
 
 gchar*
-lw_dictionary_get_directory (GType dictionary_type)
+lw_dictionary_get_directory (GType type)
 {
+    //Sanity checks
+    g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);
+
     //Declarations
-    gchar *path;
-    gchar *directoryname;
+    gchar *path = NULL;
+    gchar *directoryname = NULL;
 
     //Initializations
     path = NULL;
-    directoryname = lw_dictionary_get_directoryname (dictionary_type);
+    directoryname = lw_dictionary_get_directoryname (type);
     if (directoryname == NULL) goto errored;
     path = lw_util_build_filename (LW_PATH_DICTIONARY, directoryname);
     if (path == NULL) goto errored;
@@ -586,18 +589,21 @@ lw_dictionary_build_id_from_type (GType        type,
 {
     //Sanity checks
     g_return_val_if_fail (FILENAME != NULL, NULL);
+    g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);
 
     //Declarations
     gchar *id = NULL;
     gchar *directoryname = NULL;
 
     //Initializations
-    directoryname = lw_dictionary_get_directoryname (type); if (directoryname == NULL) goto errored;
-    id = g_strdup_printf ("%s/%s", directoryname, FILENAME); if (id == NULL) goto errored;
+    directoryname = lw_dictionary_get_directoryname (type);
+    if (directoryname == NULL) goto errored;
+    id = g_strdup_printf ("%s/%s", directoryname, FILENAME);
+    if (id == NULL) goto errored;
 
 errored:
 
-    if (directoryname != NULL) g_free (directoryname); directoryname = NULL;
+    g_free (directoryname); directoryname = NULL;
 
     return id;
 }

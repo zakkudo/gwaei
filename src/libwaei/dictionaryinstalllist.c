@@ -346,7 +346,7 @@ _add_to_index (LwDictionaryInstallList *self,
     LwDictionaryInstallListPrivate *priv = NULL;
     const gchar *FILENAME = NULL;
     const gchar *TYPENAME = NULL;
-    GType type = NULL;
+    GType type = G_TYPE_INVALID;
     gchar *id = NULL;
     gchar *normalized_filename = NULL;
     gchar *normalized_typename = NULL;
@@ -970,6 +970,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
     {
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
       lw_dictionaryinstall_set_name (d, "Names and Places");
+      lw_dictionaryinstall_set_gtype (d, LW_TYPE_EDICTIONARY);
       lw_dictionaryinstall_set_description (d, 
         gettext("Based off of Enamdic, but with the names split from the "
                 "places for 2 separate dictionaries.")
@@ -985,6 +986,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
     {
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
       lw_dictionaryinstall_set_name (d, "Examples");
+      lw_dictionaryinstall_set_gtype (d, LW_TYPE_EXAMPLEDICTIONARY);
       lw_dictionaryinstall_set_description (d, 
         gettext("A collection of Japanese/English sentences initially compiled "
                 "by Professor Yasuhito Tanaka at Hyogo University and his students.")
@@ -1138,6 +1140,10 @@ _create_dependency_chain (LwDictionaryInstallList *self,
         }
       }
     }
+
+    g_list_foreach (chain, (GFunc) g_object_ref, NULL);
+
+    return chain;
 }
 
 static GList*
@@ -1157,11 +1163,14 @@ _merge_chain_element_into_transaction (GList *transaction,
 
     //Initializations
     ID = lw_dictionaryinstall_get_id (current);
+    printf("BREAK currentID: %s\n", ID);
+    if (ID == NULL) goto errored;
     exist = g_hash_table_contains (table, ID);
     if (exist) goto errored;
 
     if (previous != NULL)
     {
+      printf("BREAK prevousID: %s\n", lw_dictionaryinstall_get_id (previous));
       insertion_point = g_hash_table_lookup (table, lw_dictionaryinstall_get_id (previous));
     }
 
@@ -1182,9 +1191,9 @@ errored:
 }
 
 static GList*
-_merge_chain_into_transaction (GList *transaction,
+_merge_chain_into_transaction (GList      *transaction,
                                GHashTable *table,
-                               GList *chain)
+                               GList      *chain)
 {
   //Declarations
   GList *link = NULL;
@@ -1227,10 +1236,11 @@ lw_dictionaryinstalllist_build_transaction (LwDictionaryInstallList *self,
         if (di != NULL)
         {
           GList *chain = _create_dependency_chain (self, di);
+          printf("BREAK chain length: %d\n", g_list_length (chain));
           if (chain != NULL)
           {
-            _merge_chain_into_transaction (transaction, table, chain);
-            g_list_free (chain); chain = NULL;
+            transaction = _merge_chain_into_transaction (transaction, table, chain);
+            g_list_free_full (chain, (GDestroyNotify) g_object_unref); chain = NULL;
           }
         }
       }
@@ -1241,6 +1251,8 @@ errored:
     if (table != NULL) g_hash_table_unref (table); table = NULL;
 
     g_list_foreach (transaction, (GFunc) g_object_ref, NULL);
+
+    printf("BREAK transaction length %d\n", g_list_length (transaction));
 
     return transaction;
 }

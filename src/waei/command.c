@@ -253,7 +253,6 @@ w_command_class_init (WCommandClass *klass)
 static void 
 w_command_parse_args (WCommand  *self)
 {
-  printf("BREAK w_command_parse_args\n");
     //Sanity checks
     g_return_if_fail (W_IS_COMMAND (self));
 
@@ -336,7 +335,6 @@ errored:
 gint
 w_command_run (WCommand *self)
 {
-  printf("BREAK w_command_run");
     //Sanity checks
     g_return_val_if_fail (W_IS_COMMAND (self), -1);
 
@@ -505,6 +503,7 @@ errored:
 gint 
 w_command_install_dictionary (WCommand *self)
 {
+  printf("BREAK w_command_install_dictionary\n");
     //Sanity check
     g_return_val_if_fail (W_IS_COMMAND (self), -1);
 
@@ -536,8 +535,10 @@ w_command_install_dictionary (WCommand *self)
     if (progress == NULL) goto errored;
     resolution = 0;
 
+printf("BREAK1 w_command_install_dictionary requests\n");
     if (requests != NULL)
     {
+printf("BREAK2 w_command_install_dictionary requests\n");
       _install_with_dependancies (self, requests);
 
       if (lw_progress_errored (progress)) 

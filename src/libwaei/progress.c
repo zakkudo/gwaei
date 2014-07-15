@@ -597,13 +597,20 @@ lw_progress_sync_ratio_delta (LwProgress *self)
     //Declarations
     LwProgressPrivate *priv = NULL;
     gboolean ratio_reached = FALSE;
-    gdouble previous_fraction = (priv->data.previous_progress / priv->data.total_progress);
-    gdouble current_progress = (priv->data.current_progress / priv->data.total_progress);
-    gdouble delta = fabs(previous_fraction - current_progress);
+    gdouble previous_fraction = 0.0;
+    gdouble current_progress = 0.0;
+    gdouble delta = 0.0;
     gboolean reached = FALSE;
 
     //Initializations
     priv = self->priv;
+
+    if (priv->data.total_progress != 0)
+    {
+      previous_fraction = (priv->data.previous_progress / priv->data.total_progress);
+      current_progress = (priv->data.current_progress / priv->data.total_progress);
+      delta = fabs(previous_fraction - current_progress);
+    }
 
     reached = (
         delta > priv->config.required_ratio_delta ||
