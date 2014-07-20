@@ -943,7 +943,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
       lw_dictionaryinstall_set_preferences (d, preferences);
       lw_dictionaryinstall_set_download_key (d, LW_KEY_KANJI_SOURCE);
       lw_dictionaryinstall_set_merge_radicals_into_kanji (d, TRUE);
-      lw_dictionaryinstall_add_simple_boolean_dependancy (d, "unknown/Radicals", "merge-radicals-into-kanji", TRUE);
+      lw_dictionaryinstall_set_simple_boolean_dependancy (d, "unknown/Radicals", "merge-radicals-into-kanji", TRUE);
       list = g_list_prepend (list, d);
     }
 
