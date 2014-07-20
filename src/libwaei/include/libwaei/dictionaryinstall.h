@@ -69,12 +69,14 @@ LwPreferences* lw_dictionaryinstall_get_preferences (LwDictionaryInstall *self);
 
 void lw_dictionaryinstall_set_merge_radicals_into_kanji (LwDictionaryInstall *self, gboolean merge);
 gboolean lw_dictionaryinstall_get_merge_radicals_into_kanji (LwDictionaryInstall *self);
+gboolean lw_dictionaryinstall_merge_radicals_into_kanji (LwDictionaryInstall *self);
 
 void lw_dictionaryinstall_set_progress (LwDictionaryInstall *self, LwProgress *progress);
 LwProgress* lw_dictionaryinstall_get_progress (LwDictionaryInstall *self);
 
 void lw_dictionaryinstall_set_split_places_from_names (LwDictionaryInstall *self, gboolean split);
 gboolean lw_dictionaryinstall_get_split_places_from_names (LwDictionaryInstall *self);
+gboolean lw_dictionaryinstall_split_places_from_names (LwDictionaryInstall *self);
 
 void lw_dictionaryinstall_set_dependencies (LwDictionaryInstall *self, gchar **dependencies);
 gchar** lw_dictionaryinstall_get_dependencies (LwDictionaryInstall *self);
@@ -84,6 +86,7 @@ void lw_dictionaryinstall_set_id (LwDictionaryInstall *self, const gchar *ID);
 void lw_dictionaryinstall_sync_id (LwDictionaryInstall *self);
 
 gboolean lw_dictionaryinstall_install (LwDictionaryInstall *self);
+
 
 G_END_DECLS
 

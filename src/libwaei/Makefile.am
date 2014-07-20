@@ -8,6 +8,7 @@ DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\"
 
 lib_LTLIBRARIES =libwaei.la
 libwaei_la_SOURCES =libwaei.c
+libwaei_la_SOURCES +=dependancy.c condition.c
 libwaei_la_SOURCES +=dictionary.c dictionary-callbacks.c dictionary-index.c dictionary-regex.c dictionarydata.c dictionarylist.c dictionarylist-callbacks.c
 libwaei_la_SOURCES +=dictionaryinstall.c dictionaryinstalllist.c dictionaryinstalllist-callbacks.c dictionaryinstallstatehistory.c
 libwaei_la_SOURCES +=edictionary.c kanjidictionary.c exampledictionary.c index.c unknowndictionary.c

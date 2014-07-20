@@ -6,6 +6,8 @@
 #include <libwaei/progress.h>
 #include <libwaei/io.h>
 #include <libwaei/utilities.h>
+#include <libwaei/condition.h>
+#include <libwaei/dependancy.h>
 #include <libwaei/morphologystring.h>
 #include <libwaei/morphologyengine.h>
 #include <libwaei/index.h>

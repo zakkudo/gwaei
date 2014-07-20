@@ -990,239 +990,7 @@ lw_dictionaryinstall_sync_id (LwDictionaryInstall *self)
     lw_dictionaryinstall_set_id (self, id);
 }
 
-
 /*
-static gchar**
-lw_dictionary_installer_get_decompresslist (LwDictionary *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-    gchar **templist, **tempiter;
-    gchar *filename;
-    gchar *path;
-
-    //Initializations
-    priv = self->priv;
-    install = priv->install;
-    templist = NULL;
-
-    if (install->decompresslist == NULL)
-    {
-      tempiter = templist = g_strdupv (lw_dictionary_installer_get_downloadlist (self));
-      if (templist == NULL) goto errored;
-
-      while (*tempiter != NULL)
-      {
-        filename = strrchr(*tempiter, '/');
-
-        if (filename == NULL || *(filename + 1) == '\0') goto errored;
-        filename++;
-
-        path = lw_util_build_filename (LW_PATH_CACHE, filename);
-        if (path == NULL) goto errored;
-        g_free(*tempiter); *tempiter = path; path = NULL;
-
-        tempiter++;
-      }
-
-      install->decompresslist = templist; templist = NULL;
-    }
-
-    return install->decompresslist;
-
-errored:
-    if (templist != NULL) g_strfreev (templist); templist = NULL;
-}
-
-
-static gchar**
-lw_dictionary_installer_get_encodelist (LwDictionary *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-    gchar **templist, **tempiter;
-    const gchar* encodingname;
-    gchar *extension;
-    gchar *path;
-
-    //Initializations
-    priv = self->priv;
-    install = priv->install;
-    templist = NULL;
-
-    if (install->encodelist == NULL)
-    {
-      tempiter = templist = g_strdupv (lw_dictionary_installer_get_decompresslist (self));
-      if (templist == NULL) goto errored;
-      encodingname = lw_util_get_encodingname (install->encoding);
-
-      while (*tempiter != NULL)
-      {
-        extension = strrchr(*tempiter, '.');
-        if (extension == NULL) goto errored;
-
-        *extension = '\0';
-        path = g_strjoin (".", *tempiter, encodingname, NULL);
-        if (path == NULL) goto errored;
-        g_free(*tempiter); *tempiter = path; path = NULL;
-
-        tempiter++;
-      }
-
-      install->encodelist = templist; templist = NULL;
-    }
-
-    return install->encodelist;
-
-errored:
-    if (templist != NULL) g_strfreev (templist); templist = NULL;
-}
-
-
-static gchar**
-lw_dictionary_installer_get_postprocesslist (LwDictionary *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-    gchar **templist, **tempiter;
-    const gchar* encodingname;
-    gchar *extension;
-    gchar *path;
-
-    //Initializations
-    priv = self->priv;
-    install = priv->install;
-    encodingname = lw_util_get_encodingname (LW_ENCODING_UTF8);
-    templist = NULL;
-
-    if (install->postprocesslist == NULL)
-    {
-      tempiter = templist = g_strdupv (lw_dictionary_installer_get_encodelist (self));
-      if (templist == NULL) goto errored;
-
-      while (*tempiter != NULL)
-      {
-        extension = strrchr(*tempiter, '.');
-        if (extension == NULL) goto errored;
-
-        *extension = '\0';
-        path = g_strjoin (".", *tempiter, encodingname, NULL);
-        if (path == NULL) goto errored;
-        g_free(*tempiter); *tempiter = path; path = NULL;
-
-        tempiter++;
-      }
-
-      install->postprocesslist = templist; templist = NULL;
-    }
-
-    return install->postprocesslist;
-
-errored:
-    if (templist != NULL) g_strfreev (templist); templist = NULL;
-}
-
-
-static gchar**
-lw_dictionary_installer_get_installlist (LwDictionary *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-    gchar **templist, **tempiter;
-    gchar *path;
-    
-    //Initializations
-    priv = self->priv;
-    install = priv->install;
-    templist = NULL;
-
-    if (install->installlist == NULL)
-    {
-      tempiter = templist = lw_dictionary_installer_get_filelist (self);
-      if (templist == NULL) goto errored;
-
-      while (*tempiter != NULL)
-      {
-        path = lw_util_build_filename (LW_PATH_CACHE, *tempiter);
-        if (path == NULL) goto errored;
-        g_free (*tempiter); *tempiter = path; path = NULL;
-    
-        tempiter++;
-      }
-
-      install->installlist = templist; templist = NULL;
-    }
-
-    return install->installlist;
-
-errored:
-    if (templist != NULL) g_strfreev (templist); templist = NULL;
-}
-
-
-static gchar**
-lw_dictionary_installer_get_installedlist (LwDictionary *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-    gchar **templist, **tempiter;
-    gchar *path;
-    gchar *directory;
-    
-    //Initializations
-    priv = self->priv;
-    install = priv->install;
-    directory = lw_dictionary_get_directory (G_OBJECT_TYPE (self));
-    templist = NULL;
-
-    if (install->installedlist == NULL)
-    {
-      tempiter = templist = lw_dictionary_installer_get_filelist (self);
-      if (templist == NULL) goto errored;
-
-      while (*tempiter != NULL)
-      {
-        path = g_build_filename (directory, *tempiter, NULL);
-        if (path == NULL) goto errored;
-        g_free (*tempiter); *tempiter = path; path = NULL;
-    
-        tempiter++;
-      }
-
-      install->installedlist = templist; templist = NULL;
-    }
-
-    return install->installedlist;
-
-errored:
-    if (templist != NULL) g_strfreev (templist); templist = NULL;
-    if (directory != NULL) g_free (directory); directory = NULL;
-    return NULL;
-}
-
-
-
-//!
 //! @brief Tells the installer mechanism if it is going to fail if it tries
 //!        installing because of missing info
 //! @param self The LwDictionary objcet to check the validity of the urls of.  This tells you
@@ -1485,21 +1253,26 @@ lw_dictionaryinstall_postprocess (LwDictionaryInstall *self)
     if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
 
     //Declarations
-/*
-    LwDictionaryClass *klass = NULL;
-		LwDictionaryPrivate *priv = NULL;
+		LwDictionaryInstallPrivate *priv = NULL;
+    LwProgress *progress = NULL;
 
     //Initializations
-    klass = LW_DICTIONARY_CLASS (G_OBJECT_GET_CLASS (self));
 		priv = self->priv;
-    sourceiter = sourcelist = lw_dictionary_installer_get_postprocesslist (self);
-    targetiter = targetlist = lw_dictionary_installer_get_installlist (self);
-
-    priv->install->status = LW_DICTIONARY_INSTALLER_STATUS_POSTPROCESSING;
+    progress = lw_dictionaryinstall_get_progress (self);
 
     const gchar *MESSAGE = gettext("Postprocessing...");
     lw_progress_set_secondary_message (progress, MESSAGE);
 
+    if (priv->config.split_places_from_names)
+    {
+      lw_dictionaryinstall_split_places_from_names (self);
+    }
+    if (priv->config.merge_radicals_into_kanji)
+    {
+      lw_dictionaryinstall_merge_radicals_into_kanji (self);
+    }
+
+/*
     if (klass->priv->installer_postprocess != NULL)
     {        
       klass->priv->installer_postprocess (self, sourcelist, targetlist, progress);
@@ -1516,10 +1289,10 @@ lw_dictionaryinstall_postprocess (LwDictionaryInstall *self)
         priv->install->index++;
       }
     }
+    */
 
     //Finish
     return (!lw_progress_errored (progress));
-*/
 }
 
 
@@ -1737,7 +1510,7 @@ errored:
 }
 
 
-static gboolean
+gboolean
 lw_dictionaryinstall_split_places_from_names (LwDictionaryInstall *self)
 {
     //Sanity checks
@@ -1757,16 +1530,13 @@ lw_dictionaryinstall_split_places_from_names (LwDictionaryInstall *self)
 }
 
 
-static gboolean
-lw_dictionaryinstall_merge_radicals_into_kanji (LwDictionaryInstall *self,
-                                                LwDictionaryInstall *radicalsDictionaryInstall)
+gboolean
+lw_dictionaryinstall_merge_radicals_into_kanji (LwDictionaryInstall *self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
     g_return_val_if_fail (self->priv->data.gtype == LW_TYPE_KANJIDICTIONARY, FALSE);
     if (self->priv->config.merge_radicals_into_kanji == FALSE) return FALSE;
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (radicalsDictionaryInstall), FALSE);
-    g_return_val_if_fail (self->priv->data.gtype == LW_TYPE_UNKNOWNDICTIONARY, FALSE);
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
