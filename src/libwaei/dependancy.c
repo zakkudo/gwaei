@@ -111,12 +111,13 @@ lw_dependancy_set_conditions (LwDependancy *self,
 
 
 gboolean
-lw_dependancy_is_satisfied (LwDependancy *self,
-                            GObject      *object)
+lw_dependancy_is_satisfied_for (LwDependancy *self,
+                                GObject      *object)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
-    if (object == NULL) return FALSE;
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (object != NULL, FALSE);
+    g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
 
     //Declarations
     gboolean conditions_match = FALSE;  
