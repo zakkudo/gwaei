@@ -1109,25 +1109,32 @@ _create_dependency_chain (LwDictionaryInstallList *self,
 
     //Declarations
     GList *chain = NULL;
-    /*TODO
-    gchar **dependency_names = NULL;
+    GList *dependancies = NULL;
 
     //Initializations
     chain = g_list_prepend (chain, dictionaryinstall);
-    dependency_names = lw_dictionaryinstall_get_dependencies (dictionaryinstall);
+    dependancies = lw_dictionaryinstall_get_dependancies (dictionaryinstall);
 
     {
-      gint i = 0;
-      for (i = 0; dependency_names != NULL; i++)
+      GList *link = NULL;
+      for (link = dependancies; link != NULL; link = link->next)
       {
-        LwDictionaryInstall *d = lw_dictionaryinstalllist_fuzzy_find (self, dependency_names[i]);
-        if (d != NULL)
+        LwDependancy *dependancy = LW_DEPENDANCY (link->data);
+        if (dependancy != NULL)
         {
-          chain = g_list_prepend (chain, d);
+          const gchar *QUERY = lw_dependancy_get_name (dependancy);
+          if (QUERY != NULL)
+          {
+            LwDictionaryInstall *dictionaryinstall = lw_dictionaryinstalllist_fuzzy_find (self, QUERY);
+            if (dictionaryinstall != NULL)
+            {
+              lw_dependancy_satisfy (dependancy, G_OBJECT (dictionaryinstall));
+              chain = g_list_prepend (chain, dictionaryinstall);
+            }
+          }
         }
       }
     }
-    */
 
     g_list_foreach (chain, (GFunc) g_object_ref, NULL);
 

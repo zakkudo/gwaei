@@ -1141,7 +1141,6 @@ printf("BREAK0 lw_dictionaryinstall_download\n");
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
     if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
 
-printf("BREAK1 lw_dictionaryinstall_download\n");
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
     LwProgress *progress = NULL;
@@ -1154,18 +1153,14 @@ printf("BREAK1 lw_dictionaryinstall_download\n");
     priv = self->priv;
     progress = lw_dictionaryinstall_get_progress (self);
     URI = lw_dictionaryinstall_get_download_uri (self);
-printf("BREAK1 lw_dictionaryinstall_download URI: %s\n", URI);
     if (URI == NULL) goto errored;
     filename = _try_get_filename_from_uri (URI, &basename);
-printf("BREAK1 lw_dictionaryinstall_download basename: %s\n", basename);
     if (basename == NULL) goto errored;
     target = lw_util_build_filename (LW_PATH_CACHE, basename);
-printf("BREAK1 lw_dictionaryinstall_download target target: %s\n", target);
     if (target == NULL) goto errored;
 
     lw_dictionaryinstallstatehistory_add_full (priv->data.history, "download", target);
 
-printf("BREAK2 lw_dictionaryinstall_download\n");
     //File is located locally so copy it
     if (g_file_test (URI, G_FILE_TEST_IS_REGULAR))
     {
@@ -1181,7 +1176,6 @@ printf("BREAK2 lw_dictionaryinstall_download\n");
       lw_io_download (URI, target, progress);
     }
 
-printf("BREAK3 lw_dictionaryinstall_download\n");
 errored:
 
     g_free (filename); filename = NULL;
@@ -1195,6 +1189,7 @@ errored:
 gboolean 
 lw_dictionaryinstall_decompress (LwDictionaryInstall *self)
 {
+  printf("BREAK lw_dictionaryinstall_decompress\n");
     //Sanity check
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
     if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
@@ -1244,6 +1239,7 @@ errored:
 gboolean 
 lw_dictionaryinstall_convert_encoding (LwDictionaryInstall *self)
 {
+  printf("BREAK lw_dictionaryinstall_convert_encoding\n");
     //Sanity check
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
     if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
@@ -1298,6 +1294,7 @@ errored:
 gboolean 
 lw_dictionaryinstall_postprocess (LwDictionaryInstall *self)
 {
+  printf("BREAK lw_dictionaryinstall_postprocess\n");
     //Sanity check
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
     if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
@@ -1527,6 +1524,7 @@ lw_dictionary_installer_get_file_index (LwDictionary *self)
 gboolean 
 lw_dictionaryinstall_install (LwDictionaryInstall *self)
 {
+  printf("BREAK lw_dictionaryinstall_install\n");
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
     if (lw_progress_errored (self->priv->data.progress)) return FALSE;

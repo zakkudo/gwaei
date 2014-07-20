@@ -16,6 +16,7 @@ typedef struct _LwDependancy LwDependancy;
 
 LwDependancy* lw_dependancy_new (const gchar *NAME);
 LwDependancy* lw_dependancy_copy (LwDependancy* self);
+const gchar* lw_dependancy_get_name (LwDependancy *self);
 void lw_dependancy_set_conditions (LwDependancy *self, GList* conditions);
 gboolean lw_dependancy_is_required_for (LwDependancy *self, GObject *object);
 void lw_dependancy_satisfy (LwDependancy *self, GObject *object);

@@ -47,6 +47,8 @@ lw_condition_new_boolean (const gchar *property_name,
     self->property_name = g_strdup (property_name);
     g_value_init (&self->value, G_TYPE_BOOLEAN);
     g_value_set_boolean (&self->value, expected_value);
+
+    return self;
 }
 
 void
@@ -74,6 +76,7 @@ lw_condition_copy (LwCondition *self)
     //Initializations
     copy = g_new0 (LwCondition, 1);
     copy->property_name = g_strdup (self->property_name);
+    g_value_init (&copy->value, G_VALUE_TYPE (&self->value));
     g_value_copy (&self->value, &copy->value);
 
     return copy;
