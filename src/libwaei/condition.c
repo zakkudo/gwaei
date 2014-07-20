@@ -149,8 +149,8 @@ errored:
 }
 
 gboolean
-lw_condition_matches_all (GList   *conditions,
-                          GObject *object)
+lw_condition_list_matches (GList   *conditions,
+                           GObject *object)
 {
     //Sanity checks
     g_return_val_if_fail (G_IS_OBJECT (object), FALSE);

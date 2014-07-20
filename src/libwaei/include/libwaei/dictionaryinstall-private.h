@@ -42,7 +42,7 @@ struct _Data {
   gchar *download_key;
   gchar *download_uri;
   gchar *text_encoding;
-  gchar **dependencies;
+  GList *dependancies;
   GType gtype;
   LwProgress *progress;
   LwDictionaryInstallStateHistory *history;

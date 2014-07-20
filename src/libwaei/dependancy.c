@@ -36,18 +36,52 @@
 
 
 LwDependancy*
-lw_dependancy_new ()
+lw_dependancy_new (const gchar *NAME)
 {
+    //Sanity checks
+    g_return_val_if_fail (NAME != NULL, NULL);
+
+    //Declarations
     LwDependancy *self = NULL;
 
+    //Initializations
     self = g_new0 (LwDependancy, 1);
+    self->name = g_strdup (NAME);
 
     return self;
 }
 
 
+LwDependancy*
+lw_dependancy_copy (LwDependancy* self)
+{
+    //Sanity checks
+    if (self == NULL) return NULL;
+
+    //Declarations
+    LwDependancy *copy = NULL;
+
+    //Initializations
+    copy = lw_dependancy_new (self->name);
+    lw_dependancy_set_conditions (copy, self->conditions);
+    lw_dependancy_satisfy (copy, self->object);
+
+    return copy;
+}
+
+
+const gchar*
+lw_dependancy_get_name (LwDependancy *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+
+    return self->name;
+}
+
+
 void
-lw_dependancy_add_conditions (LwDependancy *self,
+lw_dependancy_set_conditions (LwDependancy *self,
                               GList        *conditions)
 {
     //Sanity checks
@@ -55,27 +89,24 @@ lw_dependancy_add_conditions (LwDependancy *self,
     if (conditions == NULL) return;
 
     //Declarations
-    GList  *sanitized_copy = NULL;
+    GList  *sanitized_list_copy = NULL;
     
     //Initializations
     {
       GList *link = NULL;
       for (link = conditions; link != NULL; link = link->next)
       {
-        LwCondition *condition = LW_CONDITION (link->data);
-        sanitized_copy = g_list_prepend (sanitized_copy, condition);
+        LwCondition *condition = lw_condition_copy (LW_CONDITION (link->data));
+        if (condition != NULL)
+        {
+          sanitized_list_copy = g_list_prepend (sanitized_list_copy, condition);
+        }
       }
-      sanitized_copy = g_list_reverse (sanitized_copy);
+      sanitized_list_copy = g_list_reverse (sanitized_list_copy);
     }
 
-    if (self->conditions == NULL)
-    {
-      self->conditions = sanitized_copy;
-    }
-    else
-    {
-      self->conditions = g_list_concat (self->conditions, sanitized_copy);
-    }
+    g_list_free_full (self->conditions, (GDestroyNotify) lw_condition_free);
+    self->conditions = sanitized_list_copy;
 }
 
 
@@ -92,7 +123,7 @@ lw_dependancy_is_satisfied (LwDependancy *self,
     gboolean has_object = FALSE;
 
     //Initializations
-    conditions_match = lw_condition_matches_all (self->conditions, object);
+    conditions_match = lw_condition_list_matches (self->conditions, object);
     has_object = (self->object != NULL);
 
     return (conditions_match && has_object);

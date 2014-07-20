@@ -131,7 +131,7 @@ lw_dictionaryinstall_set_property (GObject      *object,
         lw_dictionaryinstall_set_progress (self, g_value_get_object (value));
         break;
       case PROP_DEPENDENCIES:
-        lw_dictionaryinstall_set_dependencies (self, g_value_get_pointer (value));
+        lw_dictionaryinstall_set_dependancies (self, g_value_get_pointer (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -190,7 +190,7 @@ lw_dictionaryinstall_get_property (GObject    *object,
         g_value_set_object (value, lw_dictionaryinstall_get_progress (self));
         break;
       case PROP_DEPENDENCIES:
-        g_value_set_pointer (value, lw_dictionaryinstall_get_dependencies (self));
+        g_value_set_pointer (value, lw_dictionaryinstall_get_dependancies (self));
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -885,8 +885,8 @@ lw_dictionaryinstall_get_split_places_from_names (LwDictionaryInstall *self)
 }
 
 
-gchar**
-lw_dictionaryinstall_get_dependencies (LwDictionaryInstall *self)
+GList*
+lw_dictionaryinstall_get_dependancies (LwDictionaryInstall *self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
@@ -897,28 +897,39 @@ lw_dictionaryinstall_get_dependencies (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.dependencies;
+    return priv->data.dependancies;
 }
 
 
 void
-lw_dictionaryinstall_set_dependencies (LwDictionaryInstall *self,
-                                       gchar               **dependencies)
+lw_dictionaryinstall_set_dependancies (LwDictionaryInstall *self,
+                                       GList               *dependancies)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
-    gboolean changed = FALSE;
+    GList *sanitized_list_copy = NULL;
 
     //Initializations
     priv = self->priv;
-    changed = (dependencies != priv->data.dependencies);
-    if (!changed) goto errored;
+    if (dependancies == priv->data.dependancies) goto errored;
 
-    g_strfreev (priv->data.dependencies);
-    priv->data.dependencies = g_strdupv (dependencies);
+    {
+      GList *link = NULL;
+      for (link = dependancies; link != NULL; link = link->next)
+      {
+        LwDependancy *dependancy = lw_dependancy_copy (LW_DEPENDANCY (link->data));
+        if (dependancy != NULL)
+        {
+          sanitized_list_copy = g_list_prepend (sanitized_list_copy, dependancy);
+        }
+      }
+    }
+
+    g_list_free_full (priv->data.dependancies, (GDestroyNotify) lw_dependancy_free);
+    priv->data.dependancies = sanitized_list_copy;
 
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DEPENDENCIES]);
 
@@ -926,6 +937,45 @@ errored:
 
     return;
 }
+
+
+void
+lw_dictionaryinstall_set_simple_boolean_dependancy (LwDictionaryInstall *self,
+                                                    const gchar         *NAME,
+                                                    const gchar         *PROPERTY_NAME,
+                                                    gboolean             VALUE)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+    g_return_if_fail (NAME != NULL);
+    g_return_if_fail (PROPERTY_NAME != NULL);
+
+    //Declarations
+    GList *dependancies = NULL;
+    {
+      LwDependancy *dependancy = lw_dependancy_new (NAME);
+      if (dependancy != NULL)
+      {
+        GList *conditions = NULL;
+        {
+          LwCondition *condition = lw_condition_new_boolean (PROPERTY_NAME, VALUE);
+          if (condition != NULL)
+          {
+            conditions = g_list_prepend (conditions, condition);
+            lw_dependancy_set_conditions (dependancy, conditions);
+            g_list_free_full (conditions, (GDestroyNotify) lw_condition_free);
+          }
+        }
+      }
+      lw_dictionaryinstall_set_dependancies (self, dependancies);
+      g_list_free_full (dependancies, (GDestroyNotify) lw_dependancy_free);
+    }
+
+errored:
+
+    return;
+}
+
 
 
 const gchar*
@@ -1547,6 +1597,7 @@ lw_dictionaryinstall_merge_radicals_into_kanji (LwDictionaryInstall *self)
     return FALSE;
     //return lw_io_create_mix_dictionary (targetlist[0], sourcelist[0], sourcelist[1], progress);
 }
+
 
 
 

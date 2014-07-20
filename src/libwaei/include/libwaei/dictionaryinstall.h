@@ -78,14 +78,16 @@ void lw_dictionaryinstall_set_split_places_from_names (LwDictionaryInstall *self
 gboolean lw_dictionaryinstall_get_split_places_from_names (LwDictionaryInstall *self);
 gboolean lw_dictionaryinstall_split_places_from_names (LwDictionaryInstall *self);
 
-void lw_dictionaryinstall_set_dependencies (LwDictionaryInstall *self, gchar **dependencies);
-gchar** lw_dictionaryinstall_get_dependencies (LwDictionaryInstall *self);
+void lw_dictionaryinstall_set_dependancies (LwDictionaryInstall *self, GList* dependencies);
+GList* lw_dictionaryinstall_get_dependancies (LwDictionaryInstall *self);
+void lw_dictionaryinstall_add_simple_boolean_dependancy (LwDictionaryInstall *self, const gchar *NAME, const gchar *PROPERTY_NAME, gboolean VALUE);
 
 const gchar* lw_dictionaryinstall_get_id (LwDictionaryInstall *self);
 void lw_dictionaryinstall_set_id (LwDictionaryInstall *self, const gchar *ID);
 void lw_dictionaryinstall_sync_id (LwDictionaryInstall *self);
 
 gboolean lw_dictionaryinstall_install (LwDictionaryInstall *self);
+
 
 
 G_END_DECLS

@@ -932,15 +932,9 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
       lw_dictionaryinstall_set_preferences (d, preferences);
       lw_dictionaryinstall_set_download_key (d, LW_KEY_ENGLISH_SOURCE);
       list = g_list_prepend (list, d);
-      printf("BREAK adding %s\n", lw_dictionaryinstall_get_name (d));
     }
 
     {
-      static gchar *dependencies[] = {
-        "Radicals",
-        NULL
-      };
-
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
       lw_dictionaryinstall_set_name (d, "Kanji");
       lw_dictionaryinstall_set_gtype (d, LW_TYPE_KANJIDICTIONARY);
@@ -949,9 +943,8 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
       lw_dictionaryinstall_set_preferences (d, preferences);
       lw_dictionaryinstall_set_download_key (d, LW_KEY_KANJI_SOURCE);
       lw_dictionaryinstall_set_merge_radicals_into_kanji (d, TRUE);
-      lw_dictionaryinstall_set_dependencies (d, dependencies);
+      lw_dictionaryinstall_add_simple_boolean_dependancy (d, "unknown/Radicals", "merge-radicals-into-kanji", TRUE);
       list = g_list_prepend (list, d);
-      printf("BREAK adding %s\n", lw_dictionaryinstall_get_name (d));
     }
 
 /*
@@ -980,7 +973,6 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
       lw_dictionaryinstall_set_download_key (d, LW_KEY_NAMES_PLACES_SOURCE);
       lw_dictionaryinstall_set_split_places_from_names (d, TRUE);
       list = g_list_prepend (list, d);
-      printf("BREAK adding %s\n", lw_dictionaryinstall_get_name (d));
     }
 
     {
@@ -995,17 +987,11 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
       lw_dictionaryinstall_set_preferences (d, preferences);
       lw_dictionaryinstall_set_download_key (d, LW_KEY_EXAMPLES_SOURCE);
       list = g_list_prepend (list, d);
-      printf("BREAK adding %s\n", lw_dictionaryinstall_get_name (d));
     }
-
 
     list = g_list_reverse (list);
 
-      printf("BREAK added %s\n", lw_dictionaryinstall_get_name (LW_DICTIONARYINSTALL (list->data)));
-
     lw_dictionaryinstalllist_insert (self, -1, list);
-
-      printf("BREAK added %s\n", lw_dictionaryinstall_get_name (LW_DICTIONARYINSTALL (priv->data.list->data)));
 
 errored:
 
@@ -1123,6 +1109,7 @@ _create_dependency_chain (LwDictionaryInstallList *self,
 
     //Declarations
     GList *chain = NULL;
+    /*TODO
     gchar **dependency_names = NULL;
 
     //Initializations
@@ -1140,6 +1127,7 @@ _create_dependency_chain (LwDictionaryInstallList *self,
         }
       }
     }
+    */
 
     g_list_foreach (chain, (GFunc) g_object_ref, NULL);
 
@@ -1163,14 +1151,12 @@ _merge_chain_element_into_transaction (GList *transaction,
 
     //Initializations
     ID = lw_dictionaryinstall_get_id (current);
-    printf("BREAK currentID: %s\n", ID);
     if (ID == NULL) goto errored;
     exist = g_hash_table_contains (table, ID);
     if (exist) goto errored;
 
     if (previous != NULL)
     {
-      printf("BREAK prevousID: %s\n", lw_dictionaryinstall_get_id (previous));
       insertion_point = g_hash_table_lookup (table, lw_dictionaryinstall_get_id (previous));
     }
 
@@ -1236,7 +1222,6 @@ lw_dictionaryinstalllist_build_transaction (LwDictionaryInstallList *self,
         if (di != NULL)
         {
           GList *chain = _create_dependency_chain (self, di);
-          printf("BREAK chain length: %d\n", g_list_length (chain));
           if (chain != NULL)
           {
             transaction = _merge_chain_into_transaction (transaction, table, chain);
@@ -1251,8 +1236,6 @@ errored:
     if (table != NULL) g_hash_table_unref (table); table = NULL;
 
     g_list_foreach (transaction, (GFunc) g_object_ref, NULL);
-
-    printf("BREAK transaction length %d\n", g_list_length (transaction));
 
     return transaction;
 }

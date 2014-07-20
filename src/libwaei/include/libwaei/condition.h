@@ -16,7 +16,9 @@ LwCondition* lw_condition_new_boolean (const gchar *property_name, gboolean expe
 void lw_condition_free (LwCondition *self);
 
 gboolean lw_condition_matches (LwCondition *self, GObject *object);
-gboolean lw_condition_matches_all (GList *conditions, GObject *object);
+gboolean lw_condition_list_matches (GList *conditions, GObject *object);
+
+LwCondition* lw_condition_copy (LwCondition *self);
 
 G_END_DECLS
 
