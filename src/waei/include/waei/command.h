@@ -49,6 +49,14 @@ gint w_command_uninstall_dictionary (WCommand *self);
 const gchar* w_command_get_install_switch_data (WCommand *self);
 const gchar* w_command_get_uninstall_switch_data (WCommand *self);
 
+void w_command_progress_primary_message_changed_cb (WCommand *self, GParamSpec *pspec, LwProgress *progress);
+void w_command_progress_secondary_message_changed_cb (WCommand *self, GParamSpec *pspec, LwProgress *progress);
+void w_command_progress_completed_changed_cb (WCommand *self, GParamSpec *pspec, LwProgress *progress);
+void w_command_progress_fraction_changed_cb (WCommand *self, GParamSpec *pspec, LwProgress *progress);
+
+void w_command_watch_progress (WCommand *self, LwProgress *progress);
+void w_command_unwatch_current_progress (WCommand *self);
+
 #include "command-output.h"
 #include "command-callbacks.h"
 

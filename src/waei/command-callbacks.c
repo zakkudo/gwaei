@@ -40,55 +40,6 @@
 #include <waei/command-private.h>
 
 
-void
-w_command_progress_cb (LwDictionary *dictionary, 
-                       LwProgress   *progress, 
-                       WCommand     *self)
-{
-  /* TODO
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARY (dictionary));
-    g_return_if_fail (progress != NULL);
-    g_return_if_fail (W_IS_COMMAND (self));
-
-    //Declarations
-    WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
-
-    //Initializations
-    priv = self->priv;
-    command_line = priv->data.command_line;
-    if (command_line == NULL) goto errored;
-
-    if (progress->primary_message != NULL)
-    {
-      g_application_command_line_printerr (command_line, progress->primary_message);
-      g_application_command_line_printerr (command_line, "\n");
-      g_free (progress->primary_message); progress->primary_message = NULL;
-    }
-
-    //Initializations
-    if (progress->changed && progress->reached_ratio_delta && progress->secondary_message != NULL)
-    {
-      gdouble fraction = progress->current_progress / progress->total_progress;
-      gint percent = (gint) (100.0 * fraction);
-
-      g_application_command_line_printerr (command_line, "\r    [%3d%%] %s", percent, progress->secondary_message); 
-
-      if (fraction == 1.0) g_application_command_line_printerr (command_line, "\n");
-
-      progress->changed = FALSE;
-      progress->previous_progress = progress->current_progress;
-      progress->reached_ratio_delta = FALSE;
-    }
-
-errored:
-*/
-
-    return;
-}
-
-
 gboolean 
 w_command_append_result_timeout (gpointer data)
 {
@@ -131,3 +82,92 @@ w_command_append_result_timeout (gpointer data)
   return FALSE;
 }
 
+
+void
+w_command_progress_primary_message_changed_cb (WCommand   *self,
+                                               GParamSpec *pspec,
+                                               LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+
+    //Declarations
+    WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
+
+    //Initializations
+    priv = self->priv;
+    command_line = priv->data.command_line;
+
+    g_application_command_line_print (command_line, "%s\n", lw_progress_get_primary_message (progress));
+}
+
+
+void
+w_command_progress_secondary_message_changed_cb (WCommand   *self,
+                                                 GParamSpec *pspec,
+                                                 LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+
+    //Declarations
+    WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
+
+    //g_application_command_line_print (command_line, "BREAK w_command_progress_secondary_message_changed_cb: %s\n", lw_progress_get_secondary_message (progress));
+}
+
+
+void
+w_command_progress_completed_changed_cb (WCommand   *self,
+                                         GParamSpec *pspec,
+                                         LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+
+    //Declarations
+    WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
+
+    //Initializations
+    priv = self->priv;
+    command_line = priv->data.command_line;
+
+    g_application_command_line_print (command_line, "BREAK w_command_progress_completed_changed_cb: %d\n", lw_progress_completed (progress));
+}
+
+
+void
+w_command_progress_fraction_changed_cb (WCommand   *self,
+                                        GParamSpec *pspec,
+                                        LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+
+    //Declarations
+    WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
+
+    //Initializations
+    priv = self->priv;
+    command_line = priv->data.command_line;
+
+    gint percent = (gint)(lw_progress_get_fraction (progress) * 100.0);
+
+    if (percent >= 0)
+    {
+      g_application_command_line_print (command_line, "\r  %s [%d%%]", lw_progress_get_secondary_message (progress), percent);
+
+      if (percent == 100)
+      {
+        g_application_command_line_print (command_line, "\n");
+      }
+    }
+}

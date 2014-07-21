@@ -11,6 +11,14 @@ typedef enum {
   TOTAL_PROPS
 } Props;
 
+typedef enum {
+  SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED,
+  SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED,
+  SIGNALID_PROGRESS_COMPLETED_CHANGED,
+  SIGNALID_PROGRESS_FRACTION_CHANGED,
+  TOTAL_SIGNALIDS
+} SignalId;
+
 struct _Config {
 };
 
@@ -20,7 +28,9 @@ struct _Data {
   WApplication *application;
   GApplicationCommandLine *command_line;
   GMainLoop *loop;
+
   LwProgress *progress;
+  guint signalid[TOTAL_SIGNALIDS];
 };
 
 struct _Argument {

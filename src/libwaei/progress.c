@@ -625,6 +625,8 @@ lw_progress_sync_ratio_delta (LwProgress *self)
       0
     );
 
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PROGRESS_FRACTION]);
+
 errored:
 
     return;

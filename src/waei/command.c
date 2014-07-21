@@ -453,6 +453,128 @@ errored:
 }
 
 
+void
+w_command_unwatch_current_progress (WCommand *self)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+
+    //Declarations
+    WCommandPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->data.progress == NULL) goto errored;
+
+    if (priv->data.signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED] != 0)
+    {
+      g_signal_handler_disconnect (
+        priv->data.progress,
+        priv->data.signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED]
+      );
+      priv->data.signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED] != 0)
+    {
+      g_signal_handler_disconnect (
+        priv->data.progress,
+        priv->data.signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED]
+      );
+      priv->data.signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED] != 0)
+    {
+      g_signal_handler_disconnect (
+        priv->data.progress,
+        priv->data.signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED]
+      );
+      priv->data.signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED] = 0;
+    }
+
+    if (priv->data.signalid[SIGNALID_PROGRESS_FRACTION_CHANGED] != 0)
+    {
+      g_signal_handler_disconnect (
+        priv->data.progress,
+        priv->data.signalid[SIGNALID_PROGRESS_FRACTION_CHANGED]
+      );
+      priv->data.signalid[SIGNALID_PROGRESS_FRACTION_CHANGED] = 0;
+    }
+
+errored:
+ 
+    return;
+}
+
+
+void
+w_command_watch_progress (WCommand   *self,
+                          LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+
+    //Declarations
+    WCommandPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (progress != NULL)
+    {
+      g_object_ref (progress);
+    }
+
+    w_command_unwatch_current_progress (self);
+
+    if (priv->data.progress != NULL)
+    {
+      g_object_unref (priv->data.progress);
+      g_object_remove_weak_pointer (
+        G_OBJECT (priv->data.progress), 
+        (gpointer*) &priv->data.progress
+      );
+    }
+
+    priv->data.progress = progress;
+    g_object_add_weak_pointer (
+      G_OBJECT (priv->data.progress), 
+      (gpointer*) &priv->data.progress
+    );
+
+    priv->data.signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED] = g_signal_connect_swapped (
+      G_OBJECT (progress),
+      "notify::primary-message",
+      G_CALLBACK (w_command_progress_primary_message_changed_cb),
+      self
+    );
+
+    priv->data.signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED] = g_signal_connect_swapped (
+      G_OBJECT (progress),
+      "notify::secondary-message",
+      G_CALLBACK (w_command_progress_secondary_message_changed_cb),
+      self
+    );
+
+    priv->data.signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED] = g_signal_connect_swapped (
+      G_OBJECT (progress),
+      "notify::completed",
+      G_CALLBACK (w_command_progress_completed_changed_cb),
+      self
+    );
+
+    priv->data.signalid[SIGNALID_PROGRESS_FRACTION_CHANGED] = g_signal_connect_swapped (
+      G_OBJECT (progress),
+      "notify::progress-fraction",
+      G_CALLBACK (w_command_progress_fraction_changed_cb),
+      self
+    );
+}
+
+
 gint
 _install_with_dependancies (WCommand *self,
                             GList    *requests) 
@@ -487,12 +609,15 @@ _install_with_dependancies (WCommand *self,
         if (dictionaryinstall != NULL)
         {
           progress = lw_dictionaryinstall_get_progress (dictionaryinstall);
+          w_command_watch_progress (self, progress);
           lw_dictionaryinstall_install (dictionaryinstall);
           if (lw_progress_should_abort (progress)) goto errored;
         }
         progress = NULL;
       }
     }
+
+    w_command_unwatch_current_progress (self);
 
 errored:
 
@@ -1183,3 +1308,4 @@ w_command_get_query_text_data (WCommand *self)
 
   return priv->argument.query_text_data;
 }
+
