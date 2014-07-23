@@ -85,6 +85,7 @@ lw_dictionaryinstallstatefile_free (LwDictionaryInstallStateFile *self)
 
 LwDictionaryInstallState*
 lw_dictionaryinstallstate_new_glist (const gchar *NAME,
+                                     gboolean     is_temporary,
                                      GList       *paths)
 {
     //Declarations
@@ -94,6 +95,7 @@ lw_dictionaryinstallstate_new_glist (const gchar *NAME,
     //Initializations
     self = g_new0 (LwDictionaryInstallState, 1);
     self->name = g_strdup (NAME);
+    self->is_temporary = is_temporary;
     length = g_list_length (paths);
 
     self->files = g_new0 (LwDictionaryInstallStateFile*, length + 1);
@@ -128,6 +130,7 @@ errored:
 
 LwDictionaryInstallState*
 lw_dictionaryinstallstate_new_valist (const gchar *NAME,
+                                      gboolean     is_temporary,
                                       va_list      va)
 {
     //Declarations
@@ -144,7 +147,7 @@ lw_dictionaryinstallstate_new_valist (const gchar *NAME,
       paths = g_list_reverse (paths);
     }
 
-    self = lw_dictionaryinstallstate_new_glist (NAME, paths);
+    self = lw_dictionaryinstallstate_new_glist (NAME, is_temporary, paths);
 
 errored:
 
@@ -157,15 +160,16 @@ errored:
 
 LwDictionaryInstallState*
 lw_dictionaryinstallstate_new (const gchar *NAME,
+                               gboolean     is_temporary,
                                ...)
 {
     //Declarations
     va_list va;
 
     //Initializations
-    va_start(va, NAME);
+    va_start(va, is_temporary);
 
-    lw_dictionaryinstallstate_new_valist (NAME, va);
+    lw_dictionaryinstallstate_new_valist (NAME, is_temporary, va);
 }
 
 
@@ -233,6 +237,7 @@ lw_dictionaryinstallstatehistory_add (LwDictionaryInstallStateHistory *self,
 void
 lw_dictionaryinstallstatehistory_add_paths (LwDictionaryInstallStateHistory *self,
                                             const gchar                     *NAME,
+                                            gboolean                         is_temporary,
                                             GList                           *paths)
 {
     //Sanity checks
@@ -246,7 +251,7 @@ lw_dictionaryinstallstatehistory_add_paths (LwDictionaryInstallStateHistory *sel
     LwDictionaryInstallState *state = NULL;
 
     //Initializations
-    state = lw_dictionaryinstallstate_new_glist (NAME, paths);
+    state = lw_dictionaryinstallstate_new_glist (NAME, is_temporary, paths);
     if (state == NULL) goto errored;
     
     lw_dictionaryinstallstatehistory_add (self, state);

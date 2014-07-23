@@ -37,6 +37,7 @@
 #include <stdio.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
@@ -1207,6 +1208,7 @@ lw_dictionaryinstall_download (LwDictionaryInstall *self)
     gchar *basename = NULL;
     gchar *target = NULL;
     const gchar *STAGE_NAME = "download";
+    GList *targets = NULL;
 
     //Initializations
     priv = self->priv;
@@ -1217,10 +1219,7 @@ lw_dictionaryinstall_download (LwDictionaryInstall *self)
     if (basename == NULL) goto errored;
     target = lw_util_build_filename (LW_PATH_CACHE, basename);
     if (target == NULL) goto errored;
-    GList *targets = NULL;
     targets = g_list_prepend (targets, target);
-
-    lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, targets);
 
     //File is located locally so copy it
     if (g_file_test (URI, G_FILE_TEST_IS_REGULAR))
@@ -1236,6 +1235,8 @@ lw_dictionaryinstall_download (LwDictionaryInstall *self)
       lw_progress_set_secondary_message_printf (progress, MESSAGE, URI);
       lw_io_download (URI, target, progress);
     }
+
+    lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
 
 errored:
 
@@ -1297,7 +1298,7 @@ lw_dictionaryinstall_decompress (LwDictionaryInstall *self)
         }
       }
       targets = g_list_reverse (targets);
-      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, targets);
+      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
     }
 
 errored:
@@ -1362,7 +1363,7 @@ lw_dictionaryinstall_convert_encoding (LwDictionaryInstall *self)
         }
       }
       targets = g_list_reverse (targets);
-      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, targets);
+      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
     }
 
 errored:
@@ -1421,7 +1422,7 @@ lw_dictionaryinstall_postprocess (LwDictionaryInstall *self)
         }
       }
       targets = g_list_reverse (targets);
-      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, targets);
+      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
     }
 
 errored:
@@ -1435,7 +1436,6 @@ errored:
 gboolean 
 lw_dictionaryinstall_finish (LwDictionaryInstall *self)
 {
-  printf("BREAK lw_dictionaryinstall_finish\n");
     //Sanity check
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
     if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
@@ -1476,7 +1476,7 @@ lw_dictionaryinstall_finish (LwDictionaryInstall *self)
         targets = g_list_prepend (targets, target);
       }
       targets = g_list_reverse (targets);
-      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, targets);
+      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, FALSE, targets);
     }
 
 errored:
@@ -1487,188 +1487,47 @@ errored:
 }
 
 
-void 
-lw_dictionary_installer_clean (LwDictionary *self, 
-                               LwProgress   *progress)
+static void
+_clean (LwDictionaryInstallStateHistory *self,
+        LwDictionaryInstallState        *state,
+        gpointer                         data)
 {
-  /*TODO
-    //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_if_fail (state != NULL);
 
-    //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
-
-    //Initializations
-    priv = self->priv;
-    install = priv->install;
-
-    if (install->filelist != NULL) g_strfreev (install->filelist); install->filelist = NULL;
-    if (install->downloadlist != NULL) g_strfreev (install->downloadlist); install->downloadlist = NULL;
-    if (install->decompresslist != NULL) g_strfreev (install->downloadlist); install->downloadlist = NULL;
-    if (install->encodelist != NULL) g_strfreev (install->downloadlist); install->downloadlist = NULL;
-    if (install->postprocesslist != NULL) g_strfreev (install->postprocesslist); install->postprocesslist = NULL;
-    if (install->installlist != NULL) g_strfreev (install->installlist); install->installlist = NULL;
-    if (install->installedlist != NULL) g_strfreev (install->installedlist); install->installedlist = NULL;
-    */
-}
-
-
-gdouble 
-lw_dictionary_installer_get_stage_progress (LwDictionary *self)
-{
-  /*TODO
-    //Declarations
-		LwDictionaryPrivate *priv;
-    LwDictionaryInstallerStatus status;
-    gint index;
-    gdouble current;
-    gdouble final;
-    gchar **list;
-    gdouble fraction;
-    
-    //Initializations
-		priv = self->priv;
-    fraction = priv->progress;
-    current = final = 0.0;
-
-    //Get the current progress
-    index = lw_dictionary_installer_get_file_index (self);
-
-    switch (status)
+    if (state->is_temporary)
     {
-      case LW_DICTIONARY_INSTALLER_STATUS_DOWNLOADING:
-        list = lw_dictionary_installer_get_downloadlist (self);
-        break;
-      case LW_DICTIONARY_INSTALLER_STATUS_DECOMPRESSING:
-        list = lw_dictionary_installer_get_encodelist (self);
-        break;
-      case LW_DICTIONARY_INSTALLER_STATUS_ENCODING:
-        list = lw_dictionary_installer_get_postprocesslist (self);
-        break;
-      case LW_DICTIONARY_INSTALLER_STATUS_POSTPROCESSING:
-        list = lw_dictionary_installer_get_installlist (self);
-        break;
-      case LW_DICTIONARY_INSTALLER_STATUS_FINISHING:
-        list = lw_dictionary_installer_get_installedlist (self);
-        break;
-      default:
-        list = NULL;
-        break;
-    }
-
-    final = (gdouble) g_strv_length (list);
-    current = (gdouble) index + fraction;
-    if (final == 0.0)
-      fraction = 0.0;
-    else
-      fraction = current / final;
-
-    return fraction;
-    */
-    return 0.0;
-}
-
-
-//!
-//! @brief Gets the total possible progress for the LwDictionary.  It should be
-//!        divided by the current progress to get the appropriate fraction
-//! @param self The LwDictInfo object to get the total progress of
-//! @param fraction The fraction progress of the current process.
-//!
-gdouble 
-lw_dictionary_installer_get_total_progress (LwDictionary *self)
-{
-  /*TODO
-    //Declarations
-		LwDictionaryPrivate *priv;
-    LwDictionaryInstallerStatus status;
-    gdouble current;
-    gdouble final;
-    gdouble fraction;
-    gdouble temp;
-    gint i;
-    gchar **list;
-
-    //Definitions
-		priv = self->priv;
-    status = lw_dictionary_installer_get_status (self);
-    current = final = 0.0;
-    fraction = priv->progress;
-    const gdouble DOWNLOAD_WEIGHT = 3.0;
-
-    for (i = 0; i < TOTAL_LW_DICTIONARY_INSTALLER_STATUSES; i++)
-    {
-      switch (i)
+      gint i = 0;
+      for (i = 0; i < state->length; i++)
       {
-        case LW_DICTIONARY_INSTALLER_STATUS_DOWNLOADING:
-          list = lw_dictionary_installer_get_downloadlist (self);
-          break;
-        case LW_DICTIONARY_INSTALLER_STATUS_DECOMPRESSING:
-          list = lw_dictionary_installer_get_encodelist (self);
-          break;
-        case LW_DICTIONARY_INSTALLER_STATUS_ENCODING:
-          list = lw_dictionary_installer_get_postprocesslist (self);
-          break;
-        case LW_DICTIONARY_INSTALLER_STATUS_POSTPROCESSING:
-          list = lw_dictionary_installer_get_installlist (self);
-          break;
-        case LW_DICTIONARY_INSTALLER_STATUS_FINISHING:
-          list = lw_dictionary_installer_get_installedlist (self);
-          break;
-        default:
-          break;
+        LwDictionaryInstallStateFile *file = state->files[i];
+        if (file != NULL && file->path != NULL)
+        {
+          g_remove (file->path);
+        }
       }
-      if (i == LW_DICTIONARY_INSTALLER_STATUS_DOWNLOADING)
-        temp = (gdouble) g_strv_length (list) * DOWNLOAD_WEIGHT;
-      else
-        temp= (gdouble) g_strv_length (list);
-
-      final += temp;
-      if (i < status) current += temp;
     }
-
-    temp = lw_dictionary_installer_get_stage_progress (self);
-    if (i == LW_DICTIONARY_INSTALLER_STATUS_DOWNLOADING)
-      current += temp * DOWNLOAD_WEIGHT;
-    else
-      current += temp;
-
-    if (final == 0.0)
-      fraction = 0.0;
-    else
-      fraction = current / final;
-
-    return fraction;
-    */
-    return 0.0;
 }
 
 
-/*TODO
-gint
-lw_dictionary_installer_get_file_index (LwDictionary *self)
+void 
+lw_dictionaryinstall_clean (LwDictionaryInstall *self)
 {
-    //Sanity check
-    g_return_val_if_fail (self != NULL, -1);
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARY (self));
 
     //Declarations
-    LwDictionaryPrivate *priv;
-    LwDictionaryInstall *install;
+    LwDictionaryInstallPrivate *priv = NULL;
 
     //Initializations
     priv = self->priv;
-    install = priv->install;
 
-    return install->index;
+    //lw_dictionaryinstallstatehistory_foreach (self, _clean, NULL);
 }
-*/
 
 
 gboolean 
 lw_dictionaryinstall_install (LwDictionaryInstall *self)
 {
-  printf("BREAK lw_dictionaryinstall_install\n");
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
     if (lw_progress_errored (self->priv->data.progress)) return FALSE;
@@ -1691,10 +1550,8 @@ lw_dictionaryinstall_install (LwDictionaryInstall *self)
     lw_dictionaryinstall_decompress (self);
     lw_dictionaryinstall_convert_encoding (self);
     lw_dictionaryinstall_postprocess (self);
-    /*
-    lw_dictionary_installer_install (self);
-    lw_dictionary_installer_clean (self);
-    */
+    lw_dictionaryinstall_finish (self);
+    lw_dictionaryinstall_clean (self);
 
 errored:
   

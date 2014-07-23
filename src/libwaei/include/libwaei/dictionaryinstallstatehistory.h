@@ -16,6 +16,7 @@ struct _LwDictionaryInstallState {
   gchar *name;
   LwDictionaryInstallStateFile **files;
   gint length;
+  gboolean is_temporary;
 };
 
 
@@ -31,17 +32,15 @@ typedef void (*LwDictionaryInstallStateHistoryForeachFunc) (LwDictionaryInstallS
 
 // Methods 
 
-LwDictionaryInstallState* lw_dictionaryinstallstate_new_glist (const gchar *NAME, GList *paths);
+LwDictionaryInstallState* lw_dictionaryinstallstate_new_glist (const gchar *NAME, gboolean is_temporary, GList *paths);
 
 LwDictionaryInstallStateHistory* lw_dictionaryinstallstatehistory_new (void);
 void lw_dictionaryinstallstatehistory_free (LwDictionaryInstallStateHistory *self);
-
 void lw_dictionaryinstallstatehistory_add (LwDictionaryInstallStateHistory *self, LwDictionaryInstallState *state);
-void lw_dictionaryinstallstatehistory_add_paths (LwDictionaryInstallStateHistory *self, const gchar *NAME, GList *paths);
-
+void lw_dictionaryinstallstatehistory_add_paths (LwDictionaryInstallStateHistory *self, const gchar *NAME, gboolean is_temporary, GList *paths);
 LwDictionaryInstallState* lw_dictionaryinstallstatehistory_current (LwDictionaryInstallStateHistory *self);
-
 void lw_dictionaryinstallstatehistory_clear (LwDictionaryInstallStateHistory *self);
+void lw_dictionaryinstallstatehistory_foreach (LwDictionaryInstallStateHistory *self, LwDictionaryInstallStateHistoryForeachFunc func, gpointer user_data);
 
 G_END_DECLS
 
