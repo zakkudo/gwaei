@@ -136,6 +136,12 @@ lw_dictionary_get_property (GObject      *object,
       case PROP_NAME:
         g_value_set_string (value, lw_dictionary_get_name (self));
         break;
+      case PROP_PATH:
+        g_value_set_string (value, lw_dictionary_get_path (self));
+        break;
+      case PROP_ID:
+        g_value_set_string (value, lw_dictionary_get_id (self));
+        break;
       case PROP_MORPHOLOGYENGINE:
         g_value_set_object (value, lw_dictionary_get_morphologyengine (self));
         break;
@@ -207,6 +213,24 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_MORPHOLOGYENGINE, _klasspriv->pspec[PROP_MORPHOLOGYENGINE]);
+
+    _klasspriv->pspec[PROP_PATH] = g_param_spec_string (
+      "path",
+      "Filename of the self",
+      "Set the self's config.filename",
+      "",
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_PATH, _klasspriv->pspec[PROP_PATH]);
+
+    _klasspriv->pspec[PROP_ID] = g_param_spec_string (
+      "id",
+      "Filename of the self",
+      "Set the self's config.filename",
+      "",
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_ID, _klasspriv->pspec[PROP_ID]);
 }
 
 
@@ -227,27 +251,25 @@ lw_dictionary_uninstall (LwDictionary *self)
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwProgress *progress = NULL;
-    gchar *uri = NULL;
+    const gchar *PATH = NULL;
     const gchar *MESSAGE = NULL;
     const gchar *name = lw_dictionary_get_name (self);
 
     //Initializations
     priv = self->priv;
     progress = priv->data.progress;
-    uri = lw_dictionary_get_path (self);
-    if (uri == NULL) goto errored;
+    PATH = lw_dictionary_get_path (self);
+    if (PATH == NULL) goto errored;
 
     MESSAGE = gettext("Uninstalling %s Dictionary...");
     lw_progress_set_primary_message_printf (progress, MESSAGE, name);
 
     MESSAGE = gettext("Removing %s...");
-    lw_progress_set_secondary_message_printf (progress, MESSAGE, uri);
+    lw_progress_set_secondary_message_printf (progress, MESSAGE, PATH);
 
-    lw_io_remove (uri, progress);
+    lw_io_remove (PATH, progress);
 
 errored:
-
-    g_free (uri); uri = NULL;
 
     return (!lw_progress_errored (progress));
 }
@@ -261,23 +283,22 @@ lw_dictionary_open (LwDictionary *self)
 
     //Declarations
     FILE *file = NULL;
-    gchar *path = NULL;
+    const gchar *PATH = NULL;
 
     //Initializations
-    path = lw_dictionary_get_path (self); if (path == NULL) goto errored;
+    PATH = lw_dictionary_get_path (self);
+    if (PATH == NULL) goto errored;
     
-    file = g_fopen (path, "r");
+    file = g_fopen (PATH, "r");
 
 errored:
-
-    if (path != NULL) g_free (path); path = NULL;
 
     return file;
 }
 
 
 gchar*
-lw_dictionary_get_directoryname (GType type)
+lw_dictionary_build_directoryname (GType type)
 {
     //Sanity checks
     g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);
@@ -309,7 +330,7 @@ errored:
 
 
 gchar*
-lw_dictionary_get_directory (GType type)
+lw_dictionary_build_directory (GType type)
 {
     //Sanity checks
     g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);
@@ -320,7 +341,7 @@ lw_dictionary_get_directory (GType type)
 
     //Initializations
     path = NULL;
-    directoryname = lw_dictionary_get_directoryname (type);
+    directoryname = lw_dictionary_build_directoryname (type);
     if (directoryname == NULL) goto errored;
     path = lw_util_build_filename (LW_PATH_DICTIONARY, directoryname);
     if (path == NULL) goto errored;
@@ -335,30 +356,76 @@ errored:
 }
 
 
-gchar* 
+const gchar* 
 lw_dictionary_get_path (LwDictionary *self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
+    LwDictionaryPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.path;
+}
+
+
+gchar*
+lw_dictionary_build_path (GType        type,
+                          const gchar *FILENAME)
+{
+    //Sanity checks
+    g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);
+    g_return_val_if_fail (FILENAME != NULL, NULL);
+
+    //Declarations
     gchar *directory = NULL;
-    const gchar *FILENAME = NULL;
     gchar *path = NULL;
 
     //Initializations
-    directory = lw_dictionary_get_directory (G_OBJECT_TYPE (self));
+    directory = lw_dictionary_build_directory (type);
     if (directory == NULL) goto errored;
-    FILENAME = lw_dictionary_get_filename (self);
-    if (FILENAME == NULL) goto errored;
-
     path = g_build_filename (directory, FILENAME, NULL);
+    if (path == NULL) goto errored;
 
 errored:
 
     g_free (directory); directory = NULL;
 
     return path;
+}
+
+
+void
+lw_dictionary_sync_path (LwDictionary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
+    GType type = G_TYPE_INVALID;
+    const gchar *FILENAME = NULL;
+    gchar *path = NULL;
+
+    //Initializations
+    priv = self->priv;
+    type = G_OBJECT_TYPE (self);
+    FILENAME = lw_dictionary_get_filename (self);
+    path = lw_dictionary_build_path (type, FILENAME);
+    if (g_strcmp0 (path, priv->data.path) == 0) goto errored;
+
+    g_free(priv->data.path);
+    priv->data.path = path;
+    path = NULL;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PATH]);
+
+errored:
+
+    g_free (path); path = NULL;
 }
 
 
@@ -596,7 +663,7 @@ lw_dictionary_build_id_from_type (GType        type,
     gchar *directoryname = NULL;
 
     //Initializations
-    directoryname = lw_dictionary_get_directoryname (type);
+    directoryname = lw_dictionary_build_directoryname (type);
     if (directoryname == NULL) goto errored;
     id = g_strdup_printf ("%s/%s", directoryname, FILENAME);
     if (id == NULL) goto errored;
@@ -631,26 +698,54 @@ errored:
 }
 
 
-gchar*
-lw_dictionary_build_id (LwDictionary *self)
+const gchar*
+lw_dictionary_get_id (LwDictionary *self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
+    LwDictionaryPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.id;
+}
+
+
+void
+lw_dictionary_sync_id (LwDictionary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
     gchar *id = NULL;
     GType type = G_TYPE_INVALID;
     const gchar *FILENAME = NULL;
 
     //Initializations
+    priv = self->priv;
     type = G_OBJECT_TYPE (self);
     FILENAME = lw_dictionary_get_filename (self);
     if (FILENAME == NULL) goto errored;
     id = lw_dictionary_build_id_from_type (type, FILENAME);
 
+    if (g_strcmp0 (id, priv->data.id) == 0) goto errored;
+
+    g_free (priv->data.id);
+    priv->data.id = id;
+    id = NULL;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_ID]);
+
 errored:
 
-    return id;
+    g_free (id); id = NULL;
+
+    return;
 }
 
 
@@ -717,7 +812,7 @@ lw_dictionary_get_installed_idlist (GType type_filter)
     //Find out how long the array has to be
     while (*childiter != 0)
     {
-      directorypath = lw_dictionary_get_directory (*childiter);
+      directorypath = lw_dictionary_build_directory (*childiter);
       directory = g_dir_open (directorypath, 0, NULL);
       if (directory != NULL)
       {
@@ -737,7 +832,7 @@ lw_dictionary_get_installed_idlist (GType type_filter)
     //Find out how long the array has to be
     while (*childiter != 0)
     {
-      directorypath = lw_dictionary_get_directory (*childiter);
+      directorypath = lw_dictionary_build_directory (*childiter);
       directory = g_dir_open (directorypath, 0, NULL);
       if (directory != NULL)
       {

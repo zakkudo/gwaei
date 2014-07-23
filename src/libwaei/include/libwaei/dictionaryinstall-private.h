@@ -15,6 +15,7 @@ typedef enum {
     PROP_PREFERENCES,
     PROP_DOWNLOAD_KEY,
     PROP_DOWNLOAD_URI,
+    PROP_INSTALL_PATH,
     PROP_SPLIT_PLACES_FROM_NAMES,
     PROP_MERGE_RADICALS_INTO_KANJI,
     PROP_PROGRESS,
@@ -46,6 +47,7 @@ struct _Data {
   GType gtype;
   LwProgress *progress;
   LwDictionaryInstallStateHistory *history;
+  gchar *install_path;
 };
 
 struct _Config {

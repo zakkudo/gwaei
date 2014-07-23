@@ -352,9 +352,9 @@ _add_to_index (LwDictionaryList *self,
 
     //Initializations
     priv = self->priv;
-    id = g_ascii_strdown (lw_dictionary_build_id (dictionary), -1);
-    typename = g_ascii_strdown (g_strdup (G_OBJECT_TYPE_NAME (dictionary)), -1);
-    filename = g_ascii_strdown (g_strdup (lw_dictionary_get_filename (dictionary)), -1);
+    id = g_ascii_strdown (lw_dictionary_get_id (dictionary), -1);
+    typename = g_ascii_strdown (G_OBJECT_TYPE_NAME (dictionary), -1);
+    filename = g_ascii_strdown (lw_dictionary_get_filename (dictionary), -1);
    
     if (typename != NULL && !g_hash_table_contains (priv->data.index.typename, typename))
     {
@@ -397,9 +397,9 @@ _remove_from_index (LwDictionaryList *self,
 
     //Initializations
     priv = self->priv;
-    id = g_ascii_strdown (lw_dictionary_build_id (dictionary), -1);
-    typename = g_ascii_strdown (g_strdup (G_OBJECT_TYPE_NAME (dictionary)), -1);
-    filename = g_ascii_strdown (g_strdup (lw_dictionary_get_filename (dictionary)), -1);
+    id = g_ascii_strdown (lw_dictionary_get_id (dictionary), -1);
+    typename = g_ascii_strdown (G_OBJECT_TYPE_NAME (dictionary), -1);
+    filename = g_ascii_strdown (lw_dictionary_get_filename (dictionary), -1);
    
     if (g_hash_table_lookup (priv->data.index.typename, typename) == dictionary)
     {
@@ -1114,7 +1114,7 @@ lw_dictionarylist_save_order (LwDictionaryList *self)
       while (link != NULL)
       {
         dictionary = LW_DICTIONARY (link->data);
-        *ptr = lw_dictionary_build_id (dictionary);
+        *ptr = (gchar*) lw_dictionary_get_id (dictionary);
         if (*ptr == NULL) break;
         ptr++;
         link = link->next;
@@ -1130,7 +1130,7 @@ lw_dictionarylist_save_order (LwDictionaryList *self)
 errored:
 
     g_free (order); order = NULL;
-    g_strfreev (atoms); atoms = NULL;
+    g_free (atoms); atoms = NULL;
 }
 
 
@@ -1212,11 +1212,11 @@ lw_dictionarylist_convert_order_map_to_array (LwDictionaryList *self,
         LwDictionary *dictionary = LW_DICTIONARY (link->data);
         if (dictionary != NULL)
         {
-          gchar *key = lw_dictionary_build_id (dictionary);
-          if (key != NULL)
+          const gchar *KEY = lw_dictionary_get_id (dictionary);
+          if (KEY != NULL)
           {
             gpointer position_ptr = NULL;
-            if (g_hash_table_lookup_extended (hashtable, key, NULL, &position_ptr))
+            if (g_hash_table_lookup_extended (hashtable, KEY, NULL, &position_ptr))
             {
               new_order[i] = GPOINTER_TO_INT (position_ptr);
             }
@@ -1225,8 +1225,6 @@ lw_dictionarylist_convert_order_map_to_array (LwDictionaryList *self,
               new_order[i] = missing_index;
               missing_index++;
             }
-
-            g_free (key); key = NULL;
           }
         }
 
@@ -1257,7 +1255,7 @@ lw_dictionarylist_sort_compare_function (gconstpointer a,
   
     //Declarations
     GHashTable *hashtable = NULL;
-    gchar *description_a = NULL, *description_b = NULL;
+    const gchar *DESCRIPTION_A = NULL, *DESCRIPTION_B = NULL;
     LwDictionary *dictionary_a = NULL, *dictionary_b = NULL;
     gpointer position_a_ptr = NULL, position_b_ptr = NULL;
     gint position_a, position_b;
@@ -1269,21 +1267,19 @@ lw_dictionarylist_sort_compare_function (gconstpointer a,
     found_a = found_b = FALSE;
 
     dictionary_a = LW_DICTIONARY (a);
-    description_a = lw_dictionary_build_id (dictionary_a);
-    if (description_a != NULL)
+    DESCRIPTION_A = lw_dictionary_get_id (dictionary_a);
+    if (DESCRIPTION_A != NULL)
     {
-      found_a = g_hash_table_lookup_extended (hashtable, description_a, NULL, &position_a_ptr);
+      found_a = g_hash_table_lookup_extended (hashtable, DESCRIPTION_A, NULL, &position_a_ptr);
       position_a = GPOINTER_TO_INT (position_a_ptr);
-      g_free (description_a); description_a = NULL;
     }
     
     dictionary_b = LW_DICTIONARY (b);
-    description_b = lw_dictionary_build_id (dictionary_b);
-    if (description_b != NULL)
+    DESCRIPTION_B = lw_dictionary_get_id (dictionary_b);
+    if (DESCRIPTION_B != NULL)
     {
-      found_b = g_hash_table_lookup_extended (hashtable, description_b, NULL, &position_b_ptr);
+      found_b = g_hash_table_lookup_extended (hashtable, DESCRIPTION_B, NULL, &position_b_ptr);
       position_b = GPOINTER_TO_INT (position_b_ptr);
-      g_free (description_b); description_b = NULL;
     }
 
     //Calculate the proper order

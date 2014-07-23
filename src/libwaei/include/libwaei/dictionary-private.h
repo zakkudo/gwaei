@@ -10,6 +10,8 @@ typedef enum
   PROP_NAME,
   PROP_MORPHOLOGYENGINE,
   PROP_PROGRESS,
+  PROP_ID,
+  PROP_PATH,
   TOTAL_PROPS
 } LwDictionaryProps;
 
@@ -25,6 +27,9 @@ struct _Data {
   GMutex mutex;
   gchar *name;
   LwProgress *progress;
+
+  gchar *id;
+  gchar *path;
 };
 
 struct _Config {

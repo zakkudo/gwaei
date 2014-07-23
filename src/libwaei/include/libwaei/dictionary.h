@@ -34,7 +34,9 @@ struct _LwDictionaryClass {
 //Methods
 GType lw_dictionary_get_type (void) G_GNUC_CONST;
 
-gchar* lw_dictionary_get_path (LwDictionary *self);
+const gchar* lw_dictionary_get_path (LwDictionary *self);
+void lw_dictionary_sync_path (LwDictionary *self);
+gchar* lw_dictionary_build_path (GType type, const gchar *FILENAME);
 
 void lw_dictionary_set_filename (LwDictionary *self, const gchar *FILENAME);
 const gchar* lw_dictionary_get_filename (LwDictionary *self);
@@ -53,9 +55,11 @@ const gchar* lw_dictionary_get_buffer (LwDictionary *self);
 gboolean lw_dictionary_equals (LwDictionary *dictionary1, LwDictionary *dictionary2);
 
 gchar** lw_dictionary_get_installed_idlist (GType type_filter);
-gchar* lw_dictionary_get_directoryname (GType dictionary_type);
-gchar* lw_dictionary_build_id (LwDictionary *self);
 gchar* lw_dictionary_build_id_from_type (GType type, const gchar *FILENAME);
+void lw_dictionary_sync_id (LwDictionary *self);
+const gchar* lw_dictionary_get_id (LwDictionary *self);
+
+gchar* lw_dictionary_get_directoryname (GType dictionary_type);
 gchar* lw_dictionary_directoryname_to_typename (const gchar *DIRECTORYNAME);
 
 gboolean  lw_dictionary_uninstall (LwDictionary *self);

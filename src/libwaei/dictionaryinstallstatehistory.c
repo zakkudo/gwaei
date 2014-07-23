@@ -43,24 +43,129 @@
 #include <libwaei/dictionaryinstallstatehistory.h>
 
 
-LwDictionaryInstallState*
-lw_dictionaryinstallstate_new (const gchar *NAME,
-                               const gchar *PATH)
+LwDictionaryInstallStateFile*
+lw_dictionaryinstallstatefile_new (const gchar *PATH)
 {
+    //Sanity checks
+    g_return_val_if_fail (PATH != NULL, NULL);
+
     //Declarations
-    LwDictionaryInstallState *self = NULL;
+    LwDictionaryInstallStateFile *self = NULL;
 
     //Initializations
-    self = g_new0 (LwDictionaryInstallState, 1);
-
-    self->name = g_strdup (NAME);
+    self = g_new0 (LwDictionaryInstallStateFile, 1);
+    if (self == NULL) goto errored;
     self->path = g_strdup (PATH);
     self->basename = g_path_get_basename (PATH);
     self->SUFFIX = g_utf8_strrchr (self->basename, strlen(self->basename), '.');
     if (self->SUFFIX == NULL) self->SUFFIX = "";
     self->suffixless = g_strndup(self->path, strlen(self->path) - strlen(self->SUFFIX));
 
+errored:
+
     return self;
+}
+
+
+void
+lw_dictionaryinstallstatefile_free (LwDictionaryInstallStateFile *self)
+{
+    //Sanity checks
+    if (self == NULL) return;
+
+    g_free (self->path);
+    g_free (self->basename);
+    g_free (self->suffixless);
+
+    memset(self, 0, sizeof(self));
+
+    g_free (self);
+}
+
+
+LwDictionaryInstallState*
+lw_dictionaryinstallstate_new_glist (const gchar *NAME,
+                                     GList       *paths)
+{
+    //Declarations
+    LwDictionaryInstallState *self = NULL;
+    gint length = 0;
+
+    //Initializations
+    self = g_new0 (LwDictionaryInstallState, 1);
+    self->name = g_strdup (NAME);
+    length = g_list_length (paths);
+
+    self->files = g_new0 (LwDictionaryInstallStateFile*, length + 1);
+
+    if (self->files != NULL) {
+      GList *link = NULL;
+      gint i = 0;
+      const gchar *PATH = NULL;
+      for (link = paths; link != NULL; link = link->next)
+      {
+        PATH = (gchar*) link->data;
+        if (PATH != NULL)
+        {
+          LwDictionaryInstallStateFile *file = lw_dictionaryinstallstatefile_new (PATH);
+          if (file != NULL)
+          {
+            self->files[i++] = file;
+            file = NULL;
+          }
+          PATH = NULL;
+        }
+      }
+      self->length = length;
+      self->files[i++] = NULL;
+    }
+
+errored:
+
+    return self;
+}
+
+
+LwDictionaryInstallState*
+lw_dictionaryinstallstate_new_valist (const gchar *NAME,
+                                      va_list      va)
+{
+    //Declarations
+    LwDictionaryInstallState *self = NULL;
+    GList *paths = NULL;
+
+    {
+      while (TRUE)
+      {
+        const gchar *PATH = va_arg(va, gchar*);
+        if (PATH == NULL || g_utf8_validate (PATH, -1, NULL) == FALSE) break;
+        paths = g_list_prepend (paths, (gchar*) PATH);
+      }
+      paths = g_list_reverse (paths);
+    }
+
+    self = lw_dictionaryinstallstate_new_glist (NAME, paths);
+
+errored:
+
+    g_list_free (paths); paths = NULL;
+
+
+    return self;
+}
+
+
+LwDictionaryInstallState*
+lw_dictionaryinstallstate_new (const gchar *NAME,
+                               ...)
+{
+    //Declarations
+    va_list va;
+
+    //Initializations
+    va_start(va, NAME);
+
+    lw_dictionaryinstallstate_new_valist (NAME, va);
 }
 
 
@@ -72,10 +177,19 @@ lw_dictionaryinstallstate_free (LwDictionaryInstallState *self)
 
     //Declarations
     g_free (self->name);
-    g_free (self->path);
-    g_free (self->basename);
+
+    {
+      gint i = 0;
+      for (i = 0; i < self->length; i++)
+      {
+        lw_dictionaryinstallstatefile_free (self->files[i]);
+        self->files[i] = NULL;
+      }
+    }
 
     memset(self, 0, sizeof(self));
+
+    g_free (self);
 }
 
 
@@ -117,24 +231,24 @@ lw_dictionaryinstallstatehistory_add (LwDictionaryInstallStateHistory *self,
 
 
 void
-lw_dictionaryinstallstatehistory_add_full (LwDictionaryInstallStateHistory *self,
-                                           const gchar  *NAME,
-                                           const gchar  *PATH)
+lw_dictionaryinstallstatehistory_add_paths (LwDictionaryInstallStateHistory *self,
+                                            const gchar                     *NAME,
+                                            GList                           *paths)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
     g_return_if_fail (NAME != NULL);
-    g_return_if_fail (PATH != NULL);
+    g_return_if_fail (paths != NULL);
     if (NAME == NULL) return;
-    if (PATH == NULL) return;
+    if (paths == NULL) return;
 
     //Declarations
     LwDictionaryInstallState *state = NULL;
 
     //Initializations
-    state = lw_dictionaryinstallstate_new (NAME, PATH);
+    state = lw_dictionaryinstallstate_new_glist (NAME, paths);
     if (state == NULL) goto errored;
-
+    
     lw_dictionaryinstallstatehistory_add (self, state);
     
 errored:

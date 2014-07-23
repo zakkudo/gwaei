@@ -86,6 +86,9 @@ const gchar* lw_dictionaryinstall_get_id (LwDictionaryInstall *self);
 void lw_dictionaryinstall_set_id (LwDictionaryInstall *self, const gchar *ID);
 void lw_dictionaryinstall_sync_id (LwDictionaryInstall *self);
 
+const gchar* lw_dictionaryinstall_get_install_path (LwDictionaryInstall *self);
+void lw_dictionaryinstall_sync_install_path (LwDictionaryInstall *self);
+
 gboolean lw_dictionaryinstall_install (LwDictionaryInstall *self);
 
 
