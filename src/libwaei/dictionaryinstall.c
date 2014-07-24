@@ -409,6 +409,7 @@ lw_dictionaryinstall_set_name (LwDictionaryInstall *self,
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_NAME]);
 
     lw_dictionaryinstall_sync_id (self);
+    lw_dictionaryinstall_sync_install_path (self);
 
 errored:
 
@@ -536,6 +537,7 @@ lw_dictionaryinstall_set_gtype (LwDictionaryInstall *self,
 
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_GTYPE]);
     lw_dictionaryinstall_sync_id (self);
+    lw_dictionaryinstall_sync_install_path (self);
 
 errored:
 
@@ -702,26 +704,30 @@ lw_dictionaryinstall_sync_install_path (LwDictionaryInstall *self)
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
-    LwPreferences *preferences = NULL;
-    const gchar *KEY = NULL;
-    gchar *uri = NULL;
-    gboolean changed = FALSE;
+    GType type = G_TYPE_INVALID;
+    const gchar *FILENAME = NULL;
+    gchar *path = NULL;
 
     //Initializations
     priv = self->priv;
-    preferences = lw_dictionaryinstall_get_preferences (self);
-    if (preferences == NULL) goto errored;
-    KEY = lw_dictionaryinstall_get_download_key (self);
-    if (KEY == NULL) goto errored;
-    uri = lw_preferences_get_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, KEY);
-    changed = (g_strcmp0 (uri, priv->data.download_uri) != 0);
-    if (changed == FALSE) goto errored;
+    type = lw_dictionaryinstall_get_gtype (self);
+    FILENAME = lw_dictionaryinstall_get_name (self);
+    if (g_type_is_a (type, LW_TYPE_DICTIONARY) && FILENAME != NULL)
+    {
+      path = lw_dictionary_build_path (type, FILENAME);
+    }
 
-    lw_dictionaryinstall_set_download_uri (self, uri);
+    if (g_strcmp0 (path, priv->data.install_path) == 0) goto errored;
+
+    g_free (priv->data.install_path);
+    priv->data.install_path = path;
+    path = NULL;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_INSTALL_PATH]);
 
 errored:
 
-    g_free (uri); uri = NULL;
+    g_free (path); path = NULL;
 }
 
 
@@ -1414,15 +1420,19 @@ lw_dictionaryinstall_postprocess (LwDictionaryInstall *self)
 
         if (priv->config.split_places_from_names)
         {
+          //TODO
           lw_dictionaryinstall_split_places_from_names (self);
+          targets = g_list_reverse (targets);
+          lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
         }
         if (priv->config.merge_radicals_into_kanji)
         {
+          //TODO
           lw_dictionaryinstall_merge_radicals_into_kanji (self);
+          targets = g_list_reverse (targets);
+          lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
         }
       }
-      targets = g_list_reverse (targets);
-      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
     }
 
 errored:
@@ -1516,7 +1526,7 @@ void
 lw_dictionaryinstall_clean (LwDictionaryInstall *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARY (self));
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;

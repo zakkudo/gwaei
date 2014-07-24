@@ -92,7 +92,7 @@ lw_file_free (LwFile *self)
 const gchar*
 lw_file_get_path (LwFile *self)
 {
-    g_return_val_if_fail (self == NULL, NULL);
+    g_return_val_if_fail (self != NULL, NULL);
 
     return self->path;
 }
@@ -101,7 +101,7 @@ lw_file_get_path (LwFile *self)
 const gchar*
 lw_file_get_basename (LwFile *self)
 {
-    g_return_val_if_fail (self == NULL, NULL);
+    g_return_val_if_fail (self != NULL, NULL);
 
     return self->basename;
 }
@@ -110,7 +110,7 @@ lw_file_get_basename (LwFile *self)
 const gchar*
 lw_file_get_suffixless (LwFile *self)
 {
-    g_return_val_if_fail (self == NULL, NULL);
+    g_return_val_if_fail (self != NULL, NULL);
 
     return self->suffixless;
 }
@@ -119,7 +119,7 @@ lw_file_get_suffixless (LwFile *self)
 const gchar*
 lw_file_get_suffix (LwFile *self)
 {
-    g_return_val_if_fail (self == NULL, NULL);
+    g_return_val_if_fail (self != NULL, NULL);
 
     return self->SUFFIX;
 }
