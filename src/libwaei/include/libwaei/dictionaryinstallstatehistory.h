@@ -27,6 +27,7 @@ LwDictionaryInstallState* lw_dictionaryinstallstate_new_glist (const gchar *NAME
 
 LwDictionaryInstallStateHistory* lw_dictionaryinstallstatehistory_new (void);
 void lw_dictionaryinstallstatehistory_free (LwDictionaryInstallStateHistory *self);
+
 void lw_dictionaryinstallstatehistory_add (LwDictionaryInstallStateHistory *self, LwDictionaryInstallState *state);
 void lw_dictionaryinstallstatehistory_add_paths (LwDictionaryInstallStateHistory *self, const gchar *NAME, gboolean is_temporary, GList *paths);
 LwDictionaryInstallState* lw_dictionaryinstallstatehistory_current (LwDictionaryInstallStateHistory *self);

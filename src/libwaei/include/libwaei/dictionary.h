@@ -59,7 +59,7 @@ gchar* lw_dictionary_build_id_from_type (GType type, const gchar *FILENAME);
 void lw_dictionary_sync_id (LwDictionary *self);
 const gchar* lw_dictionary_get_id (LwDictionary *self);
 
-gchar* lw_dictionary_get_directoryname (GType dictionary_type);
+gchar* lw_dictionary_build_directory (GType type);
 gchar* lw_dictionary_directoryname_to_typename (const gchar *DIRECTORYNAME);
 
 gboolean  lw_dictionary_uninstall (LwDictionary *self);

@@ -192,10 +192,13 @@ lw_dictionary_index_get_path (LwDictionary *dictionary)
 
     //Initializations
     type = G_OBJECT_TYPE (dictionary);
-    directoryname = lw_dictionary_get_directoryname (type); if (directoryname == NULL) goto errored;
-    directory = lw_util_build_filename (LW_PATH_INDEX, directoryname); if (directory == NULL) goto errored;
+    directoryname = lw_dictionary_build_directory (type);
+    if (directoryname == NULL) goto errored;
+    directory = lw_util_build_filename (LW_PATH_INDEX, directoryname);
+    if (directory == NULL) goto errored;
     g_mkdir_with_parents (directory, 0755);
-    filename = lw_dictionary_get_filename (dictionary); if (filename == NULL) goto errored;
+    filename = lw_dictionary_get_filename (dictionary);
+    if (filename == NULL) goto errored;
     path = g_build_filename (directory, filename, NULL);
 
 errored:
