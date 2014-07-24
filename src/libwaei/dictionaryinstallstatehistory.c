@@ -43,46 +43,6 @@
 #include <libwaei/dictionaryinstallstatehistory.h>
 
 
-LwDictionaryInstallStateFile*
-lw_dictionaryinstallstatefile_new (const gchar *PATH)
-{
-    //Sanity checks
-    g_return_val_if_fail (PATH != NULL, NULL);
-
-    //Declarations
-    LwDictionaryInstallStateFile *self = NULL;
-
-    //Initializations
-    self = g_new0 (LwDictionaryInstallStateFile, 1);
-    if (self == NULL) goto errored;
-    self->path = g_strdup (PATH);
-    self->basename = g_path_get_basename (PATH);
-    self->SUFFIX = g_utf8_strrchr (self->basename, strlen(self->basename), '.');
-    if (self->SUFFIX == NULL) self->SUFFIX = "";
-    self->suffixless = g_strndup(self->path, strlen(self->path) - strlen(self->SUFFIX));
-
-errored:
-
-    return self;
-}
-
-
-void
-lw_dictionaryinstallstatefile_free (LwDictionaryInstallStateFile *self)
-{
-    //Sanity checks
-    if (self == NULL) return;
-
-    g_free (self->path);
-    g_free (self->basename);
-    g_free (self->suffixless);
-
-    memset(self, 0, sizeof(self));
-
-    g_free (self);
-}
-
-
 LwDictionaryInstallState*
 lw_dictionaryinstallstate_new_glist (const gchar *NAME,
                                      gboolean     is_temporary,
@@ -98,7 +58,7 @@ lw_dictionaryinstallstate_new_glist (const gchar *NAME,
     self->is_temporary = is_temporary;
     length = g_list_length (paths);
 
-    self->files = g_new0 (LwDictionaryInstallStateFile*, length + 1);
+    self->files = g_new0 (LwFile*, length + 1);
 
     if (self->files != NULL) {
       GList *link = NULL;
@@ -109,7 +69,7 @@ lw_dictionaryinstallstate_new_glist (const gchar *NAME,
         PATH = (gchar*) link->data;
         if (PATH != NULL)
         {
-          LwDictionaryInstallStateFile *file = lw_dictionaryinstallstatefile_new (PATH);
+          LwFile *file = lw_file_new (PATH);
           if (file != NULL)
           {
             self->files[i++] = file;
@@ -186,7 +146,7 @@ lw_dictionaryinstallstate_free (LwDictionaryInstallState *self)
       gint i = 0;
       for (i = 0; i < self->length; i++)
       {
-        lw_dictionaryinstallstatefile_free (self->files[i]);
+        lw_file_free (self->files[i]);
         self->files[i] = NULL;
       }
     }

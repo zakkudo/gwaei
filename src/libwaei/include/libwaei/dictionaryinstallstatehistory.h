@@ -3,18 +3,9 @@
 
 G_BEGIN_DECLS
 
-struct _LwDictionaryInstallStateFile {
-  gchar *path;
-  gchar *basename;
-  const gchar *SUFFIX;
-  gchar *suffixless;
-};
-
-typedef struct _LwDictionaryInstallStateFile LwDictionaryInstallStateFile;
-
 struct _LwDictionaryInstallState {
   gchar *name;
-  LwDictionaryInstallStateFile **files;
+  LwFile **files;
   gint length;
   gboolean is_temporary;
 };

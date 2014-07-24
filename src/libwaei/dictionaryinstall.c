@@ -1272,14 +1272,14 @@ lw_dictionaryinstall_decompress (LwDictionaryInstall *self)
       gint i = 0;
       for (i = 0; state != NULL && i < state->length; i++) 
       {
-        LwDictionaryInstallStateFile *file = state->files[i];
+        LwFile *file = state->files[i];
         if (file == NULL) continue;
 
         const gchar *MESSAGE = gettext("Decompressing %s...");
-        const gchar *SUFFIX = file->SUFFIX;
-        const gchar *BASENAME = file->basename;
-        const gchar *SUFFIXLESS = file->suffixless;
-        const gchar *SOURCE = file->path;
+        const gchar *SUFFIX = lw_file_get_suffix (file);
+        const gchar *BASENAME = lw_file_get_basename (file);
+        const gchar *SUFFIXLESS = lw_file_get_suffixless (file);
+        const gchar *SOURCE = lw_file_get_path (file);
 
         if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) continue;
 
@@ -1336,14 +1336,14 @@ lw_dictionaryinstall_convert_encoding (LwDictionaryInstall *self)
       gint i = 0;
       for (i = 0; state != NULL && i < state->length; i++) 
       {
-        LwDictionaryInstallStateFile *file = state->files[i];
+        LwFile *file = state->files[i];
         if (file == NULL) continue;
 
         const gchar *MESSAGE = gettext("Converting encoding to UTF from %s...");
-        const gchar *SUFFIX = file->SUFFIX;
-        const gchar *BASENAME = file->basename;
-        const gchar *SUFFIXLESS = file->suffixless;
-        const gchar *SOURCE = file->path;
+        const gchar *SUFFIX = lw_file_get_suffix (file);
+        const gchar *BASENAME = lw_file_get_basename (file);
+        const gchar *SUFFIXLESS = lw_file_get_suffixless (file);
+        const gchar *SOURCE = lw_file_get_path (file);
 
         if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) continue;
 
@@ -1399,14 +1399,14 @@ lw_dictionaryinstall_postprocess (LwDictionaryInstall *self)
       gint i = 0;
       for (i = 0; state != NULL && i < state->length; i++) 
       {
-        LwDictionaryInstallStateFile *file = state->files[i];
+        LwFile *file = state->files[i];
         if (file == NULL) continue;
 
         const gchar *MESSAGE = gettext("Postprocessing...");
-        const gchar *SUFFIX = file->SUFFIX;
-        const gchar *BASENAME = file->basename;
-        const gchar *SUFFIXLESS = file->suffixless;
-        const gchar *SOURCE = file->path;
+        const gchar *SUFFIX = lw_file_get_suffix (file);
+        const gchar *BASENAME = lw_file_get_basename (file);
+        const gchar *SUFFIXLESS = lw_file_get_suffixless (file);
+        const gchar *SOURCE = lw_file_get_path (file);
 
         if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) continue;
 
@@ -1458,14 +1458,14 @@ lw_dictionaryinstall_finish (LwDictionaryInstall *self)
       gint i = 0;
       for (i = 0; state != NULL && i < state->length; i++) 
       {
-        LwDictionaryInstallStateFile *file = state->files[i];
+        LwFile *file = state->files[i];
         if (file == NULL) continue;
 
         const gchar *MESSAGE = gettext("Finalizing...");
-        const gchar *SUFFIX = file->SUFFIX;
-        const gchar *BASENAME = file->basename;
-        const gchar *SUFFIXLESS = file->suffixless;
-        const gchar *SOURCE = file->path;
+        const gchar *SUFFIX = lw_file_get_suffix (file);
+        const gchar *BASENAME = lw_file_get_basename (file);
+        const gchar *SUFFIXLESS = lw_file_get_suffixless (file);
+        const gchar *SOURCE = lw_file_get_path (file);
 
         if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) continue;
 
@@ -1499,10 +1499,13 @@ _clean (LwDictionaryInstallStateHistory *self,
       gint i = 0;
       for (i = 0; i < state->length; i++)
       {
-        LwDictionaryInstallStateFile *file = state->files[i];
-        if (file != NULL && file->path != NULL)
+        LwFile *file = state->files[i];
+        if (file == NULL) continue;
+        const gchar *PATH = lw_file_get_path (file);
+        if (PATH == NULL) continue;
+        if (g_file_test (PATH, G_FILE_TEST_IS_REGULAR))
         {
-          g_remove (file->path);
+          g_remove (PATH);
         }
       }
     }
