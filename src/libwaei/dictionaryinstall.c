@@ -1630,6 +1630,46 @@ errored:
 }
 
 
+static LwDictionaryInstall*
+_find_radicals_dictionary_dependancy (LwDictionaryInstall* self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+
+    //Declarations
+    GList *dependancies = NULL;
+    LwDictionaryInstall *radicals = NULL;
+
+    //Initializations
+    dependancies = lw_dictionaryinstall_get_dependancies (self);
+    
+    //Try to to get the dependancy we ened
+    {
+      GList *link = NULL;
+      for (link = dependancies; link != NULL && radicals == NULL; link = link->next)
+      {
+        LwDependancy *dependancy = LW_DEPENDANCY (link->data);
+        if (dependancy != NULL)
+        {
+          GObject *satisfaction = lw_dependancy_get_satisfaction (dependancy);
+          if (satisfaction != NULL && LW_IS_UNKNOWNDICTIONARY (satisfaction))
+          {
+            LwDictionaryInstall *dictionaryinstall = LW_DICTIONARYINSTALL (satisfaction);
+            if (g_strcmp0 (lw_dictionaryinstall_get_name (dictionaryinstall), "Radicals") == 0)
+            {
+              radicals = dictionaryinstall;
+            }
+          }
+        }
+      }
+    }
+
+errored:
+
+    return radicals;
+}
+
+
 static void
 _merge_radicals_into_kanji (LwDictionaryInstallState *self, 
                             LwFilePath               *filepath, 
@@ -1643,31 +1683,15 @@ _merge_radicals_into_kanji (LwDictionaryInstallState *self,
     const gchar *BASENAME = lw_filepath_get_basename (filepath);
     const gchar *SUFFIXLESS = lw_filepath_get_suffixless (filepath);
     const gchar *SOURCE = lw_filepath_get_path (filepath);
+    LwDictionaryInstall *radicals = NULL;
 
     if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) goto errored;
 
-    lw_progress_set_secondary_message_printf (data->progress, MESSAGE, lw_dictionaryinstall_get_name (data->dictionaryinstall));
-
-    LwDictionaryInstall *radicals = NULL;
-    //Try to to get the dependancy we ened
-    {
-      GList *link = NULL;
-      GList *dependancies = lw_dictionaryinstall_get_dependancies (data->dictionaryinstall);
-      for (link = dependancies; link != NULL && radicals == NULL; link = link->next)
-      {
-        LwDependancy *dependancy = LW_DEPENDANCY (link->data);
-        GObject *satisfaction = lw_dependancy_get_satisfaction (dependancy);
-        if (satisfaction != NULL && LW_IS_UNKNOWNDICTIONARY (satisfaction))
-        {
-          LwDictionaryInstall *dictionaryinstall = LW_DICTIONARYINSTALL (satisfaction);
-          if (g_strcmp0 (lw_dictionaryinstall_get_name (dictionaryinstall), "Radicals") == 0)
-          {
-            radicals = dictionaryinstall;
-          }
-        }
-      }
-    }
+    //Initializations
+    radicals = _find_radicals_dictionary_dependancy (data->dictionaryinstall);
     if (radicals == NULL) goto errored;
+
+    lw_progress_set_secondary_message_printf (data->progress, MESSAGE, lw_dictionaryinstall_get_name (data->dictionaryinstall));
 
     gchar *target = g_strjoin (".", SUFFIXLESS, data->STAGE_NAME, NULL);
     lw_io_create_mix_dictionary (target, SOURCE, lw_dictionaryinstall_get_install_path (radicals), data->progress);
