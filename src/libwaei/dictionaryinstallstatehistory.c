@@ -20,10 +20,9 @@
 *******************************************************************************/
 
 //!
-//!  @file dictionaryinstallstate.c
+//!  @file dictionaryinstallstatehistory.c
 //!
-//!  @brief LwDictionaryInstallState stores the self of the dictionary install
-//!         that can be shared between states.
+//!  @brief LwDictionaryInstallStateHistory stores the self of the dictionary install
 //!
 
 #ifdef HAVE_CONFIG_H
@@ -40,121 +39,10 @@
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
 
-#include <libwaei/dictionaryinstallstatehistory.h>
 
-
-LwDictionaryInstallState*
-lw_dictionaryinstallstate_new_glist (const gchar *NAME,
-                                     gboolean     is_temporary,
-                                     GList       *paths)
-{
-    //Declarations
-    LwDictionaryInstallState *self = NULL;
-    gint length = 0;
-
-    //Initializations
-    self = g_new0 (LwDictionaryInstallState, 1);
-    self->name = g_strdup (NAME);
-    self->is_temporary = is_temporary;
-    length = g_list_length (paths);
-
-    self->files = g_new0 (LwFile*, length + 1);
-
-    if (self->files != NULL) {
-      GList *link = NULL;
-      gint i = 0;
-      const gchar *PATH = NULL;
-      for (link = paths; link != NULL; link = link->next)
-      {
-        PATH = (gchar*) link->data;
-        if (PATH != NULL)
-        {
-          LwFile *file = lw_file_new (PATH);
-          if (file != NULL)
-          {
-            self->files[i++] = file;
-            file = NULL;
-          }
-          PATH = NULL;
-        }
-      }
-      self->length = length;
-      self->files[i++] = NULL;
-    }
-
-errored:
-
-    return self;
-}
-
-
-LwDictionaryInstallState*
-lw_dictionaryinstallstate_new_valist (const gchar *NAME,
-                                      gboolean     is_temporary,
-                                      va_list      va)
-{
-    //Declarations
-    LwDictionaryInstallState *self = NULL;
-    GList *paths = NULL;
-
-    {
-      while (TRUE)
-      {
-        const gchar *PATH = va_arg(va, gchar*);
-        if (PATH == NULL || g_utf8_validate (PATH, -1, NULL) == FALSE) break;
-        paths = g_list_prepend (paths, (gchar*) PATH);
-      }
-      paths = g_list_reverse (paths);
-    }
-
-    self = lw_dictionaryinstallstate_new_glist (NAME, is_temporary, paths);
-
-errored:
-
-    g_list_free (paths); paths = NULL;
-
-
-    return self;
-}
-
-
-LwDictionaryInstallState*
-lw_dictionaryinstallstate_new (const gchar *NAME,
-                               gboolean     is_temporary,
-                               ...)
-{
-    //Declarations
-    va_list va;
-
-    //Initializations
-    va_start(va, is_temporary);
-
-    lw_dictionaryinstallstate_new_valist (NAME, is_temporary, va);
-}
-
-
-void
-lw_dictionaryinstallstate_free (LwDictionaryInstallState *self)
-{
-    //Sanity checks
-    if (self == NULL) return;
-
-    //Declarations
-    g_free (self->name);
-
-    {
-      gint i = 0;
-      for (i = 0; i < self->length; i++)
-      {
-        lw_file_free (self->files[i]);
-        self->files[i] = NULL;
-      }
-    }
-
-    memset(self, 0, sizeof(self));
-
-    g_free (self);
-}
+struct _LwDictionaryInstallStateHistory {
+  GList *states;
+};
 
 
 LwDictionaryInstallStateHistory*
@@ -195,10 +83,10 @@ lw_dictionaryinstallstatehistory_add (LwDictionaryInstallStateHistory *self,
 
 
 void
-lw_dictionaryinstallstatehistory_add_paths (LwDictionaryInstallStateHistory *self,
-                                            const gchar                     *NAME,
-                                            gboolean                         is_temporary,
-                                            GList                           *paths)
+lw_dictionaryinstallstatehistory_add_named_paths (LwDictionaryInstallStateHistory *self,
+                                                  const gchar                     *NAME,
+                                                  gboolean                         is_temporary,
+                                                  GList                           *paths)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
@@ -250,6 +138,16 @@ lw_dictionaryinstallstatehistory_clear (LwDictionaryInstallStateHistory *self)
 
 
 void
+lw_dictionaryinstallstatehistory_clean_temporary_files (LwDictionaryInstallStateHistory *self)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    //TODO
+}
+
+
+void
 lw_dictionaryinstallstatehistory_foreach (LwDictionaryInstallStateHistory            *self, 
                                           LwDictionaryInstallStateHistoryForeachFunc  func,
                                           gpointer                                    user_data)
@@ -264,7 +162,7 @@ lw_dictionaryinstallstatehistory_foreach (LwDictionaryInstallStateHistory       
     //Initializations
     for (link = self->states; link != NULL; link = link->next)
     {
-      state = (LwDictionaryInstallState*) (link->data);
+      state = LW_DICTIONARYINSTALLSTATE (link->data);
       func(self, state, user_data);
     }
 }

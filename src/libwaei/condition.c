@@ -35,6 +35,12 @@
 #include <libwaei/libwaei.h>
 
 
+struct _LwCondition {
+  gchar *property_name;
+  GValue value;
+};
+
+
 LwCondition*
 lw_condition_new_boolean (const gchar *property_name,
                           gboolean     expected_value)

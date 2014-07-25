@@ -49,6 +49,14 @@ static LwDictionaryInstallClassPrivate *_klasspriv = NULL;
 
 G_DEFINE_TYPE (LwDictionaryInstall, lw_dictionaryinstall, G_TYPE_OBJECT)
 
+typedef struct {
+  GList *targets;
+  LwProgress *progress;
+  const gchar *STAGE_NAME;
+  LwDictionaryInstall *dictionaryinstall;
+} InstallStateData;
+  
+
 //!
 //! @brief Creates a new LwDictionaryList object
 //! @param MAX The maximum items you want in the self before old ones are deleted
@@ -231,12 +239,6 @@ lw_dictionaryinstall_dispose (GObject *object)
 /*
     if (install->files != NULL) g_free (install->files); install->files = NULL;
     if (install->downloads != NULL) g_free (install->downloads); install->downloads = NULL;
-
-    if (install->decompresslist != NULL) g_strfreev (install->decompresslist); install->decompresslist = NULL;
-    if (install->encodelist) g_strfreev (install->encodelist); install->encodelist = NULL;
-    if (install->postprocesslist) g_strfreev (install->postprocesslist); install->postprocesslist = NULL;
-    if (install->installlist) g_strfreev (install->installlist); install->installlist = NULL;
-    if (install->installedlist) g_strfreev (install->installedlist); install->installedlist = NULL;
 
     if (install->preferences != NULL && install->listenerid != 0)
     {
@@ -1242,7 +1244,7 @@ lw_dictionaryinstall_download (LwDictionaryInstall *self)
       lw_io_download (URI, target, progress);
     }
 
-    lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
+    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, STAGE_NAME, TRUE, targets);
 
 errored:
 
@@ -1254,6 +1256,40 @@ errored:
     return (!lw_progress_errored (progress));
 }
 
+static void
+_decompress (LwDictionaryInstallState *self, LwFilePath *filepath, InstallStateData *data)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (filepath != NULL);
+
+    const gchar *MESSAGE = gettext("Decompressing %s...");
+    const gchar *SUFFIX = lw_filepath_get_suffix (filepath);
+    const gchar *BASENAME = lw_filepath_get_basename (filepath);
+    const gchar *SUFFIXLESS = lw_filepath_get_suffixless (filepath);
+    const gchar *SOURCE = lw_filepath_get_path (filepath);
+
+    if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) goto errored;
+
+    lw_progress_set_secondary_message_printf (data->progress, MESSAGE, BASENAME);
+    if (g_strcmp0 (SUFFIX, ".gz") || g_strcmp0 (SUFFIX, ".gzip"))
+    {
+      gchar *target = g_strjoin (".", SUFFIXLESS, data->STAGE_NAME, NULL);
+      lw_io_gunzip_file (SOURCE, target, data->progress);
+      data->targets = g_list_prepend (data->targets, target);
+    }
+    else
+    {
+      gchar *target = g_strjoin (".", SOURCE, data->STAGE_NAME, NULL);
+      lw_io_copy (SOURCE, target, data->progress);
+      data->targets = g_list_prepend (data->targets, target);
+    }
+
+errored:
+
+    return;
+}
+             
 
 gboolean 
 lw_dictionaryinstall_decompress (LwDictionaryInstall *self)
@@ -1264,59 +1300,74 @@ lw_dictionaryinstall_decompress (LwDictionaryInstall *self)
 
     //Declarations
 		LwDictionaryInstallPrivate *priv = NULL;
-    LwProgress *progress = NULL;
     LwDictionaryInstallState *state = NULL;
-    const gchar *STAGE_NAME = "decompressed";
     GList *targets = NULL;
+
+    InstallStateData data = {
+      .targets = NULL,
+      .progress = lw_dictionaryinstall_get_progress (self),
+      .STAGE_NAME = "decompressed",
+      .dictionaryinstall = self
+    };
 
     //Initializations
 		priv = self->priv;
-    progress = lw_dictionaryinstall_get_progress (self);
     state = lw_dictionaryinstallstatehistory_current (priv->data.history);
 
+    lw_dictionaryinstallstate_foreach (state, (LwDictionaryInstallStateForeachFunc) _decompress, &data);
+    data.targets = g_list_reverse (data.targets);
+    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, data.STAGE_NAME, TRUE, data.targets);
+
+errored:
+
+    g_list_free_full (data.targets, (GDestroyNotify) g_free); data.targets = NULL;
+
+    return (!lw_progress_errored (data.progress));
+}
+
+
+static void
+_convert_text_encoding (LwDictionaryInstallState *self, 
+                        LwFilePath               *filepath, 
+                        InstallStateData         *data)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (filepath != NULL);
+
+    //Declarations
+    const gchar *MESSAGE = gettext("Converting encoding to UTF from %s...");
+    const gchar *SUFFIX = lw_filepath_get_suffix (filepath);
+    const gchar *BASENAME = lw_filepath_get_basename (filepath);
+    const gchar *SUFFIXLESS = lw_filepath_get_suffixless (filepath);
+    const gchar *SOURCE = lw_filepath_get_path (filepath);
+    const gchar *TEXT_ENCODING = lw_dictionaryinstall_get_text_encoding (data->dictionaryinstall);
+
+    if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) goto errored;
+
+    lw_progress_set_secondary_message_printf (data->progress, MESSAGE, TEXT_ENCODING);
+    
+    if (g_strcmp0 (TEXT_ENCODING, "UTF-8") == 0)
     {
-      gint i = 0;
-      for (i = 0; state != NULL && i < state->length; i++) 
-      {
-        LwFile *file = state->files[i];
-        if (file == NULL) continue;
-
-        const gchar *MESSAGE = gettext("Decompressing %s...");
-        const gchar *SUFFIX = lw_file_get_suffix (file);
-        const gchar *BASENAME = lw_file_get_basename (file);
-        const gchar *SUFFIXLESS = lw_file_get_suffixless (file);
-        const gchar *SOURCE = lw_file_get_path (file);
-
-        if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) continue;
-
-        lw_progress_set_secondary_message_printf (progress, MESSAGE, BASENAME);
-        if (g_strcmp0 (SUFFIX, ".gz") || g_strcmp0 (SUFFIX, ".gzip"))
-        {
-          gchar *target = g_strjoin (".", SUFFIXLESS, STAGE_NAME, NULL);
-          lw_io_gunzip_file (SOURCE, target, progress);
-          targets = g_list_prepend (targets, target);
-        }
-        else
-        {
-          gchar *target = g_strjoin (".", SOURCE, STAGE_NAME, NULL);
-          lw_io_copy (SOURCE, target, progress);
-          targets = g_list_prepend (targets, target);
-        }
-      }
-      targets = g_list_reverse (targets);
-      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
+      gchar *target = g_strjoin (".", SUFFIXLESS, data->STAGE_NAME, NULL);
+      lw_io_copy (SOURCE, target, data->progress);
+      data->targets = g_list_prepend (data->targets, target);
+    }
+    else
+    {
+      gchar *target = g_strjoin (".", SUFFIXLESS, data->STAGE_NAME, NULL);
+      lw_io_copy_with_encoding (SOURCE, target, TEXT_ENCODING, "UTF-8", data->progress);
+      data->targets = g_list_prepend (data->targets, target);
     }
 
 errored:
 
-    g_list_free_full (targets, (GDestroyNotify) g_free); targets = NULL;
-
-    return (!lw_progress_errored (progress));
+    return;
 }
 
 
 gboolean 
-lw_dictionaryinstall_convert_encoding (LwDictionaryInstall *self)
+lw_dictionaryinstall_convert_text_encoding (LwDictionaryInstall *self)
 {
     //Sanity check
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
@@ -1324,59 +1375,30 @@ lw_dictionaryinstall_convert_encoding (LwDictionaryInstall *self)
 
     //Declarations
 		LwDictionaryInstallPrivate *priv = NULL;
-    LwProgress *progress = NULL;
-    const gchar *TEXT_ENCODING = NULL;
     LwDictionaryInstallState *state = NULL;
-    const gchar *STAGE_NAME = "encoding";
     GList *targets = NULL;
+
+    InstallStateData data = {
+      .targets = NULL,
+      .progress = lw_dictionaryinstall_get_progress (self),
+      .STAGE_NAME = "encoding",
+      .dictionaryinstall = self
+    };
 
     //Initializations
 		priv = self->priv;
-    progress = lw_dictionaryinstall_get_progress (self);
-    TEXT_ENCODING = priv->data.text_encoding;
-    if (TEXT_ENCODING == NULL) goto errored;
     state = lw_dictionaryinstallstatehistory_current (priv->data.history);
     if (state == NULL) goto errored;
 
-    {
-      gint i = 0;
-      for (i = 0; state != NULL && i < state->length; i++) 
-      {
-        LwFile *file = state->files[i];
-        if (file == NULL) continue;
-
-        const gchar *MESSAGE = gettext("Converting encoding to UTF from %s...");
-        const gchar *SUFFIX = lw_file_get_suffix (file);
-        const gchar *BASENAME = lw_file_get_basename (file);
-        const gchar *SUFFIXLESS = lw_file_get_suffixless (file);
-        const gchar *SOURCE = lw_file_get_path (file);
-
-        if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) continue;
-
-        lw_progress_set_secondary_message_printf (progress, MESSAGE, TEXT_ENCODING);
-        
-        if (g_strcmp0 (TEXT_ENCODING, "UTF-8") == 0)
-        {
-          gchar *target = g_strjoin (".", SUFFIXLESS, STAGE_NAME, NULL);
-          lw_io_copy (SOURCE, target, progress);
-          targets = g_list_prepend (targets, target);
-        }
-        else
-        {
-          gchar *target = g_strjoin (".", SUFFIXLESS, STAGE_NAME, NULL);
-          lw_io_copy_with_encoding (SOURCE, target, TEXT_ENCODING, "UTF-8", progress);
-          targets = g_list_prepend (targets, target);
-        }
-      }
-      targets = g_list_reverse (targets);
-      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
-    }
+    lw_dictionaryinstallstate_foreach (state, (LwDictionaryInstallStateForeachFunc) _convert_text_encoding, &data);
+    data.targets = g_list_reverse (data.targets);
+    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, data.STAGE_NAME, TRUE, data.targets);
 
 errored:
 
-    g_list_free_full (targets, (GDestroyNotify) g_free); targets = NULL;
+    g_list_free_full (data.targets, (GDestroyNotify) g_free); data.targets = NULL;
 
-    return (!lw_progress_errored (progress));
+    return (!lw_progress_errored (data.progress));
 }
 
 
@@ -1390,56 +1412,50 @@ lw_dictionaryinstall_postprocess (LwDictionaryInstall *self)
     //Declarations
 		LwDictionaryInstallPrivate *priv = NULL;
     LwProgress *progress = NULL;
-    const gchar *STAGE_NAME = NULL;
-    LwDictionaryInstallState *state = NULL;
-    GList *targets = NULL;
 
     //Initializations
 		priv = self->priv;
     progress = lw_dictionaryinstall_get_progress (self);
-    STAGE_NAME = "postprocess";
-    state = lw_dictionaryinstallstatehistory_current (priv->data.history);
-    if (state == NULL) goto errored;
 
+    if (priv->config.merge_radicals_into_kanji)
     {
-      gint i = 0;
-      for (i = 0; state != NULL && i < state->length; i++) 
-      {
-        LwFile *file = state->files[i];
-        if (file == NULL) continue;
-
-        const gchar *MESSAGE = gettext("Postprocessing...");
-        const gchar *SUFFIX = lw_file_get_suffix (file);
-        const gchar *BASENAME = lw_file_get_basename (file);
-        const gchar *SUFFIXLESS = lw_file_get_suffixless (file);
-        const gchar *SOURCE = lw_file_get_path (file);
-
-        if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) continue;
-
-        lw_progress_set_secondary_message_printf (progress, MESSAGE);
-
-        if (priv->config.split_places_from_names)
-        {
-          //TODO
-          lw_dictionaryinstall_split_places_from_names (self);
-          targets = g_list_reverse (targets);
-          lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
-        }
-        if (priv->config.merge_radicals_into_kanji)
-        {
-          //TODO
-          lw_dictionaryinstall_merge_radicals_into_kanji (self);
-          targets = g_list_reverse (targets);
-          lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, TRUE, targets);
-        }
-      }
+      lw_dictionaryinstall_merge_radicals_into_kanji (self);
     }
+    if (priv->config.split_places_from_names)
+    {
+      lw_dictionaryinstall_split_places_from_names (self);
+    }
+
+    return (!lw_progress_errored (progress));
+}
+
+
+static void
+_finish (LwDictionaryInstallState *self, 
+         LwFilePath               *filepath, 
+         InstallStateData         *data)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (filepath != NULL);
+
+    const gchar *MESSAGE = gettext("Finalizing...");
+    const gchar *SUFFIX = lw_filepath_get_suffix (filepath);
+    const gchar *BASENAME = lw_filepath_get_basename (filepath);
+    const gchar *SUFFIXLESS = lw_filepath_get_suffixless (filepath);
+    const gchar *SOURCE = lw_filepath_get_path (filepath);
+
+    if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) goto errored;
+
+    lw_progress_set_secondary_message (data->progress, MESSAGE);
+
+    gchar *target = g_strdup (lw_dictionaryinstall_get_install_path (data->dictionaryinstall));
+    lw_io_copy (SOURCE, target, data->progress);
+    data->targets = g_list_prepend (data->targets, target);
 
 errored:
 
-    g_list_free_full (targets, (GDestroyNotify) g_free); targets = NULL;
-
-    return (!lw_progress_errored (progress));
+    return;
 }
 
 
@@ -1454,46 +1470,29 @@ lw_dictionaryinstall_finish (LwDictionaryInstall *self)
 		LwDictionaryInstallPrivate *priv = NULL;
     LwProgress *progress = NULL;
     LwDictionaryInstallState *state = NULL;
-    const gchar *STAGE_NAME = NULL;
-    GList *targets = NULL;
+
+    InstallStateData data = {
+      .targets = NULL,
+      .progress = lw_dictionaryinstall_get_progress (self),
+      .STAGE_NAME = "finish",
+      .dictionaryinstall = self
+    };
 
     //Initializations
 		priv = self->priv;
     progress = lw_dictionaryinstall_get_progress (self);
     state = lw_dictionaryinstallstatehistory_current (priv->data.history);
     if (state == NULL) goto errored;
-    STAGE_NAME = "finish";
 
-    {
-      gint i = 0;
-      for (i = 0; state != NULL && i < state->length; i++) 
-      {
-        LwFile *file = state->files[i];
-        if (file == NULL) continue;
-
-        const gchar *MESSAGE = gettext("Finalizing...");
-        const gchar *SUFFIX = lw_file_get_suffix (file);
-        const gchar *BASENAME = lw_file_get_basename (file);
-        const gchar *SUFFIXLESS = lw_file_get_suffixless (file);
-        const gchar *SOURCE = lw_file_get_path (file);
-
-        if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) continue;
-
-        lw_progress_set_secondary_message (progress, MESSAGE);
-
-        gchar *target = g_strdup (lw_dictionaryinstall_get_install_path (self));
-        lw_io_copy (SOURCE, target, progress);
-        targets = g_list_prepend (targets, target);
-      }
-      targets = g_list_reverse (targets);
-      lw_dictionaryinstallstatehistory_add_paths (priv->data.history, STAGE_NAME, FALSE, targets);
-    }
+    lw_dictionaryinstallstate_foreach (state, (LwDictionaryInstallStateForeachFunc) _finish, &data);
+    data.targets = g_list_reverse (data.targets);
+    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, data.STAGE_NAME, FALSE, data.targets);
 
 errored:
 
-    g_list_free_full (targets, (GDestroyNotify) g_free); targets = NULL;
+    g_list_free_full (data.targets, (GDestroyNotify) g_free); data.targets = NULL;
 
-    return (!lw_progress_errored (progress));
+    return (!lw_progress_errored (data.progress));
 }
 
 
@@ -1502,28 +1501,18 @@ _clean (LwDictionaryInstallStateHistory *self,
         LwDictionaryInstallState        *state,
         gpointer                         data)
 {
+    //Sanity checks
     g_return_if_fail (state != NULL);
 
-    if (state->is_temporary)
+    if (lw_dictionaryinstallstate_is_temporary (state))
     {
-      gint i = 0;
-      for (i = 0; i < state->length; i++)
-      {
-        LwFile *file = state->files[i];
-        if (file == NULL) continue;
-        const gchar *PATH = lw_file_get_path (file);
-        if (PATH == NULL) continue;
-        if (g_file_test (PATH, G_FILE_TEST_IS_REGULAR))
-        {
-          g_remove (PATH);
-        }
-      }
+      lw_dictionaryinstallstate_remove_files (state);
     }
 }
 
 
 void 
-lw_dictionaryinstall_clean (LwDictionaryInstall *self)
+lw_dictionaryinstall_clean_temporary_files (LwDictionaryInstall *self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
@@ -1534,7 +1523,7 @@ lw_dictionaryinstall_clean (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    //lw_dictionaryinstallstatehistory_foreach (self, _clean, NULL);
+    lw_dictionaryinstallstatehistory_foreach (priv->data.history, _clean, NULL);
 }
 
 
@@ -1561,14 +1550,46 @@ lw_dictionaryinstall_install (LwDictionaryInstall *self)
 
     lw_dictionaryinstall_download (self);
     lw_dictionaryinstall_decompress (self);
-    lw_dictionaryinstall_convert_encoding (self);
+    lw_dictionaryinstall_convert_text_encoding (self);
     lw_dictionaryinstall_postprocess (self);
     lw_dictionaryinstall_finish (self);
-    lw_dictionaryinstall_clean (self);
+    lw_dictionaryinstall_clean_temporary_files (self);
 
 errored:
   
     return (!lw_progress_errored (progress));
+}
+
+
+static void
+_split_places_from_names (LwDictionaryInstallState *self, 
+                          LwFilePath               *filepath, 
+                          InstallStateData         *data)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    const gchar *MESSAGE = gettext("Postprocessing...");
+    const gchar *SUFFIX = lw_filepath_get_suffix (filepath);
+    const gchar *BASENAME = lw_filepath_get_basename (filepath);
+    const gchar *SUFFIXLESS = lw_filepath_get_suffixless (filepath);
+    const gchar *SOURCE = lw_filepath_get_path (filepath);
+
+    if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) goto errored;
+
+    lw_progress_set_secondary_message_printf (data->progress, MESSAGE);
+
+    gchar *target1 = g_strjoin (".", SUFFIXLESS, data->STAGE_NAME, NULL);
+    gchar *target2 = g_strjoin (".", "Places", data->STAGE_NAME, NULL);
+
+    lw_io_split_places_from_names_dictionary (target1, target2, SOURCE, data->progress);
+
+    data->targets = g_list_prepend (data->targets, target1);
+    data->targets = g_list_prepend (data->targets, target2);
+
+errored:
+
+    return;
 }
 
 
@@ -1583,13 +1604,78 @@ lw_dictionaryinstall_split_places_from_names (LwDictionaryInstall *self)
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallState *state = NULL;
+
+    InstallStateData data = {
+      .targets = NULL,
+      .progress = lw_dictionaryinstall_get_progress (self),
+      .STAGE_NAME = "split-places-from-names",
+      .dictionaryinstall = self
+    };
 
     //Initializations
     priv = self->priv;
+    state = lw_dictionaryinstallstatehistory_current (priv->data.history);
+    if (state == NULL) goto errored;
 
-    g_warning ("This function is a stub");
-    //return lw_io_split_places_from_names_dictionary (targetlist[0], targetlist[1], sourcelist[0], progress);
-    return FALSE;
+    lw_dictionaryinstallstate_foreach (state, (LwDictionaryInstallStateForeachFunc) _split_places_from_names, &data);
+    data.targets = g_list_reverse (data.targets);
+    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, data.STAGE_NAME, TRUE, data.targets);
+
+errored:
+
+    g_list_free_full (data.targets, (GDestroyNotify) g_free); data.targets = NULL;
+
+    return (!lw_progress_errored (data.progress));
+}
+
+
+static void
+_merge_radicals_into_kanji (LwDictionaryInstallState *self, 
+                            LwFilePath               *filepath, 
+                            InstallStateData         *data)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    const gchar *MESSAGE = gettext("Merging Radicals Dictionary into the %s Dictionary...");
+    const gchar *SUFFIX = lw_filepath_get_suffix (filepath);
+    const gchar *BASENAME = lw_filepath_get_basename (filepath);
+    const gchar *SUFFIXLESS = lw_filepath_get_suffixless (filepath);
+    const gchar *SOURCE = lw_filepath_get_path (filepath);
+
+    if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) goto errored;
+
+    lw_progress_set_secondary_message_printf (data->progress, MESSAGE, lw_dictionaryinstall_get_name (data->dictionaryinstall));
+
+    LwDictionaryInstall *radicals = NULL;
+    //Try to to get the dependancy we ened
+    {
+      GList *link = NULL;
+      GList *dependancies = lw_dictionaryinstall_get_dependancies (data->dictionaryinstall);
+      for (link = dependancies; link != NULL && radicals == NULL; link = link->next)
+      {
+        LwDependancy *dependancy = LW_DEPENDANCY (link->data);
+        GObject *satisfaction = lw_dependancy_get_satisfaction (dependancy);
+        if (satisfaction != NULL && LW_IS_UNKNOWNDICTIONARY (satisfaction))
+        {
+          LwDictionaryInstall *dictionaryinstall = LW_DICTIONARYINSTALL (satisfaction);
+          if (g_strcmp0 (lw_dictionaryinstall_get_name (dictionaryinstall), "Radicals") == 0)
+          {
+            radicals = dictionaryinstall;
+          }
+        }
+      }
+    }
+    if (radicals == NULL) goto errored;
+
+    gchar *target = g_strjoin (".", SUFFIXLESS, data->STAGE_NAME, NULL);
+    lw_io_create_mix_dictionary (target, SOURCE, lw_dictionaryinstall_get_install_path (radicals), data->progress);
+    data->targets = g_list_prepend (data->targets, target);
+
+errored:
+
+    return;
 }
 
 
@@ -1603,14 +1689,29 @@ lw_dictionaryinstall_merge_radicals_into_kanji (LwDictionaryInstall *self)
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallState *state = NULL;
+
+    InstallStateData data = {
+      .targets = NULL,
+      .progress = lw_dictionaryinstall_get_progress (self),
+      .STAGE_NAME = "postprocess-merge-radicals-into-kanji",
+      .dictionaryinstall = self
+    };
 
     //Initializations
     priv = self->priv;
+    state = lw_dictionaryinstallstatehistory_current (priv->data.history);
+    if (state == NULL) goto errored;
 
-    g_warning ("This function is a stub");
+    lw_dictionaryinstallstate_foreach (state, (LwDictionaryInstallStateForeachFunc) _merge_radicals_into_kanji, &data);
+    data.targets = g_list_reverse (data.targets);
+    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, data.STAGE_NAME, TRUE, data.targets);
 
-    return FALSE;
-    //return lw_io_create_mix_dictionary (targetlist[0], sourcelist[0], sourcelist[1], progress);
+errored:
+
+    g_list_free_full (data.targets, (GDestroyNotify) g_free); data.targets = NULL;
+
+    return (!lw_progress_errored (data.progress));
 }
 
 

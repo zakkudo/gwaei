@@ -1,6 +1,8 @@
 #ifndef LW_DICTIONARYINSTALL_INCLUDED
 #define LW_DICTIONARYINSTALL_INCLUDED
 
+#include "dictionaryinstallstatehistory.h"
+
 G_BEGIN_DECLS
 
 typedef enum {
@@ -90,8 +92,6 @@ const gchar* lw_dictionaryinstall_get_install_path (LwDictionaryInstall *self);
 void lw_dictionaryinstall_sync_install_path (LwDictionaryInstall *self);
 
 gboolean lw_dictionaryinstall_install (LwDictionaryInstall *self);
-
-
 
 G_END_DECLS
 

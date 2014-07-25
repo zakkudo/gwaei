@@ -35,6 +35,13 @@
 #include <libwaei/libwaei.h>
 
 
+struct _LwDependancy {
+  GList *conditions;
+  gchar *name;
+  GObject *object;
+};
+
+
 LwDependancy*
 lw_dependancy_new (const gchar *NAME)
 {
@@ -150,10 +157,22 @@ lw_dependancy_satisfy (LwDependancy *self,
       g_object_unref (self->object);
     }
 
+    self->object = object;
+
     if (object != NULL)
     {
       g_object_add_weak_pointer (self->object, (gpointer*) &self->object);
     }
+}
+
+
+GObject*
+lw_dependancy_get_satisfaction (LwDependancy *self)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    return self->object;
 }
 
 
