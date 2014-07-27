@@ -942,12 +942,10 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
       lw_dictionaryinstall_set_text_encoding (d, "euc-jp");
       lw_dictionaryinstall_set_preferences (d, preferences);
       lw_dictionaryinstall_set_download_key (d, LW_KEY_KANJI_SOURCE);
-      lw_dictionaryinstall_set_merge_radicals_into_kanji (d, TRUE);
-      lw_dictionaryinstall_set_simple_boolean_dependancy (d, "unknown/Radicals", "merge-radicals-into-kanji", TRUE);
+      //lw_dictionaryinstall_set_simple_boolean_dependancy (d, "radicals/Radicals", "merge-radicals-into-kanji", TRUE);
       list = g_list_prepend (list, d);
     }
 
-/*
     {
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
       lw_dictionaryinstall_set_name (d, "Radicals");
@@ -958,7 +956,6 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
       lw_dictionaryinstall_set_download_key (d, LW_KEY_RADICALS_SOURCE);
       list = g_list_prepend (list, d);
     }
-*/
 
     {
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
@@ -971,7 +968,6 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
       lw_dictionaryinstall_set_text_encoding (d, "euc-jp");
       lw_dictionaryinstall_set_preferences (d, preferences);
       lw_dictionaryinstall_set_download_key (d, LW_KEY_NAMES_PLACES_SOURCE);
-      lw_dictionaryinstall_set_split_places_from_names (d, TRUE);
       list = g_list_prepend (list, d);
     }
 
@@ -1098,154 +1094,4 @@ errored:
 
     return dictionaryinstall;
 }
-
-static GList*
-_create_dependency_chain (LwDictionaryInstallList *self,
-                          LwDictionaryInstall     *dictionaryinstall)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
-    g_return_val_if_fail (dictionaryinstall != NULL, NULL);
-
-    //Declarations
-    GList *chain = NULL;
-    GList *dependancies = NULL;
-
-    //Initializations
-    chain = g_list_prepend (chain, dictionaryinstall);
-    dependancies = lw_dictionaryinstall_get_dependancies (dictionaryinstall);
-
-    {
-      GList *link = NULL;
-      for (link = dependancies; link != NULL; link = link->next)
-      {
-        LwDependancy *dependancy = LW_DEPENDANCY (link->data);
-        if (dependancy != NULL)
-        {
-          const gchar *QUERY = lw_dependancy_get_name (dependancy);
-          if (QUERY != NULL)
-          {
-            LwDictionaryInstall *dictionaryinstall = lw_dictionaryinstalllist_fuzzy_find (self, QUERY);
-            if (dictionaryinstall != NULL)
-            {
-              lw_dependancy_satisfy (dependancy, G_OBJECT (dictionaryinstall));
-              chain = g_list_prepend (chain, dictionaryinstall);
-            }
-          }
-        }
-      }
-    }
-
-    g_list_foreach (chain, (GFunc) g_object_ref, NULL);
-
-    return chain;
-}
-
-static GList*
-_merge_chain_element_into_transaction (GList *transaction,
-                                       GHashTable *table,
-                                       LwDictionaryInstall *previous,
-                                       LwDictionaryInstall *current)
-{
-    //Sanity checks
-    if (table == NULL) return transaction;
-    if (current == NULL) return transaction;
-
-    //Declarations
-    const gchar *ID = NULL;
-    gboolean exist = FALSE;
-    GList *insertion_point = NULL;
-
-    //Initializations
-    ID = lw_dictionaryinstall_get_id (current);
-    if (ID == NULL) goto errored;
-    exist = g_hash_table_contains (table, ID);
-    if (exist) goto errored;
-
-    if (previous != NULL)
-    {
-      insertion_point = g_hash_table_lookup (table, lw_dictionaryinstall_get_id (previous));
-    }
-
-    if (transaction == NULL || insertion_point == NULL)
-    {
-      transaction = g_list_prepend (transaction, current);
-      g_hash_table_insert (table, (gchar*) ID, transaction);
-    }
-    else
-    {
-      transaction = g_list_append (insertion_point, current);
-      g_hash_table_insert (table, (gchar*) ID, insertion_point->next);
-    }
-
-errored:
-
-    return transaction;
-}
-
-static GList*
-_merge_chain_into_transaction (GList      *transaction,
-                               GHashTable *table,
-                               GList      *chain)
-{
-  //Declarations
-  GList *link = NULL;
-  LwDictionaryInstall *previous = NULL;
-  LwDictionaryInstall *current = NULL;
-
-  for (link = chain; link != NULL; link = link->next)
-  {
-    current = LW_DICTIONARYINSTALL (link->data);
-
-    transaction = _merge_chain_element_into_transaction (transaction, table, previous, current);
-
-    previous = current;
-  }
-    
-  return transaction;
-}
-
-GList*
-lw_dictionaryinstalllist_build_transaction (LwDictionaryInstallList *self,
-                                            GList                   *dictionaryinstalls)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
-    if (dictionaryinstalls == NULL) return NULL;
-
-    //Declarations
-    GList *transaction = NULL;
-    GHashTable *table = NULL;
-
-    //Initializations
-    table = g_hash_table_new (g_str_hash, g_str_equal);
-    if (table == NULL) goto errored;
-
-    {
-      GList *link = NULL;
-      for (link = dictionaryinstalls; link != NULL; link = link->next)
-      {
-        LwDictionaryInstall *di = LW_DICTIONARYINSTALL (link->data);
-        if (di != NULL)
-        {
-          GList *chain = _create_dependency_chain (self, di);
-          if (chain != NULL)
-          {
-            transaction = _merge_chain_into_transaction (transaction, table, chain);
-            g_list_free_full (chain, (GDestroyNotify) g_object_unref); chain = NULL;
-          }
-        }
-      }
-    }
-
-errored:
-
-    if (table != NULL) g_hash_table_unref (table); table = NULL;
-
-    g_list_foreach (transaction, (GFunc) g_object_ref, NULL);
-
-    return transaction;
-}
-
-
 

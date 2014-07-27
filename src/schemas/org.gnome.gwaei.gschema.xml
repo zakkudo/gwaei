@@ -151,6 +151,12 @@
       <summary>Examples dictionary install source</summary>
       <description>Used for determining the path to install and update the Radicals dictionary from.</description>
     </key>
+
+    <key name="radicals-source" type="s">
+      <default>'http://www.csse.monash.edu.au/~jwb/examples.gz'</default>
+      <summary>Radicals dictionary install source</summary>
+      <description>Used for determining the path to install and update the Radicals dictionary from.</description>
+    </key>
   </schema>
 
   <!-- Font settings -->

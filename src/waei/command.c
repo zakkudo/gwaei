@@ -575,55 +575,70 @@ w_command_watch_progress (WCommand   *self,
 }
 
 
-gint
-_install_with_dependancies (WCommand *self,
-                            GList    *requests) 
+void
+_install (WCommand *self,
+          GList    *dictionaryinstalls) 
 {
     //Sanity checks
-    g_return_val_if_fail (W_IS_COMMAND (self), -1);
-    if (requests == NULL) return -1;
-
-    //Declarations
-    WCommandPrivate *priv = NULL;
-    LwDictionaryInstallList *dictionaryinstalls = NULL;
-    WApplication *application = NULL;
-    GList *transaction = NULL;
-
-    //Initializations
-    priv = self->priv;
-    application = w_command_get_application (self);
-    if (application == NULL) goto  errored;
-    dictionaryinstalls = w_application_get_dictionaryinstalllist (application);
-    if (dictionaryinstalls == NULL) goto errored;
-    transaction = lw_dictionaryinstalllist_build_transaction (dictionaryinstalls, requests); 
-    if (transaction == NULL) goto errored;
+    g_return_if_fail (W_IS_COMMAND (self));
+    if (dictionaryinstalls == NULL) return;
 
     {
       GList *link = NULL;
-      LwDictionaryInstall *dictionaryinstall = NULL;
-      LwProgress *progress = NULL;
 
-      for (link = transaction; link != NULL; link = link->next)
+      for (link = dictionaryinstalls; link != NULL; link = link->next)
       {
-        dictionaryinstall = LW_DICTIONARYINSTALL (link->data);
+        LwDictionaryInstall *dictionaryinstall = LW_DICTIONARYINSTALL (link->data);
         if (dictionaryinstall != NULL)
         {
-          progress = lw_dictionaryinstall_get_progress (dictionaryinstall);
+          LwProgress *progress = lw_dictionaryinstall_get_progress (dictionaryinstall);
           w_command_watch_progress (self, progress);
           lw_dictionaryinstall_install (dictionaryinstall);
           if (lw_progress_should_abort (progress)) goto errored;
         }
-        progress = NULL;
       }
     }
 
+errored:
+
     w_command_unwatch_current_progress (self);
+}
+
+GList*
+_find_dictionaryinstalls (WCommand *self)
+{
+    g_return_val_if_fail (W_IS_COMMAND (self), -1);
+
+    //Declarations
+    WCommandPrivate *priv = NULL;
+    WApplication *application = NULL;
+    LwDictionaryInstallList *dictionaryinstalllist = NULL;
+    GList *dictionaryinstalls = NULL;
+    const gchar *install_switch_data = NULL;
+
+    //Initializations
+    priv = self->priv;
+    application = priv->data.application;
+    if (application == NULL) goto errored;
+    install_switch_data = w_command_get_install_switch_data (self);
+    if (install_switch_data == NULL) goto errored;
+    dictionaryinstalllist = w_application_get_dictionaryinstalllist (application);
+    if (dictionaryinstalllist == NULL) goto errored;
+
+    {
+      LwDictionaryInstall *dictionaryinstall = lw_dictionaryinstalllist_fuzzy_find (dictionaryinstalllist, install_switch_data);
+      if (dictionaryinstall != NULL)
+      {
+        g_object_ref (dictionaryinstall);
+        dictionaryinstalls = g_list_prepend (dictionaryinstalls, dictionaryinstall);
+      }
+      dictionaryinstalls = g_list_reverse (dictionaryinstalls);
+    }
 
 errored:
 
-    g_list_free_full (transaction, (GDestroyNotify) g_object_unref); transaction = NULL;
+    return dictionaryinstalls;
 }
-
 
 gint 
 w_command_install_dictionary (WCommand *self)
@@ -636,12 +651,9 @@ w_command_install_dictionary (WCommand *self)
     WCommandPrivate *priv = NULL;
     WApplication *application = NULL;
     GApplicationCommandLine *command_line = NULL;
-    LwDictionaryInstallList *dictionaryinstalllist = NULL;
-    LwDictionaryInstall *dictionaryinstall = NULL;
     gint resolution = -1;
-    const gchar *install_switch_data = NULL;
     LwProgress *progress = NULL;
-    GList *requests = NULL;
+    GList *dictionaryinstalls = NULL;
 
     //Initializations
     priv = self->priv;
@@ -649,22 +661,14 @@ w_command_install_dictionary (WCommand *self)
     if (application == NULL) goto errored;
     command_line = priv->data.command_line;
     if (command_line == NULL) goto errored;
-    install_switch_data = w_command_get_install_switch_data (self);
-    dictionaryinstalllist = w_application_get_dictionaryinstalllist (application);
-    if (dictionaryinstalllist == NULL) goto errored;
-    dictionaryinstall = lw_dictionaryinstalllist_fuzzy_find (dictionaryinstalllist, install_switch_data);
-    if (dictionaryinstall == NULL) goto errored;
-    requests = g_list_prepend (requests, dictionaryinstall);
-    if (requests == NULL) goto errored;
     progress = lw_progress_new ();
     if (progress == NULL) goto errored;
     resolution = 0;
+    dictionaryinstalls = _find_dictionaryinstalls (self);
 
-printf("BREAK1 w_command_install_dictionary requests\n");
-    if (requests != NULL)
+    if (dictionaryinstalls != NULL)
     {
-printf("BREAK2 w_command_install_dictionary requests\n");
-      _install_with_dependancies (self, requests);
+      _install (self, dictionaryinstalls);
 
       if (lw_progress_errored (progress)) 
       {
@@ -677,6 +681,7 @@ printf("BREAK2 w_command_install_dictionary requests\n");
     }
     else
     {
+      const gchar *install_switch_data = w_command_get_install_switch_data (self);
       g_application_command_line_print (command_line, "\n%s \"was not\" found!\n\n", install_switch_data);
       w_command_print_installable_dictionaries (self);
     }
@@ -687,6 +692,8 @@ printf("BREAK2 w_command_install_dictionary requests\n");
     }
 
 errored:
+
+    g_list_free_full (dictionaryinstalls, (GDestroyNotify) g_object_unref); dictionaryinstalls = NULL;
 
     return resolution;
 }

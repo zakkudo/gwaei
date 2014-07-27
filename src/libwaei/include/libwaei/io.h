@@ -23,8 +23,6 @@ typedef enum  {
 void lw_io_write_file (const gchar*, const gchar*, gchar*, LwProgress*);
 size_t lw_io_get_filesize (const gchar*);
 
-gboolean lw_io_create_mix_dictionary (const gchar*, const gchar*, const gchar*, LwProgress*);
-gboolean lw_io_split_places_from_names_dictionary (const gchar*, const gchar*, const gchar*, LwProgress*);
 gboolean lw_io_copy_with_encoding (const gchar*, const gchar*, const gchar*, const gchar*, LwProgress*);
 gboolean lw_io_copy (const gchar*, const gchar*, LwProgress*);
 gboolean lw_io_remove (const gchar*, LwProgress*);

@@ -18,6 +18,7 @@
 #include <libwaei/edictionary.h>
 #include <libwaei/kanjidictionary.h>
 #include <libwaei/exampledictionary.h>
+#include <libwaei/radicalsdictionary.h>
 #include <libwaei/unknowndictionary.h>
 #include <libwaei/dictionarylist.h>
 #include <libwaei/dictionaryinstall.h>

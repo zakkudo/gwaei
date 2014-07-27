@@ -130,12 +130,6 @@ lw_dictionaryinstall_set_property (GObject      *object,
       case PROP_DOWNLOAD_URI:
         lw_dictionaryinstall_set_download_uri (self, g_value_get_string (value));
         break;
-      case PROP_SPLIT_PLACES_FROM_NAMES:
-        lw_dictionaryinstall_set_split_places_from_names (self, g_value_get_boolean (value));
-        break;
-      case PROP_MERGE_RADICALS_INTO_KANJI:
-        lw_dictionaryinstall_set_merge_radicals_into_kanji (self, g_value_get_boolean (value));
-        break;
       case PROP_PROGRESS:
         lw_dictionaryinstall_set_progress (self, g_value_get_object (value));
         break;
@@ -191,12 +185,6 @@ lw_dictionaryinstall_get_property (GObject    *object,
         break;
       case PROP_INSTALL_PATH:
         g_value_set_string (value, lw_dictionaryinstall_get_install_path (self));
-        break;
-      case PROP_SPLIT_PLACES_FROM_NAMES:
-        g_value_set_boolean (value, lw_dictionaryinstall_get_split_places_from_names (self));
-        break;
-      case PROP_MERGE_RADICALS_INTO_KANJI:
-        g_value_set_boolean (value, lw_dictionaryinstall_get_merge_radicals_into_kanji (self));
         break;
       case PROP_PROGRESS:
         g_value_set_object (value, lw_dictionaryinstall_get_progress (self));
@@ -332,24 +320,6 @@ lw_dictionaryinstall_class_init (LwDictionaryInstallClass *klass)
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_PREFERENCES, _klasspriv->pspec[PROP_PREFERENCES]);
-
-    _klasspriv->pspec[PROP_SPLIT_PLACES_FROM_NAMES] = g_param_spec_boolean (
-        "split-places-from-names",
-        "dictionary install name",
-        "Set the preferences object",
-        FALSE,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
-    );
-    g_object_class_install_property (object_class, PROP_SPLIT_PLACES_FROM_NAMES, _klasspriv->pspec[PROP_SPLIT_PLACES_FROM_NAMES]);
-
-    _klasspriv->pspec[PROP_MERGE_RADICALS_INTO_KANJI] = g_param_spec_boolean (
-        "merge-radicals-into-kanji",
-        "dictionary install name",
-        "Set the preferences object",
-        FALSE,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
-    );
-    g_object_class_install_property (object_class, PROP_MERGE_RADICALS_INTO_KANJI, _klasspriv->pspec[PROP_MERGE_RADICALS_INTO_KANJI]);
 
     _klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
         "progress",
@@ -799,48 +769,6 @@ lw_dictionaryinstall_get_preferences (LwDictionaryInstall *self)
 
 
 void
-lw_dictionaryinstall_set_merge_radicals_into_kanji (LwDictionaryInstall *self,
-                                                    gboolean             merge)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
-
-    //Declarations
-    LwDictionaryInstallPrivate *priv = NULL;
-    gboolean changed = FALSE;
-
-    //Initializations
-    priv = self->priv;
-    changed = (merge != priv->config.merge_radicals_into_kanji);
-    if (!changed) goto errored;
-
-    priv->config.merge_radicals_into_kanji = merge;
-
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_MERGE_RADICALS_INTO_KANJI]);
-
-errored:
-
-    return;
-}
-
-
-gboolean
-lw_dictionaryinstall_get_merge_radicals_into_kanji (LwDictionaryInstall *self)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
-
-    //Declarations
-    LwDictionaryInstallPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    return priv->config.merge_radicals_into_kanji;
-}
-
-
-void
 lw_dictionaryinstall_set_progress (LwDictionaryInstall *self,
                                    LwProgress          *progress)
 {
@@ -908,48 +836,6 @@ lw_dictionaryinstall_get_progress (LwDictionaryInstall *self)
     }
 
     return priv->data.progress;
-}
-
-
-void
-lw_dictionaryinstall_set_split_places_from_names (LwDictionaryInstall *self,
-                                                  gboolean             split)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
-
-    //Declarations
-    LwDictionaryInstallPrivate *priv = NULL;
-    gboolean changed = FALSE;
-
-    //Initializations
-    priv = self->priv;
-    changed = (split != priv->config.split_places_from_names);
-    if (!changed) goto errored;
-
-    priv->config.split_places_from_names = split;
-
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_SPLIT_PLACES_FROM_NAMES]);
-
-errored:
-
-    return;
-}
-
-
-gboolean
-lw_dictionaryinstall_get_split_places_from_names (LwDictionaryInstall *self)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
-
-    //Declarations
-    LwDictionaryInstallPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    return priv->config.split_places_from_names;
 }
 
 
@@ -1402,34 +1288,6 @@ errored:
 }
 
 
-gboolean 
-lw_dictionaryinstall_postprocess (LwDictionaryInstall *self)
-{
-    //Sanity check
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
-    if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
-
-    //Declarations
-		LwDictionaryInstallPrivate *priv = NULL;
-    LwProgress *progress = NULL;
-
-    //Initializations
-		priv = self->priv;
-    progress = lw_dictionaryinstall_get_progress (self);
-
-    if (priv->config.merge_radicals_into_kanji)
-    {
-      lw_dictionaryinstall_merge_radicals_into_kanji (self);
-    }
-    if (priv->config.split_places_from_names)
-    {
-      lw_dictionaryinstall_split_places_from_names (self);
-    }
-
-    return (!lw_progress_errored (progress));
-}
-
-
 static void
 _finish (LwDictionaryInstallState *self, 
          LwFilePath               *filepath, 
@@ -1551,7 +1409,6 @@ lw_dictionaryinstall_install (LwDictionaryInstall *self)
     lw_dictionaryinstall_download (self);
     lw_dictionaryinstall_decompress (self);
     lw_dictionaryinstall_convert_text_encoding (self);
-    lw_dictionaryinstall_postprocess (self);
     lw_dictionaryinstall_finish (self);
     lw_dictionaryinstall_clean_temporary_files (self);
 
@@ -1559,185 +1416,5 @@ errored:
   
     return (!lw_progress_errored (progress));
 }
-
-
-static void
-_split_places_from_names (LwDictionaryInstallState *self, 
-                          LwFilePath               *filepath, 
-                          InstallStateData         *data)
-{
-    //Sanity checks
-    g_return_if_fail (self != NULL);
-
-    const gchar *MESSAGE = gettext("Postprocessing...");
-    const gchar *SUFFIX = lw_filepath_get_suffix (filepath);
-    const gchar *BASENAME = lw_filepath_get_basename (filepath);
-    const gchar *SUFFIXLESS = lw_filepath_get_suffixless (filepath);
-    const gchar *SOURCE = lw_filepath_get_path (filepath);
-
-    if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) goto errored;
-
-    lw_progress_set_secondary_message_printf (data->progress, MESSAGE);
-
-    gchar *target1 = g_strjoin (".", SUFFIXLESS, data->STAGE_NAME, NULL);
-    gchar *target2 = g_strjoin (".", "Places", data->STAGE_NAME, NULL);
-
-    lw_io_split_places_from_names_dictionary (target1, target2, SOURCE, data->progress);
-
-    data->targets = g_list_prepend (data->targets, target1);
-    data->targets = g_list_prepend (data->targets, target2);
-
-errored:
-
-    return;
-}
-
-
-gboolean
-lw_dictionaryinstall_split_places_from_names (LwDictionaryInstall *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
-    g_return_val_if_fail (self->priv->data.gtype == LW_TYPE_EDICTIONARY, FALSE);
-    if (self->priv->config.split_places_from_names == FALSE) return FALSE;
-    if (lw_progress_errored (self->priv->data.progress)) return FALSE;
-
-    //Declarations
-    LwDictionaryInstallPrivate *priv = NULL;
-    LwDictionaryInstallState *state = NULL;
-
-    InstallStateData data = {
-      .targets = NULL,
-      .progress = lw_dictionaryinstall_get_progress (self),
-      .STAGE_NAME = "split-places-from-names",
-      .dictionaryinstall = self
-    };
-
-    //Initializations
-    priv = self->priv;
-    state = lw_dictionaryinstallstatehistory_current (priv->data.history);
-    if (state == NULL) goto errored;
-
-    lw_dictionaryinstallstate_foreach (state, (LwDictionaryInstallStateForeachFunc) _split_places_from_names, &data);
-    data.targets = g_list_reverse (data.targets);
-    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, data.STAGE_NAME, TRUE, data.targets);
-
-errored:
-
-    g_list_free_full (data.targets, (GDestroyNotify) g_free); data.targets = NULL;
-
-    return (!lw_progress_errored (data.progress));
-}
-
-
-static LwDictionaryInstall*
-_find_radicals_dictionary_dependancy (LwDictionaryInstall* self)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
-
-    //Declarations
-    GList *dependancies = NULL;
-    LwDictionaryInstall *radicals = NULL;
-
-    //Initializations
-    dependancies = lw_dictionaryinstall_get_dependancies (self);
-    
-    //Try to to get the dependancy we ened
-    {
-      GList *link = NULL;
-      for (link = dependancies; link != NULL && radicals == NULL; link = link->next)
-      {
-        LwDependancy *dependancy = LW_DEPENDANCY (link->data);
-        if (dependancy != NULL)
-        {
-          GObject *satisfaction = lw_dependancy_get_satisfaction (dependancy);
-          if (satisfaction != NULL && LW_IS_UNKNOWNDICTIONARY (satisfaction))
-          {
-            LwDictionaryInstall *dictionaryinstall = LW_DICTIONARYINSTALL (satisfaction);
-            if (g_strcmp0 (lw_dictionaryinstall_get_name (dictionaryinstall), "Radicals") == 0)
-            {
-              radicals = dictionaryinstall;
-            }
-          }
-        }
-      }
-    }
-
-errored:
-
-    return radicals;
-}
-
-
-static void
-_merge_radicals_into_kanji (LwDictionaryInstallState *self, 
-                            LwFilePath               *filepath, 
-                            InstallStateData         *data)
-{
-    //Sanity checks
-    g_return_if_fail (self != NULL);
-
-    const gchar *MESSAGE = gettext("Merging Radicals Dictionary into the %s Dictionary...");
-    const gchar *SUFFIX = lw_filepath_get_suffix (filepath);
-    const gchar *BASENAME = lw_filepath_get_basename (filepath);
-    const gchar *SUFFIXLESS = lw_filepath_get_suffixless (filepath);
-    const gchar *SOURCE = lw_filepath_get_path (filepath);
-    LwDictionaryInstall *radicals = NULL;
-
-    if (!g_file_test (SOURCE, G_FILE_TEST_IS_REGULAR)) goto errored;
-
-    //Initializations
-    radicals = _find_radicals_dictionary_dependancy (data->dictionaryinstall);
-    if (radicals == NULL) goto errored;
-
-    lw_progress_set_secondary_message_printf (data->progress, MESSAGE, lw_dictionaryinstall_get_name (data->dictionaryinstall));
-
-    gchar *target = g_strjoin (".", SUFFIXLESS, data->STAGE_NAME, NULL);
-    lw_io_create_mix_dictionary (target, SOURCE, lw_dictionaryinstall_get_install_path (radicals), data->progress);
-    data->targets = g_list_prepend (data->targets, target);
-
-errored:
-
-    return;
-}
-
-
-gboolean
-lw_dictionaryinstall_merge_radicals_into_kanji (LwDictionaryInstall *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
-    g_return_val_if_fail (self->priv->data.gtype == LW_TYPE_KANJIDICTIONARY, FALSE);
-    if (self->priv->config.merge_radicals_into_kanji == FALSE) return FALSE;
-
-    //Declarations
-    LwDictionaryInstallPrivate *priv = NULL;
-    LwDictionaryInstallState *state = NULL;
-
-    InstallStateData data = {
-      .targets = NULL,
-      .progress = lw_dictionaryinstall_get_progress (self),
-      .STAGE_NAME = "postprocess-merge-radicals-into-kanji",
-      .dictionaryinstall = self
-    };
-
-    //Initializations
-    priv = self->priv;
-    state = lw_dictionaryinstallstatehistory_current (priv->data.history);
-    if (state == NULL) goto errored;
-
-    lw_dictionaryinstallstate_foreach (state, (LwDictionaryInstallStateForeachFunc) _merge_radicals_into_kanji, &data);
-    data.targets = g_list_reverse (data.targets);
-    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, data.STAGE_NAME, TRUE, data.targets);
-
-errored:
-
-    g_list_free_full (data.targets, (GDestroyNotify) g_free); data.targets = NULL;
-
-    return (!lw_progress_errored (data.progress));
-}
-
-
 
 
