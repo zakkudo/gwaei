@@ -1,6 +1,4 @@
 
 class gedit {
-  package { "gedit":
-    ensure => "installed",
-  }
+  include gedit::install
 }

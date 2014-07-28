@@ -1,5 +1,4 @@
+
 class terminal {
-  package { "gnome-terminal":
-    ensure => "installed",
-  }
+  include terminal::install, terminal::config
 }

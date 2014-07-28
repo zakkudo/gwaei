@@ -1,7 +1,5 @@
 
 class git {
-  package { "git":
-    ensure => "installed",
-  }
+  include git::install
 }
 

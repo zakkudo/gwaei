@@ -1,9 +1,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 Vagrant.configure('2') do |config|
-  config.vm.define "gwaei3" do |v|
+  config.vm.define "gwaei" do |v|
     v.vm.box = "chef/fedora-20"
-    v.vm.hostname = 'gWaei3'
+    v.vm.hostname = 'gwaei.environment.local'
     v.vm.provider :virtualbox do |vb| 
       vb.customize [
         "modifyvm", :id,
