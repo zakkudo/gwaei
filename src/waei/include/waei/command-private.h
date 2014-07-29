@@ -17,6 +17,8 @@ typedef enum {
   PROP_LIST_SWITCH,
   PROP_VERSION_SWITCH,
   PROP_COLOR_SWITCH,
+  PROP_FORCE_INDEX_REBUILD_SWITCH,
+  PROP_START_SERVER_SWITCH,
   TOTAL_PROPS
 } Props;
 
@@ -48,8 +50,8 @@ struct _Argument {
   gboolean list_switch;
   gboolean version_switch;
   gboolean color_switch;
-  gboolean rebuild_index;
-  gboolean start_server;
+  gboolean force_index_rebuild_switch;
+  gboolean start_server_switch;
 
   gchar* dictionary_switch_text;
   gchar* dictionary_install_switch_text;
@@ -71,6 +73,12 @@ struct _WCommandClassPrivate {
 };
 
 #define W_COMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), W_TYPE_COMMAND, WCommandPrivate))
+
+//Methods
+
+void w_command_watch_progress (WCommand *self, LwProgress *progress);
+void w_command_unwatch_current_progress (WCommand *self);
+
 
 G_END_DECLS
 

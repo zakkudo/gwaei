@@ -41,9 +41,6 @@ gint w_command_search (WCommand *self);
 gint w_command_install_dictionary (WCommand *self);
 gint w_command_uninstall_dictionary (WCommand *self);
 
-void w_command_watch_progress (WCommand *self, LwProgress *progress);
-void w_command_unwatch_current_progress (WCommand *self);
-
 //Properties
 
 void w_command_set_application (WCommand *self, WApplication *application);
@@ -54,15 +51,18 @@ GApplicationCommandLine* w_command_get_command_line (WCommand *self);
 
 void w_command_set_dictionary_install_switch_text (WCommand *self, const gchar *dictionary_install_switch_text);
 const gchar* w_command_get_dictionary_install_switch_text (WCommand *self);
+gboolean w_command_has_dictionary_install_request (WCommand *self);
 
 void w_command_set_dictionary_uninstall_switch_text (WCommand *self, const gchar *dictionary_uninstall_switch_text);
 const gchar* w_command_get_dictionary_uninstall_switch_text (WCommand *self);
+gboolean w_command_has_dictionary_uninstall_request (WCommand *self);
 
 void w_command_set_dictionary_switch_text (WCommand *self, const gchar *dictionary_switch_text);
 const gchar* w_command_get_dictionary_switch_text (WCommand *self);
 
 void w_command_set_query_switch_text (WCommand *self, const gchar *query_switch_text);
 const gchar* w_command_get_query_switch_text (WCommand *self);
+gboolean w_command_has_query_request (WCommand *self);
 
 void w_command_set_quiet_switch (WCommand *self, gboolean quiet_switch);
 gboolean w_command_get_quiet_switch (WCommand *self);
@@ -78,6 +78,13 @@ gboolean w_command_get_version_switch (WCommand *self);
 
 void w_command_set_color_switch (WCommand *self, gboolean color_switch);
 gboolean w_command_get_color_switch (WCommand *self);
+
+void w_command_set_force_index_rebuild_switch (WCommand *self, gboolean force_index_rebuild_switch);
+gboolean w_command_get_force_index_rebuild_switch (WCommand *self);
+
+void w_command_set_start_server_switch (WCommand *self, gboolean start_server_switch);
+gboolean w_command_get_start_server_switch (WCommand *self);
+
 
 #include "command-output.h"
 

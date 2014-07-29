@@ -167,6 +167,12 @@ w_command_set_property (GObject      *object,
       case PROP_COLOR_SWITCH:
         w_command_set_color_switch (self, g_value_get_boolean (value));
         break;
+      case PROP_FORCE_INDEX_REBUILD_SWITCH:
+        w_command_set_force_index_rebuild_switch (self, g_value_get_boolean (value));
+        break;
+      case PROP_START_SERVER_SWITCH:
+        w_command_set_start_server_switch (self, g_value_get_boolean (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -222,6 +228,12 @@ w_command_get_property (GObject    *object,
         break;
       case PROP_COLOR_SWITCH:
         g_value_set_boolean (value, w_command_get_color_switch (self));
+        break;
+      case PROP_FORCE_INDEX_REBUILD_SWITCH:
+        g_value_set_boolean (value, w_command_get_force_index_rebuild_switch (self));
+        break;
+      case PROP_START_SERVER_SWITCH:
+        g_value_set_boolean (value, w_command_get_start_server_switch (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -362,6 +374,24 @@ w_command_class_init (WCommandClass *klass)
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_LIST_SWITCH, _klasspriv->pspec[PROP_LIST_SWITCH]);
+
+    _klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH] = g_param_spec_boolean (
+        "force-index-rebuild-switch",
+        "FIlename construct prop",
+        "Set the filename",
+        FALSE,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_FORCE_INDEX_REBUILD_SWITCH, _klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH]);
+
+    _klasspriv->pspec[PROP_START_SERVER_SWITCH] = g_param_spec_boolean (
+        "start-server-switch",
+        "FIlename construct prop",
+        "Set the filename",
+        FALSE,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_START_SERVER_SWITCH, _klasspriv->pspec[PROP_START_SERVER_SWITCH]);
 }
 
 
@@ -379,9 +409,22 @@ w_command_parse_args (WCommand  *self)
     GApplicationCommandLine *command_line = NULL;
     gint argc = -1;
     gchar **argv = NULL;
-    const gchar *summary_text = NULL;
+    const gchar *SUMMARY_TEXT = NULL;
     gchar *description_text = NULL;
     GError *error = NULL;
+
+    gboolean exact_switch = FALSE;
+    gboolean quiet_switch = FALSE;
+    gboolean color_switch = FALSE;
+    gboolean list_switch = FALSE;
+    gboolean version_switch = FALSE;
+    gboolean force_index_rebuild_switch = FALSE;
+    gboolean start_server_switch = FALSE;
+
+    gchar *query_switch_text = NULL;
+    gchar *dictionary_switch_text = NULL;
+    gchar *dictionary_install_switch_text = NULL;
+    gchar *dictionary_uninstall_switch_text = NULL;
 
     //Initializations
     priv = self->priv;
@@ -390,14 +433,11 @@ w_command_parse_args (WCommand  *self)
     argv = g_application_command_line_get_arguments (command_line, &argc);
 
     //Reset the switches to their default state
-    if (priv->argument.dictionary_switch_text != NULL) g_free (priv->argument.dictionary_switch_text); priv->argument.dictionary_switch_text = NULL;
-    if (priv->argument.query_switch_text != NULL) g_free (priv->argument.query_switch_text); priv->argument.query_switch_text = NULL;
-    priv->argument.version_switch = FALSE;
-    error = NULL;
-    if (priv->data.context != NULL) g_option_context_free (priv->data.context); priv->data.context = NULL;
-
+    if (priv->data.context != NULL) g_option_context_free (priv->data.context); 
     priv->data.context = g_option_context_new (gettext("- A dictionary program for Japanese-English translation."));
-    summary_text = gettext("waei generally outputs directly to the console.");
+    if (priv->data.context == NULL) goto errored;
+
+    SUMMARY_TEXT = gettext("waei generally outputs directly to the console.");
     description_text = g_strdup_printf(
         gettext(
            "Examples:\n"
@@ -414,29 +454,49 @@ w_command_parse_args (WCommand  *self)
          )
          , "にほん", "にほん", "日本", "日本", "日.語", "魚", "Miyabe", "Tokyo"
     );
-    GOptionEntry entries[] = {
-      { "exact", 'e', 0, G_OPTION_ARG_NONE, &(priv->argument.exact_switch), gettext("Do not display less relevant results"), NULL },
-      { "quiet", 'q', 0, G_OPTION_ARG_NONE, &(priv->argument.quiet_switch), gettext("Display less information"), NULL },
-      { "color", 'c', 0, G_OPTION_ARG_NONE, &(priv->argument.color_switch), gettext("Display results with color"), NULL },
-      { "dictionary", 'd', 0, G_OPTION_ARG_STRING, &(priv->argument.dictionary_switch_text), gettext("Search using a chosen dictionary"), NULL },
-      { "list", 'l', 0, G_OPTION_ARG_NONE, &(priv->argument.list_switch), gettext("Show available dictionaries for searches"), NULL },
-      { "install", 'i', 0, G_OPTION_ARG_STRING, &(priv->argument.dictionary_install_switch_text), gettext("Install dictionary"), NULL },
-      { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &(priv->argument.dictionary_uninstall_switch_text), gettext("Uninstall dictionary"), NULL },
-      { "rebuild-index", 0, 0, G_OPTION_ARG_NONE, &(priv->argument.rebuild_index), gettext("Rebuild dictionary indexes"), NULL },
-      { "version", 'v', 0, G_OPTION_ARG_NONE, &(priv->argument.version_switch), gettext("Check the waei version information"), NULL },
-      { "start-server", 0, 0, G_OPTION_ARG_NONE, &(priv->argument.start_server), gettext("Star the waei server"), NULL },
+
+    GOptionEntry entries[] = 
+    {
+      { "exact", 'e', 0, G_OPTION_ARG_NONE, &exact_switch, gettext("Do not display less relevant results"), NULL },
+      { "quiet", 'q', 0, G_OPTION_ARG_NONE, &quiet_switch, gettext("Display less information"), NULL },
+      { "color", 'c', 0, G_OPTION_ARG_NONE, &color_switch, gettext("Display results with color"), NULL },
+      { "dictionary", 'd', 0, G_OPTION_ARG_STRING, &dictionary_switch_text, gettext("Search using a chosen dictionary"), NULL },
+      { "list", 'l', 0, G_OPTION_ARG_NONE, &list_switch, gettext("Show available dictionaries for searches"), NULL },
+      { "install", 'i', 0, G_OPTION_ARG_STRING, &dictionary_install_switch_text, gettext("Install dictionary"), NULL },
+      { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &dictionary_uninstall_switch_text, gettext("Uninstall dictionary"), NULL },
+      { "rebuild-index", 0, 0, G_OPTION_ARG_NONE, &force_index_rebuild_switch, gettext("Rebuild dictionary indexes"), NULL },
+      { "version", 'v', 0, G_OPTION_ARG_NONE, &version_switch, gettext("Check the waei version information"), NULL },
+      { "start-server", 0, 0, G_OPTION_ARG_NONE, &start_server_switch, gettext("Star the waei server"), NULL },
       { NULL }
     };
 
     g_option_context_set_description (priv->data.context, description_text);
-    g_option_context_set_summary (priv->data.context, summary_text);
+    g_option_context_set_summary (priv->data.context, SUMMARY_TEXT);
     g_option_context_add_main_entries (priv->data.context, entries, PACKAGE);
     g_option_context_set_ignore_unknown_options (priv->data.context, TRUE);
     g_option_context_parse (priv->data.context, &argc, &argv, &error);
 
-    priv->argument.query_switch_text = lw_util_get_query_from_args (argc, argv);
+    query_switch_text = lw_util_get_query_from_args (argc, argv);
+
+    w_command_set_exact_switch (self, exact_switch);
+    w_command_set_quiet_switch (self, quiet_switch);
+    w_command_set_color_switch (self, color_switch);
+    w_command_set_list_switch (self, list_switch);
+    w_command_set_version_switch (self, version_switch);
+    w_command_set_force_index_rebuild_switch (self, force_index_rebuild_switch);
+    w_command_set_start_server_switch (self, start_server_switch);
+
+    w_command_set_query_switch_text (self, query_switch_text);
+    w_command_set_dictionary_switch_text (self, dictionary_switch_text);
+    w_command_set_dictionary_install_switch_text (self, dictionary_install_switch_text);
+    w_command_set_dictionary_uninstall_switch_text (self, dictionary_uninstall_switch_text);
 
 errored:
+
+    g_free (query_switch_text); query_switch_text = NULL;
+    g_free (dictionary_switch_text); dictionary_switch_text = NULL;
+    g_free (dictionary_install_switch_text); dictionary_install_switch_text = NULL;
+    g_free (dictionary_uninstall_switch_text); dictionary_uninstall_switch_text = NULL;
 
     if (error != NULL)
     {
@@ -446,7 +506,9 @@ errored:
 
     //Get the query after the flags have been parsed out
     if (argv != NULL) g_strfreev (argv);
-    if (description_text != NULL) g_free (description_text); description_text = NULL;
+    g_free (description_text); description_text = NULL;
+
+    return;
 }
 
 
@@ -467,31 +529,31 @@ w_command_run (WCommand *self)
     if (command_line == NULL) goto errored;
 
     //User wants to see what dictionaries are available
-    if (priv->argument.list_switch)
+    if (w_command_get_list_switch (self))
     {
       w_command_list (self);
     }
 
     //User wants to see the version of waei
-    else if (priv->argument.version_switch)
+    else if (w_command_get_version_switch (self))
     {
       w_command_about (self);
     }
 
     //User wants to install a dictionary
-    else if (priv->argument.dictionary_install_switch_text != NULL)
+    else if (w_command_has_dictionary_install_request (self))
     {
       resolution = w_command_install_dictionary (self);
     }
 
     //User wants to uninstall a dictionary
-    else if (priv->argument.dictionary_uninstall_switch_text != NULL)
+    else if (w_command_has_dictionary_uninstall_request (self))
     {
       resolution = w_command_uninstall_dictionary (self);
     }
 
     //User wants to do a search
-    else if (priv->argument.query_switch_text != NULL)
+    else if (w_command_has_query_request (self))
     {
       resolution = w_command_search (self);
     }
@@ -1500,6 +1562,87 @@ w_command_get_color_switch (WCommand *self)
 }
 
 
+
+void
+w_command_set_force_index_rebuild_switch (WCommand *self,
+                                          gboolean force_index_rebuild_switch)
+{
+  //Sanity checks
+  g_return_if_fail (W_IS_COMMAND (self));
+
+  //Declarations
+  WCommandPrivate *priv = NULL;
+
+  //Initializations
+  priv = self->priv;
+  if (priv->argument.force_index_rebuild_switch == force_index_rebuild_switch) goto errored;
+
+  priv->argument.force_index_rebuild_switch = force_index_rebuild_switch;
+
+  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH]);
+
+errored:
+
+  return;
+}
+
+
+gboolean
+w_command_get_force_index_rebuild_switch (WCommand *self)
+{
+  //Sanity checks
+  g_return_if_fail (W_IS_COMMAND (self));
+
+  //Declarations
+  WCommandPrivate *priv = NULL;
+
+  //Initializations
+  priv = self->priv;
+
+  return priv->argument.force_index_rebuild_switch;
+}
+
+
+void
+w_command_set_start_server_switch (WCommand *self,
+                                   gboolean start_server_switch)
+{
+  //Sanity checks
+  g_return_if_fail (W_IS_COMMAND (self));
+
+  //Declarations
+  WCommandPrivate *priv = NULL;
+
+  //Initializations
+  priv = self->priv;
+  if (priv->argument.start_server_switch == start_server_switch) goto errored;
+
+  priv->argument.start_server_switch = start_server_switch;
+
+  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_START_SERVER_SWITCH]);
+
+errored:
+
+  return;
+}
+
+
+gboolean
+w_command_get_start_server_switch (WCommand *self)
+{
+  //Sanity checks
+  g_return_if_fail (W_IS_COMMAND (self));
+
+  //Declarations
+  WCommandPrivate *priv = NULL;
+
+  //Initializations
+  priv = self->priv;
+
+  return priv->argument.start_server_switch;
+}
+
+
 void
 w_command_set_dictionary_switch_text (WCommand    *self,
                                       const gchar *dictionary_switch_text)
@@ -1582,6 +1725,24 @@ w_command_get_dictionary_install_switch_text (WCommand *self)
 }
 
 
+gboolean
+w_command_has_dictionary_install_request (WCommand *self)
+{
+  //Sanity checks
+  g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
+
+  //Declarations
+  const gchar *DICTIONARY_INSTALL_SWITCH_TEXT = NULL;
+  gboolean has_request = FALSE;
+
+  //Initializations
+  DICTIONARY_INSTALL_SWITCH_TEXT = w_command_get_dictionary_install_switch_text (self);
+  has_request = (DICTIONARY_INSTALL_SWITCH_TEXT != NULL && *DICTIONARY_INSTALL_SWITCH_TEXT != '\0');
+
+  return has_request;
+}
+
+
 void
 w_command_set_dictionary_uninstall_switch_text (WCommand    *self,
                                                 const gchar *dictionary_uninstall_switch_text)
@@ -1620,6 +1781,24 @@ w_command_get_dictionary_uninstall_switch_text (WCommand *self)
   priv = self->priv;
 
   return priv->argument.dictionary_uninstall_switch_text;
+}
+
+
+gboolean
+w_command_has_dictionary_uninstall_request (WCommand *self)
+{
+  //Sanity checks
+  g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
+
+  //Declarations
+  const gchar *DICTIONARY_UNINSTALL_SWITCH_TEXT = NULL;
+  gboolean has_request = FALSE;
+
+  //Initializations
+  DICTIONARY_UNINSTALL_SWITCH_TEXT = w_command_get_dictionary_uninstall_switch_text (self);
+  has_request = (DICTIONARY_UNINSTALL_SWITCH_TEXT != NULL && *DICTIONARY_UNINSTALL_SWITCH_TEXT != '\0');
+
+  return has_request;
 }
 
 
@@ -1662,4 +1841,23 @@ w_command_get_query_switch_text (WCommand *self)
 
   return priv->argument.query_switch_text;
 }
+
+
+gboolean
+w_command_has_query_request (WCommand *self)
+{
+  //Sanity checks
+  g_return_if_fail (W_IS_COMMAND (self));
+
+  //Declarations
+  const gchar *QUERY_SWITCH_TEXT = NULL;
+  gboolean has_request = FALSE;
+
+  //Initializations
+  QUERY_SWITCH_TEXT = w_command_get_query_switch_text (self);
+  has_request = (QUERY_SWITCH_TEXT != NULL && *QUERY_SWITCH_TEXT != '\0');
+
+  return has_request;
+}
+
 
