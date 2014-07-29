@@ -1,6 +1,18 @@
 
 class terminal::install inherits terminal {
-  package { "gnome-terminal":
-    ensure => "installed",
+  $packages = [
+    "gnome-terminal",
+  ]
+
+  if ($display_manager != undef) {
+    package { $packages:
+      ensure => "installed",
+      before => $display_manager,
+    }
+  }
+  else {
+    package { $packages:
+      ensure => "installed",
+    }
   }
 }

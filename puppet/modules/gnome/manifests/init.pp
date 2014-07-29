@@ -1,21 +1,11 @@
 
 
-class gnome {
+class gnome ($display_manager = undef) {
+  notify { "gnome": }
+  ->
+  class { "gnome::install": }
+  ->
+  class { "gnome::config": }
 
-#  $packages = [
-#    "gcc",
-#    "autoconf",
-#    "automake",
-#    "make",
-#    "intltool",
-#    "gettext",
-#    "rarian-compat",
-#    "gnome-doc-utils",
-#    "dconf",
-#    "gsettings-desktop-schemas",
-#    "gtk3-devel",
-#    "libstdc++-devel",
-#    "libtool",
-#  ]
-  include gnome::install, gnome::config
+  contain 'gnome::install', 'gnome::config'
 }

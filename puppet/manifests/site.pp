@@ -1,21 +1,8 @@
 Exec { path => "/usr/bin:/usr/sbin/:/bin:/sbin" }
 
 node default {
-  include gnome
-  include gdm
-  include gwaei
-  include vim
-  include git
-  include gedit
-  include terminal
+  class { 'workstation': }
 }
-
-
-#  package { $packages:
-#    ensure => "installed",
-#  }
-#}
-
 
 #class rpmfusion {
 #http://rpmfusion.org/Configuration

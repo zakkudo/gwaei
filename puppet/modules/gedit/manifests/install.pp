@@ -1,6 +1,10 @@
 
 class gedit::install inherits gedit {
-  package { "gedit":
+  $packages = [
+   "gedit"
+  ]
+  package { $packages:
     ensure => "installed",
+    require => Class['gnome'],
   }
 }

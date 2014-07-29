@@ -1,4 +1,8 @@
 
-class gedit {
-  include gedit::install
+class gedit ($display_manager = 'gdm') {
+  notify { "gedit": }
+  ->
+  class { 'gedit::install': }
+
+  contain 'gedit::install'
 }

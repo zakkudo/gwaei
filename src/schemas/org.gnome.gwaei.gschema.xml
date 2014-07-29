@@ -135,7 +135,7 @@
     </key>
 
     <key name="kanji-source" type="s">
-      <default>'ftp://ftp.monash.edu.au/pub/nihongo/kanjidic.gz;ftp://ftp.monash.edu.au/pub/nihongo/kradfile.gz'</default>
+      <default>'ftp://ftp.monash.edu.au/pub/nihongo/kanjidic.gz'</default>
       <summary>Kanji dictionary install source</summary>
       <description>Used for determining the path to install and update the Kanji dictionary from.</description>
     </key>
@@ -153,7 +153,7 @@
     </key>
 
     <key name="radicals-source" type="s">
-      <default>'http://www.csse.monash.edu.au/~jwb/examples.gz'</default>
+      <default>'ftp://ftp.monash.edu.au/pub/nihongo/kradfile.gz'</default>
       <summary>Radicals dictionary install source</summary>
       <description>Used for determining the path to install and update the Radicals dictionary from.</description>
     </key>

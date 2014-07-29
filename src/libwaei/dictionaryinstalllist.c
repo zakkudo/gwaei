@@ -959,7 +959,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
 
     {
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
-      lw_dictionaryinstall_set_name (d, "Names and Places");
+      lw_dictionaryinstall_set_name (d, "Names");
       lw_dictionaryinstall_set_gtype (d, LW_TYPE_EDICTIONARY);
       lw_dictionaryinstall_set_description (d, 
         gettext("Based off of Enamdic, but with the names split from the "

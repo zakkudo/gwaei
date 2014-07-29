@@ -1,34 +1,32 @@
 
 class gnome::install inherits gnome {
   $packages = [
-    "gnome-desktop3",
-    "gnome-desktop3-devel",
-    "gnome-tweak-tool",
-    "gnome-screenshot",
-    "ibus",
-    "ibus-anthy",
-    "ibus-gtk3",
-    "control-center",
-    "dconf-editor",
-    "glade3",
-    "firefox",
-    "mozilla-adblockplus",
-    "mozilla-noscript",
-    "abattis-cantarell-fonts",
-    "liberation-mono-fonts",
-    "liberation-sans-fonts",
-    "liberation-serif-fonts",
-    "bitstream-vera-sans-fonts",
-    "bitstream-vera-sans-mono-fonts",
-    "bitstream-vera-serif-fonts",
-    "google-droid-sans-fonts",
-    "google-droid-sans-mono-fonts",
-    "google-droid-serif-fonts",
-    "levien-inconsolata-fonts"
+    'mesa-demos',
+    'glx-utils',
+    'mesa-dri-drivers',
+    'xorg-x11-utils',
+    'xorg-x11-drivers',
+    'xorg-x11-xinit',
+    'xorg-x11-server-Xorg',
+    'gnome-desktop3',
+    'gnome-desktop3-devel',
+    'ibus-anthy',
+    'anthy',
+    'liberation-mono-fonts',
+    'liberation-sans-fonts',
+    'liberation-serif-fonts',
+    'wine-fonts',
+    'terminus-fonts-console',
+    'ipa-gothic-fonts',
+    'ipa-mincho-fonts',
+    'ipa-pgothic-fonts',
+    'ipa-pmincho-fonts',
+    'dejavu-sans-fonts',
+    'dejavu-serif-fonts',
+    'dejavu-sans-mono-fonts',
   ]
-
   package { $packages:
-    ensure => "installed"
+    ensure => 'installed',
   }
 }
 

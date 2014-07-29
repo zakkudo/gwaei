@@ -1,0 +1,7 @@
+#!/bin/sh
+
+sudo -u vagrant dconf write /org/gnome/desktop/lockdown/disable-lock-screen true &> /dev/null
+#sudo -u vagrant dconf write /org/gnome/desktop/lockdown/disable-log-out true &> /dev/null
+sudo -u vagrant dconf write /org/gnome/desktop/lockdown/disable-user-switching true &> /dev/null
+sudo -u vagrant dconf write /org/gnome/desktop/screensaver/lock-enabled false &> /dev/null
+

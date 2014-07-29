@@ -1,5 +1,9 @@
 
 class git {
-  include git::install
+  notify { "git": }
+  ->
+  class { 'git::install': }
+
+  contain 'git::install'
 }
 

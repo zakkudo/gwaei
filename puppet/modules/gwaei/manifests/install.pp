@@ -11,6 +11,7 @@ class gwaei::install inherits gwaei {
   ]
 
   package { $packages:
-    ensure => "installed"
+    ensure => "installed",
+    require => Class['gnome'],
   }
 }

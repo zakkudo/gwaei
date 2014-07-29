@@ -890,7 +890,7 @@ w_command_handle_error (WCommand  *self,
 
 
 gint 
-w_command_search (WCommand   *self)
+w_command_search (WCommand *self)
 {
     //Sanity check
     g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
@@ -900,7 +900,7 @@ w_command_search (WCommand   *self)
     LwDictionaryList *dictionarylist = NULL;
     LwPreferences* preferences = NULL;
 
-/*TODO
+    WApplication *application = NULL;
     const gchar* dictionary_switch_data = NULL;
     const gchar* query_text_data = NULL;
     gboolean quiet_switch = FALSE;
@@ -914,9 +914,14 @@ w_command_search (WCommand   *self)
     LwSearchFlag flags = 0;
 
     //Initializations
-    preferences = w_application_get_preferences (self);
+    application = w_command_get_application (self);
+    if (application == NULL) goto errored;
+    preferences = w_application_get_preferences (application);
+    if (preferences == NULL) goto errored;
     search = lw_search_new_by_preferences (self, dictionary, preferences);
+    if (search == NULL) goto errored;
     dictionarylist = w_application_get_installed_dictionarylist (self);
+    if (dictionarylist == NULL) goto errored;
 
     dictionary_switch_data = w_application_get_dictionary_switch_data (self);
     query_text_data = w_application_get_query_text_data (self);
@@ -937,6 +942,7 @@ w_command_search (WCommand   *self)
       fprintf (stderr, gettext("\"%s\" Dictionary was not found!\n"), dictionary_switch_data);
       return resolution;
     }
+/*TODO
 
     search = lw_search_new (dictionary, w_application_get_morphologyengine (self), query_text_data, flags);
     searchiterator = lw_searchiterator_new (search, "raw");

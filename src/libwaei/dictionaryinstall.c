@@ -1128,6 +1128,7 @@ lw_dictionaryinstall_download (LwDictionaryInstall *self)
       const gchar *MESSAGE = gettext("Downloading from %s...");
       lw_progress_set_secondary_message_printf (progress, MESSAGE, URI);
       lw_io_download (URI, target, progress);
+      printf("BREAK %s %s\n", URI, target);
     }
 
     lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, STAGE_NAME, TRUE, targets);
