@@ -8,6 +8,15 @@ typedef enum {
   PROP_APPLICATION,
   PROP_COMMAND_LINE,
   PROP_PROGRESS,
+  PROP_DICTIONARY_SWITCH_TEXT,
+  PROP_DICTIONARY_INSTALL_SWITCH_TEXT,
+  PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT,
+  PROP_QUERY_SWITCH_TEXT,
+  PROP_QUIET_SWITCH,
+  PROP_EXACT_SWITCH,
+  PROP_LIST_SWITCH,
+  PROP_VERSION_SWITCH,
+  PROP_COLOR_SWITCH,
   TOTAL_PROPS
 } Props;
 
@@ -42,10 +51,10 @@ struct _Argument {
   gboolean rebuild_index;
   gboolean start_server;
 
-  gchar* dictionary_switch_data;
-  gchar* install_switch_data;
-  gchar* uninstall_switch_data;
-  gchar* query_text_data;
+  gchar* dictionary_switch_text;
+  gchar* dictionary_install_switch_text;
+  gchar* dictionary_uninstall_switch_text;
+  gchar* query_switch_text;
 };
 
 struct _WCommandPrivate {
@@ -64,5 +73,7 @@ struct _WCommandClassPrivate {
 #define W_COMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), W_TYPE_COMMAND, WCommandPrivate))
 
 G_END_DECLS
+
+#include "command-callbacks.h"
 
 #endif

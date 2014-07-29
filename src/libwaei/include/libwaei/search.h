@@ -65,6 +65,7 @@ struct _LwSearchClass {
 
 //Methods
 LwSearch* lw_search_new (const gchar *QUERY, LwDictionary *dictionary, LwSearchFlag flags);
+LwSearch* lw_search_new_by_preferences (const gchar *QUERY, LwDictionary  *dictionary, LwPreferences *preferences);
 GType lw_search_get_type (void) G_GNUC_CONST;
 
 void lw_search_set_dictionary (LwSearch *self, LwDictionary *dictionary);
@@ -84,7 +85,7 @@ LwProgress* lw_search_get_progress (LwSearch *self);
 
 LwSearchFlag lw_search_get_flags (LwSearch *self);
 void lw_search_set_flags (LwSearch *self, LwSearchFlag flags);
-LwSearchFlag lw_search_get_flags_from_preferences (LwPreferences *preferences);
+LwSearchFlag lw_search_build_flags_from_preferences (LwPreferences *preferences);
 
 G_END_DECLS
 

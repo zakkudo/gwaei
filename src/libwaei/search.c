@@ -83,7 +83,7 @@ lw_search_new_by_preferences (const gchar   *QUERY,
     LwSearchFlag flags = 0;
 
     //Initializations
-    flags = lw_search_get_flags_from_preferences (preferences);
+    flags = lw_search_build_flags_from_preferences (preferences);
     self = lw_search_new (QUERY, dictionary, flags);
 
     return self;
@@ -593,7 +593,7 @@ errored:
 
 
 LwSearchFlag
-lw_search_get_flags_from_preferences (LwPreferences *preferences)
+lw_search_build_flags_from_preferences (LwPreferences *preferences)
 {
     //Sanity checks
     g_return_val_if_fail (preferences != NULL, 0);
