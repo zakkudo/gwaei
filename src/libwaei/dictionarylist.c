@@ -136,6 +136,7 @@ lw_dictionarylist_get_property (GObject      *object,
 static void 
 lw_dictionarylist_finalize (GObject *object)
 {
+printf("BREAK lw_dictionarylist_finalize\n");
     //Declarations
     LwDictionaryList *self = NULL;
     LwDictionaryListPrivate *priv = NULL;
@@ -153,6 +154,7 @@ lw_dictionarylist_finalize (GObject *object)
 static void
 lw_dictionarylist_dispose (GObject *object)
 {
+printf("BREAK lw_dictionarylist_dispose\n");
     //Declarations
     LwDictionaryList *self = NULL;
 
@@ -352,9 +354,9 @@ _add_to_index (LwDictionaryList *self,
 
     //Initializations
     priv = self->priv;
-    id = g_ascii_strdown (lw_dictionary_get_id (dictionary), -1);
-    typename = g_ascii_strdown (G_OBJECT_TYPE_NAME (dictionary), -1);
-    filename = g_ascii_strdown (lw_dictionary_get_filename (dictionary), -1);
+    id = g_utf8_casefold (lw_dictionary_get_id (dictionary), -1);
+    typename = g_utf8_casefold (G_OBJECT_TYPE_NAME (dictionary), -1);
+    filename = g_utf8_casefold (lw_dictionary_get_filename (dictionary), -1);
    
     if (typename != NULL && !g_hash_table_contains (priv->data.index.typename, typename))
     {
@@ -373,9 +375,9 @@ _add_to_index (LwDictionaryList *self,
 
 errored:
 
-    if (id != NULL) g_free (id); id = NULL;
-    if (typename != NULL) g_free (typename); typename = NULL;
-    if (filename != NULL) g_free (filename); filename = NULL;
+    g_free (id); id = NULL;
+    g_free (typename); typename = NULL;
+    g_free (filename); filename = NULL;
 
     return;
 }
@@ -397,9 +399,9 @@ _remove_from_index (LwDictionaryList *self,
 
     //Initializations
     priv = self->priv;
-    id = g_ascii_strdown (lw_dictionary_get_id (dictionary), -1);
-    typename = g_ascii_strdown (G_OBJECT_TYPE_NAME (dictionary), -1);
-    filename = g_ascii_strdown (lw_dictionary_get_filename (dictionary), -1);
+    id = g_utf8_casefold (lw_dictionary_get_id (dictionary), -1);
+    typename = g_utf8_casefold (G_OBJECT_TYPE_NAME (dictionary), -1);
+    filename = g_utf8_casefold (lw_dictionary_get_filename (dictionary), -1);
    
     if (g_hash_table_lookup (priv->data.index.typename, typename) == dictionary)
     {
@@ -778,22 +780,26 @@ _remove_propogate_changes (LwDictionaryList *self,
 
     //Declarations
     gint length = 0;
-    gint i = 0;
 
     //Initializations
     length = lw_dictionarylist_length (self);
 
     //Rows that were removed
-    for (i = 0; indices[i] != -1; i++)
     {
-      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, indices[i]);
+      gint i = 0;
+      for (i = 0; indices[i] > -1; i++) ;
+      i--;
+      while (i > -1) 
+      {
+        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, indices[i]);
+        i--;
+      }
     }
-    i--;
 
     //Rows with modified indexes
     {
       gint index = 0;
-      for (index = indices[i]; index < length; index++)
+      for (index = indices[0]; index > -1 && index < length; index++)
       {
         g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, index);
       }
@@ -935,6 +941,8 @@ lw_dictionarylist_load_installed (LwDictionaryList   *self,
     printf("BREAK loading %d dictionaries\n", g_list_length (dictionaries));
 
     lw_dictionarylist_insert (self, -1, dictionaries);
+
+    printf("BREAK loaded\n");
 
 errored:
 
@@ -1447,6 +1455,7 @@ lw_dictionarylist_menumodel_insert (LwDictionaryList *self,
     SHORTNAME = lw_dictionary_get_name (dictionary);
 
     longname = g_strdup_printf (gettext("%s Dictionary"), SHORTNAME);
+    printf("BREAK lw_dictionarylist_menumodel_insert %s\n", longname);
     if (longname == NULL) goto errored;
     detailed_action = g_strdup_printf ("win.set-dictionary::%d", index_ + 1);
     if (detailed_action == NULL) goto errored;
@@ -1454,6 +1463,7 @@ lw_dictionarylist_menumodel_insert (LwDictionaryList *self,
     menuitem = g_menu_item_new (longname, detailed_action);
     if (menuitem == NULL) goto errored;
     g_menu_insert_item (menu, index_, menuitem);
+    printf("BREAK lw_dictionarylist_menumodel_insert inserted at %d\n", index_);
 
 errored:
 

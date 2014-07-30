@@ -140,6 +140,8 @@ lw_dictionarylist_deleted_cb (LwDictionaryList *dictionary_list,
     if (menu_model == NULL) goto errored;
     menu = G_MENU (menu_model);
 
+    printf("BREAK lw_dictionarylist_deleted_cb %d %d\n", position, g_menu_model_get_n_items (menu_model));
+
     g_menu_remove (menu, position);
 
 errored:

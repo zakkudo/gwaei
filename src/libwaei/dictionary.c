@@ -206,7 +206,7 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
     g_object_class_install_property (object_class, PROP_FILENAME, _klasspriv->pspec[PROP_FILENAME]);
 
     _klasspriv->pspec[PROP_MORPHOLOGYENGINE] = g_param_spec_object (
-      "morphology-engine",
+      "morphologyengine",
       "Morphology Engine referenced by the self",
       "Set the self's Morphology Engine used for indexing",
       LW_TYPE_MORPHOLOGYENGINE,
@@ -488,12 +488,10 @@ lw_dictionary_set_filename (LwDictionary *self,
 
     //Declarations
     LwDictionaryPrivate *priv = NULL;
-    gboolean changed = FALSE;
     
     //Initializations
     priv = self->priv;
-    changed = (g_strcmp0 (FILENAME, priv->config.filename) != 0);
-    if (!changed) goto errored;
+    if (g_strcmp0 (FILENAME, priv->config.filename) == 0) goto errored;
 
     g_free (priv->config.filename);
     priv->config.filename = g_strdup (FILENAME);
@@ -505,6 +503,8 @@ lw_dictionary_set_filename (LwDictionary *self,
     lw_dictionarydata_free (priv->data.data); priv->data.data = NULL;
 
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FILENAME]);
+
+    lw_dictionary_sync_id (self);
 
 errored:
 

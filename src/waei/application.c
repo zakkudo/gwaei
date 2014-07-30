@@ -348,6 +348,7 @@ void
 w_application_set_morphologyengine (WApplication       *self,
                                     LwMorphologyEngine *morphologyengine)
 {
+  printf("BREAK w_application_set_morphologyengine %d\n", morphologyengine);
     //Sanity checks
     g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
 

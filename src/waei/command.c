@@ -316,7 +316,7 @@ w_command_class_init (WCommandClass *klass)
         "FIlename construct prop",
         "Set the filename",
         "",
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_DICTIONARY_SWITCH_TEXT, _klasspriv->pspec[PROP_DICTIONARY_SWITCH_TEXT]);
 
@@ -325,7 +325,7 @@ w_command_class_init (WCommandClass *klass)
         "FIlename construct prop",
         "Set the filename",
         "",
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_DICTIONARY_INSTALL_SWITCH_TEXT, _klasspriv->pspec[PROP_DICTIONARY_INSTALL_SWITCH_TEXT]);
 
@@ -334,7 +334,7 @@ w_command_class_init (WCommandClass *klass)
         "FIlename construct prop",
         "Set the filename",
         "",
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT, _klasspriv->pspec[PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT]);
 
@@ -343,7 +343,7 @@ w_command_class_init (WCommandClass *klass)
         "FIlename construct prop",
         "Set the filename",
         "",
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_QUERY_SWITCH_TEXT, _klasspriv->pspec[PROP_QUERY_SWITCH_TEXT]);
 
@@ -353,7 +353,7 @@ w_command_class_init (WCommandClass *klass)
         "FIlename construct prop",
         "Set the filename",
         FALSE,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_QUIET_SWITCH, _klasspriv->pspec[PROP_QUIET_SWITCH]);
 
@@ -362,7 +362,7 @@ w_command_class_init (WCommandClass *klass)
         "FIlename construct prop",
         "Set the filename",
         FALSE,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_EXACT_SWITCH, _klasspriv->pspec[PROP_EXACT_SWITCH]);
 
@@ -371,7 +371,7 @@ w_command_class_init (WCommandClass *klass)
         "FIlename construct prop",
         "Set the filename",
         FALSE,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_LIST_SWITCH, _klasspriv->pspec[PROP_LIST_SWITCH]);
 
@@ -380,7 +380,7 @@ w_command_class_init (WCommandClass *klass)
         "FIlename construct prop",
         "Set the filename",
         FALSE,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_FORCE_INDEX_REBUILD_SWITCH, _klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH]);
 
@@ -389,7 +389,7 @@ w_command_class_init (WCommandClass *klass)
         "FIlename construct prop",
         "Set the filename",
         FALSE,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_START_SERVER_SWITCH, _klasspriv->pspec[PROP_START_SERVER_SWITCH]);
 }
@@ -546,6 +546,7 @@ w_command_run (WCommand *self)
     //User wants to uninstall a dictionary
     else if (w_command_has_dictionary_uninstall_request (self))
     {
+      printf("BREAK uninstall\n");
       resolution = w_command_uninstall_dictionary (self);
     }
 
@@ -599,8 +600,9 @@ w_command_uninstall_dictionary (WCommand *self)
     if (application == NULL) goto errored;
     DICTIONARY_UNINSTALL_SWITCH_TEXT = w_command_get_dictionary_uninstall_switch_text (self);
     dictionary = w_application_fuzzy_find_dictionary (application, DICTIONARY_UNINSTALL_SWITCH_TEXT);
+    //w_application_fuzzy_find_dictionary causes weird things to happen TODO
     if (dictionary == NULL) goto errored;
-
+/*
     if (dictionary != NULL)
     {
       LwProgress *progress = lw_dictionary_get_progress (dictionary);
@@ -618,6 +620,7 @@ w_command_uninstall_dictionary (WCommand *self)
       w_command_print (self, "\n\"%s\" Dictionary was not found!\n\n", DICTIONARY_UNINSTALL_SWITCH_TEXT);
       w_command_print_available_dictionaries (self);
     }
+    */
 
 errored:
 
@@ -812,7 +815,6 @@ errored:
 gint 
 w_command_install_dictionary (WCommand *self)
 {
-  printf("BREAK w_command_install_dictionary\n");
     //Sanity check
     g_return_val_if_fail (W_IS_COMMAND (self), -1);
 
@@ -1023,7 +1025,6 @@ errored:
 void 
 w_command_list (WCommand *self)
 {
-printf("BREAK w_command_list\n");
     w_command_print_available_dictionaries (self);
     w_command_print_installable_dictionaries (self);
 }
@@ -1231,7 +1232,6 @@ w_command_set_application (WCommand     *self,
     
     if (priv->data.application != NULL)
     {
-      printf("BREAK release the application!\n");
       g_application_release (G_APPLICATION (priv->data.application));
       g_object_remove_weak_pointer (
         G_OBJECT (priv->data.application),
@@ -1291,7 +1291,6 @@ w_command_set_command_line (WCommand                *self,
 
     if (priv->data.command_line != NULL)
     {
-      printf("BREAK release command line\n");
       g_object_remove_weak_pointer (
         G_OBJECT (priv->data.command_line),
         (gpointer*) &(priv->data.command_line)
@@ -1335,39 +1334,39 @@ void
 w_command_set_quiet_switch (WCommand *self,
                             gboolean quiet_switch)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (priv->argument.quiet_switch == quiet_switch) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (priv->argument.quiet_switch == quiet_switch) goto errored;
 
-  priv->argument.quiet_switch = quiet_switch;
+    priv->argument.quiet_switch = quiet_switch;
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_QUIET_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_QUIET_SWITCH]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 gboolean
 w_command_get_quiet_switch (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.quiet_switch;
+    return priv->argument.quiet_switch;
 }
 
 
@@ -1375,39 +1374,39 @@ void
 w_command_set_exact_switch (WCommand *self,
                             gboolean exact_switch)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (priv->argument.exact_switch == exact_switch) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (priv->argument.exact_switch == exact_switch) goto errored;
 
-  priv->argument.exact_switch = exact_switch;
+    priv->argument.exact_switch = exact_switch;
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_EXACT_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_EXACT_SWITCH]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 gboolean
 w_command_get_exact_switch (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.exact_switch;
+    return priv->argument.exact_switch;
 }
 
 
@@ -1415,39 +1414,39 @@ void
 w_command_set_list_switch (WCommand *self,
                             gboolean list_switch)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (priv->argument.list_switch == list_switch) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (priv->argument.list_switch == list_switch) goto errored;
 
-  priv->argument.list_switch = list_switch;
+    priv->argument.list_switch = list_switch;
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_LIST_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_LIST_SWITCH]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 gboolean
 w_command_get_list_switch (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.list_switch;
+    return priv->argument.list_switch;
 }
 
 
@@ -1455,39 +1454,39 @@ void
 w_command_set_version_switch (WCommand *self,
                             gboolean version_switch)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (priv->argument.version_switch == version_switch) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (priv->argument.version_switch == version_switch) goto errored;
 
-  priv->argument.version_switch = version_switch;
+    priv->argument.version_switch = version_switch;
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VERSION_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VERSION_SWITCH]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 gboolean
 w_command_get_version_switch (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.version_switch;
+    return priv->argument.version_switch;
 }
 
 
@@ -1495,39 +1494,39 @@ void
 w_command_set_color_switch (WCommand *self,
                             gboolean color_switch)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (priv->argument.color_switch == color_switch) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (priv->argument.color_switch == color_switch) goto errored;
 
-  priv->argument.color_switch = color_switch;
+    priv->argument.color_switch = color_switch;
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_COLOR_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_COLOR_SWITCH]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 gboolean
 w_command_get_color_switch (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.color_switch;
+    return priv->argument.color_switch;
 }
 
 
@@ -1536,39 +1535,39 @@ void
 w_command_set_force_index_rebuild_switch (WCommand *self,
                                           gboolean force_index_rebuild_switch)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (priv->argument.force_index_rebuild_switch == force_index_rebuild_switch) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (priv->argument.force_index_rebuild_switch == force_index_rebuild_switch) goto errored;
 
-  priv->argument.force_index_rebuild_switch = force_index_rebuild_switch;
+    priv->argument.force_index_rebuild_switch = force_index_rebuild_switch;
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 gboolean
 w_command_get_force_index_rebuild_switch (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.force_index_rebuild_switch;
+    return priv->argument.force_index_rebuild_switch;
 }
 
 
@@ -1576,39 +1575,39 @@ void
 w_command_set_start_server_switch (WCommand *self,
                                    gboolean start_server_switch)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (priv->argument.start_server_switch == start_server_switch) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (priv->argument.start_server_switch == start_server_switch) goto errored;
 
-  priv->argument.start_server_switch = start_server_switch;
+    priv->argument.start_server_switch = start_server_switch;
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_START_SERVER_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_START_SERVER_SWITCH]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 gboolean
 w_command_get_start_server_switch (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.start_server_switch;
+    return priv->argument.start_server_switch;
 }
 
 
@@ -1616,99 +1615,99 @@ void
 w_command_set_dictionary_switch_text (WCommand    *self,
                                       const gchar *dictionary_switch_text)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (g_strcmp0 (dictionary_switch_text, priv->argument.dictionary_switch_text) == 0) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (g_strcmp0 (dictionary_switch_text, priv->argument.dictionary_switch_text) == 0) goto errored;
 
-  g_free (priv->argument.dictionary_switch_text);
-  priv->argument.dictionary_switch_text = g_strdup (dictionary_switch_text);
+    g_free (priv->argument.dictionary_switch_text);
+    priv->argument.dictionary_switch_text = g_strdup (dictionary_switch_text);
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DICTIONARY_SWITCH_TEXT]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DICTIONARY_SWITCH_TEXT]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 const gchar*
 w_command_get_dictionary_switch_text (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.dictionary_switch_text;
+    return priv->argument.dictionary_switch_text;
 }
 
 
 void
 w_command_set_dictionary_install_switch_text (WCommand    *self,
-                                      const gchar *dictionary_install_switch_text)
+                                              const gchar *dictionary_install_switch_text)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (g_strcmp0 (dictionary_install_switch_text, priv->argument.dictionary_install_switch_text) == 0) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (g_strcmp0 (dictionary_install_switch_text, priv->argument.dictionary_install_switch_text) == 0) goto errored;
 
-  g_free (priv->argument.dictionary_install_switch_text);
-  priv->argument.dictionary_install_switch_text = g_strdup (dictionary_install_switch_text);
+    g_free (priv->argument.dictionary_install_switch_text);
+    priv->argument.dictionary_install_switch_text = g_strdup (dictionary_install_switch_text);
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DICTIONARY_INSTALL_SWITCH_TEXT]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DICTIONARY_INSTALL_SWITCH_TEXT]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 const gchar*
 w_command_get_dictionary_install_switch_text (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.dictionary_install_switch_text;
+    return priv->argument.dictionary_install_switch_text;
 }
 
 
 gboolean
 w_command_has_dictionary_install_request (WCommand *self)
 {
-  //Sanity checks
-  g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
+    //Sanity checks
+    g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
 
-  //Declarations
-  const gchar *DICTIONARY_INSTALL_SWITCH_TEXT = NULL;
-  gboolean has_request = FALSE;
+    //Declarations
+    const gchar *DICTIONARY_INSTALL_SWITCH_TEXT = NULL;
+    gboolean has_request = FALSE;
 
-  //Initializations
-  DICTIONARY_INSTALL_SWITCH_TEXT = w_command_get_dictionary_install_switch_text (self);
-  has_request = (DICTIONARY_INSTALL_SWITCH_TEXT != NULL && *DICTIONARY_INSTALL_SWITCH_TEXT != '\0');
+    //Initializations
+    DICTIONARY_INSTALL_SWITCH_TEXT = w_command_get_dictionary_install_switch_text (self);
+    has_request = (DICTIONARY_INSTALL_SWITCH_TEXT != NULL && *DICTIONARY_INSTALL_SWITCH_TEXT != '\0');
 
-  return has_request;
+    return has_request;
 }
 
 
@@ -1716,58 +1715,58 @@ void
 w_command_set_dictionary_uninstall_switch_text (WCommand    *self,
                                                 const gchar *dictionary_uninstall_switch_text)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (g_strcmp0 (dictionary_uninstall_switch_text, priv->argument.dictionary_uninstall_switch_text) == 0) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (g_strcmp0 (dictionary_uninstall_switch_text, priv->argument.dictionary_uninstall_switch_text) == 0) goto errored;
 
-  g_free (priv->argument.dictionary_uninstall_switch_text);
-  priv->argument.dictionary_uninstall_switch_text = g_strdup (dictionary_uninstall_switch_text);
+    g_free (priv->argument.dictionary_uninstall_switch_text);
+    priv->argument.dictionary_uninstall_switch_text = g_strdup (dictionary_uninstall_switch_text);
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 const gchar*
 w_command_get_dictionary_uninstall_switch_text (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.dictionary_uninstall_switch_text;
+    return priv->argument.dictionary_uninstall_switch_text;
 }
 
 
 gboolean
 w_command_has_dictionary_uninstall_request (WCommand *self)
 {
-  //Sanity checks
-  g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
+    //Sanity checks
+    g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
 
-  //Declarations
-  const gchar *DICTIONARY_UNINSTALL_SWITCH_TEXT = NULL;
-  gboolean has_request = FALSE;
+    //Declarations
+    const gchar *DICTIONARY_UNINSTALL_SWITCH_TEXT = NULL;
+    gboolean has_request = FALSE;
 
-  //Initializations
-  DICTIONARY_UNINSTALL_SWITCH_TEXT = w_command_get_dictionary_uninstall_switch_text (self);
-  has_request = (DICTIONARY_UNINSTALL_SWITCH_TEXT != NULL && *DICTIONARY_UNINSTALL_SWITCH_TEXT != '\0');
+    //Initializations
+    DICTIONARY_UNINSTALL_SWITCH_TEXT = w_command_get_dictionary_uninstall_switch_text (self);
+    has_request = (DICTIONARY_UNINSTALL_SWITCH_TEXT != NULL && *DICTIONARY_UNINSTALL_SWITCH_TEXT != '\0');
 
-  return has_request;
+    return has_request;
 }
 
 
@@ -1775,58 +1774,58 @@ void
 w_command_set_query_switch_text (WCommand    *self,
                                  const gchar *query_switch_text)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
-  if (g_strcmp0 (query_switch_text, priv->argument.query_switch_text) == 0) goto errored;
+    //Initializations
+    priv = self->priv;
+    if (g_strcmp0 (query_switch_text, priv->argument.query_switch_text) == 0) goto errored;
 
-  g_free (priv->argument.query_switch_text);
-  priv->argument.query_switch_text = g_strdup (query_switch_text);
+    g_free (priv->argument.query_switch_text);
+    priv->argument.query_switch_text = g_strdup (query_switch_text);
 
-  g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_QUERY_SWITCH_TEXT]);
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_QUERY_SWITCH_TEXT]);
 
 errored:
 
-  return;
+    return;
 }
 
 
 const gchar*
 w_command_get_query_switch_text (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  WCommandPrivate *priv = NULL;
+    //Declarations
+    WCommandPrivate *priv = NULL;
 
-  //Initializations
-  priv = self->priv;
+    //Initializations
+    priv = self->priv;
 
-  return priv->argument.query_switch_text;
+    return priv->argument.query_switch_text;
 }
 
 
 gboolean
 w_command_has_query_request (WCommand *self)
 {
-  //Sanity checks
-  g_return_if_fail (W_IS_COMMAND (self));
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
 
-  //Declarations
-  const gchar *QUERY_SWITCH_TEXT = NULL;
-  gboolean has_request = FALSE;
+    //Declarations
+    const gchar *QUERY_SWITCH_TEXT = NULL;
+    gboolean has_request = FALSE;
 
-  //Initializations
-  QUERY_SWITCH_TEXT = w_command_get_query_switch_text (self);
-  has_request = (QUERY_SWITCH_TEXT != NULL && *QUERY_SWITCH_TEXT != '\0');
+    //Initializations
+    QUERY_SWITCH_TEXT = w_command_get_query_switch_text (self);
+    has_request = (QUERY_SWITCH_TEXT != NULL && *QUERY_SWITCH_TEXT != '\0');
 
-  return has_request;
+    return has_request;
 }
 
 

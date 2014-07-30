@@ -1129,9 +1129,10 @@ errored:
 }
 
 
+
 static void
 _remove_propogate_changes (LwVocabulary *self,
-                               gint         *indices)
+                           gint          *indices)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_VOCABULARY (self));
@@ -1139,22 +1140,26 @@ _remove_propogate_changes (LwVocabulary *self,
 
     //Declarations
     gint length = 0;
-    gint i = 0;
 
     //Initializations
     length = lw_vocabulary_length (self);
 
     //Rows that were removed
-    for (i = 0; indices[i] != -1; i++)
     {
-      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, indices[i]);
+      gint i = 0;
+      for (i = 0; indices[i] > -1; i++) ;
+      i--;
+      while (i > -1) 
+      {
+        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, indices[i]);
+        i--;
+      }
     }
-    i--;
 
     //Rows with modified indexes
     {
       gint index = 0;
-      for (index = indices[i]; index < length; index++)
+      for (index = indices[0]; index > -1 && index < length; index++)
       {
         g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, index);
       }
