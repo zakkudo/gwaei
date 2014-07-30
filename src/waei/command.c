@@ -500,7 +500,7 @@ errored:
 
     if (error != NULL)
     {
-      g_application_command_line_printerr (command_line, "%s\n", error->message);
+      w_command_printerr (self, "%s\n", error->message);
       g_clear_error (&error);
     }
 
@@ -520,13 +520,10 @@ w_command_run (WCommand *self)
 
     //Declarations
     WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
     gint resolution = -1;
 
     //Initializations
     priv = self->priv;
-    command_line = priv->data.command_line;
-    if (command_line == NULL) goto errored;
 
     //User wants to see what dictionaries are available
     if (w_command_get_list_switch (self))
@@ -564,7 +561,7 @@ w_command_run (WCommand *self)
       gchar *text = g_option_context_get_help (priv->data.context, FALSE, NULL);
       if (text != NULL)
       {
-        g_application_command_line_print (command_line, "%s\n", text);
+        w_command_print (self, "%s\n", text);
         g_free (text); text = NULL;
       }
     }
@@ -584,14 +581,13 @@ errored:
 //! @param name A string of the name of the dictionary to uninstall.
 //!
 gint 
-w_command_uninstall_dictionary (WCommand   *self)
+w_command_uninstall_dictionary (WCommand *self)
 {
     //Sanity check
     g_return_val_if_fail (W_IS_COMMAND (self), -1);
 
     //Declarations
     WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
     WApplication *application = NULL;
     LwDictionaryList *dictionary_list = NULL;
     LwDictionary *dictionary = NULL;
@@ -601,8 +597,6 @@ w_command_uninstall_dictionary (WCommand   *self)
 
     //Initializations
     priv = self->priv;
-    command_line = priv->data.command_line;
-    if (command_line == NULL) goto errored;
     application = priv->data.application;
     if (application == NULL) goto errored;
     uninstall_switch_text = w_command_get_uninstall_switch_text (self);
@@ -617,7 +611,7 @@ w_command_uninstall_dictionary (WCommand   *self)
     }
     else
     {
-      g_application_command_line_print (command_line, "\n\"%s\" Dictionary was not found!\n\n", uninstall_switch_text);
+      w_command_print (self, "\n\"%s\" Dictionary was not found!\n\n", uninstall_switch_text);
       w_command_print_available_dictionaries (self);
     }
 
@@ -830,7 +824,6 @@ w_command_install_dictionary (WCommand *self)
     //Declarations
     WCommandPrivate *priv = NULL;
     WApplication *application = NULL;
-    GApplicationCommandLine *command_line = NULL;
     gint resolution = -1;
     LwProgress *progress = NULL;
     GList *dictionaryinstalls = NULL;
@@ -839,8 +832,6 @@ w_command_install_dictionary (WCommand *self)
     priv = self->priv;
     application = priv->data.application;
     if (application == NULL) goto errored;
-    command_line = priv->data.command_line;
-    if (command_line == NULL) goto errored;
     progress = lw_progress_new ();
     if (progress == NULL) goto errored;
     resolution = 0;
@@ -852,17 +843,17 @@ w_command_install_dictionary (WCommand *self)
 
       if (lw_progress_errored (progress)) 
       {
-        g_application_command_line_printerr (command_line, "\n%s\n", gettext("Installation failed!"));
+        w_command_printerr (self, "\n%s\n", gettext("Installation failed!"));
       }
       else
       {
-        g_application_command_line_printerr (command_line, "%s\n", gettext("Installation complete."));
+        w_command_printerr (self, "%s\n", gettext("Installation complete."));
       }
     }
     else
     {
       const gchar *install_switch_text = w_command_get_dictionary_install_switch_text (self);
-      g_application_command_line_print (command_line, "\n%s \"was not\" found!\n\n", install_switch_text);
+      w_command_print (self, "\n%s \"was not\" found!\n\n", install_switch_text);
       w_command_print_installable_dictionaries (self);
     }
 
@@ -906,22 +897,19 @@ w_command_about (WCommand *self)
 
     //Declarations
     WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
 
     //Initializations
     priv = self->priv;
-    command_line = priv->data.command_line;
-    if (command_line == NULL) goto errored;
 
-    g_application_command_line_print (command_line, "waei version %s", VERSION);
+    w_command_print (self, "waei version %s", VERSION);
 
-    g_application_command_line_print (command_line, "\n\n");
+    w_command_print (self, "\n\n");
 
-    g_application_command_line_print (command_line, "Check for the latest updates at <http://gwaei.sourceforge.net/>\n");
-    g_application_command_line_print (command_line, "Code Copyright (C) 2009-2013 Zachary Dovel\n\n");
+    w_command_print (self, "Check for the latest updates at <http://gwaei.sourceforge.net/>\n");
+    w_command_print (self, "Code Copyright (C) 2009-2013 Zachary Dovel\n\n");
 
-    g_application_command_line_print (command_line, "License:\n");
-    g_application_command_line_print (command_line, "Copyright (C) 2008 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\n");
+    w_command_print (self, "License:\n");
+    w_command_print (self, "Copyright (C) 2008 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\n");
 
 errored:
 
@@ -940,26 +928,23 @@ w_command_print_installable_dictionaries (WCommand *self)
 
     //Declarations
     WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
     WApplication *application = NULL;
     LwDictionaryInstallList *dictionaryinstalllist = NULL;
     GList *dictionaryinstalls = NULL;
 
     //Initializations
     priv = self->priv;
-    command_line = priv->data.command_line;
-    if (command_line == NULL) goto errored;
     application = priv->data.application;
     if (application == NULL) goto errored;
     dictionaryinstalllist = w_application_get_dictionaryinstalllist (application);
     if (dictionaryinstalllist == NULL) goto errored;
     dictionaryinstalls = lw_dictionaryinstalllist_dictionaryinstalls (dictionaryinstalllist);
 
-    g_application_command_line_print (command_line, gettext("Installable dictionaries are:\n"));
+    w_command_print (self, gettext("Installable dictionaries are:\n"));
 
     if (dictionaryinstalls == NULL)
     {
-      g_application_command_line_print (command_line, "  %s\n", gettext("none"));
+      w_command_print (self, "  %s\n", gettext("none"));
     }
     else {
       GList *link = NULL;
@@ -971,9 +956,9 @@ w_command_print_installable_dictionaries (WCommand *self)
           const gchar *NAME = lw_dictionaryinstall_get_name (dictionaryinstall);
           gint j = 0;
 
-          g_application_command_line_print (command_line, "  %s", FILENAME);
-          for (j = strlen(FILENAME); j < 20; j++) g_application_command_line_print (command_line, " ");
-          g_application_command_line_print (command_line, "(AKA: %s Dictionary)\n", NAME);
+          w_command_print (self, "  %s", FILENAME);
+          for (j = strlen(FILENAME); j < 20; j++) w_command_print (self, " ");
+          w_command_print (self, "(AKA: %s Dictionary)\n", NAME);
         }
       }
     }
@@ -996,7 +981,6 @@ w_command_print_available_dictionaries (WCommand *self)
     //Declarations
     WCommandPrivate *priv = NULL;
     WApplication *application = NULL;
-    GApplicationCommandLine *command_line = NULL;
     LwDictionaryList *dictionary_list = NULL;
     GList *dictionaries = NULL;
 
@@ -1004,17 +988,15 @@ w_command_print_available_dictionaries (WCommand *self)
     priv = self->priv;
     application = priv->data.application;
     if (application == NULL) goto errored;
-    command_line = priv->data.command_line;
-    if (command_line == NULL) goto errored;
     dictionary_list = w_application_get_dictionarylist (application);
     if (dictionary_list == NULL) goto errored;
     dictionaries = lw_dictionarylist_dictionaries (dictionary_list);
 
-    g_application_command_line_print (command_line, gettext("Available dictionaries are:\n"));
+    w_command_print (self, gettext("Available dictionaries are:\n"));
 
     if (dictionaries == NULL)
     {
-      g_application_command_line_print (command_line, "  %s\n", gettext("none"));
+      w_command_print (self, "  %s\n", gettext("none"));
     }
     else {
       GList *link = NULL;
@@ -1024,9 +1006,9 @@ w_command_print_available_dictionaries (WCommand *self)
         {
           const gchar *FILENAME = lw_dictionary_get_filename (dictionary);
           gint j = 0;
-          g_application_command_line_print (command_line, "  %s", FILENAME);
-          for (j = strlen(FILENAME); j < 20; j++) g_application_command_line_print (command_line, " ");
-          g_application_command_line_print (command_line, "(AKA: %s Dictionary)\n", lw_dictionary_get_name (dictionary));
+          w_command_print (self, "  %s", FILENAME);
+          for (j = strlen(FILENAME); j < 20; j++) w_command_print (self, " ");
+          w_command_print (self, "(AKA: %s Dictionary)\n", lw_dictionary_get_name (dictionary));
         }
       }
     }
@@ -1083,9 +1065,6 @@ w_command_search (WCommand *self)
     WApplication *application = NULL;
     const gchar* dictionary_switch_text = NULL;
     const gchar* query_switch_text = NULL;
-    gboolean quiet_switch = FALSE;
-    gboolean exact_switch = FALSE;
-    gint total_results = -1;
 
     gchar *message_total = NULL;
     LwDictionary *dictionary = NULL;
@@ -1104,14 +1083,12 @@ w_command_search (WCommand *self)
     if (dictionary_switch_text == NULL) goto errored;
     query_switch_text = w_command_get_query_switch_text (self);
     if (query_switch_text == NULL) goto errored;
-    quiet_switch = w_command_get_quiet_switch (self);
-    exact_switch = w_command_get_exact_switch (self);
     flags = lw_search_build_flags_from_preferences (preferences);
 
     search = lw_search_new_by_preferences (query_switch_text, dictionary, preferences);
     if (search == NULL) goto errored;
 
-    if (exact_switch) 
+    if (w_command_get_quiet_switch (self)) 
     {
       //flags &= ~LW_SEARCH_FLAG_INSENSITIVE;
     }
@@ -1858,6 +1835,66 @@ w_command_has_query_request (WCommand *self)
   has_request = (QUERY_SWITCH_TEXT != NULL && *QUERY_SWITCH_TEXT != '\0');
 
   return has_request;
+}
+
+
+void
+w_command_print (WCommand *self,
+                  const gchar *format,
+                  ...)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (format != NULL);
+
+    //Declarations
+    WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
+    gchar *message = NULL;
+    va_list ap;
+
+    priv = self->priv;
+    command_line = priv->data.command_line;
+    if (command_line == NULL) goto errored;
+    va_start (ap, format);
+    message = g_strdup_vprintf (format, ap);
+    va_end (ap);
+
+    G_APPLICATION_COMMAND_LINE_GET_CLASS (command_line)->print_literal (command_line, message);
+
+errored:
+
+    g_free (message);
+}
+
+
+void
+w_command_printerr (WCommand *self,
+                    const gchar *format,
+                    ...)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (format != NULL);
+
+    //Declarations
+    WCommandPrivate *priv = NULL;
+    GApplicationCommandLine *command_line = NULL;
+    gchar *message = NULL;
+    va_list ap;
+
+    priv = self->priv;
+    command_line = priv->data.command_line;
+    if (command_line == NULL) goto errored;
+    va_start (ap, format);
+    message = g_strdup_vprintf (format, ap);
+    va_end (ap);
+
+    G_APPLICATION_COMMAND_LINE_GET_CLASS (command_line)->printerr_literal (command_line, message);
+
+errored:
+
+    g_free (message);
 }
 
 

@@ -41,6 +41,9 @@ gint w_command_search (WCommand *self);
 gint w_command_install_dictionary (WCommand *self);
 gint w_command_uninstall_dictionary (WCommand *self);
 
+void w_command_print (WCommand *self, const gchar *format, ...);
+void w_command_printerr (WCommand *self, const gchar *format, ...);
+
 //Properties
 
 void w_command_set_application (WCommand *self, WApplication *application);
