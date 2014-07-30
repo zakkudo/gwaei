@@ -136,7 +136,6 @@ lw_dictionarylist_get_property (GObject      *object,
 static void 
 lw_dictionarylist_finalize (GObject *object)
 {
-printf("BREAK lw_dictionarylist_finalize\n");
     //Declarations
     LwDictionaryList *self = NULL;
     LwDictionaryListPrivate *priv = NULL;
@@ -154,7 +153,6 @@ printf("BREAK lw_dictionarylist_finalize\n");
 static void
 lw_dictionarylist_dispose (GObject *object)
 {
-printf("BREAK lw_dictionarylist_dispose\n");
     //Declarations
     LwDictionaryList *self = NULL;
 
@@ -938,11 +936,7 @@ lw_dictionarylist_load_installed (LwDictionaryList   *self,
 
     dictionaries = g_list_reverse (dictionaries);
 
-    printf("BREAK loading %d dictionaries\n", g_list_length (dictionaries));
-
     lw_dictionarylist_insert (self, -1, dictionaries);
-
-    printf("BREAK loaded\n");
 
 errored:
 
@@ -1455,7 +1449,6 @@ lw_dictionarylist_menumodel_insert (LwDictionaryList *self,
     SHORTNAME = lw_dictionary_get_name (dictionary);
 
     longname = g_strdup_printf (gettext("%s Dictionary"), SHORTNAME);
-    printf("BREAK lw_dictionarylist_menumodel_insert %s\n", longname);
     if (longname == NULL) goto errored;
     detailed_action = g_strdup_printf ("win.set-dictionary::%d", index_ + 1);
     if (detailed_action == NULL) goto errored;
@@ -1463,7 +1456,6 @@ lw_dictionarylist_menumodel_insert (LwDictionaryList *self,
     menuitem = g_menu_item_new (longname, detailed_action);
     if (menuitem == NULL) goto errored;
     g_menu_insert_item (menu, index_, menuitem);
-    printf("BREAK lw_dictionarylist_menumodel_insert inserted at %d\n", index_);
 
 errored:
 

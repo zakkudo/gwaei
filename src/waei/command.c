@@ -600,9 +600,7 @@ w_command_uninstall_dictionary (WCommand *self)
     if (application == NULL) goto errored;
     DICTIONARY_UNINSTALL_SWITCH_TEXT = w_command_get_dictionary_uninstall_switch_text (self);
     dictionary = w_application_fuzzy_find_dictionary (application, DICTIONARY_UNINSTALL_SWITCH_TEXT);
-    //w_application_fuzzy_find_dictionary causes weird things to happen TODO
-    if (dictionary == NULL) goto errored;
-/*
+
     if (dictionary != NULL)
     {
       LwProgress *progress = lw_dictionary_get_progress (dictionary);
@@ -620,7 +618,6 @@ w_command_uninstall_dictionary (WCommand *self)
       w_command_print (self, "\n\"%s\" Dictionary was not found!\n\n", DICTIONARY_UNINSTALL_SWITCH_TEXT);
       w_command_print_available_dictionaries (self);
     }
-    */
 
 errored:
 

@@ -245,6 +245,7 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
 gboolean 
 lw_dictionary_uninstall (LwDictionary *self)
 {
+  printf("BREAK1 lw_dictionary_uninstall \n");
     //Sanity check
     g_return_val_if_fail (self != NULL, FALSE);
 
@@ -260,16 +261,20 @@ lw_dictionary_uninstall (LwDictionary *self)
     progress = priv->data.progress;
     PATH = lw_dictionary_get_path (self);
     if (PATH == NULL) goto errored;
+  printf("BREAK2 lw_dictionary_uninstall \n");
 
     MESSAGE = gettext("Uninstalling %s Dictionary...");
     lw_progress_set_primary_message_printf (progress, MESSAGE, name);
 
     MESSAGE = gettext("Removing %s...");
     lw_progress_set_secondary_message_printf (progress, MESSAGE, PATH);
+  printf("BREAK3 lw_dictionary_uninstall \n");
 
     lw_io_remove (PATH, progress);
+  printf("BREAK4 lw_dictionary_uninstall \n");
 
 errored:
+  printf("BREAK5 lw_dictionary_uninstall \n");
 
     return (!lw_progress_errored (progress));
 }
