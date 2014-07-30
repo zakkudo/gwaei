@@ -510,6 +510,7 @@ lw_dictionary_set_filename (LwDictionary *self,
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FILENAME]);
 
     lw_dictionary_sync_id (self);
+    lw_dictionary_sync_path (self);
 
 errored:
 
@@ -583,6 +584,13 @@ lw_dictionary_get_progress (LwDictionary *self)
 
     //Initializations
     priv = self->priv;
+
+    if (priv->data.progress == NULL)
+    {
+      LwProgress *progress = lw_progress_new ();
+      lw_dictionary_set_progress (self, progress);
+      progress = NULL;
+    }
 
     return priv->data.progress;
 }

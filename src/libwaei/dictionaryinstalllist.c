@@ -383,10 +383,10 @@ _add_to_index (LwDictionaryInstallList *self,
 
 errored:
 
-    if (normalized_filename != NULL) g_free (normalized_filename); normalized_filename = NULL;
-    if (normalized_typename != NULL) g_free (normalized_typename); normalized_typename = NULL;
-    if (id != NULL) g_free (id); id = NULL;
-    if (normalized_id != NULL) g_free (normalized_id); normalized_id = NULL;
+    g_free (normalized_filename); normalized_filename = NULL;
+    g_free (normalized_typename); normalized_typename = NULL;
+    g_free (id); id = NULL;
+    g_free (normalized_id); normalized_id = NULL;
 
     return;
 }

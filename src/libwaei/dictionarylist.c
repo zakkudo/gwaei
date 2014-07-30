@@ -73,8 +73,8 @@ lw_dictionarylist_init (LwDictionaryList *self)
 
     priv = self->priv;
 
-    priv->data.index.typename = g_hash_table_new (g_str_hash, g_str_equal);
-    priv->data.index.filename = g_hash_table_new (g_str_hash, g_str_equal);
+    priv->data.index.typename = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
+    priv->data.index.filename = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
     priv->data.index.id = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
 
     lw_dictionarylist_connect_signals (self);
@@ -340,6 +340,7 @@ static void
 _add_to_index (LwDictionaryList *self,
                LwDictionary     *dictionary)
 {
+printf("BREAK1 _add_to_index\n");
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYLIST (self));
     g_return_if_fail (LW_IS_DICTIONARY (dictionary));
@@ -355,20 +356,27 @@ _add_to_index (LwDictionaryList *self,
     id = g_utf8_casefold (lw_dictionary_get_id (dictionary), -1);
     typename = g_utf8_casefold (G_OBJECT_TYPE_NAME (dictionary), -1);
     filename = g_utf8_casefold (lw_dictionary_get_filename (dictionary), -1);
+printf("BREAK2 _add_to_index filename: %s\n", filename);
    
     if (typename != NULL && !g_hash_table_contains (priv->data.index.typename, typename))
     {
+printf("BREAK3 _add_to_index typename: %s\n", typename);
       g_hash_table_insert (priv->data.index.typename, typename, dictionary);
+      typename = NULL;
     }
 
     if (filename != NULL && !g_hash_table_contains (priv->data.index.filename, filename))
     {
+printf("BREAK4 _add_to_index filename: %s\n", filename);
       g_hash_table_insert (priv->data.index.filename, filename, dictionary);
+      filename = NULL;
     }
 
     if (id != NULL && !g_hash_table_contains (priv->data.index.id, id))
     {
+printf("BREAK5 _add_to_index id: %s\n", id);
       g_hash_table_insert (priv->data.index.id, id, dictionary);
+      id = NULL;
     }
 
 errored:
@@ -960,7 +968,7 @@ lw_dictionarylist_find (LwDictionaryList* self,
 
     //Initializations
     priv = self->priv;
-    id = g_ascii_strdown (lw_dictionary_build_id_from_type (TYPE, FILENAME), -1);
+    id = g_utf8_casefold (lw_dictionary_build_id_from_type (TYPE, FILENAME), -1);
     dictionary = lw_dictionarylist_find_by_id (self, id);
 
 errored:
@@ -975,6 +983,7 @@ LwDictionary*
 lw_dictionarylist_fuzzy_find (LwDictionaryList *self,
                               const gchar      *FUZZY_DESCRIPTION)
 {
+printf("BREAK1 lw_dictionarylist_fuzzy_find\n");
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
 
@@ -989,19 +998,30 @@ lw_dictionarylist_fuzzy_find (LwDictionaryList *self,
     //Try getting the first dictionary if none is specified
     if (FUZZY_DESCRIPTION == NULL)
     {
+printf("BREAK2 lw_dictionarylist_fuzzy_find\n");
       if (priv->data.list != NULL)
+      {
         dictionary = LW_DICTIONARY (priv->data.list->data);
+      }
       else
+      {
         dictionary = NULL;
+      }
     }
 
     //Otherwise try getting a dictionary using a few different string parsers
     else
     {
       if (dictionary == NULL)
+      {
+printf("BREAK3 lw_dictionarylist_fuzzy_find\n");
         dictionary = lw_dictionarylist_find_by_id (self, FUZZY_DESCRIPTION);
+      }
       if (dictionary == NULL)
+      {
         dictionary = lw_dictionarylist_find_by_filename (self, FUZZY_DESCRIPTION);
+printf("BREAK4 lw_dictionarylist_fuzzy_find %d\n", dictionary);
+      }
     }
 
     return dictionary;
@@ -1023,8 +1043,19 @@ lw_dictionarylist_find_by_filename (LwDictionaryList *self,
 
     //Initializations
     priv = self->priv;
-    filename = g_ascii_strdown (g_strdup (FILENAME), -1);
+    filename = g_utf8_casefold (FILENAME, -1);
     dictionary = g_hash_table_lookup (priv->data.index.filename, filename);
+printf("BREAK lw_dictionarylist_find_by_filename %s %d %d\n", filename, dictionary, g_hash_table_size (priv->data.index.filename));
+
+{
+  GList *keys = g_hash_table_get_keys (priv->data.index.filename);
+  GList *link = NULL;
+  for (link = keys; link != NULL; link = link->next)
+  {
+    printf("BREAK lw_dictionarylist_find_by_filename key %s\n", link->data);
+  }
+}
+    
 
 errored:
 
@@ -1049,7 +1080,8 @@ lw_dictionarylist_find_by_id (LwDictionaryList *self,
 
     //Initializations
     priv = self->priv;
-    id = g_ascii_strdown (g_strdup (ID), -1);
+    id = g_utf8_casefold (g_strdup (ID), -1);
+printf("BREAK lw_dictionarylist_find_by_id %s\n", id);
     dictionary = g_hash_table_lookup (priv->data.index.id, id);
 
 errored:

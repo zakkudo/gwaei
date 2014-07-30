@@ -584,6 +584,7 @@ errored:
 gint 
 w_command_uninstall_dictionary (WCommand *self)
 {
+printf("BREAK1 w_command_uninstall_dictionary\n");
     //Sanity check
     g_return_val_if_fail (W_IS_COMMAND (self), -1);
 
@@ -601,8 +602,10 @@ w_command_uninstall_dictionary (WCommand *self)
     DICTIONARY_UNINSTALL_SWITCH_TEXT = w_command_get_dictionary_uninstall_switch_text (self);
     dictionary = w_application_fuzzy_find_dictionary (application, DICTIONARY_UNINSTALL_SWITCH_TEXT);
 
+printf("BREAK2 w_command_uninstall_dictionary\n");
     if (dictionary != NULL)
     {
+printf("BREAK3 w_command_uninstall_dictionary\n");
       LwProgress *progress = lw_dictionary_get_progress (dictionary);
       w_command_watch_progress (self, progress);
       lw_dictionary_uninstall (dictionary);
@@ -615,6 +618,7 @@ w_command_uninstall_dictionary (WCommand *self)
     }
     else
     {
+printf("BREAK4 w_command_uninstall_dictionary\n");
       w_command_print (self, "\n\"%s\" Dictionary was not found!\n\n", DICTIONARY_UNINSTALL_SWITCH_TEXT);
       w_command_print_available_dictionaries (self);
     }
