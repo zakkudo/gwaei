@@ -511,3 +511,52 @@ w_application_set_preferences (WApplication *self,
 }
 
 
+LwDictionary*
+w_application_fuzzy_find_dictionary (WApplication *self,
+                                     const gchar  *FUZZY_DESCRIPTION)
+{
+    //Sanity checks
+    g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
+    g_return_val_if_fail (FUZZY_DESCRIPTION != NULL, NULL);
+
+    //Declarations
+    LwDictionaryList *dictionary_list = NULL;
+    LwDictionary *dictionary = NULL;
+
+    //Initializations
+    dictionary_list = w_application_get_dictionarylist (self);
+    if (dictionary_list == NULL) goto errored;
+    dictionary = lw_dictionarylist_fuzzy_find (dictionary_list, FUZZY_DESCRIPTION);
+    if (dictionary == NULL) goto errored;
+
+errored:
+
+    return dictionary;
+}
+
+
+LwDictionaryInstall*
+w_application_fuzzy_find_dictionaryinstall (WApplication *self,
+                                            const gchar  *FUZZY_DESCRIPTION)
+{
+    //Sanity checks
+    g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
+    g_return_val_if_fail (FUZZY_DESCRIPTION != NULL, NULL);
+
+    //Declarations
+    LwDictionaryInstallList *dictionary_install_list = NULL;
+    LwDictionaryInstall *dictionaryinstall = NULL;
+
+    //Initializations
+    dictionary_install_list = w_application_get_dictionaryinstalllist (self);
+    if (dictionary_install_list == NULL) goto errored;
+    dictionaryinstall = lw_dictionaryinstalllist_fuzzy_find (dictionary_install_list, FUZZY_DESCRIPTION);
+    if (dictionaryinstall == NULL) goto errored;
+
+errored:
+
+    return dictionaryinstall;
+}
+
+
+

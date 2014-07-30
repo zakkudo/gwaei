@@ -32,6 +32,11 @@ GType w_application_get_type (void) G_GNUC_CONST;
 
 const char* w_application_get_program_name (WApplication* application);
 
+LwDictionary* w_application_fuzzy_find_dictionary (WApplication *self, const gchar *FUZZY_DESCRIPTION);
+LwDictionaryInstall* w_application_fuzzy_find_dictionaryinstall (WApplication *self, const gchar *FUZZY_DESCRIPTION);
+
+//Properties
+
 LwDictionaryList* w_application_get_dictionarylist (WApplication* application);
 LwDictionaryInstallList* w_application_get_dictionaryinstalllist (WApplication* application);
 

@@ -589,39 +589,37 @@ w_command_uninstall_dictionary (WCommand *self)
     //Declarations
     WCommandPrivate *priv = NULL;
     WApplication *application = NULL;
-    LwDictionaryList *dictionary_list = NULL;
     LwDictionary *dictionary = NULL;
     gint resolution = -1;
-    const gchar *uninstall_switch_text = NULL;
-  /*TODO
+    const gchar *DICTIONARY_UNINSTALL_SWITCH_TEXT = NULL;
 
     //Initializations
     priv = self->priv;
     application = priv->data.application;
     if (application == NULL) goto errored;
-    uninstall_switch_text = w_command_get_uninstall_switch_text (self);
-    dictionary_list = w_application_get_installed_dictionarylist (application);
-    if (dictionary_list == NULL) goto errored;
-    dictionary = lw_dictionarylist_fuzzy_find (dictionary_list, uninstall_switch_text);
-    resolution = -1;
+    DICTIONARY_UNINSTALL_SWITCH_TEXT = w_command_get_dictionary_uninstall_switch_text (self);
+    dictionary = w_application_fuzzy_find_dictionary (application, DICTIONARY_UNINSTALL_SWITCH_TEXT);
+    if (dictionary == NULL) goto errored;
 
     if (dictionary != NULL)
     {
+      LwProgress *progress = lw_dictionary_get_progress (dictionary);
+      w_command_watch_progress (self, progress);
       lw_dictionary_uninstall (dictionary);
+      w_command_unwatch_current_progress (self);
+
+      if (lw_progress_errored (progress))
+      {
+        resolution = 1;
+      }
     }
     else
     {
-      w_command_print (self, "\n\"%s\" Dictionary was not found!\n\n", uninstall_switch_text);
+      w_command_print (self, "\n\"%s\" Dictionary was not found!\n\n", DICTIONARY_UNINSTALL_SWITCH_TEXT);
       w_command_print_available_dictionaries (self);
     }
 
-    if (lw_progress_errored (progress))
-    {
-      resolution = 1;
-    }
-
 errored:
-*/
 
     return resolution;
 }
@@ -786,7 +784,6 @@ _find_dictionaryinstalls (WCommand *self)
     //Declarations
     WCommandPrivate *priv = NULL;
     WApplication *application = NULL;
-    LwDictionaryInstallList *dictionaryinstalllist = NULL;
     GList *dictionaryinstalls = NULL;
     const gchar *install_switch_text = NULL;
 
@@ -796,11 +793,9 @@ _find_dictionaryinstalls (WCommand *self)
     if (application == NULL) goto errored;
     install_switch_text = w_command_get_dictionary_install_switch_text (self);
     if (install_switch_text == NULL) goto errored;
-    dictionaryinstalllist = w_application_get_dictionaryinstalllist (application);
-    if (dictionaryinstalllist == NULL) goto errored;
 
     {
-      LwDictionaryInstall *dictionaryinstall = lw_dictionaryinstalllist_fuzzy_find (dictionaryinstalllist, install_switch_text);
+      LwDictionaryInstall *dictionaryinstall = w_application_fuzzy_find_dictionaryinstall (application, install_switch_text);
       if (dictionaryinstall != NULL)
       {
         g_object_ref (dictionaryinstall);
@@ -1059,7 +1054,6 @@ w_command_search (WCommand *self)
 
     //Declarations
     LwSearch *search = NULL;
-    LwDictionaryList *dictionarylist = NULL;
     LwPreferences* preferences = NULL;
 
     WApplication *application = NULL;
@@ -1077,8 +1071,6 @@ w_command_search (WCommand *self)
     if (application == NULL) goto errored;
     preferences = w_application_get_preferences (application);
     if (preferences == NULL) goto errored;
-    dictionarylist = w_application_get_dictionarylist (application);
-    if (dictionarylist == NULL) goto errored;
     dictionary_switch_text = w_command_get_dictionary_switch_text (self);
     if (dictionary_switch_text == NULL) goto errored;
     query_switch_text = w_command_get_query_switch_text (self);
@@ -1094,7 +1086,7 @@ w_command_search (WCommand *self)
     }
     resolution = 0;
 
-    dictionary = lw_dictionarylist_fuzzy_find (dictionarylist, dictionary_switch_text);
+    dictionary = w_application_fuzzy_find_dictionary (application, dictionary_switch_text);
     if (dictionary == NULL)
     {
       resolution = 1;
