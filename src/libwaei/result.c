@@ -194,6 +194,24 @@ lw_result_take_strv (LwResult *self,
 }
 
 
+void
+lw_result_take_elementbuffer (LwResult              *self,
+                              const gchar           *KEY,
+                              LwResultElementBuffer *elementbuffer)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (KEY != NULL);
+    g_return_if_fail (elementbuffer != NULL);
+    if (elementbuffer->strv == NULL) return;
+
+    lw_result_take_strv (self, KEY, (gchar const**) elementbuffer->strv);
+
+    elementbuffer->strv = NULL;
+    lw_resultelementbuffer_clear (elementbuffer);
+}
+
+
 gchar const *
 lw_result_get (LwResult *self,
                gchar const *KEY)
@@ -226,6 +244,18 @@ lw_result_get_strv (LwResult    *self,
     g_return_val_if_fail (KEY != NULL, NULL);
 
     return (g_hash_table_lookup (self->data, KEY));
+}
+
+
+void
+lw_result_init_elementbuffer (LwResult              *self,
+                              LwResultElementBuffer *elementbuffer)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (elementbuffer != NULL);
+
+    lw_resultelementbuffer_init (elementbuffer, self->length);
 }
 
 

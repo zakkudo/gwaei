@@ -1,6 +1,8 @@
 #ifndef LW_RESULT_INCLUDED
 #define LW_RESULT_INCLUDED 
 
+#include "resultelementbuffer.h"
+
 G_BEGIN_DECLS
 
 struct _LwResult {
@@ -10,6 +12,7 @@ struct _LwResult {
   gchar *buffer_end;
   GHashTable *data;
 };
+
 
 typedef struct _LwResult LwResult;
 #define LW_RESULT(obj) (LwResult*)obj
@@ -27,9 +30,12 @@ gboolean lw_result_buffer_owns_strv (LwResult *self, gchar **TEXT);
 
 void lw_result_take (LwResult *self, gchar const *KEY, gchar const * parsed_text);
 void lw_result_take_strv (LwResult *self, gchar const *KEY, gchar const * * parsed_strv);
+void lw_result_take_elementbuffer (LwResult *self, const gchar *KEY, LwResultElementBuffer *elementbuffer);
 
 gchar const * lw_result_get (LwResult *self, gchar const *KEY);
 gchar * const * lw_result_get_strv (LwResult *self, gchar const *KEY);
+
+void lw_result_init_elementbuffer (LwResult *self, LwResultElementBuffer *elementbuffer);
 
 G_END_DECLS
 

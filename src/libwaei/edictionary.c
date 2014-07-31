@@ -44,7 +44,6 @@
 
 G_DEFINE_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 
-static gchar* FIRST_DEFINITION_PREFIX_STR = "(1)";
 static LwResult* lw_edictionary_parse (LwDictionary*, const gchar*);
 
 
@@ -144,7 +143,28 @@ lw_edictionary_parse (LwDictionary       *dictionary,
 
     //Declarations
     LwResult *result = NULL;
+    gchar *buffer = NULL;
+    LwResultElementBuffer words = {0};
+    LwResultElementBuffer readings = {0};
+    LwResultElementBuffer meanings = {0};
 
+    //Initializations
+    result = lw_result_new (TEXT);
+    if (result == NULL) goto errored;
+    buffer = lw_result_get_buffer (result);
+    if (buffer == NULL) goto errored;
+
+    lw_result_init_elementbuffer (result, &words);
+    lw_result_init_elementbuffer (result, &readings);
+    lw_result_init_elementbuffer (result, &meanings);
+
+    lw_resultelementbuffer_add (&words, "FISH");
+    lw_resultelementbuffer_add (&readings, "FISH");
+    lw_resultelementbuffer_add (&meanings, "FISH");
+
+    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_WORD, &words);
+    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_READING, &readings);
+    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_DEFINITION, &meanings);
 
 /*TODO
     //Declarations
@@ -153,9 +173,6 @@ lw_edictionary_parse (LwDictionary       *dictionary,
     gchar *nextnext = NULL;
     gchar *nextnextnext = NULL;
     gchar *temp = NULL;
-
-    if (result->text != NULL) g_free (result->text); result->text = NULL;
-    result->text = ptr = g_strdup (TEXT);
 
     //Remove the final line break
     if ((temp = g_utf8_strchr (result->text, -1, '\n')) != NULL)
@@ -244,6 +261,12 @@ lw_edictionary_parse (LwDictionary       *dictionary,
 
     return 1;
     */
+
+errored:
+
+    lw_resultelementbuffer_clear (&words);
+    lw_resultelementbuffer_clear (&readings);
+    lw_resultelementbuffer_clear (&meanings);
 
     return result;
 }

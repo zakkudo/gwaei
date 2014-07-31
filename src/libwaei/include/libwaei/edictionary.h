@@ -9,6 +9,10 @@ typedef struct _LwEDictionary LwEDictionary;
 typedef struct _LwEDictionaryClass LwEDictionaryClass;
 typedef struct _LwEDictionaryPrivate LwEDictionaryPrivate;
 
+#define LW_EDICTIONARY_KEY_WORD "word"
+#define LW_EDICTIONARY_KEY_READING "reading"
+#define LW_EDICTIONARY_KEY_DEFINITION "definition"
+
 #define LW_TYPE_EDICTIONARY              (lw_edictionary_get_type())
 #define LW_EDICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_EDICTIONARY, LwEDictionary))
 #define LW_EDICTIONARY_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_EDICTIONARY, LwEDictionaryClass))
