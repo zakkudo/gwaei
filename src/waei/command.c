@@ -546,7 +546,6 @@ w_command_run (WCommand *self)
     //User wants to uninstall a dictionary
     else if (w_command_has_dictionary_uninstall_request (self))
     {
-      printf("BREAK uninstall\n");
       resolution = w_command_uninstall_dictionary (self);
     }
 
@@ -584,7 +583,6 @@ errored:
 gint 
 w_command_uninstall_dictionary (WCommand *self)
 {
-printf("BREAK1 w_command_uninstall_dictionary\n");
     //Sanity check
     g_return_val_if_fail (W_IS_COMMAND (self), -1);
 
@@ -602,10 +600,8 @@ printf("BREAK1 w_command_uninstall_dictionary\n");
     DICTIONARY_UNINSTALL_SWITCH_TEXT = w_command_get_dictionary_uninstall_switch_text (self);
     dictionary = w_application_fuzzy_find_dictionary (application, DICTIONARY_UNINSTALL_SWITCH_TEXT);
 
-printf("BREAK2 w_command_uninstall_dictionary\n");
     if (dictionary != NULL)
     {
-printf("BREAK3 w_command_uninstall_dictionary\n");
       LwProgress *progress = lw_dictionary_get_progress (dictionary);
       w_command_watch_progress (self, progress);
       lw_dictionary_uninstall (dictionary);
@@ -618,7 +614,6 @@ printf("BREAK3 w_command_uninstall_dictionary\n");
     }
     else
     {
-printf("BREAK4 w_command_uninstall_dictionary\n");
       w_command_print (self, "\n\"%s\" Dictionary was not found!\n\n", DICTIONARY_UNINSTALL_SWITCH_TEXT);
       w_command_print_available_dictionaries (self);
     }
@@ -1079,9 +1074,6 @@ w_command_search (WCommand *self)
     if (query_switch_text == NULL) goto errored;
     flags = lw_search_build_flags_from_preferences (preferences);
 
-    search = lw_search_new_by_preferences (query_switch_text, dictionary, preferences);
-    if (search == NULL) goto errored;
-
     if (w_command_get_quiet_switch (self)) 
     {
       //flags &= ~LW_SEARCH_FLAG_INSENSITIVE;
@@ -1095,51 +1087,32 @@ w_command_search (WCommand *self)
       fprintf (stderr, gettext("\"%s\" Dictionary was not found!\n"), dictionary_switch_text);
       return resolution;
     }
-/*TODO
 
-    search = lw_search_new (dictionary, w_application_get_morphologyengine (self), query_switch_text, flags);
-    searchiterator = lw_searchiterator_new (search, "raw");
-
-    if (search == NULL)
-    {
-      resolution = 1;
-      return resolution;
-    }
+    search = lw_search_new_by_preferences (query_switch_text, dictionary, preferences);
+    if (search == NULL) goto errored;
 
     //Print the search intro
-    if (!quiet_switch)
+    if (!w_command_get_quiet_switch (self))
     {
       // TRANSLATORS: 'Searching for "${query}" in ${dictionary long name}'
       printf(gettext("Searching for \"%s\" in %s Dictionary...\n"), query_switch_text, lw_dictionary_get_name (dictionary));
     }
 
     loop = g_main_loop_new (NULL, FALSE); 
-    sdata = w_searchdata_new (loop, self);
-    lw_search_set_data (search, sdata, LW_SEARCH_DATA_FREE_FUNC (w_searchdata_free));
 
     //Print the results
-    lw_search_start (search, progress, FALSE);
-
-    g_timeout_add_full (
-        G_PRIORITY_LOW,
-        100,
-        (GSourceFunc) w_command_append_result_timeout,
-        searchiterator,
-        NULL
-    );
+    lw_search_start_async (search);
 
     g_main_loop_run (loop);
 
     //Print final header
-    if (quiet_switch == FALSE)
+    if (!w_command_get_quiet_switch (self))
     {
-      total_results = lw_searchiterator_count (searchiterator);
-      message_total = ngettext("Found %d result", "Found %d results", total_results);
-      printf(message_total, total_results);
-
-      printf("\n");
+      /*
+      message_total = ngettext("Found %d result", "Found %d results\n", total_results);
+      w_command_print(self, message_total, total_results);
+      */
     }
-*/
 
 errored:
 

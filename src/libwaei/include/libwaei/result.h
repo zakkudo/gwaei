@@ -4,23 +4,32 @@
 G_BEGIN_DECLS
 
 struct _LwResult {
+  gchar *text;
+  gint length;
+  gchar *buffer;
+  gchar *buffer_end;
   GHashTable *data;
-  GList *lexicon;
-  gboolean common;
 };
 
 typedef struct _LwResult LwResult;
 #define LW_RESULT(obj) (LwResult*)obj
 
 //Methods
-LwResult* lw_result_new (void);
+LwResult* lw_result_new (const gchar *TEXT);
 void lw_result_free (LwResult *self);
 
-void lw_result_take_data (LwResult *self, const gchar *KEY, GList *data);
-GList* lw_result_get_data (LwResult *self, const gchar *KEY);
+//Methods
+gchar const * lw_result_get_text (LwResult *self);
 
-void lw_result_take_lexicon (LwResult *self, GList *lexicon);
-GList* lw_result_get_lexicon (LwResult *self);
+gchar * lw_result_get_buffer (LwResult *self);
+gboolean lw_result_buffer_owns_text (LwResult *self, const gchar *TEXT);
+gboolean lw_result_buffer_owns_strv (LwResult *self, gchar **TEXT);
+
+void lw_result_take (LwResult *self, gchar const *KEY, gchar const * parsed_text);
+void lw_result_take_strv (LwResult *self, gchar const *KEY, gchar const * * parsed_strv);
+
+gchar const * lw_result_get (LwResult *self, gchar const *KEY);
+gchar * const * lw_result_get_strv (LwResult *self, gchar const *KEY);
 
 G_END_DECLS
 

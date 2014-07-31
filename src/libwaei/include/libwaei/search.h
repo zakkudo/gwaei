@@ -68,6 +68,12 @@ LwSearch* lw_search_new (const gchar *QUERY, LwDictionary *dictionary, LwSearchF
 LwSearch* lw_search_new_by_preferences (const gchar *QUERY, LwDictionary  *dictionary, LwPreferences *preferences);
 GType lw_search_get_type (void) G_GNUC_CONST;
 
+
+void lw_search_start (LwSearch *self);
+void lw_search_start_async (LwSearch *self);
+
+//Properties
+
 void lw_search_set_dictionary (LwSearch *self, LwDictionary *dictionary);
 LwDictionary* lw_search_get_dictionary (LwSearch *self);
 

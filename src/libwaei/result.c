@@ -37,78 +37,195 @@
 #include <libwaei/gettext.h>
 
 
-static void
-_free_list (GList *list)
-{
-  g_list_free_full (list, g_free);
-}
-
-
 LwResult*
-lw_result_new ()
+lw_result_new (const gchar *TEXT)
 {
+    //Sanity checks
+    g_return_val_if_fail (TEXT != NULL, NULL);
+
     //Declarations
     LwResult *self = NULL;
 
     //Initializations
     self = g_new0 (LwResult, 1);
 
-    self->data = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) _free_list);
-    self->lexicon = NULL;
+    self->data = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify) g_free);
+    self->text = g_strdup (TEXT);
+    self->length = strlen(TEXT);
+    self->buffer = g_strdup (TEXT);
+    self->buffer_end = self->buffer + self->length;
+
+    return self;
 }
 
 
 void
 lw_result_free (LwResult *self)
 {
-    if (self->data != NULL) g_hash_table_unref (self->data); self->data = NULL;
-    if (self->lexicon != NULL) _free_list (self->lexicon); self->lexicon = NULL;
-    g_free (self); self = NULL;
+    //Sanity checks
+    if (self == NULL) return;
+
+    g_free (self->text);
+    g_free (self->buffer);
+    g_hash_table_unref (self->data); 
+
+    memset(self, 0, sizeof(LwResult));
+
+    g_free (self); 
+}
+
+
+gchar const *
+lw_result_get_text (LwResult *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+
+    return self->text;
+}
+
+
+gchar *
+lw_result_get_buffer (LwResult *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+
+    return self->buffer;
+}
+
+
+gboolean
+lw_result_buffer_owns_text (LwResult    *self,
+                            const gchar *TEXT)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (TEXT != NULL, FALSE);
+
+    //Declarations
+    gboolean buffer_owns_text = NULL;
+
+    //Initializations
+    buffer_owns_text = (TEXT >= self->buffer && TEXT <= self->buffer_end);
+
+    return buffer_owns_text;
+}
+
+
+gboolean
+lw_result_buffer_owns_strv (LwResult  *self,
+                            gchar    **TEXT)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (TEXT != NULL, FALSE);
+
+    //Declarations
+    gint i = 0;
+    gboolean buffer_owns_strv = TRUE;
+
+    for (i = 0; TEXT[i] != NULL && buffer_owns_strv; i++)
+    {
+      buffer_owns_strv = lw_result_buffer_owns_text (self, TEXT[i]);
+    }
+
+    return buffer_owns_strv;
 }
 
 
 void
-lw_result_take_data (LwResult    *self,
-                     const gchar *KEY,
-                     GList       *data)
+lw_result_take (LwResult    *self,
+                gchar const *KEY,
+                gchar const *parsed_text)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
     g_return_if_fail (KEY != NULL);
 
-    g_hash_table_insert (self->data, (gchar*) KEY, data);
+    //Declarations
+    gchar **strv = NULL;
+
+    //Initializations
+    
+    if (parsed_text == NULL)
+    {
+      g_hash_table_remove (self->data, KEY);
+    }
+    else
+    {
+      strv = g_new0 (gchar*, 2);
+      if (strv == NULL) goto errored;
+      strv[0] = (gchar*) parsed_text;
+
+      g_hash_table_insert (self->data, (gchar*) KEY, strv);
+
+      strv = NULL;
+      parsed_text = NULL;
+    }
+
+
+errored:
+
+    g_free (strv); strv = NULL;
+
+    return;
 }
 
-GList*
-lw_result_get_data (LwResult    *self,
-                    const gchar *KEY)
+
+void
+lw_result_take_strv (LwResult *self,
+                     gchar const *KEY,
+                     gchar const * * parsed_strv)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (KEY != NULL);
+    if (parsed_strv == NULL) return;
+
+    if (parsed_strv == NULL)
+    {
+      g_hash_table_remove (self->data, KEY);
+    }
+    else
+    {
+      g_hash_table_insert (self->data, (gchar*) KEY, parsed_strv);
+    }
+}
+
+
+gchar const *
+lw_result_get (LwResult *self,
+               gchar const *KEY)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (KEY != NULL, NULL);
+
+    //Declarations
+    gchar **strv = NULL;
+    gchar *value = NULL;
+
+    //Initializations
+    strv = g_hash_table_lookup (self->data, KEY);
+    if (strv == NULL) goto errored;
+    value = strv[0];
+
+errored:
+
+    return value;
+}
+
+
+gchar * const *
+lw_result_get_strv (LwResult    *self,
+                    gchar const *KEY)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
     g_return_val_if_fail (KEY != NULL, NULL);
 
     return (g_hash_table_lookup (self->data, KEY));
-}
-
-
-void
-lw_result_take_lexicon (LwResult *self,
-                        GList    *lexicon)
-{
-    //Sanity checks
-    g_return_if_fail (self != NULL);
-
-    if (self->lexicon != NULL) g_list_free_full (self->lexicon, g_free);
-    self->lexicon = lexicon;
-}
-
-GList*
-lw_result_get_lexicon (LwResult *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    return self->lexicon;
 }
 
 

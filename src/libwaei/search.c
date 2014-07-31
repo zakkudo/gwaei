@@ -438,6 +438,13 @@ lw_search_get_progress (LwSearch *self)
     //Initializations
     priv = self->priv;
 
+    if (priv->data.progress == NULL)
+    {
+      LwProgress *progress = lw_progress_new ();
+      lw_search_set_progress (self, progress);
+      progress = NULL;
+    }
+
     return priv->data.progress;
 }
 
@@ -640,21 +647,6 @@ _lw_search_get_index_flags (LwSearch *self)
     return flags;
 }
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 static gpointer 
 lw_search_stream_results_thread (LwSearch *self)
