@@ -205,6 +205,8 @@ lw_result_take_elementbuffer (LwResult              *self,
     g_return_if_fail (elementbuffer != NULL);
     if (elementbuffer->strv == NULL) return;
 
+    lw_resultelementbuffer_shrink (elementbuffer);
+
     lw_result_take_strv (self, KEY, (gchar const**) elementbuffer->strv);
 
     elementbuffer->strv = NULL;

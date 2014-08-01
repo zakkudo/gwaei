@@ -73,7 +73,11 @@ lw_resultelementbuffer_shrink (LwResultElementBuffer *self)
     g_return_if_fail (self->strv != NULL);
     g_return_if_fail (self->length < 1);
 
-    self->strv = g_realloc_n (self->strv, (self->index + 1), sizeof(gchar*));
+    if (self->index < self->length)
+    {
+      self->strv = g_realloc_n (self->strv, (self->index + 1), sizeof(gchar*));
+      self->length = self->index;
+    }
 }
 
 

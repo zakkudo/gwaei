@@ -130,6 +130,191 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
 }
 
 
+static gchar*
+_load_word (gchar                 *beginning,
+            LwResultElementBuffer *buffer)
+{
+    //An example line
+    //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+    //＾
+    //HERE
+
+    //Declarations
+    gchar *c = NULL;
+
+    //Initializations
+    c = beginning;
+    if (c == NULL || c == '\0') return NULL;
+
+    lw_resultelementbuffer_add (buffer, c);
+    while (*c != ' ' && *c != '\0') c = g_utf8_next_char (c);
+    if (*c == '\0') return NULL;
+
+    *c = '\0';
+    c++;
+
+    return c;
+}
+
+
+static gchar*
+_load_readings (gchar                 *beginning,
+                LwResultElementBuffer *buffer)
+{
+    //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+    //     ^
+    //     HERE
+
+    //Declarations
+    gchar *c = NULL;
+
+    //Initializations
+    c = beginning;
+    if (c == NULL || c == '\0') return NULL;
+
+    while (*c != '\0' && *c != '/' && *c != '[') c = g_utf8_next_char (c);
+    if (*c == '/') return beginning; //There was no reading section
+    if (*c == '\0') return NULL;
+
+    c = g_utf8_next_char (c);
+    if (*c == '\0') return NULL;
+
+    {
+      gchar *e = c;
+      while (*e != '\0' && *e != ']') e = g_utf8_next_char (e);
+      if (*e == '\0') return NULL;
+      if (e - c > 1) lw_resultelementbuffer_add (buffer, c);
+      c = e;
+    }
+
+    if (*c == ']')
+    {
+      *c = '\0';
+      c++;
+    }
+
+    if (*c == '\0') c = NULL;
+    
+    return c;
+}
+
+
+static gchar*
+_load_classifications (gchar                 *beginning,
+                       LwResultElementBuffer *buffer)
+{
+    //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+    //                ^
+    //                HERE
+
+    //Declarations
+    gchar *c = NULL;
+
+    //Initializations
+    c = beginning;
+    if (c == NULL || c == '\0') return NULL;
+
+    while (*c != '\0' && *c != '(' && *c != '/') c = g_utf8_next_char (c);
+    if (*c == '/') while (*c != '\0' && *c != '(' && *c != '/') c = g_utf8_next_char (c);
+
+    if (*c == '/') return beginning;
+    else if (*c == '\0') return NULL;
+
+    if (*c == '(') c = g_utf8_next_char (c);
+    if (*c == '\0') return NULL;
+    if (*c == ')') return beginning;
+
+    {
+      gchar *e = c;
+      while (*e != ')' && *e != '(' && *e != '/' && *e != '\0' && !g_ascii_isdigit (*c)) e = g_utf8_next_char (c);
+      if (*e == '/' || *e == '(' || g_ascii_isdigit (*e)) return beginning;
+      if (*e == '\0') return NULL;
+      if (*e == ')' && e - c > 1) lw_resultelementbuffer_add (buffer, c);
+      c = e;
+    }
+
+    if (*c == ')') *c = '\0';
+    c = g_utf8_next_char (c);
+
+    if (c == '\0') return NULL;
+
+    return c;
+}
+
+
+static gchar*
+_load_definitions (gchar                 *beginning,
+                   LwResultElementBuffer *buffer)
+{
+    //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+    //                     ^
+    //                     HERE
+
+    //Declarations
+    gchar *c = NULL;
+
+    //Initializations
+    c = beginning;
+    if (c == NULL || c == '\0') return NULL;
+
+    while (*c != '\0')
+    {
+      while (*c != '\0' && (*c == '/' || (*c == '(' && g_ascii_isdigit (*(c + 1))) || *c == ')' || g_ascii_isdigit (*c))) c = g_utf8_next_char (c);
+
+      {
+        gchar *e = c;
+        if (*c == '\0') return NULL;
+        while (*e != '\0' && *e != '/') e = g_utf8_next_char (e);
+        if (*e == '\0') return NULL;
+        if (e - c == 3 && strncmp("(P)", c, 3) == 0) return c; 
+        if (e - c > 1) lw_resultelementbuffer_add (buffer, c);
+        c = e;
+
+        *c = '\0';
+        *c++;
+        if (*c == '\0') return NULL;
+      }
+    }
+
+    return c;
+
+errored:
+
+    return NULL;
+}
+
+
+static gchar*
+_load_popularity (gchar                 *beginning,
+                  LwResultElementBuffer *buffer)
+{
+    //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+    //                                                                                             ^
+    //                                                                                             HERE
+
+    //Declarations
+    gchar *c = NULL;
+
+    //Initializations
+    c = beginning;
+    if (c == NULL || c == '\0') return NULL;
+
+    while (*c != '\0' && *c == '/') c = g_utf8_next_char (c);
+    if (*c == '\0') return NULL;
+
+    if (strncpy("(P)", c, 3) == 0) lw_resultelementbuffer_add (buffer, gettext("Popular"));
+
+    c += 3;
+    if (*c == '\0') return NULL;
+
+    *c = '\0';
+    c++;
+    if (*c == '\0') return NULL;
+
+    return c;
+}
+
+
 //!
 //! @brief, Retrieve a line from FILE, parse it according to the LwEDictionary rules and put the results into the LwResult
 //!
@@ -146,7 +331,9 @@ lw_edictionary_parse (LwDictionary       *dictionary,
     gchar *buffer = NULL;
     LwResultElementBuffer words = {0};
     LwResultElementBuffer readings = {0};
-    LwResultElementBuffer meanings = {0};
+    LwResultElementBuffer definitions = {0};
+    LwResultElementBuffer classifications = {0};
+    LwResultElementBuffer popular = {0};
 
     //Initializations
     result = lw_result_new (TEXT);
@@ -156,117 +343,69 @@ lw_edictionary_parse (LwDictionary       *dictionary,
 
     lw_result_init_elementbuffer (result, &words);
     lw_result_init_elementbuffer (result, &readings);
-    lw_result_init_elementbuffer (result, &meanings);
+    lw_result_init_elementbuffer (result, &definitions);
+    lw_result_init_elementbuffer (result, &classifications);
+    lw_result_init_elementbuffer (result, &popular);
 
-    lw_resultelementbuffer_add (&words, "FISH");
-    lw_resultelementbuffer_add (&readings, "FISH");
-    lw_resultelementbuffer_add (&meanings, "FISH");
+    {
+      gchar *ptr = buffer;
+      if (ptr == NULL || *ptr == '\0') goto errored;
+
+      //An example line
+      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+      //＾
+      //HERE
+
+      ptr = _load_word (ptr, &words);
+      if (ptr == NULL) goto errored;
+
+      //An example line
+      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+      //     ^
+      //     HERE
+
+      ptr = _load_readings (ptr, &readings);
+      if (ptr == NULL) goto errored;
+
+      //An example line
+      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+      //                ^
+      //                HERE
+
+      ptr = _load_classifications (ptr, &readings);
+      if (ptr == NULL) goto errored;
+
+      //An example line
+      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+      //                     ^
+      //                     HERE
+
+      ptr = _load_definitions (ptr, &definitions);
+      if (ptr == NULL) goto errored;
+
+      //An example line
+      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+      //                                                                                             ^
+      //                                                                                             HERE
+
+      ptr = _load_popularity (ptr, &popular);
+      if (ptr == NULL) goto errored;
+
+    }
 
     lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_WORD, &words);
     lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_READING, &readings);
-    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_DEFINITION, &meanings);
-
-/*TODO
-    //Declarations
-    gchar *ptr = NULL;
-    gchar *next = NULL;
-    gchar *nextnext = NULL;
-    gchar *nextnextnext = NULL;
-    gchar *temp = NULL;
-
-    //Remove the final line break
-    if ((temp = g_utf8_strchr (result->text, -1, '\n')) != NULL)
-    {
-        temp--;
-        *temp = '\0';
-    }
-
-    //Set the kanji pointers
-    result->kanji_start = ptr;
-    ptr = g_utf8_strchr (ptr, -1, L' ');
-    *ptr = '\0';
-
-    //Set the furigana pointer
-    ptr++;
-    if (g_utf8_get_char(ptr) == L'[' && g_utf8_strchr (ptr, -1, L']') != NULL)
-    {
-      ptr = g_utf8_next_char(ptr);
-      result->furigana_start = ptr;
-      ptr = g_utf8_strchr (ptr, -1, L']');
-      *ptr = '\0';
-    }
-    else
-    {
-      result->furigana_start = NULL;
-      ptr--;
-    }
-
-    //Find if there is a type description classification
-    temp = ptr;
-    temp++;
-    temp = g_utf8_strchr (temp, -1, L'/');
-    if (temp != NULL && g_utf8_get_char(temp + 1) == L'(')
-    {
-      result->classification_start = temp + 2;
-      temp = g_utf8_strchr (temp, -1, L')');
-      *temp = '\0';
-      ptr = temp;
-    }
-
-    //Set the definition pointers
-    ptr++;
-    ptr = g_utf8_next_char(ptr);
-    result->def_start[0] = ptr;
-    result->number[0] = FIRST_DEFINITION_PREFIX_STR;
-    gint i = 1;
-
-    temp = ptr;
-    while ((temp = g_utf8_strchr(temp, -1, L'(')) != NULL && i < 50)
-    {
-      next = g_utf8_next_char (temp);
-      nextnext = g_utf8_next_char (next);
-      nextnextnext = g_utf8_next_char (nextnext);
-      if (*next != '\0' && *nextnext != '\0' &&
-          *next == L'1' && *nextnext == L')')
-      {
-         result->def_start[0] = result->def_start[0] + 4;
-      }
-      else if (*next != '\0' && *nextnext != '\0' && *nextnextnext != '\0' &&
-               *next >= L'1' && *next <= L'9' && (*nextnext == L')' || *nextnextnext == L')'))
-      {
-         *(temp - 1) = '\0';
-         result->number[i] = temp;
-         temp = g_utf8_strchr (temp, -1, L')');
-         *(temp + 1) = '\0';
-         result->def_start[i] = temp + 2;
-         i++;
-      }
-      temp = temp + 2;
-    }
-    result->def_total = i;
-    result->def_start[i] = NULL;
-    result->number[i] = NULL;
-    i--;
-
-    //Get the importance
-    //temp = result->def_start[i] + strlen(result->def_start[i]) - 4;
-    if ((temp = g_utf8_strrchr (result->def_start[i], -1, L'(')) != NULL)
-    {
-      result->important = (*temp == '(' && *(temp + 1) == 'P' && *(temp + 2) == ')');
-      if (result->important) 
-      {
-        *(temp - 1) = '\0';
-      }
-    }
-
-    return 1;
-    */
+    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_DEFINITION, &definitions);
+    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_CLASSIFICATION, &classifications);
+    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_POPULAR, &popular);
 
 errored:
 
     lw_resultelementbuffer_clear (&words);
     lw_resultelementbuffer_clear (&readings);
-    lw_resultelementbuffer_clear (&meanings);
+    lw_resultelementbuffer_clear (&definitions);
+    lw_resultelementbuffer_clear (&classifications);
+    lw_resultelementbuffer_clear (&popular);
 
     return result;
 }
