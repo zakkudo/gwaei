@@ -86,7 +86,7 @@ lw_result_get_text (LwResult *self)
 
 
 gchar *
-lw_result_get_buffer (LwResult *self)
+lw_result_get_innerbuffer (LwResult *self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
@@ -96,8 +96,8 @@ lw_result_get_buffer (LwResult *self)
 
 
 gboolean
-lw_result_buffer_owns_text (LwResult    *self,
-                            const gchar *TEXT)
+lw_result_innerbuffer_owns_text (LwResult    *self,
+                                 const gchar *TEXT)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
@@ -114,8 +114,8 @@ lw_result_buffer_owns_text (LwResult    *self,
 
 
 gboolean
-lw_result_buffer_owns_strv (LwResult  *self,
-                            gchar    **TEXT)
+lw_result_innerbuffer_owns_strv (LwResult  *self,
+                                 gchar    **TEXT)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
@@ -127,7 +127,7 @@ lw_result_buffer_owns_strv (LwResult  *self,
 
     for (i = 0; TEXT[i] != NULL && buffer_owns_strv; i++)
     {
-      buffer_owns_strv = lw_result_buffer_owns_text (self, TEXT[i]);
+      buffer_owns_strv = lw_result_innerbuffer_owns_text (self, TEXT[i]);
     }
 
     return buffer_owns_strv;
@@ -195,22 +195,22 @@ lw_result_take_strv (LwResult *self,
 
 
 void
-lw_result_take_elementbuffer (LwResult              *self,
+lw_result_take_buffer (LwResult              *self,
                               const gchar           *KEY,
-                              LwResultElementBuffer *elementbuffer)
+                              LwResultBuffer *buffer)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
     g_return_if_fail (KEY != NULL);
-    g_return_if_fail (elementbuffer != NULL);
-    if (elementbuffer->strv == NULL) return;
+    g_return_if_fail (buffer != NULL);
+    if (buffer->strv == NULL) return;
 
-    lw_resultelementbuffer_shrink (elementbuffer);
+    lw_resultbuffer_collapse (buffer);
 
-    lw_result_take_strv (self, KEY, (gchar const**) elementbuffer->strv);
+    lw_result_take_strv (self, KEY, (gchar const**) buffer->strv);
 
-    elementbuffer->strv = NULL;
-    lw_resultelementbuffer_clear (elementbuffer);
+    buffer->strv = NULL;
+    lw_resultbuffer_clear (buffer, TRUE);
 }
 
 
@@ -250,14 +250,14 @@ lw_result_get_strv (LwResult    *self,
 
 
 void
-lw_result_init_elementbuffer (LwResult              *self,
-                              LwResultElementBuffer *elementbuffer)
+lw_result_init_buffer (LwResult              *self,
+                              LwResultBuffer *buffer)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
-    g_return_if_fail (elementbuffer != NULL);
+    g_return_if_fail (buffer != NULL);
 
-    lw_resultelementbuffer_init (elementbuffer, self->length);
+    lw_resultbuffer_init (buffer, self->length);
 }
 
 

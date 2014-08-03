@@ -116,6 +116,76 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
 }
 
 
+gboolean
+_is_stroke_number (const gchar *c)
+{
+  return (*c == 'S' && g_ascii_isdigit(*(c + 1)));
+}
+
+
+static gchar**
+_tokenize (LwResult *result, gint *length)
+{
+    //Sanity checks
+    g_return_val_if_fail (result != NULL, NULL);
+
+    //逢 3029 U9022 B162 G9 S10 F2116 N4694 V6054 DP4002 DL2774 L2417 DN2497 O1516 MN38901X MP11.0075 P3-3-7 I2q7.15 Q3730.4 DR2555 ZRP3-4-7 Yfeng2 Wbong ホウ あ.う T1 おう {meeting}  
+
+    //Declarations
+    LwResultBuffer buffer = {0};
+    gchar *c = NULL;
+    gchar *e = NULL;
+
+    //Initializations
+    lw_result_init_buffer (result, &buffer);
+    c = lw_result_get_innerbuffer (result);
+    if (c == NULL) goto errored;
+
+    while (*c != '\0')
+    {
+      while (*c != '\0' && g_ascii_isspace (*c)) c = g_utf8_next_char (c); //Find the next token start
+      if (*c == '\0') break;
+
+      if (*c == '{') //Tokens can be multiple words long between {}
+      {
+        while (*c != '\0' && *c == '{') c = g_utf8_next_char (c);
+        if (*c == '\0') break;
+
+        e = c;
+        {
+          while (*e != '\0' && *e != '}') e = g_utf8_next_char (e); //Make sure the end of the token exists }
+          if (*e == '\0') break;
+    
+          if (e - c > 1) lw_resultbuffer_add (&buffer, c);
+        }
+        c = lw_utf8_set_null_next_char (e);
+        if (*c == '\0') break;
+      }
+      else //Every space denotes a token
+      {
+        e = c;
+        {
+          while (*e != '\0' && !g_ascii_isspace (*e)) e = g_utf8_next_char (e);
+
+          if (e - c > 1) lw_resultbuffer_add (&buffer, c);
+        }
+        c = lw_utf8_set_null_next_char (e);
+        if (*c == '\0') break;
+      }
+    }
+
+    if (length != NULL)
+    {
+      *length = lw_resultbuffer_length (&buffer);
+    }
+
+errored:
+
+    return lw_resultbuffer_clear (&buffer, FALSE);
+}
+
+
+
 //!
 //! @brief, Retrieve a line from FILE, parse it according to the LwKanjiDictionary rules and put the results into the LwResult
 //!
@@ -124,141 +194,158 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
                           const gchar        *TEXT)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
+    g_return_val_if_fail (dictionary != NULL, NULL);
     if (TEXT == NULL) return NULL;
 
     //Declarations
     LwResult *result = NULL;
+    gchar **tokens = NULL;
+    gint length = -1;
+    LwResultBuffer kanji = {0};
+    LwResultBuffer unicode_symbol = {0};
+    LwResultBuffer usage_frequency = {0};
+    LwResultBuffer stroke_count = {0};
+    LwResultBuffer grade_level = {0};
+    LwResultBuffer jlpt_level = {0};
+    LwResultBuffer kun_readings = {0};
+    LwResultBuffer on_readings = {0};
+    LwResultBuffer meanings = {0};
 
+    //Initializations
+    result = lw_result_new (TEXT);
+    if (result == NULL) goto errored;
+    tokens = _tokenize (result,  &length);
+    if (tokens == NULL) goto errored;
+
+    lw_result_init_buffer (result, &kanji);
+    lw_result_init_buffer (result, &unicode_symbol);
+    lw_result_init_buffer (result, &usage_frequency);
+    lw_result_init_buffer (result, &stroke_count);
+    lw_result_init_buffer (result, &grade_level);
+    lw_result_init_buffer (result, &jlpt_level);
+    lw_result_init_buffer (result, &kun_readings);
+    lw_result_init_buffer (result, &on_readings);
+    lw_result_init_buffer (result, &meanings);
+
+    { //Calculate the meanings now to make things easier on the forward iteration...
+      gint i = length - 1;
+
+      //An example line
+      //逢 3029 U9022 B162 G9 S10  Yfeng2 Wbong ホウ あ.う T1 おう {meeting}  
+      //                                                           ^
+      //                                                           HERE
+
+      do
+      {
+        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        if (script == G_UNICODE_SCRIPT_KATAKANA || script == G_UNICODE_SCRIPT_HIRAGANA) break;
+
+        if (tokens[i] != NULL) lw_resultbuffer_add (&meanings, tokens[i]);
+        i--;
+      } while (i > 0);
+      
+      length = i + 1;
+    }
+
+    {
+      gint i = 0;
+
+
+      //An example line
+      //逢 3029 U9022 B162 G9 S10  Yfeng2 Wbong ホウ あ.う T1 おう [THIS SECTION IS NOW INVISIBLE]
+      //^
+      //HERE
+
+      if (tokens[i] != NULL && i < length) 
+      {
+        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        if (script == G_UNICODE_SCRIPT_HAN)
+        {
+          lw_resultbuffer_add (&kanji, tokens[i]);
+          i++;
+        }
+      }
+
+      //An example line
+      //逢 3029 U9022 B162 G9 S10  Yfeng2 Wbong ホウ あ.う T1 おう [THIS SECTION IS NOW INVISIBLE]
+      //   ^                                    ^
+      //   HERE                                 END
+
+      while (tokens[i] != NULL && i < length) 
+      {
+        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        if (script == G_UNICODE_SCRIPT_KATAKANA || script == G_UNICODE_SCRIPT_HIRAGANA) break;
 /*TODO
-    //Declarations
-    GMatchInfo* match_info = NULL;
-    gint start[LW_RE_TOTAL];
-    gint end[LW_RE_TOTAL];
-    GUnicodeScript script;
-    if (result->text != NULL) g_free (result->text);
-    gchar *ptr = result->text = g_strdup (TEXT);
-
-    //First generate the grade, stroke, frequency, and jlpt fields
-
-    //Get strokes
-    result->strokes = NULL;
-    g_regex_match (lw_re[LW_RE_STROKES], ptr, 0, &match_info);
-    if (g_match_info_matches (match_info))
-    {
-      g_match_info_fetch_pos (match_info, 0, &start[LW_RE_STROKES], &end[LW_RE_STROKES]);
-      result->strokes = ptr + start[LW_RE_STROKES] + 1;
-    }
-    g_match_info_free (match_info);
-
-    //Get frequency
-    result->frequency = NULL;
-    g_regex_match (lw_re[LW_RE_FREQUENCY], ptr, 0, &match_info);
-    if (g_match_info_matches (match_info))
-    {
-      g_match_info_fetch_pos (match_info, 0, &start[LW_RE_FREQUENCY], &end[LW_RE_FREQUENCY]);
-      result->frequency = ptr + start[LW_RE_FREQUENCY] + 1;
-    }
-    g_match_info_free (match_info);
-
-
-    //Get grade level
-    result->grade = NULL;
-    g_regex_match (lw_re[LW_RE_GRADE], ptr, 0, &match_info);
-    if (g_match_info_matches (match_info))
-    {
-      g_match_info_fetch_pos (match_info, 0, &start[LW_RE_GRADE], &end[LW_RE_GRADE]);
-      result->grade = ptr + start[LW_RE_GRADE] + 1;
-    }
-    g_match_info_free (match_info);
-
-    //Get JLPT level
-    result->jlpt = NULL;
-    g_regex_match (lw_re[LW_RE_JLPT], ptr, 0, &match_info);
-    if (g_match_info_matches (match_info))
-    {
-      g_match_info_fetch_pos (match_info, 0, &start[LW_RE_JLPT], &end[LW_RE_JLPT]);
-      result->jlpt = ptr + start[LW_RE_JLPT] + 1;
-    }
-    g_match_info_free (match_info);
-
-
-    //Get the kanji character
-    result->kanji = ptr;
-    ptr = g_utf8_strchr (ptr, -1, g_utf8_get_char (" "));
-    if (ptr == NULL)
-    {
-      fprintf(stderr, "This dictionary is incorrectly formatted\n");
-      exit (1);
-    }
-    *ptr = '\0';
-    ptr++;
-
-    //Test if the radicals information is present
-    result->radicals = NULL;
-    script = g_unichar_get_script (g_utf8_get_char (ptr));
-    if (script != G_UNICODE_SCRIPT_LATIN)
-    {
-      result->radicals = ptr;
-      ptr = g_utf8_next_char (ptr);
-      script = g_unichar_get_script (g_utf8_get_char (ptr));
-      while (*ptr == ' ' || (script != G_UNICODE_SCRIPT_LATIN && script != G_UNICODE_SCRIPT_COMMON))
-      {
-        ptr = g_utf8_next_char(ptr);
-        script = g_unichar_get_script (g_utf8_get_char (ptr));
-      }
-      *(ptr - 1) = '\0';
-    }
-
-    //Go to the readings section
-    script = g_unichar_get_script (g_utf8_get_char(ptr));
-    while (script != G_UNICODE_SCRIPT_KATAKANA && script != G_UNICODE_SCRIPT_HIRAGANA && *ptr != '\0')
-    {
-      ptr = g_utf8_next_char (ptr);
-      script = g_unichar_get_script (g_utf8_get_char(ptr));
-    }
-    result->readings[0] = ptr;
-
-    //Copy the rest of the data
-    while (*ptr != '\0' && *ptr != '{')
-    {
-      //The strange T1 character between kana readings
-      if (g_utf8_get_char (ptr) == g_utf8_get_char ("T")) {
-        ptr = g_utf8_next_char (ptr);
-        if (g_utf8_get_char (ptr) == g_utf8_get_char ("1"))
+        if (_is_unicode_symbol (tokens[i]))
         {
-          *(ptr - 1) = '\0';
-          ptr = g_utf8_next_char (ptr);
-          ptr = g_utf8_next_char (ptr);
-          result->readings[1] = ptr;
+          lw_resultbuffer_add (&unicode_symbol, tokens[i]);
         }
-        else if (g_utf8_get_char (ptr) == g_utf8_get_char ("2"))
+        else if (_is_usage_frequency (tokens[i]))
         {
-          *(ptr - 1) = '\0';
-          ptr = g_utf8_next_char (ptr);
-          ptr = g_utf8_next_char (ptr);
-          result->readings[2] = ptr;
+          lw_resultbuffer_add (&usage_frequency, tokens[i]);
         }
-      }
-      else
-      {
-        ptr = g_utf8_next_char (ptr);
-      }
-    }
-    *(ptr - 1) = '\0';
-
-    result->meanings = ptr;
-
-    if ((ptr = g_utf8_strrchr (ptr, -1, g_utf8_get_char ("\n"))) != NULL)
-      *ptr = '\0';
-
-    if (result->strokes)   *(result->text + end[LW_RE_STROKES]) = '\0';
-    if (result->frequency) *(result->text + end[LW_RE_FREQUENCY]) = '\0';
-    if (result->grade)     *(result->text + end[LW_RE_GRADE]) = '\0';
-    if (result->jlpt)      *(result->text + end[LW_RE_JLPT]) = '\0';
-
-    return 1;
+        else if (_is_stroke_number (tokens[i]))
+        {
+          lw_resultbuffer_add (&stroke_number, tokens[i]);
+        }
+        else if (_is_grade_number (tokens))
+        {
+          lw_resultbuffer_add (&grade_number, tokens[i]);
+        }
+        else if (_is_jlpt_level (tokens))
+        {
+          lw_resultbuffer_add (&jlpt_level, tokens[i]);
+        }
 */
+        i++;
+      }
+
+      //An example line
+      //逢 3029 U9022 B162 G9 S10  Yfeng2 Wbong ホウ あ.う T1 おう [THIS SECTION IS NOW INVISIBLE]
+      //                                        ^          ^
+      //                                        HERE       END
+
+      while (tokens[i] != NULL && i < length) 
+      {
+        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        if (script != G_UNICODE_SCRIPT_KATAKANA && script != G_UNICODE_SCRIPT_HIRAGANA) break;
+/*TODO
+        if (_is_kun_reading (tokens[i]))
+        {
+          lw_resultbuffer_add (&kun_reading, c);
+        }
+        else if (_is_on_reading (tokens[i]))
+        {
+          lw_resultbuffer_add (&on_reading, c);
+        }
+*/
+
+        i++;
+      }
+
+    }
+
+    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_KANJI, &kanji);
+    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_UNICODE_SYMBOL, &unicode_symbol);
+    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_USAGE_FREQUENCY, &usage_frequency);
+    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_STROKE_COUNT, &stroke_count);
+    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_GRADE_LEVEL, &grade_level);
+    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_JLPT_LEVEL, &jlpt_level);
+    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_KUN_READINGS, &kun_readings);
+    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_ON_READINGS, &on_readings);
+    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_MEANINGS, &meanings);
+
+errored:
+
+    lw_resultbuffer_clear (&kanji, TRUE);
+    lw_resultbuffer_clear (&unicode_symbol, TRUE);
+    lw_resultbuffer_clear (&usage_frequency, TRUE);
+    lw_resultbuffer_clear (&stroke_count, TRUE);
+    lw_resultbuffer_clear (&grade_level, TRUE);
+    lw_resultbuffer_clear (&jlpt_level, TRUE);
+    lw_resultbuffer_clear (&kun_readings, TRUE);
+    lw_resultbuffer_clear (&on_readings, TRUE);
+    lw_resultbuffer_clear (&meanings, TRUE);
 
     return result;
 }

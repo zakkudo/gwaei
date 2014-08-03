@@ -122,11 +122,29 @@ lw_unknowndictionary_parse (LwDictionary       *dictionary,
                             const gchar        *TEXT)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
+    g_return_val_if_fail (dictionary != NULL, NULL);
     if (TEXT == NULL) return NULL;
 
     //Declarations
     LwResult *result = NULL;
+    gchar *c = NULL;
+    LwResultBuffer text = {0};
+
+    //Initializations
+    result = lw_result_new (TEXT);
+    if (result == NULL) goto errored;
+    c = lw_result_get_innerbuffer (result);
+    if (c == NULL) goto errored;
+
+    lw_result_init_buffer (result, &text);
+
+    lw_resultbuffer_add (&text, c);
+
+    lw_result_take_buffer (result, LW_UNKNOWNDICTIONARY_KEY_TEXT, &text);
+
+errored:
+
+    lw_resultbuffer_clear (&text, TRUE);
 
     return result;
 }

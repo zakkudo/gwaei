@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file resultelementbuffer.c
+//! @file resultbuffer.c
 //!
 
 #ifdef HAVE_CONFIG_H
@@ -39,13 +39,13 @@
 
 
 void
-lw_resultelementbuffer_init (LwResultElementBuffer *self,
-                             gint                   length)
+lw_resultbuffer_init (LwResultBuffer *self,
+                      gint            length)
 {
     g_return_if_fail (self != NULL);
     g_return_if_fail (length < 1);
 
-    lw_resultelementbuffer_clear (self);
+    lw_resultbuffer_clear (self, TRUE);
 
     //Initializations
     self->strv = g_new0 (gchar*, length);
@@ -54,19 +54,30 @@ lw_resultelementbuffer_init (LwResultElementBuffer *self,
 }
 
 
-void
-lw_resultelementbuffer_clear (LwResultElementBuffer *self)
+gchar**
+lw_resultbuffer_clear (LwResultBuffer *self,
+                       gboolean        free_strv)
 {
     //Sanity checks
     g_return_if_fail (self != NULL); 
 
+    gchar **strv = NULL;
+
+    if (!free_strv)
+    {
+      strv = self->strv;
+      self->strv = NULL;
+    }
+
     g_free (self->strv);
-    memset(self, 0, sizeof(LwResultElementBuffer));
+    memset(self, 0, sizeof(LwResultBuffer));
+
+    return strv;
 }
 
 
 void
-lw_resultelementbuffer_shrink (LwResultElementBuffer *self)
+lw_resultbuffer_collapse (LwResultBuffer *self)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
@@ -82,8 +93,8 @@ lw_resultelementbuffer_shrink (LwResultElementBuffer *self)
 
 
 void
-lw_resultelementbuffer_add (LwResultElementBuffer *self,
-                            gchar const           *TEXT)
+lw_resultbuffer_add (LwResultBuffer *self,
+                     gchar const    *TEXT)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
@@ -93,3 +104,12 @@ lw_resultelementbuffer_add (LwResultElementBuffer *self,
     self->strv[self->index++] = (gchar*) TEXT;
 }
 
+
+gint
+lw_resultbuffer_length (LwResultBuffer *self)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    return self->length;
+}

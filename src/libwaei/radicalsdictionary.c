@@ -118,15 +118,78 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
 //! @param rl The Resultline object this method works on
 //!
 static LwResult*
-lw_radicalsdictionary_parse (LwDictionary       *dictionary, 
-                             const gchar        *TEXT)
+lw_radicalsdictionary_parse (LwDictionary *dictionary, 
+                             const gchar  *TEXT)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
+    g_return_val_if_fail (dictionary != NULL, NULL);
     if (TEXT == NULL) return NULL;
 
     //Declarations
     LwResult *result = NULL;
+    gchar *buffer = NULL;
+    LwResultBuffer kanji = {0};
+    LwResultBuffer radicals = {0};
+
+    //Initializations
+    result = lw_result_new (TEXT);
+    if (result == NULL) goto errored;
+    buffer = lw_result_get_innerbuffer (result);
+    if (buffer == NULL) goto errored;
+
+    lw_result_init_buffer (result, &kanji);
+    lw_result_init_buffer (result, &radicals);
+
+    {
+      gchar *c = buffer;
+      if (c == NULL || *c == '\0') goto errored;
+
+      //An example line
+      //鯵 : 魚 大 田 厶 彡 杰
+      //^
+      //HERE
+
+      lw_resultbuffer_add (&kanji, c);
+      while (*c != '\0' && !g_ascii_isspace(*c) && !g_ascii_ispunct (*c)) c = g_utf8_next_char (c);
+      if (*c == '\0') goto errored;
+
+      //An example line
+      //鯵 : 魚 大 田 厶 彡 杰
+      //  ^
+      //  HERE
+
+      c = lw_utf8_set_null_next_char (c);
+
+      while (*c != '\0' && (g_ascii_isspace (*c) || g_ascii_ispunct (*c))) c = g_utf8_next_char (c); 
+      if (*c == '\0') goto errored;
+
+      //An example line
+      //鯵 : 魚 大 田 厶 彡 杰
+      //     ^
+      //     HERE
+
+      while (*c != '\0')
+      {
+        lw_resultbuffer_add (&radicals, c);
+
+        while (*c != '\0' && !g_ascii_isspace (*c) && !g_ascii_ispunct (*c)) c = g_utf8_next_char (c);
+        if (*c == '\0') goto errored;
+
+        c = lw_utf8_set_null_next_char (c);
+        if (*c == '\0') goto errored;
+
+        while (*c != '\0' && (g_ascii_isspace (*c) || g_ascii_ispunct (*c))) c = g_utf8_next_char (c); 
+        if (*c == '\0') goto errored;
+      }
+    }
+
+    lw_result_take_buffer (result, LW_RADICALSDICTIONARY_KEY_KANJI, &kanji);
+    lw_result_take_buffer (result, LW_RADICALSDICTIONARY_KEY_RADICALS, &radicals);
+
+errored:
+
+    lw_resultbuffer_clear (&kanji, TRUE);
+    lw_resultbuffer_clear (&radicals, TRUE);
 
     return result;
 }

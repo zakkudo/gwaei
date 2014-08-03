@@ -9,6 +9,9 @@ typedef struct _LwRadicalsDictionary LwRadicalsDictionary;
 typedef struct _LwRadicalsDictionaryClass LwRadicalsDictionaryClass;
 typedef struct _LwRadicalsDictionaryPrivate LwRadicalsDictionaryPrivate;
 
+#define LW_RADICALSDICTIONARY_KEY_KANJI "Kanji"
+#define LW_RADICALSDICTIONARY_KEY_RADICALS "Radicals"
+
 #define LW_TYPE_RADICALSDICTIONARY              (lw_radicalsdictionary_get_type())
 #define LW_RADICALSDICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_RADICALSDICTIONARY, LwRadicalsDictionary))
 #define LW_RADICALSDICTIONARY_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_RADICALSDICTIONARY, LwRadicalsDictionaryClass))

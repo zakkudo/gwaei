@@ -9,6 +9,10 @@ typedef struct _LwExampleDictionary LwExampleDictionary;
 typedef struct _LwExampleDictionaryClass LwExampleDictionaryClass;
 typedef struct _LwExampleDictionaryPrivate LwExampleDictionaryPrivate;
 
+#define LW_EXAMPLEDICTIONARY_KEY_PHRASE "Phrase"
+#define LW_EXAMPLEDICTIONARY_KEY_MEANING "Meaning"
+#define LW_EXAMPLEDICTIONARY_KEY_ID "ID"
+
 #define LW_TYPE_EXAMPLEDICTIONARY              (lw_exampledictionary_get_type())
 #define LW_EXAMPLEDICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_EXAMPLEDICTIONARY, LwExampleDictionary))
 #define LW_EXAMPLEDICTIONARY_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_EXAMPLEDICTIONARY, LwExampleDictionaryClass))

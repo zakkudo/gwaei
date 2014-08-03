@@ -9,6 +9,8 @@ typedef struct _LwUnknownDictionary LwUnknownDictionary;
 typedef struct _LwUnknownDictionaryClass LwUnknownDictionaryClass;
 typedef struct _LwUnknownDictionaryPrivate LwUnknownDictionaryPrivate;
 
+#define LW_UNKNOWNDICTIONARY_KEY_TEXT "Text"
+
 #define LW_TYPE_UNKNOWNDICTIONARY              (lw_unknowndictionary_get_type())
 #define LW_UNKNOWNDICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_UNKNOWNDICTIONARY, LwUnknownDictionary))
 #define LW_UNKNOWNDICTIONARY_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_UNKNOWNDICTIONARY, LwUnknownDictionaryClass))

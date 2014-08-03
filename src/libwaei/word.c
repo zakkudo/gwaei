@@ -30,6 +30,7 @@
 
 #include <locale.h>
 #include <stdlib.h>
+#include <glib.h>
 
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>

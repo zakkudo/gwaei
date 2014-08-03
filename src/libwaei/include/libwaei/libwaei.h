@@ -2,6 +2,7 @@
 #define LW_LIBWAEI_INCLUDED
 
 #include <libwaei/definitions.h>
+#include <libwaei/utf8.h>
 #include <libwaei/regex.h>
 #include <libwaei/progress.h>
 #include <libwaei/io.h>

@@ -9,6 +9,17 @@ typedef struct _LwKanjiDictionary LwKanjiDictionary;
 typedef struct _LwKanjiDictionaryClass LwKanjiDictionaryClass;
 typedef struct _LwKanjiDictionaryPrivate LwKanjiDictionaryPrivate;
 
+
+#define LW_KANJIDICTIONARY_KEY_KANJI "Kanji"
+#define LW_KANJIDICTIONARY_KEY_UNICODE_SYMBOL "Unicode Symbol"
+#define LW_KANJIDICTIONARY_KEY_USAGE_FREQUENCY "Usage Frequency"
+#define LW_KANJIDICTIONARY_KEY_STROKE_COUNT "Stroke Level"
+#define LW_KANJIDICTIONARY_KEY_GRADE_LEVEL "Grade Level"
+#define LW_KANJIDICTIONARY_KEY_JLPT_LEVEL "JLPT Level"
+#define LW_KANJIDICTIONARY_KEY_KUN_READINGS "Kun Reading"
+#define LW_KANJIDICTIONARY_KEY_ON_READINGS "On Reading"
+#define LW_KANJIDICTIONARY_KEY_MEANINGS "Meanings"
+
 #define LW_TYPE_KANJIDICTIONARY              (lw_kanjidictionary_get_type())
 #define LW_KANJIDICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_KANJIDICTIONARY, LwKanjiDictionary))
 #define LW_KANJIDICTIONARY_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_KANJIDICTIONARY, LwKanjiDictionaryClass))

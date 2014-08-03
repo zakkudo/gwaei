@@ -130,188 +130,115 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
 }
 
 
-static gchar*
-_load_word (gchar                 *beginning,
-            LwResultElementBuffer *buffer)
+static gchar**
+_tokenize (LwResult *result,
+           gint     *length)
 {
-    //An example line
-    //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
-    //＾
-    //HERE
+    //Sanity checks
+    g_return_val_if_fail (result != NULL, NULL);
 
     //Declarations
     gchar *c = NULL;
+    LwResultBuffer buffer = {0};
 
     //Initializations
-    c = beginning;
-    if (c == NULL || c == '\0') return NULL;
+    c = lw_result_get_innerbuffer (result);
+    lw_result_init_buffer (result, &buffer);
 
-    lw_resultelementbuffer_add (buffer, c);
-    while (*c != ' ' && *c != '\0') c = g_utf8_next_char (c);
-    if (*c == '\0') return NULL;
+    while (*c != '\0' && g_ascii_isspace (*c)) c = g_utf8_next_char (c);
+    if (*c == '\0') goto errored;
 
-    *c = '\0';
-    c++;
+    //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
+    //^
+    //HERE
 
-    return c;
-}
+    lw_resultbuffer_add (&buffer, c);
 
+    while (*c != '\0' && g_ascii_isspace (*c)) c = g_utf8_next_char (c);
+    c = lw_utf8_set_null_next_char (c);
+    if (*c == '\0') goto errored;
 
-static gchar*
-_load_readings (gchar                 *beginning,
-                LwResultElementBuffer *buffer)
-{
     //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
     //     ^
     //     HERE
 
-    //Declarations
-    gchar *c = NULL;
-
-    //Initializations
-    c = beginning;
-    if (c == NULL || c == '\0') return NULL;
-
-    while (*c != '\0' && *c != '/' && *c != '[') c = g_utf8_next_char (c);
-    if (*c == '/') return beginning; //There was no reading section
-    if (*c == '\0') return NULL;
-
-    c = g_utf8_next_char (c);
-    if (*c == '\0') return NULL;
-
+    if (*c == '[')
     {
-      gchar *e = c;
-      while (*e != '\0' && *e != ']') e = g_utf8_next_char (e);
-      if (*e == '\0') return NULL;
-      if (e - c > 1) lw_resultelementbuffer_add (buffer, c);
-      c = e;
+      gchar* e = c;
+      while (*e !='\0' && *e !=']' && *e != '/') e = g_utf8_next_char (e);
+      if (*e == '\0') goto errored;
+
+      if (*e == ']' && e - c > 1)
+      {
+        lw_resultbuffer_add (&buffer, c);
+        c = lw_utf8_set_null_next_char (e);
+      }
+      else
+      {
+        c = e;
+      }
+      while (*c != '\0' && !g_ascii_isspace (*c)) c = g_utf8_next_char (c);
+      if (*c == '\0') goto errored;
     }
 
-    if (*c == ']')
-    {
-      *c = '\0';
-      c++;
-    }
-
-    if (*c == '\0') c = NULL;
-    
-    return c;
-}
-
-
-static gchar*
-_load_classifications (gchar                 *beginning,
-                       LwResultElementBuffer *buffer)
-{
     //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
     //                ^
     //                HERE
 
-    //Declarations
-    gchar *c = NULL;
+    while (*c != '\0' && *c != '/') c = g_utf8_next_char (c);
+    if (*c == '\0') goto errored;
 
-    //Initializations
-    c = beginning;
-    if (c == NULL || c == '\0') return NULL;
-
-    while (*c != '\0' && *c != '(' && *c != '/') c = g_utf8_next_char (c);
-    if (*c == '/') while (*c != '\0' && *c != '(' && *c != '/') c = g_utf8_next_char (c);
-
-    if (*c == '/') return beginning;
-    else if (*c == '\0') return NULL;
-
-    if (*c == '(') c = g_utf8_next_char (c);
-    if (*c == '\0') return NULL;
-    if (*c == ')') return beginning;
+    c = g_utf8_next_char (c);
+    if (*c == '\0' || *c != '(') goto errored;
+    
+    c = g_utf8_next_char (c);
+    if (*c == '\0') goto errored;
 
     {
       gchar *e = c;
-      while (*e != ')' && *e != '(' && *e != '/' && *e != '\0' && !g_ascii_isdigit (*c)) e = g_utf8_next_char (c);
-      if (*e == '/' || *e == '(' || g_ascii_isdigit (*e)) return beginning;
-      if (*e == '\0') return NULL;
-      if (*e == ')' && e - c > 1) lw_resultelementbuffer_add (buffer, c);
-      c = e;
+      while (*e != '\0' && *e != ')') e = g_utf8_next_char (e);
+      if (*e == '\0') goto errored;
+
+      if (e - c > 1) lw_resultbuffer_add (&buffer, c);
+
+      c = lw_utf8_set_null_next_char (e);
     }
 
-    if (*c == ')') *c = '\0';
-    c = g_utf8_next_char (c);
-
-    if (c == '\0') return NULL;
-
-    return c;
-}
-
-
-static gchar*
-_load_definitions (gchar                 *beginning,
-                   LwResultElementBuffer *buffer)
-{
     //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
     //                     ^
     //                     HERE
 
-    //Declarations
-    gchar *c = NULL;
-
-    //Initializations
-    c = beginning;
-    if (c == NULL || c == '\0') return NULL;
-
     while (*c != '\0')
     {
-      while (*c != '\0' && (*c == '/' || (*c == '(' && g_ascii_isdigit (*(c + 1))) || *c == ')' || g_ascii_isdigit (*c))) c = g_utf8_next_char (c);
+      while (*c != '\0' && g_ascii_isspace (*c)) c = g_utf8_next_char (c);
+
+      //Skip over the digit portion
+      if (*c == '(' && g_ascii_isdigit(*(c + 1)))
+      {
+        c = g_utf8_next_char (c);
+        while (*c != '\0' && (*c == ')' || g_ascii_isdigit(*c) || g_ascii_isspace(*c))) c = g_utf8_next_char (c);
+        if (*c == '\0') goto errored;;
+      }
 
       {
         gchar *e = c;
-        if (*c == '\0') return NULL;
         while (*e != '\0' && *e != '/') e = g_utf8_next_char (e);
-        if (*e == '\0') return NULL;
-        if (e - c == 3 && strncmp("(P)", c, 3) == 0) return c; 
-        if (e - c > 1) lw_resultelementbuffer_add (buffer, c);
-        c = e;
+        if (*e == '\0') goto errored;;
 
-        *c = '\0';
-        *c++;
-        if (*c == '\0') return NULL;
+        if (e - c > 1) lw_resultbuffer_add (&buffer, c);
+
+        c = lw_utf8_set_null_next_char (e);
       }
     }
 
-    return c;
-
 errored:
 
-    return NULL;
-}
+    if (length != NULL)
+    {
+      *length = lw_resultbuffer_length (&buffer);
+    }
 
-
-static gchar*
-_load_popularity (gchar                 *beginning,
-                  LwResultElementBuffer *buffer)
-{
-    //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
-    //                                                                                             ^
-    //                                                                                             HERE
-
-    //Declarations
-    gchar *c = NULL;
-
-    //Initializations
-    c = beginning;
-    if (c == NULL || c == '\0') return NULL;
-
-    while (*c != '\0' && *c == '/') c = g_utf8_next_char (c);
-    if (*c == '\0') return NULL;
-
-    if (strncpy("(P)", c, 3) == 0) lw_resultelementbuffer_add (buffer, gettext("Popular"));
-
-    c += 3;
-    if (*c == '\0') return NULL;
-
-    *c = '\0';
-    c++;
-    if (*c == '\0') return NULL;
-
-    return c;
+    return lw_resultbuffer_clear (&buffer, FALSE);
 }
 
 
@@ -328,84 +255,110 @@ lw_edictionary_parse (LwDictionary       *dictionary,
 
     //Declarations
     LwResult *result = NULL;
-    gchar *buffer = NULL;
-    LwResultElementBuffer words = {0};
-    LwResultElementBuffer readings = {0};
-    LwResultElementBuffer definitions = {0};
-    LwResultElementBuffer classifications = {0};
-    LwResultElementBuffer popular = {0};
+    gchar **tokens = NULL;
+    gint length = -1;
+    LwResultBuffer words = {0};
+    LwResultBuffer readings = {0};
+    LwResultBuffer definitions = {0};
+    LwResultBuffer classifications = {0};
+    LwResultBuffer popular = {0};
 
     //Initializations
     result = lw_result_new (TEXT);
     if (result == NULL) goto errored;
-    buffer = lw_result_get_buffer (result);
-    if (buffer == NULL) goto errored;
+    tokens = _tokenize (result, &length);
 
-    lw_result_init_elementbuffer (result, &words);
-    lw_result_init_elementbuffer (result, &readings);
-    lw_result_init_elementbuffer (result, &definitions);
-    lw_result_init_elementbuffer (result, &classifications);
-    lw_result_init_elementbuffer (result, &popular);
+    lw_result_init_buffer (result, &words);
+    lw_result_init_buffer (result, &readings);
+    lw_result_init_buffer (result, &definitions);
+    lw_result_init_buffer (result, &classifications);
+    lw_result_init_buffer (result, &popular);
 
-    {
-      gchar *ptr = buffer;
-      if (ptr == NULL || *ptr == '\0') goto errored;
 
-      //An example line
-      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
-      //＾
-      //HERE
+    { //Get the element at the end first so the forward iteration is simpler...
+      gint i = length - 1;
 
-      ptr = _load_word (ptr, &words);
-      if (ptr == NULL) goto errored;
+      if (tokens[i] != NULL && strcmp (tokens[i], "(P)") == 0)
+      {
+        lw_resultbuffer_add (&popular, gettext("popular"));
+        i--;
+      }
 
-      //An example line
-      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
-      //     ^
-      //     HERE
+      length = i + 1;
 
-      ptr = _load_readings (ptr, &readings);
-      if (ptr == NULL) goto errored;
-
-      //An example line
-      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
-      //                ^
-      //                HERE
-
-      ptr = _load_classifications (ptr, &readings);
-      if (ptr == NULL) goto errored;
-
-      //An example line
-      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
-      //                     ^
-      //                     HERE
-
-      ptr = _load_definitions (ptr, &definitions);
-      if (ptr == NULL) goto errored;
-
-      //An example line
       //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
       //                                                                                             ^
       //                                                                                             HERE
-
-      ptr = _load_popularity (ptr, &popular);
-      if (ptr == NULL) goto errored;
-
     }
 
-    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_WORD, &words);
-    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_READING, &readings);
-    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_DEFINITION, &definitions);
-    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_CLASSIFICATION, &classifications);
-    lw_result_take_elementbuffer (result, LW_EDICTIONARY_KEY_POPULAR, &popular);
+    {
+      gint i = 0;
+
+      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month[INVISIBLE SECTION]
+      //^
+      //HERE
+
+      if (tokens[i] != NULL && i < length)
+      {
+        lw_resultbuffer_add (&words, tokens[i]);
+        i++;
+      }
+
+      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month[INVISIBLE SECTION]
+      //      ^
+      //      HERE
+
+      {
+        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        if (tokens[i] != NULL && i < length && script == G_UNICODE_SCRIPT_HIRAGANA || script == G_UNICODE_SCRIPT_KATAKANA)
+        {
+          lw_resultbuffer_add (&readings, tokens[i]);
+          i++;
+        }
+      }
+
+      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month[INVISIBLE SECTION]
+      //                  ^
+      //                  HERE
+
+      {
+        if (tokens[i] != NULL && i < length)
+        {
+          gchar *c = tokens[i];
+          while (*c != '\0')
+          {
+            lw_resultbuffer_add (&classifications, tokens[i]);
+            while (*c != '\0' && *c != ',') c = g_utf8_next_char (c);
+            if (*c == ',') c = lw_utf8_set_null_next_char (c);
+          }
+          i++;
+        }
+      }
+
+      //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month[INVISIBLE SECTION]
+      //                         ^
+      //                         HERE
+
+      while (tokens[i] != NULL & i < length)
+      {
+        lw_resultbuffer_add (&definitions, tokens[i]);
+        i++;
+      }
+    }
+
+    lw_result_take_buffer (result, LW_EDICTIONARY_KEY_WORD, &words);
+    lw_result_take_buffer (result, LW_EDICTIONARY_KEY_READING, &readings);
+    lw_result_take_buffer (result, LW_EDICTIONARY_KEY_DEFINITION, &definitions);
+    lw_result_take_buffer (result, LW_EDICTIONARY_KEY_CLASSIFICATION, &classifications);
+    lw_result_take_buffer (result, LW_EDICTIONARY_KEY_POPULAR, &popular);
 
 errored:
 
-    lw_resultelementbuffer_clear (&words);
-    lw_resultelementbuffer_clear (&readings);
-    lw_resultelementbuffer_clear (&definitions);
-    lw_resultelementbuffer_clear (&classifications);
-    lw_resultelementbuffer_clear (&popular);
+    lw_resultbuffer_clear (&words, TRUE);
+    lw_resultbuffer_clear (&readings, TRUE);
+    lw_resultbuffer_clear (&definitions, TRUE);
+    lw_resultbuffer_clear (&classifications, TRUE);
+    lw_resultbuffer_clear (&popular, TRUE);
 
     return result;
 }
