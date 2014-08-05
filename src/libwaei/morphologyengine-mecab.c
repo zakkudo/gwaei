@@ -98,8 +98,8 @@ _lw_morphologyengine_append_morphology (GList *list, gchar *WORD, gchar *STEM, g
     gchar *normalized = NULL;
     gchar *canonical = NULL;
 
-    if (WORD != NULL) normalized = lw_util_normalize_string (WORD, FALSE, TRUE);
-    if (STEM != NULL) canonical =  lw_util_normalize_string (STEM, FALSE, TRUE);
+    if (WORD != NULL) normalized = lw_utf8_normalize (WORD, FALSE, TRUE);
+    if (STEM != NULL) canonical =  lw_utf8_normalize (STEM, FALSE, TRUE);
 
     if (normalized != NULL && strcmp(WORD, normalized) == 0) { g_free (normalized); normalized = NULL; }
     if (STEM != NULL && canonical != NULL && strcmp(STEM, canonical) == 0) { g_free (canonical); canonical = NULL; }

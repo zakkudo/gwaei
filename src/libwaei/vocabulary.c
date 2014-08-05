@@ -1229,7 +1229,7 @@ _get_new_filename_number (const gchar *PATTERN,
     gint number = -1;
 
     //Initializations
-    numbers = lw_util_get_numbers (FILENAME);
+    numbers = lw_utf8_get_numbers (FILENAME);
 
     {
       gint i = 0;
@@ -1332,7 +1332,7 @@ _get_copied_filename_base (const gchar *FILENAME,
     GMatchInfo *match_info = NULL;
 
     //Initializations
-    pattern = lw_util_convert_printf_pattern_to_regex_pattern (PATTERN);
+    pattern = lw_utf8_convert_printf_pattern_to_regex_pattern (PATTERN);
     if (pattern == NULL) goto errored;
     regex = g_regex_new (pattern, 0, 0, NULL);
     if (regex == NULL) goto errored;
@@ -1375,7 +1375,7 @@ _get_copied_filename_number (const gchar  *FILENAME,
     gint number = 1;
 
     //Initializations
-    numbers = lw_util_get_numbers (FILENAME);
+    numbers = lw_utf8_get_numbers (FILENAME);
     if (numbers == NULL) goto errored;
     if (filename_base_out != NULL) *filename_base_out = g_strdup (FILENAME);
 
@@ -1596,7 +1596,7 @@ lw_vocabulary_load_from_string (LwVocabulary       *self,
       contents = g_strndup (TEXT, end - TEXT);
     if (contents == NULL || *contents == '\0') goto errored;
 
-    length = lw_util_replace_linebreaks_with_nullcharacter (contents);
+    length = lw_utf8_replace_linebreaks_with_nullcharacter (contents);
     if (length == 0) goto errored;
 
     {

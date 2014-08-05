@@ -1,22 +1,12 @@
 #ifndef LW_INDEX_INCLUDED
 #define LW_INDEX_INCLUDED
 
-G_BEGIN_DECLS
-
-typedef guint32 LwOffset;
-typedef LwOffset LwOffsets;
-
-G_END_DECLS
-
 #include "io.h"
-#include "dictionarydata.h"
+#include "dictionarybuffer.h"
 
 G_BEGIN_DECLS
 
 #define LW_INDEX_CHECKSUM_TYPE G_CHECKSUM_SHA256
-#define LW_OFFSET_FORMAT G_GUINT32_FORMAT
-#define GPOINTER_TO_OFFSET(x) GPOINTER_TO_UINT(x)
-#define LW_OFFSET_TO_POINTER(x) GUINT_TO_POINTER(x)
 
 typedef enum {
   LW_INDEX_TABLE_RAW,        //< Level 0 (The raw form of the world) 
@@ -50,11 +40,11 @@ typedef struct _LwIndex LwIndex;
 LwIndex* lw_index_new (LwMorphologyEngine *morphologyengine);
 void lw_index_free (LwIndex *index);
 
-GList* lw_index_search (LwIndex *index, LwMorphologyString *morphologystring, LwIndexFlag flags, LwDictionaryData *dictionarydata);
-gboolean lw_index_data_is_valid (LwIndex *index, LwDictionaryData *dictionarydata);
+GList* lw_index_search (LwIndex *index, LwMorphologyString *morphologystring, LwIndexFlag flags, LwDictionaryBuffer *dictionarybuffer);
+gboolean lw_index_data_is_valid (LwIndex *index, LwDictionaryBuffer *dictionarybuffer);
 
 void lw_index_append_data_offset (LwIndex *index, const gchar *KEY, LwOffset offset);
-LwOffsets* lw_index_get_data_offsets (LwIndex *index, const gchar *KEY);
+LwOffset* lw_index_get_data_offsets (LwIndex *index, const gchar *KEY);
 LwOffset lw_index_get_data_offsets_length (LwIndex *index, const gchar *KEY);
 
 void lw_index_add_string (LwIndex *index, const gchar *TEXT, LwOffset offset);
@@ -63,7 +53,7 @@ gboolean lw_index_are_equal (LwIndex *index1, LwIndex *index2);
 
 void lw_index_write (LwIndex *index, const gchar* PATH, LwProgress *progress);
 void lw_index_read (LwIndex *index, const gchar* PATH, LwProgress *progress);
-void lw_index_create (LwIndex *index, LwDictionaryData *dictionarydata, LwProgress *progress);
+void lw_index_create (LwIndex *index, LwDictionaryBuffer *dictionarybuffer, LwProgress *progress);
 
 gboolean lw_index_exists (const gchar *PATH);
 

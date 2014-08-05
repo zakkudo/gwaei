@@ -12,6 +12,10 @@ typedef enum
   PROP_PROGRESS,
   PROP_ID,
   PROP_PATH,
+  PROP_BUFFER,
+  PROP_NUM_LINES,
+  PROP_LINES,
+  PROP_LENGTH,
   TOTAL_PROPS
 } LwDictionaryProps;
 
@@ -23,10 +27,13 @@ typedef enum {
 struct _Data {
   LwMorphologyEngine *morphology_engine;
   LwIndex *index;
-  LwDictionaryData *data;
+  LwDictionaryBuffer *buffer;
   GMutex mutex;
   gchar *name;
   LwProgress *progress;
+
+  gchar **lines;
+  gint num_lines;
 
   gchar *id;
   gchar *path;

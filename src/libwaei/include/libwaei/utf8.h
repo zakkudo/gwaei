@@ -14,7 +14,7 @@ gint* lw_utf8_get_numbers (const gchar *TEXT);
 gint lw_utf8_replace_linebreaks_with_nullcharacter (gchar *TEXT);
 gchar* lw_utf8_normalize (const gchar *TEXT, LwNormalizationFlags flags);
 gchar* lw_utf8_furiganafold (const gchar *TEXT);
-void lw_utf8_sanitize_string (gchar *buffer);
+void lw_utf8_sanitize (gchar *buffer);
 GUnicodeScript lw_utf8_get_script (gchar *TEXT);
 
 G_END_DECLS

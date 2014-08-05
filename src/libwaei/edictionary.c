@@ -246,8 +246,8 @@ errored:
 //! @brief, Retrieve a line from FILE, parse it according to the LwEDictionary rules and put the results into the LwResult
 //!
 static LwResult*
-lw_edictionary_parse (LwDictionary       *dictionary,
-                      const gchar        *TEXT)
+lw_edictionary_parse (LwDictionary *dictionary,
+                      const gchar  *TEXT)
 {
     //Sanity checks
     g_return_val_if_fail (dictionary != NULL, NULL);
@@ -273,7 +273,6 @@ lw_edictionary_parse (LwDictionary       *dictionary,
     lw_result_init_buffer (result, &definitions);
     lw_result_init_buffer (result, &classifications);
     lw_result_init_buffer (result, &popular);
-
 
     { //Get the element at the end first so the forward iteration is simpler...
       gint i = length - 1;
@@ -318,8 +317,8 @@ lw_edictionary_parse (LwDictionary       *dictionary,
       }
 
       //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month[INVISIBLE SECTION]
-      //                  ^
-      //                  HERE
+      //                 ^
+      //                 HERE
 
       {
         if (tokens[i] != NULL && i < length)

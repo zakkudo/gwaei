@@ -109,7 +109,7 @@ _lw_index_create_append_data_offset (LwIndex          *index,
 }
 
 
-LwOffsets*
+LwOffset*
 _lw_index_get_data_offsets (LwIndex          *index,
                             LwIndexTableType  type, 
                             const gchar      *KEY)
@@ -142,7 +142,7 @@ _lw_index_get_data_offsets_length (LwIndex          *index,
     g_return_val_if_fail (KEY != NULL, 0);
 
     //Declarations
-    LwOffsets *offsets;
+    LwOffset *offsets;
     LwOffset length;
 
     //Initializations
@@ -256,13 +256,13 @@ lw_index_free (LwIndex *index)
 
 static void
 _lw_index_deep_index (LwIndex          *index,
-                      LwDictionaryData *dictionarydata,
+                      LwDictionaryBuffer *buffer,
                       LwProgress       *progress)
 {
 printf("BREAK _lw_index_deep_index\n");
     //Sanity checks
     g_return_if_fail (index != NULL);
-    g_return_if_fail (dictionarydata != NULL);
+    g_return_if_fail (buffer != NULL);
     g_return_if_fail (index->checksum == NULL); //You cannot add a string if the checksum has already been created
 
     if (lw_progress_should_abort(progress)) return;
@@ -315,20 +315,21 @@ errored:
 //!
 void
 lw_index_create (LwIndex          *index,
-                 LwDictionaryData *dictionarydata,
+                 LwDictionaryBuffer *buffer,
                  LwProgress       *progress)
 {
+  /*TODO
 printf("BREAK lw_index_create\n");
     //Sanity checks
     g_return_if_fail (index != NULL);
     g_return_if_fail (index->morphologyengine != NULL);
-    g_return_if_fail (dictionarydata != NULL);
+    g_return_if_fail (buffer != NULL);
     g_return_if_fail (progress != NULL);
 
     if (lw_progress_should_abort (progress)) return;
 
     //Declarations
-    glong length = lw_dictionarydata_length (dictionarydata);
+    glong length = lw_dictionarybuffer_length (buffer);
     gdouble fraction = 0.0;
     LwIndexTableType type = 0;
  
@@ -347,9 +348,9 @@ printf("BREAK lw_index_create\n");
     if (index->checksum != NULL) g_free ((gchar*)index->checksum); index->checksum = NULL;
 
     //Parse the data
-    const gchar *BUFFER = lw_dictionarydata_get_buffer (dictionarydata);
+    const gchar *BUFFER = lw_dictionarybuffer_get_buffer (buffer);
     do {
-      LwOffset offset = lw_dictionarydata_get_offset (dictionarydata, BUFFER);
+      LwOffset offset = lw_dictionarybuffer_get_offset (buffer, BUFFER);
 
       _lw_index_create_add_string (index, BUFFER, offset);
 
@@ -358,18 +359,18 @@ printf("BREAK lw_index_create\n");
 
       if (lw_progress_should_abort (progress)) goto errored;
 
-    } while ((BUFFER = lw_dictionarydata_buffer_next (dictionarydata, BUFFER)) != NULL) ;
+    } while ((BUFFER = lw_dictionarybuffer_buffer_next (buffer, BUFFER)) != NULL) ;
 
-    //_lw_index_deep_index (index, dictionarydata, progress);
+    //_lw_index_deep_index (index, buffer, progress);
 
     if (lw_progress_should_abort (progress)) goto errored;
 
     //Set the checksums
     for (type = 0; !lw_progress_should_abort (progress) && type < TOTAL_LW_INDEX_TABLES; type++)
     {
-      index->buffer[type] = g_strdup (lw_dictionarydata_get_checksum (dictionarydata));
+      index->buffer[type] = g_strdup (lw_dictionarybuffer_get_checksum (buffer));
     }
-    index->checksum = g_strdup (lw_dictionarydata_get_checksum (dictionarydata));
+    index->checksum = g_strdup (lw_dictionarybuffer_get_checksum (buffer));
 
     return;
 
@@ -380,6 +381,7 @@ errored:
       if (index->table[type] != NULL) g_hash_table_unref (index->table[type]); index->table[type] = NULL;
       index->table[type] = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free); 
     }
+    */
 }
 
 
@@ -531,6 +533,7 @@ _lw_index_index_subkeys (LwIndex          *index,
 static LwOffset*
 _hash_to_offsetlist (GHashTable *table)
 {
+  /*TODO
     //Sanity checks
     g_return_val_if_fail (table != NULL, NULL);
 
@@ -554,6 +557,8 @@ _hash_to_offsetlist (GHashTable *table)
     }
     
     return offsetlist;
+    */
+  return 0;
 }
 
 
@@ -563,13 +568,14 @@ _load_offsetlist_into_hash (LwIndex          *index,
                             const gchar      *KEY, 
                             GHashTable       *table)
 {
+  /*TODO
     //Sanity checks
     g_return_if_fail (index != NULL);
     g_return_if_fail (KEY != NULL);
     g_return_if_fail (table != NULL);
 
     //Declarations
-    LwOffsets *offsets = _lw_index_get_data_offsets (index, type, KEY); if (offsets == NULL) goto errored;
+    LwOffset *offsets = _lw_index_get_data_offsets (index, type, KEY); if (offsets == NULL) goto errored;
     gint length = _lw_index_get_data_offsets_length (index, type, KEY);
     gint i = 0;
 
@@ -585,7 +591,7 @@ _load_offsetlist_into_hash (LwIndex          *index,
     }
 
 errored:
-    
+   */ 
     return;
 }
 
@@ -746,8 +752,9 @@ _lw_index_table_type_to_string (LwIndexTableType type)
 
 void
 lw_index_validate_offsetlists (LwIndex          *index,
-                               LwDictionaryData *dictionarydata)
+                               LwDictionaryBuffer *buffer)
 {
+  /*TODO
     //Declaraitons
     LwIndexTableType type = 0;
     printf("Validating offsets...\n");
@@ -772,12 +779,13 @@ lw_index_validate_offsetlists (LwIndex          *index,
         while (i < length)
         {
           LwOffset offset = list[i];
-          const gchar *result = lw_dictionarydata_get_string (dictionarydata, offset);
+          const gchar *result = lw_dictionarybuffer_get_string (buffer, offset);
           g_assert (result != NULL);
           i++;
         }
       }
     }
+    */
 }
 
 
@@ -961,7 +969,7 @@ _lw_index_read_by_type (LwIndex          *index,
       if (ptr - buffer >= length || g_utf8_validate(key, -1, NULL) == FALSE) goto errored;
 
       //Get the value
-      LwOffsets *offsets = (LwOffsets*) ptr;
+      LwOffset *offsets = (LwOffset*) ptr;
       ptr += (*offsets * sizeof(LwOffset));
       if (ptr - buffer > length) goto errored; 
 

@@ -137,6 +137,9 @@ lw_search_set_property (GObject      *object,
       case PROP_PROGRESS:
         lw_search_set_progress (self, g_value_get_object (value));
         break;
+      case PROP_REGEX:
+        lw_search_set_regex (self, g_value_get_boxed (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -177,6 +180,9 @@ lw_search_get_property (GObject    *object,
         break;
       case PROP_PROGRESS:
         g_value_set_object (value, lw_search_get_progress (self));
+        break;
+      case PROP_REGEX:
+        g_value_set_boxed (value, lw_search_get_regex (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -336,6 +342,15 @@ lw_search_class_init (LwSearchClass *klass)
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_PROGRESS, _klasspriv->pspec[PROP_PROGRESS]);
+
+    _klasspriv->pspec[PROP_REGEX] = g_param_spec_boxed (
+        "regex",
+        "loaded construct prop",
+        "Set the loaded",
+        G_TYPE_REGEX,
+        G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_REGEX, _klasspriv->pspec[PROP_REGEX]);
 }
 
 
@@ -348,17 +363,20 @@ lw_search_set_query (LwSearch    *self,
 
     //Declarations
     LwSearchPrivate *priv = NULL;
-    gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    if (g_strcmp0 (QUERY, priv->data.query) == 0) goto errored;
 
     if (priv->data.query != NULL) lw_morphologystring_free (priv->data.query);
     priv->data.query = lw_morphologyengine_parse (priv->data.morphologyengine, QUERY, LW_NORMALIZATION_INSENSITIVE);
 
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_QUERY]);
+    lw_search_sync_regex (self);
+
 errored:
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_QUERY]);
+    return;
 }
 
 
@@ -461,6 +479,7 @@ lw_search_set_progress (LwSearch   *self,
 
     //Initializations
     priv = self->priv;
+    if (priv->data.progress == progress) goto errored;
 
     if (progress != NULL)
     {
@@ -479,6 +498,10 @@ lw_search_set_progress (LwSearch   *self,
     {
       g_object_add_weak_pointer (G_OBJECT (priv->data.progress), (gpointer*) &(priv->data.progress));
     }
+
+errored:
+
+    return;
 }
 
 
@@ -590,12 +613,105 @@ lw_search_set_flags (LwSearch *self,
 
     //Initializations
     priv = self->priv;
-    changed = (priv->config.flags != flags);
-    if (!changed) goto errored;
+    if (priv->config.flags == flags) goto errored;
+
+    priv->config.flags = flags;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FLAGS]);
+    lw_search_sync_regex (self);
 
 errored:
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FLAGS]);
+    return;
+}
+
+
+GRegex*
+lw_search_get_regex (LwSearch *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
+
+    //Declarations
+    LwSearchPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->data.regex;
+}
+
+
+void
+lw_search_set_regex (LwSearch *self,
+                     GRegex   *regex)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_SEARCH (self));
+
+    //Declarations
+    LwSearchPrivate *priv = NULL;
+    const gchar *PATTERN = NULL;
+
+    //Initializations
+    priv = self->priv;
+    f (regex == priv->data.regex) goto errored;
+    if (regex != NULL) PATTERN = g_regex_get_pattern (regex);
+    if (priv->data.regex != NULL && g_strcmp0 (PATTERN, g_regex_get_pattern (priv->data.regex)) == 0) goto errored;
+
+    if (regex != NULL)
+    {
+      g_regex_ref (regex);
+    }
+
+    if (priv->data.regex != NULL)
+    {
+      g_regex_unref (priv->data.regex);
+      priv->data.regex = NULL;
+    }
+
+    priv->data.regex = regex;
+
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_REGEX]);
+
+errored:
+
+    return;
+}
+
+
+void
+lw_search_sync_regex (LwSearch *self)
+{
+    g_return_if_fail (LW_IS_SEARCH (self));
+
+    //Declarations
+    LwSearchFlags flags = 0;
+    gint f = G_REGEX_OPTIMIZE;
+    GRegex *regex = NULL;
+
+    //Initializations
+    flags = lw_search_get_flags (self);
+    if (flags | LW_SEARCHFLAG_CASE_INSENSITIVE)
+    {
+      f |= G_REGEX_CASELESS;
+    }
+
+    regex = g_regex_new (pattern, f, NULL);
+
+    if (regex == NULL)
+    {
+      gchar *pattern = g_regex_escape_string (pattern)
+      regex = g_regex_new (patter, f NULL);
+    }
+
+    lw_search_set_regex (regex);
+
+    if (regex != NULL)
+    {
+      g_regex_unref (regex);
+      regex = NULL;
+    }
 }
 
 
@@ -696,10 +812,13 @@ printf("BREAK lw_search_stream_results_thread index is loaded\n");
     //Regex self
     else
     {
+*/
+TODO!
       if (self->resulttable != NULL) g_hash_table_unref (self->resulttable);
       self->resulttable = lw_dictionary_regex_search (dictionary, priv->data.query, flags, progress);
+      /*
     }
-*/
+    */
 
 errored:
 
@@ -836,6 +955,8 @@ lw_search_equal (LwSearch *item1,
 
   return (queries_are_equal && dictionaries_are_equal);
 }
+
+
 
 
 

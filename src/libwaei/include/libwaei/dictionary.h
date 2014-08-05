@@ -50,7 +50,6 @@ LwProgress* lw_dictionary_get_progress (LwDictionary *self);
 void lw_dictionary_set_progress (LwDictionary *self, LwProgress *progress);
 
 size_t lw_dictionary_length (LwDictionary *self);
-const gchar* lw_dictionary_get_buffer (LwDictionary *self);
 
 gboolean lw_dictionary_equals (LwDictionary *dictionary1, LwDictionary *dictionary2);
 
@@ -61,6 +60,13 @@ const gchar* lw_dictionary_get_id (LwDictionary *self);
 
 gchar* lw_dictionary_build_directory (GType type);
 gchar* lw_dictionary_directoryname_to_typename (const gchar *DIRECTORYNAME);
+
+LwDictionaryBuffer* lw_dictionary_get_buffer (LwDictionary *self);
+void lw_dictionary_set_buffer (LwDictionary *self, LwDictionaryBuffer *buffer);
+
+const gchar* lw_dictionary_readline (LwDictionary *dictionary, const gchar *BUFFER);
+gchar * const * lw_dictionary_lines (LwDictionary *self);
+gint lw_dictionary_num_lines (LwDictionary *self);
 
 gboolean  lw_dictionary_uninstall (LwDictionary *self);
 

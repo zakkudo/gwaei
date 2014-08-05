@@ -89,6 +89,10 @@ LwSearchStatus lw_search_get_status (LwSearch *self);
 void lw_search_set_progress (LwSearch *self, LwProgress *progress);
 LwProgress* lw_search_get_progress (LwSearch *self);
 
+GRegex* lw_search_get_regex (LwSearch *self);
+void lw_search_set_regex (LwSearch *self, GRegex *regex);
+void lw_search_sync_regex (LwSearch *self);
+
 LwSearchFlag lw_search_get_flags (LwSearch *self);
 void lw_search_set_flags (LwSearch *self, LwSearchFlag flags);
 LwSearchFlag lw_search_build_flags_from_preferences (LwPreferences *preferences);

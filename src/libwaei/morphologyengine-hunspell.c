@@ -295,9 +295,9 @@ lw_morphologyengine_hunspell_analyze (LwMorphologyEngine *engine,
           gchar *normalized = NULL, *stem = NULL, *canonical = NULL, *spellcheck = NULL;
 
           //Generate the forms
-          normalized = lw_util_normalize_string (word, TRUE, FALSE);    
+          normalized = lw_utf8_normalize (word, TRUE, FALSE);    
           stem = lw_morphologyengine_hunspell_stem (engine, word);
-          if (stem != NULL) canonical = lw_util_normalize_string (stem, TRUE, FALSE); //You don't want to case fold before hunspell works
+          if (stem != NULL) canonical = lw_utf8_normalize (stem, TRUE, FALSE); //You don't want to case fold before hunspell works
           if (include_spellcheck) spellcheck = lw_morphologyengine_hunspell_spellcheck (engine, word);
 
           //Cleanup identicals

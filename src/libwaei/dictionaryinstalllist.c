@@ -359,9 +359,9 @@ _add_to_index (LwDictionaryInstallList *self,
     TYPENAME = g_type_name (type);
     id = lw_dictionary_build_id_from_type (type, FILENAME);
 
-    normalized_filename = lw_util_normalize_string (FILENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
-    normalized_typename = lw_util_normalize_string (TYPENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
-    normalized_id = lw_util_normalize_string (id, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized_filename = lw_utf8_normalize (FILENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized_typename = lw_utf8_normalize (TYPENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized_id = lw_utf8_normalize (id, LW_NORMALIZATION_CASE_INSENSITIVE);
    
     if (normalized_filename != NULL && !g_hash_table_contains (priv->data.index.filename, normalized_filename))
     {
@@ -417,9 +417,9 @@ _remove_from_index (LwDictionaryInstallList *self,
     TYPENAME = g_type_name (type);
     id = lw_dictionary_build_id_from_type (type, FILENAME);
 
-    normalized_filename = lw_util_normalize_string (FILENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
-    normalized_typename = lw_util_normalize_string (TYPENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
-    normalized_id = lw_util_normalize_string (id, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized_filename = lw_utf8_normalize (FILENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized_typename = lw_utf8_normalize (TYPENAME, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized_id = lw_utf8_normalize (id, LW_NORMALIZATION_CASE_INSENSITIVE);
    
     if (normalized_filename != NULL && g_hash_table_lookup (priv->data.index.filename, normalized_filename) != dictionaryinstall)
     {
@@ -1075,7 +1075,7 @@ lw_dictionaryinstalllist_fuzzy_find (LwDictionaryInstallList *self,
 
     //Initializations
     priv = self->priv;
-    normalized = lw_util_normalize_string (DESCRIPTION, LW_NORMALIZATION_CASE_INSENSITIVE);
+    normalized = lw_utf8_normalize (DESCRIPTION, LW_NORMALIZATION_CASE_INSENSITIVE);
 
     if (dictionaryinstall == NULL)
     {

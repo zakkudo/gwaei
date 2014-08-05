@@ -74,7 +74,7 @@ lw_dictionary_finalize (GObject *object)
     g_free (priv->data.name); priv->data.name = NULL;
 
     lw_index_free (priv->data.index); priv->data.index = NULL;
-    lw_dictionarydata_free (priv->data.data); priv->data.data = NULL;
+    lw_dictionarybuffer_free (priv->data.buffer); priv->data.buffer = NULL;
 
     memset(self->priv, 0, sizeof(LwDictionaryPrivate));
 
@@ -106,6 +106,9 @@ lw_dictionary_set_property (GObject      *object,
         break;
       case PROP_PROGRESS:
         lw_dictionary_set_progress (self, g_value_get_object (value));
+        break;
+      case PROP_BUFFER:
+        lw_dictionary_set_buffer (self, g_value_get_pointer (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -148,10 +151,46 @@ lw_dictionary_get_property (GObject      *object,
       case PROP_PROGRESS:
         g_value_set_object (value, lw_dictionary_get_progress (self));
         break;
+      case PROP_BUFFER:
+        g_value_set_pointer (value, lw_dictionary_get_buffer (self));
+        break;
+      case PROP_LINES:
+        g_value_set_pointer (value, (gpointer) lw_dictionary_lines (self));
+        break;
+      case PROP_NUM_LINES:
+        g_value_set_int (value, lw_dictionary_num_lines (self));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
     }
+}
+
+
+const gchar*
+lw_dictionary_readline (LwDictionary *self,
+                        const gchar  *BUFFER)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+
+    //Declarations
+    LwDictionaryBuffer *buffer = NULL;
+
+    //Initializations
+    buffer = lw_dictionary_get_buffer (self);
+    if (buffer == NULL) return NULL;
+
+    if (BUFFER == NULL)
+    {
+      BUFFER = lw_dictionarybuffer_start (buffer);
+    }
+    else
+    {
+      BUFFER = lw_dictionarybuffer_next (buffer, BUFFER);
+    }
+
+    return BUFFER;
 }
 
 
@@ -162,18 +201,32 @@ lw_dictionary_length (LwDictionary *self)
 
     //Declarations
     LwDictionaryPrivate *priv = NULL;
-    LwDictionaryData *data = NULL;
+    LwDictionaryBuffer *buffer = NULL;
     size_t length = 0;
 
     //Initializations
     priv = self->priv;
-    data = priv->data.data;
-    if (data == NULL) goto errored;
-    length = lw_dictionarydata_length (data);
+    buffer = priv->data.buffer;
+    if (buffer == NULL) goto errored;
+    length = lw_dictionarybuffer_length (buffer);
 
 errored:
 
     return length;
+}
+
+
+gint
+lw_dictionary_num_lines (LwDictionary *self)
+{
+  return 0;
+}
+
+
+gchar * const *
+lw_dictionary_lines (LwDictionary *self)
+{
+  return NULL;
 }
 
 
@@ -223,6 +276,15 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
     );
     g_object_class_install_property (object_class, PROP_PATH, _klasspriv->pspec[PROP_PATH]);
 
+    _klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
+      "progress",
+      "Filename of the self",
+      "Set the self's config.filename",
+      LW_TYPE_PROGRESS,
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_PROGRESS, _klasspriv->pspec[PROP_PROGRESS]);
+
     _klasspriv->pspec[PROP_ID] = g_param_spec_string (
       "id",
       "Filename of the self",
@@ -231,6 +293,45 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
       G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_ID, _klasspriv->pspec[PROP_ID]);
+
+    _klasspriv->pspec[PROP_BUFFER] = g_param_spec_pointer (
+      "buffer",
+      "Filename of the self",
+      "Set the self's config.filename",
+      G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_BUFFER, _klasspriv->pspec[PROP_BUFFER]);
+
+    _klasspriv->pspec[PROP_LENGTH] = g_param_spec_ulong (
+      "length",
+      "Filename of the self",
+      "Set the self's config.filename",
+      0,
+      G_MAXULONG,
+      0,
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_LENGTH, _klasspriv->pspec[PROP_LENGTH]);
+
+    _klasspriv->pspec[PROP_NUM_LINES] = g_param_spec_int (
+      "number-of-lines",
+      "Filename of the self",
+      "Set the self's config.filename",
+      G_MININT,
+      G_MAXINT,
+      0,
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_NUM_LINES, _klasspriv->pspec[PROP_NUM_LINES]);
+
+    _klasspriv->pspec[PROP_LINES] = g_param_spec_pointer (
+      "lines",
+      "The dictionary as a strv",
+      "summary",
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_LINES, _klasspriv->pspec[PROP_LINES]);
+
 }
 
 
@@ -505,7 +606,7 @@ lw_dictionary_set_filename (LwDictionary *self,
     priv->data.name = g_strdup (gettext(priv->config.filename));
 
     lw_index_free (priv->data.index); priv->data.index = NULL;
-    lw_dictionarydata_free (priv->data.data); priv->data.data = NULL;
+    lw_dictionarybuffer_free (priv->data.buffer); priv->data.buffer = NULL;
 
     g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FILENAME]);
 
@@ -608,6 +709,7 @@ lw_dictionary_set_progress (LwDictionary *self,
 
     //Initializations
     priv = self->priv;
+    if (priv->data.progress == progress) goto errored;
 
     if (progress != NULL)
     {
@@ -632,6 +734,63 @@ lw_dictionary_set_progress (LwDictionary *self,
         (gpointer*) &(priv->data.progress)
       );
     }
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PROGRESS]);
+
+errored:
+
+    return;
+}
+
+
+void
+lw_dictionary_set_buffer (LwDictionary       *self,
+                          LwDictionaryBuffer *buffer)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARY (self));
+
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    if (priv->data.buffer == buffer) goto errored;
+
+    lw_dictionarybuffer_free (priv->data.buffer);
+    priv->data.buffer = buffer;
+
+    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_BUFFER]);
+
+errored:
+
+    return;
+}
+
+
+LwDictionaryBuffer*
+lw_dictionary_get_buffer (LwDictionary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->data.buffer == NULL)
+    {
+      const gchar *PATH = lw_dictionary_get_path (self);
+      if (PATH != NULL)
+      {
+        priv->data.buffer = lw_dictionarybuffer_new ();
+        lw_dictionarybuffer_create (priv->data.buffer, PATH);
+      }
+    }
+
+    return priv->data.buffer;
 }
 
 
@@ -870,31 +1029,8 @@ lw_dictionary_get_installed_idlist (GType type_filter)
 
 
 const gchar*
-lw_dictionary_get_buffer (LwDictionary *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv = NULL;
-    LwDictionaryData *data = NULL;
-    const gchar *BUFFER = NULL;
-
-    //Initializations
-    priv = self->priv;
-    data = priv->data.data;
-    if (data == NULL) goto errored;
-    BUFFER = lw_dictionarydata_get_buffer (data);
-
-errored:
-
-    return BUFFER;
-}
-
-
-const gchar*
-lw_dictionary_get_string (LwDictionary *self, 
-                          LwOffset      offset)
+lw_dictionary_get_line (LwDictionary *self, 
+                        gint          number)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -905,6 +1041,62 @@ lw_dictionary_get_string (LwDictionary *self,
     //Initializations
     priv = self->priv;
 
-    return lw_dictionarydata_get_string (priv->data.data, offset);
+    return lw_dictionarybuffer_get_line (priv->data.buffer, number);
 }
+
+
+void
+lw_dictionary_regex_search (LwDictionary  *self,
+                            LwSearch      *search)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
+
+    //Declarations
+    LwDictionaryBuffer *buffer = NULL;
+    GList *matchlist = NULL;
+    GRegex *regex = NULL;
+    gint chunk = 0;
+    LwProgress *progress = NULL;
+    gchar **lines = NULL;
+    gint num_lines = -1;
+
+    //Initializations
+    buffer = lw_dictionary_get_buffer (self);
+    if (buffer == NULL) goto errored;
+    regex = lw_search_get_regex (search);
+    if (regex == NULL) goto errored;
+
+    lw_progress_set_primary_message_printf (progress, "Searching %d self...", lw_dictionary_get_name (self));
+    lw_progress_set_total (progress, num_lines);
+
+    {
+      gint i = 0;
+      for (i = 0; i < num_lines && !lw_progress_should_abort (progress); i++)
+      {
+        const gchar *BUFFER = lw_dictionarybuffer_get_line (buffer, i);
+        if (BUFFER == NULL) break;
+
+        if (g_regex_match (regex, BUFFER, 0, NULL) == TRUE)
+        {
+          matchlist = g_list_prepend (matchlist, GINT_TO_POINTER (i));
+        }
+
+        lw_progress_set_current (progress, i);
+
+        if (chunk > LW_SEARCH_MAX_CHUNK) 
+        {
+          chunk = 0;
+          //TODO
+        }
+        chunk++;
+      }
+    }
+
+  errored:
+
+  return;
+}
+
 

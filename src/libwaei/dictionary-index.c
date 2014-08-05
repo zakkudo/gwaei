@@ -139,17 +139,17 @@ lw_dictionary_index_is_valid (LwDictionary *dictionary)
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwIndex *index = NULL;
-    LwDictionaryData *dictionarydata = NULL;
+    LwDictionaryBuffer *dictionarybuffer = NULL;
     gboolean valid = FALSE;
 
     //Initializations
     priv = dictionary->priv;
     index = priv->data.index;
     if (index == NULL) goto errored;
-    dictionarydata = priv->data.data;
-    if (dictionarydata == NULL) goto errored;
+    dictionarybuffer = priv->data.buffer;
+    if (dictionarybuffer == NULL) goto errored;
 
-    valid = (g_strcmp0 (index->checksum, dictionarydata->checksum) == 0);
+    valid = (g_strcmp0 (index->checksum, dictionarybuffer->checksum) == 0);
 
 errored:
 
@@ -256,8 +256,8 @@ lw_dictionary_index_create (LwDictionary *dictionary,
     //Load the dictionary data for the index
     if (priv->data == NULL)
     {
-      priv->data = lw_dictionarydata_new ();
-      lw_dictionarydata_create (priv->data, dictionary_path);
+      priv->data = lw_dictionarybuffer_new ();
+      lw_dictionarybuffer_create (priv->data, dictionary_path);
     }
 
     index = lw_index_new (priv->data.morphology_engine); if (index == NULL) goto errored;
@@ -300,10 +300,10 @@ lw_dictionary_index_load (LwDictionary *dictionary,
     lw_progress_set_secondary_message (progress, "Loading index...");
 
     //Load the dictionary data for the index
-    if (priv->data.data == NULL)
+    if (priv->data.buffer == NULL)
     {
-      priv->data.data = lw_dictionarydata_new ();
-      lw_dictionarydata_create (priv->data.data, dictionary_path);
+      priv->data.buffer = lw_dictionarybuffer_new ();
+      lw_dictionarybuffer_create (priv->data.buffer, dictionary_path);
     }
 
     //Unload the current index if it is invalid
@@ -342,10 +342,11 @@ errored:
 static gint
 _sort_func (gconstpointer a, gconstpointer b, GHashTable *weight_table)
 {
+  /*TODO
     //Declarations / Initializations
-    LwOffset offset_a = GPOINTER_TO_OFFSET (a);
+    gint offset_a = GPOINTER_TO_OFFSET (a);
     gint weight_a = GPOINTER_TO_INT (g_hash_table_lookup (weight_table, a));
-    LwOffset offset_b = GPOINTER_TO_OFFSET (b);
+    gint offset_b = GPOINTER_TO_OFFSET (b);
     gint weight_b = GPOINTER_TO_INT (g_hash_table_lookup (weight_table, b));
 
     if (weight_a < weight_b) return 1;
@@ -358,5 +359,6 @@ _sort_func (gconstpointer a, gconstpointer b, GHashTable *weight_table)
     }
 
     g_assert_not_reached ();
+    */
     return 0;
 }

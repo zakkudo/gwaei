@@ -11,6 +11,7 @@ typedef enum {
     PROP_FLAGS,
     PROP_MAX_RESULTS,
     PROP_PROGRESS,
+    PROP_REGEX,
     TOTAL_PROPS
 } Props;
 
@@ -40,6 +41,8 @@ struct _Data {
   LwDictionary *dictionary;
   GQueue *results;
   LwProgress *progress;
+
+  GRegex regex;
 };
 
 struct _Config {
