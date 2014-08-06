@@ -43,11 +43,11 @@ void lw_index_free (LwIndex *index);
 GList* lw_index_search (LwIndex *index, LwMorphologyString *morphologystring, LwIndexFlag flags, LwDictionaryBuffer *dictionarybuffer);
 gboolean lw_index_data_is_valid (LwIndex *index, LwDictionaryBuffer *dictionarybuffer);
 
-void lw_index_append_data_offset (LwIndex *index, const gchar *KEY, LwOffset offset);
-LwOffset* lw_index_get_data_offsets (LwIndex *index, const gchar *KEY);
-LwOffset lw_index_get_data_offsets_length (LwIndex *index, const gchar *KEY);
+void lw_index_append_data_offset (LwIndex *index, const gchar *KEY, gsize offset);
+gsize* lw_index_get_data_offsets (LwIndex *index, const gchar *KEY);
+gsize lw_index_get_data_offsets_length (LwIndex *index, const gchar *KEY);
 
-void lw_index_add_string (LwIndex *index, const gchar *TEXT, LwOffset offset);
+void lw_index_add_string (LwIndex *index, const gchar *TEXT, gsize offset);
 
 gboolean lw_index_are_equal (LwIndex *index1, LwIndex *index2);
 

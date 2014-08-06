@@ -44,9 +44,6 @@
 
 #include <libwaei/dictionaryinstall-private.h>
 
-static LwDictionaryInstallClass *_klass = NULL;
-static LwDictionaryInstallClassPrivate *_klasspriv = NULL;
-
 G_DEFINE_TYPE (LwDictionaryInstall, lw_dictionaryinstall, G_TYPE_OBJECT)
 
 typedef struct {
@@ -255,106 +252,105 @@ lw_dictionaryinstall_class_init (LwDictionaryInstallClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwDictionaryInstallPrivate));
 
-    _klass = klass;
-    _klasspriv = klass->priv;
+    LwDictionaryInstallClassPrivate *klasspriv = klass->priv;
 
-    _klasspriv->pspec[PROP_ID] = g_param_spec_string (
+    klasspriv->pspec[PROP_ID] = g_param_spec_string (
         "id",
         "dictionary install name",
         "Set the preferences object",
         NULL,
         G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_ID, _klasspriv->pspec[PROP_ID]);
+    g_object_class_install_property (object_class, PROP_ID, klasspriv->pspec[PROP_ID]);
 
-    _klasspriv->pspec[PROP_NAME] = g_param_spec_string (
+    klasspriv->pspec[PROP_NAME] = g_param_spec_string (
         "name",
         "dictionary install name",
         "Set the preferences object",
         "Unnamed",
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_NAME, _klasspriv->pspec[PROP_NAME]);
+    g_object_class_install_property (object_class, PROP_NAME, klasspriv->pspec[PROP_NAME]);
 
-    _klasspriv->pspec[PROP_DESCRIPTION] = g_param_spec_string (
+    klasspriv->pspec[PROP_DESCRIPTION] = g_param_spec_string (
         "description",
         "dictionary install name",
         "Set the preferences object",
         "No Description",
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DESCRIPTION, _klasspriv->pspec[PROP_DESCRIPTION]);
+    g_object_class_install_property (object_class, PROP_DESCRIPTION, klasspriv->pspec[PROP_DESCRIPTION]);
 
-    _klasspriv->pspec[PROP_GTYPE] = g_param_spec_gtype (
+    klasspriv->pspec[PROP_GTYPE] = g_param_spec_gtype (
         "dictionary-gtype",
         "dictionary install name",
         "Set the preferences object",
         LW_TYPE_DICTIONARY,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_GTYPE, _klasspriv->pspec[PROP_GTYPE]);
+    g_object_class_install_property (object_class, PROP_GTYPE, klasspriv->pspec[PROP_GTYPE]);
 
-    _klasspriv->pspec[PROP_TEXT_ENCODING] = g_param_spec_string (
+    klasspriv->pspec[PROP_TEXT_ENCODING] = g_param_spec_string (
         "text-encoding",
         "dictionary install name",
         "Set the preferences object",
         "utf-8",
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_TEXT_ENCODING, _klasspriv->pspec[PROP_TEXT_ENCODING]);
+    g_object_class_install_property (object_class, PROP_TEXT_ENCODING, klasspriv->pspec[PROP_TEXT_ENCODING]);
 
-    _klasspriv->pspec[PROP_DOWNLOAD_KEY] = g_param_spec_string (
+    klasspriv->pspec[PROP_DOWNLOAD_KEY] = g_param_spec_string (
         "download-preference-key",
         "dictionary install name",
         "Set the preferences object",
         NULL,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DOWNLOAD_KEY, _klasspriv->pspec[PROP_DOWNLOAD_KEY]);
+    g_object_class_install_property (object_class, PROP_DOWNLOAD_KEY, klasspriv->pspec[PROP_DOWNLOAD_KEY]);
 
-    _klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
+    klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
         "preferences",
         "dictionary install name",
         "Set the preferences object",
         LW_TYPE_PREFERENCES,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_PREFERENCES, _klasspriv->pspec[PROP_PREFERENCES]);
+    g_object_class_install_property (object_class, PROP_PREFERENCES, klasspriv->pspec[PROP_PREFERENCES]);
 
-    _klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
+    klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
         "progress",
         "dictionary install name",
         "Set the preferences object",
         LW_TYPE_PROGRESS,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_PROGRESS, _klasspriv->pspec[PROP_PROGRESS]);
+    g_object_class_install_property (object_class, PROP_PROGRESS, klasspriv->pspec[PROP_PROGRESS]);
 
-    _klasspriv->pspec[PROP_DOWNLOAD_URI] = g_param_spec_string (
+    klasspriv->pspec[PROP_DOWNLOAD_URI] = g_param_spec_string (
         "download-uri",
         "dictionary install name",
         "Set the preferences object",
         "",
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DOWNLOAD_URI, _klasspriv->pspec[PROP_DOWNLOAD_URI]);
+    g_object_class_install_property (object_class, PROP_DOWNLOAD_URI, klasspriv->pspec[PROP_DOWNLOAD_URI]);
 
-    _klasspriv->pspec[PROP_INSTALL_PATH] = g_param_spec_string (
+    klasspriv->pspec[PROP_INSTALL_PATH] = g_param_spec_string (
         "install-path",
         "dictionary install name",
         "Set the preferences object",
         "",
         G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_INSTALL_PATH, _klasspriv->pspec[PROP_INSTALL_PATH]);
+    g_object_class_install_property (object_class, PROP_INSTALL_PATH, klasspriv->pspec[PROP_INSTALL_PATH]);
 
-    _klasspriv->pspec[PROP_DEPENDENCIES] = g_param_spec_pointer (
+    klasspriv->pspec[PROP_DEPENDENCIES] = g_param_spec_pointer (
         "dependencies",
         "Required dictionaries to be install",
         "A list of the prerequisite dictionaries for this to be installed.",
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DEPENDENCIES, _klasspriv->pspec[PROP_DEPENDENCIES]);
+    g_object_class_install_property (object_class, PROP_DEPENDENCIES, klasspriv->pspec[PROP_DEPENDENCIES]);
 }
 
 
@@ -367,9 +363,13 @@ lw_dictionaryinstall_set_name (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     if (g_strcmp0 (NAME, priv->data.name) == 0)
     {
       goto errored;
@@ -378,7 +378,7 @@ lw_dictionaryinstall_set_name (LwDictionaryInstall *self,
     g_free (priv->data.name);
     priv->data.name = g_strdup (NAME);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_NAME]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_NAME]);
 
     lw_dictionaryinstall_sync_id (self);
     lw_dictionaryinstall_sync_install_path (self);
@@ -414,10 +414,14 @@ lw_dictionaryinstall_set_description (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     changed = (g_strcmp0 (DESCRIPTION, priv->data.description) != 0);
 
     if (priv->data.description != NULL)
@@ -427,7 +431,7 @@ lw_dictionaryinstall_set_description (LwDictionaryInstall *self,
 
     priv->data.description = g_strdup (DESCRIPTION);
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DESCRIPTION]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DESCRIPTION]);
 }
 
 
@@ -456,10 +460,14 @@ lw_dictionaryinstall_set_text_encoding (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     changed = (g_strcmp0 (TEXT_ENCODING, priv->data.text_encoding) != 0);
 
     if (priv->data.text_encoding != NULL)
@@ -469,7 +477,7 @@ lw_dictionaryinstall_set_text_encoding (LwDictionaryInstall *self,
 
     priv->data.text_encoding = g_strdup (TEXT_ENCODING);
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_TEXT_ENCODING]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_TEXT_ENCODING]);
 }
 
 
@@ -497,9 +505,13 @@ lw_dictionaryinstall_set_gtype (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     if (gtype == priv->data.gtype)
     {
       goto errored;
@@ -507,7 +519,7 @@ lw_dictionaryinstall_set_gtype (LwDictionaryInstall *self,
     
     priv->data.gtype = gtype;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_GTYPE]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_GTYPE]);
     lw_dictionaryinstall_sync_id (self);
     lw_dictionaryinstall_sync_install_path (self);
 
@@ -542,10 +554,14 @@ lw_dictionaryinstall_set_download_key (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     changed = (g_strcmp0 (DOWNLOAD_KEY, priv->data.download_key) != 0);
     if (changed == FALSE) goto errored;
 
@@ -554,7 +570,7 @@ lw_dictionaryinstall_set_download_key (LwDictionaryInstall *self,
 
     lw_dictionaryinstall_sync_download_uri (self);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DOWNLOAD_KEY]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DOWNLOAD_KEY]);
 
 errored:
 
@@ -587,17 +603,21 @@ lw_dictionaryinstall_set_download_uri (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     changed = (g_strcmp0 (DOWNLOAD_URI, priv->data.download_uri) != 0);
     if (changed == FALSE) goto errored;
 
     g_free (priv->data.download_uri);
     priv->data.download_uri = g_strdup (DOWNLOAD_URI);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DOWNLOAD_URI]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DOWNLOAD_URI]);
 
 errored:
 
@@ -676,12 +696,16 @@ lw_dictionaryinstall_sync_install_path (LwDictionaryInstall *self)
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
     GType type = G_TYPE_INVALID;
     const gchar *FILENAME = NULL;
     gchar *path = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     type = lw_dictionaryinstall_get_gtype (self);
     FILENAME = lw_dictionaryinstall_get_name (self);
     if (g_type_is_a (type, LW_TYPE_DICTIONARY) && FILENAME != NULL)
@@ -695,7 +719,7 @@ lw_dictionaryinstall_sync_install_path (LwDictionaryInstall *self)
     priv->data.install_path = path;
     path = NULL;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_INSTALL_PATH]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_INSTALL_PATH]);
 
 errored:
 
@@ -712,10 +736,14 @@ lw_dictionaryinstall_set_preferences (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     changed = (preferences != priv->data.preferences);
     if (!changed) goto errored;
 
@@ -745,7 +773,7 @@ lw_dictionaryinstall_set_preferences (LwDictionaryInstall *self,
 
     lw_dictionaryinstall_sync_download_uri (self);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PREFERENCES]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PREFERENCES]);
 
 errored:
 
@@ -777,10 +805,14 @@ lw_dictionaryinstall_set_progress (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     changed = (progress != priv->data.progress);
     if (!changed) goto errored;
 
@@ -808,7 +840,7 @@ lw_dictionaryinstall_set_progress (LwDictionaryInstall *self,
       );
     }
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PROGRESS]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PROGRESS]);
 
 errored:
 
@@ -864,10 +896,14 @@ lw_dictionaryinstall_set_dependancies (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
     GList *sanitized_list_copy = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     if (dependancies == priv->data.dependancies) goto errored;
 
     {
@@ -885,7 +921,7 @@ lw_dictionaryinstall_set_dependancies (LwDictionaryInstall *self,
     g_list_free_full (priv->data.dependancies, (GDestroyNotify) lw_dependancy_free);
     priv->data.dependancies = sanitized_list_copy;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DEPENDENCIES]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DEPENDENCIES]);
 
 errored:
 
@@ -957,15 +993,19 @@ lw_dictionaryinstall_set_id (LwDictionaryInstall *self,
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
+    LwDictionaryInstallClass *klass = NULL;
+    LwDictionaryInstallClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYINSTALL_CLASS (self);
+    klasspriv = klass->priv;
     if (g_strcmp0 (priv->data.id, ID) == 0) goto errored;
 
     g_free (priv->data.id);
     priv->data.id = g_strdup (ID);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_ID]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_ID]);
 
 errored:
 

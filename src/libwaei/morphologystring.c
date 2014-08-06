@@ -48,7 +48,8 @@ lw_morphologystring_new (const gchar *TEXT, LwNormalizationFlags flags)
     //Initializations
     self = g_new0 (LwMorphologyString, 1);
 
-    self->raw = g_strdup (TEXT);
+    //TODO
+
     self->normalized = lw_utf8_normalize (self->raw, flags);
     self->tokens = NULL;
     self->lookup = g_hash_table_new (g_str_hash, g_str_equal);

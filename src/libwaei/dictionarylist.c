@@ -39,9 +39,6 @@
 
 #include <libwaei/dictionarylist-private.h>
 
-static LwDictionaryListClass *_klass = NULL;
-static LwDictionaryListClassPrivate *_klasspriv = NULL;
-
 G_DEFINE_TYPE (LwDictionaryList, lw_dictionarylist, G_TYPE_OBJECT)
 
 
@@ -183,10 +180,9 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwDictionaryListPrivate));
 
-    _klass = klass;
-    _klasspriv = klass->priv;
+    LwDictionaryListClassPrivate *klasspriv = klass->priv;
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
         "internal-row-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -197,7 +193,7 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
         "internal-row-inserted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -208,7 +204,7 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
         "internal-row-deleted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -219,7 +215,7 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
         "internal-rows-reordered",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -230,14 +226,14 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
         G_TYPE_POINTER
     );
 
-    _klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
+    klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
         "preferences",
         "Preferences construct prop",
         "Set the preferences object",
         LW_TYPE_PREFERENCES,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_PREFERENCES, _klasspriv->pspec[PROP_PREFERENCES]);
+    g_object_class_install_property (object_class, PROP_PREFERENCES, klasspriv->pspec[PROP_PREFERENCES]);
 }
 
 
@@ -250,9 +246,13 @@ lw_dictionarylist_set_preferences (LwDictionaryList *self,
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
+    LwDictionaryListClass *klass = NULL;
+    LwDictionaryListClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYLIST_CLASS (self);
+    klasspriv = klass->priv;
 
     if (preferences != NULL)
     {
@@ -271,7 +271,7 @@ lw_dictionarylist_set_preferences (LwDictionaryList *self,
       g_object_add_weak_pointer (G_OBJECT (priv->config.preferences), (gpointer*) &(priv->config.preferences));
     }
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PREFERENCES]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PREFERENCES]);
 }
 
 
@@ -549,23 +549,27 @@ _insert_propogate_changes (LwDictionaryList *self,
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
+    LwDictionaryListClass *klass = NULL;
+    LwDictionaryListClassPrivate *klasspriv = NULL;
     gint length = 0;
     gint i = 0;
 
     //Initializations
     priv = self->priv;
+    klass = LW_DICTIONARYLIST_CLASS (self);
+    klasspriv = klass->priv;
     length = lw_dictionarylist_length (self);
 
     //Rows that were inserted
     for (i = position; i < position + number_inserted; i++)
     {
-      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, i);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, i);
     }
 
     //Rows with modified indexes
     for (i = position + number_inserted; i < length; i++)
     {
-      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, i);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, i);
     }
 }
 
@@ -786,9 +790,13 @@ _remove_propogate_changes (LwDictionaryList *self,
 
     //Declarations
     gint length = 0;
+    LwDictionaryListClass *klass = NULL;
+    LwDictionaryListClassPrivate *klasspriv = NULL;
 
     //Initializations
     length = lw_dictionarylist_length (self);
+    klass = LW_DICTIONARYLIST_CLASS (self);
+    klasspriv = klass->priv;
 
     //Rows that were removed
     {
@@ -797,7 +805,7 @@ _remove_propogate_changes (LwDictionaryList *self,
       i--;
       while (i > -1) 
       {
-        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, indices[i]);
+        g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, indices[i]);
         i--;
       }
     }
@@ -807,7 +815,7 @@ _remove_propogate_changes (LwDictionaryList *self,
       gint index = 0;
       for (index = indices[0]; index > -1 && index < length; index++)
       {
-        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, index);
+        g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, index);
       }
     }
 }
@@ -1370,7 +1378,7 @@ lw_dictionarylist_load_order (LwDictionaryList *self)
     if (priv->data.list == NULL) goto errored;
 
     printf("BREAk lw_dictionarylist_load_order CLASS_SIGNALID_ROWS_REORDERED\n");
-    g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED], 0, new_order);
+    g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED], 0, new_order);
 
 errored:
 

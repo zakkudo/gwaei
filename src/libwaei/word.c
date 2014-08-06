@@ -35,6 +35,125 @@
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
 
+
+LwWord*
+lw_word_new ()
+{
+    LwWord *word;
+
+    word = g_new0 (LwWord, 1);
+    word->row.current_index = -1;
+    word->row.saved_index = -1;
+
+    return word;
+}
+
+
+LwWord*
+lw_word_new_from_string (const gchar *TEXT)
+{
+    //Sanity checks
+    if (TEXT == NULL) return NULL;
+
+    //Declarations
+    LwWord *word = NULL;
+    gchar **fields = NULL;
+
+    //Initializations
+    word = g_new0 (LwWord, 1);
+    if (word == NULL) goto errored;
+
+    fields = g_strsplit (TEXT, ";", TOTAL_LW_WORD_FIELDS);
+    if (fields == NULL) goto errored;
+
+    {
+      gint i = 0;
+      for (i = 0; fields[i] != NULL; i++)
+      {
+        if (fields[i] != NULL)
+        {
+          word->fields[i] = g_strdup (g_strstrip(fields[i]));
+          fields[i] = NULL;
+        }
+        else
+        {
+          word->fields[i] = g_strdup("");
+        }
+      }
+    }
+
+    //Set up the integers
+    const gchar *CORRECT_GUESSES = word->fields[LW_WORD_FIELD_CORRECT_GUESSES];
+    if (CORRECT_GUESSES != NULL)
+    {
+      word->correct_guesses = (gint) strtoll (CORRECT_GUESSES, NULL, 10);
+    }
+
+    const gchar *INCORRECT_GUESSES = word->fields[LW_WORD_FIELD_INCORRECT_GUESSES];
+    if (INCORRECT_GUESSES != NULL)
+    {
+      word->incorrect_guesses =  (gint) strtoll (INCORRECT_GUESSES, NULL, 10);
+    }
+
+    const gchar *TIMESTAMP = word->fields[LW_WORD_FIELD_TIMESTAMP];
+    if (TIMESTAMP != NULL)
+    {
+    word->timestamp =  (guint32) strtoll (TIMESTAMP, NULL, 10);
+    }
+
+    word->row.current_index = -1;
+    word->row.saved_index = -1;
+
+errored:
+
+    if (fields != NULL) g_strfreev (fields); fields = NULL;
+
+    return word;
+}
+
+
+GType
+lw_word_get_type ()
+{
+  static GType type = 0;
+
+  if (type == 0)
+  {
+    type = g_boxed_type_register_static (
+      "LwWord",
+      (GBoxedCopyFunc) lw_word_copy,
+      (GBoxedFreeFunc) lw_word_free
+    );
+  }
+
+  return type;
+}
+
+
+void
+lw_word_free (LwWord *word)
+{
+  //Snaity checks
+  if (word == NULL) return;
+
+  {
+    gint i = 0;
+    for (i = 0; i < TOTAL_LW_WORD_FIELDS; i++)
+    {
+      if (word->fields[i] != NULL)
+      {
+        g_free (word->fields[i]);
+        word->fields[i] = NULL;
+      }
+    }
+  }
+
+  g_free (word->score); word->score = NULL;
+  g_free (word->days); word->days = NULL;
+
+  g_free (word);
+}
+
 const gchar* 
 lw_word_get_kanji (LwWord *word)
 {
@@ -202,107 +321,6 @@ lw_word_get_last_studied_as_string (LwWord *word)
     }
 
     return word->days;
-}
-
-
-LwWord*
-lw_word_new ()
-{
-    LwWord *word;
-
-    word = g_new0 (LwWord, 1);
-    word->row.current_index = -1;
-    word->row.saved_index = -1;
-
-    return word;
-}
-
-
-LwWord*
-lw_word_new_from_string (const gchar *TEXT)
-{
-    //Sanity checks
-    if (TEXT == NULL) return NULL;
-
-    //Declarations
-    LwWord *word = NULL;
-    gchar **fields = NULL;
-
-    //Initializations
-    word = g_new0 (LwWord, 1);
-    if (word == NULL) goto errored;
-
-    fields = g_strsplit (TEXT, ";", TOTAL_LW_WORD_FIELDS);
-    if (fields == NULL) goto errored;
-
-    {
-      gint i = 0;
-      for (i = 0; fields[i] != NULL; i++)
-      {
-        if (fields[i] != NULL)
-        {
-          word->fields[i] = g_strdup (g_strstrip(fields[i]));
-          fields[i] = NULL;
-        }
-        else
-        {
-          word->fields[i] = g_strdup("");
-        }
-      }
-    }
-
-    //Set up the integers
-    const gchar *CORRECT_GUESSES = word->fields[LW_WORD_FIELD_CORRECT_GUESSES];
-    if (CORRECT_GUESSES != NULL)
-    {
-      word->correct_guesses = (gint) strtoll (CORRECT_GUESSES, NULL, 10);
-    }
-
-    const gchar *INCORRECT_GUESSES = word->fields[LW_WORD_FIELD_INCORRECT_GUESSES];
-    if (INCORRECT_GUESSES != NULL)
-    {
-      word->incorrect_guesses =  (gint) strtoll (INCORRECT_GUESSES, NULL, 10);
-    }
-
-    const gchar *TIMESTAMP = word->fields[LW_WORD_FIELD_TIMESTAMP];
-    if (TIMESTAMP != NULL)
-    {
-    word->timestamp =  (guint32) strtoll (TIMESTAMP, NULL, 10);
-    }
-
-    word->row.current_index = -1;
-    word->row.saved_index = -1;
-
-errored:
-
-    if (fields != NULL) g_strfreev (fields); fields = NULL;
-
-    return word;
-}
-
-
-void
-lw_word_free (LwWord *word)
-{
-  //Snaity checks
-  if (word == NULL) return;
-
-  {
-    gint i = 0;
-    for (i = 0; i < TOTAL_LW_WORD_FIELDS; i++)
-    {
-      if (word->fields[i] != NULL)
-      {
-        g_free (word->fields[i]);
-        word->fields[i] = NULL;
-      }
-    }
-  }
-
-  g_free (word->score); word->score = NULL;
-  g_free (word->days); word->days = NULL;
-
-  g_free (word);
 }
 
 

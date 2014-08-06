@@ -50,31 +50,19 @@ lw_dictionarybuffer_new ()
 }
 
 
-const gchar*
-lw_dictionarybuffer_start (LwDictionaryBuffer *self)
+GType
+lw_dictionarybuffer_get_type ()
 {
-    g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (self->buffer != NULL, NULL);
+    static GType type = 0;
 
-    return self->buffer;
-}
-
-
-const gchar*
-lw_dictionarybuffer_next (LwDictionaryBuffer *self, 
-                          const gchar        *BUFFER)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-    if (BUFFER == NULL) return lw_dictionarybuffer_start (self);
-    if (BUFFER > self->buffer + self->length) return NULL;
-    if (BUFFER < self->buffer, NULL) return NULL;
-
-    BUFFER = BUFFER + strlen(BUFFER) + 1;
-
-    if (BUFFER >= self->buffer + self->length) BUFFER = NULL;
-
-    return BUFFER;
+    if (type == 0)
+    {
+      type = g_boxed_type_register_static (
+        "LwDictionaryBuffer",
+        (GBoxedCopyFunc) lw_dictionarybuffer_ref,
+        (GBoxedFreeFunc) lw_dictionarybuffer_unref
+      );
+    }
 }
 
 
@@ -83,7 +71,8 @@ lw_dictionarybuffer_next (LwDictionaryBuffer *self,
 //!
 void
 lw_dictionarybuffer_create (LwDictionaryBuffer *self, 
-                            const gchar        *PATH)
+                            const gchar        *PATH,
+                            LwTokenizeFunc      tokenize)
 {
     //Sanity checks
     g_return_if_fail (PATH != NULL);
@@ -93,75 +82,122 @@ lw_dictionarybuffer_create (LwDictionaryBuffer *self,
     if (self->path != NULL) return;
 
     //Declarations
-    gchar *ptr = NULL;
     gsize length = 0;
+    gchar **lines = NULL;
+    gint num_lines = 0;
  
     if (!g_file_test (PATH, G_FILE_TEST_IS_REGULAR)) goto errored;
     g_file_get_contents (PATH, &self->buffer, &length, NULL); if (self->buffer == NULL) goto errored;
     self->checksum = g_compute_checksum_for_string (LW_INDEX_CHECKSUM_TYPE, self->buffer, -1); if (self->checksum == NULL) goto errored;
-    self->lines = g_new0(gchar*, length);
 
+    lines = g_new0 (gchar*, length);
+    self->tokens = g_new0 (gchar*, length);
+    self->lines = g_new0 (gsize, length);
+
+    //Make the lines separate strings
     {
-      for (ptr = self->buffer; self->length < length && *ptr != '\0'; ptr++)
+      gchar *c = self->buffer;
+      while (*c != '\0')
       {
-        if (*ptr == '\n')  
+        if (*c == '\n')  
         {
-          *(ptr++) = '\0';
-          self->lines[self->num_lines++] = ptr;
+          gchar *e = g_utf8_next_char (c);
+          *c = '\0';
+          c = e;
+          if (*c != '\n')
+          {
+            lines[num_lines++] = c;
+          }
+        }
+        else
+        {
+          c = g_utf8_next_char (c);
         }
       }
     }
 
-    self->lines = g_realloc_n (self->lines, self->num_lines, sizeof(gchar*));
+    self->lines = g_realloc_n (self->lines, num_lines, sizeof(gsize*));
+    self->num_lines = num_lines;
 
-    return;
+    //Tokenize each line
+    {
+      gint i = 0;
+      gint j = 0;
+      gint num_tokens = 0;
+      for (i = 0; i < num_lines; i++)
+      {
+        self->lines[i] = j;
+        tokenize (lines[i], &self->tokens[j], &num_tokens);
+        j += num_tokens + 1;
+      }
+    }
 
 errored:
-  
-    lw_dictionarybuffer_free (self);
+
+    g_free (lines); lines = NULL;
+
+    return;
 }
 
 
-const gchar*
+const gchar**
 lw_dictionarybuffer_get_line (LwDictionaryBuffer *self, 
-                              gint                number)
+                              gint                number,
+                              gint               *num_tokens_out)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
     g_return_val_if_fail (self->buffer != NULL, NULL);
     g_return_val_if_fail (number < self->num_lines, NULL);
 
-    return (self->lines[number]);
+    //Declarations
+    gchar const * *tokens = NULL;
+    gint max_tokens = 0;
+    const gchar *c = NULL;
+    const gchar *e = NULL;
+    const gchar *p = NULL;
+    gint num_tokens = 0;
+/*TODO
+    //Initializations
+    max_tokens = self->length - (self->lines[number] - self->lines[0]);
+    tokens = (gchar const * *) g_new0 (gchar*, max_tokens);
+    c = self->lines[number];
+    e = c + max_tokens;
+    p = NULL;
+
+    tokens[num_tokens++] = c;
+
+    while (c < e)
+    {
+      if (*p == '\0' && *c != '\0') tokens[num_tokens++] = c;
+      p = c;
+      c = g_utf8_next_char (c);
+    }
+
+    if (num_tokens_out != NULL)
+    {
+      *num_tokens_out = num_tokens;
+    }
+
+    tokens = (gchar const **) g_realloc_n (tokens, max_tokens, sizeof(gchar*));
+
+*/
+    return tokens;
 }
 
 
-//!
-//! Returns a GList of const strings.  Free with g_list_free().
-//!
-GList*
-lw_dictionarybuffer_get_all_lines (LwDictionaryBuffer *self, 
-                                   GList              *numbers)
+void
+lw_dictionarybuffer_unref (LwDictionaryBuffer *self)
 {
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (self->buffer != NULL, NULL);
+  //TODO
+}
 
-    //Declarations
-    GList *results = NULL;
 
-    {
-      GList *link = NULL;
-      for (link = numbers; link != NULL; link = link->next)
-      {
-        gint number = GPOINTER_TO_INT (link->data);
-        const gchar* BUFFER = lw_dictionarybuffer_get_line (self, number);
-        results = g_list_prepend (results, (gpointer) BUFFER);
-        link = link->next;
-      }    
-      results = g_list_reverse (results);
-    }
-
-    return results;
+LwDictionaryBuffer*
+lw_dictionarybuffer_ref (LwDictionaryBuffer *self)
+{
+  //TODO
+  return NULL;
 }
 
 
@@ -188,7 +224,7 @@ lw_dictionarybuffer_get_checksum (LwDictionaryBuffer *self)
 }
 
 
-LwOffset
+gsize
 lw_dictionarybuffer_length (LwDictionaryBuffer *self)
 {
     //Sanity checks
@@ -198,7 +234,7 @@ lw_dictionarybuffer_length (LwDictionaryBuffer *self)
 }
 
 
-LwOffset
+gsize
 lw_dictionarybuffer_get_offset (LwDictionaryBuffer *self,
                                 const gchar      *BUFFER)
 {
@@ -213,13 +249,15 @@ lw_dictionarybuffer_get_offset (LwDictionaryBuffer *self,
 
 
 gchar * const *
-lw_dictionary_lines (LwDictionary *self)
+lw_dictionarybuffer_lines (LwDictionary *self)
 {
+  return NULL;
 }
 
 
 gint
-lw_dictionary_num_lines (LwDictionary *self)
+lw_dictionarybuffer_num_lines (LwDictionary *self)
 {
+  return 0;
 }
 

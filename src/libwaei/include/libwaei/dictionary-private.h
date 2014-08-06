@@ -14,7 +14,6 @@ typedef enum
   PROP_PATH,
   PROP_BUFFER,
   PROP_NUM_LINES,
-  PROP_LINES,
   PROP_LENGTH,
   TOTAL_PROPS
 } LwDictionaryProps;
@@ -55,6 +54,7 @@ struct _LwDictionaryClassPrivate {
 
   //Virtual methods
   LwResult* (*parse) (LwDictionary *dictionary, const gchar* TEXT);
+  void (*tokenize) (gchar *text, gchar **tokens, gint* num_tokens);
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));

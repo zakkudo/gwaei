@@ -17,6 +17,8 @@ gchar* lw_utf8_furiganafold (const gchar *TEXT);
 void lw_utf8_sanitize (gchar *buffer);
 GUnicodeScript lw_utf8_get_script (gchar *TEXT);
 
+gchar* lw_utf8_convert_printf_pattern_to_regex_pattern (const gchar *PATTERN);
+
 G_END_DECLS
 
 #endif

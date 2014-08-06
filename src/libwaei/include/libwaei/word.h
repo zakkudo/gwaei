@@ -32,10 +32,12 @@ struct _LwWord {
 typedef struct _LwWord LwWord;
 
 #define LW_WORD(obj) (LwWord*)obj
+#define LW_TYPE_WORD (lw_word_get_type())
 
 LwWord* lw_word_new (void);
 LwWord* lw_word_new_from_string (const gchar*);
 void lw_word_free (LwWord*);
+GType lw_word_get_type (void);
 
 void lw_word_set_kanji (LwWord*, const gchar*);
 const gchar* lw_word_get_kanji (LwWord*);

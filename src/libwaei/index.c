@@ -39,7 +39,7 @@
 
 
 static void _load_offsetlist_into_hash (LwIndex *index, LwIndexTableType type, const gchar *KEY, GHashTable *table);
-static LwOffset* _hash_to_offsetlist (GHashTable *table);
+static gsize* _hash_to_offsetlist (GHashTable *table);
 static void _lw_index_index_subkeys (LwIndex *index, const gchar *KEY);
 static void _lw_index_index_subkeys_by_type (LwIndex *index, LwIndexTableType type, const gchar *KEY);
 
@@ -48,7 +48,7 @@ static gboolean
 _lw_index_create_offset_exists (LwIndex          *index, 
                                 LwIndexTableType  type, 
                                 const gchar      *KEY, 
-                                LwOffset          offset)
+                                gsize          offset)
 {
     //Sanity checks
     g_return_val_if_fail (index->table[type] != NULL, FALSE);
@@ -56,7 +56,7 @@ _lw_index_create_offset_exists (LwIndex          *index,
 
     //Declarations
     gint i = 0;
-    LwOffset *data = NULL;
+    gsize *data = NULL;
     GHashTable *table = NULL;
 
     //Initializations
@@ -79,7 +79,7 @@ static void
 _lw_index_create_append_data_offset (LwIndex          *index, 
                                      LwIndexTableType  type, 
                                      const gchar      *KEY, 
-                                     LwOffset          offset)
+                                     gsize          offset)
 {
     //Sanity checks
     g_return_if_fail (index->table[type] != NULL);
@@ -87,8 +87,8 @@ _lw_index_create_append_data_offset (LwIndex          *index,
     if (_lw_index_create_offset_exists (index, type, KEY, offset)) return;
 
     //Declarantions
-    LwOffset length = 0;
-    LwOffset *original_data = NULL, *new_data = NULL;
+    gsize length = 0;
+    gsize *original_data = NULL, *new_data = NULL;
     gchar *key = NULL;
     GHashTable *table = NULL;
 
@@ -100,8 +100,8 @@ _lw_index_create_append_data_offset (LwIndex          *index,
     if (original_data == NULL) length = 2;
     else length = *original_data + 1;
 
-    new_data = g_new0 (LwOffset, length);
-    if (length > 2) memcpy(new_data, original_data, length * sizeof(LwOffset));
+    new_data = g_new0 (gsize, length);
+    if (length > 2) memcpy(new_data, original_data, length * sizeof(gsize));
     new_data[0] = length; //The first value in the offset list is the length of the list
     new_data[length - 1] = offset;
 
@@ -109,7 +109,7 @@ _lw_index_create_append_data_offset (LwIndex          *index,
 }
 
 
-LwOffset*
+gsize*
 _lw_index_get_data_offsets (LwIndex          *index,
                             LwIndexTableType  type, 
                             const gchar      *KEY)
@@ -120,7 +120,7 @@ _lw_index_get_data_offsets (LwIndex          *index,
     g_return_val_if_fail (KEY != NULL, NULL);
 
     //Declarations
-    LwOffset *offsets;
+    gsize *offsets;
 
     //Initializations
     offsets = g_hash_table_lookup (index->table[type], KEY);
@@ -131,7 +131,7 @@ _lw_index_get_data_offsets (LwIndex          *index,
 }
 
 
-static LwOffset
+static gsize
 _lw_index_get_data_offsets_length (LwIndex          *index, 
                                    LwIndexTableType  type, 
                                    const gchar      *KEY)
@@ -142,8 +142,8 @@ _lw_index_get_data_offsets_length (LwIndex          *index,
     g_return_val_if_fail (KEY != NULL, 0);
 
     //Declarations
-    LwOffset *offsets;
-    LwOffset length;
+    gsize *offsets;
+    gsize length;
 
     //Initializations
     offsets = g_hash_table_lookup (index->table[type], KEY);
@@ -151,7 +151,7 @@ _lw_index_get_data_offsets_length (LwIndex          *index,
 
     if (offsets != NULL) length = *offsets - 1; //The first item is always the length of the array
 
-    return (LwOffset) length;
+    return (gsize) length;
 }
 
 
@@ -161,7 +161,7 @@ _lw_index_get_data_offsets_length (LwIndex          *index,
 static void
 _lw_index_create_add_string (LwIndex     *index, 
                              const gchar *TEXT, 
-                             LwOffset     offset)
+                             gsize     offset)
 {
   /*TODO
     //Sanity checks
@@ -350,7 +350,7 @@ printf("BREAK lw_index_create\n");
     //Parse the data
     const gchar *BUFFER = lw_dictionarybuffer_get_buffer (buffer);
     do {
-      LwOffset offset = lw_dictionarybuffer_get_offset (buffer, BUFFER);
+      gsize offset = lw_dictionarybuffer_get_offset (buffer, BUFFER);
 
       _lw_index_create_add_string (index, BUFFER, offset);
 
@@ -441,7 +441,7 @@ _lw_index_concat_masterkey_to_subkey (LwIndex          *index,
     g_return_if_fail (SUBKEY != NULL);
 
     //Declarations
-    LwOffset* offsetlist = NULL;
+    gsize* offsetlist = NULL;
     GHashTable *table = NULL;
 
     //Initializations
@@ -530,7 +530,7 @@ _lw_index_index_subkeys (LwIndex          *index,
 }
 
 
-static LwOffset*
+static gsize*
 _hash_to_offsetlist (GHashTable *table)
 {
   /*TODO
@@ -538,8 +538,8 @@ _hash_to_offsetlist (GHashTable *table)
     g_return_val_if_fail (table != NULL, NULL);
 
     //Declarations
-    LwOffset length = g_hash_table_size (table) + 1;
-    LwOffset *offsetlist = g_new (LwOffset, length);
+    gsize length = g_hash_table_size (table) + 1;
+    gsize *offsetlist = g_new (gsize, length);
     gint i = 0;
 
     offsetlist[i++] = length;
@@ -551,7 +551,7 @@ _hash_to_offsetlist (GHashTable *table)
       g_hash_table_iter_init (&iter, table);
       while (g_hash_table_iter_next (&iter, &key, &value))
       {
-        LwOffset offset = GPOINTER_TO_OFFSET (key);
+        gsize offset = GPOINTER_TO_OFFSET (key);
         offsetlist[i++] = offset;
       }
     }
@@ -575,13 +575,13 @@ _load_offsetlist_into_hash (LwIndex          *index,
     g_return_if_fail (table != NULL);
 
     //Declarations
-    LwOffset *offsets = _lw_index_get_data_offsets (index, type, KEY); if (offsets == NULL) goto errored;
+    gsize *offsets = _lw_index_get_data_offsets (index, type, KEY); if (offsets == NULL) goto errored;
     gint length = _lw_index_get_data_offsets_length (index, type, KEY);
     gint i = 0;
 
     while (i < length)
     {
-      LwOffset offset = offsets[i];
+      gsize offset = offsets[i];
       gpointer key = LW_OFFSET_TO_POINTER (offset);
       gint weight = GPOINTER_TO_INT (g_hash_table_lookup (table, key)) + 1;
       gpointer value = GINT_TO_POINTER (weight);
@@ -770,15 +770,15 @@ lw_index_validate_offsetlists (LwIndex          *index,
       g_hash_table_iter_init (&iter, table);
       while (g_hash_table_iter_next (&iter, &key, &value))
       {
-        LwOffset *offsetlist = value;
+        gsize *offsetlist = value;
         const gchar *KEY = key;
-        LwOffset length = *offsetlist - 1;
-        LwOffset* list = offsetlist + 1;
+        gsize length = *offsetlist - 1;
+        gsize* list = offsetlist + 1;
         gint i = 0;
 
         while (i < length)
         {
-          LwOffset offset = list[i];
+          gsize offset = list[i];
           const gchar *result = lw_dictionarybuffer_get_string (buffer, offset);
           g_assert (result != NULL);
           i++;
@@ -813,8 +813,8 @@ _lw_index_write_by_type (LwIndex          *index,
     gdouble fraction;
     GHashTableIter iter;
     gchar *key = NULL;
-    LwOffset *offsets = NULL;
-    LwOffset length;
+    gsize *offsets = NULL;
+    gsize length;
     const gchar *suffix = _lw_index_table_type_to_string (type);
     gchar *path = NULL;
 
@@ -837,7 +837,7 @@ _lw_index_write_by_type (LwIndex          *index,
       fwrite (key, sizeof(gchar), strlen(key) + 1, fd);
 
       //Write the offset data
-      fwrite (offsets, sizeof(LwOffset), length, fd);
+      fwrite (offsets, sizeof(gsize), length, fd);
 
       //Update progress
       i++;
@@ -969,8 +969,8 @@ _lw_index_read_by_type (LwIndex          *index,
       if (ptr - buffer >= length || g_utf8_validate(key, -1, NULL) == FALSE) goto errored;
 
       //Get the value
-      LwOffset *offsets = (LwOffset*) ptr;
-      ptr += (*offsets * sizeof(LwOffset));
+      gsize *offsets = (gsize*) ptr;
+      ptr += (*offsets * sizeof(gsize));
       if (ptr - buffer > length) goto errored; 
 
       //Insert and Update
@@ -1041,7 +1041,7 @@ lw_index_are_equal (LwIndex *index1,
     //Declarations
     GHashTableIter iter;
     gchar *key1;
-    LwOffset *value1, *value2;
+    gsize *value1, *value2;
     LwIndexTableType type = 0;
 
     for (type = 0; type < TOTAL_LW_INDEX_TABLES; type++)

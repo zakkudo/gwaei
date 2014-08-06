@@ -42,7 +42,7 @@ struct _Data {
   GQueue *results;
   LwProgress *progress;
 
-  GRegex regex;
+  GRegex *regex;
 };
 
 struct _Config {

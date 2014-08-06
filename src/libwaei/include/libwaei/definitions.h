@@ -3,12 +3,6 @@
 
 G_BEGIN_DECLS
 
-typedef gsize LwOffset;
-
-#define LW_OFFSET_FORMAT G_GSIZE_FORMAT
-#define GPOINTER_TO_LWOFFSET(x) GPOINTER_TO_GSIZE(x)
-#define LWOFFSET_TO_GPOINTER(x) GSIZE_TO_POINTER(x)
-
 G_END_DECLS
 
 #endif

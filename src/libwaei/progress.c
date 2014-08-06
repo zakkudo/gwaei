@@ -45,8 +45,6 @@
 
 #include <libwaei/progress-private.h>
 
-static LwProgressClass *_klass = NULL;
-static LwProgressClassPrivate *_klasspriv = NULL;
 G_DEFINE_TYPE (LwProgress, lw_progress, G_TYPE_OBJECT)
 
 
@@ -246,10 +244,9 @@ lw_progress_class_init (LwProgressClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwProgressPrivate));
 
-    _klass = klass;
-    _klasspriv = klass->priv;
+    LwProgressClassPrivate *klasspriv = klass->priv;
 
-    _klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED] = g_signal_new (
         "self-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -259,70 +256,70 @@ lw_progress_class_init (LwProgressClass *klass)
         G_TYPE_NONE, 0
     );
 
-    _klasspriv->pspec[PROP_ERROR] = g_param_spec_boxed (
+    klasspriv->pspec[PROP_ERROR] = g_param_spec_boxed (
         "error",
         "FIlename construct prop",
         "Set the filename",
         G_TYPE_ERROR,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_ERROR, _klasspriv->pspec[PROP_ERROR]);
+    g_object_class_install_property (object_class, PROP_ERROR, klasspriv->pspec[PROP_ERROR]);
 
-    _klasspriv->pspec[PROP_ERRORED] = g_param_spec_boolean (
+    klasspriv->pspec[PROP_ERRORED] = g_param_spec_boolean (
         "errored",
         "FIlename construct prop",
         "Set the filename",
         FALSE,
         G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_ERRORED, _klasspriv->pspec[PROP_ERRORED]);
+    g_object_class_install_property (object_class, PROP_ERRORED, klasspriv->pspec[PROP_ERRORED]);
 
-    _klasspriv->pspec[PROP_CANCELLABLE] = g_param_spec_object (
+    klasspriv->pspec[PROP_CANCELLABLE] = g_param_spec_object (
         "cancellable",
         "FIlename construct prop",
         "Set the filename",
         G_TYPE_CANCELLABLE,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_CANCELLABLE, _klasspriv->pspec[PROP_CANCELLABLE]);
+    g_object_class_install_property (object_class, PROP_CANCELLABLE, klasspriv->pspec[PROP_CANCELLABLE]);
 
-    _klasspriv->pspec[PROP_CANCELLED] = g_param_spec_boolean (
+    klasspriv->pspec[PROP_CANCELLED] = g_param_spec_boolean (
         "cancelled",
         "FIlename construct prop",
         "Set the filename",
         FALSE,
         G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_CANCELLED, _klasspriv->pspec[PROP_CANCELLED]);
+    g_object_class_install_property (object_class, PROP_CANCELLED, klasspriv->pspec[PROP_CANCELLED]);
 
-    _klasspriv->pspec[PROP_PRIMARY_MESSAGE] = g_param_spec_string (
+    klasspriv->pspec[PROP_PRIMARY_MESSAGE] = g_param_spec_string (
         "primary-message",
         "FIlename construct prop",
         "Set the filename",
         "",
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_PRIMARY_MESSAGE, _klasspriv->pspec[PROP_PRIMARY_MESSAGE]);
+    g_object_class_install_property (object_class, PROP_PRIMARY_MESSAGE, klasspriv->pspec[PROP_PRIMARY_MESSAGE]);
 
-    _klasspriv->pspec[PROP_SECONDARY_MESSAGE] = g_param_spec_string (
+    klasspriv->pspec[PROP_SECONDARY_MESSAGE] = g_param_spec_string (
         "secondary-message",
         "changed construct prop",
         "Set the changed",
         "",
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_SECONDARY_MESSAGE, _klasspriv->pspec[PROP_SECONDARY_MESSAGE]);
+    g_object_class_install_property (object_class, PROP_SECONDARY_MESSAGE, klasspriv->pspec[PROP_SECONDARY_MESSAGE]);
 
-    _klasspriv->pspec[PROP_COMPLETED] = g_param_spec_boolean (
+    klasspriv->pspec[PROP_COMPLETED] = g_param_spec_boolean (
         "completed",
         "changed construct prop",
         "Set the changed",
         FALSE,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_COMPLETED, _klasspriv->pspec[PROP_COMPLETED]);
+    g_object_class_install_property (object_class, PROP_COMPLETED, klasspriv->pspec[PROP_COMPLETED]);
 
-    _klasspriv->pspec[PROP_CURRENT_PROGRESS] = g_param_spec_double (
+    klasspriv->pspec[PROP_CURRENT_PROGRESS] = g_param_spec_double (
         "current-progress",
         "changed construct prop",
         "Set the changed",
@@ -331,9 +328,9 @@ lw_progress_class_init (LwProgressClass *klass)
         0.0,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_CURRENT_PROGRESS, _klasspriv->pspec[PROP_CURRENT_PROGRESS]);
+    g_object_class_install_property (object_class, PROP_CURRENT_PROGRESS, klasspriv->pspec[PROP_CURRENT_PROGRESS]);
 
-    _klasspriv->pspec[PROP_TOTAL_PROGRESS] = g_param_spec_double (
+    klasspriv->pspec[PROP_TOTAL_PROGRESS] = g_param_spec_double (
         "total-progress",
         "changed construct prop",
         "Set the changed",
@@ -342,9 +339,9 @@ lw_progress_class_init (LwProgressClass *klass)
         0.0,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_TOTAL_PROGRESS, _klasspriv->pspec[PROP_TOTAL_PROGRESS]);
+    g_object_class_install_property (object_class, PROP_TOTAL_PROGRESS, klasspriv->pspec[PROP_TOTAL_PROGRESS]);
 
-    _klasspriv->pspec[PROP_PROGRESS_FRACTION] = g_param_spec_double (
+    klasspriv->pspec[PROP_PROGRESS_FRACTION] = g_param_spec_double (
         "progress-fraction",
         "changed construct prop",
         "Set the changed",
@@ -353,7 +350,7 @@ lw_progress_class_init (LwProgressClass *klass)
         0.0,
         G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_PROGRESS_FRACTION, _klasspriv->pspec[PROP_PROGRESS_FRACTION]);
+    g_object_class_install_property (object_class, PROP_PROGRESS_FRACTION, klasspriv->pspec[PROP_PROGRESS_FRACTION]);
 }
 
 
@@ -366,10 +363,14 @@ lw_progress_set_cancellable (LwProgress   *self,
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
     changed = (cancellable != priv->data.cancellable);
 
     if (cancellable != NULL)
@@ -398,7 +399,7 @@ lw_progress_set_cancellable (LwProgress   *self,
 
     if (changed)
     {
-      g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_CANCELLABLE]);
+      g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CANCELLABLE]);
     }
     
 }
@@ -452,12 +453,16 @@ lw_progress_set_current (LwProgress *self,
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
     gdouble epsilon = 0.0000001;
     gboolean is_locked = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
 
     g_mutex_lock (&priv->data.mutex);
     is_locked = TRUE;
@@ -486,7 +491,7 @@ errored:
 
     if (changed) 
     {
-      g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_CURRENT_PROGRESS]);
+      g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CURRENT_PROGRESS]);
       lw_progress_sync_ratio_delta (self);
     }
 
@@ -526,12 +531,16 @@ lw_progress_set_total (LwProgress *self,
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
     gboolean sync_current_progress = FALSE;
     gdouble epsilon = 0.0000001;
 
     //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
 
     if (total_progress < 0.0)
     {
@@ -549,7 +558,7 @@ lw_progress_set_total (LwProgress *self,
     changed = (fabs(priv->data.total_progress - total_progress) > epsilon);
     if (!changed) goto errored;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_TOTAL_PROGRESS]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_TOTAL_PROGRESS]);
 
     if (sync_current_progress)
     {
@@ -596,6 +605,8 @@ lw_progress_sync_ratio_delta (LwProgress *self)
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
     gboolean ratio_reached = FALSE;
     gdouble previous_fraction = 0.0;
     gdouble current_progress = 0.0;
@@ -604,6 +615,8 @@ lw_progress_sync_ratio_delta (LwProgress *self)
 
     //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
 
     if (priv->data.total_progress != 0)
     {
@@ -621,11 +634,11 @@ lw_progress_sync_ratio_delta (LwProgress *self)
 
     g_signal_emit (
       G_OBJECT (self),
-      _klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
+      klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
       0
     );
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PROGRESS_FRACTION]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PROGRESS_FRACTION]);
 
 errored:
 
@@ -642,15 +655,19 @@ lw_progress_set_required_ratio_delta (LwProgress *self,
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
 
     priv->config.required_ratio_delta = delta;
 
     g_signal_emit (
       G_OBJECT (self),
-      _klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
+      klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
       0
     );
 }
@@ -665,11 +682,15 @@ lw_progress_set_completed (LwProgress *self,
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
     gboolean is_locked = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
 
     g_mutex_lock (&priv->data.mutex);
     is_locked = TRUE;
@@ -684,7 +705,7 @@ errored:
     if (is_locked) g_mutex_unlock (&self->priv->data.mutex);
     if (changed) g_signal_emit (
       G_OBJECT (self),
-      _klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
+      klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
       0
     );
 
@@ -724,16 +745,20 @@ lw_progress_set_error (LwProgress *self,
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
     changed = (error != priv->data.error);
     if (!changed) goto errored;
 
     priv->data.error = error;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_ERROR]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_ERROR]);
 
 errored:
 
@@ -869,11 +894,15 @@ lw_progress_set_primary_message (LwProgress *self,
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
     gboolean is_locked = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
 
     g_mutex_lock (&self->priv->data.mutex);
     is_locked = TRUE;
@@ -887,7 +916,7 @@ lw_progress_set_primary_message (LwProgress *self,
 errored:
 
     if (is_locked) g_mutex_unlock (&self->priv->data.mutex);
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PRIMARY_MESSAGE]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PRIMARY_MESSAGE]);
 }
 
 
@@ -967,11 +996,15 @@ lw_progress_set_secondary_message (LwProgress  *self,
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
     gboolean is_locked = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
 
     g_mutex_lock (&self->priv->data.mutex);
     is_locked = TRUE;
@@ -985,7 +1018,7 @@ lw_progress_set_secondary_message (LwProgress  *self,
 errored:
 
     if (is_locked) g_mutex_unlock (&self->priv->data.mutex);
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_SECONDARY_MESSAGE]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_SECONDARY_MESSAGE]);
 
     return;
 }
@@ -1067,11 +1100,15 @@ lw_progress_set_step_message (LwProgress  *self,
 
     //Declarations
     LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
     gboolean is_locked = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
 
     g_mutex_lock (&self->priv->data.mutex);
     is_locked = TRUE;
@@ -1085,7 +1122,7 @@ lw_progress_set_step_message (LwProgress  *self,
 errored:
 
     if (is_locked) g_mutex_unlock (&self->priv->data.mutex);
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_STEP_MESSAGE]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_STEP_MESSAGE]);
   
     return;
 }

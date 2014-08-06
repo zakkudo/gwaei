@@ -1411,3 +1411,66 @@ lw_regex_new (const gchar *PATTERN, const gchar *EXPRESSION, GError **error)
 
     return regex;
 }
+
+
+//converts "%s Copy %d" to "(?P<text>.+) Copy (?P<number>[0-9]+)"
+//, accessable with (?P=number) or (?P=text>)
+gchar*
+lw_utf8_convert_printf_pattern_to_regex_pattern (const gchar *PATTERN)
+{
+    //Sanity checks
+    g_return_val_if_fail (PATTERN != NULL, NULL);
+
+    //Declarations
+    GRegex *number_pattern = NULL;
+    GRegex *string_pattern = NULL;
+    gchar *pattern = NULL;
+
+    //Initializations
+    number_pattern = g_regex_new ("%d", 0, 0, NULL);
+    if (number_pattern == NULL) goto errored;
+    string_pattern = g_regex_new ("%s", 0, 0, NULL);
+    if (string_pattern == NULL) goto errored;
+    pattern = g_strdup (PATTERN);
+    if (pattern == NULL) goto errored;
+
+    {
+      gchar *replaced = NULL;
+      replaced = g_regex_replace_literal (number_pattern, pattern, -1, 0, "(?P<number>[0-9]+)", 0, NULL);
+      if (replaced != NULL)
+      {
+        g_free (pattern);
+        pattern = replaced;
+        replaced = NULL;
+      }
+    }
+    {
+      gchar *replaced = NULL;
+      replaced = g_regex_replace_literal (string_pattern, pattern, -1, 0, "(?P<text>.+)", 0, NULL);
+      if (replaced != NULL)
+      {
+        g_free (pattern);
+        pattern = replaced;
+        replaced = NULL;
+      }
+    }
+
+    {
+      gchar *anchored = NULL;
+      anchored = g_strdup_printf ("^%s$", pattern);
+      if (anchored != NULL)
+      {
+        g_free (pattern);
+        pattern = anchored;
+        anchored = NULL;
+      }
+    }
+
+errored:
+
+    if (number_pattern != NULL) g_regex_unref (number_pattern); number_pattern = NULL;
+    if (string_pattern != NULL) g_regex_unref (string_pattern); string_pattern = NULL;
+
+    return pattern;
+}
+

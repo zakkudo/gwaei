@@ -45,9 +45,6 @@
 
 #include <libwaei/morphologyengine-private.h>
 
-static LwMorphologyEngineClass *_klass = NULL;
-static LwMorphologyEngineClassPrivate *_klasspriv = NULL;
-
 G_DEFINE_TYPE (LwMorphologyEngine, lw_morphologyengine, G_TYPE_OBJECT)
 
 LwMorphologyEngine* lw_morphologyengine_new (const gchar *HUNSPELL_PREFERED_LOCALE)
@@ -195,17 +192,16 @@ lw_morphologyengine_class_init (LwMorphologyEngineClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwMorphologyEnginePrivate));
 
-    _klass = klass;
-    _klasspriv = klass->priv;
+    LwMorphologyEngineClassPrivate *klasspriv = klass->priv;
 
-    _klasspriv->pspec[PROP_LOCALE] = g_param_spec_string (
+    klasspriv->pspec[PROP_LOCALE] = g_param_spec_string (
       "locale",
       "Locale for european morphology",
       "Set the european morphology locale",
       "",
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_LOCALE, _klasspriv->pspec[PROP_LOCALE]);
+    g_object_class_install_property (object_class, PROP_LOCALE, klasspriv->pspec[PROP_LOCALE]);
 }
 
 
@@ -218,10 +214,14 @@ lw_morphologyengine_set_locale (LwMorphologyEngine *self,
 
     //Declarations
     LwMorphologyEnginePrivate *priv = NULL;
+    LwMorphologyEngineClass *klass = NULL;
+    LwMorphologyEngineClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_MORPHOLOGYENGINE_CLASS (self);
+    klasspriv = klass->priv;
     changed = g_strcmp0 (LOCALE, priv->locale);
 
     if (priv->locale != NULL) g_free (priv->locale);
@@ -229,7 +229,7 @@ lw_morphologyengine_set_locale (LwMorphologyEngine *self,
 
 errored:
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_LOCALE]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_LOCALE]);
 }
 
 

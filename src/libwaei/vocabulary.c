@@ -36,8 +36,6 @@
 
 #include <libwaei/vocabulary-private.h>
 
-static LwVocabularyClass *_klass = NULL;
-static LwVocabularyClassPrivate *_klasspriv = NULL;
 #define SINGLE_COPY_PATTERN "%s Copy"
 #define PLURAL_COPY_PATTERN "%s Copy %d"
 
@@ -229,10 +227,9 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwVocabularyPrivate));
 
-    _klass = klass;
-    _klasspriv = klass->priv;
+    LwVocabularyClassPrivate *klasspriv = klass->priv;
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
         "internal-row-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -243,7 +240,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
         "internal-row-inserted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -254,7 +251,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
         "internal-row-deleted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -265,7 +262,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
         "internal-rows-reordered",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -276,7 +273,7 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_POINTER
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_FILENAME_CHANGED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_FILENAME_CHANGED] = g_signal_new (
         "filename-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -287,32 +284,32 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
         G_TYPE_STRING
     );
 
-    _klasspriv->pspec[PROP_FILENAME] = g_param_spec_string (
+    klasspriv->pspec[PROP_FILENAME] = g_param_spec_string (
         "filename",
         "FIlename construct prop",
         "Set the filename",
         gettext("New Vocabulary List"),
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_FILENAME, _klasspriv->pspec[PROP_FILENAME]);
+    g_object_class_install_property (object_class, PROP_FILENAME, klasspriv->pspec[PROP_FILENAME]);
 
-    _klasspriv->pspec[PROP_CHANGED] = g_param_spec_boolean (
+    klasspriv->pspec[PROP_CHANGED] = g_param_spec_boolean (
         "changed",
         "changed construct prop",
         "Set the changed",
         FALSE,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_CHANGED, _klasspriv->pspec[PROP_CHANGED]);
+    g_object_class_install_property (object_class, PROP_CHANGED, klasspriv->pspec[PROP_CHANGED]);
 
-    _klasspriv->pspec[PROP_LOADED] = g_param_spec_boolean (
+    klasspriv->pspec[PROP_LOADED] = g_param_spec_boolean (
         "loaded",
         "loaded construct prop",
         "Set the loaded",
         FALSE,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_LOADED, _klasspriv->pspec[PROP_LOADED]);
+    g_object_class_install_property (object_class, PROP_LOADED, klasspriv->pspec[PROP_LOADED]);
 }
 
 void
@@ -445,15 +442,19 @@ lw_vocabulary_set_changed (LwVocabulary *self,
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
+    LwVocabularyClass *klass = NULL;
+    LwVocabularyClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_VOCABULARY_CLASS (self);
+    klasspriv = klass->priv;
     changed = (changed_ != priv->data.changed);
 
     priv->data.changed = changed_;
 
-    if (changed || changed_) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_CHANGED]);
+    if (changed || changed_) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CHANGED]);
 }
 
 
@@ -482,10 +483,14 @@ lw_vocabulary_set_loaded (LwVocabulary *self,
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
+    LwVocabularyClass *klass = NULL;
+    LwVocabularyClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_VOCABULARY_CLASS (self);
+    klasspriv = klass->priv;
     changed = (loaded != priv->data.loaded);
 
     priv->data.loaded = loaded;
@@ -504,7 +509,7 @@ lw_vocabulary_set_loaded (LwVocabulary *self,
       }
     }
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_LOADED]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_LOADED]);
 }
 
 
@@ -644,12 +649,16 @@ lw_vocabulary_set_filename (LwVocabulary *self,
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
+    LwVocabularyClass *klass = NULL;
+    LwVocabularyClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
     gchar *previous_filename = NULL;
     gboolean file_exists = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_VOCABULARY_CLASS (self);
+    klasspriv = klass->priv;
     file_exists = lw_vocabulary_has_file (self);
 
     //Delete
@@ -678,7 +687,7 @@ lw_vocabulary_set_filename (LwVocabulary *self,
     previous_filename = priv->config.filename;
     priv->config.filename = g_strdup (FILENAME);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FILENAME]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_FILENAME]);
 
 errored:
 
@@ -900,23 +909,27 @@ _insert_propogate_changes (LwVocabulary *self,
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
+    LwVocabularyClass *klass = NULL;
+    LwVocabularyClassPrivate *klasspriv = NULL;
     gint length = 0;
     gint i = 0;
 
     //Initializations
     priv = self->priv;
+    klass = LW_VOCABULARY_CLASS (self);
+    klasspriv = klass->priv;
     length = lw_vocabulary_length (self);
 
     //Rows that were inserted
     for (i = position; i < position + number_inserted; i++)
     {
-      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, i);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, i);
     }
 
     //Rows with modified indexes
     for (i = position + number_inserted; i < length; i++)
     {
-      g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, i);
+      g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, i);
     }
 }
 
@@ -1139,9 +1152,13 @@ _remove_propogate_changes (LwVocabulary *self,
     if (indices == NULL) return;
 
     //Declarations
+    LwVocabularyClass *klass = NULL;
+    LwVocabularyClassPrivate *klasspriv = NULL;
     gint length = 0;
 
     //Initializations
+    klass = LW_VOCABULARY_CLASS (self);
+    klasspriv = klass->priv;
     length = lw_vocabulary_length (self);
 
     //Rows that were removed
@@ -1151,7 +1168,7 @@ _remove_propogate_changes (LwVocabulary *self,
       i--;
       while (i > -1) 
       {
-        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, indices[i]);
+        g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED], 0, indices[i]);
         i--;
       }
     }
@@ -1161,7 +1178,7 @@ _remove_propogate_changes (LwVocabulary *self,
       gint index = 0;
       for (index = indices[0]; index > -1 && index < length; index++)
       {
-        g_signal_emit (G_OBJECT (self), _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, index);
+        g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, index);
       }
     }
 }

@@ -38,9 +38,6 @@
 
 #include <libwaei/search-private.h>
 
-static LwSearchClass *_klass = NULL;
-static LwSearchClassPrivate *_klasspriv = NULL;
-
 G_DEFINE_TYPE (LwSearch, lw_search, G_TYPE_OBJECT)
 
 //!
@@ -236,10 +233,9 @@ lw_search_class_init (LwSearchClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwSearchPrivate));
 
-    _klass = klass;
-    _klasspriv = klass->priv;
+    LwSearchClassPrivate *klasspriv = klass->priv;
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
         "internal-row-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -250,7 +246,7 @@ lw_search_class_init (LwSearchClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
         "internal-row-inserted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -261,7 +257,7 @@ lw_search_class_init (LwSearchClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
         "internal-row-deleted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -272,7 +268,7 @@ lw_search_class_init (LwSearchClass *klass)
         G_TYPE_INT
     );
 
-    _klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
+    klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
         "internal-rows-reordered",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
@@ -283,25 +279,25 @@ lw_search_class_init (LwSearchClass *klass)
         G_TYPE_POINTER
     );
 
-    _klasspriv->pspec[PROP_DICTIONARY] = g_param_spec_object (
+    klasspriv->pspec[PROP_DICTIONARY] = g_param_spec_object (
         "dictionary",
         "FIlename construct prop",
         "Set the filename",
         LW_TYPE_DICTIONARY,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DICTIONARY, _klasspriv->pspec[PROP_DICTIONARY]);
+    g_object_class_install_property (object_class, PROP_DICTIONARY, klasspriv->pspec[PROP_DICTIONARY]);
 
-    _klasspriv->pspec[PROP_QUERY] = g_param_spec_string (
+    klasspriv->pspec[PROP_QUERY] = g_param_spec_string (
         "query",
         "changed construct prop",
         "Set the changed",
         NULL,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_QUERY, _klasspriv->pspec[PROP_QUERY]);
+    g_object_class_install_property (object_class, PROP_QUERY, klasspriv->pspec[PROP_QUERY]);
 
-    _klasspriv->pspec[PROP_FLAGS] = g_param_spec_int (
+    klasspriv->pspec[PROP_FLAGS] = g_param_spec_int (
         "flags",
         "loaded construct prop",
         "Set the loaded",
@@ -310,9 +306,9 @@ lw_search_class_init (LwSearchClass *klass)
         0,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_FLAGS, _klasspriv->pspec[PROP_FLAGS]);
+    g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
 
-    _klasspriv->pspec[PROP_STATUS] = g_param_spec_int (
+    klasspriv->pspec[PROP_STATUS] = g_param_spec_int (
         "status",
         "loaded construct prop",
         "Set the loaded",
@@ -321,9 +317,9 @@ lw_search_class_init (LwSearchClass *klass)
         LW_SEARCHSTATUS_IDLE,
         G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_FLAGS, _klasspriv->pspec[PROP_FLAGS]);
+    g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
 
-    _klasspriv->pspec[PROP_MAX_RESULTS] = g_param_spec_int (
+    klasspriv->pspec[PROP_MAX_RESULTS] = g_param_spec_int (
         "max-results",
         "loaded construct prop",
         "Set the loaded",
@@ -332,25 +328,25 @@ lw_search_class_init (LwSearchClass *klass)
         0,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_MAX_RESULTS, _klasspriv->pspec[PROP_MAX_RESULTS]);
+    g_object_class_install_property (object_class, PROP_MAX_RESULTS, klasspriv->pspec[PROP_MAX_RESULTS]);
 
-    _klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
+    klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
         "progress",
         "loaded construct prop",
         "Set the loaded",
         LW_TYPE_PROGRESS,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_PROGRESS, _klasspriv->pspec[PROP_PROGRESS]);
+    g_object_class_install_property (object_class, PROP_PROGRESS, klasspriv->pspec[PROP_PROGRESS]);
 
-    _klasspriv->pspec[PROP_REGEX] = g_param_spec_boxed (
+    klasspriv->pspec[PROP_REGEX] = g_param_spec_boxed (
         "regex",
         "loaded construct prop",
         "Set the loaded",
         G_TYPE_REGEX,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_REGEX, _klasspriv->pspec[PROP_REGEX]);
+    g_object_class_install_property (object_class, PROP_REGEX, klasspriv->pspec[PROP_REGEX]);
 }
 
 
@@ -358,21 +354,27 @@ void
 lw_search_set_query (LwSearch    *self,
                      const gchar *QUERY)
 {
+  /*TODO
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
 
     //Declarations
     LwSearchPrivate *priv = NULL;
+    LwSearchClass *klass = NULL;
+    LwSearchClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = LW_SEARCH_CLASS (self);
+    klasspriv = klass->priv;
     if (g_strcmp0 (QUERY, priv->data.query) == 0) goto errored;
 
     if (priv->data.query != NULL) lw_morphologystring_free (priv->data.query);
     priv->data.query = lw_morphologyengine_parse (priv->data.morphologyengine, QUERY, LW_NORMALIZATION_INSENSITIVE);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_QUERY]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_QUERY]);
     lw_search_sync_regex (self);
+    */
 
 errored:
 
@@ -514,17 +516,21 @@ lw_search_set_max_results (LwSearch *self,
 
     //Declarations
     LwSearchPrivate *priv = NULL;
+    LwSearchClass *klass = NULL;
+    LwSearchClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_SEARCH_CLASS (self);
+    klasspriv = klass->priv;
     changed = (priv->config.max_results != max_results);
 
     priv->config.max_results = max_results;
 
 errored:
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_MAX_RESULTS]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_MAX_RESULTS]);
 }
 
 
@@ -554,6 +560,8 @@ lw_search_set_status (LwSearch       *self,
 
     //Declarations
     LwSearchPrivate *priv = NULL;
+    LwSearchClass *klass = NULL;
+    LwSearchClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
@@ -562,7 +570,7 @@ lw_search_set_status (LwSearch       *self,
 
     priv->data.status = status;
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_STATUS]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_STATUS]);
 }
 
 
@@ -609,15 +617,19 @@ lw_search_set_flags (LwSearch *self,
 
     //Declarations
     LwSearchPrivate *priv = NULL;
+    LwSearchClass *klass = NULL;
+    LwSearchClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = LW_SEARCH_CLASS (self);
+    klasspriv = klass->priv;
     if (priv->config.flags == flags) goto errored;
 
     priv->config.flags = flags;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FLAGS]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_FLAGS]);
     lw_search_sync_regex (self);
 
 errored:
@@ -651,11 +663,15 @@ lw_search_set_regex (LwSearch *self,
 
     //Declarations
     LwSearchPrivate *priv = NULL;
+    LwSearchClass *klass = NULL;
+    LwSearchClassPrivate *klasspriv = NULL;
     const gchar *PATTERN = NULL;
 
     //Initializations
     priv = self->priv;
-    f (regex == priv->data.regex) goto errored;
+    klass = LW_SEARCH_CLASS (self);
+    klasspriv = klass->priv;
+    if (regex == priv->data.regex) goto errored;
     if (regex != NULL) PATTERN = g_regex_get_pattern (regex);
     if (priv->data.regex != NULL && g_strcmp0 (PATTERN, g_regex_get_pattern (priv->data.regex)) == 0) goto errored;
 
@@ -672,7 +688,7 @@ lw_search_set_regex (LwSearch *self,
 
     priv->data.regex = regex;
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_REGEX]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_REGEX]);
 
 errored:
 
@@ -683,6 +699,7 @@ errored:
 void
 lw_search_sync_regex (LwSearch *self)
 {
+  /*TODO
     g_return_if_fail (LW_IS_SEARCH (self));
 
     //Declarations
@@ -697,21 +714,22 @@ lw_search_sync_regex (LwSearch *self)
       f |= G_REGEX_CASELESS;
     }
 
-    regex = g_regex_new (pattern, f, NULL);
+    regex = g_regex_new (pattern, f, 0, NULL);
 
     if (regex == NULL)
     {
       gchar *pattern = g_regex_escape_string (pattern)
-      regex = g_regex_new (patter, f NULL);
+      regex = g_regex_new (patter, f, 0, NULL);
     }
 
-    lw_search_set_regex (regex);
+    lw_search_set_regex (self, regex);
 
     if (regex != NULL)
     {
       g_regex_unref (regex);
       regex = NULL;
     }
+    */
 }
 
 
@@ -812,11 +830,9 @@ printf("BREAK lw_search_stream_results_thread index is loaded\n");
     //Regex self
     else
     {
-*/
-TODO!
+
       if (self->resulttable != NULL) g_hash_table_unref (self->resulttable);
       self->resulttable = lw_dictionary_regex_search (dictionary, priv->data.query, flags, progress);
-      /*
     }
     */
 

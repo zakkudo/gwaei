@@ -59,6 +59,24 @@ lw_result_new (const gchar *TEXT)
 }
 
 
+GType
+lw_result_get_type ()
+{
+    static GType type = 0;
+
+    if (type == 0)
+    {
+      type = g_boxed_type_register_static (
+        "LwResult",
+        (GBoxedCopyFunc) lw_result_copy,
+        (GBoxedFreeFunc) lw_result_free
+      );
+    }
+
+    return type;
+}
+
+
 void
 lw_result_free (LwResult *self)
 {
@@ -72,6 +90,13 @@ lw_result_free (LwResult *self)
     memset(self, 0, sizeof(LwResult));
 
     g_free (self); 
+}
+
+
+LwResult*
+lw_result_copy (LwResult *self)
+{
+  return NULL;
 }
 
 
@@ -259,5 +284,8 @@ lw_result_init_buffer (LwResult              *self,
 
     lw_resultbuffer_init (buffer, self->length);
 }
+
+
+
 
 

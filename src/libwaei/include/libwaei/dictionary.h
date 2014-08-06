@@ -64,7 +64,6 @@ gchar* lw_dictionary_directoryname_to_typename (const gchar *DIRECTORYNAME);
 LwDictionaryBuffer* lw_dictionary_get_buffer (LwDictionary *self);
 void lw_dictionary_set_buffer (LwDictionary *self, LwDictionaryBuffer *buffer);
 
-const gchar* lw_dictionary_readline (LwDictionary *dictionary, const gchar *BUFFER);
 gchar * const * lw_dictionary_lines (LwDictionary *self);
 gint lw_dictionary_num_lines (LwDictionary *self);
 

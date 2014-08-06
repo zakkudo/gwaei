@@ -16,10 +16,13 @@ struct _LwResult {
 
 typedef struct _LwResult LwResult;
 #define LW_RESULT(obj) (LwResult*)obj
+#define LW_TYPE_RESULT (lw_result_get_type())
 
 //Methods
 LwResult* lw_result_new (const gchar *TEXT);
 void lw_result_free (LwResult *self);
+GType lw_result_get_type (void);
+LwResult* lw_result_copy (LwResult *self);
 
 //Methods
 gchar const * lw_result_get_text (LwResult *self);
