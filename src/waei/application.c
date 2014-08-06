@@ -41,9 +41,6 @@
 #include <waei/waei.h>
 #include <waei/application-private.h>
 
-static WApplicationClass *_klass = NULL;
-static WApplicationClassPrivate *_klasspriv = NULL;
-
 G_DEFINE_TYPE (WApplication, w_application, G_TYPE_APPLICATION)
 
 //!
@@ -286,26 +283,25 @@ w_application_class_init (WApplicationClass *klass)
 
     g_type_class_add_private (object_class, sizeof (WApplicationPrivate));
 
-    _klass = klass;
-    _klasspriv = klass->priv;
+    WApplicationClassPrivate *klasspriv = klass->priv;
 
-    _klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
+    klasspriv->pspec[PROP_PREFERENCES] = g_param_spec_object (
         "preferences",
         "FIlename construct prop",
         "Set the filename",
         LW_TYPE_PREFERENCES,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_PREFERENCES, _klasspriv->pspec[PROP_PREFERENCES]);
+    g_object_class_install_property (object_class, PROP_PREFERENCES, klasspriv->pspec[PROP_PREFERENCES]);
 
-    _klasspriv->pspec[PROP_MORPHOLOGYENGINE] = g_param_spec_object (
+    klasspriv->pspec[PROP_MORPHOLOGYENGINE] = g_param_spec_object (
         "morphology-engine",
         "FIlename construct prop",
         "Set the filename",
         LW_TYPE_MORPHOLOGYENGINE,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_MORPHOLOGYENGINE, _klasspriv->pspec[PROP_MORPHOLOGYENGINE]);
+    g_object_class_install_property (object_class, PROP_MORPHOLOGYENGINE, klasspriv->pspec[PROP_MORPHOLOGYENGINE]);
 }
 
 
@@ -488,10 +484,14 @@ w_application_set_preferences (WApplication *self,
 
     //Declarations
     WApplicationPrivate *priv = NULL;
+    WApplicationClass *klass = NULL;
+    WApplicationClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = W_APPLICATION_CLASS (self);
+    klasspriv = klass->priv;
     changed = (preferences != priv->data.preferences);
 
     if (priv->data.preferences != NULL)
@@ -508,7 +508,7 @@ w_application_set_preferences (WApplication *self,
       g_object_add_weak_pointer (G_OBJECT (priv->data.preferences), (gpointer*) &(priv->data.preferences));
     }
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_PREFERENCES]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PREFERENCES]);
 }
 
 

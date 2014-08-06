@@ -18,7 +18,7 @@ typedef struct _LwDictionaryBuffer LwDictionaryBuffer;
 #define LW_DICTIONARYBUFFER(obj) (LwDictionaryBuffer*)obj
 #define LW_TYPE_DICTIONARYBUFFER (lw_result_get_type())
 
-typedef void(*LwTokenizeFunc)(gchar*, gchar**, gint*);
+typedef gchar**(*LwTokenizeFunc)(gchar*, gchar**, gint*);
 
 LwDictionaryBuffer* lw_dictionarybuffer_new (void);
 GType lw_dictionarybuffer_get_type (void);

@@ -43,6 +43,7 @@
 #include <libwaei/gettext.h>
 
 static LwResult* lw_radicalsdictionary_parse (LwDictionary*, const gchar*);
+static gchar** lw_radicalsdictionary_tokenize (gchar *buffer, gchar **tokens, gint *num_tokens);
 
 
 G_DEFINE_TYPE (LwRadicalsDictionary, lw_radicalsdictionary, LW_TYPE_DICTIONARY)
@@ -109,8 +110,57 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
     dictionary_class->priv->parse = lw_radicalsdictionary_parse;
+    dictionary_class->priv->tokenize = lw_radicalsdictionary_tokenize;
 }
 
+
+/**
+ * lw_edictionary_tokenize
+ * @buffer The text to tokenize.  It is tokenized in place and no copy is made.
+ * @tokens A pointer to an alloced array to place the tokens.  This array
+ * should have enough space to hold the tokenized buffer positions which is usually
+ * (strlen(@buffer) + 1) * sizeof(gchar*).  The token array is %NULL terminated.
+ * @num_tokens The number of tokens that were created in @tokens
+ *
+ * Tokenizes a string given the standards of edict dictionaries by placing %NULL
+ * characters in the buffer, and recording the positions in the @tokens array.
+ * This method is made to token one line at a time.
+ *
+ * Returns: The end of the filled token array
+ */
+static gchar**
+lw_radicalsdictionary_tokenize (gchar  *buffer,
+                                gchar **tokens,
+                                gint   *num_tokens)
+{
+    //Sanity checks
+    g_return_val_if_fail (buffer != NULL, NULL);
+    g_return_val_if_fail (tokens != NULL, NULL);
+
+    //Declarations
+    gchar *c = NULL;
+    gint length = 0;
+
+    //Initializations
+    c = buffer;
+
+    while (*c != '\0')
+    {
+      while (g_ascii_isspace (*c) && g_ascii_isspace (*c)) c = lw_utf8_set_null_next_char (c);
+      if (*c != '\0') tokens[length++] = c;
+    }
+
+errored:
+
+    tokens[length] = NULL;
+
+    if (num_tokens != NULL)
+    {
+      *num_tokens = length;
+    }
+
+    return tokens + length;
+}
 
 
 //!

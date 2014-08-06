@@ -59,6 +59,24 @@ lw_condition_new_boolean (const gchar *property_name,
     return self;
 }
 
+
+GType
+lw_condition_get_type ()
+{
+    static GType type = 0;
+
+    if (type == 0)
+    {
+      type = g_boxed_type_register_static (
+        "LwCondition",
+        (GBoxedCopyFunc) lw_condition_copy,
+        (GBoxedFreeFunc) lw_condition_free
+      );
+    }
+
+    return type;
+}
+
 void
 lw_condition_free (LwCondition *self)
 {

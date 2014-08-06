@@ -61,6 +61,24 @@ lw_dependancy_new (const gchar *NAME)
 }
 
 
+GType
+lw_dependancy_get_type ()
+{
+    static GType type = 0;
+
+    if (type == 0)
+    {
+      type = g_boxed_type_register_static (
+        "LwDependancy",
+        (GBoxedCopyFunc) lw_dependancy_copy,
+        (GBoxedFreeFunc) lw_dependancy_free
+      );
+    }
+
+    return type;
+}
+
+
 LwDependancy*
 lw_dependancy_copy (LwDependancy* self)
 {

@@ -6,8 +6,10 @@ G_BEGIN_DECLS
 typedef struct _LwDependancy LwDependancy;
 
 #define LW_DEPENDANCY(obj) (LwDependancy*)obj
+#define LW_TYPE_DEPENDANCY (lw_dependancy_get_type ())
 
 LwDependancy* lw_dependancy_new (const gchar *NAME);
+GType lw_dependancy_get_type (void);
 LwDependancy* lw_dependancy_copy (LwDependancy* self);
 void lw_dependancy_free (LwDependancy *self);
 

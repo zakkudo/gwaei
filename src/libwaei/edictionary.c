@@ -45,7 +45,7 @@
 G_DEFINE_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 
 static LwResult* lw_edictionary_parse (LwDictionary*, const gchar*);
-
+static gchar** lw_edictionary_tokenize (gchar *buffer, gchar **tokens, gint *num_tokens);
 
 LwDictionary* lw_edictionary_new (const gchar        *FILENAME, 
                                   LwMorphologyEngine *morphologyengine)
@@ -127,23 +127,39 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
     dictionary_class->priv->parse = lw_edictionary_parse;
+    dictionary_class->priv->tokenize = lw_edictionary_tokenize;
 }
 
 
+/**
+ * lw_edictionary_tokenize
+ * @buffer The text to tokenize.  It is tokenized in place and no copy is made.
+ * @tokens A pointer to an alloced array to place the tokens.  This array
+ * should have enough space to hold the tokenized buffer positions which is usually
+ * (strlen(@buffer) + 1) * sizeof(gchar*).  The token array is %NULL terminated.
+ * @num_tokens The number of tokens that were created in @tokens
+ *
+ * Tokenizes a string given the standards of edict dictionaries by placing %NULL
+ * characters in the buffer, and recording the positions in the @tokens array.
+ * This method is made to token one line at a time.
+ *
+ * Returns: The end of the filled token array
+ */
 static gchar**
-_tokenize (LwResult *result,
-           gint     *length)
+lw_edictionary_tokenize (gchar  *buffer,
+                         gchar **tokens,
+                         gint   *num_tokens)
 {
     //Sanity checks
-    g_return_val_if_fail (result != NULL, NULL);
+    g_return_val_if_fail (buffer != NULL, NULL);
+    g_return_val_if_fail (tokens != NULL, NULL);
 
     //Declarations
     gchar *c = NULL;
-    LwResultBuffer buffer = {0};
+    gint length = 0;
 
     //Initializations
-    c = lw_result_get_innerbuffer (result);
-    lw_result_init_buffer (result, &buffer);
+    c = buffer;
 
     while (*c != '\0' && g_ascii_isspace (*c)) c = g_utf8_next_char (c);
     if (*c == '\0') goto errored;
@@ -152,7 +168,7 @@ _tokenize (LwResult *result,
     //^
     //HERE
 
-    lw_resultbuffer_add (&buffer, c);
+    tokens[length++] = c;
 
     while (*c != '\0' && g_ascii_isspace (*c)) c = g_utf8_next_char (c);
     c = lw_utf8_set_null_next_char (c);
@@ -170,7 +186,7 @@ _tokenize (LwResult *result,
 
       if (*e == ']' && e - c > 1)
       {
-        lw_resultbuffer_add (&buffer, c);
+        tokens[length++] = c;
         c = lw_utf8_set_null_next_char (e);
       }
       else
@@ -199,7 +215,7 @@ _tokenize (LwResult *result,
       while (*e != '\0' && *e != ')') e = g_utf8_next_char (e);
       if (*e == '\0') goto errored;
 
-      if (e - c > 1) lw_resultbuffer_add (&buffer, c);
+      if (e - c > 1) tokens[length++] = c;
 
       c = lw_utf8_set_null_next_char (e);
     }
@@ -225,7 +241,7 @@ _tokenize (LwResult *result,
         while (*e != '\0' && *e != '/') e = g_utf8_next_char (e);
         if (*e == '\0') goto errored;;
 
-        if (e - c > 1) lw_resultbuffer_add (&buffer, c);
+        if (e - c > 1) tokens[length++] = c;
 
         c = lw_utf8_set_null_next_char (e);
       }
@@ -233,12 +249,14 @@ _tokenize (LwResult *result,
 
 errored:
 
-    if (length != NULL)
+    tokens[length] = NULL;
+
+    if (num_tokens != NULL)
     {
-      *length = lw_resultbuffer_length (&buffer);
+      *num_tokens = length;
     }
 
-    return lw_resultbuffer_clear (&buffer, FALSE);
+    return tokens + length;
 }
 
 
@@ -262,6 +280,7 @@ lw_edictionary_parse (LwDictionary *dictionary,
     LwResultBuffer definitions = {0};
     LwResultBuffer classifications = {0};
     LwResultBuffer popular = {0};
+    /*TODO
 
     //Initializations
     result = lw_result_new (TEXT);
@@ -358,7 +377,7 @@ errored:
     lw_resultbuffer_clear (&definitions, TRUE);
     lw_resultbuffer_clear (&classifications, TRUE);
     lw_resultbuffer_clear (&popular, TRUE);
-
+*/
     return result;
 }
 

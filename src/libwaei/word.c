@@ -39,7 +39,7 @@
 LwWord*
 lw_word_new ()
 {
-    LwWord *word;
+    LwWord *word = NULL;
 
     word = g_new0 (LwWord, 1);
     word->row.current_index = -1;

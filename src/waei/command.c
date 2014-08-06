@@ -43,9 +43,6 @@
 #include <waei/command-private.h>
 
 
-static WCommandClass *_klass = NULL;
-static WCommandClassPrivate *_klasspriv = NULL;
-
 G_DEFINE_TYPE (WCommand, w_command, G_TYPE_OBJECT)
 
 
@@ -290,108 +287,107 @@ w_command_class_init (WCommandClass *klass)
 
     g_type_class_add_private (object_class, sizeof (WCommandPrivate));
 
-    _klass = klass;
-    _klasspriv = klass->priv;
+    WCommandClassPrivate *klasspriv = klass->priv;
 
-    _klasspriv->pspec[PROP_APPLICATION] = g_param_spec_object (
+    klasspriv->pspec[PROP_APPLICATION] = g_param_spec_object (
         "application",
         "FIlename construct prop",
         "Set the filename",
         W_TYPE_APPLICATION,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_APPLICATION, _klasspriv->pspec[PROP_APPLICATION]);
+    g_object_class_install_property (object_class, PROP_APPLICATION, klasspriv->pspec[PROP_APPLICATION]);
 
-    _klasspriv->pspec[PROP_COMMAND_LINE] = g_param_spec_object (
+    klasspriv->pspec[PROP_COMMAND_LINE] = g_param_spec_object (
         "command-line",
         "FIlename construct prop",
         "Set the filename",
         G_TYPE_APPLICATION_COMMAND_LINE,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_COMMAND_LINE, _klasspriv->pspec[PROP_COMMAND_LINE]);
+    g_object_class_install_property (object_class, PROP_COMMAND_LINE, klasspriv->pspec[PROP_COMMAND_LINE]);
 
-    _klasspriv->pspec[PROP_DICTIONARY_SWITCH_TEXT] = g_param_spec_string (
+    klasspriv->pspec[PROP_DICTIONARY_SWITCH_TEXT] = g_param_spec_string (
         "dictionary-switch-text",
         "FIlename construct prop",
         "Set the filename",
         "",
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DICTIONARY_SWITCH_TEXT, _klasspriv->pspec[PROP_DICTIONARY_SWITCH_TEXT]);
+    g_object_class_install_property (object_class, PROP_DICTIONARY_SWITCH_TEXT, klasspriv->pspec[PROP_DICTIONARY_SWITCH_TEXT]);
 
-    _klasspriv->pspec[PROP_DICTIONARY_INSTALL_SWITCH_TEXT] = g_param_spec_string (
+    klasspriv->pspec[PROP_DICTIONARY_INSTALL_SWITCH_TEXT] = g_param_spec_string (
         "dictionary-install-switch-text",
         "FIlename construct prop",
         "Set the filename",
         "",
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DICTIONARY_INSTALL_SWITCH_TEXT, _klasspriv->pspec[PROP_DICTIONARY_INSTALL_SWITCH_TEXT]);
+    g_object_class_install_property (object_class, PROP_DICTIONARY_INSTALL_SWITCH_TEXT, klasspriv->pspec[PROP_DICTIONARY_INSTALL_SWITCH_TEXT]);
 
-    _klasspriv->pspec[PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT] = g_param_spec_string (
+    klasspriv->pspec[PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT] = g_param_spec_string (
         "dictionary-uninstall-switch-text",
         "FIlename construct prop",
         "Set the filename",
         "",
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT, _klasspriv->pspec[PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT]);
+    g_object_class_install_property (object_class, PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT, klasspriv->pspec[PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT]);
 
-    _klasspriv->pspec[PROP_QUERY_SWITCH_TEXT] = g_param_spec_string (
+    klasspriv->pspec[PROP_QUERY_SWITCH_TEXT] = g_param_spec_string (
         "query-switch-text",
         "FIlename construct prop",
         "Set the filename",
         "",
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_QUERY_SWITCH_TEXT, _klasspriv->pspec[PROP_QUERY_SWITCH_TEXT]);
+    g_object_class_install_property (object_class, PROP_QUERY_SWITCH_TEXT, klasspriv->pspec[PROP_QUERY_SWITCH_TEXT]);
 
 
-    _klasspriv->pspec[PROP_QUIET_SWITCH] = g_param_spec_boolean (
+    klasspriv->pspec[PROP_QUIET_SWITCH] = g_param_spec_boolean (
         "quiet-switch",
         "FIlename construct prop",
         "Set the filename",
         FALSE,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_QUIET_SWITCH, _klasspriv->pspec[PROP_QUIET_SWITCH]);
+    g_object_class_install_property (object_class, PROP_QUIET_SWITCH, klasspriv->pspec[PROP_QUIET_SWITCH]);
 
-    _klasspriv->pspec[PROP_EXACT_SWITCH] = g_param_spec_boolean (
+    klasspriv->pspec[PROP_EXACT_SWITCH] = g_param_spec_boolean (
         "exact-switch",
         "FIlename construct prop",
         "Set the filename",
         FALSE,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_EXACT_SWITCH, _klasspriv->pspec[PROP_EXACT_SWITCH]);
+    g_object_class_install_property (object_class, PROP_EXACT_SWITCH, klasspriv->pspec[PROP_EXACT_SWITCH]);
 
-    _klasspriv->pspec[PROP_LIST_SWITCH] = g_param_spec_boolean (
+    klasspriv->pspec[PROP_LIST_SWITCH] = g_param_spec_boolean (
         "list-switch",
         "FIlename construct prop",
         "Set the filename",
         FALSE,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_LIST_SWITCH, _klasspriv->pspec[PROP_LIST_SWITCH]);
+    g_object_class_install_property (object_class, PROP_LIST_SWITCH, klasspriv->pspec[PROP_LIST_SWITCH]);
 
-    _klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH] = g_param_spec_boolean (
+    klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH] = g_param_spec_boolean (
         "force-index-rebuild-switch",
         "FIlename construct prop",
         "Set the filename",
         FALSE,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_FORCE_INDEX_REBUILD_SWITCH, _klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH]);
+    g_object_class_install_property (object_class, PROP_FORCE_INDEX_REBUILD_SWITCH, klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH]);
 
-    _klasspriv->pspec[PROP_START_SERVER_SWITCH] = g_param_spec_boolean (
+    klasspriv->pspec[PROP_START_SERVER_SWITCH] = g_param_spec_boolean (
         "start-server-switch",
         "FIlename construct prop",
         "Set the filename",
         FALSE,
         G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_START_SERVER_SWITCH, _klasspriv->pspec[PROP_START_SERVER_SWITCH]);
+    g_object_class_install_property (object_class, PROP_START_SERVER_SWITCH, klasspriv->pspec[PROP_START_SERVER_SWITCH]);
 }
 
 
@@ -1163,7 +1159,7 @@ w_application_set_dictionary (WApplication *self,
       );
     }
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DICTIONARY]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DICTIONARY]);
 }
 
 
@@ -1193,10 +1189,14 @@ w_command_set_application (WCommand     *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
     gboolean changed = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     changed = (application != priv->data.application);
 
     if (application != NULL)
@@ -1223,7 +1223,7 @@ w_command_set_application (WCommand     *self,
       );
     }
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_APPLICATION]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_APPLICATION]);
 }
 
 
@@ -1252,10 +1252,14 @@ w_command_set_command_line (WCommand                *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     changed = (priv->data.command_line != command_line);
 
     if (command_line != NULL)
@@ -1284,7 +1288,7 @@ w_command_set_command_line (WCommand                *self,
       if (changed) w_command_parse_args (self);
     }
 
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_COMMAND_LINE]);
+    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_COMMAND_LINE]);
 }
 
 
@@ -1313,14 +1317,18 @@ w_command_set_quiet_switch (WCommand *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (priv->argument.quiet_switch == quiet_switch) goto errored;
 
     priv->argument.quiet_switch = quiet_switch;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_QUIET_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_QUIET_SWITCH]);
 
 errored:
 
@@ -1353,14 +1361,18 @@ w_command_set_exact_switch (WCommand *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (priv->argument.exact_switch == exact_switch) goto errored;
 
     priv->argument.exact_switch = exact_switch;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_EXACT_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_EXACT_SWITCH]);
 
 errored:
 
@@ -1393,14 +1405,18 @@ w_command_set_list_switch (WCommand *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (priv->argument.list_switch == list_switch) goto errored;
 
     priv->argument.list_switch = list_switch;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_LIST_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_LIST_SWITCH]);
 
 errored:
 
@@ -1433,14 +1449,18 @@ w_command_set_version_switch (WCommand *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (priv->argument.version_switch == version_switch) goto errored;
 
     priv->argument.version_switch = version_switch;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_VERSION_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_VERSION_SWITCH]);
 
 errored:
 
@@ -1473,14 +1493,18 @@ w_command_set_color_switch (WCommand *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (priv->argument.color_switch == color_switch) goto errored;
 
     priv->argument.color_switch = color_switch;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_COLOR_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_COLOR_SWITCH]);
 
 errored:
 
@@ -1514,14 +1538,18 @@ w_command_set_force_index_rebuild_switch (WCommand *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (priv->argument.force_index_rebuild_switch == force_index_rebuild_switch) goto errored;
 
     priv->argument.force_index_rebuild_switch = force_index_rebuild_switch;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_FORCE_INDEX_REBUILD_SWITCH]);
 
 errored:
 
@@ -1554,14 +1582,18 @@ w_command_set_start_server_switch (WCommand *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (priv->argument.start_server_switch == start_server_switch) goto errored;
 
     priv->argument.start_server_switch = start_server_switch;
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_START_SERVER_SWITCH]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_START_SERVER_SWITCH]);
 
 errored:
 
@@ -1594,15 +1626,19 @@ w_command_set_dictionary_switch_text (WCommand    *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (g_strcmp0 (dictionary_switch_text, priv->argument.dictionary_switch_text) == 0) goto errored;
 
     g_free (priv->argument.dictionary_switch_text);
     priv->argument.dictionary_switch_text = g_strdup (dictionary_switch_text);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DICTIONARY_SWITCH_TEXT]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DICTIONARY_SWITCH_TEXT]);
 
 errored:
 
@@ -1635,15 +1671,19 @@ w_command_set_dictionary_install_switch_text (WCommand    *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (g_strcmp0 (dictionary_install_switch_text, priv->argument.dictionary_install_switch_text) == 0) goto errored;
 
     g_free (priv->argument.dictionary_install_switch_text);
     priv->argument.dictionary_install_switch_text = g_strdup (dictionary_install_switch_text);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DICTIONARY_INSTALL_SWITCH_TEXT]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DICTIONARY_INSTALL_SWITCH_TEXT]);
 
 errored:
 
@@ -1694,15 +1734,19 @@ w_command_set_dictionary_uninstall_switch_text (WCommand    *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (g_strcmp0 (dictionary_uninstall_switch_text, priv->argument.dictionary_uninstall_switch_text) == 0) goto errored;
 
     g_free (priv->argument.dictionary_uninstall_switch_text);
     priv->argument.dictionary_uninstall_switch_text = g_strdup (dictionary_uninstall_switch_text);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT]);
 
 errored:
 
@@ -1753,15 +1797,19 @@ w_command_set_query_switch_text (WCommand    *self,
 
     //Declarations
     WCommandPrivate *priv = NULL;
+    WCommandClass *klass = NULL;
+    WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
+    klass = W_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
     if (g_strcmp0 (query_switch_text, priv->argument.query_switch_text) == 0) goto errored;
 
     g_free (priv->argument.query_switch_text);
     priv->argument.query_switch_text = g_strdup (query_switch_text);
 
-    g_object_notify_by_pspec (G_OBJECT (self), _klasspriv->pspec[PROP_QUERY_SWITCH_TEXT]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_QUERY_SWITCH_TEXT]);
 
 errored:
 

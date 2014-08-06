@@ -45,6 +45,7 @@
 G_DEFINE_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
 
 static LwResult* lw_kanjidictionary_parse (LwDictionary*, const gchar*);
+static gchar** lw_kanjidictionary_tokenize (gchar *buffer, gchar **tokens, gint *num_tokens);
 
 
 LwDictionary* lw_kanjidictionary_new (const gchar        *FILENAME, 
@@ -113,6 +114,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
     dictionary_class->priv->parse = lw_kanjidictionary_parse;
+    dictionary_class->priv->tokenize = lw_kanjidictionary_tokenize;
 }
 
 
@@ -124,21 +126,23 @@ _is_stroke_number (const gchar *c)
 
 
 static gchar**
-_tokenize (LwResult *result, gint *length)
+lw_kanjidictionary_tokenize (gchar  *buffer,
+                             gchar **tokens,
+                             gint   *num_tokens)
 {
     //Sanity checks
-    g_return_val_if_fail (result != NULL, NULL);
+    g_return_val_if_fail (buffer != NULL, NULL);
+    g_return_val_if_fail (tokens != NULL, NULL);
 
     //逢 3029 U9022 B162 G9 S10 F2116 N4694 V6054 DP4002 DL2774 L2417 DN2497 O1516 MN38901X MP11.0075 P3-3-7 I2q7.15 Q3730.4 DR2555 ZRP3-4-7 Yfeng2 Wbong ホウ あ.う T1 おう {meeting}  
 
     //Declarations
-    LwResultBuffer buffer = {0};
     gchar *c = NULL;
     gchar *e = NULL;
+    gint length = 0;
 
     //Initializations
-    lw_result_init_buffer (result, &buffer);
-    c = lw_result_get_innerbuffer (result);
+    c = buffer;
     if (c == NULL) goto errored;
 
     while (*c != '\0')
@@ -156,7 +160,7 @@ _tokenize (LwResult *result, gint *length)
           while (*e != '\0' && *e != '}') e = g_utf8_next_char (e); //Make sure the end of the token exists }
           if (*e == '\0') break;
     
-          if (e - c > 1) lw_resultbuffer_add (&buffer, c);
+          if (e - c > 1) tokens[length++] = c;
         }
         c = lw_utf8_set_null_next_char (e);
         if (*c == '\0') break;
@@ -167,21 +171,23 @@ _tokenize (LwResult *result, gint *length)
         {
           while (*e != '\0' && !g_ascii_isspace (*e)) e = g_utf8_next_char (e);
 
-          if (e - c > 1) lw_resultbuffer_add (&buffer, c);
+          if (e - c > 1) tokens[length++] = c;
         }
         c = lw_utf8_set_null_next_char (e);
         if (*c == '\0') break;
       }
     }
 
-    if (length != NULL)
+    if (num_tokens != NULL)
     {
-      *length = lw_resultbuffer_length (&buffer);
+      *num_tokens = length;
     }
 
 errored:
 
-    return lw_resultbuffer_clear (&buffer, FALSE);
+    tokens[length] = NULL;
+
+    return tokens + length;
 }
 
 
@@ -210,6 +216,8 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
     LwResultBuffer kun_readings = {0};
     LwResultBuffer on_readings = {0};
     LwResultBuffer meanings = {0};
+
+/*TODO
 
     //Initializations
     result = lw_result_new (TEXT);
@@ -275,7 +283,7 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
       {
         GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (script == G_UNICODE_SCRIPT_KATAKANA || script == G_UNICODE_SCRIPT_HIRAGANA) break;
-/*TODO
+
         if (_is_unicode_symbol (tokens[i]))
         {
           lw_resultbuffer_add (&unicode_symbol, tokens[i]);
@@ -296,7 +304,7 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
         {
           lw_resultbuffer_add (&jlpt_level, tokens[i]);
         }
-*/
+
         i++;
       }
 
@@ -309,7 +317,7 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
       {
         GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (script != G_UNICODE_SCRIPT_KATAKANA && script != G_UNICODE_SCRIPT_HIRAGANA) break;
-/*TODO
+
         if (_is_kun_reading (tokens[i]))
         {
           lw_resultbuffer_add (&kun_reading, c);
@@ -318,7 +326,7 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
         {
           lw_resultbuffer_add (&on_reading, c);
         }
-*/
+
 
         i++;
       }
@@ -346,7 +354,7 @@ errored:
     lw_resultbuffer_clear (&kun_readings, TRUE);
     lw_resultbuffer_clear (&on_readings, TRUE);
     lw_resultbuffer_clear (&meanings, TRUE);
-
+*/
     return result;
 }
 

@@ -54,7 +54,7 @@ struct _LwDictionaryClassPrivate {
 
   //Virtual methods
   LwResult* (*parse) (LwDictionary *dictionary, const gchar* TEXT);
-  void (*tokenize) (gchar *text, gchar **tokens, gint* num_tokens);
+  LwTokenizeFunc tokenize;
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));
