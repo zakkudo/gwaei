@@ -12,9 +12,10 @@ typedef enum
   PROP_PROGRESS,
   PROP_ID,
   PROP_PATH,
-  PROP_BUFFER,
-  PROP_NUM_LINES,
+  PROP_BUFFERTREE,
   PROP_LENGTH,
+  PROP_CHECKSUM,
+  PROP_CONTENTS,
   TOTAL_PROPS
 } LwDictionaryProps;
 
@@ -24,22 +25,23 @@ typedef enum {
 } ClassSignalId;
 
 struct _Data {
+  gchar *path;
+  GTree *buffers;
+
   LwMorphologyEngine *morphology_engine;
-  LwIndex *index;
-  LwDictionaryBuffer *buffer;
   GMutex mutex;
   gchar *name;
   LwProgress *progress;
 
-  gchar **lines;
-  gint num_lines;
-
+  gchar *filename;
   gchar *id;
-  gchar *path;
+
+  GMappedFile *mapped_file;
+  gchar *contents;
+  gchar *checksum;
 };
 
 struct _Config {
-  gchar *filename;
   gboolean selected;
 };
 
@@ -53,11 +55,18 @@ struct _LwDictionaryClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
 
   //Virtual methods
-  LwResult* (*parse) (LwDictionary *dictionary, const gchar* TEXT);
-  LwTokenizeFunc tokenize;
+  LwDictionaryBufferParseFunc parse;
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));
+
+//Properties
+
+void lw_dictionary_take_checksum (LwDictionary *self, gchar *checksum);
+void lw_dictionary_sync_checksum (LwDictionary *self);
+
+void lw_dictionary_take_contents (LwDictionary *self, gchar *contents);
+void lw_dictionary_sync_contents (LwDictionary *self, LwProgress *progress);
 
 G_END_DECLS
 

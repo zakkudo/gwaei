@@ -125,6 +125,9 @@ lw_search_set_property (GObject      *object,
       case PROP_QUERY:
         lw_search_set_query (self, g_value_get_string (value));
         break;
+      case PROP_STATUS:
+        lw_search_set_status (self, g_value_set_enum (value));
+        break;
       case PROP_FLAGS:
         lw_search_set_flags (self, g_value_get_flags (value));
         break;
@@ -170,7 +173,7 @@ lw_search_get_property (GObject    *object,
         g_value_set_int (value, lw_search_get_flags (self));
         break;
       case PROP_STATUS:
-        g_value_set_int (value, lw_search_get_status (self));
+        g_value_set_flags (value, lw_search_get_status (self));
         break;
       case PROP_MAX_RESULTS:
         g_value_set_int (value, lw_search_get_max_results (self));
@@ -297,7 +300,7 @@ lw_search_class_init (LwSearchClass *klass)
     );
     g_object_class_install_property (object_class, PROP_QUERY, klasspriv->pspec[PROP_QUERY]);
 
-    klasspriv->pspec[PROP_FLAGS] = g_param_spec_int (
+    klasspriv->pspec[PROP_FLAGS] = g_param_spec_flags (
         "flags",
         "loaded construct prop",
         "Set the loaded",
@@ -308,7 +311,7 @@ lw_search_class_init (LwSearchClass *klass)
     );
     g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
 
-    klasspriv->pspec[PROP_STATUS] = g_param_spec_int (
+    klasspriv->pspec[PROP_STATUS] = g_param_spec_enum (
         "status",
         "loaded construct prop",
         "Set the loaded",
@@ -574,6 +577,28 @@ lw_search_set_status (LwSearch       *self,
 }
 
 
+GType
+lw_searchstatus_get_type ()
+{
+    static GType type = 0;
+
+    if (type == 0)
+    {
+      GEnumValue values = {
+        { LW_SEARCHSTATUS_IDLE, LW_SEARCHSTATUSNAME_IDLE, "idle" },
+        { LW_SEARCHSTATUS_SEARCHING, LW_SEARCHSTATUSNAME_SEARCHING, "searching" },
+        { LW_SEARCHSTATUS_FINISHING, LW_SEARCHSTATUSNAME_FINISHING, "finishing" },
+        { LW_SEARCHSTATUS_CANCELING, LW_SEARCHSTATUSNAME_CANCELING, "canceling" },
+        { 0, NULL, NULL },
+      }
+
+      type = g_enum_register_static ("LwSearchStatus", values);
+    }
+
+    return type;
+}
+
+
 LwSearchStatus
 lw_search_get_status (LwSearch *self)
 {
@@ -589,6 +614,31 @@ lw_search_get_status (LwSearch *self)
     status = priv->data.status;
 
     return status;
+}
+
+
+GType
+lw_searchflags_get_type ()
+{
+    static GType type = 0;
+
+    if (type == 0)
+    {
+      GEnumValue values = {
+        { LW_SEARCHFLAG_RAW, LW_SEARCHFLAGNAME_RAW, "raw" },
+        { LW_SEARCHFLAG_FURIGANA_INSENSITIVE, LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE, "furigana-insensitive" },
+        { LW_SEARCHFLAG_CASE_INSENSITIVE, LW_SEARCHFLAGNAME_CASE_INSENSITIVE, "case-insensitive" },
+        { LW_SEARCHFLAG_STEM_INSENSITIVE, LW_SEARCHFLAGNAME_STEM_INSENSITIVE, "stem-insensitive" },
+        { LW_SEARCHFLAG_ROMAJI_TO_FURIGANA, LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA, "romaji-to-furigana" },
+        { LW_SEARCHFLAG_USE_INDEX, LW_SEARCHFLAGNAME_USE_INDEX, "use-index" },
+        { LW_SEARCHFLAG_INSENSITIVE, LW_SEARCHFLAGNAME_INSENSITIVE, "insensitive" },
+        { 0, NULL, NULL },
+      }
+
+      type = g_flags_register_static ("LwSearchFlag", values);
+    }
+
+    return type;
 }
 
 

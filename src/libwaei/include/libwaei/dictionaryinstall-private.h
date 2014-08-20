@@ -38,7 +38,6 @@ struct _Data {
   gchar *id;
   gchar *name;
   gchar *description;
-  LwDictionaryInstallStatus status;
   LwPreferences *preferences;
   gchar *download_key;
   gchar *download_uri;

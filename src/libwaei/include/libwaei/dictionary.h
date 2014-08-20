@@ -1,7 +1,8 @@
 #ifndef LW_DICTIONARY_INCLUDED
 #define LW_DICTIONARY_INCLUDED
 
-#include <libwaei/result.h>
+#include "dictionarybuffer.h"
+#include "dictionaryline.h"
 
 G_BEGIN_DECLS
 
@@ -18,7 +19,10 @@ typedef struct _LwDictionaryInstall LwDictionaryInstall;
 #define LW_IS_DICTIONARY(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_DICTIONARY))
 #define LW_IS_DICTIONARY_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARY))
 #define LW_DICTIONARY_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARY, LwDictionaryClass))
+#define LW_DICTIONARY_CHECKSUM G_CHECKSUM_SHA512 
 
+typedef gchar**(*LwDictionaryTokenizeFunc)(LwDictionary*, gchar*, gchar**, gint*); 
+typedef void(*LwDictionaryLoadTokensFunc)(LwDictionary*, LwDictionaryLine*, gchar**, gint); 
 
 struct _LwDictionary {
   GObject object;
@@ -33,6 +37,8 @@ struct _LwDictionaryClass {
 
 //Methods
 GType lw_dictionary_get_type (void) G_GNUC_CONST;
+
+//Properties
 
 const gchar* lw_dictionary_get_path (LwDictionary *self);
 void lw_dictionary_sync_path (LwDictionary *self);
@@ -51,6 +57,10 @@ void lw_dictionary_set_progress (LwDictionary *self, LwProgress *progress);
 
 size_t lw_dictionary_length (LwDictionary *self);
 
+const gchar* lw_dictionary_get_checksum (LwDictionary *self);
+const gchar* lw_dictionary_get_contents (LwDictionary *self);
+
+
 gboolean lw_dictionary_equals (LwDictionary *dictionary1, LwDictionary *dictionary2);
 
 gchar** lw_dictionary_get_installed_idlist (GType type_filter);
@@ -61,7 +71,10 @@ const gchar* lw_dictionary_get_id (LwDictionary *self);
 gchar* lw_dictionary_build_directory (GType type);
 gchar* lw_dictionary_directoryname_to_typename (const gchar *DIRECTORYNAME);
 
-LwDictionaryBuffer* lw_dictionary_get_buffer (LwDictionary *self);
+void lw_dictionary_set_buffertree (LwDictionary *self, GTree *tree);
+GTree* lw_dictionary_get_buffertree (LwDictionary *self);
+
+LwDictionaryBuffer* lw_dictionary_get_buffer (LwDictionary *self, LwProgress *progress, LwUtf8NormalizeFlag flags);
 void lw_dictionary_set_buffer (LwDictionary *self, LwDictionaryBuffer *buffer);
 
 gchar * const * lw_dictionary_lines (LwDictionary *self);
@@ -69,9 +82,10 @@ gint lw_dictionary_num_lines (LwDictionary *self);
 
 gboolean  lw_dictionary_uninstall (LwDictionary *self);
 
+LwDictionaryLine** lw_dictionary_get_lines (LwDictionary *self, LwUtf8NormalizeFlag flags, gint *num_lines);
+
 G_END_DECLS
 
-#include <libwaei/dictionary-index.h>
 #include <libwaei/dictionary-callbacks.h>
 
 #endif

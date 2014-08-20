@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file dictionarydata.c
+//! @file dictionarybuffer.c
 //!
 
 #ifdef HAVE_CONFIG_H
@@ -38,189 +38,160 @@
 
 
 LwDictionaryBuffer*
-lw_dictionarybuffer_new ()
+lw_dictionarybuffer_new (LwUtf8NormalizeFlag flags)
 {
+    //Sanity checks
+    g_return_val_if_fail (BUFFER != NULL, NULL);
+
     //Declarations
-    LwDictionaryBuffer *self;
+    LwDictionaryBuffer *self = NULL;
 
     //Initializations
-    self = g_new0 (LwDictionaryBuffer, 1);
+    self = LW_DICTIONARYBUFFER (g_object_new (LW_TYPE_DICTIONARYBUFFER,
+      "normalization-flags", flags,
+      NULL
+    ));
 
     return self;
 }
 
 
-GType
-lw_dictionarybuffer_get_type ()
+static void 
+lw_dictionarybuffer_init (LwDictionaryBuffer *self)
 {
-    static GType type = 0;
-
-    if (type == 0)
-    {
-      type = g_boxed_type_register_static (
-        "LwDictionaryBuffer",
-        (GBoxedCopyFunc) lw_dictionarybuffer_ref,
-        (GBoxedFreeFunc) lw_dictionarybuffer_unref
-      );
-    }
-}
-
-
-//!
-//! @brief Loads the self from a file for use with a LwIndex
-//!
-void
-lw_dictionarybuffer_create (LwDictionaryBuffer *self, 
-                            const gchar        *PATH,
-                            LwTokenizeFunc      tokenize)
-{
-    //Sanity checks
-    g_return_if_fail (PATH != NULL);
-    g_return_if_fail (self != NULL);
-    if (self->checksum != NULL) return;
-    if (self->buffer != NULL) return;
-    if (self->path != NULL) return;
+    self->priv = LW_DICTIONARYBUFFER_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LwDictionaryBufferPrivate));
 
     //Declarations
-    gsize length = 0;
-    gchar **lines = NULL;
-    gint num_lines = 0;
- 
-    if (!g_file_test (PATH, G_FILE_TEST_IS_REGULAR)) goto errored;
-    g_file_get_contents (PATH, &self->buffer, &length, NULL); if (self->buffer == NULL) goto errored;
-    self->checksum = g_compute_checksum_for_string (LW_INDEX_CHECKSUM_TYPE, self->buffer, -1); if (self->checksum == NULL) goto errored;
+    LwDictionaryBufferPrivate *priv = NULL;
 
-    lines = g_new0 (gchar*, length);
-    self->tokens = g_new0 (gchar*, length);
-    self->lines = g_new0 (gsize, length);
-
-    //Make the lines separate strings
-    {
-      gchar *c = self->buffer;
-      while (*c != '\0')
-      {
-        if (*c == '\n')  
-        {
-          gchar *e = g_utf8_next_char (c);
-          *c = '\0';
-          c = e;
-          if (*c != '\n')
-          {
-            lines[num_lines++] = c;
-          }
-        }
-        else
-        {
-          c = g_utf8_next_char (c);
-        }
-      }
-    }
-
-    self->lines = g_realloc_n (self->lines, num_lines, sizeof(gsize*));
-    self->num_lines = num_lines;
-
-    //Tokenize each line
-    {
-      gint i = 0;
-      gint j = 0;
-      gint num_tokens = 0;
-      for (i = 0; i < num_lines; i++)
-      {
-        self->lines[i] = j;
-        tokenize (lines[i], &self->tokens[j], &num_tokens);
-        j += num_tokens + 1;
-      }
-    }
-
-errored:
-
-    g_free (lines); lines = NULL;
-
-    return;
-}
-
-
-const gchar**
-lw_dictionarybuffer_get_line (LwDictionaryBuffer *self, 
-                              gint                number,
-                              gint               *num_tokens_out)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (self->buffer != NULL, NULL);
-    g_return_val_if_fail (number < self->num_lines, NULL);
-
-    //Declarations
-    gchar const * *tokens = NULL;
-    gint max_tokens = 0;
-    const gchar *c = NULL;
-    const gchar *e = NULL;
-    const gchar *p = NULL;
-    gint num_tokens = 0;
-/*TODO
     //Initializations
-    max_tokens = self->length - (self->lines[number] - self->lines[0]);
-    tokens = (gchar const * *) g_new0 (gchar*, max_tokens);
-    c = self->lines[number];
-    e = c + max_tokens;
-    p = NULL;
+    priv = self->priv;
+}
 
-    tokens[num_tokens++] = c;
 
-    while (c < e)
+static void 
+lw_dictionarybuffer_set_property (GObject      *object,
+                                  guint         property_id,
+                                  const GValue *value,
+                                  GParamSpec   *pspec)
+{
+    //Declarations
+    LwDictionaryBuffer *self = NULL;
+    LwDictionaryBufferPrivate *priv = NULL;
+
+    //Initializations
+    self = LW_DICTIONARYBUFFER (object);
+    priv = self->priv;
+
+    switch (property_id)
     {
-      if (*p == '\0' && *c != '\0') tokens[num_tokens++] = c;
-      p = c;
-      c = g_utf8_next_char (c);
+      case PROP_NORMALIZATION_FLAGS:
+        lw_dictionarybuffer_set_flags (self, g_value_get_flags (value));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
     }
+}
 
-    if (num_tokens_out != NULL)
+
+static void 
+lw_dictionarybuffer_get_property (GObject    *object,
+                                  guint       property_id,
+                                  GValue     *value,
+                                  GParamSpec *pspec)
+{
+    //Declarations
+    LwDictionaryBuffer *self = NULL;
+    LwDictionaryBufferPrivate *priv = NULL;
+
+    //Initializations
+    self = LW_DICTIONARYBUFFER (object);
+    priv = self->priv;
+
+    switch (property_id)
     {
-      *num_tokens_out = num_tokens;
+      case PROP_CONTENTS:
+        g_value_take_string (value, lw_dictionarybuffer_get_contents (self));
+        break;
+      case PROP_LENGTH:
+        g_value_set_int (value, lw_dictionarybuffer_length (self));
+        break;
+      case PROP_NORMALIZATION_FLAGS:
+        g_value_set_flags (value, lw_dictionarybuffer_get_flags (self));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
     }
-
-    tokens = (gchar const **) g_realloc_n (tokens, max_tokens, sizeof(gchar*));
-
-*/
-    return tokens;
 }
 
 
-void
-lw_dictionarybuffer_unref (LwDictionaryBuffer *self)
+static void 
+lw_dictionarybuffer_finalize (GObject *object)
 {
-  //TODO
+    //Declarations
+    LwDictionaryBuffer *self = NULL;
+    LwDictionaryBufferPrivate *priv = NULL;
+
+    //Initalizations
+    self = LW_DICTIONARYBUFFER (object);
+    priv = self->priv;
+
+    G_OBJECT_CLASS (lw_dictionarybuffer_parent_class)->finalize (object);
 }
 
 
-LwDictionaryBuffer*
-lw_dictionarybuffer_ref (LwDictionaryBuffer *self)
+static void
+lw_dictionarybuffer_dispose (GObject *object)
 {
-  //TODO
-  return NULL;
+    //Declarations
+    LwDictionaryBuffer *self = NULL;
+
+    //Initializations
+    self = LW_DICTIONARYBUFFER (object);
+
+    G_OBJECT_CLASS (lw_dictionarybuffer_parent_class)->dispose (object);
 }
 
 
-void
-lw_dictionarybuffer_free (LwDictionaryBuffer* self)
+static void
+lw_dictionarybuffer_class_init (LwDictionaryBufferClass *klass)
 {
-    //Sanity checks
-    if (self == NULL) return;
-    g_free (self->buffer); 
-    g_free (self->checksum); 
-    g_free (self->path); 
-    g_free (self->lines);
+    //Declarations
+    GObjectClass *object_class = NULL;
 
-    memset(self, 0, sizeof(LwDictionaryBuffer));
+    //Initializations
+    object_class = G_OBJECT_CLASS (klass);
+    klass->priv = g_new0 (LwDictionaryBufferClassPrivate, 1);
+    object_class->set_property = lw_dictionarybuffer_set_property;
+    object_class->get_property = lw_dictionarybuffer_get_property;
+    object_class->dispose = lw_dictionarybuffer_dispose;
+    object_class->finalize = lw_dictionarybuffer_finalize;
 
-    g_free (self);
-}
+    g_type_class_add_private (object_class, sizeof (LwDictionaryBufferPrivate));
 
+    LwDictionaryBufferClassPrivate *klasspriv = klass->priv;
 
-const gchar*
-lw_dictionarybuffer_get_checksum (LwDictionaryBuffer *self)
-{
-    return self->checksum;
+    klasspriv->pspec[PROP_CONTENTS] = g_param_spec_string (
+        "buffer",
+        "Buffer",
+        "Internal String buffer",
+        ""
+        G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_CONTENTS, klasspriv->pspec[PROP_CONTENTS]);
+
+    klasspriv->pspec[PROP_NORMALIZATION_FLAGS] = g_param_spec_flags (
+        "normalization-flags",
+        "Normalization Flags",
+        "The flags that are set on normalizations",
+        LW_TYPE_UTF8NORMALIZEFLAG, 
+        0,
+        G_PARAM_CONSTRUCT | G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_NORMALIZATION_FLAGS, klasspriv->pspec[PROP_NORMALIZATION_FLAGS]);
 }
 
 
@@ -230,34 +201,152 @@ lw_dictionarybuffer_length (LwDictionaryBuffer *self)
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
 
-    return self->length;
+    //Declarations
+    LwDictionaryBufferPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->length;
 }
 
 
-gsize
-lw_dictionarybuffer_get_offset (LwDictionaryBuffer *self,
-                                const gchar      *BUFFER)
+void
+_create_mapped_file (LwDictionaryBuffer *self,
+                     const gchar        *CONTENTS,
+                     gint                length)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (func != NULL);
+
+    //Declarations
+    LwDictionaryBufferPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    g_free (priv->filename); priv->filename = NULL;
+    if (priv->fd > -1) g_close (priv->fd); priv->fd = -1;
+    if (priv->mapped_file != NULL) g_mapped_file_unref (priv->mapped_file); priv->mapped_file = NULL;
+    priv->contents = NULL;
+
+    priv->filename = g_strdup ("LwDictionaryBuffer.XXXXXX");
+    if (priv->filename == NULL) goto errored;
+
+    priv->fd = g_mkstemp (priv->filename);
+    if (priv->fd == -1) goto errored;
+    lw_io_write_fd (priv->fd, priv->CONTENTS, length, progress);
+
+    priv->mapped_file = g_mapped_file_new_from_fd (priv->fd, TRUE, &error)
+    if (priv->mapped_file == NULL) goto errored;
+
+    priv->contents = g_mapped_file_get_contents (priv->mapped_file);
+    if (priv->contents == NULL) goto errored;
+
+errored:
+
+    return;
+}
+
+
+void
+lw_dictionarybuffer_set_contents (LwDictionaryBuffer          *self,
+                                  const gchar                 *CHECKSUM
+                                  const gchar                 *CONTENTS
+                                  gint                         length,
+                                  LwDictionaryBufferParseFunc  func,
+                                  gpointer                     data)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (BUFFER != NULL, NULL);
-    if (BUFFER > self->buffer + self->length) return 0;
-    if (BUFFER < self->buffer, NULL) return 0;
 
-    return (BUFFER - self->buffer);
+    //Declarations
+    LwDictionaryBufferPrivate *priv = NULL;
+    const gchar *NORMALIZED_CONTENTS = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    while (chunk)
+    {
+      lw_utf8_normalize(string, 4KiB, FLAGS);
+    }
+
+    lw_cachefile_new ();
+    if (!lw_cachefile_read())
+    {
+      lw_cachefile_write();
+      lw_cachefile_read();
+    }
+
+
+
+    lines = func (self, data, &num_lines);
+    lw_dictionarybuffer_set_lines (self, lines, num_lines);
+
+errored:
+
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CONTENTS]);
+
+    return;
 }
 
 
-gchar * const *
-lw_dictionarybuffer_lines (LwDictionary *self)
+gchar*
+lw_dictionarybuffer_get_contents (LwDictionaryBuffer *self)
 {
-  return NULL;
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+
+    //Declarations
+    LwDictionaryBufferPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->contents;
 }
 
 
-gint
-lw_dictionarybuffer_num_lines (LwDictionary *self)
+void
+lw_dictionarybuffer_set_flags (LwDictionaryBuffer  *self,
+                               LwUtf8NormalizeFlag  flags)
 {
-  return 0;
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    //Declarations
+    LwDictionaryBufferPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    flags = lw_utf8normalizeflags_clean (flags);
+    if (flags == priv->flags) goto errored;
+    priv->flags = flags;
+
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_NORMALIZATION_FLAGS]);
+
+    lw_dictionarybuffer_sync_buffer (self);
+
+errored:
+
+    return;
+}
+
+
+LwUtf8NormalizeFlag
+lw_dictionarybuffer_get_flags (LwDictionaryBuffer *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+
+    //Declarations
+    LwDictionaryBufferPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    priv->flags;
 }
 

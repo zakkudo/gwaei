@@ -41,7 +41,7 @@ GType lw_morphologyengine_get_type (void) G_GNUC_CONST;
 
 //Methods
 LwMorphologyEngine* lw_morphologyengine_new (const gchar *TEXT);
-LwMorphologyString* lw_morphologyengine_parse (LwMorphologyEngine *self, const gchar *TEXT, LwNormalizationFlags flags);
+LwMorphologyString* lw_morphologyengine_parse (LwMorphologyEngine *self, const gchar *TEXT, LwUtf8NormalizeFlag flags);
 
 void lw_morphologyengine_set_locale (LwMorphologyEngine *self, const gchar *LOCALE);
 const gchar* lw_morphologyengine_get_locale (LwMorphologyEngine *self);

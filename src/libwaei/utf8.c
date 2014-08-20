@@ -97,12 +97,119 @@ lw_utf8_get_numbers (const gchar *TEXT)
 }
 
 
+GType
+lw_utf8normalizeflag_get_type ()
+{
+  static GType type = 0;
+
+  if (G_UNLIKELY (type == 0))
+  {
+    GEnumValue values = {
+      { LW_NORMALIZEFLAG_NONE, LW_NORMALIZEFLAGNAME_NONE, "none" },
+      { LW_NORMALIZEFLAG_CASE_INSENSITIVE, LW_NORMALIZEFLAGNAME_CASE_INSENSITIVE, "case-insensitive" },
+      { LW_NORMALIZEFLAG_FURIGANA_INSENSITIVE, LW_NORMALIZEFLAGNAME_FURIGANA_INSENSITIVE, "furigana-insensitive" },
+      { LW_NORMALIZEFLAG_INSENSITIVE, LW_NORMALIZEFLAGNAME_INSENSITIVE, "insensitive" },
+      { 0, NULL, NULL },
+    }
+
+    type = g_flags_register_static ("LwUtf8NormalizeFlag", values);
+  }
+
+  return type;
+}
+
+
+LwUtf8NormalizeFlag
+lw_utf8normalizeflag_clean (LwUtf8NormalizeFlag flags)
+{
+    if (LW_NORMALIZEFLAG_COMPARABLE & flags)
+    {
+      flags &= (~LW_UTF8NORMALIZEFLAG);
+    }
+
+    flags &= LW_UTF8NORMALIZEFLAG_ALL;
+
+    return flags;
+}
+
+
+gboolean
+lw_utf8_validate (const gchar *TEXT,
+                  gint         length,
+                  LwProgress  *progress)
+{
+    //Sanity checks
+    if (TEXT == NULL) return FALSE;
+
+    //Declarations
+    gint page_size = 0;
+    gint i = 0;
+    gunichar c = 0;
+    const gchar *p = 0;
+    gboolean is_valid = FALSE;
+
+    //Initializations
+    page_size = lw_io_get_pagesize ();
+    if (page_size == NULL) goto errored;
+    p = TEXT;
+    if (p == NULL) goto errored;
+    is_valid = TRUE;
+
+    if (progress != NULL)
+    {
+      lw_progress_set_secondary_message (progress, "%s...", gettext("Validating"));
+      lw_progress_set_total (progress, length);
+      lw_progress_set_current (progress, 0);
+      lw_progress_set_complete (progress, FALSE);
+    }
+
+    while (*p != '\0' && i < length)
+    {
+      offset = p - TEXT;
+      c = g_utf8_get_char_validated (p, length - offset);
+      if (G_UNLIKELY (c == -1))
+      {
+        if (progress != NULL)
+        {
+          lw_progress_take_error (progress, g_error_new ((
+            LW_UTF8_VALIDATION_ERROR,
+            LW_UTF8_ERRORCODE_INVALID_CHARACTER,
+            "Invalid utf8 character at offset %d",
+            offset
+          ));
+        }
+        is_valid = FALSE;
+        goto errored;
+      }
+
+      if (G_UNLIKELY (chunk >= page_size))
+      {
+        if (progress != NULL) lw_progress_set_current (progress, offset);
+        chunk = 0;
+      }
+      else
+      {
+        chunk++;
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, length);
+      lw_progress_set_complete (progress, TRUE);
+    }
+
+    return is_valid;
+}
+
+
 //!
 //! @brief Will change a query into a & delimited set of tokens (logical and)
 //!
 gchar*
 lw_utf8_normalize (const gchar          *TEXT,
-                   LwNormalizationFlags  flags)
+                   gssize                length,
+                   LwUtf8NormalizeFlags  flags)
 {
     //Sanity checks
     if (TEXT == NULL) return NULL;
@@ -112,19 +219,25 @@ lw_utf8_normalize (const gchar          *TEXT,
     gchar *temp = NULL;
     
     //Initializations
-    buffer = g_utf8_normalize (TEXT, -1, G_NORMALIZE_ALL);
     if (buffer == NULL) goto errored;
 
-    if (flags | LW_NORMALIZATION_CASE_INSENSITIVE)
+    if (flags & LW_UTF8NORMALIZEFLAG_COMPARABLE)
     {
-      temp = g_utf8_casefold (buffer, -1);
-      g_free (buffer); buffer = temp; temp = NULL;
+      buffer = g_utf8_normalize (TEXT, -1, G_NORMALIZE_ALL);
+    }
+    else if (flags & LW_UTF8NORMALIZEFLAG_PRINTABLE)
+    {
+      buffer = g_utf8_normalize (TEXT, -1, G_NORMALIZE_DEFAULT);
     }
 
-    if (flags | LW_NORMALIZATION_FURIGANA_INSENSITIVE)
+    if (flags & LW_UTF8NORMALIZEFLAG_CASEFOLD)
     {
-      temp = lw_utf8_furiganafold (buffer); 
-      g_free (buffer); buffer = temp; temp = NULL;
+      lw_utf8_casefold (buffer, length, NULL);
+    }
+
+    if (flags & LW_UTF8NORMALIZEFLAG_FURIGANAFOLD)
+    {
+      lw_utf8_furiganafold (buffer, length, NULL);
     }
 
 errored:
@@ -133,8 +246,10 @@ errored:
 }
 
 
+
+
 static GHashTable*
-_lw_utf8_get_furiganafold_hashtable ()
+_get_furiganafold_hashtable ()
 {
     //Declarations
     GHashTable *table = NULL;
@@ -249,41 +364,173 @@ _lw_utf8_get_furiganafold_hashtable ()
 }
 
 
-gchar*
-lw_utf8_furiganafold (const gchar *TEXT)
+static gchar*
+_casefold_character (gchar *character)
 {
     //Sanity checks
-    g_return_val_if_fail (TEXT != NULL, NULL);
+    if (character == NULL || *character == '\0') return character;
 
     //Declarations
-    gchar *buffer;
-    gchar *ptr;
-    GHashTable *table;
-    gunichar c, replacement;
+    gunichar c = -1;
+    gunichar lower = -1;
+    gchar *n = g_utf8_next_char (character);
+    gint bytes = n - character;
+    gchar buffer[6] = { 0 };
+
+
+    //Initializations
+    c = g_utf8_get_char (character);
+    lower = g_unichar_tolower (c);
+
+    if (c != lower)
+    {
+      if (g_unichar_to_utf8 (lower, buffer) == bytes)
+      {
+        strncpy(character, buffer, bytes);
+      }
+    }
+    
+    return n;
+}
+
+
+void
+lw_utf8_casefold (gchar      *TEXT,
+                  gsize       length,
+                  LwProgress *progress)
+{
+    //Sanity checks
+    if (TEXT == NULL) return;
+
+    //Declarations
+    gint page_size = 0;
+    gint chunk = 0;
     
     //Initializations
-    buffer = g_strdup (TEXT);
-    if (buffer == NULL) goto errored;
-    table = _lw_utf8_get_furiganafold_hashtable ();
-    if (table == NULL) goto errored;
-
-    for (ptr = buffer; *ptr != '\0'; ptr = g_utf8_next_char (ptr))
+    c = TEXT;
+    if (c == NULL) goto errored;
+    page_size = lw_io_get_pagesize ();
+    if (page_size < 1) goto errored;
+    if (length < 1)
     {
-      c = g_utf8_get_char (ptr);
-      replacement = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (c)));
-      if (replacement) g_unichar_to_utf8 (replacement, ptr);
+      length = strlen(TEXT);
     }
 
-    if (!g_utf8_validate (buffer, -1, NULL)) 
+    if (progress != NULL)
     {
-      g_free (buffer); buffer = NULL;
+      lw_progress_set_secondary_message (progress, "%s...", gettext("Folding case"));
+      lw_progress_set_total (progress, length);
+      lw_progress_set_complete (progress, FALSE);
+      lw_progress_set_current (progress, 0);
+    }
+
+    {
+      gint i = 0;
+      while (*c != '\0' && i < length) {
+        c = _casefold_character (c, conversions);
+        i = c - TEXT;
+        if (G_UNLIKELY(chunk++ >= page_size))
+        {
+          lw_progress_set_current (progress, i);
+          chunk = 0;
+        }
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, length);
+      lw_progress_set_complete (progress, TRUE);
     }
 
 errored:
 
-    if (table != NULL) g_hash_table_unref (table); table = NULL;
+    return;
+}
 
-    return buffer;
+
+static gchar*
+_furiganafold_character (gchar *character, GHashTable *conversions)
+{
+    //Sanity checks
+    if (character == NULL || *character == '\0') return character;
+
+    //Declarations
+    gunichar c = -1;
+    gchar *n = g_utf8_next_char (character);
+    gint bytes = n - character;
+    gchar buffer[6] = { 0 };
+
+    //Initializations
+    c = g_utf8_get_char (character);
+
+    if (g_hash_table_contains (conversions, GUINT_TO_POINTER (c)))
+    {
+      if (g_unichar_to_utf8 (c, buffer) == bytes)
+      {
+        strncpy(character, buffer, bytes);
+      }
+    }
+    
+    return n;
+}
+
+
+void
+lw_utf8_furiganafold (gchar      *TEXT,
+                      gsize       length,
+                      LwProgress *progress)
+{
+    //Sanity checks
+    if (TEXT == NULL) return;
+
+    //Declarations
+    GHashTable *conversions = NULL;
+    gint page_size = 0;
+    gint chunk = 0;
+    
+    //Initializations
+    c = TEXT;
+    if (c == NULL) goto errored;
+    conversions = _get_furiganafold_hashtable ();
+    if (conversions == NULL) goto errored;
+    page_size = lw_io_get_pagesize ();
+    if (page_size < 1) goto errored;
+    if (length < 1)
+    {
+      length = strlen(TEXT);
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_secondary_message (progress, "%s...", gettext("Folding furigana"));
+      lw_progress_set_total (progress, length);
+      lw_progress_set_complete (progress, FALSE);
+      lw_progress_set_current (progress, 0);
+    }
+
+    {
+      gint i = 0;
+      while (*c != '\0' && i < length) {
+        c = _furiganafold_character (c, conversions);
+        i = c - TEXT;
+        if (G_UNLIKELY(chunk++ >= page_size))
+        {
+          lw_progress_set_current (progress, i);
+          chunk = 0;
+        }
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, length);
+      lw_progress_set_complete (progress, TRUE);
+    }
+
+errored:
+
+    if (conversions != NULL) g_hash_table_unref (conversions); conversions = NULL;
 }
 
 
@@ -291,7 +538,7 @@ errored:
 //! @brief Sanitize an input string
 //!
 //! This function will check if the input string is a valid utf-8 sequence,
-//! it will then normalize this string in the Normalization Form Canonical Composition,
+//! it will then normalize this string in the Normalize Form Canonical Composition,
 //! then replace the bytes of unprintable unicode glyphe (like control codepoint) with spaces,
 //! and finally will remove leading and trailing spaces if asked to.
 //!
@@ -314,7 +561,7 @@ lw_utf8_sanitize (gchar *buffer)
 
     //Validate the string as proper utf8
     if (!g_utf8_validate (buffer, -1, &end)) *((gchar*)end) = '\0'; 
-      
+USE lw_utf8_validate() 
     //Clear unprintable characters
     for (ptr = buffer; *ptr != '\0'; ptr = g_utf8_next_char (ptr))
     {
@@ -1474,3 +1721,62 @@ errored:
     return pattern;
 }
 
+
+gint
+lw_utf8_count_lines (gchar *buffer)
+{
+    if (buffer == NULL) return 0;
+
+    //Declarations
+    gchar *c = NULL;
+    gint count = 0;
+
+    //Initializations
+    c = buffer;
+
+    while (*c != '\0')
+    {
+      if (*c == '\n') count++;
+      c = g_utf8_next_char (c);
+    }
+
+    return count;
+}
+
+
+gchar**
+lw_utf8_split_lines (gchar *buffer, gint *num_lines)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    if (buffer == NULL) return 0;
+
+    //Declarations
+    gchar *c = NULL;
+    gchar **lines = NULL;
+    gint count = 0;
+
+    //Initializations
+    c = buffer;
+    count = lw_utf8_count_lines (c);
+    lines = g_new (gchar*, count + 1);
+    if (lines == NULL) goto errored;
+
+    //Make the lines separate strings
+    {
+      gint i = 0;
+      while (*c != '\0' && i < count)
+      {
+        while (*c != '\0' && *c == '\n') c = lw_utf8_set_null_next_char (c);
+        if (*c != '\0') lines[i++] = c;
+        while (*c != '\0' && *c != '\n') c = g_utf8_next_char (c);
+      }
+      lines[i++] = NULL;
+    }
+
+errored:
+
+    if (num_lines != NULL) *num_lines = count;
+
+    return lines;
+}

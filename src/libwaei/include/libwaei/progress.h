@@ -40,6 +40,10 @@ GType lw_progress_get_type (void) G_GNUC_CONST;
 
 gboolean lw_progress_should_abort (LwProgress *self);
 
+void lw_progress_clear (LwProgress *self);
+
+//Properties
+
 void lw_progress_cancel (LwProgress *self);
 gboolean lw_progress_is_cancelled (LwProgress *self);
 

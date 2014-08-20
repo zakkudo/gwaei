@@ -1,13 +1,16 @@
 #ifndef LW_SEARCH_INCLUDED
 #define LW_SEARCH_INCLUDED
 
-#include <libwaei/result.h>
 #include <libwaei/dictionary.h>
 
 G_BEGIN_DECLS
 
-#define LW_SEARCH_DATA_FREE_FUNC(object) (LwSearchDataFreeFunc)object
 #define LW_SEARCH_MAX_CHUNK 1000
+
+#define LW_SEARCHSTATUSNAME_IDLE "Idle"
+#define LW_SEARCHSTATUSNAME_SEARCHING "Searching"
+#define LW_SEARCHSTATUSNAME_FINISHING "Finishing"
+#define LW_SEARCHSTATUSNAME_CANCELING "Canceling"
 
 //!
 //! @brief Search status types
@@ -18,7 +21,16 @@ typedef enum {
   LW_SEARCHSTATUS_FINISHING,
   LW_SEARCHSTATUS_CANCELING
 } LwSearchStatus;
+GType lw_searchstatus_get_type (void);
+#define LW_TYPE_SEARCHSTATUS (lw_searchstatus_get_type ())
 
+#define LW_SEARCHFLAGNAME_RAW "Raw"
+#define LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE "Furigana Insensitive"
+#define LW_SEARCHFLAGNAME_CASE_INSENSITIVE "Case Insensitive"
+#define LW_SEARCHFLAGNAME_STEM_INSENSITIVE "Stem Insensitive"
+#define LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA "Romaji to Furigana"
+#define LW_SEARCHFLAGNAME_USE_INDEX "Use Index"
+#define LW_SEARCHFLAGNAME_INSENSITIVE "Insensitive"
 
 typedef enum {
   LW_SEARCHFLAG_RAW = (1 << 0),
@@ -29,8 +41,8 @@ typedef enum {
   LW_SEARCHFLAG_USE_INDEX = (1 << 5),
   LW_SEARCHFLAG_INSENSITIVE = (LW_SEARCHFLAG_FURIGANA_INSENSITIVE | LW_SEARCHFLAG_CASE_INSENSITIVE | LW_SEARCHFLAG_STEM_INSENSITIVE),
 } LwSearchFlag;
-
-typedef void(*LwSearchDataFreeFunc)(gpointer);
+GType lw_searchflag_get_type (void);
+#define LW_TYPE_SEARCHFLAG (lw_searchflag_get_type ())
 
 //Boilerplate
 typedef struct _LwSearch LwSearch;

@@ -1,17 +1,22 @@
 #ifndef LW_WORD_INCLUDED
 #define LW_WORD_INCLUDED
 
+#include <glib-object.h>
+
 G_BEGIN_DECLS
 
 typedef enum {
-  LW_WORD_FIELD_KANJI,
-  LW_WORD_FIELD_READING,
-  LW_WORD_FIELD_DEFINITION,
-  LW_WORD_FIELD_CORRECT_GUESSES,
-  LW_WORD_FIELD_INCORRECT_GUESSES,
-  LW_WORD_FIELD_TIMESTAMP,
-  TOTAL_LW_WORD_FIELDS
+  LW_WORDFIELD_KANJI,
+  LW_WORDFIELD_READING,
+  LW_WORDFIELD_DEFINITION,
+  LW_WORDFIELD_CORRECT_GUESSES,
+  LW_WORDFIELD_INCORRECT_GUESSES,
+  LW_WORDFIELD_TIMESTAMP,
+  TOTAL_LW_WORDFIELDS
 } LwWordField;
+
+GType lw_wordfield_get_type (void);
+#define LW_TYPE_WORDFIELD (lw_wordfield_get_type ())
 
 struct _Row {
   gint current_index;
@@ -26,7 +31,7 @@ struct _LwWord {
   gint incorrect_guesses;
   gint32 timestamp;
   gboolean has_changes;
-  gchar *fields[TOTAL_LW_WORD_FIELDS];
+  gchar *fields[TOTAL_LW_WORDFIELDS];
 };
 
 typedef struct _LwWord LwWord;

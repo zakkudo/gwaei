@@ -38,7 +38,8 @@
 
 
 LwMorphologyString*
-lw_morphologystring_new (const gchar *TEXT, LwNormalizationFlags flags)
+lw_morphologystring_new (const gchar      *TEXT,
+                         LwNormalizeFlags  flags)
 {
     if (TEXT == NULL) return NULL;
 

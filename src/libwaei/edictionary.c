@@ -44,8 +44,8 @@
 
 G_DEFINE_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 
-static LwResult* lw_edictionary_parse (LwDictionary*, const gchar*);
-static gchar** lw_edictionary_tokenize (gchar *buffer, gchar **tokens, gint *num_tokens);
+static void lw_edictionary_load_tokens (LwDictionary *self, LwDictionaryLine *line, gchar **token_buffer, gint num_tokens);
+static gchar** lw_edictionary_tokenize (LwDictionary *self, gchar *buffer, gchar **tokens, gint *num_tokens);
 
 LwDictionary* lw_edictionary_new (const gchar        *FILENAME, 
                                   LwMorphologyEngine *morphologyengine)
@@ -126,8 +126,31 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
     object_class->constructed = lw_edictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse = lw_edictionary_parse;
     dictionary_class->priv->tokenize = lw_edictionary_tokenize;
+    dictionary_class->priv->load_tokens = lw_edictionary_load_tokens;
+}
+
+
+GType
+lw_edictionary_tokenid_get_type ()
+{
+    static GType type = 0;
+
+    if (G_UNLIKELY (type == 0))
+    {
+      GEnumValue values[] = {
+        { LW_EDICTIONARYTOKENID_WORD, LW_EDICTIONARYTOKENNAME_WORD, "word" },
+        { LW_EDICTIONARYTOKENID_READING, LW_EDICTIONARYTOKENNAME_READING, "reading" },
+        { LW_EDICTIONARYTOKENID_DEFINITION, LW_EDICTIONARYTOKENNAME_DEFINITION, "definition" },
+        { LW_EDICTIONARYTOKENID_CLASSIFICATION, LW_EDICTIONARYTOKENNAME_CLASSIFICATION, "classification" },
+        { LW_EDICTIONARYTOKENID_POPULAR, LW_EDICTIONARYTOKENNAME_POPULAR, "popular" },
+        { 0, NULL, NULL },
+      };
+
+      type = g_enum_register_static ("LwEdictionaryTokenId", values);
+    }
+
+    return type;
 }
 
 
@@ -146,9 +169,10 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
  * Returns: The end of the filled token array
  */
 static gchar**
-lw_edictionary_tokenize (gchar  *buffer,
-                         gchar **tokens,
-                         gint   *num_tokens)
+lw_edictionary_tokenize (LwDictionary   *self,
+                         gchar          *buffer,
+                         gchar         **tokens,
+                         gint           *num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (buffer != NULL, NULL);
@@ -263,24 +287,24 @@ errored:
 //!
 //! @brief, Retrieve a line from FILE, parse it according to the LwEDictionary rules and put the results into the LwResult
 //!
-static LwResult*
-lw_edictionary_parse (LwDictionary *dictionary,
-                      const gchar  *TEXT)
+static void
+lw_edictionary_load_tokens (LwDictionary      *self,
+                            LwDictionaryLine  *line,
+                            gchar            **token_buffer,
+                            gint               num_tokens)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
-    if (TEXT == NULL) return NULL;
+    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (line != NULL, NULL);
+    g_return_val_if_fail (token_buffer != NULL, NULL);
 
     //Declarations
-    LwResult *result = NULL;
-    gchar **tokens = NULL;
-    gint length = -1;
+    /*TODO
     LwResultBuffer words = {0};
     LwResultBuffer readings = {0};
     LwResultBuffer definitions = {0};
     LwResultBuffer classifications = {0};
     LwResultBuffer popular = {0};
-    /*TODO
 
     //Initializations
     result = lw_result_new (TEXT);
@@ -378,6 +402,5 @@ errored:
     lw_resultbuffer_clear (&classifications, TRUE);
     lw_resultbuffer_clear (&popular, TRUE);
 */
-    return result;
 }
 

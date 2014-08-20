@@ -37,40 +37,88 @@
 #include <gio/gio.h>
 #include <curl/curl.h>
 #include <zlib.h>
+#ifdef G_OS_UNIX
+#include <unistd.h>
+#endif
 
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
 
 
-static gchar *_savepath = NULL;
-
-
-//!
-//! @brief Creates a savepath that is used with the save/save as functions
-//! @param PATH a path to save to
-//!
-void 
-lw_io_set_savepath (const gchar *PATH)
+GQuark
+lw_io_read_error_quark ()
 {
-    if (_savepath != NULL)
-    {
-      g_free (_savepath);
-      _savepath = NULL;
-    }
-
-    if (PATH != NULL)
-      _savepath = g_strdup (PATH);
+  return g_quark_from_static_string ("lw-io-read-error");
 }
 
 
-//!
-//! @brief Gets the savepath used with the save/save as functions
-//! @returns A constant path string that is not to be freed
-//!
-const gchar* 
-lw_io_get_savepath ()
+GQuark
+lw_io_write_error_quark ()
 {
-  return _savepath;
+  return g_quark_from_static_string ("lw-io-write-error");
+}
+
+
+glong
+lw_io_get_pagesize ()
+{
+    gsize pagesize = 0;
+
+#ifdef G_OS_UNIX
+    pagesize = sysconf(_SC_PAGESIZE);
+#endif
+
+    if (pagesize <= 0)
+    {
+      pagesize = 1024 * 4;
+    }
+
+    return pagesize;
+}
+
+
+void
+lw_io_fwrite (FILE        *stream,
+                    const gchar *TEXT,
+                    gint         length,
+                    LwProgress  *progress)
+{
+    //Sanity checks
+    g_return_if_fail (PATH != NULL);
+    g_return_if_fail (mode != NULL);
+    g_return_if_fail (text != NULL);
+    g_return_if_fail (progress != NULL);
+    if (lw_progress_should_abort (progress)) return;
+
+    //Declarations
+    glong pagesize = 0;
+    gsize chunk = 0;
+    gsize offset = 0;
+    gsize left = 0;
+
+    //Initializations
+    pagesize = lw_io_get_pagesize ()
+    if (pagesize < 1) goto errored;
+
+    if (length < 0)
+    {
+      length = strlen(TEXT);
+    }
+    if (length < 1) goto errored;
+
+    if (progress != NULL) lw_progress_set_total (progress, length);
+
+    while (length > 0 && feof(stream) == 0 && ferror(stream) == 0)
+    {
+      left = length - offset;
+      chunk = (pagesize > left) ? left : pagesize;
+      offset += fwrite(TEXT + offset, 1, chunk, stream);
+      if (progress != NULL) lw_progress_set_current (self, offset);
+    }
+
+errored:
+
+    return;
 }
 
 
@@ -85,40 +133,44 @@ lw_io_get_savepath ()
 //!
 void 
 lw_io_write_file (const gchar *PATH, 
-                  const gchar *mode, 
-                  gchar       *text, 
+                  const gchar *MODE,
+                  const gchar *TEXT, 
+                  gint         length,
                   LwProgress  *progress)
 {
     //Sanity checks
     g_return_if_fail (PATH != NULL);
-    g_return_if_fail (mode != NULL);
-    g_return_if_fail (text != NULL);
-    g_return_if_fail (progress != NULL);
-    if (lw_progress_should_abort (progress)) return;
+    g_return_if_fail (MODE != NULL);
+    g_return_if_fail (TEXT != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (progress));
 
     //Declarations
-    gchar *ptr;
-    FILE* file;
+    FILE *stream = NULL;
 
     //Initializations
-    ptr = &text[0];
-    file = g_fopen (_savepath, mode);
+    stream = g_fopen (PATH, "wb");
+    if (stream == NULL) goto errored;
 
-    while (*ptr != '\0' && feof(file) == 0 && ferror(file) == 0)
+    lw_io_fwrite (stream, TEXT, length, progress);
+
+errored:
+
+    if (progress != NULL && ferror(stream))
     {
-      fputc(*ptr, file);
-      ptr++;
+      gint code = ferror(stream);
+      lw_progress_take_error (progress, g_error_new (
+          LW_IO_WRITE_ERROR,
+          code,
+          "There was an error code %d while writing the file:\n'%s'"
+          code,
+          PATH
+        )
+      );
     }
 
-    if (feof(file) == 0 && ferror(file) == 0)
-    {
-      fputc('\n', file);
-    }
+    if (stream != NULL) fclose(stream); stream = NULL;
 
-    //Cleanup
-    fclose(file);
-    file = NULL;
-    ptr = NULL;
+    return;
 }
 
 
@@ -359,6 +411,8 @@ lw_io_copy (const gchar *SOURCE_PATH,
     char buffer[MAX];
     gboolean is_cancelled;
 
+    REDO THIS!
+
     //Initalizations
     infd = g_fopen (SOURCE_PATH, "rb");
     outfd = g_fopen (TARGET_PATH, "wb");
@@ -402,12 +456,12 @@ lw_io_gunzip_file (const gchar *SOURCE_PATH,
                    LwProgress  *progress)
 {
     if (lw_progress_should_abort (progress)) return FALSE;
-
+REDO THIS FOR PAGE SIZE
     //Declarations
     gzFile source;
     FILE *target;
     int read;
-    const int MAX = 1024;
+    const int MAX = 1024 * 4;
     char buffer[MAX];
     size_t filesize, position;
     position = 0;
@@ -457,37 +511,6 @@ lw_io_unzip_file (const gchar *SOURCE_PATH,
 
 
 //!
-//! @brief Gets the size of a file in bytes
-//! @param URI The path to the file to calculate the size of
-//! @returns The size of the file in bytes
-//!
-size_t 
-lw_io_get_filesize (const gchar *URI)
-{
-    //Sanity check
-    g_assert (g_file_test (URI, G_FILE_TEST_IS_REGULAR));
-
-    //Declarations
-    const int MAX_CHUNK = 128;
-    char buffer[MAX_CHUNK];
-    FILE *file;
-    size_t size;
-
-    //Initializations
-    file = g_fopen (URI, "rb");
-    size = 0;
-
-    while (file != NULL && ferror(file) == 0 && feof(file) == 0)
-        size += fread(buffer, sizeof(char), MAX_CHUNK, file);
-
-    //Cleanup
-    fclose(file);
-
-    return size;
-}
-
-
-//!
 //! @brief Deletes a file from the filesystem
 //! @param URI The path to the file to delet
 //! @param error A pointer to a GError object to write errors to or NULL
@@ -496,16 +519,41 @@ gboolean
 lw_io_remove (const gchar   *URI, 
               LwProgress    *progress)
 {
-  if (lw_progress_should_abort (progress)) return FALSE;
+    //Sanity checks
+    if (URI == NULL) return;
+    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
 
-  lw_progress_set_total (progress, 1.0);
-  lw_progress_set_current (progress, 0.0);
+    gboolean is_removed = FALSE;
 
-  g_remove (URI);
+    if (progress != NULL)
+    {
+      lw_progress_set_secondary_message (progress, URI);
+      lw_progress_set_total (progress, 1.0);
+      lw_progress_set_current (progress, 0.0);
+      lw_progress_set_complete (progress, FALSE);
+    }
 
-  lw_progress_set_current (progress, 1.0);
+    g_remove (URI);
 
-  return (!lw_progress_errored (progress));
+    is_removed = (g_file_test (URI, G_FILE_TEST_IS_REGULAR));
+
+    if (!is_removed && progress != NULL)
+    {
+      lw_progress_take_error (progress, g_error_new (
+        LW_IO_ERROR,
+        LW_IO_ERRORCODE_FAILED_REMOVING_FILE,
+        "Could not remove %s\n"
+        uri
+      );
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, 1.0);
+      lw_progress_set_complete (progress, TRUE);
+    }
+
+    return is_removed;
 }
 
 
@@ -513,25 +561,27 @@ lw_io_remove (const gchar   *URI,
 //! @brief A quick way to get the number of lines in a file for use in progress functions
 //! @param FILENAME The path to the file to see how many lines it has
 //!
-long 
-lw_io_get_size_for_uri (const char *URI)
+gsize
+lw_io_get_file_size (const char *PATH)
 {
     //Declarations
-    FILE *file;
-    long length;
+    FILE *file = NULL;
+    gsize length = 0;
 
     //Initializations
     file = g_fopen (URI, "r");
-    length = 0L;
+    length = 0;
 
     if (file != NULL)
     {
-      fseek (file, 0L, SEEK_END);
+      fseek (file, 0, SEEK_END);
       length = ftell (file);
       fclose(file);
+      file = NULL;
     }
    
     return length;
 }
+
 
 

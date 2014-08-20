@@ -9,11 +9,24 @@ typedef struct _LwEDictionary LwEDictionary;
 typedef struct _LwEDictionaryClass LwEDictionaryClass;
 typedef struct _LwEDictionaryPrivate LwEDictionaryPrivate;
 
-#define LW_EDICTIONARY_KEY_WORD "Word"
-#define LW_EDICTIONARY_KEY_READING "Reading"
-#define LW_EDICTIONARY_KEY_DEFINITION "Definition"
-#define LW_EDICTIONARY_KEY_CLASSIFICATION "Classification"
-#define LW_EDICTIONARY_KEY_POPULAR "Popular"
+#define LW_EDICTIONARYTOKENNAME_WORD "Word"
+#define LW_EDICTIONARYTOKENNAME_READING "Reading"
+#define LW_EDICTIONARYTOKENNAME_DEFINITION "Definition"
+#define LW_EDICTIONARYTOKENNAME_CLASSIFICATION "Classification"
+#define LW_EDICTIONARYTOKENNAME_POPULAR "Popular"
+
+typedef enum {
+  LW_EDICTIONARYTOKENID_WORD,
+  LW_EDICTIONARYTOKENID_READING,
+  LW_EDICTIONARYTOKENID_DEFINITION,
+  LW_EDICTIONARYTOKENID_CLASSIFICATION,
+  LW_EDICTIONARYTOKENID_POPULAR,
+  TOTAL_TOKENIDS
+} LwEdictionaryTokenId;
+
+GType lw_edictionary_tokenid_get_type (void);
+#define LW_TYPE_EDICTIONARY_TOKENID (lw_edictionary_tokenid_get_type ())
+
 
 #define LW_TYPE_EDICTIONARY              (lw_edictionary_get_type())
 #define LW_EDICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_EDICTIONARY, LwEDictionary))

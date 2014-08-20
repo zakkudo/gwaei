@@ -48,6 +48,29 @@ lw_word_new ()
     return word;
 }
 
+GType
+lw_wordfield_get_type ()
+{
+    static GType type = 0;
+
+    if (G_UNLIKELY (type == 0))
+    {
+      GEnumValue values = {
+        { LW_WORDFIELD_KANJI, LW_WORDFIELDNAME_KANJI, "kanji" },
+        { LW_WORDFIELD_READING, LW_WORDFIELDNAME_READING, "reading" },
+        { LW_WORDFIELD_DEFINITION, LW_WORDFIELDNAME_DEFINITION, "definition" },
+        { LW_WORDFIELD_CORRECT_GUESSES, LW_WORDFIELDNAME_CORRECT_GUESSES, "correct-guesses" },
+        { LW_WORDFIELD_INCORRECT_GUESSES, LW_WORDFIELDNAME_INCORRECT_GUESSES, "incorrect-guesses" },
+        { LW_WORDFIELD_TIMESTAMP, LW_WORDFIELDNAME_TIMESTAMP, "timestamp" },
+        { 0, NULL, NULL },
+      }
+
+      type = g_enum_register_static ("LwWordField", values);
+    }
+
+    return typel
+}
+
 
 LwWord*
 lw_word_new_from_string (const gchar *TEXT)
@@ -63,7 +86,7 @@ lw_word_new_from_string (const gchar *TEXT)
     word = g_new0 (LwWord, 1);
     if (word == NULL) goto errored;
 
-    fields = g_strsplit (TEXT, ";", TOTAL_LW_WORD_FIELDS);
+    fields = g_strsplit (TEXT, ";", TOTAL_LW_WORDFIELDS);
     if (fields == NULL) goto errored;
 
     {
@@ -83,19 +106,19 @@ lw_word_new_from_string (const gchar *TEXT)
     }
 
     //Set up the integers
-    const gchar *CORRECT_GUESSES = word->fields[LW_WORD_FIELD_CORRECT_GUESSES];
+    const gchar *CORRECT_GUESSES = word->fields[LW_WORDFIELD_CORRECT_GUESSES];
     if (CORRECT_GUESSES != NULL)
     {
       word->correct_guesses = (gint) strtoll (CORRECT_GUESSES, NULL, 10);
     }
 
-    const gchar *INCORRECT_GUESSES = word->fields[LW_WORD_FIELD_INCORRECT_GUESSES];
+    const gchar *INCORRECT_GUESSES = word->fields[LW_WORDFIELD_INCORRECT_GUESSES];
     if (INCORRECT_GUESSES != NULL)
     {
       word->incorrect_guesses =  (gint) strtoll (INCORRECT_GUESSES, NULL, 10);
     }
 
-    const gchar *TIMESTAMP = word->fields[LW_WORD_FIELD_TIMESTAMP];
+    const gchar *TIMESTAMP = word->fields[LW_WORDFIELD_TIMESTAMP];
     if (TIMESTAMP != NULL)
     {
     word->timestamp =  (guint32) strtoll (TIMESTAMP, NULL, 10);
@@ -115,120 +138,120 @@ errored:
 GType
 lw_word_get_type ()
 {
-  static GType type = 0;
+    static GType type = 0;
 
-  if (type == 0)
-  {
-    type = g_boxed_type_register_static (
-      "LwWord",
-      (GBoxedCopyFunc) lw_word_copy,
-      (GBoxedFreeFunc) lw_word_free
-    );
-  }
+    if (type == 0)
+    {
+      type = g_boxed_type_register_static (
+        "LwWord",
+        (GBoxedCopyFunc) lw_word_copy,
+        (GBoxedFreeFunc) lw_word_free
+      );
+    }
 
-  return type;
+    return type;
 }
 
 
 void
 lw_word_free (LwWord *word)
 {
-  //Snaity checks
-  if (word == NULL) return;
+    //Snaity checks
+    if (word == NULL) return;
 
-  {
-    gint i = 0;
-    for (i = 0; i < TOTAL_LW_WORD_FIELDS; i++)
     {
-      if (word->fields[i] != NULL)
+      gint i = 0;
+      for (i = 0; i < TOTAL_LW_WORDFIELDS; i++)
       {
-        g_free (word->fields[i]);
-        word->fields[i] = NULL;
+        if (word->fields[i] != NULL)
+        {
+          g_free (word->fields[i]);
+          word->fields[i] = NULL;
+        }
       }
     }
-  }
 
-  g_free (word->score); word->score = NULL;
-  g_free (word->days); word->days = NULL;
+    g_free (word->score); word->score = NULL;
+    g_free (word->days); word->days = NULL;
 
-  g_free (word);
+    g_free (word);
 }
 
 const gchar* 
 lw_word_get_kanji (LwWord *word)
 {
-  return word->fields[LW_WORD_FIELD_KANJI];
+    return word->fields[LW_WORDFIELD_KANJI];
 }
 
 void 
 lw_word_set_kanji (LwWord *word, const gchar *text)
 {
-  if (word->fields[LW_WORD_FIELD_KANJI] != NULL)
-    g_free (word->fields[LW_WORD_FIELD_KANJI]);
-  word->fields[LW_WORD_FIELD_KANJI] = g_strdup (text);
-  word->has_changes = TRUE;
+    if (word->fields[LW_WORDFIELD_KANJI] != NULL)
+      g_free (word->fields[LW_WORDFIELD_KANJI]);
+    word->fields[LW_WORDFIELD_KANJI] = g_strdup (text);
+    word->has_changes = TRUE;
 }
 
 const gchar* 
 lw_word_get_reading (LwWord *word)
 {
-  return word->fields[LW_WORD_FIELD_READING];
+    return word->fields[LW_WORDFIELD_READING];
 }
 
 void 
 lw_word_set_reading (LwWord *word, const gchar *text)
 {
-  if (word->fields[LW_WORD_FIELD_READING] != NULL)
-    g_free (word->fields[LW_WORD_FIELD_READING]);
-  word->fields[LW_WORD_FIELD_READING] = g_strdup (text);
-  word->has_changes = TRUE;
+    if (word->fields[LW_WORDFIELD_READING] != NULL)
+      g_free (word->fields[LW_WORDFIELD_READING]);
+    word->fields[LW_WORDFIELD_READING] = g_strdup (text);
+    word->has_changes = TRUE;
 }
 
 const gchar* 
 lw_word_get_definition (LwWord *word)
 {
-  return word->fields[LW_WORD_FIELD_DEFINITION];
+    return word->fields[LW_WORDFIELD_DEFINITION];
 }
 
 void 
 lw_word_set_definition (LwWord *word, const gchar *text)
 {
-  if (word->fields[LW_WORD_FIELD_DEFINITION] != NULL)
-    g_free (word->fields[LW_WORD_FIELD_DEFINITION]);
-  word->fields[LW_WORD_FIELD_DEFINITION] = g_strdup (text);
-  word->has_changes = TRUE;
+    if (word->fields[LW_WORDFIELD_DEFINITION] != NULL)
+      g_free (word->fields[LW_WORDFIELD_DEFINITION]);
+    word->fields[LW_WORDFIELD_DEFINITION] = g_strdup (text);
+    word->has_changes = TRUE;
 }
 
 gint 
 lw_word_get_correct_guesses (LwWord *word)
 {
-  return word->correct_guesses;
+    return word->correct_guesses;
 }
 
 void 
 lw_word_set_correct_guesses (LwWord *word, gint number)
 {
-  if (word->fields[LW_WORD_FIELD_CORRECT_GUESSES] != NULL)
-    g_free (word->fields[LW_WORD_FIELD_CORRECT_GUESSES]);
-  word->fields[LW_WORD_FIELD_CORRECT_GUESSES] = g_strdup_printf ("%d", number);
-  word->correct_guesses = number;
-  if (word->score != NULL) g_free (word->score); word->score = NULL;
+    if (word->fields[LW_WORDFIELD_CORRECT_GUESSES] != NULL)
+      g_free (word->fields[LW_WORDFIELD_CORRECT_GUESSES]);
+    word->fields[LW_WORDFIELD_CORRECT_GUESSES] = g_strdup_printf ("%d", number);
+    word->correct_guesses = number;
+    if (word->score != NULL) g_free (word->score); word->score = NULL;
 }
 
 gint 
 lw_word_get_incorrect_guesses (LwWord *word)
 {
-  return word->incorrect_guesses;
+    return word->incorrect_guesses;
 }
 
 void 
 lw_word_set_incorrect_guesses (LwWord *word, gint number)
 {
-  if (word->fields[LW_WORD_FIELD_INCORRECT_GUESSES] != NULL)
-    g_free (word->fields[LW_WORD_FIELD_INCORRECT_GUESSES]);
-  word->fields[LW_WORD_FIELD_INCORRECT_GUESSES] = g_strdup_printf ("%d", number);
-  word->incorrect_guesses = number;
-  if (word->score != NULL) g_free (word->score); word->score = NULL;
+    if (word->fields[LW_WORDFIELD_INCORRECT_GUESSES] != NULL)
+      g_free (word->fields[LW_WORDFIELD_INCORRECT_GUESSES]);
+    word->fields[LW_WORDFIELD_INCORRECT_GUESSES] = g_strdup_printf ("%d", number);
+    word->incorrect_guesses = number;
+    if (word->score != NULL) g_free (word->score); word->score = NULL;
 }
 
 
@@ -290,10 +313,10 @@ lw_word_set_last_studied (LwWord *word, guint32 hours)
     word->timestamp = hours;
 
     if (word->days != NULL) g_free (word->days); word->days = NULL;
-    if (word->fields[LW_WORD_FIELD_TIMESTAMP] != NULL)
-      g_free (word->fields[LW_WORD_FIELD_TIMESTAMP]);
+    if (word->fields[LW_WORDFIELD_TIMESTAMP] != NULL)
+      g_free (word->fields[LW_WORDFIELD_TIMESTAMP]);
 
-    word->fields[LW_WORD_FIELD_TIMESTAMP] = g_strdup_printf ("%" G_GUINT32_FORMAT, word->timestamp);
+    word->fields[LW_WORDFIELD_TIMESTAMP] = g_strdup_printf ("%" G_GUINT32_FORMAT, word->timestamp);
 }
 
 
@@ -335,13 +358,13 @@ lw_word_to_string (LwWord *word)
     gchar **fields = NULL;
 
     //Initializations
-    fields = g_new0 (gchar*, TOTAL_LW_WORD_FIELDS + 1);
+    fields = g_new0 (gchar*, TOTAL_LW_WORDFIELDS + 1);
     if (fields == NULL) goto errored;
 
     {
       gint i = 0;
       gint j = 0;
-      for (i = 0; i < TOTAL_LW_WORD_FIELDS; i++)
+      for (i = 0; i < TOTAL_LW_WORDFIELDS; i++)
       {
         if (word->fields[i] != NULL)
         {
