@@ -12,7 +12,7 @@ typedef enum
   PROP_PROGRESS,
   PROP_ID,
   PROP_PATH,
-  PROP_BUFFERTREE,
+  PROP_CACHETREE,
   PROP_LENGTH,
   PROP_CHECKSUM,
   PROP_CONTENTS,
@@ -26,7 +26,7 @@ typedef enum {
 
 struct _Data {
   gchar *path;
-  GTree *buffers;
+  GTree *caches;
 
   LwMorphologyEngine *morphology_engine;
   GMutex mutex;
@@ -55,7 +55,7 @@ struct _LwDictionaryClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
 
   //Virtual methods
-  LwDictionaryBufferParseFunc parse;
+  LwDictionaryCacheParseFunc parse;
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));

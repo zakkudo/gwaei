@@ -1,7 +1,7 @@
 #ifndef LW_DICTIONARY_INCLUDED
 #define LW_DICTIONARY_INCLUDED
 
-#include "dictionarybuffer.h"
+#include "dictionarycache.h"
 #include "dictionaryline.h"
 
 G_BEGIN_DECLS
@@ -71,18 +71,18 @@ const gchar* lw_dictionary_get_id (LwDictionary *self);
 gchar* lw_dictionary_build_directory (GType type);
 gchar* lw_dictionary_directoryname_to_typename (const gchar *DIRECTORYNAME);
 
-void lw_dictionary_set_buffertree (LwDictionary *self, GTree *tree);
-GTree* lw_dictionary_get_buffertree (LwDictionary *self);
+void lw_dictionary_set_cachetree (LwDictionary *self, GTree *tree);
+GTree* lw_dictionary_get_cachetree (LwDictionary *self);
 
-LwDictionaryBuffer* lw_dictionary_get_buffer (LwDictionary *self, LwProgress *progress, LwUtf8NormalizeFlag flags);
-void lw_dictionary_set_buffer (LwDictionary *self, LwDictionaryBuffer *buffer);
+LwDictionaryCache* lw_dictionary_get_cache (LwDictionary *self, LwProgress *progress, LwUtf8Flag flags);
+void lw_dictionary_set_cache (LwDictionary *self, LwDictionaryCache *cache);
 
 gchar * const * lw_dictionary_lines (LwDictionary *self);
 gint lw_dictionary_num_lines (LwDictionary *self);
 
 gboolean  lw_dictionary_uninstall (LwDictionary *self);
 
-LwDictionaryLine** lw_dictionary_get_lines (LwDictionary *self, LwUtf8NormalizeFlag flags, gint *num_lines);
+LwDictionaryLine** lw_dictionary_get_lines (LwDictionary *self, LwUtf8Flag flags, gint *num_lines);
 
 G_END_DECLS
 

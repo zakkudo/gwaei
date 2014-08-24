@@ -40,7 +40,7 @@ struct _LwMorphologyString {
 };
 typedef struct _LwMorphologyString LwMorphologyString;
 
-LwMorphologyString* lw_morphologystring_new (const gchar *TEXT, LwUtf8NormalizeFlag flags);
+LwMorphologyString* lw_morphologystring_new (const gchar *TEXT, LwUtf8Flag flags);
 void lw_morphologystring_free (LwMorphologyString *self);
 
 G_END_DECLS

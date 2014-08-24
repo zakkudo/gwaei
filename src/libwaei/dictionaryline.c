@@ -36,49 +36,14 @@
 #include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
 
+struct _LwDictionaryLine {
+  GTree *tree;
+};
+
 gint
 _compare (gpoitner a, gpointer b)
 {
   return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
-}
-
-LwDictionaryLine*
-lw_dictionaryline_new (void)
-{
-  return g_tree_new_full (_compare, NULL, (GDestroyNotify) g_free);
-}
-
-
-void
-lw_dictionaryline_unref (LwDictionaryLine *self)
-{
-  if (self == NULL) return;
-  g_tree_unref (self->tree);
-}
-
-
-void
-lw_dictionaryline_ref (LwDictionaryLine *self)
-{
-  return g_tree_ref (self->tree);
-}
-
-
-void
-lw_dictionaryline_get_type ()
-{
-    static GType type = 0;
-
-    if (type == 0)
-    {
-      type = g_boxed_type_register_static (
-        "LwDictionaryLine",
-        (GBoxedCopyFunc) lw_dictionaryline_ref,
-        (GBoxedFreeFunc) lw_dictionaryline_unref
-      );
-    }
-
-    return type;
 }
 
 
@@ -171,6 +136,90 @@ lw_dictionaryline_get_strv (LwDictionaryLine *self,
     g_return_val_if_fail (self != NULL, NULL);
 
     return (g_tree_lookup (self->data, GINT_TO_POINTER (id)));
+}
+
+
+
+LwDictionaryLines*
+lw_dictionarylines_new (gint length)
+{
+    LwDictionaryLines *self = NULL;
+
+    self = g_new0(LwDictionaryLines*, 1);
+    self->lines = g_new0(LwDictionaryLine, length);
+    self->length = length;
+
+    return self;
+}
+
+
+void
+lw_dictionarylines_free (LwDictionaryLines *self)
+{
+    //Sanity checks
+    if (self == NULL) return; 
+
+    {
+      gint i = 0;
+      for (i = 0; i < self->length; i++)
+      {
+        lw_dictionaryline_clear (self->lines[i]);
+      }
+    }
+
+    g_free (self);
+}
+
+
+void
+lw_dictionarylines_foreach (LwDictionaryLines            *self,
+                            LwDictionaryLinesForeachFunc  func,
+                            gpointer                      data)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (func != NULL);
+
+    //Declarations
+    gint i = 0;
+
+    while (i < self->length)
+    {
+      func(self, self->lines[i], data);
+      i++;
+    }
+}
+
+
+LwDictionaryLine*
+lw_dictionarylines_get_line (LwDictionaryLines *self,
+                             gint               line_number)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (line < 0, NULL);
+    g_return_val_if_fail (line_number > self->length, NULL);
+
+    //Declarations
+    LwDictionaryLine *line = NULL;
+
+    if (line_number < 0 || line_number >= self->length) goto errored;
+
+    line = self->lines + line_number;
+
+errored:
+
+    return line;
+}
+
+
+gint
+lw_dictionarylines_length (LwDictionaryLines *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, 0);
+
+    return self->length;
 }
 
 

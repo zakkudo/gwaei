@@ -98,36 +98,38 @@ lw_utf8_get_numbers (const gchar *TEXT)
 
 
 GType
-lw_utf8normalizeflag_get_type ()
+lw_utf8flag_get_type ()
 {
   static GType type = 0;
 
   if (G_UNLIKELY (type == 0))
   {
     GEnumValue values = {
-      { LW_NORMALIZEFLAG_NONE, LW_NORMALIZEFLAGNAME_NONE, "none" },
-      { LW_NORMALIZEFLAG_CASE_INSENSITIVE, LW_NORMALIZEFLAGNAME_CASE_INSENSITIVE, "case-insensitive" },
-      { LW_NORMALIZEFLAG_FURIGANA_INSENSITIVE, LW_NORMALIZEFLAGNAME_FURIGANA_INSENSITIVE, "furigana-insensitive" },
-      { LW_NORMALIZEFLAG_INSENSITIVE, LW_NORMALIZEFLAGNAME_INSENSITIVE, "insensitive" },
+      { LW_UTF8FLAG_NONE, LW_UTF8FLAGNAME_NONE, LW_UTF8FLAGNICK_NONE },
+      { LW_UTF8FLAG_PRINTABLE, LW_UTF8FLAGNAME_PRINTABLE, LW_UTF8FLAGNICK_PRINTABLE },
+      { LW_UTF8FLAG_COMPARABLE, LW_UTF8FLAGNAME_COMPARABLE, LW_UTF8FLAGNICK_COMPARABLE },
+      { LW_UTF8FLAG_CASE_FOLD, LW_UTF8FLAGNAME_CASE_FOLD, LW_UTF8FLAGNICK_CASE_FOLD },
+      { LW_UTF8FLAG_FURIGANA_FOLD, LW_UTF8FLAGNAME_FURIGANA_FOLD, LW_UTF8FLAGNICK_FURIGANA_FOLD },
+      { LW_UTF8FLAG_ALL, LW_UTF8FLAGNAME_ALL, LW_UTF8FLAGNICK_ALL },
       { 0, NULL, NULL },
     }
 
-    type = g_flags_register_static ("LwUtf8NormalizeFlag", values);
+    type = g_flags_register_static ("LwUtf8Flag", values);
   }
 
   return type;
 }
 
 
-LwUtf8NormalizeFlag
-lw_utf8normalizeflag_clean (LwUtf8NormalizeFlag flags)
+LwUtf8Flag
+lw_utf8normalizeflag_clean (LwUtf8Flag flags)
 {
-    if (LW_NORMALIZEFLAG_COMPARABLE & flags)
+    if (LW_UTF8FLAG_COMPARABLE & flags)
     {
-      flags &= (~LW_UTF8NORMALIZEFLAG);
+      flags &= (~LW_UTF8FLAG);
     }
 
-    flags &= LW_UTF8NORMALIZEFLAG_ALL;
+    flags &= LW_UTF8FLAG_ALL;
 
     return flags;
 }
@@ -207,9 +209,9 @@ lw_utf8_validate (const gchar *TEXT,
 //! @brief Will change a query into a & delimited set of tokens (logical and)
 //!
 gchar*
-lw_utf8_normalize (const gchar          *TEXT,
-                   gssize                length,
-                   LwUtf8NormalizeFlags  flags)
+lw_utf8_normalize (const gchar *TEXT,
+                   gssize       length,
+                   LwUtf8Flag   flags)
 {
     //Sanity checks
     if (TEXT == NULL) return NULL;
@@ -221,21 +223,21 @@ lw_utf8_normalize (const gchar          *TEXT,
     //Initializations
     if (buffer == NULL) goto errored;
 
-    if (flags & LW_UTF8NORMALIZEFLAG_COMPARABLE)
+    if (flags & LW_UTF8FLAG_COMPARABLE)
     {
       buffer = g_utf8_normalize (TEXT, -1, G_NORMALIZE_ALL);
     }
-    else if (flags & LW_UTF8NORMALIZEFLAG_PRINTABLE)
+    else if (flags & LW_UTF8FLAG_PRINTABLE)
     {
       buffer = g_utf8_normalize (TEXT, -1, G_NORMALIZE_DEFAULT);
     }
 
-    if (flags & LW_UTF8NORMALIZEFLAG_CASEFOLD)
+    if (flags & LW_UTF8FLAG_CASEFOLD)
     {
       lw_utf8_casefold (buffer, length, NULL);
     }
 
-    if (flags & LW_UTF8NORMALIZEFLAG_FURIGANAFOLD)
+    if (flags & LW_UTF8FLAG_FURIGANAFOLD)
     {
       lw_utf8_furiganafold (buffer, length, NULL);
     }
@@ -245,6 +247,35 @@ errored:
     return buffer;
 }
 
+
+gint
+lw_utf8_normalize_chunk (gchar       **output_chunk,
+                         const gchar  *TEXT,
+                         LwUtf8Flag    flags,
+                         gssize        max_length)
+{
+    //Sanity checks
+    if (TEXT == NULL) return NULL;
+
+    //Declarations
+    const gchar *e = TEXT;
+    const ghcar *p = NULL;
+    gint bytes_read = 0;
+
+    while (*e != '\0' && bytes_read <= max_length)
+    {
+      p = e;
+      e = g_utf8_next_char (e);
+      bytes_read = e - TEXT
+    }
+    if (p != NULL) e = p;
+
+    normalized = lw_utf8_normalize (TEXT, bytes_read, flags);
+
+    *output_chunk = normalized;
+
+    return e - TEXT;
+}
 
 
 

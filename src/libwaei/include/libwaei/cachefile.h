@@ -16,8 +16,10 @@ const gchar* lw_cachefile_get_checksum (LwCacheFile *self);
 
 const gchar* lw_cachefile_get_contents (LwCacheFile *self);
 
-void lw_cachefile_write (LwCacheFile *self, const gchar *CHECKSUM, const gchar *CONTENTS, LwProgress *progress);
-gboolean lw_cachefile_read (LwCacheFile *self, const gchar *EXPECTED_CHECKSUM, LwProgress *progress);
+void lw_cachefile_write (LwCacheFile *self, const gchar *CHECKSUM, const gchar *CONTENTS, gssize content_length, LwProgress  *progress);
+gchar* lw_cachefile_read (LwCacheFile *self, const gchar *EXPECTED_CHECKSUM, LwProgress *progress);
+
+gsize lw_cachefile_length (LwCacheFile *self);
 
 G_END_DECLS
 

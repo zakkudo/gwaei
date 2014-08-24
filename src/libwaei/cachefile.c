@@ -109,7 +109,7 @@ lw_cachefile_get_type ()
       type = g_boxed_type_register_static (
         "LwCacheFile",
         (GBoxedCopyFunc) lw_cachefile_ref,
-        (GBoxedFreeFunc) lw_cachefule_unref
+        (GBoxedFreeFunc) lw_cachefile_unref
       );
     }
 
@@ -162,7 +162,7 @@ void
 lw_cachefile_write (LwCacheFile *self,
                     const gchar *CHECKSUM,
                     const gchar *CONTENTS,
-                    gint         content_length,
+                    gssize       content_length,
                     LwProgress  *progress)
 {
     //Sanity checks
@@ -288,7 +288,7 @@ lw_cachefile_read (LwCacheFile *self,
 {
     g_return_val_if_fail (self != NULL, FALSE):
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, FALSE);
-    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
+    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
 
     //Declarations
     GError *error = NULL;
@@ -386,4 +386,24 @@ _ensure_fclose (LwCacheFile  *self,
     }
 }
 
+
+gsize
+lw_cachefile_length (LwCacheFile *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL);
+
+    //Declarations
+    GMappedFile *mapped_file = NULL;
+    gsize length = 0;
+
+    //Initializations
+    mapped_file = self->mapped_file;
+    if (mapped_file == NULL) goto errored;
+    length = g_mapped_file_get_length (mapped_file);
+
+errored:
+
+    return length;
+}
 

@@ -70,7 +70,7 @@ lw_dictionary_finalize (GObject *object)
     g_free (priv->data.filename); priv->data.filename = NULL;
     g_free (priv->data.name); priv->data.name = NULL;
 
-    lw_dictionary_set_buffertree (self, NULL);
+    lw_dictionary_set_cachetree (self, NULL);
 
     memset(self->priv, 0, sizeof(LwDictionaryPrivate));
 
@@ -103,8 +103,8 @@ lw_dictionary_set_property (GObject      *object,
       case PROP_PROGRESS:
         lw_dictionary_set_progress (self, g_value_get_object (value));
         break;
-      case PROP_BUFFERTREE:
-        lw_dictionary_set_buffertree (self, g_value_get_pointer (value));
+      case PROP_CACHETREE:
+        lw_dictionary_set_cachetree (self, g_value_get_pointer (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -147,8 +147,8 @@ lw_dictionary_get_property (GObject      *object,
       case PROP_PROGRESS:
         g_value_set_object (value, lw_dictionary_get_progress (self));
         break;
-      case PROP_BUFFERTREE:
-        g_value_set_pointer (value, lw_dictionary_get_buffertree (self));
+      case PROP_CACHETREE:
+        g_value_set_pointer (value, lw_dictionary_get_cachetree (self));
         break;
       case PROP_CHECKSUM:
         g_value_set_static_string (value, lw_dictionary_get_checksum (self));
@@ -229,13 +229,13 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
     );
     g_object_class_install_property (object_class, PROP_ID, klasspriv->pspec[PROP_ID]);
 
-    klasspriv->pspec[PROP_BUFFERTREE] = g_param_spec_pointer (
-      "buffer",
+    klasspriv->pspec[PROP_CACHETREE] = g_param_spec_pointer (
+      "cache-tree",
       gettext("Buffer"),
       "Set the self's data.filename",
       G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_BUFFERTREE, klasspriv->pspec[PROP_BUFFERTREE]);
+    g_object_class_install_property (object_class, PROP_CACHETREE, klasspriv->pspec[PROP_CACHETREE]);
 
     klasspriv->pspec[PROP_LENGTH] = g_param_spec_ulong (
       "length",
@@ -656,7 +656,7 @@ lw_dictionary_sync_path (LwDictionary *self)
     priv->data.path = path;
     path = NULL;
 
-    lw_dictionary_set_buffertree (self, NULL);
+    lw_dictionary_set_cachetree (self, NULL);
     
     if (priv->data.mapped_file != NULL)
     {
@@ -868,7 +868,7 @@ errored:
 
 
 void
-lw_dictionary_set_buffertree (LwDictionary *self,
+lw_dictionary_set_cachetree (LwDictionary *self,
                               GTree        *tree)
 {
     //Sanity checks
@@ -881,7 +881,7 @@ lw_dictionary_set_buffertree (LwDictionary *self,
 
     //Initializations
     priv = self->priv;
-    if (priv->data.buffers == tree) goto errored;
+    if (priv->data.caches == tree) goto errored;
     klass = LW_DICTIONARY_CLASS (self);
     klasspriv = klass->priv;
 
@@ -890,19 +890,19 @@ lw_dictionary_set_buffertree (LwDictionary *self,
       g_tree_ref (tree);
     }
 
-    if (priv->data.buffers == NULL)
+    if (priv->data.caches == NULL)
     {
-      g_tree_unref (priv->data.buffers);
+      g_tree_unref (priv->data.caches);
     }
 
-    priv->data.buffers = tree;
+    priv->data.caches = tree;
 
-    if (priv->data.buffers != NULL)
+    if (priv->data.caches != NULL)
     {
-      g_tree_ref (priv->data.buffers);
+      g_tree_ref (priv->data.caches);
     }
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_BUFFERTREE]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CACHETREE]);
 
 errored:
 
@@ -911,7 +911,7 @@ errored:
 
 
 GTree*
-lw_dictionary_get_buffertree (LwDictionary *self)
+lw_dictionary_get_cachetree (LwDictionary *self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -922,13 +922,13 @@ lw_dictionary_get_buffertree (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.buffers;
+    return priv->data.caches;
 }
 
 
 void
-lw_dictionary_set_buffer (LwDictionary        *self,
-                          LwDictionaryBuffer  *buffer)
+lw_dictionary_set_cache (LwDictionary        *self,
+                          LwDictionaryCache  *cache)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
@@ -938,24 +938,24 @@ lw_dictionary_set_buffer (LwDictionary        *self,
     LwDictionaryClass *klass = NULL;
     LwDictionaryClassPrivate *klasspriv = NULL;
     gpointer key = NULL;
-    LwUtf8NormalizeFlag flags = 0;
+    LwUtf8Flag flags = 0;
 
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
     klasspriv = klass->priv;
-    flags = lw_dictionarybuffer_get_flags (buffer);
+    flags = lw_dictionarycache_get_flags (cache);
     key = GINT_TO_POINTER (flags);
-    if (priv->data.buffers == NULL) goto errored;
-    if (g_tree_lookup (priv->data.buffers, key) == buffer) goto errored;
+    if (priv->data.caches == NULL) goto errored;
+    if (g_tree_lookup (priv->data.caches, key) == cache) goto errored;
 
-    if (buffer != NULL)
+    if (cache != NULL)
     {
-      g_tree_insert (priv->data.buffers, key, buffer);
+      g_tree_insert (priv->data.caches, key, cache);
     }
     else
     {
-      g_tree_remove (priv->data.buffers, key);
+      g_tree_remove (priv->data.caches, key);
     }
 
 errored:
@@ -964,7 +964,7 @@ errored:
 }
 
 
-gint
+static gint
 _flag_compare_function (gconstpointer a,
                         gconstpointer b)
 {
@@ -982,42 +982,19 @@ struct _DictionaryBufferData {
 
 
 void
-lw_dictionary_buffer_load (LwDictionary       *self,
-                           LwDictionaryBuffer *buffer,
-                           LwProgress         *progress)
+lw_dictionary_ensure_cache (LwDictionary      *self,
+                            LwDictionaryCache *cache,
+                            LwProgress        *progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
-    g_return_if_fail (buffer != NULL);
+    g_return_if_fail (cache != NULL);
 
-    //Declarations
-    LwDictionaryPrivate *priv = NULL;
-    LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
-    LwDictionaryBufferParseFunc func = NULL;
-    gchar const * CHECKSUM = NULL;
-    gchar const * CONTENTS = NULL;
-    gint length = -1;
-    struct _DictionaryBufferData data = { 0 };
-    
-    //Initializations    
-    priv = self->priv;
-    klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
-
-    func = klasspriv->parse;
-    if (func == NULL) goto errored;
-    data.dictionary = self;
-    data.progress = progress;
-
-    CHECKSUM = lw_dictionary_get_checksum (self);
-    if (CHECKSUM == NULL) goto errored;
-    CONTENTS = lw_dictionary_get_contents (self);
-    if (CONTENTS == NULL) goto errored;
-    length = lw_dictionary_length (self);
-    if (length < 1) goto errored;
-
-    lw_dictionarybuffer_set_contents (buffer, CHECKSUM, CONTENTS, length, func, (gpointer) &data);
+    if (lw_dictionarycache_read (self, CHECKSUM, func, data, progress) == NULL)
+      TODO
+      lw_dictionarycache_write (cache, CHECKSUM, CONTENTS, length, progress);
+      lw_dictionarycache_read (cache, CHECKSUM, func, data, progress);
+    }
 
 errored:
 
@@ -1025,10 +1002,10 @@ errored:
 }
 
 
-LwDictionaryBuffer*
-lw_dictionary_get_buffer (LwDictionary        *self,
-                          LwProgress          *progress,
-                          LwUtf8NormalizeFlag  flags)
+LwDictionaryCache*
+lw_dictionary_get_cache (LwDictionary *self,
+                          LwProgress   *progress,
+                          LwUtf8Flag    flags)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -1036,32 +1013,34 @@ lw_dictionary_get_buffer (LwDictionary        *self,
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    GTree *buffers = NULL;
-    LwDictionaryBuffer *buffer = NULL;
+    GTree *caches = NULL;
+    LwDictionaryCache *cache = NULL;
+    const gchar *FILENAME = NULL;
 
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (G_OBJECT_GET_CLASS (self));
+    FILENAME = lw_dictionary_get_filename (self);
 
-    buffers = lw_dictionary_get_buffertree (self);
-    if (buffers == NULL)
+    caches = lw_dictionary_get_cachetree (self);
+    if (caches == NULL)
     {
-      buffers = g_tree_new (_flag_compare_function);
-      lw_dictionary_set_buffertree (self, buffers);
+      caches = g_tree_new (_flag_compare_function);
+      lw_dictionary_set_cachetree (self, caches);
     }
-    if (buffers == NULL) goto errored;
+    if (caches == NULL) goto errored;
 
-    buffer = g_tree_lookup (buffers, GINT_TO_POINTER (flags));
-    if (buffer == NULL)
+    cache = g_tree_lookup (caches, GINT_TO_POINTER (flags));
+    if (cache == NULL)
     {
-      buffer = lw_dictionarybuffer_new (flags);
-      lw_dictionary_set_buffer (self, buffer);
-      lw_dictionary_buffer_load (self, buffer, progress);
+      cache = lw_dictionarycache_new (FILENAME, flags);
+      lw_dictionary_set_cache (self, cache);
+      lw_dictionary_ensure_cache (self, cache, progress);
     }
 
 errored:
 
-    return buffer;
+    return cache;
 }
 
 
@@ -1313,7 +1292,7 @@ lw_dictionary_regex_search (LwDictionary  *self,
 
 /*TODO
     //Declarations
-    LwDictionaryBuffer *buffer = NULL;
+    LwDictionaryCache *buffer = NULL;
     GList *matchlist = NULL;
     GRegex *regex = NULL;
     gint chunk = 0;
@@ -1335,7 +1314,7 @@ lw_dictionary_regex_search (LwDictionary  *self,
       for (i = 0; i < num_lines && !lw_progress_should_abort (progress); i++)
       {
         /*TODO
-        const gchar *BUFFER = lw_dictionarybuffer_get_line (buffer, i);
+        const gchar *BUFFER = lw_dictionarycache_get_line (buffer, i);
         if (BUFFER == NULL) break;
 
         if (g_regex_match (regex, BUFFER, 0, NULL) == TRUE)
@@ -1392,11 +1371,11 @@ _count_max_tokens (LwDictionary *self, gchar **lines, gint num_lines)
 
 
 LwDictionaryLine*
-lw_dictionary_build_lines (LwDictionary *self, LwDictionaryBuffer *buffer)
+lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
-    g_return_val_if_fail (buffer != NULL, NULL);
+    g_return_val_if_fail (cache != NULL, NULL);
 
     //Declarations
     LwDictionaryClass *klass = NULL;
@@ -1415,7 +1394,7 @@ lw_dictionary_build_lines (LwDictionary *self, LwDictionaryBuffer *buffer)
     klasspriv = klass->priv;
     if (klasspriv->tokenize == NULL) goto errored;
     if (klasspriv->load_tokens == NULL) goto errored;
-    str = lw_dictionarybuffer_str (buffer);
+    str = lw_dictionarycache_str (buffer);
     if (str == NULL) goto errored;
     lines = lw_utf8_split_lines (str, &num_lines);
     if (lines == NULL) goto errored;
@@ -1445,15 +1424,15 @@ errored:
 
 
 LwDictionaryLine**
-lw_dictionary_get_lines (LwDictionary        *self,
-                         LwUtf8NormalizeFlag  flags,
-                         gint                *num_lines)
+lw_dictionary_get_lines (LwDictionary *self,
+                         LwUtf8Flag    flags,
+                         gint         *num_lines)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
-    LwDictionaryBuffer *buffer = NULL;
+    LwDictionaryCache *cache = NULL;
     LwDictionaryLine **lines = NULL;
 /*
 TODO
@@ -1462,12 +1441,12 @@ TODO
     //Initializations
     buffer = lw_dictionary_get_buffer (self, flags);
     if (buffer == NULL) goto errored;
-    lines = lw_dictionarybuffer_get_lines (buffer, &num_lines);
+    lines = lw_dictionarycache_get_lines (buffer, &num_lines);
 
     if (lines == NULL)
     {
       lines = lw_dictionary_build_lines (self, &num_lines);
-      lw_dictionarybuffer_set_lines (self, lines, num_lines);
+      lw_dictionarycache_set_lines (self, lines, num_lines);
     }
 
 errored:
