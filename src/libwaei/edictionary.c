@@ -44,8 +44,7 @@
 
 G_DEFINE_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 
-static void lw_edictionary_load_tokens (LwDictionary *self, LwDictionaryLine *line, gchar **token_buffer, gint num_tokens);
-static gchar** lw_edictionary_tokenize (LwDictionary *self, gchar *buffer, gchar **tokens, gint *num_tokens);
+static LwParsedDictionary* lw_edictionary_parse (LwEDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 
 LwDictionary* lw_edictionary_new (const gchar        *FILENAME, 
                                   LwMorphologyEngine *morphologyengine)
@@ -83,22 +82,22 @@ lw_edictionary_constructed (GObject *object)
     dictionary = LW_DICTIONARY (object);
     priv = dictionary->priv;
 
-    if (strcmp(priv->config.filename, "English") == 0)
+    if (strcmp(priv->data.filename, "English") == 0)
     {
       if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
       priv->data.name = g_strdup (gettext("English"));
     }
-    else if (strcmp(priv->config.filename, "Names") == 0)
+    else if (strcmp(priv->data.filename, "Names") == 0)
     {
       if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
       priv->data.name = g_strdup (gettext("Names"));
     }
-    else if (strcmp(priv->config.filename, "Places") == 0)
+    else if (strcmp(priv->data.filename, "Places") == 0)
     {
       if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
       priv->data.name = g_strdup (gettext("Places"));
     }
-    else if (strcmp(priv->config.filename, "Names and Places") == 0)
+    else if (strcmp(priv->data.filename, "Names and Places") == 0)
     {
       if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
       priv->data.name = g_strdup (gettext("Names and Places"));
@@ -126,8 +125,7 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
     object_class->constructed = lw_edictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->tokenize = lw_edictionary_tokenize;
-    dictionary_class->priv->load_tokens = lw_edictionary_load_tokens;
+    dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_edictionary_parse;
 }
 
 
@@ -139,11 +137,11 @@ lw_edictionary_tokenid_get_type ()
     if (G_UNLIKELY (type == 0))
     {
       GEnumValue values[] = {
-        { LW_EDICTIONARYTOKENID_WORD, LW_EDICTIONARYTOKENNAME_WORD, "word" },
-        { LW_EDICTIONARYTOKENID_READING, LW_EDICTIONARYTOKENNAME_READING, "reading" },
-        { LW_EDICTIONARYTOKENID_DEFINITION, LW_EDICTIONARYTOKENNAME_DEFINITION, "definition" },
-        { LW_EDICTIONARYTOKENID_CLASSIFICATION, LW_EDICTIONARYTOKENNAME_CLASSIFICATION, "classification" },
-        { LW_EDICTIONARYTOKENID_POPULAR, LW_EDICTIONARYTOKENNAME_POPULAR, "popular" },
+        { LW_EDICTIONARYTOKENID_WORD, LW_EDICTIONARYTOKENNAME_WORD, LW_EDICTIONARYTOKENNICK_WORD },
+        { LW_EDICTIONARYTOKENID_READING, LW_EDICTIONARYTOKENNAME_READING, LW_EDICTIONARYTOKENNICK_READING },
+        { LW_EDICTIONARYTOKENID_DEFINITION, LW_EDICTIONARYTOKENNAME_DEFINITION, LW_EDICTIONARYTOKENNICK_DEFINITION },
+        { LW_EDICTIONARYTOKENID_CLASSIFICATION, LW_EDICTIONARYTOKENNAME_CLASSIFICATION, LW_EDICTIONARYTOKENNICK_CLASSIFICATION },
+        { LW_EDICTIONARYTOKENID_POPULAR, LW_EDICTIONARYTOKENNAME_POPULAR, LW_EDICTIONARYTOKENNICK_POPULAR },
         { 0, NULL, NULL },
       };
 
@@ -169,12 +167,13 @@ lw_edictionary_tokenid_get_type ()
  * Returns: The end of the filled token array
  */
 static gchar**
-lw_edictionary_tokenize (LwDictionary   *self,
-                         gchar          *buffer,
-                         gchar         **tokens,
-                         gint           *num_tokens)
+lw_edictionary_tokenize_line (LwEDictionary  *self,
+                              gchar          *buffer,
+                              gchar         **tokens,
+                              gsize          *num_tokens)
 {
     //Sanity checks
+    g_return_val_if_fail (LW_IS_EDICTIONARY (self), NULL);
     g_return_val_if_fail (buffer != NULL, NULL);
     g_return_val_if_fail (tokens != NULL, NULL);
 
@@ -284,49 +283,44 @@ errored:
 }
 
 
-//!
-//! @brief, Retrieve a line from FILE, parse it according to the LwEDictionary rules and put the results into the LwResult
-//!
 static void
-lw_edictionary_load_tokens (LwDictionary      *self,
-                            LwDictionaryLine  *line,
-                            gchar            **token_buffer,
-                            gint               num_tokens)
+lw_edictionary_load_line_tokens (LwEDictionary     *self,
+                                 gchar             *buffer,
+                                 gchar            **tokens,
+                                 gint               num_tokens,
+                                 LwDictionaryLine  *line) 
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (line != NULL, NULL);
-    g_return_val_if_fail (token_buffer != NULL, NULL);
+    g_return_if_fail (LW_IS_EDICTIONARY (self));
+    g_return_if_fail (buffer != NULL);
+    g_return_if_fail (tokens != NULL);
+    g_return_if_fail (num_tokens < 1);
+    g_return_if_fail (line != NULL);
 
     //Declarations
-    /*TODO
-    LwResultBuffer words = {0};
-    LwResultBuffer readings = {0};
-    LwResultBuffer definitions = {0};
-    LwResultBuffer classifications = {0};
-    LwResultBuffer popular = {0};
+    LwOffsetBuffer word = {0};
+    LwOffsetBuffer reading = {0};
+    LwOffsetBuffer definition = {0};
+    LwOffsetBuffer classification = {0};
+    LwOffsetBuffer popular = {0};
 
     //Initializations
-    result = lw_result_new (TEXT);
-    if (result == NULL) goto errored;
-    tokens = _tokenize (result, &length);
-
-    lw_result_init_buffer (result, &words);
-    lw_result_init_buffer (result, &readings);
-    lw_result_init_buffer (result, &definitions);
-    lw_result_init_buffer (result, &classifications);
-    lw_result_init_buffer (result, &popular);
+    lw_offsetbuffer_init (&word, buffer, num_tokens);
+    lw_offsetbuffer_init (&reading, buffer, num_tokens);
+    lw_offsetbuffer_init (&definition, buffer, num_tokens);
+    lw_offsetbuffer_init (&classification, buffer, num_tokens);
+    lw_offsetbuffer_init (&popular, buffer, num_tokens);
 
     { //Get the element at the end first so the forward iteration is simpler...
-      gint i = length - 1;
+      gint i = num_tokens - 1;
 
       if (tokens[i] != NULL && strcmp (tokens[i], "(P)") == 0)
       {
-        lw_resultbuffer_add (&popular, gettext("popular"));
+        lw_offsetbuffer_add_absolute (&popular, tokens[i]);
         i--;
       }
 
-      length = i + 1;
+      num_tokens = i + 1;
 
       //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
       //                                                                                             ^
@@ -340,9 +334,9 @@ lw_edictionary_load_tokens (LwDictionary      *self,
       //^
       //HERE
 
-      if (tokens[i] != NULL && i < length)
+      if (tokens[i] != NULL && i < num_tokens)
       {
-        lw_resultbuffer_add (&words, tokens[i]);
+        lw_offsetbuffer_add_absolute (&word, tokens[i]);
         i++;
       }
 
@@ -352,9 +346,9 @@ lw_edictionary_load_tokens (LwDictionary      *self,
 
       {
         GUnicodeScript script = lw_utf8_get_script (tokens[i]);
-        if (tokens[i] != NULL && i < length && script == G_UNICODE_SCRIPT_HIRAGANA || script == G_UNICODE_SCRIPT_KATAKANA)
+        if (tokens[i] != NULL && i < num_tokens && script == G_UNICODE_SCRIPT_HIRAGANA || script == G_UNICODE_SCRIPT_KATAKANA)
         {
-          lw_resultbuffer_add (&readings, tokens[i]);
+          lw_offsetbuffer_add_absolute (&reading, tokens[i]);
           i++;
         }
       }
@@ -364,12 +358,12 @@ lw_edictionary_load_tokens (LwDictionary      *self,
       //                 HERE
 
       {
-        if (tokens[i] != NULL && i < length)
+        if (tokens[i] != NULL && i < num_tokens)
         {
           gchar *c = tokens[i];
           while (*c != '\0')
           {
-            lw_resultbuffer_add (&classifications, tokens[i]);
+            lw_offsetbuffer_add_absolute (&classification, tokens[i]);
             while (*c != '\0' && *c != ',') c = g_utf8_next_char (c);
             if (*c == ',') c = lw_utf8_set_null_next_char (c);
           }
@@ -381,26 +375,113 @@ lw_edictionary_load_tokens (LwDictionary      *self,
       //                         ^
       //                         HERE
 
-      while (tokens[i] != NULL & i < length)
+      while (tokens[i] != NULL & i < num_tokens)
       {
-        lw_resultbuffer_add (&definitions, tokens[i]);
+        lw_offsetbuffer_add_absolute (&definition, tokens[i]);
         i++;
       }
     }
 
-    lw_result_take_buffer (result, LW_EDICTIONARY_KEY_WORD, &words);
-    lw_result_take_buffer (result, LW_EDICTIONARY_KEY_READING, &readings);
-    lw_result_take_buffer (result, LW_EDICTIONARY_KEY_DEFINITION, &definitions);
-    lw_result_take_buffer (result, LW_EDICTIONARY_KEY_CLASSIFICATION, &classifications);
-    lw_result_take_buffer (result, LW_EDICTIONARY_KEY_POPULAR, &popular);
+errored:
+
+    lw_dictionaryline_set_offsets (
+      line,
+      LW_EDICTIONARYTOKENID_POPULAR,
+      lw_offsetbuffer_clear (&popular, FALSE)
+    );
+    lw_dictionaryline_set_offsets (
+      line,
+      LW_EDICTIONARYTOKENID_WORD,
+      lw_offsetbuffer_clear (&word, FALSE)
+    );
+    lw_dictionaryline_set_offsets (
+      line,
+      LW_EDICTIONARYTOKENID_READING,
+      lw_offsetbuffer_clear (&reading, FALSE)
+    );
+    lw_dictionaryline_set_offsets (
+      line,
+      LW_EDICTIONARYTOKENID_CLASSIFICATION,
+      lw_offsetbuffer_clear (&classification, FALSE)
+    );
+    lw_dictionaryline_set_offsets (
+      line,
+      LW_EDICTIONARYTOKENID_DEFINITION,
+      lw_offsetbuffer_clear (&definition, FALSE)
+    );
+
+    return;
+}
+
+
+static LwParsedDictionary*
+lw_edictionary_parse (LwEDictionary *self,
+                      gchar         *contents,
+                      gsize          content_length,
+                      LwProgress    *progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_EDICTIONARY (self), NULL);
+    g_return_val_if_fail (contents != NULL, NULL);
+
+    //Declarations
+    gint num_lines = 0;
+    LwParsedDictionary *lines = NULL; 
+    gchar **tokens = NULL;
+    gsize max_line_length = 0;
+    gsize num_tokens = 0;
+
+    //Initializations
+    if (content_length < 1) content_length = strlen(contents);
+    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
+    if (num_lines == 0) goto errored;
+    if (max_line_length < 1) goto errored;
+    lines = lw_parseddictionary_new (num_lines);
+    if (lines == NULL) goto errored;
+    tokens = g_new0 (gchar*, max_line_length + 1);
+    if (tokens == NULL) goto errored;
+
+    if (progress != NULL)
+    {
+      lw_progress_set_secondary_message (progress, "Parsing...");
+      lw_progress_set_completed (progress, FALSE);
+      lw_progress_set_total (progress, content_length);
+      lw_progress_set_current (progress, 0);
+    }
+
+    {
+      gchar *c = contents;
+      gchar *e = contents + content_length;
+      gint i = 0;
+      LwDictionaryLine *line = NULL;
+      while (c < e)
+      {
+        while (c < e && *c == '\0') c = g_utf8_next_char (c);
+        if (c >= e) break;
+
+        line = lw_parseddictionary_get_line (lines, i);
+        lw_edictionary_tokenize_line (self, c, tokens, &num_tokens);
+        lw_edictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
+        if (progress != NULL)
+        {
+          lw_progress_set_current (progress, c - contents);
+        }
+        i++;
+        while (c < e && *c != '\0') c = g_utf8_next_char (c);
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, content_length);
+      lw_progress_set_completed (progress, TRUE);
+    }
 
 errored:
 
-    lw_resultbuffer_clear (&words, TRUE);
-    lw_resultbuffer_clear (&readings, TRUE);
-    lw_resultbuffer_clear (&definitions, TRUE);
-    lw_resultbuffer_clear (&classifications, TRUE);
-    lw_resultbuffer_clear (&popular, TRUE);
-*/
+    g_free (tokens); tokens = NULL;
+    if (lines != NULL) lw_parseddictionary_unref (lines); lines = NULL;
+
+    return lines;
 }
 

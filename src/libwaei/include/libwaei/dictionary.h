@@ -21,9 +21,6 @@ typedef struct _LwDictionaryInstall LwDictionaryInstall;
 #define LW_DICTIONARY_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARY, LwDictionaryClass))
 #define LW_DICTIONARY_CHECKSUM G_CHECKSUM_SHA512 
 
-typedef gchar**(*LwDictionaryTokenizeFunc)(LwDictionary*, gchar*, gchar**, gint*); 
-typedef void(*LwDictionaryLoadTokensFunc)(LwDictionary*, LwDictionaryLine*, gchar**, gint); 
-
 struct _LwDictionary {
   GObject object;
   LwDictionaryPrivate *priv;
@@ -34,6 +31,8 @@ struct _LwDictionaryClass {
   GObjectClass parent_class;
   LwDictionaryClassPrivate *priv;
 };
+
+typedef LwParsedDictionary*(*LwDictionaryParseFunc)(LwDictionary*, gchar*, gsize, LwProgress*);
 
 //Methods
 GType lw_dictionary_get_type (void) G_GNUC_CONST;
@@ -82,7 +81,7 @@ gint lw_dictionary_num_lines (LwDictionary *self);
 
 gboolean  lw_dictionary_uninstall (LwDictionary *self);
 
-LwDictionaryLine** lw_dictionary_get_lines (LwDictionary *self, LwUtf8Flag flags, gint *num_lines);
+LwParsedDictionary* lw_dictionary_parse (LwDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 
 G_END_DECLS
 

@@ -9,17 +9,21 @@ typedef enum {
     PROP_CONTENTS,
     PROP_LENGTH,
     PROP_FLAGS,
-    PROP_PATH,
+    PROP_LINES,
+    PROP_CACHEFILE_PARSED,
+    PROP_CACHEFILE_LINES,
     TOTAL_PROPS
 } Props;
 
 
 struct _LwDictionaryCachePrivate {
-  LwCacheFile *cache_file;
+  gchar *name;
+  gchar *path;
   LwUtf8Flag flags;
-  LwDictionaryLines *lines;
-  gchar *contents;
-  gsize length;
+  LwParsedDictionary *lines;
+
+  LwCacheFile *parsed_cachefile;
+  LwCacheFile *lines_cachefile;
 };
 
 struct _LwDictionaryCacheClassPrivate {

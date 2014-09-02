@@ -359,9 +359,9 @@ _add_to_index (LwDictionaryInstallList *self,
     TYPENAME = g_type_name (type);
     id = lw_dictionary_build_id_from_type (type, FILENAME);
 
-    normalized_filename = lw_utf8_normalize (FILENAME, LW_UTF8NORMALIZEFLAG_CASE_INSENSITIVE);
-    normalized_typename = lw_utf8_normalize (TYPENAME, LW_UTF8NORMALIZEFLAG_CASE_INSENSITIVE);
-    normalized_id = lw_utf8_normalize (id, LW_UTF8NORMALIZEFLAG_CASE_INSENSITIVE);
+    normalized_filename = lw_utf8_normalize (FILENAME, -1, LW_UTF8FLAG_ALL);
+    normalized_typename = lw_utf8_normalize (TYPENAME, -1, LW_UTF8FLAG_ALL);
+    normalized_id = lw_utf8_normalize (id, -1, LW_UTF8FLAG_ALL);
    
     if (normalized_filename != NULL && !g_hash_table_contains (priv->data.index.filename, normalized_filename))
     {
@@ -417,9 +417,9 @@ _remove_from_index (LwDictionaryInstallList *self,
     TYPENAME = g_type_name (type);
     id = lw_dictionary_build_id_from_type (type, FILENAME);
 
-    normalized_filename = lw_utf8_normalize (FILENAME, LW_UTF8NORMALIZEFLAG_CASE_INSENSITIVE);
-    normalized_typename = lw_utf8_normalize (TYPENAME, LW_UTF8NORMALIZEFLAG_CASE_INSENSITIVE);
-    normalized_id = lw_utf8_normalize (id, LW_UTF8NORMALIZEFLAG_CASE_INSENSITIVE);
+    normalized_filename = lw_utf8_normalize (FILENAME, -1, LW_UTF8FLAG_ALL);
+    normalized_typename = lw_utf8_normalize (TYPENAME, -1, LW_UTF8FLAG_ALL);
+    normalized_id = lw_utf8_normalize (id, -1, LW_UTF8FLAG_ALL);
    
     if (normalized_filename != NULL && g_hash_table_lookup (priv->data.index.filename, normalized_filename) != dictionaryinstall)
     {
@@ -1083,7 +1083,7 @@ lw_dictionaryinstalllist_fuzzy_find (LwDictionaryInstallList *self,
 
     //Initializations
     priv = self->priv;
-    normalized = lw_utf8_normalize (DESCRIPTION, LW_UTF8NORMALIZEFLAG_CASE_INSENSITIVE);
+    normalized = lw_utf8_normalize (DESCRIPTION, -1, LW_UTF8FLAG_ALL);
 
     if (dictionaryinstall == NULL)
     {
@@ -1102,7 +1102,7 @@ lw_dictionaryinstalllist_fuzzy_find (LwDictionaryInstallList *self,
 
 errored:
 
-    if (normalized != NULL) g_free (normalized); normalized = NULL;
+    g_free (normalized); normalized = NULL;
 
     return dictionaryinstall;
 }

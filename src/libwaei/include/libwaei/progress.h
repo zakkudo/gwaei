@@ -51,7 +51,7 @@ void lw_progress_set_cancellable (LwProgress *self, GCancellable *cancellable);
 GCancellable* lw_progress_get_cancellable (LwProgress *self);
 
 void lw_progress_set_error (LwProgress *self, GError *error);
-void lw_progress_take_error (LwProgress *self, GError **source);
+void lw_progress_take_error (LwProgress *self, GError *error);
 GError* lw_progress_get_error (LwProgress  *self);
 gboolean lw_progress_errored (LwProgress *self);
 

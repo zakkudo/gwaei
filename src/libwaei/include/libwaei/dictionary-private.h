@@ -55,7 +55,7 @@ struct _LwDictionaryClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
 
   //Virtual methods
-  LwDictionaryCacheParseFunc parse;
+  LwDictionaryParseFunc parse;
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));

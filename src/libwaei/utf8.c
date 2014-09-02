@@ -122,7 +122,7 @@ lw_utf8flag_get_type ()
 
 
 LwUtf8Flag
-lw_utf8normalizeflag_clean (LwUtf8Flag flags)
+lw_utf8flag_clean (LwUtf8Flag flags)
 {
     if (LW_UTF8FLAG_COMPARABLE & flags)
     {
@@ -1647,26 +1647,78 @@ lw_utf8_delimit_radicals (const gchar *DELIMITOR, const gchar* TEXT)
 }
 
 
-gint
-lw_utf8_replace_linebreaks_with_nullcharacter (gchar *TEXT)
+gsize
+lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
+                                               gsize       content_length,
+                                               gsize      *max_line_length,
+                                               LwProgress *progress)
 {
-    g_return_if_fail (TEXT != NULL);
+    g_return_if_fail (CONTENTS != NULL);
 
     //Declarations    
-    gint length = NULL;
-    gchar *c = NULL;
+    gint num_lines = 0;
+    gsize page_size = 0;
 
     //Initializations
-    length = strlen(TEXT);
-    c = TEXT;
+    if (content_length < 1) content_length = strlen(CONTENTS);
+    page_size = lw_io_get_pagesize ();
 
-    while (c < TEXT + length)
+    if (progress != NULL)
     {
-      if (*c == '\n') *c = '\0';
-      c++;
+      if (lw_progress_get_secondary_message (progress) == NULL)
+      {
+        lw_progress_set_secondary_message (progress, "Delimiting lines...");
+        lw_progress_set_complete (progress, FALSE);
+        lw_progress_set_total (progress, content_length);
+        lw_progress_set_current (progress, 0);
+      }
     }
 
-    return length;
+    {
+      gchar *c = NULL;
+      gchar *p = NULL;
+      gchar *e = NULL;
+      gchar *n = NULL;
+      gsize chunk = 0;
+
+      n = p = c = CONTENTS;
+      e = c + content_length;
+
+      while (*c != '\0' && c < e)
+      {
+        while (*c == '\n' && c < e) 
+        {
+          if (max_line_length != NULL)
+          {
+            gsize content_length = c - p;
+            if (content_length > max_line_length) *max_line_length = content_length;
+          }
+          n = lw_utf8_set_null_next_char (c);
+          chunk += n - c;
+          p = c = n;
+          num_lines++;
+        }
+        while (*c != '\0' && *c != '\n' && c < e)
+        {
+          n = g_utf8_next_char (c);
+          chunk += n - c;
+          c = n;
+        }
+        if (progress != NULL && chunk >= page_size)
+        {
+          lw_progress_set_current (progress, c - CONTENTS);
+          chunk = 0;
+        }
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current, (progress, content_length);
+      lw_progress_set_complete (progress, TRUE);
+    }
+
+    return num_lines;
 }
 
 

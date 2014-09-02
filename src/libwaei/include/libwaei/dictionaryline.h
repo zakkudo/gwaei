@@ -5,36 +5,20 @@ G_BEGIN_DECLS
 
 //Single form
 
+struct _LwDictionaryLine {
+  GTree *tree;
+};
+
 typedef struct _LwDictionaryLine LwDictionaryLine;
 
 #define LW_DICTIONARYLINE(obj) (LwDictionaryLine*)obj
 
 //Methods
-void lw_dictionaryline_set (LwDictionaryLine *self, gchar const *KEY, gchar const * parsed_text);
-void lw_dictionaryline_set_strv (LwDictionaryLine *self, gchar const *KEY, gchar const * * parsed_strv);
+void lw_dictionaryline_set_offsets (LwDictionaryLine *self, gint id, lwoffset *offsets);
+lwoffset* lw_dictionaryline_get_offsets (LwDictionaryLine *self, gint id);
 
-gchar const * lw_dictionaryline_get (LwDictionaryLine *self, gchar const *KEY);
-gchar * const * lw_dictionaryline_get_strv (LwDictionaryLine *self, gchar const *KEY);
-
-
-//List form
-
-struct _LwDictionaryLines {
-  gint num_lines;
-  LwDictionaryLine *lines;
-};
-
-typedef struct _LwDictionaryLines LwDictionaryLines;
-
-typedef void (*LwDictionaryLinesForeachFunc) (LwDictionaryLines *self, LwDictionaryLine *line, gpointer user_data);
-#define LW_DICTIONARYLINES(obj) (LwDictionaryLines*)obj
-
-LwDictionaryLines* lw_dictionarylines_new (gint num_lines);
-void lw_dictionarylines_free (LwDictionaryLines *lines);
-
-void lw_dictionarylines_foreach (LwDictionaryLines *self, LwDictionaryLinesForeachFunc func, gpointer data);
-LwDictionaryLine* lw_dictionarylines_get_line (LwDictionaryLines *self, gint line_number);
-gint lw_dictionarylines_length (LwDictionaryLines *self);
+gsize lw_dictionaryline_get_serialization_length (LwDictionaryLine *self);
+void lw_dictionaryline_serialize (LwDictionaryLine *self, guchar *preallocated_buffer, gsize buffer_length);
 
 
 G_END_DECLS

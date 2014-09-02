@@ -46,20 +46,13 @@
 
 
 GQuark
-lw_io_read_error_quark ()
+lw_io_error_quark ()
 {
-  return g_quark_from_static_string ("lw-io-read-error");
+  return g_quark_from_static_string ("lw-io-error");
 }
 
 
-GQuark
-lw_io_write_error_quark ()
-{
-  return g_quark_from_static_string ("lw-io-write-error");
-}
-
-
-glong
+gsize
 lw_io_get_pagesize ()
 {
     gsize pagesize = 0;
@@ -79,9 +72,9 @@ lw_io_get_pagesize ()
 
 void
 lw_io_fwrite (FILE        *stream,
-                    const gchar *TEXT,
-                    gint         length,
-                    LwProgress  *progress)
+              const gchar *TEXT,
+              gint         length,
+              LwProgress  *progress)
 {
     //Sanity checks
     g_return_if_fail (PATH != NULL);
@@ -174,6 +167,41 @@ errored:
 }
 
 
+static gchar const *
+_convert_encoding (GIConv  conv,
+                   gchar  *contents,
+                   gsize   length,
+                   gchar  *buffer,
+                   gsize  *buffer_size)
+{
+    //Sanity checks
+    g_return_val_if_fail (contents != NULL, NULL);
+    g_return_val_if_fail (buffer != NULL, NULL);
+    g_return_val_if_fail (buffer_size != NULL, NULL);
+    if (contents == NULL || buffer == NULL) return NULL;
+    if (*buffer_size < 1) return NULL;
+    if (length < 1) return NULL;
+
+    //Declarations
+    gsize conversion_count = 0;
+    gsize left = 0;
+    gsize offset = 0;
+
+    //Initializations
+    left = length;
+    outbuf = buffer;
+    conversion_count = g_iconv (conv, &contents, &left, &buffer, buffer_size);
+    offset = length - left;
+
+    if (offset == 0)
+    {
+      offset++;
+    }
+
+    return contents + offset;
+}
+
+
 //!
 //! @brief Copies a file and creates a new one using the new encoding
 //! @param SOURCE_PATH The source file to change the encoding on.
@@ -192,69 +220,104 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
                           const gchar *TARGET_ENCODING,
                           LwProgress  *progress)
 {
-    if (lw_progress_should_abort (progress)) return FALSE;
+    //Sanity checks
+    g_return_val_if_fail (SOURCE_PATH != NULL, FALSE);
+    g_return_val_if_fail (TARGET_PATH != NULL, FALSE);
+    g_return_val_if_fail (SOURCE_ENCODING != NULL, FALSE);
+    g_return_val_if_fail (TARGET_ENCODING != NULL, FALSE);
+    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
 
     //Declarations
-    FILE* readfd = NULL;
-    FILE* writefd = NULL;
-    const gint MAX = 1024 * 2;
-    gchar source_buffer[MAX];
-    gchar target_buffer[MAX];
-    gchar *sptr, *tptr;
-    size_t read, source_bytes_left, target_bytes_left;
-    gdouble fraction;
-    size_t position, filesize;
-    GIConv conv;
-
-    filesize = lw_io_get_filesize (SOURCE_PATH);
-    position = 0;
+    GMappedFile *mapped_file = NULL;
+    const gchar *CONTENTS = NULL;
+    gsize length = 0;
+    FILE *out_stream = NULL;
+    gsize page_size = -1;
+    GIConv conv = { 0 };
+    gboolean has_error = NULL;
 
     //Initializations
-    readfd = g_fopen (SOURCE_PATH, "rb");
-    writefd = g_fopen (TARGET_PATH, "wb");
+    mapped_file = g_mapped_file_new (SOURCE_PATH, FALSE, &error);
+    if (error != NULL)
+    {
+      lw_progress_take_error (progress, &error);
+      has_error = TRUE;
+      goto errored;
+    }
+    contents = g_mapped_file_get_contents (mapped_file);
+    if (contents == NULL) goto errored;
+    length = g_mapped_file_get_length (mapped_file);
+    if (length < 1) goto errored;
+    out_stream = g_fopen (TARGET_PATH, "wb");
+    if (out_stream == NULL) goto errored;
+    page_size = lw_io_get_pagesize ();
+    if (page_size < 1) goto errored;
+    outbuf = g_new (gchar, page_size);
+    if (outbuf == NULL) goto errored;
     conv = g_iconv_open (TARGET_ENCODING, SOURCE_ENCODING);
 
-    //Read a chunk
-    while (ferror(readfd) == 0 && feof(readfd) == 0)
+    if (progress != NULL)
     {
-      read = fread(source_buffer, sizeof(gchar), MAX, readfd);
-      source_bytes_left = read;
-      sptr = source_buffer;
-
-      //Try to convert and write the chunk
-      while (source_bytes_left > 0 && ferror(writefd) == 0 && feof(writefd) == 0)
+      if (lw_progress_get_secondary_message (progress) == NULL)
       {
-        target_bytes_left = MAX;
-        tptr = target_buffer;
+        lw_progres_set_secondary_message (progress, "Converting encoding to %s...", TARGET_ENCODING);
+      }
+      lw_progress_set_total (progress, length);
+      lw_progress_set_current (progress, 0);
+      lw_progress_set_complete (progress, FALSE);
+    }
 
-        g_iconv (conv, &sptr, &source_bytes_left, &tptr, &target_bytes_left);
-        if (MAX != target_bytes_left) //Bytes were converted!
+
+    {
+      const gchar C = CONTENTS;
+      gsize bytes_written = 0;
+      gsize offset = 0;
+      while (C != NULL && C -  < length)
+      {
+        buffer_size = page_size;
+        offset = C - TEXT;
+        C = _convert_encoding (conv, C, length - offset, buffer, &buffer_size);
+        if (buffer_size > 0)
         {
-          fwrite(target_buffer, sizeof(gchar), MAX - target_bytes_left, writefd); 
+          bytes_written = fwrite(outbuf, sizeof(gchar), buffer_size, out_stream);
+          if (bytes_written == 0) goto errored;
         }
-        else if (source_bytes_left == MAX && target_bytes_left == MAX)
+        if (progress != NULL)
         {
-          fprintf(stderr, "The file you are converting may be corrupt! Trying to skip a character...\n");
-          fseek(readfd, 1L - source_bytes_left, SEEK_CUR);
-        }
-        else if (source_bytes_left > 0) //Bytes failed to convert!
-        {
-          fseek(readfd, -source_bytes_left, SEEK_CUR);
-          source_bytes_left = 0;
+          lw_progress_set_current (progress, offset);
         }
       }
-      position = ftell(readfd);
 
-      lw_progress_set_total (progress, filesize);
-      lw_progress_set_current (progress, position);
+      if (bytes_written < 1)
+      {
+        if (progress != NULL)
+        {
+          lw_progress_set_error (progress, g_error_new (
+            LW_IO_ERROR,
+            LW_IO_ERRORCODE_TEXT_ENCODING_CONVERSION_ERROR,
+            "There was an error converting the text encoding to %s from %s\n",
+            SOURCE_ENCODING,
+            TARGET_ENCODING
+          ));
+        }
+        has_error = true;
+        goto errored;
+      }
+    }
+
+errored:
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, length);
+      lw_progress_set_complete (progress, TRUE);
     }
 
     //Cleanup
     g_iconv_close (conv);
-    fclose(readfd);
-    fclose(writefd);
+    g_free (buffer); buffer = NULL;
 
-    return TRUE;
+    return !has_error;
 }
 
 
@@ -297,7 +360,7 @@ static int _libcurl_update_progress (LwProgress *progress,
                                      double      ulnow)
 {
     //Sanity checks
-    g_return_val_if_fail (progress != NULL, 1);
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), 1);
     
     if (dltotal > 0.0 && dlnow > 0.0)
     {
@@ -334,54 +397,70 @@ lw_io_download (const gchar *SOURCE_PATH,
 {
     g_return_val_if_fail (SOURCE_PATH != NULL, FALSE);
     g_return_val_if_fail (TARGET_PATH != NULL, FALSE);
-    g_return_val_if_fail (progress != NULL, FALSE);
-    if (lw_progress_should_abort (progress)) return FALSE;
+    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
 
     curl_global_init (CURL_GLOBAL_ALL);
 
     //Declarations
-    GQuark quark;
     CURL *curl = NULL;
     CURLcode res = 0;
-    FILE *outfile = NULL;
-    const gchar *message = NULL;
+    FILE *stream = NULL;
+    gint res = 0;
 
     //Initializations
     curl = curl_easy_init ();
-    outfile = g_fopen (TARGET_PATH, "wb");
-    res = 0;
+    if (curl == NULL) goto errored;
+    stream = g_fopen (TARGET_PATH, "wb");
+    if (stream == NULL) goto errored;
 
-    if (curl != NULL || outfile != NULL)
+    curl_easy_setopt(curl, CURLOPT_URL, SOURCE_PATH);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, stream);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _libcurl_write_func);
+    curl_easy_setopt(curl, CURLOPT_READFUNCTION, _libcurl_read_func);
+
+    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+    curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, _libcurl_update_progress);
+    curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, progress);
+
+    res = curl_easy_perform(curl);
+
+    if (progress != NULL)
     {
-      curl_easy_setopt(curl, CURLOPT_URL, SOURCE_PATH);
-      curl_easy_setopt(curl, CURLOPT_WRITEDATA, outfile);
-      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _libcurl_write_func);
-      curl_easy_setopt(curl, CURLOPT_READFUNCTION, _libcurl_read_func);
-
-      curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-      curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, _libcurl_update_progress);
-      curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, progress);
-
-      res = curl_easy_perform(curl);
+      if (lw_progress_get_secondary_message (progress) == NULL)
+      {
+        lw_progress_set_secondary_message (progress, "Downloading %s...", SOURCE_PATH);
+      }
+      lw_progress_set_current (progress, 0.0);
+      lw_progress_set_total (progress, 0.0);
+      lw_progress_set_complete (progress, FALSE);
     }
-     
-    fclose(outfile);
-    curl_easy_cleanup(curl);
-
-    if (lw_progress_should_abort (progress)) return 1;
 
     if (res != 0 && !lw_progress_is_cancelled (progress))
     {
+      fclose(stream); stream = NULL;
       g_remove (TARGET_PATH);
 
-      message = gettext(curl_easy_strerror(res));
-      quark = g_quark_from_string (LW_IO_ERROR);
-      lw_progress_set_error (progress, g_error_new_literal (quark, LW_IO_DOWNLOAD_ERROR, message));
+      lw_progress_set_error (progress, g_error_new (
+        LW_IO_ERROR,
+        LW_IO_ERRORCODE_DOWNLOAD_ERROR,
+        "%s",
+        curl_easy_strerror(res)
+      ));
     }
 
-  curl_global_cleanup ();
+errored:
 
-    return (res == 0);
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, lw_progress_get_total (progress));
+      lw_progress_set_complete (progress, TRUE);
+    }
+
+    if (stream != NULL) fclose(stream); stream = NULL;
+    if (curl != NULL) curl_easy_cleanup(curl); curl = NULL;
+    curl_global_cleanup ();
+
+    return !has_error;
 }
 
 
@@ -398,47 +477,85 @@ lw_io_copy (const gchar *SOURCE_PATH,
             const gchar *TARGET_PATH, 
             LwProgress  *progress)
 {
-    if (lw_progress_should_abort (progress)) return FALSE;
+    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
     if (!g_file_test (SOURCE_PATH, G_FILE_TEST_IS_REGULAR)) return FALSE;
 
     //Declarations
-    FILE *infd;
-    FILE *outfd;
-    size_t chunk;
-    size_t end;
-    size_t curpos;
-    const int MAX = 1024;
-    char buffer[MAX];
-    gboolean is_cancelled;
-
-    REDO THIS!
+    GMappedFile *mapped_file = NULL;
+    FILE *out_stream = NULL;
+    gsize chunk = 0;
+    gsize pagesize = 0;
+    gsize offset = 0;
+    gboolean has_error = FALSE;
 
     //Initalizations
-    infd = g_fopen (SOURCE_PATH, "rb");
-    outfd = g_fopen (TARGET_PATH, "wb");
-    chunk = 1;
-    end = lw_io_get_filesize (SOURCE_PATH);
-    curpos = 0;
-
-    while (chunk)
+    mapped_file = g_mapped_file_new (SOURCE_PATH, FALSE, &error);
+    if (error != NULL)
     {
-      if (lw_progress_should_abort (progress)) break; 
+      if (progress != NULL)
+      {
+        lw_progress_take_error (progress, &error);
+        error = NULL;
+      }
+      has_error = TRUE;
+      goto errored;
+    }
+    length = g_mapped_file_get_length (mapped_file);
+    out_stream = g_fopen (TARGET_PATH, "wb");
+    if (out_stream == NULL) goto errored;
+    pagesize = lw_io_get_pagesize
 
-      lw_progress_set_total (progress, end);
-      lw_progress_set_current (progress, curpos);
-      chunk = fread(buffer, sizeof(char), MAX, infd);
-      chunk = fwrite(buffer, sizeof(char), chunk, outfd);
-      curpos += chunk;
+    if (progress != NULL)
+    {
+      if (lw_progress_get_secondary_message (progress) == NULL)
+      {
+        lw_progress_set_secondary_message (progress, "Copying %s\n", SOURCE_PATH);
+      }
+      lw_progress_set_complete (progress, FALSE);
+      lw_progress_set_total (progress, length);
+      lw_progress_set_current (progress, current);
     }
 
-    lw_progress_set_total (progress, end);
-    lw_progress_set_current (progress, curpos);
+    while (chunk > 0)
+    {
+      chunk = fwrite(contents + offset, sizeof(gchar), pagesize, out_stream);
+      offset += chunk;
+
+      if (progress != NULL)
+      {
+        lw_progress_set_current (progress, offset);
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, length);
+      lw_progress_set_complete (progress, TRUE);
+    }
+
+    if (ferror(out_stream))
+    {
+      if (progress != NULL)
+      {
+        lw_progress_set_error (progress, g_error_new (
+          LW_IO_ERROR,
+          LW_IO_ERRORCODE_COPY_ERROR,
+          "There was an error copying from %s to %s\n",
+          SOURCE_PATH,
+          TARGET_PATH
+        ));
+      }
+      has_error = TRUE;
+      goto errored;
+    }
+
+errored:
 
     //Cleanup
-    fclose(infd); infd = NULL;
-    fclose(outfd); outfd = NULL;
+    if (out_stream != NULL) fclose(out_stream); out_stream = NULL;
+    if (mapped_file != NULL) g_mapped_file_unref (mapped_file); mapped_file = NULL;
 
-    return (!lw_progress_errored (progress));
+    return has_error;
 }
 
 
@@ -455,43 +572,105 @@ lw_io_gunzip_file (const gchar *SOURCE_PATH,
                    const gchar *TARGET_PATH,
                    LwProgress  *progress)
 {
-    if (lw_progress_should_abort (progress)) return FALSE;
-REDO THIS FOR PAGE SIZE
+    //Sanity checks
+    g_return_val_if_fail (SOURCE_PATH != NULL, FALSE);
+    g_return_val_if_fail (TARGET_PATH != NULL, FALSE);
+    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
+
     //Declarations
-    gzFile source;
-    FILE *target;
-    int read;
-    const int MAX = 1024 * 4;
-    char buffer[MAX];
-    size_t filesize, position;
-    position = 0;
+    gzFile source = NULL;
+    FILE *target = NULL;
+    gint read = 0;
+    gint page_size = lw_io_get_pagesize ();
+    gchar buffer* = NULL;
+    gsize length = 0;
 
+    //Initializations
     source = gzopen (SOURCE_PATH, "rb");
-    if (source != NULL)
+    if (source == NULL) goto errored;
+    filesize = lw_io_get_filesize (SOURCE_PATH);
+    if (filesize < 1) goto errored;
+    target = g_fopen (TARGET_PATH, "wb");
+    if (target == NULL) goto errored;
+
+    if (progress != NULL)
     {
-      filesize = lw_io_get_filesize (SOURCE_PATH);
-
-      target = g_fopen (TARGET_PATH, "wb");
-      if (target != NULL)
+      if (lw_progress_get_secondary_message (progress) == NULL)
       {
-        do {
-          read = gzread (source, buffer, MAX);
-          if (read > 0) 
-          {
-            position += MAX;
-            if (position > filesize) position = filesize;
-            lw_progress_set_total (progress, filesize);
-            lw_progress_set_current (progress, position);
-            fwrite(buffer, sizeof(char), read, target);
-          }
-        } while (read > 0);
-
-        fclose(target); target = NULL;
+        lw_progress_set_secondary_message (progress, "Decompressing %s\n", %s, SOURCEPATH);
       }
-      gzclose(source); source = NULL;
+      lw_progress_set_complete (progress, FALSE);
+      lw_progress_set_total (progress, length);
+      lw_progress_set_current (progress, 0);
     }
 
-    return (!lw_progress_errored (progress));
+    {
+      gsize uncompressed_bytes_read = 0;
+      gsize offset = 0;
+      while ((uncompressed_bytes_read = gzread (source, buffer, page_size)) > 0)
+        offset = gztell(source);
+
+        if (fwrite(buffer, sizeof(char), uncompressed_bytes_read, target) == 0)
+        {
+          if (progress != NULL)
+          {
+            lw_progress_set_error (progress, g_error_new (
+              LW_IO_ERROR,
+              LW_IO_ERRORCODE_WRITE_ERROR,
+              "Unabled to write the decompressed file at %s\n",
+              TARGET_PATH
+            ));
+          }
+          has_error = TRUE;
+          goto errored;
+        }
+        else
+        {
+          if (progress != NULL)
+          {
+            lw_progress_set_current (progress, position);
+          }
+        }
+      }
+    }
+
+    {
+      gint errnum = 0;
+      const gchar *message = gzerror(source, &errnum);
+      if (errnum == Z_BUF_ERROR)
+      {
+        if (progress != NULL)
+        {
+          lw_progress_set_error (progress, g_error_new (
+            LW_IO_ERROR,
+            LW_IO_ERRORCODE_CORRUPT_ARCHIVE,
+            "gzip file is possibly corrupt %s",
+            SOURCE_PATH
+          ));
+        }
+        has_error = TRUE;
+        goto errored;
+      }
+    }
+
+errored:
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, length);
+      lw_progress_set_complete (progress, TRUE);
+    }
+
+    if (target != NULL) fclose(target); target = NULL;
+    if (source != NULL) gzclose(source); source = NULL;
+    g_free (buffer); buffer = NULL;
+
+    if (has_error)
+    {
+      g_remove (TARGET_PATH);
+    }
+
+    return !has_error;
 } 
 
 
@@ -584,4 +763,19 @@ lw_io_get_file_size (const char *PATH)
 }
 
 
+void
+lw_io_allocate_file (FILE       *stream,
+                     gsize       byte_length,
+                     LwProgress *progress)
+{
+    TODO
+}
+
+gchar*
+lw_io_allocate_temporary_file (gsize       bytes_length,
+                               LwProgress *progress)
+{
+    TODO
+}
+                                
 

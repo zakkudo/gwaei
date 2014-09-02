@@ -82,9 +82,9 @@ lw_dictionarycache_init (LwDictionaryCache *self)
 
 static void 
 lw_dictionarycache_set_property (GObject      *object,
-                                  guint         property_id,
-                                  const GValue *value,
-                                  GParamSpec   *pspec)
+                                 guint         property_id,
+                                 const GValue *value,
+                                 GParamSpec   *pspec)
 {
     //Declarations
     LwDictionaryCache *self = NULL;
@@ -101,6 +101,15 @@ lw_dictionarycache_set_property (GObject      *object,
         break;
       case PROP_FLAGS:
         lw_dictionarycache_set_flags (self, g_value_get_flags (value));
+        break;
+      case PROP_LINES:
+        lw_dictionarycache_set_lines (self, g_value_get_boxed (value));
+        break;
+      case PROP_CACHEFILE_PARSED:
+        lw_dictionarycache_set_parsed_cachefile (self, g_value_get_boxed (value));
+        break;
+      case PROP_CACHEFILE_LINES:
+        lw_dictionarycache_set_lines_cachefile (self, g_value_get_boxed (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -136,6 +145,15 @@ lw_dictionarycache_get_property (GObject    *object,
         break;
       case PROP_FLAGS:
         g_value_set_flags (value, lw_dictionarycache_get_flags (self));
+        break;
+      case PROP_LINES:
+        g_value_set_boxed (value, lw_dictionarycache_get_lines (self));
+        break;
+      case PROP_CACHEFILE_PARSED:
+        g_value_set_boxed (value, lw_dictionarycache_get_parsed_cachefile (self));
+        break;
+      case PROP_CACHEFILE_LINES:
+        g_value_set_boxed (value, lw_dictionarycache_get_lines_cachefile (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -197,16 +215,7 @@ lw_dictionarycache_class_init (LwDictionaryCacheClass *klass)
         "unnamed",
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_CONTENTS, klasspriv->pspec[PROP_CONTENTS]);
-
-    klasspriv->pspec[PROP_CONTENTS] = g_param_spec_string (
-        "buffer",
-        gettext("Buffer"),
-        gettext("Internal String buffer"),
-        "",
-        G_PARAM_READWRITE
-    );
-    g_object_class_install_property (object_class, PROP_CONTENTS, klasspriv->pspec[PROP_CONTENTS]);
+    g_object_class_install_property (object_class, PROP_NAME, klasspriv->pspec[PROP_NAME]);
 
     klasspriv->pspec[PROP_FLAGS] = g_param_spec_flags (
         "normalization-flags",
@@ -217,15 +226,6 @@ lw_dictionarycache_class_init (LwDictionaryCacheClass *klass)
         G_PARAM_CONSTRUCT | G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
-
-    klasspriv->pspec[PROP_PATH] = g_param_spec_string (
-        "path",
-        gettext("Path"),
-        gettext("The file path of the dictionary cache."),
-        "",
-        G_PARAM_READABLE
-    );
-    g_object_class_install_property (object_class, PROP_PATH, klasspriv->pspec[PROP_PATH]);
 }
 
 
@@ -241,9 +241,10 @@ lw_dictionarycache_clear (LwDictionaryCache *self)
     //Initializations
     priv = self->priv;
 
-    lw_cachefile_unref (priv->cache_file); priv->cache_file = NULL;
+    lw_dictionarycache_set_parsed_cachefile (self, NULL);
+    lw_dictionarycache_set_lines_cachefile (self, NULL);
 
-    lw_dictionarylines_free (priv->lines);
+    if (priv->lines != NULL) lw_parseddictionary_unref (priv->lines);
     priv->lines = NULL;
 }
 
@@ -261,9 +262,9 @@ lw_dictionarycache_length (LwDictionaryCache *self)
 
     //Initializations
     priv = self->priv;
-    cache_file = priv->cache_file;
+    cache_file = priv->parsed_cachefile;
     if (cache_file == NULL) goto errored;
-    length = lw_cachefile_length (priv->cache_file);
+    length = lw_cachefile_length (cache_file);
 
 errored:
 
@@ -271,12 +272,178 @@ errored:
 }
 
 
+gchar*
+_make_normalized_temporary_file (LwDictionaryCache *self,
+                                 const gchar       *CONTENTS,
+                                 gsize              content_length,
+                                 LwProgress        *progress)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
+    g_return_if_fail (CONTENTS != NULL);
+
+    //Declarations
+    LwDictionaryCachePrivate *priv = NULL;
+    FILE *stream = NULL;
+    GMappedFile *mapped_file = NULL;
+    gchar *path = NULL;
+    gchar *tmpl = NULL;
+    const gchar *TMPDIR = NULL;
+    gint fd = -1;
+    gchar *name = NULL;
+    LwUtf8Flag flags = 0;
+    GError *error = NULL;
+    gsize page_size = -1;
+    gboolean has_error = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    tmpl = g_strdup_printf ("%s.normalized.XXXX", lw_dictionarycache_get_name (self));
+    if (tmpl == NULL) goto errored;
+    TMPDIR = g_get_tmp_dir ();
+    if (TMPDIR == NULL) goto errored;
+    fd = g_file_open_tmp (tmpl, &name, &error);
+    if (error != NULL)
+    {
+      if (progress != NULL)
+      {
+        lw_progress_take_error (progress, g_error_new (
+          G_FILE_ERROR,
+          g_file_error_from_errno (ferror(stream)),
+          "Could not create the dictionary cache file, %s",
+          name
+        ));
+      }
+      has_error = TRUE;
+      goto errored;
+    }
+    if (fd == -1) goto errored;
+    flags = priv->flags;
+    stream = fdopen(fd, "w+");
+    if (stream == NULL) goto errored;
+    page_size = lw_io_get_pagesize ();
+    if (page_size < 1) goto errored;
+
+    //Normalize
+    {
+      gint bytes_read = -1;
+      gsize bytes_written = 0;
+      gsize bytes_normalized = 0;
+      const char *C = CONTENTS;
+      gsize left = content_length;
+      gchar *normalized = NULL;
+      if (left < 1) goto errored;
+      while (*C != '\0' && C - CONTENTS < content_length)
+      {
+        bytes_read = lw_utf8_normalize_chunk (&normalized, C, flags, page_size);
+        bytes_normalized = strlen(normalized);
+        if (normalized != NULL)
+        {
+          bytes_written = fwrite(C, sizeof(gchar), bytes_normalized, stream);
+          g_free (normalized); normalized = NULL;
+          if (bytes_written != bytes_normalized && ferror(stream) != 0)
+          {
+            if (progress != NULL)
+            {
+              lw_progress_take_error (progress, g_error_new (
+                G_FILE_ERROR,
+                g_file_error_from_errno (ferror(stream)),
+                "Could not write the dictionary cache temporary file, \"%s\"\n", 
+                name
+              ));
+            }
+            has_error = TRUE;
+            goto errored;
+          }
+        }
+        C += bytes_read;
+        left -= bytes_read;
+      }
+    }
+
+    fclose(stream); fd = -1;  stream = NULL;
+
+    path = g_build_path (TMPDIR, name, NULL);
+
+errored:
+
+    g_free (tmpl); tmpl = NULL;
+
+    return path;
+}
+
+
+
+static void
+_write_parsed_cachefile (LwDictionaryCache *self
+                         gchar const       *CHECKSUM,
+                         gchar const       *CONTENTS, 
+                         LwProgress        *progress)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
+    g_return_if_fail (CHECKSUM != NULL);
+    g_return_if_fail (CONTENTS != NULL);
+
+    //Declarations
+    gchar *path = NULL;
+    LwCacheFile *cachefile = NULL;
+
+    //Initializations
+    path = lw_dictionarycache_build_path (self, "parsed");
+    cachefile = lw_cachefile_new (path);
+
+    lw_cachefile_write (cachefile, CHECKSUM, CONTENTS, content_length, progress);
+
+errored:
+
+    g_free (path); path = NULL;
+}
+
+
+static void
+_write_lines_cachefile (LwDictionaryCache  *self,
+                        gchar const        *CHECKSUM,
+                        LwParsedDictionary *lines,
+                        LwProgress         *progress)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
+    g_return_if_fail (CHECKSUM != NULL);
+    g_return_if_fail (lines != NULL);
+
+    //Declarations
+    gsize length = 0;
+    gchar *path = NULL;
+    GMappedFile *mapped_file = NULL;
+    gchar *contents = NULL;
+
+    //Initializations
+    path = lw_dictionarycache_build_path (self, "lines");
+    length = lw_parseddictionary_get_serialized_length (lines);
+
+    path = lw_io_allocate_temporary_file (length, progress);
+    mapped_file = g_mapped_file_new (path, TRUE, &error);
+    contents = g_mapped_file_get_contents (mapped_file);
+
+    lw_parseddictionary_serialize (lines, contents, length, progress);
+    lw_cachefile_write (cachefile, CHECKSUM, contents, length, progress);
+
+errored:
+
+    g_free (path); path = NULL;
+    g_mapped_file_unref (mapped_file);
+}
+
+
 void
-lw_dictionarycache_write (LwDictionaryCache *self,
-                          const gchar        *CHECKSUM,
-                          const gchar        *CONTENTS,
-                          gint                content_length,
-                          LwProgress         *progress)
+lw_dictionarycache_write (LwDictionaryCache          *self,
+                          gchar const                *CHECKSUM,
+                          gchar const                *CONTENTS,
+                          gsize                       content_length,
+                          LwDictionaryCacheParseFunc  parse,
+                          gpointer                    data,
+                          LwProgress                 *progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
@@ -287,38 +454,47 @@ lw_dictionarycache_write (LwDictionaryCache *self,
     LwDictionaryCachePrivate *priv = NULL;
     LwDictionaryCacheClass *klass = NULL;
     LwDictionaryCacheClassPrivate *klasspriv = NULL;
-    const char *C = CONTENTS;
-    gint bytes_read = -1;
-    LwUtf8Flag flags = 0;
-    gssize left = -1;
-    LwCacheFile *cache_file = NULL;
+    gchar *temporary_file_path = NULL;
+    GMappedFile *temporary_mapped_file = NULL;
+    gchar *temporary_mapped_contents = NULL;
+    gsize temporary_mapped_content_length = 0;
+    gboolean has_error = FALSE;
+    GError *error = NULL;
+    LwParsedDictionary *lines = NULL;
 
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARYCACHE_CLASS (self);
     klasspriv = klass->priv;
-    flags = priv->flags;
-    left = content_length;
-    if (left < 1) goto errored;
-    cache_file = priv->cache_file;
-    if (cache_file == NULL) goto errored;
-
-    while (*C != '\0' && C - CONTENTS < content_length)
+    if (content_length < 1) content_length = strlen(CONTENTS);
+    temporary_file_path = _make_normalized_temporary_file (self, CONTENTS, content_length, progress);
+    if (temporary_file_path == NULL) goto errored;
+    temporary_mapped_file = g_mapped_file_new (temporary_file_path, TRUE, &error);
+    if (error != NULL)
     {
-      gchar *normalized = NULL;
-      bytes_read = lw_utf8_normalize_chunk (&normalized, C, flags, left);
-      if (normalized != NULL)
+      if (progress != NULL)
       {
-        lw_cachefile_write (cache_file, CHECKSUM, C, left, progress);
-        g_free (normalized); normalized = NULL;
+        lw_progress_take_error (progress, error);
+        error = NULL;
       }
-      C += bytes_read;
-      left -= bytes_read;
+      has_error = TRUE;
+      goto errored;
     }
+    temporary_mapped_contents = g_mapped_file_get_contents (temporary_mapped_file);
+    if (temporary_mapped_contents == NULL) goto errored;
+    temporary_mapped_content_length = g_mapped_file_get_length (temporary_mapped_file);
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CONTENTS]);
+    //Parse the vanilla contents 
+    lines = parse (temporary_mapped_contents, temporary_mapped_content_length, data);
+
+    _write_parsed_cachefile (self, CHECKSUM, temporary_mapped_content, progress);
+    _write_lines_cachefile (self, CHECKSUM, lines, progress);
 
 errored:
+
+    g_free (temporary_file_path); temporary_file_path = NULL;
+    g_mapped_file_unref (temporary_mapped_file); temporary_mapped_file = NULL;
+    lw_parseddictionary_unref (lines); lines = NULL;
 
     return;
 }
@@ -340,6 +516,7 @@ lw_dictionarycache_validate (LwDictionaryCache *self,
     LwCacheFile *cache_file = NULL;
     const gchar *CONTENTS = NULL;
     const gchar *PATH = NULL;
+  /*TODO
 
     //Initializations
     priv = self->priv;
@@ -390,42 +567,137 @@ errored:
     }
 
     return is_valid;
+    */
 }
 
 
-const gchar*
-lw_dictionarycache_read (LwDictionaryCache          *self,
-                         const gchar                *EXPECTED_CHECKSUM,
-                         LwDictionaryCacheParseFunc  func,
-                         gpointer                    data,
-                         LwProgress                 *progress)
+void
+lw_dictionarycache_set_parsed_cachefile (LwDictionaryCache *self,
+                                         LwCacheFile       *cachefile)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+
+    //Declarations
+    LwDictionaryCachePrivate *priv = NULL;
+    LwDictionaryCacheClass *klass = NULL;
+    LwDictionaryCacheClassPrivate *klasspriv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_DICTIONARYCACHE_CLASS (self);
+    klasspriv = klass->priv;
+    if (cachefile == priv->parsed_cachefile) goto errored;
+
+    if (cachefile != NULL) lw_cachefile_ref (cachefile);
+    if (priv->parsed_cachefile != NULL) lw_cachefile_unref (priv->parsed_cachefile);
+    priv->parsed_cachefile = cachefile;
+
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CACHEFILE_PARSED]);
+
+errored:
+    
+    return;
+}
+
+
+LwCacheFile*
+lw_dictionarycache_get_parsed_cachefile (LwDictionaryCache *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+
+    //Declarations
+    LwDictionaryCachePrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->parsed_cachefile;
+}
+
+
+void
+lw_dictionarycache_set_lines_cachefile (LwDictionaryCache *self,
+                                        LwCacheFile       *cachefile)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+
+    //Declarations
+    LwDictionaryCachePrivate *priv = NULL;
+    LwDictionaryCacheClass *klass = NULL;
+    LwDictionaryCacheClassPrivate *klasspriv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_DICTIONARYCACHE_CLASS (self);
+    klasspriv = klass->priv;
+    if (cachefile == priv->lines_cachefile) goto errored;
+
+    if (cachefile != NULL) lw_cachefile_ref (cachefile);
+    if (priv->lines_cachefile != NULL) lw_cachefile_unref (priv->lines_cachefile);
+    priv->lines_cachefile = cachefile;
+
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CACHEFILE_LINES]);
+
+errored:
+    
+    return;
+}
+
+
+LwCacheFile*
+lw_dictionarycache_get_lines_cachefile (LwDictionaryCache *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+
+    //Declarations
+    LwDictionaryCachePrivate *priv = NULL;
+    
+    //Initializations
+    priv = self->priv;
+
+    return priv->lines_cachefile;
+}
+
+
+gboolean
+lw_dictionarycache_read (LwDictionaryCache *self,
+                         gchar const       *EXPECTED_CHECKSUM,
+                         LwProgress        *progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, FALSE);
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
 
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
-    LwCacheFile *cache_file = NULL;
-    LwDictionaryLines *lines = NULL;
-    gchar *contents = NULL;
-    gsize length = 0;
+    gboolean has_error = FALSE;
 
     //Initializations
     priv = self->priv;
-    cache_file = priv->cache_file;
-    if (cache_file == NULL) goto errored;
-    contents = lw_cachefile_read (cache_file, EXPECTED_CHECKSUM, progress);
-    if (contents == NULL) goto errored;
-    length = lw_cachefile_length (cache_file);
-    if (!lw_dictionarycache_validate (self, EXPECTED_CHECKSUM, progress)) goto errored;
 
-    lw_dictionarycache_set_contents (self, EXPECTED_CHECKSUM, contents, length, func, data, progress);
+/*TODO
+    if (!lw_dictionarycache_read_parsed_cachefile (self, EXPECTED_CHECKSUM, progress))
+    {
+      has_error = TRUE;
+      goto errored;
+    }
+    if (!lw_dictionarycache_read_lines_cachefile (self, EXPTECTED_CHECKSUM, progress))
+    {
+      has_error = TRUE;
+      goto errored;
+    }
 
 errored:
 
-    return contents;
+    if (!lw_dictionarycache_validate (self, EXPECTED_CHECKSUM, progress)) goto errored;
+    */
+
+    return !has_error;
 }
 
 
@@ -442,7 +714,7 @@ lw_dictionarycache_get_contents (LwDictionaryCache *self)
 
     //Initializations
     priv = self->priv;
-    cache_file = priv->cache_file;
+    cache_file = priv->parsed_cachefile;
     if (cache_file == NULL) goto errored;
     CONTENTS = lw_cachefile_get_contents (cache_file);
 
@@ -452,29 +724,38 @@ errored:
 }
 
 
-void lw_dictionarycache_set_contents (LwDictionaryCache          *self, 
-                                      const gchar                *CHECKSUM,
-                                      gchar                      *contents,
-                                      gint                        length,
-                                      LwDictionaryCacheParseFunc  func,
-                                      gpointer                    data,
-                                      LwProgress                 *progress)
+void
+lw_dictionarycache_set_contents (LwDictionaryCache          *self, 
+                                 gchar const                *CHECKSUM,
+                                 gchar const                *CONTENTS,
+                                 gsize                       content_length,
+                                 LwDictionaryCacheParseFunc  parse,
+                                 gpointer                    data,
+                                 LwProgress                 *progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    g_return_if_fail (CONTENTS != NULL);
+    g_return_if_fail (parse == NULL);
+    if (progress != NULL && lw_progress_should_abort (progress)) return;
 
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
-    LwDictionaryLines *lines = NULL;
+    LwParsedDictionary *lines = NULL;
 
     //Initializations
     priv = self->priv;
-    priv->contents = contents;
-    priv->length = (contents != NULL && length < 1) ? priv->length = strlen(contents) : length;
+    if (content_length < 1)
+    {
+      content_length = strlen(CONTENTS);
+    }
 
-    lines = func (self, data);
-    lw_dictionarycache_set_lines (self, lines, num_lines);
+    if (lw_dictionarycache_read (self, CHECKSUM, progress) == FALSE)
+    {
+      if (progress != NULL) lw_progress_set_error (progress, NULL);
+      lw_dictionarycache_write (self, CHECKSUM, CONTENTS, content_length, parse, data, progress);
+      lw_dictionarycache_read (self, CHECKSUM, progress);
+    }
 }
 
 
@@ -494,11 +775,9 @@ lw_dictionarycache_set_flags (LwDictionaryCache  *self,
     priv = self->priv;
     klass = LW_DICTIONARYCACHE_CLASS (self);
     klasspriv = klass->priv;
-    flags = lw_utf8flags_clean (flags);
+    flags = lw_utf8flag_clean (flags);
     if (flags == priv->flags) goto errored;
     priv->flags = flags;
-
-    lw_dictionarycache_sync_path (self);
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_FLAGS]);
 
@@ -512,7 +791,7 @@ LwUtf8Flag
 lw_dictionarycache_get_flags (LwDictionaryCache *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), 0);
 
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
@@ -529,7 +808,7 @@ lw_dictionarycache_set_name (LwDictionaryCache *self,
                              const gchar       *NAME)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self, NULL);
+    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
 
     //Declarations    
     LwDictionaryCachePrivate *priv = NULL;
@@ -545,13 +824,11 @@ lw_dictionarycache_set_name (LwDictionaryCache *self,
     g_free (priv->name);
     priv->name = g_strdup (NAME);
 
-    lw_dictionarycache_sync_path (self);
-
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_NAME]);
 
 errored:
 
-    return
+    return;
 }
 
 
@@ -559,7 +836,7 @@ const gchar*
 lw_dictionarycache_get_name (LwDictionaryCache *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
 
     //Declarations    
     LwDictionaryCachePrivate *priv = NULL;
@@ -588,7 +865,8 @@ lw_dictionarycache_is_modifiable (LwDictionaryCache *self)
 
 
 gchar*
-lw_dictionarycache_build_filename (LwDictionaryCache *self)
+lw_dictionarycache_build_filename (LwDictionaryCache *self,
+                                   gchar const       *TYPE) 
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), FALSE);
@@ -597,19 +875,24 @@ lw_dictionarycache_build_filename (LwDictionaryCache *self)
     LwDictionaryCachePrivate *priv = NULL;
     GFlagsClass *flags_class = NULL;
     const gchar *NAME = NULL;
-    gchar **names = NULL;
+    gchar const * * flag_names = NULL;
+    gchar *filename = NULL;
     gint i = 0;
 
     //Initializations
     priv = self->priv;
-    flags_class = g_type_class_ref (LW_TYPE_UTF8FLAG)
+    flags_class = g_type_class_ref (LW_TYPE_UTF8FLAG);
     if (flags_class == NULL) goto errored;
     NAME = priv->name;
-    if (NAMe == NULL) goto errored;
-    names = g_new0 (gchar*, flags_class->n_values + 1);
-    if (names == NULL) goto errored;
+    if (NAME == NULL) goto errored;
+    flag_names = g_new0 (gchar const*, flags_class->n_values + 2);
+    if (flag_names == NULL) goto errored;
 
-    names[i++] = name;
+    flag_names[i++] = NAME;
+    if (TYPE != NULL)
+    {
+      flag_names[i++] = TYPE;
+    }
 
     {
       LwUtf8Flag flag = 0;
@@ -618,13 +901,13 @@ lw_dictionarycache_build_filename (LwDictionaryCache *self)
         GFlagsValue *value = g_flags_get_first_value (flags_class, flag);
         if (value != NULL)
         {
-          names[i++] = value->value_nick;
+          flag_names[i++] = value->value_nick;
         }
       }
-      names[i++] = NULL;
+      flag_names[i++] = NULL;
     }
 
-    filename = g_strjoinv (".", names);
+    filename = g_strjoinv (".", (gchar**) flag_names);
 
 errored:
 
@@ -637,7 +920,8 @@ errored:
 
 
 gchar*
-lw_dictionarycache_build_path (LwDictionaryCache *self)
+lw_dictionarycache_build_path (LwDictionaryCache *self,
+                               gchar const       *TYPE)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
@@ -645,7 +929,7 @@ lw_dictionarycache_build_path (LwDictionaryCache *self)
     gchar *filename = NULL;
     gchar *path = NULL;
 
-    filename = lw_dictionarycache_build_filename (self);
+    filename = lw_dictionarycache_build_filename (self, TYPE);
     if (filename == NULL) goto errored;
     path = lw_util_build_filename (LW_PATH_CACHE, filename);
     if (path == NULL) goto errored;
@@ -657,44 +941,37 @@ errored:
 
 
 void
-lw_dictionarycache_sync_path (LwDictionaryCache *self)
+lw_dictionarycache_set_lines (LwDictionaryCache *self,
+                              LwParsedDictionary *lines)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
-    
-    //Declarations
-    gchar *path = NULL;
 
-    //Initializations
-    path = lw_dictionarycache_build_path (self);
-
-    lw_dictionarycache_set_path (self, path);
-
-errored:
-
-    g_free (path); path = NULL;
-}
-
-
-void
-lw_dictionarycache_set_path (LwDictionaryCache *self,
-                             const gchar       *PATH)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
-    
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
     LwDictionaryCacheClass *klass = NULL;
     LwDictionaryCacheClassPrivate *klasspriv = NULL;
 
+    //Initializations
+    priv = self->priv;
+    klass = LW_DICTIONARYCACHE_CLASS (self);
     klasspriv = klass->priv;
-    if (g_strcmp0 (PATH, priv->path) == 0) goto errored;
+    if (lines == priv->lines) goto errored;
 
-    g_free (priv->path);
-    priv->path = path;
+    if (lines != NULL)
+    {
+      lw_parseddictionary_ref (priv->lines);
+    }
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PATH]);
+    if (priv->lines != NULL)
+    {
+      lw_parseddictionary_unref (priv->lines);
+      priv->lines = NULL;
+    }
+
+    priv->lines = lines;
+  
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_LINES]);
 
 errored:
 
@@ -702,19 +979,19 @@ errored:
 }
 
 
-const gchar*
-lw_dictionarycache_get_path (LwDictionaryCache *self)
+LwParsedDictionary*
+lw_dictionarycache_get_lines (LwDictionaryCache *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
 
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
 
-    //Initialization
+    //Initializations
     priv = self->priv;
 
-    return priv->path;
+    return priv->lines;
 }
 
 

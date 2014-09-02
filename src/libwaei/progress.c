@@ -738,7 +738,29 @@ lw_progress_completed (LwProgress *self)
 
 void
 lw_progress_set_error (LwProgress *self,
-                       GError     *error)
+                       GError     *_error)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    GError *error = NULL;
+
+    //Initializations
+    priv = self->priv;
+    if (error != NULL && error != _error)
+    {
+      error = g_error_copy (_error);
+    }
+
+    lw_progress_take_error (self, &error);
+}
+
+
+void
+lw_progress_take_error (LwProgress *self,
+                        GError     *error)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_PROGRESS (self));
@@ -756,31 +778,14 @@ lw_progress_set_error (LwProgress *self,
     changed = (error != priv->data.error);
     if (!changed) goto errored;
 
+    g_clear_error (&priv->data.error);
     priv->data.error = error;
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_ERROR]);
 
 errored:
-
+  
     return;
-}
-
-
-void
-lw_progress_take_error (LwProgress  *self,
-                        GError     **source)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
-
-    //Declarations
-    LwProgressPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    lw_progress_set_error (self, *source);
-    *source = NULL;
 }
 
 

@@ -975,10 +975,31 @@ _flag_compare_function (gconstpointer a,
 }
 
 
-struct _DictionaryBufferData {
+struct _DictionaryCacheData {
   LwDictionary *dictionary;
   LwProgress *progress;
 };
+
+
+static LwParsedDictionary*
+_dictionarycache_parse (gchar                       *contents,
+                        gsize                        content_length,
+                        struct _DictionaryCacheData *data)
+{
+    //Declarations
+    LwDictionary *dictionary = NULL;
+    LwProgress *progress = NULL;
+
+    //Initializations
+    dictionary = data->dictionary;
+    progress = data->progress;
+
+    g_return_if_fail (LW_IS_DICTIONARY (dictionary));
+    g_return_if_fail (contents != NULL);
+    g_return_if_fail (content_length > 0);
+
+    return lw_dictionary_parse (dictionary, contents, content_length, progress);
+}
 
 
 void
@@ -990,11 +1011,27 @@ lw_dictionary_ensure_cache (LwDictionary      *self,
     g_return_if_fail (LW_IS_DICTIONARY (self));
     g_return_if_fail (cache != NULL);
 
-    if (lw_dictionarycache_read (self, CHECKSUM, func, data, progress) == NULL)
-      TODO
-      lw_dictionarycache_write (cache, CHECKSUM, CONTENTS, length, progress);
-      lw_dictionarycache_read (cache, CHECKSUM, func, data, progress);
-    }
+    //Declarations
+    LwDictionaryClass *klass = NULL;
+    LwDictionaryClassPrivate *klasspriv = NULL;
+    const gchar *CHECKSUM = NULL;
+    const gchar *CONTENTS = NULL;
+    gsize content_length = 0;
+    LwDictionaryCacheParseFunc func = NULL;
+    struct _DictionaryCacheData data = {
+      .dictionary = self,
+      .progress = progress
+    };
+    
+    //Initializations
+    klass = LW_DICTIONARY_CLASS (self);
+    klasspriv = klass->priv;
+    CHECKSUM = lw_dictionary_get_checksum (self);
+    CONTENTS = lw_dictionary_get_contents (self);
+    content_length = lw_dictionary_length (self);
+    func = (LwDictionaryCacheParseFunc) klasspriv->parse;
+
+    lw_dictionarycache_set_contents (cache, CHECKSUM, CONTENTS, content_length, (LwDictionaryCacheParseFunc) _dictionarycache_parse, &data, progress);
 
 errored:
 
@@ -1004,8 +1041,8 @@ errored:
 
 LwDictionaryCache*
 lw_dictionary_get_cache (LwDictionary *self,
-                          LwProgress   *progress,
-                          LwUtf8Flag    flags)
+                         LwProgress   *progress,
+                         LwUtf8Flag    flags)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -1041,6 +1078,29 @@ lw_dictionary_get_cache (LwDictionary *self,
 errored:
 
     return cache;
+}
+
+
+LwParsedDictionary*
+lw_dictionary_parse (LwDictionary *self,
+                     gchar        *contents,
+                     gsize         content_length,
+                     LwProgress   *progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    g_return_val_if_fail (contents != NULL, NULL);
+    g_return_val_if_fail (content_length > 0, NULL);
+
+    //Declarations
+    LwDictionaryClass *klass = NULL;
+    LwDictionaryClassPrivate *klasspriv = NULL;
+
+    //Initializations
+    klass = LW_DICTIONARY_CLASS (self);
+    klasspriv = klass->priv;
+
+    return klasspriv->parse (self, contents, content_length, progress);
 }
 
 

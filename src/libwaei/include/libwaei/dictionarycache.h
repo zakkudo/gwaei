@@ -24,6 +24,8 @@ typedef struct _LwDictionaryCacheClassPrivate LwDictionaryCacheClassPrivate;
 #define LW_IS_DICTIONARYCACHE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARYCACHE))
 #define LW_DICTIONARYCACHE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARYCACHE, LwDictionaryCacheClass))
 
+typedef LwParsedDictionary*(*LwDictionaryCacheParseFunc)(gchar*, gsize, gpointer);
+
 struct _LwDictionaryCache {
     GObject object;
     LwDictionaryCachePrivate *priv;
@@ -34,19 +36,21 @@ struct _LwDictionaryCacheClass {
   LwDictionaryCacheClassPrivate *priv;
 };
 
-typedef LwDictionaryLines*(*LwDictionaryCacheParseFunc)(LwDictionaryCache*, gpointer);
 
 //Methods
 LwDictionaryCache* lw_dictionarycache_new (const gchar *NAME, LwUtf8Flag flags);
 GType lw_dictionarycache_get_type (void) G_GNUC_CONST;
 
-LwDictionaryLines* lw_dictionarycache_get_lines (LwDictionaryCache *self);
+LwParsedDictionary* lw_dictionarycache_get_lines (LwDictionaryCache *self);
 
-void lw_dictionarycache_set_contents (LwDictionaryCache *self, const gchar *CHECKSUM, const gchar *CONTENTS, gint length, LwDictionaryCacheParseFunc func, gpointer data, LwProgress *progress);
+void lw_dictionarycache_set_contents (LwDictionaryCache *self, gchar const *CHECKSUM, gchar const *contents, gsize content_length, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress *progress);
 const gchar* lw_dictionarycache_get_contents (LwDictionaryCache *self);
 
 gboolean lw_dictionarycache_validate (LwDictionaryCache *self, const gchar *EXPECTED_CHECKSUM, LwProgress *progress);
 gboolean lw_dictionarycache_is_modifiable (LwDictionaryCache *self);
+
+void lw_dictionarycache_write (LwDictionaryCache *self, const gchar *CHECKSUM, gchar const *CONTENTS, gsize content_length, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress *progress);
+gboolean lw_dictionarycache_read (LwDictionaryCache *self, gchar const *EXPECTED_CHECKSUM, LwProgress *progress);
 
 //Properties
 LwProgress* lw_dictionarycache_get_progress (LwDictionaryCache *self);
@@ -62,12 +66,24 @@ gsize lw_dictionarycache_length (LwDictionaryCache *self);
 void lw_dictionarycache_set_name (LwDictionaryCache *self, const gchar *NAME);
 const gchar* lw_dictionarycache_get_name (LwDictionaryCache *self);
 
-gchar* lw_dictionarycache_build_filename (LwDictionaryCache *self);
-gchar* lw_dictionarycache_build_path (LwDictionaryCache *self);
+gchar* lw_dictionarycache_build_filename (LwDictionaryCache *self, gchar const *TYPE);
+gchar* lw_dictionarycache_build_path (LwDictionaryCache *self, gchar const *TYPE);
 void lw_dictionarycache_sync_path (LwDictionaryCache *self);
 
 void lw_dictionarycache_set_path (LwDictionaryCache *self, const gchar *PATH);
 const gchar* lw_dictionarycache_get_path (LwDictionaryCache *self);
+
+void lw_dictionarycache_set_lines (LwDictionaryCache *self, LwParsedDictionary *lines);
+LwParsedDictionary* lw_dictionarycache_get_lines (LwDictionaryCache *self);
+
+void lw_dictionarycache_set_normalized_cachefile (LwDictionaryCache *self, LwCacheFile *cachefile);
+LwCacheFile* lw_dictionarycache_get_normalized_cachefile (LwDictionaryCache *self);
+
+void lw_dictionarycache_set_parsed_cachefile (LwDictionaryCache *self, LwCacheFile *cachefile);
+LwCacheFile* lw_dictionarycache_get_parsed_cachefile (LwDictionaryCache *self);
+
+LwCacheFile* lw_dictionarycache_get_lines_cachefile (LwDictionaryCache *self);
+void lw_dictionarycache_set_lines_cachefile (LwDictionaryCache *self, LwCacheFile *cachefile);
 
 G_END_DECLS
 
