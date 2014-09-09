@@ -9,9 +9,20 @@ typedef struct _LwExampleDictionary LwExampleDictionary;
 typedef struct _LwExampleDictionaryClass LwExampleDictionaryClass;
 typedef struct _LwExampleDictionaryPrivate LwExampleDictionaryPrivate;
 
-#define LW_EXAMPLEDICTIONARY_KEY_PHRASE "Phrase"
-#define LW_EXAMPLEDICTIONARY_KEY_MEANING "Meaning"
-#define LW_EXAMPLEDICTIONARY_KEY_ID "ID"
+#define LW_EXAMPLEDICTIONARYTOKENNAME_PHRASE "Phrase"
+#define LW_EXAMPLEDICTIONARYTOKENNAME_MEANING "Meaning"
+#define LW_EXAMPLEDICTIONARYTOKENNAME_ID "ID"
+
+#define LW_EXAMPLEDICTIONARYTOKENNICK_PHRASE "phrase"
+#define LW_EXAMPLEDICTIONARYTOKENNICK_MEANING "meaning"
+#define LW_EXAMPLEDICTIONARYTOKENNICK_ID "id"
+
+typedef enum {
+  LW_EXAMPLEDICTIONARYTOKENID_PHRASE,
+  LW_EXAMPLEDICTIONARYTOKENID_MEANING,
+  LW_EXAMPLEDICTIONARYTOKENID_ID,
+  TOTAL_LW_EXAMPLEDICTIONARYTOKENIDS
+} LwExampleDictionaryTokenId;
 
 #define LW_TYPE_EXAMPLEDICTIONARY              (lw_exampledictionary_get_type())
 #define LW_EXAMPLEDICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_EXAMPLEDICTIONARY, LwExampleDictionary))

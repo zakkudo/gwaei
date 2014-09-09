@@ -117,13 +117,6 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
 }
 
 
-gboolean
-_is_stroke_number (const gchar *c)
-{
-  return (*c == 'S' && g_ascii_isdigit(*(c + 1)));
-}
-
-
 static gchar**
 lw_kanjidictionary_tokenize_line (LwKanjiDictionary  *self,
                                   gchar              *buffer,
@@ -192,48 +185,103 @@ errored:
 
 
 static gboolean
-_is_unicode_symbol (gchar const *TEXT)
+_is_unicode_symbol (gchar const *C)
 {
-    return FALSE;
+    return (C[0] == 'U' &&
+      g_ascii_isalnum (C[1]) &&
+      g_ascii_isalnum (C[2]) &&
+      g_ascii_isalnum (C[3]) &&
+      g_ascii_isalnum (C[4]) &&
+      (C[5] == '\0' || g_ascii_isspace (C[5])));
 }
 
 static gboolean
-_is_stroke_count (gchar const *TEXT)
+_is_stroke_count (gchar const *C)
 {
-    return FALSE;
-}
-
-
-static gboolean
-_is_grade_level (gchar const *TEXT)
-{
-    return FALSE;
-}
-
-
-static gboolean
-_is_jlpt_level (gchar const *TEXT)
-{
-    return FALSE;
+    if (*C != 'S') return FALSE;
+    C++;
+    if (!g_ascii_isdigit (*C)) return FALSE;
+    C++;
+    while (g_ascii_isdigit (*C)) C++;
+    return (*C == '\0' || g_ascii_isspace (*C));
 }
 
 
 static gboolean
-_is_usage_frequency (gchar const *TEXT)
+_is_grade_level (gchar const *C)
 {
-    return FALSE;
+    if (*C != 'G') return FALSE;
+    C++;
+    if (!g_ascii_isdigit (*C)) return FALSE;
+    C++;
+    while (g_ascii_isdigit (*C)) C++;
+    return (*C == '\0' || g_ascii_isspace (*C));
+}
+
+
+static gboolean
+_is_jlpt_level (gchar const *C)
+{
+    if (*C != 'J') return FALSE;
+    C++;
+    if (!g_ascii_isdigit (*C)) return FALSE;
+    C++;
+    while (g_ascii_isdigit (*C)) C++;
+    return (*C == '\0' || g_ascii_isspace (*C));
+}
+
+
+static gboolean
+_is_usage_frequency (gchar const *C)
+{
+    if (*C != 'F') return FALSE;
+    C++;
+    if (!g_ascii_isdigit (*C)) return FALSE;
+    C++;
+    while (g_ascii_isdigit (*C)) C++;
+    return (*C == '\0' || g_ascii_isspace (*C));
 }
 
 static gboolean
-_is_kun_reading (gchar const *TEXT)
+_is_kun_reading (gchar const *C)
 {
-    return FALSE;
+    if (*C == '\0') return FALSE;
+
+    gboolean is_kun_reading = TRUE;
+
+    while (*C != '\0' && is_kun_reading == TRUE)
+    {
+      gunichar c = g_utf8_get_char (C);
+      GUnicodeScript script = g_unichar_get_script (c);
+      if (script != G_UNICODE_SCRIPT_KATAKANA && !g_unichar_ispunct (c))
+      {
+        is_kun_reading = FALSE;
+      }
+      C = g_utf8_next_char (C);
+    }
+
+    return is_kun_reading;
 }
 
 static gboolean
-_is_on_reading (gchar const *TEXT)
+_is_on_reading (gchar const *C)
 {
-    return FALSE;
+    if (*C == '\0') return FALSE;
+
+    gboolean is_on_reading = TRUE;
+
+    while (*C != '\0' && is_on_reading == TRUE)
+    {
+      gunichar c = g_utf8_get_char (C);
+      GUnicodeScript script = g_unichar_get_script (c);
+      if (script != G_UNICODE_SCRIPT_HIRAGANA && !g_unichar_ispunct (c))
+      {
+        is_on_reading = FALSE;
+      }
+      C = g_utf8_next_char (C);
+    }
+
+    return is_on_reading;
 }
 
 

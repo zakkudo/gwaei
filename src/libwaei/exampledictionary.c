@@ -44,9 +44,7 @@
 
 G_DEFINE_TYPE (LwExampleDictionary, lw_exampledictionary, LW_TYPE_DICTIONARY)
 
-static LwResult* lw_exampledictionary_parse (LwDictionary*, const gchar*);
-gchar** lw_exampledictionary_tokenize (gchar  *buffer, gchar **tokens, gint *num_tokens);
-
+static LwParsedDictionary* lw_exampledictionary_parse (LwExampleDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 
 LwDictionary* lw_exampledictionary_new (const gchar        *FILENAME,
                                         LwMorphologyEngine *morphologyengine)
@@ -84,7 +82,7 @@ lw_exampledictionary_constructed (GObject *object)
     dictionary = LW_DICTIONARY (object);
     priv = dictionary->priv;
 
-    if (strcmp(priv->config.filename, "Examples") == 0)
+    if (strcmp(priv->data.filename, "Examples") == 0)
     {
       if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
       priv->data.name = g_strdup (gettext("Examples"));
@@ -112,8 +110,7 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
     object_class->constructed = lw_exampledictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse = lw_exampledictionary_parse;
-    dictionary_class->priv->tokenize = lw_exampledictionary_tokenize;
+    dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_exampledictionary_parse;
 }
 
 
@@ -131,12 +128,14 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
  *
  * Returns: The end of the filled token array
  */
-gchar**
-lw_exampledictionary_tokenize (gchar  *buffer,
-                               gchar **tokens,
-                               gint   *num_tokens)
+static gchar**
+lw_exampledictionary_tokenize_line (LwExampleDictionary  *self,
+                                    gchar                *buffer,
+                                    gchar               **tokens,
+                                    gsize                *num_tokens)
 {
     //Sanity checks
+    g_return_if_fail (LW_IS_EXAMPLEDICTIONARY (self));
     g_return_val_if_fail (buffer != NULL, NULL);
     g_return_val_if_fail (tokens != NULL, NULL);
 
@@ -149,9 +148,9 @@ lw_exampledictionary_tokenize (gchar  *buffer,
 
     //An example line
     //A: すぐに戻ります。 I will be back soon.#ID=1284_4709
-    //B: 直ぐに{すぐに} 戻る{戻ります}
     //^
     //HERE
+    //B: 直ぐに{すぐに} 戻る{戻ります}
     
     while (*c != '\0' && !g_ascii_isspace (*c)) c = g_utf8_next_char (c);
     if (*c == '\0') goto errored;
@@ -161,9 +160,9 @@ lw_exampledictionary_tokenize (gchar  *buffer,
 
     //An example line
     //A: すぐに戻ります。 I will be back soon.#ID=1284_4709
-    //B: 直ぐに{すぐに} 戻る{戻ります}
     //   ^
     //   HERE
+    //B: 直ぐに{すぐに} 戻る{戻ります}
 
     tokens[length++] = c;
 
@@ -178,9 +177,9 @@ lw_exampledictionary_tokenize (gchar  *buffer,
 
     //An example line
     //A: すぐに戻ります。 I will be back soon.#ID=1284_4709
-    //B: 直ぐに{すぐに} 戻る{戻ります}
     //                    ^
     //                    HERE
+    //B: 直ぐに{すぐに} 戻る{戻ります}
 
     tokens[length++] = c;
 
@@ -192,9 +191,9 @@ lw_exampledictionary_tokenize (gchar  *buffer,
 
     //An example line
     //A: すぐに戻ります。 I will be back soon.#ID=1284_4709
-    //B: 直ぐに{すぐに} 戻る{戻ります}
     //                                        ^
     //                                        HERE
+    //B: 直ぐに{すぐに} 戻る{戻ります}
 
     tokens[length++] = c;
 
@@ -211,36 +210,30 @@ errored:
 }
 
 
-//!
-//! @brief, Retrieve a line from FILE, parse it according to the LwExampleDictionary rules and put the results into the LwResult
-//!
-static LwResult*
-lw_exampledictionary_parse (LwDictionary *dictionary, 
-                            const gchar  *TEXT)
+static void
+lw_exampledictionary_load_line_tokens (LwExampleDictionary  *self,
+                                       gchar                *buffer,
+                                       gchar               **tokens,
+                                       gint                  num_tokens,
+                                       LwDictionaryLine     *line)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
-    if (TEXT == NULL) return NULL;
+    g_return_if_fail (LW_IS_EXAMPLEDICTIONARY (self));
+    g_return_if_fail (buffer != NULL);
+    g_return_if_fail (tokens != NULL);
+    g_return_if_fail (num_tokens > 0);
+    g_return_if_fail (line != NULL);
 
     //Declarations
-    LwResult *result = NULL;
-    gchar **tokens = NULL;
-    gint length = -1;
-    LwResultBuffer phrase = {0};
-    LwResultBuffer meaning = {0};
-    LwResultBuffer id = {0};
+    GArray *phrase = NULL;
+    GArray *meaning = NULL;
+    GArray *id = NULL;
 
-    /*TODO
 
     //Initializations
-    result = lw_result_new (TEXT);
-    if (result == NULL) goto errored;
-    tokens = _tokenize (result, &length);
-    if (tokens == NULL) goto errored;
-
-    lw_result_init_buffer (result, &phrase);
-    lw_result_init_buffer (result, &meaning);
-    lw_result_init_buffer (result, &id);
+    phrase = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), 1);
+    meaning = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), 1);
+    id = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), 1);
 
     {
       gint i = 0;
@@ -250,9 +243,9 @@ lw_exampledictionary_parse (LwDictionary *dictionary,
       //B: 直ぐに{すぐに} 戻る{戻ります}
       //   ^
       //   HERE
-      if (tokens[i] != NULL && i < length)
+      if (tokens[i] != NULL && i < num_tokens)
       {
-        lw_resultbuffer_add (&phrase, tokens[i]);
+        g_array_append_val (phrase, tokens[i]);
         i++;
       }
 
@@ -261,9 +254,9 @@ lw_exampledictionary_parse (LwDictionary *dictionary,
       //B: 直ぐに{すぐに} 戻る{戻ります}
       //                    ^
       //                    HERE
-      if (tokens[i] != NULL && i < length)
+      if (tokens[i] != NULL && i < num_tokens)
       {
-        lw_resultbuffer_add (&meaning, tokens[i]);
+        g_array_append_val (meaning, tokens[i]);
         i++;
       }
 
@@ -272,68 +265,111 @@ lw_exampledictionary_parse (LwDictionary *dictionary,
       //B: 直ぐに{すぐに} 戻る{戻ります}
       //                                         ^
       //                                         HERE
-      if (tokens[i] != NULL && i < length)
+      if (tokens[i] != NULL && i < num_tokens)
       {
-        lw_resultbuffer_add (&id, tokens[i]);
+        g_array_append_val (id, tokens[i]);
         i++;
       }
     }
 
-    lw_result_take_buffer (result, LW_EXAMPLEDICTIONARY_KEY_PHRASE, &phrase);
-    lw_result_take_buffer (result, LW_EXAMPLEDICTIONARY_KEY_MEANING, &meaning);
-    lw_result_take_buffer (result, LW_EXAMPLEDICTIONARY_KEY_ID, &id);
-
 errored:
 
-    lw_resultbuffer_clear (&phrase, TRUE);
-    lw_resultbuffer_clear (&meaning, TRUE);
-    lw_resultbuffer_clear (&id, TRUE);
+    g_array_set_size (phrase, phrase->len);
+    g_array_set_size (meaning, meaning->len);
+    g_array_set_size (id, id->len);
 
-    return result;
+    lw_dictionaryline_take_strv (
+      line,
+      LW_EXAMPLEDICTIONARYTOKENID_PHRASE,
+      (gchar**) g_array_free (phrase, FALSE)
+    );
 
-/*TODO
+    lw_dictionaryline_take_strv (
+      line,
+      LW_EXAMPLEDICTIONARYTOKENID_MEANING,
+      (gchar**) g_array_free (meaning, FALSE)
+    );
+
+    lw_dictionaryline_take_strv (
+      line,
+      LW_EXAMPLEDICTIONARYTOKENID_ID,
+      (gchar**) g_array_free (id, FALSE)
+    );
+}
+
+
+
+//!
+//! @brief, Retrieve a line from FILE, parse it according to the LwExampleDictionary rules and put the results into the LwResult
+//!
+static LwParsedDictionary*
+lw_exampledictionary_parse (LwExampleDictionary *self,
+                            gchar               *contents,
+                            gsize                content_length,
+                            LwProgress          *progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), NULL);
+    g_return_val_if_fail (contents != NULL, NULL);
+
     //Declarations
-    gchar *ptr;
-    //gint length;
+    gint num_lines = 0;
+    gchar **tokens = NULL;
+    gsize max_line_length = 0;
+    gsize num_tokens = 0;
+    gint length = -1;
+    LwParsedDictionary *lines = NULL;
 
     //Initializations
-    result->text = ptr = g_strdup (TEXT);
+    if (content_length < 1) content_length = strlen(contents);
+    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
+    if (num_lines < 1) goto errored;
+    if (max_line_length < 1) goto errored;
+    lines = lw_parseddictionary_new (num_lines);
+    if (lines == NULL) goto errored;
+    tokens = g_new0 (gchar*, max_line_length + 1);
+    if (tokens == NULL) goto errored;
 
-    if (!lw_exampledictionary_is_a (result->text)) goto errored;
-
-    //Set the kanji string
-    ptr = result->kanji_start = result->text + 3;
-
-    //Set the romaji string
-    while (*ptr != '\0' && !g_unichar_isspace (g_utf8_get_char (ptr))) ptr = g_utf8_next_char (ptr);
-    if (*ptr == '\0') goto errored;
-    *ptr = '\0';
-    ptr++;
-    result->def_start[0] = ptr;
-
-    //Erase the id number
-    while (*ptr != '\0' && *ptr != '#') ptr = g_utf8_next_char (ptr);
-    *(ptr++) = '\0';
-
-    while (*ptr != '\n') ptr++;
-    *ptr = '\0';
-
-    //Set the "furigana" string
-    ptr = fgets(ptr, LW_IO_MAX_FGETS_LINE - length, fd);
-    if (ptr != NULL && lw_exampledictionary_is_b (ptr))
+    if (progress != NULL)
     {
-      result->furigana_start = ptr + 3;
-      
-      length = strlen(ptr);
-      ptr += length - 1;
+      lw_progress_set_secondary_message (progress, "Parsing...");
+      lw_progress_set_completed (progress, FALSE);
+      lw_progress_set_total (progress, content_length);
+      lw_progress_set_current (progress, 0);
+    }
 
-      if (*ptr == '\n') *ptr = '\0';
+    {
+      gchar *c = contents;
+      gchar *e = contents + content_length;
+      gint i = 0;
+      LwDictionaryLine *line = NULL;
+      while (c < e)
+      {
+        while (c < e && *c == '\0') c = g_utf8_next_char (c);
+        if (c >= e) break;
+
+        line = lw_parseddictionary_get_line (lines, i);
+        lw_exampledictionary_tokenize_line (self, c, tokens, &num_tokens);
+        lw_exampledictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
+        if (progress != NULL)
+        {
+          lw_progress_set_current (progress, c - contents);
+        }
+        i++;
+        while (c < e && *c != '\0') c = g_utf8_next_char (c);
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, content_length);
+      lw_progress_set_completed (progress, TRUE);
     }
 
 errored:
 
-    return 1;
-*/
+    g_free (tokens); tokens = NULL;
+    if (lines != NULL) lw_parseddictionary_unref (lines); lines = NULL;
 }
 
 

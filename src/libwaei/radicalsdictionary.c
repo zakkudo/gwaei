@@ -42,9 +42,7 @@
 #include <libwaei/dictionary-private.h>
 #include <libwaei/gettext.h>
 
-static LwResult* lw_radicalsdictionary_parse (LwDictionary*, const gchar*);
-static gchar** lw_radicalsdictionary_tokenize (gchar *buffer, gchar **tokens, gint *num_tokens);
-
+static LwParsedDictionary* lw_radicalsdictionary_parse (LwRadicalsDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 
 G_DEFINE_TYPE (LwRadicalsDictionary, lw_radicalsdictionary, LW_TYPE_DICTIONARY)
 
@@ -109,8 +107,7 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
     object_class->constructed = lw_radicalsdictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse = lw_radicalsdictionary_parse;
-    dictionary_class->priv->tokenize = lw_radicalsdictionary_tokenize;
+    dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_radicalsdictionary_parse;
 }
 
 
@@ -129,9 +126,10 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
  * Returns: The end of the filled token array
  */
 static gchar**
-lw_radicalsdictionary_tokenize (gchar  *buffer,
-                                gchar **tokens,
-                                gint   *num_tokens)
+lw_radicalsdictionary_tokenize_line (LwRadicalsDictionary  *self,
+                                     gchar                 *buffer,
+                                     gchar                **tokens,
+                                     gsize                 *num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (buffer != NULL, NULL);
@@ -144,52 +142,6 @@ lw_radicalsdictionary_tokenize (gchar  *buffer,
     //Initializations
     c = buffer;
 
-    while (*c != '\0')
-    {
-      while (g_ascii_isspace (*c) && g_ascii_isspace (*c)) c = lw_utf8_set_null_next_char (c);
-      if (*c != '\0') tokens[length++] = c;
-    }
-
-errored:
-
-    tokens[length] = NULL;
-
-    if (num_tokens != NULL)
-    {
-      *num_tokens = length;
-    }
-
-    return tokens + length;
-}
-
-
-//!
-//! @brief Parses a string for an unknown format string
-//! @param rl The Resultline object this method works on
-//!
-static LwResult*
-lw_radicalsdictionary_parse (LwDictionary *dictionary, 
-                             const gchar  *TEXT)
-{
-    //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
-    if (TEXT == NULL) return NULL;
-
-    //Declarations
-    LwResult *result = NULL;
-    gchar *buffer = NULL;
-    LwResultBuffer kanji = {0};
-    LwResultBuffer radicals = {0};
-
-    //Initializations
-    result = lw_result_new (TEXT);
-    if (result == NULL) goto errored;
-    buffer = lw_result_get_innerbuffer (result);
-    if (buffer == NULL) goto errored;
-
-    lw_result_init_buffer (result, &kanji);
-    lw_result_init_buffer (result, &radicals);
-
     {
       gchar *c = buffer;
       if (c == NULL || *c == '\0') goto errored;
@@ -199,7 +151,7 @@ lw_radicalsdictionary_parse (LwDictionary *dictionary,
       //^
       //HERE
 
-      lw_resultbuffer_add (&kanji, c);
+      tokens[length++] = c;
       while (*c != '\0' && !g_ascii_isspace(*c) && !g_ascii_ispunct (*c)) c = g_utf8_next_char (c);
       if (*c == '\0') goto errored;
 
@@ -220,7 +172,7 @@ lw_radicalsdictionary_parse (LwDictionary *dictionary,
 
       while (*c != '\0')
       {
-        lw_resultbuffer_add (&radicals, c);
+        tokens[length++] = c;
 
         while (*c != '\0' && !g_ascii_isspace (*c) && !g_ascii_ispunct (*c)) c = g_utf8_next_char (c);
         if (*c == '\0') goto errored;
@@ -233,14 +185,137 @@ lw_radicalsdictionary_parse (LwDictionary *dictionary,
       }
     }
 
-    lw_result_take_buffer (result, LW_RADICALSDICTIONARY_KEY_KANJI, &kanji);
-    lw_result_take_buffer (result, LW_RADICALSDICTIONARY_KEY_RADICALS, &radicals);
+errored:
+
+    tokens[length] = NULL;
+
+    return tokens + length;
+}
+
+
+static void
+lw_radicalsdictionary_load_line_tokens (LwRadicalsDictionary  *self,
+                                       gchar                  *buffer,
+                                       gchar                 **tokens,
+                                       gint                    num_tokens,
+                                       LwDictionaryLine       *line)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_RADICALSDICTIONARY (self));
+    g_return_if_fail (buffer != NULL);
+    g_return_if_fail (tokens != NULL);
+    g_return_if_fail (num_tokens > 0);
+    g_return_if_fail (line != NULL);
+
+    //Declarations
+    GArray *kanji = NULL;
+    GArray *radicals = NULL;
+    gint i = 0;
+
+    //Initializations
+    kanji = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), 1);
+    radicals = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+
+    if (i < num_tokens)
+    {
+      g_array_append_val (kanji, tokens[i++]);
+    }
+
+    while (i < num_tokens)
+    {
+      g_array_append_val (radicals, tokens[i++]);
+    }
 
 errored:
 
-    lw_resultbuffer_clear (&kanji, TRUE);
-    lw_resultbuffer_clear (&radicals, TRUE);
+    g_array_set_size (kanji, 1);
+    g_array_set_size (radicals, radicals->len);
 
-    return result;
+    lw_dictionaryline_take_strv (
+      line,
+      LW_RADICALSDICTIONARYTOKENID_KANJI,
+      (gchar**) g_array_free (kanji, FALSE)
+    );
+
+    lw_dictionaryline_take_strv (
+      line,
+      LW_RADICALSDICTIONARYTOKENID_RADICALS,
+      (gchar**) g_array_free (radicals, FALSE)
+    );
+}
+
+
+//!
+//! @brief Parses a string for an unknown format string
+//! @param rl The Resultline object this method works on
+//!
+static LwParsedDictionary*
+lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
+                             gchar                *contents,
+                             gsize                 content_length,
+                             LwProgress           *progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_RADICALSDICTIONARY (self), NULL);
+    g_return_val_if_fail (contents != NULL, NULL);
+
+    //Declarations
+    gint num_lines = 0;
+    gchar **tokens = NULL;
+    gsize max_line_length = 0;
+    gsize num_tokens = 0;
+    gint length = -1;
+    LwParsedDictionary *lines = NULL;
+
+    //Initializations
+    if (content_length < 1) content_length = strlen(contents);
+    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
+    if (num_lines < 1) goto errored;
+    if (max_line_length < 1) goto errored;
+    lines = lw_parseddictionary_new (num_lines);
+    if (lines == NULL) goto errored;
+    tokens = g_new0 (gchar*, max_line_length + 1);
+    if (tokens == NULL) goto errored;
+
+    if (progress != NULL)
+    {
+      lw_progress_set_secondary_message (progress, "Parsing...");
+      lw_progress_set_completed (progress, FALSE);
+      lw_progress_set_total (progress, content_length);
+      lw_progress_set_current (progress, 0);
+    }
+
+    {
+      gchar *c = contents;
+      gchar *e = contents + content_length;
+      gint i = 0;
+      LwDictionaryLine *line = NULL;
+      while (c < e)
+      {
+        while (c < e && *c == '\0') c = g_utf8_next_char (c);
+        if (c >= e) break;
+
+        line = lw_parseddictionary_get_line (lines, i);
+        lw_radicalsdictionary_tokenize_line (self, c, tokens, &num_tokens);
+        lw_radicalsdictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
+        if (progress != NULL)
+        {
+          lw_progress_set_current (progress, c - contents);
+        }
+        i++;
+        while (c < e && *c != '\0') c = g_utf8_next_char (c);
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, content_length);
+      lw_progress_set_completed (progress, TRUE);
+    }
+
+errored:
+
+    g_free (tokens); tokens = NULL;
+    if (lines != NULL) lw_parseddictionary_unref (lines); lines = NULL;
 }
 
