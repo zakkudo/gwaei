@@ -40,14 +40,14 @@
 gint
 _compare (gpointer a, gpointer b)
 {
-  return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
+    return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
 }
 
 
 void
-lw_dictionaryline_set_offsets (LwDictionaryLine *self,
-                               gint              id,
-                               lwoffset         *offsets)
+lw_dictionaryline_take_strv (LwDictionaryLine *self,
+                             gint              id,
+                             gchar            *strv)
 {
   fix this
     //Sanity checks
@@ -64,14 +64,14 @@ lw_dictionaryline_set_offsets (LwDictionaryLine *self,
     }
     else
     {
-      g_tree_insert (self->data, GINT_TO_POINTER (id), lw_offsetbuffer_clear (buffer, TRUE));
+      g_tree_insert (self->data, GINT_TO_POINTER (id), strv);
     }
 }
 
 
-lwoffset*
-lw_dictionaryline_get_offsets (LwDictionaryLine *self,
-                               gint              id)
+gchar const * *
+lw_dictionaryline_get_strv (LwDictionaryLine *self,
+                            gint              id)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);

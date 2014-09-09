@@ -298,25 +298,25 @@ lw_edictionary_load_line_tokens (LwEDictionary     *self,
     g_return_if_fail (line != NULL);
 
     //Declarations
-    LwOffsetBuffer word = {0};
-    LwOffsetBuffer reading = {0};
-    LwOffsetBuffer definition = {0};
-    LwOffsetBuffer classification = {0};
-    LwOffsetBuffer popular = {0};
+    GArray *word = NULL;
+    GArray *reading = NULL;
+    GArray *definition = NULL;
+    GArray *classification = NULL;
+    GArray *popular = NULL;
 
     //Initializations
-    lw_offsetbuffer_init (&word, buffer, num_tokens);
-    lw_offsetbuffer_init (&reading, buffer, num_tokens);
-    lw_offsetbuffer_init (&definition, buffer, num_tokens);
-    lw_offsetbuffer_init (&classification, buffer, num_tokens);
-    lw_offsetbuffer_init (&popular, buffer, num_tokens);
+    word = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    reading = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    definition = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    classification = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    popular = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
 
     { //Get the element at the end first so the forward iteration is simpler...
       gint i = num_tokens - 1;
 
       if (tokens[i] != NULL && strcmp (tokens[i], "(P)") == 0)
       {
-        lw_offsetbuffer_add_absolute (&popular, tokens[i]);
+        g_array_append_val (word, tokens[i]);
         i--;
       }
 
@@ -336,7 +336,7 @@ lw_edictionary_load_line_tokens (LwEDictionary     *self,
 
       if (tokens[i] != NULL && i < num_tokens)
       {
-        lw_offsetbuffer_add_absolute (&word, tokens[i]);
+        g_array_append_val (word, tokens[i]);
         i++;
       }
 
@@ -348,7 +348,7 @@ lw_edictionary_load_line_tokens (LwEDictionary     *self,
         GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (tokens[i] != NULL && i < num_tokens && script == G_UNICODE_SCRIPT_HIRAGANA || script == G_UNICODE_SCRIPT_KATAKANA)
         {
-          lw_offsetbuffer_add_absolute (&reading, tokens[i]);
+          g_array_append_val (reading, tokens[i]);
           i++;
         }
       }
@@ -363,7 +363,7 @@ lw_edictionary_load_line_tokens (LwEDictionary     *self,
           gchar *c = tokens[i];
           while (*c != '\0')
           {
-            lw_offsetbuffer_add_absolute (&classification, tokens[i]);
+            g_array_append_val (classification, tokens[i]);
             while (*c != '\0' && *c != ',') c = g_utf8_next_char (c);
             if (*c == ',') c = lw_utf8_set_null_next_char (c);
           }
@@ -377,40 +377,44 @@ lw_edictionary_load_line_tokens (LwEDictionary     *self,
 
       while (tokens[i] != NULL & i < num_tokens)
       {
-        lw_offsetbuffer_add_absolute (&definition, tokens[i]);
+        g_array_append_val (definition, tokens[i]);
         i++;
       }
     }
 
 errored:
 
-    lw_dictionaryline_set_offsets (
+    g_array_set_size (popular, popular->len);
+    g_array_set_size (word, word->len);
+    g_array_set_size (reading, reading->len);
+    g_array_set_size (classification, classification->len);
+    g_array_set_size (definition, definition->len);
+
+    lw_dictionaryline_take_strv (
       line,
       LW_EDICTIONARYTOKENID_POPULAR,
-      lw_offsetbuffer_clear (&popular, FALSE)
+      (gchar**) g_array_free (popular, FALSE)
     );
-    lw_dictionaryline_set_offsets (
+    lw_dictionaryline_take_strv (
       line,
       LW_EDICTIONARYTOKENID_WORD,
-      lw_offsetbuffer_clear (&word, FALSE)
+      (gchar**) g_array_free (word, FALSE)
     );
-    lw_dictionaryline_set_offsets (
+    lw_dictionaryline_take_strv (
       line,
       LW_EDICTIONARYTOKENID_READING,
-      lw_offsetbuffer_clear (&reading, FALSE)
+      (gchar**) g_array_free (reading, FALSE)
     );
-    lw_dictionaryline_set_offsets (
+    lw_dictionaryline_take_strv (
       line,
       LW_EDICTIONARYTOKENID_CLASSIFICATION,
-      lw_offsetbuffer_clear (&classification, FALSE)
+      (gchar**) g_array_free (classification, FALSE)
     );
-    lw_dictionaryline_set_offsets (
+    lw_dictionaryline_take_strv (
       line,
       LW_EDICTIONARYTOKENID_DEFINITION,
-      lw_offsetbuffer_clear (&definition, FALSE)
+      (gchar**) g_array_free (definition, FALSE)
     );
-
-    return;
 }
 
 

@@ -14,8 +14,8 @@ typedef struct _LwDictionaryLine LwDictionaryLine;
 #define LW_DICTIONARYLINE(obj) (LwDictionaryLine*)obj
 
 //Methods
-void lw_dictionaryline_set_offsets (LwDictionaryLine *self, gint id, lwoffset *offsets);
-lwoffset* lw_dictionaryline_get_offsets (LwDictionaryLine *self, gint id);
+void lw_dictionaryline_take_strv (LwDictionaryLine *self, gint id, gchar ** strv);
+gchar const ** lw_dictionaryline_get_offsets (LwDictionaryLine *self, gint id);
 
 gsize lw_dictionaryline_get_serialization_length (LwDictionaryLine *self);
 void lw_dictionaryline_serialize (LwDictionaryLine *self, guchar *preallocated_buffer, gsize buffer_length);

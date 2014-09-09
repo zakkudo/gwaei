@@ -375,9 +375,10 @@ errored:
 
 
 static void
-_write_parsed_cachefile (LwDictionaryCache *self
+_write_parsed_cachefile (LwDictionaryCache *self,
                          gchar const       *CHECKSUM,
                          gchar const       *CONTENTS, 
+                         gsize              content_length,
                          LwProgress        *progress)
 {
     //Sanity checks
@@ -415,16 +416,32 @@ _write_lines_cachefile (LwDictionaryCache  *self,
     //Declarations
     gsize length = 0;
     gchar *path = NULL;
+    gchar *tmp_path = NULL;
     GMappedFile *mapped_file = NULL;
     gchar *contents = NULL;
+    GError *error = NULL;
+    gboolean has_error = FALSE;
+    LwCacheFile *cachefile = NULL;
 
     //Initializations
     path = lw_dictionarycache_build_path (self, "lines");
     length = lw_parseddictionary_get_serialized_length (lines);
 
-    path = lw_io_allocate_temporary_file (length, progress);
-    mapped_file = g_mapped_file_new (path, TRUE, &error);
+    tmp_path = lw_io_allocate_temporary_file (length, progress);
+    mapped_file = g_mapped_file_new (tmp_path, TRUE, &error);
+    if (error != NULL)
+    {
+      if (progress != NULL)
+      {
+        lw_progress_take_error (progress, error);
+        error = NULL;
+      }
+      g_clear_error (&error);
+      has_error = TRUE;
+      goto errored;
+    }
     contents = g_mapped_file_get_contents (mapped_file);
+    cachefile = lw_cachefile_new (path);
 
     lw_parseddictionary_serialize (lines, contents, length, progress);
     lw_cachefile_write (cachefile, CHECKSUM, contents, length, progress);
@@ -432,7 +449,10 @@ _write_lines_cachefile (LwDictionaryCache  *self,
 errored:
 
     g_free (path); path = NULL;
-    g_mapped_file_unref (mapped_file);
+    g_free (tmp_path); tmp_path = NULL;
+    g_mapped_file_unref (mapped_file); mapped_file = NULL;
+    contents = NULL;
+    lw_cachefile_unref (cachefile); cachefile = NULL;
 }
 
 
@@ -487,7 +507,7 @@ lw_dictionarycache_write (LwDictionaryCache          *self,
     //Parse the vanilla contents 
     lines = parse (temporary_mapped_contents, temporary_mapped_content_length, data);
 
-    _write_parsed_cachefile (self, CHECKSUM, temporary_mapped_content, progress);
+    _write_parsed_cachefile (self, CHECKSUM, temporary_mapped_contents, temporary_mapped_content_length, progress);
     _write_lines_cachefile (self, CHECKSUM, lines, progress);
 
 errored:

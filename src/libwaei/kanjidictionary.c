@@ -44,8 +44,8 @@
 
 G_DEFINE_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
 
-static LwResult* lw_kanjidictionary_parse (LwDictionary*, const gchar*);
-static gchar** lw_kanjidictionary_tokenize (gchar *buffer, gchar **tokens, gint *num_tokens);
+static LwParsedDictionary* lw_kanjidictionary_parse (LwKanjiDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+static gchar** lw_kanjidictionary_tokenize_line (LwKanjiDictionary  *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 
 
 LwDictionary* lw_kanjidictionary_new (const gchar        *FILENAME, 
@@ -84,7 +84,7 @@ lw_kanjidictionary_constructed (GObject *object)
     dictionary = LW_DICTIONARY (object);
     priv = dictionary->priv;
 
-    if (strcmp(priv->config.filename, "Kanji") == 0)
+    if (strcmp(priv->data.filename, "Kanji") == 0)
     {
       if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
       priv->data.name = g_strdup (gettext("Kanji"));
@@ -113,8 +113,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
     object_class->constructed = lw_kanjidictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse = lw_kanjidictionary_parse;
-    dictionary_class->priv->tokenize = lw_kanjidictionary_tokenize;
+    dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_kanjidictionary_parse;
 }
 
 
@@ -126,9 +125,10 @@ _is_stroke_number (const gchar *c)
 
 
 static gchar**
-lw_kanjidictionary_tokenize (gchar  *buffer,
-                             gchar **tokens,
-                             gint   *num_tokens)
+lw_kanjidictionary_tokenize_line (LwKanjiDictionary  *self,
+                                  gchar              *buffer,
+                                  gchar             **tokens,
+                                  gsize              *num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (buffer != NULL, NULL);
@@ -191,52 +191,91 @@ errored:
 }
 
 
+static gboolean
+_is_unicode_symbol (gchar const *TEXT)
+{
+    return FALSE;
+}
 
-//!
-//! @brief, Retrieve a line from FILE, parse it according to the LwKanjiDictionary rules and put the results into the LwResult
-//!
-static LwResult*
-lw_kanjidictionary_parse (LwDictionary       *dictionary, 
-                          const gchar        *TEXT)
+static gboolean
+_is_stroke_count (gchar const *TEXT)
+{
+    return FALSE;
+}
+
+
+static gboolean
+_is_grade_level (gchar const *TEXT)
+{
+    return FALSE;
+}
+
+
+static gboolean
+_is_jlpt_level (gchar const *TEXT)
+{
+    return FALSE;
+}
+
+
+static gboolean
+_is_usage_frequency (gchar const *TEXT)
+{
+    return FALSE;
+}
+
+static gboolean
+_is_kun_reading (gchar const *TEXT)
+{
+    return FALSE;
+}
+
+static gboolean
+_is_on_reading (gchar const *TEXT)
+{
+    return FALSE;
+}
+
+
+
+static void
+lw_kanjidictionary_load_line_tokens (LwKanjiDictionary  *self,
+                                     gchar              *buffer,
+                                     gchar             **tokens,
+                                     gint                num_tokens,
+                                     LwDictionaryLine   *line)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
-    if (TEXT == NULL) return NULL;
+    g_return_if_fail (LW_IS_KANJIDICTIONARY (self));
+    g_return_if_fail (buffer != NULL);
+    g_return_if_fail (tokens != NULL);
+    g_return_if_fail (num_tokens > 0);
+    g_return_if_fail (line != NULL);
 
     //Declarations
-    LwResult *result = NULL;
-    gchar **tokens = NULL;
-    gint length = -1;
-    LwResultBuffer kanji = {0};
-    LwResultBuffer unicode_symbol = {0};
-    LwResultBuffer usage_frequency = {0};
-    LwResultBuffer stroke_count = {0};
-    LwResultBuffer grade_level = {0};
-    LwResultBuffer jlpt_level = {0};
-    LwResultBuffer kun_readings = {0};
-    LwResultBuffer on_readings = {0};
-    LwResultBuffer meanings = {0};
-
-/*TODO
+    GArray *kanji = NULL;
+    GArray *unicode_symbol = NULL;
+    GArray *usage_frequency = NULL;
+    GArray *stroke_count = NULL;
+    GArray *grade_level = NULL;
+    GArray *jlpt_level = NULL;
+    GArray *kun_readings = NULL;
+    GArray *on_readings = NULL;
+    GArray *meanings = NULL;
 
     //Initializations
-    result = lw_result_new (TEXT);
-    if (result == NULL) goto errored;
-    tokens = _tokenize (result,  &length);
-    if (tokens == NULL) goto errored;
-
-    lw_result_init_buffer (result, &kanji);
-    lw_result_init_buffer (result, &unicode_symbol);
-    lw_result_init_buffer (result, &usage_frequency);
-    lw_result_init_buffer (result, &stroke_count);
-    lw_result_init_buffer (result, &grade_level);
-    lw_result_init_buffer (result, &jlpt_level);
-    lw_result_init_buffer (result, &kun_readings);
-    lw_result_init_buffer (result, &on_readings);
-    lw_result_init_buffer (result, &meanings);
+    kanji = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    unicode_symbol = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    usage_frequency = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    stroke_count = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    grade_level = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    jlpt_level = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    kun_readings = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    on_readings = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    meanings = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
 
     { //Calculate the meanings now to make things easier on the forward iteration...
-      gint i = length - 1;
+      gint i = num_tokens - 1;
 
       //An example line
       //逢 3029 U9022 B162 G9 S10  Yfeng2 Wbong ホウ あ.う T1 おう {meeting}  
@@ -248,11 +287,11 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
         GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (script == G_UNICODE_SCRIPT_KATAKANA || script == G_UNICODE_SCRIPT_HIRAGANA) break;
 
-        if (tokens[i] != NULL) lw_resultbuffer_add (&meanings, tokens[i]);
+        if (tokens[i] != NULL) g_array_append_val (meanings, tokens[i]);
         i--;
       } while (i > 0);
       
-      length = i + 1;
+      num_tokens = i + 1;
     }
 
     {
@@ -264,12 +303,12 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
       //^
       //HERE
 
-      if (tokens[i] != NULL && i < length) 
+      if (tokens[i] != NULL && i < num_tokens) 
       {
         GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (script == G_UNICODE_SCRIPT_HAN)
         {
-          lw_resultbuffer_add (&kanji, tokens[i]);
+          g_array_append_val (kanji, tokens[i]);
           i++;
         }
       }
@@ -279,30 +318,30 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
       //   ^                                    ^
       //   HERE                                 END
 
-      while (tokens[i] != NULL && i < length) 
+      while (tokens[i] != NULL && i < num_tokens) 
       {
         GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (script == G_UNICODE_SCRIPT_KATAKANA || script == G_UNICODE_SCRIPT_HIRAGANA) break;
 
         if (_is_unicode_symbol (tokens[i]))
         {
-          lw_resultbuffer_add (&unicode_symbol, tokens[i]);
+          g_array_append_val (unicode_symbol, tokens[i]);
         }
         else if (_is_usage_frequency (tokens[i]))
         {
-          lw_resultbuffer_add (&usage_frequency, tokens[i]);
+          g_array_append_val (usage_frequency, tokens[i]);
         }
-        else if (_is_stroke_number (tokens[i]))
+        else if (_is_stroke_count (tokens[i]))
         {
-          lw_resultbuffer_add (&stroke_number, tokens[i]);
+          g_array_append_val (stroke_count, tokens[i]);
         }
-        else if (_is_grade_number (tokens))
+        else if (_is_grade_level (tokens[i]))
         {
-          lw_resultbuffer_add (&grade_number, tokens[i]);
+          g_array_append_val (grade_level, tokens[i]);
         }
-        else if (_is_jlpt_level (tokens))
+        else if (_is_jlpt_level (tokens[i]))
         {
-          lw_resultbuffer_add (&jlpt_level, tokens[i]);
+          g_array_append_val (jlpt_level, tokens[i]);
         }
 
         i++;
@@ -313,18 +352,18 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
       //                                        ^          ^
       //                                        HERE       END
 
-      while (tokens[i] != NULL && i < length) 
+      while (tokens[i] != NULL && i < num_tokens) 
       {
         GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (script != G_UNICODE_SCRIPT_KATAKANA && script != G_UNICODE_SCRIPT_HIRAGANA) break;
 
         if (_is_kun_reading (tokens[i]))
         {
-          lw_resultbuffer_add (&kun_reading, c);
+          g_array_append_val (kun_readings, tokens[i]);
         }
         else if (_is_on_reading (tokens[i]))
         {
-          lw_resultbuffer_add (&on_reading, c);
+          g_array_append_val (on_readings, tokens[i]);
         }
 
 
@@ -333,29 +372,138 @@ lw_kanjidictionary_parse (LwDictionary       *dictionary,
 
     }
 
-    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_KANJI, &kanji);
-    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_UNICODE_SYMBOL, &unicode_symbol);
-    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_USAGE_FREQUENCY, &usage_frequency);
-    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_STROKE_COUNT, &stroke_count);
-    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_GRADE_LEVEL, &grade_level);
-    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_JLPT_LEVEL, &jlpt_level);
-    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_KUN_READINGS, &kun_readings);
-    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_ON_READINGS, &on_readings);
-    lw_result_take_buffer (result, LW_KANJIDICTIONARY_KEY_MEANINGS, &meanings);
+errored:
+
+    g_array_set_size (kanji, kanji->len);
+    g_array_set_size (unicode_symbol, unicode_symbol->len);
+    g_array_set_size (usage_frequency, usage_frequency->len);
+    g_array_set_size (stroke_count, stroke_count->len);
+    g_array_set_size (grade_level, grade_level->len);
+    g_array_set_size (jlpt_level, jlpt_level->len);
+    g_array_set_size (kun_readings, kun_readings->len);
+    g_array_set_size (on_readings, on_readings->len);
+    g_array_set_size (meanings, meanings->len);
+
+    lw_dictionaryline_take_strv (
+      line,
+      LW_KANJIDICTIONARYTOKENID_KANJI,
+      (gchar**) g_array_free (kanji, FALSE)
+    );
+    lw_dictionaryline_take_strv (
+      line,
+      LW_KANJIDICTIONARYTOKENID_UNICODE_SYMBOL, 
+      (gchar**) g_array_free (unicode_symbol, FALSE)
+    );
+    lw_dictionaryline_take_strv (
+      line,
+      LW_KANJIDICTIONARYTOKENID_USAGE_FREQUENCY,
+      (gchar**) g_array_free (usage_frequency, FALSE)
+    );
+    lw_dictionaryline_take_strv (
+      line,
+      LW_KANJIDICTIONARYTOKENID_STROKE_COUNT,
+      (gchar**) g_array_free (stroke_count, FALSE)
+    );
+    lw_dictionaryline_take_strv (
+      line,
+      LW_KANJIDICTIONARYTOKENID_GRADE_LEVEL,
+      (gchar**) g_array_free (grade_level, FALSE)
+    );
+    lw_dictionaryline_take_strv (
+      line,
+      LW_KANJIDICTIONARYTOKENID_JLPT_LEVEL,
+      (gchar**) g_array_free (jlpt_level, FALSE)
+    );
+    lw_dictionaryline_take_strv (
+      line,
+      LW_KANJIDICTIONARYTOKENID_KUN_READINGS,
+      (gchar**) g_array_free (kun_readings, FALSE)
+    );
+    lw_dictionaryline_take_strv (
+      line,
+      LW_KANJIDICTIONARYTOKENID_ON_READINGS, 
+      (gchar**) g_array_free (on_readings, FALSE)
+    );
+    lw_dictionaryline_take_strv (
+      line,
+      LW_KANJIDICTIONARYTOKENID_MEANINGS,
+      (gchar**) g_array_free (meanings, FALSE)
+    );
+}
+
+
+//!
+//! @brief, Retrieve a line from FILE, parse it according to the LwKanjiDictionary rules and put the results into the LwResult
+//!
+static LwParsedDictionary*
+lw_kanjidictionary_parse (LwKanjiDictionary *self,
+                          gchar             *contents,
+                          gsize              content_length,
+                          LwProgress        *progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_KANJIDICTIONARY (self), NULL);
+    g_return_val_if_fail (contents != NULL, NULL);
+
+    //Declarations
+    gint num_lines = 0;
+    gchar **tokens = NULL;
+    gsize max_line_length = 0;
+    gsize num_tokens = 0;
+    gint length = -1;
+    LwParsedDictionary *lines = NULL;
+
+    //Initializations
+    if (content_length < 1) content_length = strlen(contents);
+    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
+    if (num_lines < 1) goto errored;
+    if (max_line_length < 1) goto errored;
+    lines = lw_parseddictionary_new (num_lines);
+    if (lines == NULL) goto errored;
+    tokens = g_new0 (gchar*, max_line_length + 1);
+    if (tokens == NULL) goto errored;
+
+    if (progress != NULL)
+    {
+      lw_progress_set_secondary_message (progress, "Parsing...");
+      lw_progress_set_completed (progress, FALSE);
+      lw_progress_set_total (progress, content_length);
+      lw_progress_set_current (progress, 0);
+    }
+
+    {
+      gchar *c = contents;
+      gchar *e = contents + content_length;
+      gint i = 0;
+      LwDictionaryLine *line = NULL;
+      while (c < e)
+      {
+        while (c < e && *c == '\0') c = g_utf8_next_char (c);
+        if (c >= e) break;
+
+        line = lw_parseddictionary_get_line (lines, i);
+        lw_kanjidictionary_tokenize_line (self, c, tokens, &num_tokens);
+        lw_kanjidictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
+        if (progress != NULL)
+        {
+          lw_progress_set_current (progress, c - contents);
+        }
+        i++;
+        while (c < e && *c != '\0') c = g_utf8_next_char (c);
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, content_length);
+      lw_progress_set_completed (progress, TRUE);
+    }
 
 errored:
 
-    lw_resultbuffer_clear (&kanji, TRUE);
-    lw_resultbuffer_clear (&unicode_symbol, TRUE);
-    lw_resultbuffer_clear (&usage_frequency, TRUE);
-    lw_resultbuffer_clear (&stroke_count, TRUE);
-    lw_resultbuffer_clear (&grade_level, TRUE);
-    lw_resultbuffer_clear (&jlpt_level, TRUE);
-    lw_resultbuffer_clear (&kun_readings, TRUE);
-    lw_resultbuffer_clear (&on_readings, TRUE);
-    lw_resultbuffer_clear (&meanings, TRUE);
-*/
-    return result;
+    g_free (tokens); tokens = NULL;
+    if (lines != NULL) lw_parseddictionary_unref (lines); lines = NULL;
+
 }
 
 

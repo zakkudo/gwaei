@@ -30,7 +30,7 @@ gboolean lw_io_gunzip_file (const gchar *SOURCE_PATH, const gchar *TARGET_PATH, 
 
 gsize lw_io_get_pagesize (void);
 
-void lw_io_allocate_file (FILE *stream, gsize byte_length, LwProgress *progress);
+gchar* lw_io_allocate_temporary_file (gsize bytes_length, LwProgress  *progress);
 
 G_END_DECLS
 

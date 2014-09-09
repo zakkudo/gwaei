@@ -763,19 +763,76 @@ lw_io_get_file_size (const char *PATH)
 }
 
 
-void
-lw_io_allocate_file (FILE       *stream,
-                     gsize       byte_length,
-                     LwProgress *progress)
+gchar*
+lw_io_allocate_temporary_file (gsize        bytes_length,
+                               LwProgress  *progress)
 {
-    TODO
+    //Sanity checks
+    g_return_val_if_fail (tmpl != NULL, NULL);
+
+    //Initializations
+    gchar *tmpl = NULL;
+    gchar *path = NULL;
+    gsize page_size = 0;
+    gint fd = -1;
+    gchar *buffer = NULL;
+    gboolean has_error = FALSE;
+
+    //Declarations
+    tmpl = g_strdup ("gwaei.XXXXXX");
+    page_size = lw_io_get_pagesize ();
+    if (page_size == 0) goto errored;
+    path = g_build_path (g_get_tmp_dir (), tmpl, NULL);
+    if (path == NULL) goto errored;
+    fd = g_mkstemp (tmpl);
+    if (fd < 0) goto errored;
+    stream = fdopen (fd, "w+");
+    if (stream == NULL) goto errored;
+    fd = -1;
+    buffer = g_new0 (gchar, page_size);
+    if (buffer == NULL) goto errored;
+
+    {
+      gsize bytes_written = 0;
+      gsize bytes_to_write = 0;
+      while (bytes_length > 0)
+      {
+        bytes_to_write = (bytes_length > page_size) ? page_size : bytes_length;
+        if (bytes_written != page_size && ferror(stream) != 0)
+        {
+          if (progress != NULL)
+          {
+            lw_progress_take_error (progress, lw_error_new (
+              G_FILE_ERROR,
+              g_file_error_from_errno (ferror(stream)),
+              "There was an error allocating the temporary file\n"
+            ));
+          }
+          has_error = TRUE;
+          goto errored;
+        }
+        bytes_length -= bytes_to_write;
+      }
+    }
+
+errored:
+
+    if (has_error && path != NULL)
+    {
+      g_remove (path);
+      g_free (path);
+      path = NULL;
+    }
+
+    g_free (tmpl); tmpl = NULL;
+
+    fclose(stream); stream = NULL;
+
+    return path;
 }
 
-gchar*
-lw_io_allocate_temporary_file (gsize       bytes_length,
-                               LwProgress *progress)
-{
-    TODO
+
+        
 }
                                 
 
