@@ -12,6 +12,11 @@ G_BEGIN_DECLS
 #define LW_SEARCHSTATUSNAME_FINISHING "Finishing"
 #define LW_SEARCHSTATUSNAME_CANCELING "Canceling"
 
+#define LW_SEARCHSTATUSNICK_IDLE "idle"
+#define LW_SEARCHSTATUSNICK_SEARCHING "searching"
+#define LW_SEARCHSTATUSNICK_FINISHING "finishing"
+#define LW_SEARCHSTATUSNICK_CANCELING "canceling"
+
 //!
 //! @brief Search status types
 //!
@@ -31,6 +36,14 @@ GType lw_searchstatus_get_type (void);
 #define LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA "Romaji to Furigana"
 #define LW_SEARCHFLAGNAME_USE_INDEX "Use Index"
 #define LW_SEARCHFLAGNAME_INSENSITIVE "Insensitive"
+
+#define LW_SEARCHFLAGNICK_RAW "raw"
+#define LW_SEARCHFLAGNICK_FURIGANA_INSENSITIVE "furigana-insensitive"
+#define LW_SEARCHFLAGNICK_CASE_INSENSITIVE "case-insensitive"
+#define LW_SEARCHFLAGNICK_STEM_INSENSITIVE "stem-insensitive"
+#define LW_SEARCHFLAGNICK_ROMAJI_TO_FURIGANA "romaji-to furigana"
+#define LW_SEARCHFLAGNICK_USE_INDEX "use-index"
+#define LW_SEARCHFLAGNICK_INSENSITIVE "insensitive"
 
 typedef enum {
   LW_SEARCHFLAG_RAW = (1 << 0),

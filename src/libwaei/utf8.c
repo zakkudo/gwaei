@@ -39,6 +39,13 @@
 #include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
 
+GQuark
+lw_utf8_error_quark ()
+{
+    return g_quark_from_static_string ("lw-utf8-error");
+}
+
+
 gchar*
 lw_utf8_set_null_next_char (gchar *TEXT)
 {
@@ -104,15 +111,15 @@ lw_utf8flag_get_type ()
 
   if (G_UNLIKELY (type == 0))
   {
-    GEnumValue values = {
+    static GFlagsValue const values[] = {
       { LW_UTF8FLAG_NONE, LW_UTF8FLAGNAME_NONE, LW_UTF8FLAGNICK_NONE },
       { LW_UTF8FLAG_PRINTABLE, LW_UTF8FLAGNAME_PRINTABLE, LW_UTF8FLAGNICK_PRINTABLE },
       { LW_UTF8FLAG_COMPARABLE, LW_UTF8FLAGNAME_COMPARABLE, LW_UTF8FLAGNICK_COMPARABLE },
-      { LW_UTF8FLAG_CASE_FOLD, LW_UTF8FLAGNAME_CASE_FOLD, LW_UTF8FLAGNICK_CASE_FOLD },
-      { LW_UTF8FLAG_FURIGANA_FOLD, LW_UTF8FLAGNAME_FURIGANA_FOLD, LW_UTF8FLAGNICK_FURIGANA_FOLD },
+      { LW_UTF8FLAG_CASEFOLD, LW_UTF8FLAGNAME_CASEFOLD, LW_UTF8FLAGNICK_CASEFOLD },
+      { LW_UTF8FLAG_FURIGANAFOLD, LW_UTF8FLAGNAME_FURIGANAFOLD, LW_UTF8FLAGNICK_FURIGANAFOLD },
       { LW_UTF8FLAG_ALL, LW_UTF8FLAGNAME_ALL, LW_UTF8FLAGNICK_ALL },
       { 0, NULL, NULL },
-    }
+    };
 
     type = g_flags_register_static ("LwUtf8Flag", values);
   }
@@ -126,7 +133,7 @@ lw_utf8flag_clean (LwUtf8Flag flags)
 {
     if (LW_UTF8FLAG_COMPARABLE & flags)
     {
-      flags &= (~LW_UTF8FLAG);
+      flags &= (~LW_UTF8FLAG_PRINTABLE);
     }
 
     flags &= LW_UTF8FLAG_ALL;
@@ -145,24 +152,26 @@ lw_utf8_validate (const gchar *TEXT,
 
     //Declarations
     gint page_size = 0;
+    gint chunk = 0;
     gint i = 0;
     gunichar c = 0;
     const gchar *p = 0;
     gboolean is_valid = FALSE;
+    gsize offset = 0;
 
     //Initializations
     page_size = lw_io_get_pagesize ();
-    if (page_size == NULL) goto errored;
+    if (page_size < 1) goto errored;
     p = TEXT;
     if (p == NULL) goto errored;
     is_valid = TRUE;
 
     if (progress != NULL)
     {
-      lw_progress_set_secondary_message (progress, "%s...", gettext("Validating"));
+      lw_progress_set_secondary_message_printf (progress, "%s...", gettext("Validating"));
       lw_progress_set_total (progress, length);
       lw_progress_set_current (progress, 0);
-      lw_progress_set_complete (progress, FALSE);
+      lw_progress_set_completed (progress, FALSE);
     }
 
     while (*p != '\0' && i < length)
@@ -173,8 +182,8 @@ lw_utf8_validate (const gchar *TEXT,
       {
         if (progress != NULL)
         {
-          lw_progress_take_error (progress, g_error_new ((
-            LW_UTF8_VALIDATION_ERROR,
+          lw_progress_take_error (progress, g_error_new (
+            LW_UTF8_ERROR,
             LW_UTF8_ERRORCODE_INVALID_CHARACTER,
             "Invalid utf8 character at offset %d",
             offset
@@ -195,10 +204,12 @@ lw_utf8_validate (const gchar *TEXT,
       }
     }
 
+errored:
+
     if (progress != NULL)
     {
       lw_progress_set_current (progress, length);
-      lw_progress_set_complete (progress, TRUE);
+      lw_progress_set_completed (progress, TRUE);
     }
 
     return is_valid;
@@ -255,24 +266,23 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
                          gssize        max_length)
 {
     //Sanity checks
-    if (TEXT == NULL) return NULL;
+    if (TEXT == NULL) return 0;
 
     //Declarations
     const gchar *e = TEXT;
-    const ghcar *p = NULL;
+    const gchar *p = NULL;
     gint bytes_read = 0;
 
     while (*e != '\0' && bytes_read <= max_length)
     {
       p = e;
       e = g_utf8_next_char (e);
-      bytes_read = e - TEXT
+      bytes_read = e - TEXT;
     }
     if (p != NULL) e = p;
 
-    normalized = lw_utf8_normalize (TEXT, bytes_read, flags);
 
-    *output_chunk = normalized;
+    *output_chunk = lw_utf8_normalize (TEXT, bytes_read, flags);
 
     return e - TEXT;
 }
@@ -436,6 +446,7 @@ lw_utf8_casefold (gchar      *TEXT,
     //Declarations
     gint page_size = 0;
     gint chunk = 0;
+    gchar * c = NULL;
     
     //Initializations
     c = TEXT;
@@ -449,16 +460,16 @@ lw_utf8_casefold (gchar      *TEXT,
 
     if (progress != NULL)
     {
-      lw_progress_set_secondary_message (progress, "%s...", gettext("Folding case"));
+      lw_progress_set_secondary_message_printf (progress, "%s...", gettext("Folding case"));
       lw_progress_set_total (progress, length);
-      lw_progress_set_complete (progress, FALSE);
+      lw_progress_set_completed (progress, FALSE);
       lw_progress_set_current (progress, 0);
     }
 
     {
       gint i = 0;
       while (*c != '\0' && i < length) {
-        c = _casefold_character (c, conversions);
+        c = _casefold_character (c);
         i = c - TEXT;
         if (G_UNLIKELY(chunk++ >= page_size))
         {
@@ -471,7 +482,7 @@ lw_utf8_casefold (gchar      *TEXT,
     if (progress != NULL)
     {
       lw_progress_set_current (progress, length);
-      lw_progress_set_complete (progress, TRUE);
+      lw_progress_set_completed (progress, TRUE);
     }
 
 errored:
@@ -519,6 +530,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
     GHashTable *conversions = NULL;
     gint page_size = 0;
     gint chunk = 0;
+    gchar * c = NULL;
     
     //Initializations
     c = TEXT;
@@ -534,9 +546,9 @@ lw_utf8_furiganafold (gchar      *TEXT,
 
     if (progress != NULL)
     {
-      lw_progress_set_secondary_message (progress, "%s...", gettext("Folding furigana"));
+      lw_progress_set_secondary_message_printf (progress, "%s...", gettext("Folding furigana"));
       lw_progress_set_total (progress, length);
-      lw_progress_set_complete (progress, FALSE);
+      lw_progress_set_completed (progress, FALSE);
       lw_progress_set_current (progress, 0);
     }
 
@@ -556,7 +568,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
     if (progress != NULL)
     {
       lw_progress_set_current (progress, length);
-      lw_progress_set_complete (progress, TRUE);
+      lw_progress_set_completed (progress, TRUE);
     }
 
 errored:
@@ -592,7 +604,7 @@ lw_utf8_sanitize (gchar *buffer)
 
     //Validate the string as proper utf8
     if (!g_utf8_validate (buffer, -1, &end)) *((gchar*)end) = '\0'; 
-USE lw_utf8_validate() 
+
     //Clear unprintable characters
     for (ptr = buffer; *ptr != '\0'; ptr = g_utf8_next_char (ptr))
     {
@@ -1667,8 +1679,8 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
     {
       if (lw_progress_get_secondary_message (progress) == NULL)
       {
-        lw_progress_set_secondary_message (progress, "Delimiting lines...");
-        lw_progress_set_complete (progress, FALSE);
+        lw_progress_set_secondary_message_printf (progress, "Delimiting lines...");
+        lw_progress_set_completed (progress, FALSE);
         lw_progress_set_total (progress, content_length);
         lw_progress_set_current (progress, 0);
       }
@@ -1691,7 +1703,7 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
           if (max_line_length != NULL)
           {
             gsize content_length = c - p;
-            if (content_length > max_line_length) *max_line_length = content_length;
+            if (content_length > *max_line_length) *max_line_length = content_length;
           }
           n = lw_utf8_set_null_next_char (c);
           chunk += n - c;
@@ -1715,7 +1727,7 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
     if (progress != NULL)
     {
       lw_progress_set_current, (progress, content_length);
-      lw_progress_set_complete (progress, TRUE);
+      lw_progress_set_completed (progress, TRUE);
     }
 
     return num_lines;
@@ -1831,7 +1843,6 @@ gchar**
 lw_utf8_split_lines (gchar *buffer, gint *num_lines)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
     if (buffer == NULL) return 0;
 
     //Declarations

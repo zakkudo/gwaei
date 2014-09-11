@@ -1613,7 +1613,7 @@ lw_vocabulary_load_from_string (LwVocabulary       *self,
       contents = g_strndup (TEXT, end - TEXT);
     if (contents == NULL || *contents == '\0') goto errored;
 
-    length = lw_utf8_replace_linebreaks_with_nullcharacter (contents);
+    length = lw_utf8_replace_linebreaks_with_nullcharacter (contents, -1, NULL, NULL);
     if (length == 0) goto errored;
 
     {
@@ -1782,13 +1782,13 @@ lw_vocabulary_set_valist (LwVocabulary *self,
     while (TRUE) 
     {
       LwWordField field = va_arg(va, LwWordField);
-      if (field < 0 || field >= TOTAL_LW_WORD_FIELDS) goto errored;
+      if (field < 0 || field >= TOTAL_LW_WORDFIELDS) goto errored;
       gchar *value = va_arg(va, gchar*);
       if (value == NULL) goto errored;
 
       switch (field)
       {
-        case LW_WORD_FIELD_KANJI:
+        case LW_WORDFIELD_KANJI:
           current_value = lw_word_get_kanji (word);
           if (g_strcmp0 (current_value, value) != 0) 
           {
@@ -1796,7 +1796,7 @@ lw_vocabulary_set_valist (LwVocabulary *self,
             changed = TRUE;
           }
           break;
-        case LW_WORD_FIELD_READING:
+        case LW_WORDFIELD_READING:
           current_value = lw_word_get_reading (word);
           if (g_strcmp0 (current_value, value) != 0)
           {
@@ -1804,7 +1804,7 @@ lw_vocabulary_set_valist (LwVocabulary *self,
             changed = TRUE;
           }
           break;
-        case LW_WORD_FIELD_DEFINITION:
+        case LW_WORDFIELD_DEFINITION:
           current_value = lw_word_get_definition (word);
           if (g_strcmp0 (current_value, value) != 0)
           {

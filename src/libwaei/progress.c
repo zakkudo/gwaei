@@ -754,7 +754,7 @@ lw_progress_set_error (LwProgress *self,
       error = g_error_copy (_error);
     }
 
-    lw_progress_take_error (self, &error);
+    lw_progress_take_error (self, error);
 }
 
 
@@ -1199,19 +1199,4 @@ lw_progress_get_step_message (LwProgress *self)
     return step_message;
 }
 
-
-void
-lw_progress_clear (LwProgress *self)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
-
-    //Declarations
-    LwProgressPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-  TODO
-}
 

@@ -38,18 +38,15 @@
 
 
 gint
-_compare (gpointer a, gpointer b)
+_compare (gconstpointer a, gconstpointer b)
 {
     return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
 }
 
 
 void
-lw_dictionaryline_take_strv (LwDictionaryLine *self,
-                             gint              id,
-                             gchar            *strv)
+lw_dictionaryline_init (LwDictionaryLine *self)
 {
-  fix this
     //Sanity checks
     g_return_if_fail (self != NULL);
 
@@ -57,14 +54,43 @@ lw_dictionaryline_take_strv (LwDictionaryLine *self,
     {
       self->tree = g_tree_new (_compare);
     }
+}
 
-    if (buffer == NULL)
+
+void
+lw_dictionaryline_clear (LwDictionaryLine *self)
+{
+    //Sanity checks
+    if (self == NULL) return;
+
+    //Declarations 
+    GTree *tree = NULL;
+
+    //Initializations
+    tree = self->tree;
+    self->tree = NULL;
+
+    if (tree != NULL) g_tree_unref (tree);
+    tree = NULL;
+}
+
+
+void
+lw_dictionaryline_take_strv (LwDictionaryLine  *self,
+                             gint               id,
+                             gchar            **strv)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (id >= 0);
+
+    if (strv == NULL)
     {
-      g_tree_remove (self->data, GINT_TO_POINTER (id));
+      g_tree_remove (self->tree, GINT_TO_POINTER (id));
     }
     else
     {
-      g_tree_insert (self->data, GINT_TO_POINTER (id), strv);
+      g_tree_insert (self->tree, GINT_TO_POINTER (id), strv);
     }
 }
 
@@ -81,12 +107,12 @@ lw_dictionaryline_get_strv (LwDictionaryLine *self,
       return NULL;
     }
 
-    return (g_tree_lookup (self->data, GINT_TO_POINTER (id)));
+    return (g_tree_lookup (self->tree, GINT_TO_POINTER (id)));
 }
 
 
 gsize
-lw_dictionaryline_get_serialization_length (LwDictionaryLine *self)
+lw_dictionaryline_get_serialized_length (LwDictionaryLine *self)
 {
     g_return_val_if_fail (self != NULL, 0);
 
@@ -94,14 +120,14 @@ lw_dictionaryline_get_serialization_length (LwDictionaryLine *self)
 }
                                             
 
-void
+gsize
 lw_dictionaryline_serialize (LwDictionaryLine *self,
-                             guchar           *preallocated_buffer,
+                             gchar            *preallocated_buffer,
                              gsize             buffer_length)
 {
   //Format
-  //[num_tokentypes (guchar)]  [tokentypeid (gchar)] [offsetbuffer (LwOffsetBuffer, lwoffset[])]... ]
-  return NULL;
+  //[num_tokentypes (gchar)]  [tokentypeid (gchar)] [offsetbuffer (LwOffsetBuffer, lwoffset[])]... ]
+  return 0;
 }
 
 

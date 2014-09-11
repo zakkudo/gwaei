@@ -8,6 +8,7 @@ G_BEGIN_DECLS
 struct _LwParsedDictionary {
   gsize num_lines;
   LwDictionaryLine *lines;
+  gint ref_count;
 };
 
 typedef struct _LwParsedDictionary LwParsedDictionary;
@@ -26,7 +27,7 @@ LwDictionaryLine* lw_parseddictionary_get_line (LwParsedDictionary *self, gsize 
 gsize lw_parseddictionary_length (LwParsedDictionary *self);
 
 gsize lw_parseddictionary_get_serialized_length (LwParsedDictionary *self);
-void lw_parseddictionary_serialize (LwParsedDictionary *self, guchar *preallocated_buffer, gsize buffer_length, LwProgress *progress);
+gsize lw_parseddictionary_serialize (LwParsedDictionary *self, gchar *preallocated_buffer, gsize buffer_length, LwProgress *progress);
 
 
 G_END_DECLS

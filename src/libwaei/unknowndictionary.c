@@ -42,12 +42,10 @@
 #include <libwaei/dictionary-private.h>
 #include <libwaei/gettext.h>
 
-static LwResult* lw_unknowndictionary_parse (LwDictionary*, const gchar*);
-static gchar** lw_unknowndictionary_tokenize (gchar *buffer, gchar **tokens, gint *num_tokens);
-
 
 G_DEFINE_TYPE (LwUnknownDictionary, lw_unknowndictionary, LW_TYPE_DICTIONARY)
 
+static LwParsedDictionary* lw_unknowndictionary_parse (LwUnknownDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 
 LwDictionary* lw_unknowndictionary_new (const gchar        *FILENAME,
                                         LwMorphologyEngine *morphologyengine)
@@ -109,8 +107,7 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
     object_class->constructed = lw_unknowndictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse = lw_unknowndictionary_parse;
-    dictionary_class->priv->tokenize = lw_unknowndictionary_tokenize;
+    dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_unknowndictionary_parse;
 }
 
 
@@ -129,9 +126,10 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
  * Returns: The end of the filled token array
  */
 static gchar**
-lw_unknowndictionary_tokenize (gchar   *buffer,
-                                gchar **tokens,
-                                gint   *num_tokens)
+lw_unknowndictionary_tokenize_line (LwUnknownDictionary  *self,
+                                    gchar                *buffer,
+                                    gchar               **tokens,
+                                    gsize                *num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (buffer != NULL, NULL);
@@ -157,39 +155,118 @@ lw_unknowndictionary_tokenize (gchar   *buffer,
 }
 
 
+static void
+lw_unknowndictionary_load_line_tokens (LwUnknownDictionary  *self,
+                                       gchar                *buffer,
+                                       gchar               **tokens,
+                                       gint                  num_tokens,
+                                       LwDictionaryLine     *line)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_EXAMPLEDICTIONARY (self));
+    g_return_if_fail (buffer != NULL);
+    g_return_if_fail (tokens != NULL);
+    g_return_if_fail (num_tokens > 0);
+    g_return_if_fail (line != NULL);
+
+    //Declarations
+    GArray *unknown = NULL;
+
+    //Initializations
+    unknown = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), 1);
+
+    {
+      gint i = 0;
+
+      if (i < num_tokens)
+      {
+        g_array_append_val (unknown, tokens[i]);
+      }
+    }
+
+errored:
+
+    g_array_set_size (unknown, unknown->len);
+
+    lw_dictionaryline_take_strv (
+      line,
+      LW_UNKNOWNDICTIONARYTOKENID_UNKNOWN,
+      (gchar**) g_array_free (unknown, FALSE)
+    );
+}
+
+
 //!
 //! @brief Parses a string for an unknown format string
 //! @param rl The Resultline object this method works on
 //!
-static LwResult*
-lw_unknowndictionary_parse (LwDictionary       *dictionary, 
-                            const gchar        *TEXT)
+static LwParsedDictionary*
+lw_unknowndictionary_parse (LwUnknownDictionary *self,
+                            gchar               *contents,
+                            gsize                content_length,
+                            LwProgress          *progress)
 {
     //Sanity checks
-    g_return_val_if_fail (dictionary != NULL, NULL);
-    if (TEXT == NULL) return NULL;
+    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), NULL);
+    g_return_val_if_fail (contents != NULL, NULL);
 
     //Declarations
-    LwResult *result = NULL;
-    gchar *c = NULL;
-    LwResultBuffer text = {0};
+    gint num_lines = 0;
+    gchar **tokens = NULL;
+    gsize max_line_length = 0;
+    gsize num_tokens = 0;
+    gint length = -1;
+    LwParsedDictionary *lines = NULL;
 
     //Initializations
-    result = lw_result_new (TEXT);
-    if (result == NULL) goto errored;
-    c = lw_result_get_innerbuffer (result);
-    if (c == NULL) goto errored;
+    if (content_length < 1) content_length = strlen(contents);
+    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
+    if (num_lines < 1) goto errored;
+    if (max_line_length < 1) goto errored;
+    lines = lw_parseddictionary_new (num_lines);
+    if (lines == NULL) goto errored;
+    tokens = g_new0 (gchar*, max_line_length + 1);
+    if (tokens == NULL) goto errored;
 
-    lw_result_init_buffer (result, &text);
+    if (progress != NULL)
+    {
+      lw_progress_set_secondary_message (progress, "Parsing...");
+      lw_progress_set_completed (progress, FALSE);
+      lw_progress_set_total (progress, content_length);
+      lw_progress_set_current (progress, 0);
+    }
 
-    lw_resultbuffer_add (&text, c);
+    {
+      gchar *c = contents;
+      gchar *e = contents + content_length;
+      gint i = 0;
+      LwDictionaryLine *line = NULL;
+      while (c < e)
+      {
+        while (c < e && *c == '\0') c = g_utf8_next_char (c);
+        if (c >= e) break;
 
-    lw_result_take_buffer (result, LW_UNKNOWNDICTIONARY_KEY_TEXT, &text);
+        line = lw_parseddictionary_get_line (lines, i);
+        lw_unknowndictionary_tokenize_line (self, c, tokens, &num_tokens);
+        lw_unknowndictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
+        if (progress != NULL)
+        {
+          lw_progress_set_current (progress, c - contents);
+        }
+        i++;
+        while (c < e && *c != '\0') c = g_utf8_next_char (c);
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, content_length);
+      lw_progress_set_completed (progress, TRUE);
+    }
 
 errored:
 
-    lw_resultbuffer_clear (&text, TRUE);
-
-    return result;
+    g_free (tokens); tokens = NULL;
+    if (lines != NULL) lw_parseddictionary_unref (lines); lines = NULL;
 }
 

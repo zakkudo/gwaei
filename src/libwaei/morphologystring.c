@@ -38,14 +38,14 @@
 
 
 LwMorphologyString*
-lw_morphologystring_new (const gchar      *TEXT,
-                         LwNormalizeFlags  flags)
+lw_morphologystring_new (const gchar *TEXT,
+                         LwUtf8Flag   flags)
 {
     if (TEXT == NULL) return NULL;
 
     //Declarations
     LwMorphologyString *self = NULL;
-
+/*
     //Initializations
     self = g_new0 (LwMorphologyString, 1);
 
@@ -54,7 +54,7 @@ lw_morphologystring_new (const gchar      *TEXT,
     self->normalized = lw_utf8_normalize (self->raw, flags);
     self->tokens = NULL;
     self->lookup = g_hash_table_new (g_str_hash, g_str_equal);
-
+*/
     return self;
 }
 
@@ -62,21 +62,22 @@ lw_morphologystring_new (const gchar      *TEXT,
 void
 lw_morphologystring_free (LwMorphologyString *self)
 {
+/*
     if (self == NULL) return;
 
     if (self->raw != NULL) g_free (self->raw);
     if (self->tokens != NULL) g_list_free_full (self->tokens, g_free);
     if (self->lookup != NULL) g_hash_table_unref (self->lookup);
-/*
     if (self->normalized) 
     if (self->stem)
     if (self->canonical)
     if (self->spellheck)
     if (self->explanation)
-*/
+
     memset(self, 0, sizeof(LwMorphologyString));
 
     g_free (self);
+*/
 }
 
 

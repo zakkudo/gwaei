@@ -4,6 +4,15 @@
 G_BEGIN_DECLS
 
 
+#define LW_UNKNOWNDICTIONARYTOKENNAME_UNKNOWN "Unknown"
+
+#define LW_UNKNOWNDICTIONARYTOKENNICK_UNKNOWN "unknown"
+
+typedef enum {
+  LW_UNKNOWNDICTIONARYTOKENID_UNKNOWN,
+  TOTAL_LW_UNKNOWNDICTIONARYTOKENIDS
+} LwUnknownDictionaryTokenId;
+
 //Boilerplate
 typedef struct _LwUnknownDictionary LwUnknownDictionary;
 typedef struct _LwUnknownDictionaryClass LwUnknownDictionaryClass;

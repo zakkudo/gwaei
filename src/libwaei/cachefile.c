@@ -32,22 +32,29 @@
 #include <stdlib.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
 
-
-struct _CacheFile {
-  GMappedFile *mapped_file;
-  FILE * stream;
-  gchar const * CHECKSUM;
-  gchar * CONTENTS;
-  gint ref_count;
-  gchar * path;
+GQuark
+lw_cachefile_error_quark ()
+{
+    return g_quark_from_static_string ("lw-cachefile-error");
 }
 
 
-void static _ensure_fopen (LwCachefile *self, GError **error);
+struct _LwCacheFile {
+  GMappedFile *mapped_file;
+  FILE * stream;
+  gchar const * CHECKSUM;
+  gchar * contents;
+  gsize length;
+  gint ref_count;
+  gchar * path;
+};
+
+static FILE* _ensure_fopen (LwCacheFile *self, GError **error);
 void static _ensure_fclose (LwCacheFile *self, GError **error);
 
 //Public Methods///////////////////////////////
@@ -56,13 +63,13 @@ LwCacheFile*
 lw_cachefile_new (const gchar *PATH)
 {
     //Sanity checks
-    g_return_val_if_fail (PATH != NULL, FALSE):
+    g_return_val_if_fail (PATH != NULL, FALSE);
 
     //Declarations
     LwCacheFile *self = NULL;
 
     self = g_new0 (LwCacheFile, 1);
-    self->filename = g_strdup (PATH);
+    self->path = g_strdup (PATH);
     self->ref_count = 1;
 
     return self;
@@ -74,9 +81,9 @@ lw_cachefile_clear (LwCacheFile *self)
 {
     if (self->mapped_file != NULL) g_mapped_file_unref (self->mapped_file);
     self->mapped_file = NULL;
-    if (self->stream != NULL) g_fclose (self->stream);
+    if (self->stream != NULL) fclose (self->stream);
     self->stream = NULL;
-    self->checksum = NULL;
+    self->CHECKSUM = NULL;
     self->contents = NULL;
 }
 
@@ -90,8 +97,8 @@ lw_cachefile_free (LwCacheFile *self)
     //Declarations
 
     if (self->mapped_file != NULL) g_mapped_file_unref (self->mapped_file);
-    _ensure_fclose (self, &error);
-    g_free (self->filename);
+    _ensure_fclose (self, NULL);
+    g_free (self->path);
 
     memset(self, 0, sizeof(LwCacheFile));
 
@@ -121,7 +128,7 @@ LwCacheFile*
 lw_cachefile_ref (LwCacheFile *self)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE):
+    g_return_val_if_fail (self != NULL, FALSE);
 
     g_atomic_int_inc (&self->ref_count);
 }
@@ -143,22 +150,22 @@ lw_cachefile_unref (LwCacheFile *self)
 const gchar*
 lw_cachefile_get_checksum (LwCacheFile *self)
 {
-    g_return_val_if_fail (self != NULL, FALSE):
+    g_return_val_if_fail (self != NULL, FALSE);
 
-    return self->checksum;
+    return self->CHECKSUM;
 }
 
 
 const gchar*
 lw_cachefile_get_contents (LwCacheFile *self)
 {
-  g_return_val_if_fail (self != NULL, FALSE):
+  g_return_val_if_fail (self != NULL, FALSE);
 
   return self->contents;
 }
 
 
-void
+gsize
 lw_cachefile_write (LwCacheFile *self,
                     const gchar *CHECKSUM,
                     const gchar *CONTENTS,
@@ -166,17 +173,18 @@ lw_cachefile_write (LwCacheFile *self,
                     LwProgress  *progress)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE):
-    g_return_if_fail (CHECKSUM != NULL);
-    g_return_if_fail (CONTENTS != NULL);
+    g_return_val_if_fail (self != NULL, 0);
+    g_return_val_if_fail (CHECKSUM != NULL, 0);
+    g_return_val_if_fail (CONTENTS != NULL, 0);
 
     //Declarations
     gboolean is_new_file = FALSE;
     FILE* stream = NULL;
+    gsize bytes_written = 0;
 
     //Initializations
     is_new_file = (self->stream == NULL);
-    stream = _ensure_fopen (self, &error);
+    stream = _ensure_fopen (self, NULL);
     if (self->stream == NULL) goto errored;
 
     if (is_new_file)
@@ -189,11 +197,11 @@ lw_cachefile_write (LwCacheFile *self,
       content_length = strlen (CONTENTS);
     }
 
-    lw_io_fwrite (stream, 1, content_length, CONTENTS, progress);
+    bytes_written = lw_io_fwrite (stream, CONTENTS, content_length, progress);
 
 errored:
 
-    return;
+    return bytes_written;
 }
 
 
@@ -210,13 +218,13 @@ lw_cachefile_validate (LwCacheFile *self,
     //Declarations
     gboolean is_valid = TRUE;
 
-    if (self->checksum == NULL || !lw_utf8_validate (self->checksum, -1, NULL))
+    if (self->CHECKSUM == NULL || !lw_utf8_validate (self->CHECKSUM, -1, NULL))
     {
       if (progress != NULL)
       {
         lw_progress_take_error (progress, g_error_new (
-          LW_CACHEFILE_ERROR
-          LW_CACHEFILE_ERRORCODE_CORRUPT_CHECKSUM,
+          LW_CACHEFILE_ERROR,
+          LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM,
           "The checksum of the cache file %s is corrupt. It should be valid utf8",
           self->path
         ));
@@ -225,11 +233,11 @@ lw_cachefile_validate (LwCacheFile *self,
       goto errored;
     }
 
-    if (g_strcmp0 (EXPECTED_CHECKSUM, self->checksum) != 0)
+    if (g_strcmp0 (EXPECTED_CHECKSUM, self->CHECKSUM) != 0)
     {
       if (progress != NULL)
       {
-        lw_progress_take_rror (progress, g_error_new (
+        lw_progress_take_error (progress, g_error_new (
           LW_CACHEFILE_ERROR,
           LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM,
           "The checksum for %s was different from exected\n",
@@ -260,7 +268,7 @@ lw_cachefile_validate (LwCacheFile *self,
       if (progress != NULL)
       {
         lw_progress_take_error (progress, g_error_new (
-          LW_CACHEFILE_ERROR
+          LW_CACHEFILE_ERROR,
           LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS,
           "The cache file %s is corrupt. It should be valid utf8.",
           self->path
@@ -286,7 +294,7 @@ lw_cachefile_read (LwCacheFile *self,
                    const gchar *EXPECTED_CHECKSUM,
                    LwProgress  *progress)
 {
-    g_return_val_if_fail (self != NULL, FALSE):
+    g_return_val_if_fail (self != NULL, FALSE);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, FALSE);
     if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
 
@@ -299,23 +307,21 @@ lw_cachefile_read (LwCacheFile *self,
     {
       if (progress != NULL && error != NULL)
       {
-        lw_progress_take_error (progress, &error);
+        lw_progress_take_error (progress, error);
+        error = NULL;
       }
-      else
-      {
-        g_clear_error (&error);
-      }
+      g_clear_error (&error);
       goto errored;
     }
 
-    self->length = g_mapped_file_get_length (self);
-    self->checksum = g_mapped_file_get_contents (self->mapped_file);
-    self->contents = self->checksum;
+    self->length = g_mapped_file_get_length (self->mapped_file);
+    self->contents = g_mapped_file_get_contents (self->mapped_file);
+    self->CHECKSUM = self->contents;
 
     {
       gint i = 0;
-      while (i < self->length && self->contents[i] != '\0') i++
-      if (self->contents[i] == '\0' && i < length)
+      while (i < self->length && self->contents[i] != '\0') i++;
+      if (self->contents[i] == '\0' && i < self->length)
       {
         self->contents = self->contents + i + 1;
       }
@@ -336,16 +342,16 @@ errored:
 //Private Methods/////////////////////////////
 
 
-void static
-_ensure_fopen (LwCachefile  *self,
+static FILE*
+_ensure_fopen (LwCacheFile  *self,
                GError      **error)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL);
+    g_return_val_if_fail (self != NULL, NULL);
 
     if (g_file_test (self->path, G_FILE_TEST_IS_REGULAR))
     {
-      g_chmod (self->path, "0644");
+      g_chmod (self->path, 0644);
     }
 
     if (self->stream == NULL)
@@ -356,7 +362,7 @@ _ensure_fopen (LwCachefile  *self,
         self->mapped_file = NULL;
         g_mapped_file_unref (f);
       }
-      self->stream = fopen(path, "w+");
+      self->stream = fopen(self->path, "w+");
     }
 
     return self->stream;
@@ -365,7 +371,7 @@ _ensure_fopen (LwCachefile  *self,
 
 void static
 _ensure_fclose (LwCacheFile  *self,
-                Gerror      **error)
+                GError      **error)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
@@ -378,7 +384,7 @@ _ensure_fclose (LwCacheFile  *self,
     }
     if (g_file_test (self->path, G_FILE_TEST_IS_REGULAR))
     {
-      g_chmod (self->path, "0444");
+      g_chmod (self->path, 0444);
     }
     if (self->mapped_file == NULL)
     {
@@ -391,7 +397,7 @@ gsize
 lw_cachefile_length (LwCacheFile *self)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL);
+    g_return_val_if_fail (self != NULL, 0);
 
     //Declarations
     GMappedFile *mapped_file = NULL;

@@ -329,9 +329,9 @@ errored:
 //! @brief Will analyze the sentence and return an array of non-trivial root form words
 //!
 LwMorphologyString*
-lw_morphologyengine_parse (LwMorphologyEngine   *self, 
-                           const gchar          *TEXT,
-                           LwNormalizationFlags  flags)
+lw_morphologyengine_parse (LwMorphologyEngine *self, 
+                           const gchar        *TEXT,
+                           LwUtf8Flag          flags)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);

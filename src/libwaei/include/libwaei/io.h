@@ -14,11 +14,13 @@ G_BEGIN_DECLS
 typedef enum {
   LW_IO_ERRORCODE_WRITE_ERROR,
   LW_IO_ERRORCODE_CORRUPT_ARCHIVE,
-  LW_IO_ERRORCODE_TEXT_ENCODING_CONVERSION_ERROR
+  LW_IO_ERRORCODE_TEXT_ENCODING_CONVERSION_ERROR,
+  LW_IO_ERRORCODE_DOWNLOAD_ERROR,
+  LW_IO_ERRORCODE_FAILED_REMOVING_FILE
 } LwIoErrorCode;
 
-void lw_io_fwrite (FILE *stream, const gchar *TEXT, gint length, LwProgress  *progress);
-void lw_io_write_file (const gchar *PATH, const gchar *MODE, const gchar *TEXT, gint length, LwProgress  *progress);
+gsize lw_io_fwrite (FILE *stream, const gchar *TEXT, gint length, LwProgress  *progress);
+gsize lw_io_write_file (const gchar *PATH, const gchar *MODE, const gchar *TEXT, gint length, LwProgress  *progress);
 
 gboolean lw_io_remove (const gchar *URI, LwProgress *progress);
 
@@ -31,6 +33,8 @@ gboolean lw_io_gunzip_file (const gchar *SOURCE_PATH, const gchar *TARGET_PATH, 
 gsize lw_io_get_pagesize (void);
 
 gchar* lw_io_allocate_temporary_file (gsize bytes_length, LwProgress  *progress);
+
+gsize lw_io_get_file_size (char const * PATH);
 
 G_END_DECLS
 

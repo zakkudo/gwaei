@@ -6,18 +6,25 @@
 
 G_BEGIN_DECLS
 
+#define LW_UTF8_ERROR lw_utf8_error_quark ()
+
+typedef enum {
+  LW_UTF8_ERRORCODE_INVALID_CHARACTER,
+  LW_UTF8_ERRORCODE_VALIDATION_ERROR_
+} LwUtf8ErrorCode;
+
 #define LW_UTF8FLAGNAME_NONE "None"
 #define LW_UTF8FLAGNAME_PRINTABLE "Printable"
 #define LW_UTF8FLAGNAME_COMPARABLE "Comparable"
-#define LW_UTF8FLAGNAME_CASE_FOLD "Case Fold"
-#define LW_UTF8FLAGNAME_FURIGANA_FOLD "Furigana Fold"
+#define LW_UTF8FLAGNAME_CASEFOLD "Case Fold"
+#define LW_UTF8FLAGNAME_FURIGANAFOLD "Furigana Fold"
 #define LW_UTF8FLAGNAME_ALL "All"
 
 #define LW_UTF8FLAGNICK_NONE "none"
 #define LW_UTF8FLAGNICK_PRINTABLE "printable"
 #define LW_UTF8FLAGNICK_COMPARABLE "comparable"
-#define LW_UTF8FLAGNICK_CASE_FOLD "case-fold"
-#define LW_UTF8FLAGNICK_FURIGANA_FOLD "furigana-fold"
+#define LW_UTF8FLAGNICK_CASEFOLD "case-fold"
+#define LW_UTF8FLAGNICK_FURIGANAFOLD "furigana-fold"
 #define LW_UTF8FLAGNICK_ALL "all"
 
 typedef enum {

@@ -126,7 +126,7 @@ lw_search_set_property (GObject      *object,
         lw_search_set_query (self, g_value_get_string (value));
         break;
       case PROP_STATUS:
-        lw_search_set_status (self, g_value_set_enum (value));
+        lw_search_set_status (self, g_value_get_enum (value));
         break;
       case PROP_FLAGS:
         lw_search_set_flags (self, g_value_get_flags (value));
@@ -301,22 +301,20 @@ lw_search_class_init (LwSearchClass *klass)
     g_object_class_install_property (object_class, PROP_QUERY, klasspriv->pspec[PROP_QUERY]);
 
     klasspriv->pspec[PROP_FLAGS] = g_param_spec_flags (
+        "Flags",
         "flags",
-        "loaded construct prop",
-        "Set the loaded",
-        G_MININT,
-        G_MAXINT,
+        "Flags to configure the search",
+        LW_TYPE_SEARCHFLAG,
         0,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
 
     klasspriv->pspec[PROP_STATUS] = g_param_spec_enum (
+        "Status",
         "status",
-        "loaded construct prop",
-        "Set the loaded",
-        G_MININT,
-        G_MAXINT,
+        gettext("The current search status"),
+        LW_TYPE_SEARCHSTATUS,
         LW_SEARCHSTATUS_IDLE,
         G_PARAM_READABLE
     );
@@ -582,15 +580,15 @@ lw_searchstatus_get_type ()
 {
     static GType type = 0;
 
-    if (type == 0)
+    if (G_UNLIKELY (type == 0))
     {
-      GEnumValue values = {
-        { LW_SEARCHSTATUS_IDLE, LW_SEARCHSTATUSNAME_IDLE, "idle" },
-        { LW_SEARCHSTATUS_SEARCHING, LW_SEARCHSTATUSNAME_SEARCHING, "searching" },
-        { LW_SEARCHSTATUS_FINISHING, LW_SEARCHSTATUSNAME_FINISHING, "finishing" },
-        { LW_SEARCHSTATUS_CANCELING, LW_SEARCHSTATUSNAME_CANCELING, "canceling" },
+      static GEnumValue values[] = {
+        { LW_SEARCHSTATUS_IDLE, LW_SEARCHSTATUSNAME_IDLE, LW_SEARCHSTATUSNICK_IDLE },
+        { LW_SEARCHSTATUS_SEARCHING, LW_SEARCHSTATUSNAME_SEARCHING, LW_SEARCHSTATUSNICK_SEARCHING },
+        { LW_SEARCHSTATUS_FINISHING, LW_SEARCHSTATUSNAME_FINISHING, LW_SEARCHSTATUSNICK_FINISHING },
+        { LW_SEARCHSTATUS_CANCELING, LW_SEARCHSTATUSNAME_CANCELING, LW_SEARCHSTATUSNICK_CANCELING },
         { 0, NULL, NULL },
-      }
+      };
 
       type = g_enum_register_static ("LwSearchStatus", values);
     }
@@ -622,18 +620,18 @@ lw_searchflags_get_type ()
 {
     static GType type = 0;
 
-    if (type == 0)
+    if (G_UNLIKELY (type == 0))
     {
-      GEnumValue values = {
-        { LW_SEARCHFLAG_RAW, LW_SEARCHFLAGNAME_RAW, "raw" },
-        { LW_SEARCHFLAG_FURIGANA_INSENSITIVE, LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE, "furigana-insensitive" },
-        { LW_SEARCHFLAG_CASE_INSENSITIVE, LW_SEARCHFLAGNAME_CASE_INSENSITIVE, "case-insensitive" },
-        { LW_SEARCHFLAG_STEM_INSENSITIVE, LW_SEARCHFLAGNAME_STEM_INSENSITIVE, "stem-insensitive" },
-        { LW_SEARCHFLAG_ROMAJI_TO_FURIGANA, LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA, "romaji-to-furigana" },
-        { LW_SEARCHFLAG_USE_INDEX, LW_SEARCHFLAGNAME_USE_INDEX, "use-index" },
-        { LW_SEARCHFLAG_INSENSITIVE, LW_SEARCHFLAGNAME_INSENSITIVE, "insensitive" },
+      static GFlagsValue values[] = {
+        { LW_SEARCHFLAG_RAW, LW_SEARCHFLAGNAME_RAW, LW_SEARCHFLAGNICK_RAW },
+        { LW_SEARCHFLAG_FURIGANA_INSENSITIVE, LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE, LW_SEARCHFLAGNICK_FURIGANA_INSENSITIVE },
+        { LW_SEARCHFLAG_CASE_INSENSITIVE, LW_SEARCHFLAGNAME_CASE_INSENSITIVE, LW_SEARCHFLAGNICK_CASE_INSENSITIVE },
+        { LW_SEARCHFLAG_STEM_INSENSITIVE, LW_SEARCHFLAGNAME_STEM_INSENSITIVE, LW_SEARCHFLAGNICK_STEM_INSENSITIVE },
+        { LW_SEARCHFLAG_ROMAJI_TO_FURIGANA, LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA, LW_SEARCHFLAGNICK_ROMAJI_TO_FURIGANA },
+        { LW_SEARCHFLAG_USE_INDEX, LW_SEARCHFLAGNAME_USE_INDEX, LW_SEARCHFLAGNICK_USE_INDEX },
+        { LW_SEARCHFLAG_INSENSITIVE, LW_SEARCHFLAGNAME_INSENSITIVE, LW_SEARCHFLAGNICK_INSENSITIVE },
         { 0, NULL, NULL },
-      }
+      };
 
       type = g_flags_register_static ("LwSearchFlag", values);
     }
@@ -852,6 +850,7 @@ printf("BREAK lw_search_stream_results_thread\n");
     dictionary = priv->data.dictionary;
     flags = priv->config.flags;
 
+/*TODO
     //Index the dictionary if it isn't already
     if (flags & LW_SEARCHFLAG_USE_INDEX)
     {
@@ -864,7 +863,6 @@ printf("BREAK lw_search_stream_results_thread trying to load index\n");
 
     g_mutex_lock (&priv->data.mutex);
 
-/*TODO
     //Indexed self
     if (lw_dictionary_index_is_loaded (dictionary) && flags & LW_SEARCHFLAG_USE_INDEX && !lw_util_is_regex_pattern (priv->data.query, NULL))
     {
