@@ -18,7 +18,7 @@ typedef struct _LwParsedDictionary LwParsedDictionary;
 typedef gboolean (*LwParsedDictionaryForeachFunc) (LwParsedDictionary *self, LwDictionaryLine *line, gpointer user_data);
 #define LW_PARSEDDICTIONARY(obj) (LwParsedDictionary*)obj
 
-LwParsedDictionary* lw_parseddictionary_new (gsize num_lines, gchar *contents);
+LwParsedDictionary* lw_parseddictionary_new (gchar *contents);
 
 GType lw_parseddictionary_get_type (void);
 void lw_parseddictionary_unref (LwParsedDictionary *self);

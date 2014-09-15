@@ -430,7 +430,8 @@ lw_edictionary_parse (LwEDictionary *self,
 
     //Declarations
     gint num_lines = 0;
-    LwParsedDictionary *lines = NULL; 
+    LwParsedDictionary *parseddictionary = NULL; 
+    LwDictionaryLine* lines = NULL;
     gchar **tokens = NULL;
     gsize max_line_length = 0;
     gsize num_tokens = 0;
@@ -440,8 +441,9 @@ lw_edictionary_parse (LwEDictionary *self,
     num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
     if (num_lines == 0) goto errored;
     if (max_line_length < 1) goto errored;
-    lines = lw_parseddictionary_new (num_lines, contents);
-    if (lines == NULL) goto errored;
+    parseddictionary = lw_parseddictionary_new (contents);
+    if (parseddictionary == NULL) goto errored;
+    lines = g_new0 (LwDictionaryLine, num_lines);
     tokens = g_new0 (gchar*, max_line_length + 1);
     if (tokens == NULL) goto errored;
 
@@ -463,7 +465,8 @@ lw_edictionary_parse (LwEDictionary *self,
         while (c < e && *c == '\0') c = g_utf8_next_char (c);
         if (c >= e) break;
 
-        line = lw_parseddictionary_get_line (lines, i);
+        line = lines + i;
+        lw_dictionaryline_init (line);
         lw_edictionary_tokenize_line (self, c, tokens, &num_tokens);
         lw_edictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
         if (progress != NULL)
@@ -484,8 +487,8 @@ lw_edictionary_parse (LwEDictionary *self,
 errored:
 
     g_free (tokens); tokens = NULL;
-    if (lines != NULL) lw_parseddictionary_unref (lines); lines = NULL;
+    if (parseddictionary != NULL) lw_parseddictionary_unref (parseddictionary); parseddictionary = NULL;
 
-    return lines;
+    return parseddictionary;
 }
 

@@ -512,82 +512,12 @@ lw_dictionarycache_write (LwDictionaryCache          *self,
 
 errored:
 
+    //TODO there is a memory leak here
     g_free (temporary_file_path); temporary_file_path = NULL;
     g_mapped_file_unref (temporary_mapped_file); temporary_mapped_file = NULL;
     lw_parseddictionary_unref (lines); lines = NULL;
 
     return;
-}
-
-
-gboolean
-lw_dictionarycache_validate (LwDictionaryCache *self,
-                             const gchar *EXPECTED_CHECKSUM,
-                             LwProgress  *progress)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-    g_return_val_if_fail (EXPECTED_CHECKSUM == NULL, FALSE);
-    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
-
-    //Declarations
-    LwDictionaryCachePrivate *priv = NULL;
-    gboolean is_valid = TRUE;
-    LwCacheFile *cache_file = NULL;
-    const gchar *CONTENTS = NULL;
-    const gchar *PATH = NULL;
-  /*TODO
-
-    //Initializations
-    priv = self->priv;
-    cache_file = priv->cache_file;
-    if (cache_file ==  NULL)
-    {
-      is_valid = FALSE;
-      goto errored;
-    }
-    CONTENTS = lw_cachefile_get_contents (cache_file);
-    PATH = lw_dictionarycache_get_path (self);
-
-    if (CONTENTS == NULL)
-    {
-      if (progress != NULL)
-      {
-        lw_progress_set_error (progress, g_error_new (
-          LW_DICTIONARYCACHE_ERROR,
-          LW_DICTIONARYCACHE_ERRORCODE_CORRUPT_CONTENTS,
-          "The contents of the dictionary cache file are missing %s",
-          PATH
-        ));
-      }
-      is_valid = FALSE;
-      goto errored;
-    }
-
-    if (!lw_utf8_validate (CONTENTS, -1, progress))
-    {
-      if (progress != NULL)
-      {
-        lw_progress_set_error (progress, g_error_new (
-          LW_DICTIONARYCACHE_ERROR,
-          LW_DICTIONARYCACHE_ERRORCODE_CORRUPT_CONTENTS,
-          "The dictionary cache file %s is corrupt. It should be valid utf8.",
-          PATH
-        ));
-      }
-      is_valid = FALSE;
-      goto errored;
-    }
-
-errored:
-
-    if (is_valid == FALSE)
-    {
-      lw_dictionarycache_clear (self);
-    }
-
-    return is_valid;
-    */
 }
 
 
@@ -683,6 +613,66 @@ lw_dictionarycache_get_lines_cachefile (LwDictionaryCache *self)
 }
 
 
+static LwCacheFile*
+_read_parsed_cachefile (LwDictionaryCache *self,
+                        gchar const       *EXPECTED_CHECKSUM,
+                        LwProgress        *progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+    g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, FALSE);
+    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
+
+    //Declarations
+    gchar *path = NULL;
+    LwCacheFile *cachefile = NULL;
+    const gchar *contents = NULL;
+
+    //Initializations
+    path = lw_dictionarycache_build_path (self, "parsed");
+    cachefile = lw_cachefile_new (path);
+    contents = lw_cachefile_read (cachefile, EXPECTED_CHECKSUM, progress);
+
+    lw_dictionarycache_set_parsed_cachefile (self, cachefile);
+
+errored:
+
+    g_free (path); path = NULL;
+
+    return cachefile;
+}
+
+
+static LwCacheFile*
+_read_lines_cachefile (LwDictionaryCache *self,
+                       gchar const       *EXPECTED_CHECKSUM,
+                       LwProgress        *progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+    g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, FALSE);
+    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
+
+    //Declarations
+    gchar *path = NULL;
+    LwCacheFile *cachefile = NULL;
+    const gchar *contents = NULL;
+
+    //Initializations
+    path = lw_dictionarycache_build_path (self, "lines");
+    cachefile = lw_cachefile_new (path);
+    contents = lw_cachefile_read (cachefile, EXPECTED_CHECKSUM, progress);
+
+    lw_dictionarycache_set_parsed_cachefile (self, cachefile);
+
+errored:
+
+    g_free (path); path = NULL;
+
+    return cachefile;
+}
+
+
 gboolean
 lw_dictionarycache_read (LwDictionaryCache *self,
                          gchar const       *EXPECTED_CHECKSUM,
@@ -696,26 +686,56 @@ lw_dictionarycache_read (LwDictionaryCache *self,
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
     gboolean has_error = FALSE;
+    LwCacheFile *parsed_cachefile = NULL;
+    gchar *parsed_serialized_data = NULL;
+    LwCacheFile *lines_cachefile = NULL;
+    gchar *lines_serialized_data = NULL;
+    LwParsedDictionary *parsed_dictionary = NULL;
+    gsize bytes_read = 0;
 
     //Initializations
     priv = self->priv;
 
-/*TODO
-    if (!lw_dictionarycache_read_parsed_cachefile (self, EXPECTED_CHECKSUM, progress))
+    parsed_cachefile = _read_parsed_cachefile (self, EXPECTED_CHECKSUM, progress);
+    if (parsed_cachefile == NULL)
     {
       has_error = TRUE;
       goto errored;
     }
-    if (!lw_dictionarycache_read_lines_cachefile (self, EXPTECTED_CHECKSUM, progress))
+    parsed_serialized_data = (gchar*) lw_cachefile_get_contents (parsed_cachefile);
+    if (parsed_serialized_data == NULL) goto errored;
+
+    lines_cachefile = _read_lines_cachefile (self, EXPECTED_CHECKSUM, progress);
+    if (lines_cachefile == NULL)
     {
       has_error = TRUE;
       goto errored;
     }
+    lines_serialized_data = (gchar*) lw_cachefile_get_contents (lines_cachefile);
+    if (lines_serialized_data == NULL) goto errored;
+
+    parsed_dictionary = lw_parseddictionary_new (parsed_serialized_data);
+    if (parsed_dictionary == NULL) goto errored;
+
+    bytes_read = lw_parseddictionary_deserialize_into (parsed_dictionary, lines_serialized_data, progress);
+    if (bytes_read != lw_cachefile_length (lines_cachefile))
+    {
+      has_error = TRUE;
+      goto errored;
+    }
+
+    lw_dictionarycache_set_parsed_cachefile (self, parsed_cachefile);
+    parsed_cachefile = NULL;
+    lw_dictionarycache_set_lines_cachefile (self, lines_cachefile);
+    lines_cachefile = NULL;
+    lw_dictionarycache_set_lines (self, parsed_dictionary);
+    parsed_dictionary = NULL;
 
 errored:
 
-    if (!lw_dictionarycache_validate (self, EXPECTED_CHECKSUM, progress)) goto errored;
-    */
+    if (parsed_cachefile != NULL) g_object_unref (parsed_cachefile); parsed_cachefile = NULL;
+    if (lines_cachefile != NULL) g_object_unref (lines_cachefile); lines_cachefile = NULL;
+    if (parsed_dictionary  != NULL) lw_parseddictionary_unref (parsed_dictionary); parsed_dictionary = NULL;
 
     return !has_error;
 }

@@ -265,14 +265,17 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
     gsize max_line_length = 0;
     gsize num_tokens = 0;
     gint length = -1;
-    LwParsedDictionary *lines = NULL;
+    LwParsedDictionary *parseddictionary = NULL;
+    LwDictionaryLine *lines = NULL;
 
     //Initializations
     if (content_length < 1) content_length = strlen(contents);
     num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
     if (num_lines < 1) goto errored;
     if (max_line_length < 1) goto errored;
-    lines = lw_parseddictionary_new (num_lines, contents);
+    parseddictionary = lw_parseddictionary_new (contents);
+    if (parseddictionary == NULL) goto errored;
+    lines = g_new0 (LwDictionaryLine, num_lines);
     if (lines == NULL) goto errored;
     tokens = g_new0 (gchar*, max_line_length + 1);
     if (tokens == NULL) goto errored;
@@ -295,7 +298,8 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
         while (c < e && *c == '\0') c = g_utf8_next_char (c);
         if (c >= e) break;
 
-        line = lw_parseddictionary_get_line (lines, i);
+        line = lines + i;
+        lw_dictionaryline_init (line);
         lw_radicalsdictionary_tokenize_line (self, c, tokens, &num_tokens);
         lw_radicalsdictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
         if (progress != NULL)
@@ -316,6 +320,6 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
 errored:
 
     g_free (tokens); tokens = NULL;
-    if (lines != NULL) lw_parseddictionary_unref (lines); lines = NULL;
+    if (parseddictionary != NULL) lw_parseddictionary_unref (parseddictionary); parseddictionary = NULL;
 }
 

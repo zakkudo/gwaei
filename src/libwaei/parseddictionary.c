@@ -53,11 +53,9 @@ struct _DeserializeData {
 
 
 LwParsedDictionary*
-lw_parseddictionary_new (gsize  num_lines,
-                         gchar *contents)
+lw_parseddictionary_new (gchar *contents)
 {
     //Sanity checks
-    g_return_val_if_fail (num_lines < 1, NULL);
     g_return_val_if_fail (contents != NULL, NULL);
 
     //Declarations
@@ -65,8 +63,8 @@ lw_parseddictionary_new (gsize  num_lines,
 
     //Initializations
     self = g_new0 (LwParsedDictionary, 1);
-    self->lines = g_new0 (LwDictionaryLine, num_lines);
-    self->num_lines = num_lines;
+    self->lines = NULL;
+    self->num_lines = 0;
     self->contents_reference_pointer = contents;
 
     return self;
