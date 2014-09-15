@@ -325,7 +325,7 @@ lw_exampledictionary_parse (LwExampleDictionary *self,
     num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
     if (num_lines < 1) goto errored;
     if (max_line_length < 1) goto errored;
-    lines = lw_parseddictionary_new (num_lines);
+    lines = lw_parseddictionary_new (num_lines, contents);
     if (lines == NULL) goto errored;
     tokens = g_new0 (gchar*, max_line_length + 1);
     if (tokens == NULL) goto errored;

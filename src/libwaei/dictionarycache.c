@@ -425,7 +425,7 @@ _write_lines_cachefile (LwDictionaryCache  *self,
 
     //Initializations
     path = lw_dictionarycache_build_path (self, "lines");
-    length = lw_parseddictionary_get_serialized_length (lines);
+    length = lw_parseddictionary_get_serialized_length (lines, progress);
 
     tmp_path = lw_io_allocate_temporary_file (length, progress);
     mapped_file = g_mapped_file_new (tmp_path, TRUE, &error);
@@ -443,7 +443,7 @@ _write_lines_cachefile (LwDictionaryCache  *self,
     contents = g_mapped_file_get_contents (mapped_file);
     cachefile = lw_cachefile_new (path);
 
-    lw_parseddictionary_serialize (lines, contents, length, progress);
+    lw_parseddictionary_serialize (lines, contents, progress);
     lw_cachefile_write (cachefile, CHECKSUM, contents, length, progress);
 
 errored:

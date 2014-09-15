@@ -37,14 +37,37 @@
 #include <libwaei/gettext.h>
 
 
+struct _SerializeData {
+  gsize *buffer;
+  gsize *write_pointer;
+  gsize bytes_written;
+  GError *error;
+};
+
+struct _DeserializeData {
+  gchar const *serialized_data;
+  gchar const *read_pointer;
+  gsize bytes_read;
+  GError *error;
+};
+
+
 LwParsedDictionary*
-lw_parseddictionary_new (gsize num_lines)
+lw_parseddictionary_new (gsize  num_lines,
+                         gchar *contents)
 {
+    //Sanity checks
+    g_return_val_if_fail (num_lines < 1, NULL);
+    g_return_val_if_fail (contents != NULL, NULL);
+
+    //Declarations
     LwParsedDictionary *self = NULL;
 
+    //Initializations
     self = g_new0 (LwParsedDictionary, 1);
     self->lines = g_new0 (LwDictionaryLine, num_lines);
     self->num_lines = num_lines;
+    self->contents_reference_pointer = contents;
 
     return self;
 }
@@ -122,7 +145,7 @@ lw_parseddictionary_foreach (LwParsedDictionary            *self,
 
     while (i < self->num_lines && !has_error)
     {
-      has_error = !func(self, self->lines + i, data);
+      has_error = func(self, self->lines + i, data);
       i++;
     }
 }
@@ -149,8 +172,37 @@ errored:
 }
 
 
+void
+lw_parseddictionary_set_lines (LwParsedDictionary *self,
+                               LwDictionaryLine   *lines,
+                               gsize               num_lines)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+
+    if (lines == self->lines) goto errored;
+
+    {
+      gint i = 0;
+      for (i = 0; i < self->num_lines; i++)
+      {
+        lw_dictionaryline_clear (self->lines + i);
+      }
+    } 
+    g_free (self->lines); self->lines = 0;
+    self->num_lines = 0;
+
+    self->lines = lines;
+    self->num_lines = num_lines;
+
+errored:
+
+    return;
+}
+
+
 gsize
-lw_parseddictionary_length (LwParsedDictionary *self)
+lw_parseddictionary_num_lines (LwParsedDictionary *self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
@@ -159,128 +211,171 @@ lw_parseddictionary_length (LwParsedDictionary *self)
 }
 
 
-struct _SerializedLengthData {
-  gsize bytes;
-};
-
-static void
-_get_serialized_length (LwParsedDictionary           *lines,
-                        LwDictionaryLine             *line,
-                        struct _SerializedLengthData *data)
-{
-    //Sanity checks
-    g_return_if_fail (lines != NULL);
-    g_return_if_fail (line != NULL);
-    g_return_if_fail (data != NULL);
-
-    data->bytes += lw_dictionaryline_get_serialized_length (line);
-}
-
-
 gsize
-lw_parseddictionary_get_serialized_length (LwParsedDictionary *self)
+lw_parseddictionary_get_serialized_length (LwParsedDictionary *self,
+                                           LwProgress         *progress)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
 
-    //Declarations
-    struct _SerializedLengthData data = {
-      .bytes = 0
-    };
-
-    //Initializations
-    //[num_lines (gsize) [lines] ...]    
-    data.bytes += sizeof(gsize);
-
-    lw_parseddictionary_foreach (self, (LwParsedDictionaryForeachFunc) _get_serialized_length, &data);
-
-    return data.bytes;
+    return lw_parseddictionary_serialize (self, NULL, progress);
 }
 
 
-struct _SerializedDataData {
-  guchar *buffer;
-  guchar *c;
-  gsize bytes_written;
-  gsize bytes_left;
-};
-
 static gboolean
-_get_serialized_data (LwParsedDictionary         *self,
-                      LwDictionaryLine           *line,
-                      struct _SerializedDataData *data)
+_serialize (LwParsedDictionary    *self,
+            LwDictionaryLine      *dictionary_line,
+            struct _SerializeData *data)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (line != NULL);
-    g_return_if_fail (data != NULL);
+    g_return_val_if_fail (self != NULL, TRUE);
+    g_return_val_if_fail (dictionary_line != NULL, TRUE);
+    g_return_val_if_fail (data != NULL, TRUE);
 
     //Declarations
     gsize bytes_written = 0;
-    gsize required_bytes = 0;
-    gboolean has_error = FALSE;
-    
+    gchar *contents = NULL;
+    gchar *write_pointer = NULL;
+
     //Initializations
-    required_bytes = lw_dictionaryline_get_serialized_length (line);
-    if (required_bytes > data->bytes_left)
+    write_pointer = (gchar*) data->write_pointer;
+    contents = self->contents_reference_pointer;
+    bytes_written = lw_dictionaryline_serialize (dictionary_line, contents, write_pointer, &data->error);
+    if (data->error != NULL)
     {
-      has_error = TRUE;
       goto errored;
     }
-    bytes_written = lw_dictionaryline_serialize (line, data->c, data->bytes_left);
-    data->bytes_left -= bytes_written;
     data->bytes_written += bytes_written;
-    data->c += bytes_written;
+    write_pointer += bytes_written;
+    data->write_pointer = (gsize*) write_pointer;
 
 errored:
 
-    return !has_error;
+    return (data->error != NULL);
 }
 
 
 gsize
 lw_parseddictionary_serialize (LwParsedDictionary *self,
                                gchar              *preallocated_buffer,
-                               gsize               buffer_length,
                                LwProgress         *progress)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
     g_return_if_fail (preallocated_buffer != NULL);
-    g_return_if_fail (buffer_length > 0);
 
     //Declarations
-    struct _SerializedDataData data = {
-      .buffer = preallocated_buffer,
-      .c = preallocated_buffer,
-      .bytes_written = 0,
-      .bytes_left = buffer_length
+    struct _SerializeData data = {
+      .buffer = (gsize*) preallocated_buffer,
+      .write_pointer = (gsize*) preallocated_buffer,
+      .bytes_written = 0
     };
 
     //Copy the number of LwDictionaryLines
-    if ((data.c - data.buffer) + sizeof(gsize) <= data.bytes_left)
-    {
-      memcpy(data.c, &self->num_lines, sizeof(gsize));
-      data.c += sizeof(gsize);
-      data.bytes_left -= sizeof(gsize);
-      data.bytes_written += sizeof(gsize);
-    }
+    *(data.write_pointer++) = self->num_lines;
+    data.bytes_written += sizeof(gsize);
 
-    lw_parseddictionary_foreach (self, (LwParsedDictionaryForeachFunc) _get_serialized_data, &data);
+    //Copy the individual seriallized LwDictionaryLine contents
+    lw_parseddictionary_foreach (self, (LwParsedDictionaryForeachFunc) _serialize, &data);
+
+errored:
 
     return data.bytes_written;
 }
 
 
-LwParsedDictionary*
-lw_parseddictionary_deserialize (LwParsedDictionary *self,
-                                 const gchar        *contents_reference_point,
-                                 const guchar       *serialized_data,
-                                 LwProgress         *progress)
+static gboolean
+_deserialize (LwParsedDictionary      *self,
+              LwDictionaryLine        *dictionary_line,
+              struct _DeserializeData *data)
 {
-  /*TODO
-  [num_lines (lwoffset)] [line]...
-  type checking here
-  */
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, TRUE);
+    g_return_val_if_fail (dictionary_line != NULL, TRUE);
+    g_return_val_if_fail (data != NULL, TRUE);
+
+    //Declarations
+    gsize bytes_read = 0;
+    gchar const *contents = NULL;
+    gchar const *read_pointer = NULL;
+
+    //Initializations
+    contents = self->contents_reference_pointer;
+    read_pointer = data->read_pointer;
+    bytes_read = lw_dictionaryline_deserialize_into (dictionary_line, read_pointer, contents, &data->error);
+    if (data->error != NULL)
+    {
+      goto errored;
+    }
+
+errored:
+
+    data->bytes_read += bytes_read;
+    data->read_pointer += bytes_read;
+
+    return (data->error != NULL);
 }
+
+
+gsize
+lw_parseddictionary_deserialize_into (LwParsedDictionary *self,
+                                      const gchar        *serialized_data,
+                                      LwProgress         *progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, 0);
+    g_return_val_if_fail (serialized_data != NULL, 0);
+
+    /*TODO
+    [num_lines (lwoffset)] [line]...
+    type checking here
+    */
+
+    //Declarations
+    LwDictionaryLine *lines = NULL;
+    gsize num_lines = 0;
+    gsize bytes_read = 0;
+    struct _DeserializeData data = {
+      .serialized_data = serialized_data,
+      .read_pointer = serialized_data,
+      .bytes_read = 0,
+      .error = NULL
+    };
+
+    //Initializations
+    num_lines = *((gsize*) data.read_pointer);
+    data.read_pointer += sizeof(gsize);
+    lines = g_new0(LwDictionaryLine, num_lines);
+
+    lw_parseddictionary_foreach (self, (LwParsedDictionaryForeachFunc) _deserialize, &data);
+    if (data.error != NULL)
+    {
+      if (progress != NULL)
+      {
+        lw_progress_take_error (progress, data.error);
+        data.error = NULL;
+      }
+      g_clear_error (&data.error);
+      goto errored;
+    }
+
+    lw_parseddictionary_set_lines (self, lines, num_lines);
+    lines = NULL;
+
+errored:
+
+    if (lines != NULL)
+    {
+      gint i = 0;
+      for (i = 0; i < num_lines; i++)
+      {
+        lw_dictionaryline_clear (lines + i);
+      }
+      g_free (lines); lines = NULL;
+    }
+
+    return bytes_read;
+}
+
+
 
