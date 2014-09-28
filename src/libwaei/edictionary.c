@@ -44,7 +44,7 @@
 
 G_DEFINE_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 
-static LwParsedDictionary* lw_edictionary_parse (LwEDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+static LwParsed* lw_edictionary_parse (LwEDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 
 LwDictionary* lw_edictionary_new (const gchar        *FILENAME, 
                                   LwMorphologyEngine *morphologyengine)
@@ -418,7 +418,7 @@ errored:
 }
 
 
-static LwParsedDictionary*
+static LwParsed*
 lw_edictionary_parse (LwEDictionary *self,
                       gchar         *contents,
                       gsize          content_length,
@@ -430,7 +430,7 @@ lw_edictionary_parse (LwEDictionary *self,
 
     //Declarations
     gint num_lines = 0;
-    LwParsedDictionary *parseddictionary = NULL; 
+    LwParsed *parsed = NULL; 
     LwDictionaryLine* lines = NULL;
     gchar **tokens = NULL;
     gsize max_line_length = 0;
@@ -441,8 +441,8 @@ lw_edictionary_parse (LwEDictionary *self,
     num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
     if (num_lines == 0) goto errored;
     if (max_line_length < 1) goto errored;
-    parseddictionary = lw_parseddictionary_new (contents);
-    if (parseddictionary == NULL) goto errored;
+    parsed = lw_parsed_new (contents, content_length);
+    if (parsed == NULL) goto errored;
     lines = g_new0 (LwDictionaryLine, num_lines);
     tokens = g_new0 (gchar*, max_line_length + 1);
     if (tokens == NULL) goto errored;
@@ -487,8 +487,8 @@ lw_edictionary_parse (LwEDictionary *self,
 errored:
 
     g_free (tokens); tokens = NULL;
-    if (parseddictionary != NULL) lw_parseddictionary_unref (parseddictionary); parseddictionary = NULL;
+    if (parsed != NULL) lw_parsed_unref (parsed); parsed = NULL;
 
-    return parseddictionary;
+    return parsed;
 }
 

@@ -32,7 +32,7 @@ struct _LwDictionaryClass {
   LwDictionaryClassPrivate *priv;
 };
 
-typedef LwParsedDictionary*(*LwDictionaryParseFunc)(LwDictionary*, gchar*, gsize, LwProgress*);
+typedef LwParsed*(*LwDictionaryParseFunc)(LwDictionary*, gchar*, gsize, LwProgress*);
 
 //Methods
 GType lw_dictionary_get_type (void) G_GNUC_CONST;
@@ -81,7 +81,7 @@ gint lw_dictionary_num_lines (LwDictionary *self);
 
 gboolean  lw_dictionary_uninstall (LwDictionary *self);
 
-LwParsedDictionary* lw_dictionary_parse (LwDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+LwParsed* lw_dictionary_parse (LwDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 
 G_END_DECLS
 

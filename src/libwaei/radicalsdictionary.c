@@ -42,7 +42,7 @@
 #include <libwaei/dictionary-private.h>
 #include <libwaei/gettext.h>
 
-static LwParsedDictionary* lw_radicalsdictionary_parse (LwRadicalsDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+static LwParsed* lw_radicalsdictionary_parse (LwRadicalsDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 
 G_DEFINE_TYPE (LwRadicalsDictionary, lw_radicalsdictionary, LW_TYPE_DICTIONARY)
 
@@ -249,7 +249,7 @@ errored:
 //! @brief Parses a string for an unknown format string
 //! @param rl The Resultline object this method works on
 //!
-static LwParsedDictionary*
+static LwParsed*
 lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
                              gchar                *contents,
                              gsize                 content_length,
@@ -265,7 +265,7 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
     gsize max_line_length = 0;
     gsize num_tokens = 0;
     gint length = -1;
-    LwParsedDictionary *parseddictionary = NULL;
+    LwParsed *parsed = NULL;
     LwDictionaryLine *lines = NULL;
 
     //Initializations
@@ -273,8 +273,8 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
     num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
     if (num_lines < 1) goto errored;
     if (max_line_length < 1) goto errored;
-    parseddictionary = lw_parseddictionary_new (contents);
-    if (parseddictionary == NULL) goto errored;
+    parsed = lw_parsed_new (contents, content_length);
+    if (parsed == NULL) goto errored;
     lines = g_new0 (LwDictionaryLine, num_lines);
     if (lines == NULL) goto errored;
     tokens = g_new0 (gchar*, max_line_length + 1);
@@ -320,6 +320,6 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
 errored:
 
     g_free (tokens); tokens = NULL;
-    if (parseddictionary != NULL) lw_parseddictionary_unref (parseddictionary); parseddictionary = NULL;
+    if (parsed != NULL) lw_parsed_unref (parsed); parsed = NULL;
 }
 

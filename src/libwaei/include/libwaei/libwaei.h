@@ -6,7 +6,8 @@
 #include <libwaei/regex.h>
 #include <libwaei/progress.h>
 #include <libwaei/io.h>
-#include <libwaei/parseddictionary.h>
+#include <libwaei/parsed.h>
+#include <libwaei/indexed.h>
 #include <libwaei/cachefile.h>
 #include <libwaei/utilities.h>
 #include <libwaei/filepath.h>

@@ -981,7 +981,7 @@ struct _DictionaryCacheData {
 };
 
 
-static LwParsedDictionary*
+static LwParsed*
 _dictionarycache_parse (gchar                       *contents,
                         gsize                        content_length,
                         struct _DictionaryCacheData *data)
@@ -1081,7 +1081,7 @@ errored:
 }
 
 
-LwParsedDictionary*
+LwParsed*
 lw_dictionary_parse (LwDictionary *self,
                      gchar        *contents,
                      gsize         content_length,

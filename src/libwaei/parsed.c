@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file parseddictionary.c
+//! @file parsed.c
 //!
 
 #ifdef HAVE_CONFIG_H
@@ -52,36 +52,39 @@ struct _DeserializeData {
 };
 
 
-LwParsedDictionary*
-lw_parseddictionary_new (gchar *contents)
+LwParsed*
+lw_parsed_new (gchar *contents,
+               gsize  content_length)
 {
     //Sanity checks
     g_return_val_if_fail (contents != NULL, NULL);
+    g_return_val_if_fail (content_length > 0, NULL);
 
     //Declarations
-    LwParsedDictionary *self = NULL;
+    LwParsed *self = NULL;
 
     //Initializations
-    self = g_new0 (LwParsedDictionary, 1);
+    self = g_new0 (LwParsed, 1);
     self->lines = NULL;
     self->num_lines = 0;
     self->contents_reference_pointer = contents;
+    self->content_length = content_length;
 
     return self;
 }
 
 
 GType
-lw_parseddictionary_get_type ()
+lw_parsed_get_type ()
 {
     static GType type = 0;
 
     if (G_UNLIKELY (type == 0))
     {
       type = g_boxed_type_register_static (
-        "LwParsedDictionary",
-        (GBoxedCopyFunc) lw_parseddictionary_ref,
-        (GBoxedFreeFunc) lw_parseddictionary_unref
+        "LwParsed",
+        (GBoxedCopyFunc) lw_parsed_ref,
+        (GBoxedFreeFunc) lw_parsed_unref
       );
     }
 
@@ -90,7 +93,7 @@ lw_parseddictionary_get_type ()
 
 
 static void
-lw_parseddictionary_free (LwParsedDictionary *self)
+lw_parsed_free (LwParsed *self)
 {
     //Sanity checks
     if (self == NULL) return; 
@@ -107,17 +110,17 @@ lw_parseddictionary_free (LwParsedDictionary *self)
 }
 
 
-void lw_parseddictionary_unref (LwParsedDictionary *self)
+void lw_parsed_unref (LwParsed *self)
 {
     if (self == NULL) return;
 
     if (g_atomic_int_dec_and_test (&self->ref_count))
     {
-      lw_parseddictionary_free (self);
+      lw_parsed_free (self);
     }
 }
 
-LwParsedDictionary* lw_parseddictionary_ref (LwParsedDictionary *self)
+LwParsed* lw_parsed_ref (LwParsed *self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
@@ -129,9 +132,9 @@ LwParsedDictionary* lw_parseddictionary_ref (LwParsedDictionary *self)
 
 
 void
-lw_parseddictionary_foreach (LwParsedDictionary            *self,
-                             LwParsedDictionaryForeachFunc  func,
-                             gpointer                       data)
+lw_parsed_foreach (LwParsed            *self,
+                   LwParsedForeachFunc  func,
+                   gpointer             data)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
@@ -150,8 +153,8 @@ lw_parseddictionary_foreach (LwParsedDictionary            *self,
 
 
 LwDictionaryLine*
-lw_parseddictionary_get_line (LwParsedDictionary *self,
-                              gsize               line_number)
+lw_parsed_get_line (LwParsed *self,
+                    gsize     line_number)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
@@ -171,9 +174,9 @@ errored:
 
 
 void
-lw_parseddictionary_set_lines (LwParsedDictionary *self,
-                               LwDictionaryLine   *lines,
-                               gsize               num_lines)
+lw_parsed_set_lines (LwParsed         *self,
+                     LwDictionaryLine *lines,
+                     gsize             num_lines)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
@@ -200,7 +203,7 @@ errored:
 
 
 gsize
-lw_parseddictionary_num_lines (LwParsedDictionary *self)
+lw_parsed_num_lines (LwParsed *self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
@@ -210,18 +213,18 @@ lw_parseddictionary_num_lines (LwParsedDictionary *self)
 
 
 gsize
-lw_parseddictionary_get_serialized_length (LwParsedDictionary *self,
-                                           LwProgress         *progress)
+lw_parsed_get_serialized_length (LwParsed   *self,
+                                 LwProgress *progress)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
 
-    return lw_parseddictionary_serialize (self, NULL, progress);
+    return lw_parsed_serialize (self, NULL, progress);
 }
 
 
 static gboolean
-_serialize (LwParsedDictionary    *self,
+_serialize (LwParsed              *self,
             LwDictionaryLine      *dictionary_line,
             struct _SerializeData *data)
 {
@@ -254,9 +257,9 @@ errored:
 
 
 gsize
-lw_parseddictionary_serialize (LwParsedDictionary *self,
-                               gchar              *preallocated_buffer,
-                               LwProgress         *progress)
+lw_parsed_serialize (LwParsed   *self,
+                     gchar      *preallocated_buffer,
+                     LwProgress *progress)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
@@ -274,7 +277,7 @@ lw_parseddictionary_serialize (LwParsedDictionary *self,
     data.bytes_written += sizeof(gsize);
 
     //Copy the individual seriallized LwDictionaryLine contents
-    lw_parseddictionary_foreach (self, (LwParsedDictionaryForeachFunc) _serialize, &data);
+    lw_parsed_foreach (self, (LwParsedForeachFunc) _serialize, &data);
 
 errored:
 
@@ -283,7 +286,7 @@ errored:
 
 
 static gboolean
-_deserialize (LwParsedDictionary      *self,
+_deserialize (LwParsed                *self,
               LwDictionaryLine        *dictionary_line,
               struct _DeserializeData *data)
 {
@@ -316,9 +319,9 @@ errored:
 
 
 gsize
-lw_parseddictionary_deserialize_into (LwParsedDictionary *self,
-                                      const gchar        *serialized_data,
-                                      LwProgress         *progress)
+lw_parsed_deserialize_into (LwParsed    *self,
+                            const gchar *serialized_data,
+                            LwProgress  *progress)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
@@ -345,7 +348,7 @@ lw_parseddictionary_deserialize_into (LwParsedDictionary *self,
     data.read_pointer += sizeof(gsize);
     lines = g_new0(LwDictionaryLine, num_lines);
 
-    lw_parseddictionary_foreach (self, (LwParsedDictionaryForeachFunc) _deserialize, &data);
+    lw_parsed_foreach (self, (LwParsedForeachFunc) _deserialize, &data);
     if (data.error != NULL)
     {
       if (progress != NULL)
@@ -357,7 +360,7 @@ lw_parseddictionary_deserialize_into (LwParsedDictionary *self,
       goto errored;
     }
 
-    lw_parseddictionary_set_lines (self, lines, num_lines);
+    lw_parsed_set_lines (self, lines, num_lines);
     lines = NULL;
 
 errored:

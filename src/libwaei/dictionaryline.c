@@ -62,7 +62,9 @@ struct _DeserializeData {
 
 
 static gint
-_compare (gconstpointer a, gconstpointer b)
+_compare (gconstpointer a,
+          gconstpointer b,
+          gpointer      user_data)
 {
     return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
 }
@@ -75,7 +77,18 @@ lw_dictionaryline_init (LwDictionaryLine *self)
     g_return_if_fail (self != NULL);
 
     lw_dictionaryline_clear (self);
-    self->tree = g_tree_new (_compare);
+    self->tree = g_tree_new_full (_compare, NULL, NULL, (GDestroyNotify) g_free);
+}
+
+
+void
+lw_dictionaryline_init_static (LwDictionaryLine *self)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    lw_dictionaryline_clear (self);
+    self->tree = g_tree_new_full (_compare, NULL, NULL, NULL);
 }
 
 
@@ -273,7 +286,7 @@ lw_dictionaryline_deserialize_into (LwDictionaryLine *self,
     g_return_val_if_fail (contents_reference_point != NULL, 0);
     if (error != NULL && *error != NULL) return 0;
 
-    lw_dictionaryline_init (self);
+    lw_dictionaryline_init_static (self);
 
     //Declarations
     struct _DeserializeData data = {

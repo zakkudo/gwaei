@@ -21,6 +21,7 @@ typedef struct _LwDictionaryLine LwDictionaryLine;
 
 //Methods
 void lw_dictionaryline_init (LwDictionaryLine *self);
+void lw_dictionaryline_init_static (LwDictionaryLine *self);
 void lw_dictionaryline_clear (LwDictionaryLine *self);
 
 void lw_dictionaryline_take_strv (LwDictionaryLine *self, gint id, gchar ** strv);
