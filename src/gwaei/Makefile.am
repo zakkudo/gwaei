@@ -1,4 +1,4 @@
-SUBDIRS = include/gwaei help mingw
+SUBDIRS = include/gwaei mingw
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@

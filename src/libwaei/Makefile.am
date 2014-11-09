@@ -8,6 +8,7 @@ DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\"
 
 lib_LTLIBRARIES =libwaei.la
 libwaei_la_SOURCES =libwaei.c
+libwaei_la_SOURCES +=serializable.c
 libwaei_la_SOURCES +=dependancy.c condition.c filepath.c
 libwaei_la_SOURCES +=dictionary.c dictionary-callbacks.c dictionarycache.c dictionarylist.c dictionarylist-callbacks.c
 libwaei_la_SOURCES +=dictionaryinstall.c dictionaryinstalllist.c dictionaryinstalllist-callbacks.c dictionaryinstallstatehistory.c dictionaryinstallstate.c
@@ -22,10 +23,10 @@ libwaei_la_LDFLAGS =-no-undefined -version-info $(LIBRARY_VERSION)  $(LIBWAEI_LI
 libwaei_la_CPPFLAGS =-I$(top_srcdir)/src/libwaei/include $(LIBWAEI_CFLAGS) $(DEFINITIONS) 
 libwaei_la_LIBADD =
 
-if WITH_MECAB
-libwaei_la_LIBADD +=$(MECAB_LIBS)
+#if WITH_MECAB
+#libwaei_la_LIBADD +=$(MECAB_LIBS)
 #libwaei_la_SOURCES +=morphologyengine-mecab.c
-endif
+#endif
 
 if WITH_HUNSPELL
 libwaei_la_LIBADD +=$(HUNSPELL_LIBS)

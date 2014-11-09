@@ -76,14 +76,22 @@ const gchar* lw_dictionarycache_get_path (LwDictionaryCache *self);
 void lw_dictionarycache_set_parsed (LwDictionaryCache *self, LwParsed *parsed);
 LwParsed* lw_dictionarycache_get_parsed (LwDictionaryCache *self);
 
+LwIndexed* lw_dictionarycache_get_indexed (LwDictionaryCache *self);
+void lw_dictionarycache_set_indexed (LwDictionaryCache *self, LwIndexed *indexed);
+
 void lw_dictionarycache_set_normalized_cachefile (LwDictionaryCache *self, LwCacheFile *cachefile);
 LwCacheFile* lw_dictionarycache_get_normalized_cachefile (LwDictionaryCache *self);
 
-void lw_dictionarycache_set_parsed_cachefile (LwDictionaryCache *self, LwCacheFile *cachefile);
-LwCacheFile* lw_dictionarycache_get_parsed_cachefile (LwDictionaryCache *self);
+void lw_dictionarycache_set_normalized_cachefile (LwDictionaryCache *self, LwCacheFile *cachefile);
+LwCacheFile* lw_dictionarycache_get_normalized_cachefile (LwDictionaryCache *self);
 
-LwCacheFile* lw_dictionarycache_get_lines_cachefile (LwDictionaryCache *self);
-void lw_dictionarycache_set_lines_cachefile (LwDictionaryCache *self, LwCacheFile *cachefile);
+LwCacheFile* lw_dictionarycache_get_parsed_cachefile (LwDictionaryCache *self);
+void lw_dictionarycache_set_parsed_cachefile (LwDictionaryCache *self, LwCacheFile *cachefile);
+
+void lw_dictionarycache_set_indexed_cachefile (LwDictionaryCache *self, LwCacheFile *cachefile);
+LwCacheFile* lw_dictionarycache_get_indexed_cachefile (LwDictionaryCache *self);
+
+void lw_dictionarycache_clear (LwDictionaryCache *self);
 
 G_END_DECLS
 

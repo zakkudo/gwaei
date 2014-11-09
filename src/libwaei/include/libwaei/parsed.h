@@ -28,9 +28,8 @@ void lw_parsed_foreach (LwParsed *self, LwParsedForeachFunc func, gpointer data)
 LwDictionaryLine* lw_parsed_get_line (LwParsed *self, gsize line_number);
 gsize lw_parsed_length (LwParsed *self);
 
-gsize lw_parsed_get_serialized_length (LwParsed *self, LwProgress *progress);
 gsize lw_parsed_serialize (LwParsed *self, gchar *preallocated_buffer, LwProgress *progress);
-gsize lw_parsed_deserialize_into (LwParsed *self, const gchar *serialized_data, LwProgress *progress);
+gsize lw_parsed_deserialize_into (LwParsed *self, const gchar *serialized_data, gsize serialized_length, LwProgress *progress);
 
 void lw_parsed_set_lines (LwParsed *self, LwDictionaryLine *lines, gsize num_lines);
 

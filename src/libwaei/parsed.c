@@ -212,17 +212,6 @@ lw_parsed_num_lines (LwParsed *self)
 }
 
 
-gsize
-lw_parsed_get_serialized_length (LwParsed   *self,
-                                 LwProgress *progress)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, 0);
-
-    return lw_parsed_serialize (self, NULL, progress);
-}
-
-
 static gboolean
 _serialize (LwParsed              *self,
             LwDictionaryLine      *dictionary_line,
@@ -321,6 +310,7 @@ errored:
 gsize
 lw_parsed_deserialize_into (LwParsed    *self,
                             const gchar *serialized_data,
+                            gsize        serialized_length,
                             LwProgress  *progress)
 {
     //Sanity checks

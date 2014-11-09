@@ -61,14 +61,14 @@ esac],[hunspell=true])
 AM_CONDITIONAL([WITH_HUNSPELL], [test x$hunspell = xtrue])
 
 
-AC_ARG_WITH([mecab],
-[  --without-mecab        turn off Mecab morphological analysis],
-[case "${withval}" in
-yes) mecab=true ;;
-no)  mecab=false ;;
-*) AC_MSG_ERROR([bad value ${withval} for --with-mecab]) ;;
-esac],[mecab=true])
-AM_CONDITIONAL([WITH_MECAB], [test x$mecab = xtrue])
+#AC_ARG_WITH([mecab],
+#[  --without-mecab        turn off Mecab morphological analysis],
+#[case "${withval}" in
+#yes) mecab=true ;;
+#no)  mecab=false ;;
+#*) AC_MSG_ERROR([bad value ${withval} for --with-mecab]) ;;
+#esac],[mecab=true])
+#AM_CONDITIONAL([WITH_MECAB], [test x$mecab = xtrue])
 
 AC_CHECK_LIB(m, sqrt)
 
@@ -102,7 +102,7 @@ if test x$gnome = xtrue; then
                            libcurl            >= $LIBCURL_REQUIRED_VERSION )
   AC_SUBST(GWAEI_CFLAGS)
   AC_SUBST(GWAEI_LIBS)
-  GNOME_DOC_INIT
+  #GNOME_DOC_INIT
 fi
 
 if test x$hunspell = xtrue; then
@@ -112,11 +112,11 @@ if test x$hunspell = xtrue; then
   AC_SUBST(HUNSPELL_LIBS)
 fi
 
-if test x$mecab = xtrue; then
-  AC_CHECK_HEADER([mecab.h],
-                  [AC_DEFINE([HAVE_MECAB], [1], [Define to 1 if mecab is enabled]) MECAB_LIBS="-lmecab -lstdc++" AC_SUBST(MECAB_LIBS)], 
-                  [AC_MSG_ERROR([Could not find mecab.h! Make sure you install the mecab development files or or you can disable mecab support with ./configure --without-mecab])])
-fi
+#if test x$mecab = xtrue; then
+#  AC_CHECK_HEADER([mecab.h],
+#                  [AC_DEFINE([HAVE_MECAB], [1], [Define to 1 if mecab is enabled]) MECAB_LIBS="-lmecab -lstdc++" AC_SUBST(MECAB_LIBS)], 
+#                  [AC_MSG_ERROR([Could not find mecab.h! Make sure you install the mecab development files or or you can disable mecab support with ./configure --without-mecab])])
+#fi
 
 
 myspelldictpath=${datadir}/myspell/dicts
@@ -150,7 +150,7 @@ AC_SUBST(GWAEI_LOCALEDIR)
 
 AC_CONFIG_MACRO_DIR([m4])
 
-AC_CONFIG_FILES([Makefile src/Makefile src/libwaei/Makefile src/libwaei/include/libwaei/Makefile src/libwaei/tests/Makefile src/waei/Makefile src/waei/include/waei/Makefile src/libgwaei/Makefile src/libgwaei/include/libgwaei/Makefile src/gwaei/Makefile src/gwaei/mingw/Makefile src/gwaei/include/gwaei/Makefile mandir/Makefile src/gwaei/help/Makefile src/gwaei/help/gwaei.omf src/gwaei/help/C/gwaei.xml src/desktop/Makefile src/images/Makefile src/schemas/Makefile rpm/gwaei.spec rpm/fedora/SPECS/gwaei.spec po/Makefile.in src/kpengine/Makefile src/libwaei/doxyfile src/waei/doxyfile src/gwaei/doxyfile])
+AC_CONFIG_FILES([Makefile src/Makefile src/libwaei/Makefile src/libwaei/include/libwaei/Makefile src/libwaei/tests/Makefile src/waei/Makefile src/waei/include/waei/Makefile src/libgwaei/Makefile src/libgwaei/include/libgwaei/Makefile src/gwaei/Makefile src/gwaei/mingw/Makefile src/gwaei/include/gwaei/Makefile mandir/Makefile src/desktop/Makefile src/images/Makefile src/schemas/Makefile rpm/gwaei.spec rpm/fedora/SPECS/gwaei.spec po/Makefile.in src/kpengine/Makefile src/libwaei/doxyfile src/waei/doxyfile src/gwaei/doxyfile])
 
 AC_OUTPUT
 

@@ -113,4 +113,42 @@ lw_indexed_ref (LwIndexed *self)
 }
 
 
+gsize
+lw_indexed_get_serialized_length (LwIndexed   *self,
+                                  LwProgress  *progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, 0);
+
+    return lw_indexed_serialize (self, NULL, progress);
+}
+
+
+gsize
+lw_indexed_serialize (LwIndexed   *self,
+                       gchar      *preallocated_buffer,
+                       LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (preallocated_buffer != NULL);
+
+    return 0;
+}
+
+
+gsize
+lw_indexed_deserialize_into (LwIndexed  *self,
+                            const gchar *serialized_data,
+                            gsize        serialized_length,
+                            LwProgress  *progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, 0);
+    g_return_val_if_fail (serialized_data != NULL, 0);
+
+    return 0;
+}
+
+
 

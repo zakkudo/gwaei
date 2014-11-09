@@ -205,6 +205,8 @@ errored:
 }
 
 
+
+
 gboolean
 lw_cachefile_validate (LwCacheFile *self,
                        const gchar *EXPECTED_CHECKSUM,
@@ -339,6 +341,8 @@ errored:
 }
 
 
+
+
 //Private Methods/////////////////////////////
 
 
@@ -398,6 +402,7 @@ lw_cachefile_length (LwCacheFile *self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
+    g_return_val_if_fail (self->CHECKSUM < self->contents, 0);
 
     //Declarations
     GMappedFile *mapped_file = NULL;
@@ -407,6 +412,7 @@ lw_cachefile_length (LwCacheFile *self)
     mapped_file = self->mapped_file;
     if (mapped_file == NULL) goto errored;
     length = g_mapped_file_get_length (mapped_file);
+    length -= (self->contents - self->CHECKSUM);
 
 errored:
 
