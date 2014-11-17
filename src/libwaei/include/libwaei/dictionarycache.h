@@ -93,6 +93,8 @@ LwCacheFile* lw_dictionarycache_get_indexed_cachefile (LwDictionaryCache *self);
 
 void lw_dictionarycache_clear (LwDictionaryCache *self);
 
+gchar* lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache *self, const gchar *CONTENTS, gsize content_length, LwProgress  *progress);
+
 G_END_DECLS
 
 #endif

@@ -215,67 +215,56 @@ lw_cachefile_validate (LwCacheFile *self,
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
     g_return_val_if_fail (EXPECTED_CHECKSUM == NULL, FALSE);
-    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
+    g_return_val_if_fail (LW_IS_PROGRESS (progress))
+    if (lw_progress_should_abort (progress)) return FALSE;
 
     //Declarations
     gboolean is_valid = TRUE;
 
     if (self->CHECKSUM == NULL || !lw_utf8_validate (self->CHECKSUM, -1, NULL))
     {
-      if (progress != NULL)
-      {
-        lw_progress_take_error (progress, g_error_new (
-          LW_CACHEFILE_ERROR,
-          LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM,
-          "The checksum of the cache file %s is corrupt. It should be valid utf8",
-          self->path
-        ));
-      }
+      lw_progress_take_error (progress, g_error_new (
+        LW_CACHEFILE_ERROR,
+        LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM,
+        "The checksum of the cache file %s is corrupt. It should be valid utf8",
+        self->path
+      ));
       is_valid = FALSE;
       goto errored;
     }
 
     if (g_strcmp0 (EXPECTED_CHECKSUM, self->CHECKSUM) != 0)
     {
-      if (progress != NULL)
-      {
-        lw_progress_take_error (progress, g_error_new (
-          LW_CACHEFILE_ERROR,
-          LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM,
-          "The checksum for %s was different from exected\n",
-          self->path
-        ));
-      }
+      lw_progress_take_error (progress, g_error_new (
+        LW_CACHEFILE_ERROR,
+        LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM,
+        "The checksum for %s was different from exected\n",
+        self->path
+      ));
       is_valid = FALSE;
       goto errored;
     }
 
     if (self->contents == NULL)
     {
-      if (progress != NULL)
-      {
-        lw_progress_take_error (progress, g_error_new (
-          LW_CACHEFILE_ERROR,
-          LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS,
-          "The contents of the cachefile are missing %s",
-          self->path
-        ));
-      }
+      lw_progress_take_error (progress, g_error_new (
+        LW_CACHEFILE_ERROR,
+        LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS,
+        "The contents of the cachefile are missing %s",
+        self->path
+      ));
       is_valid = FALSE;
       goto errored;
     }
 
     if (!lw_utf8_validate (self->contents, -1, progress))
     {
-      if (progress != NULL)
-      {
-        lw_progress_take_error (progress, g_error_new (
-          LW_CACHEFILE_ERROR,
-          LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS,
-          "The cache file %s is corrupt. It should be valid utf8.",
-          self->path
-        ));
-      }
+      lw_progress_take_error (progress, g_error_new (
+        LW_CACHEFILE_ERROR,
+        LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS,
+        "The cache file %s is corrupt. It should be valid utf8.",
+        self->path
+      ));
       is_valid = FALSE;
       goto errored;
     }
@@ -298,7 +287,8 @@ lw_cachefile_read (LwCacheFile *self,
 {
     g_return_val_if_fail (self != NULL, FALSE);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, FALSE);
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), NULL);
+    if (lw_progress_should_abort (progress)) return NULL;
 
     //Declarations
     GError *error = NULL;
@@ -307,7 +297,7 @@ lw_cachefile_read (LwCacheFile *self,
 
     if (error != NULL || self->mapped_file == NULL)
     {
-      if (progress != NULL && error != NULL)
+      if (error != NULL)
       {
         lw_progress_take_error (progress, error);
         error = NULL;

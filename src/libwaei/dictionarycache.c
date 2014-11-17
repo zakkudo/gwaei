@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include <glib.h>
 
@@ -341,7 +342,7 @@ _write (LwDictionaryCache *self,
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     g_return_val_if_fail (CHECKSUM != NULL, NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    if (lw_progress_should_abort (progress)) return NULL;
 
     //Declarations
     gchar *path = NULL;
@@ -372,7 +373,7 @@ _map (LwDictionaryCache *   self,
 		g_return_val_if_fail (CONTENTS != NULL, NULL)
 		g_return_val_if_fail (content_length > 0, NULL)
     g_return_val_if_fail (LW_IS_PROGRESS (progress))
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    if (lw_progress_should_abort (progress)) return NULL;
 
 		//Declarations
 		gchar *path = NULL;
@@ -381,7 +382,7 @@ _map (LwDictionaryCache *   self,
 		gboolean has_error = FALSE;
 
     //Copy and normalize the dictionary contents
-    path = _write_normalized_temporary_file (self, CONTENTS, content_length, progress);
+    path = lw_dictionarycache_write_normalized_temporary_file (self, CONTENTS, content_length, progress);
     if (path == NULL) goto errored;
     mapped_file = lw_mappedfile_new (path, TRUE, &error);
     if (error != NULL)
@@ -642,7 +643,8 @@ _read_into_serializable (LwDictionaryCache *self,
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), NULL);
+    if (lw_progress_should_abort (progress)) return NULL;
 
     //Declarations
     gchar *path = NULL;
@@ -678,9 +680,10 @@ lw_dictionarycache_read (LwDictionaryCache *self,
                          LwProgress        *progress)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), FALSE);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, FALSE);
-    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), FALSE);
+    if (lw_progress_should_abort (progress)) return FALSE;
 
     //Initializations
     lw_dictionarycache_clear (self);
@@ -746,7 +749,8 @@ lw_dictionarycache_set_contents (LwDictionaryCache          *self,
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
     g_return_if_fail (CONTENTS != NULL);
     g_return_if_fail (parse == NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return;
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+    if (lw_progress_should_abort (progress)) return;
 
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
@@ -761,7 +765,7 @@ lw_dictionarycache_set_contents (LwDictionaryCache          *self,
 
     if (lw_dictionarycache_read (self, CHECKSUM, progress) == FALSE)
     {
-      if (progress != NULL) lw_progress_set_error (progress, NULL);
+      lw_progress_set_error (progress, NULL);
       lw_dictionarycache_write (self, CHECKSUM, CONTENTS, content_length, parse, data, progress);
       lw_dictionarycache_read (self, CHECKSUM, progress);
     }
@@ -1102,6 +1106,7 @@ _create_normalized_temporary_file (LwDictionaryCache  *self,
     gchar const * NAME = NULL;
     gchar *filename = NULL;
     gboolean has_error = FALSE;
+    gchar const * CONTENT = "uninitialized";
 
     //Initializations
     NAME = lw_dictionarycache_get_name (self);
@@ -1119,11 +1124,40 @@ _create_normalized_temporary_file (LwDictionaryCache  *self,
       goto errored;
     }
 
+    write(fd, CONTENT, strlen(CONTENT));
+
+    if (fsync(fd) != 0)
+    {
+      *error = g_error_new (
+        G_FILE_ERROR,
+        g_file_error_from_errno (errno),
+        "Could not create the temp file for parsing the dictionary %s",
+        filename
+      )
+      has_error = TRUE;
+      goto errored;
+    }
+
+    if (close(fd) != 0)
+    {
+      *error = g_error_new (
+        G_FILE_ERROR,
+        g_file_error_from_errno (errno),
+        "Could not close temp file for parsing the dictionary %s",
+        filename
+      )
+      has_error = TRUE;
+      goto errored;
+    }
+
     path = g_build_path (TMPDIR, filename, NULL);
 
 errored:
 
-    if (fd != -1) close (fd);
+    if (fd != -1)
+    {
+      close (fd); 
+    }
     fd = -1;
     g_free (tmpl);
     tmpl = NULL;
@@ -1135,16 +1169,16 @@ errored:
 
 
 gchar*
-_write_normalized_temporary_file (LwDictionaryCache *self,
-                                 const gchar *CONTENTS,
-                                 gsize        content_length,
-                                 LwProgress  *progress)
+lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache *self,
+                                                    const gchar *CONTENTS,
+                                                    gsize        content_length,
+                                                    LwProgress  *progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
     g_return_if_fail (CONTENTS != NULL);
     g_return_if_fail (LW_IS_PROGRESS (progress))
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    if (lw_progress_should_abort (progress)) return NULL;
 
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
