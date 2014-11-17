@@ -78,6 +78,12 @@ void lw_progress_set_step_message (LwProgress *self, const gchar *MESSAGE);
 void lw_progress_set_step_message_printf (LwProgress *self, const gchar *FORMAT, ...);
 const gchar* lw_progress_get_step_message (LwProgress *self);
 
+gsize lw_progress_get_prefered_chunk_size (LwProgress *self);
+void lw_progress_set_prefered_chunk_size (LwProgress *self, gsize prefered_chunk_size);
+
+gsize lw_progress_get_chunk_size (LwProgress *self);
+void lw_progress_set_chunk_size (LwProgress *self, gsize chunk_size);
+
 G_END_DECLS
 
 #endif

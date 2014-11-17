@@ -151,7 +151,7 @@ lw_utf8_validate (const gchar *TEXT,
     if (TEXT == NULL) return FALSE;
 
     //Declarations
-    gint page_size = 0;
+    gint chunk_size = 0;
     gint chunk = 0;
     gint i = 0;
     gunichar c = 0;
@@ -160,8 +160,8 @@ lw_utf8_validate (const gchar *TEXT,
     gsize offset = 0;
 
     //Initializations
-    page_size = lw_io_get_pagesize ();
-    if (page_size < 1) goto errored;
+    chunk_size = lw_progress_get_prefered_chunk_size (progress);
+    if (chunk_size < 1) goto errored;
     p = TEXT;
     if (p == NULL) goto errored;
     is_valid = TRUE;
@@ -193,7 +193,7 @@ lw_utf8_validate (const gchar *TEXT,
         goto errored;
       }
 
-      if (G_UNLIKELY (chunk >= page_size))
+      if (G_UNLIKELY (chunk >= chunk_size))
       {
         if (progress != NULL) lw_progress_set_current (progress, offset);
         chunk = 0;
@@ -285,6 +285,58 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
     *output_chunk = lw_utf8_normalize (TEXT, bytes_read, flags);
 
     return e - TEXT;
+}
+
+
+void
+lw_utf8_normalize_chunked (gchar const        * contents, 
+                           gsize                content_length,
+                           LwUtf8ChunkHandler   chunk_handler,
+                           gpointer             chunk_handler_data,
+                           LwProgress         * progress)
+{
+    //Sanity checks
+    g_return_if_fail (contents != NULL)
+    g_return_if_fail (content_length > 0)
+    g_return_if_fail (chunk_handler != NULL)
+    g_return_if_fail (LW_IS_PROGRESS (progress))
+
+		//Declarations
+		gint bytes_read = -1;
+		gsize bytes_written = 0;
+		gsize bytes_normalized = 0;
+		const char *C = CONTENTS;
+		gsize left = content_length;
+		gchar *normalized = NULL;
+    gsize chunk_size = 0;
+    gerror *error = NULL;
+
+    chunk_size = lw_progress_get_prefered_chunk_size (progress);
+
+		if (left < 1) goto errored;
+		while (*C != '\0' && C - CONTENTS < content_length)
+		{
+			bytes_read = lw_utf8_normalize_chunk (&normalized, C, flags, chunk_size);
+			bytes_normalized = strlen(normalized);
+			if (normalized != NULL)
+			{
+				handled_bytes = chunk_handler (normalized, bytes_normalized, chunk_hander_data, &error);
+		    g_free (normalized); normalized = NULL;
+				if (error != NULL)
+				{
+					if (progress != NULL)
+					{
+						lw_progress_take_error (progress, error);
+            error = NULL;
+					}
+          g_clear_error (&error);
+					has_error = TRUE;
+					goto errored;
+				}
+			}
+			C += bytes_read;
+			left -= bytes_read;
+		}
 }
 
 
@@ -444,15 +496,15 @@ lw_utf8_casefold (gchar      *TEXT,
     if (TEXT == NULL) return;
 
     //Declarations
-    gint page_size = 0;
+    gint chunk_size = 0;
     gint chunk = 0;
     gchar * c = NULL;
     
     //Initializations
     c = TEXT;
     if (c == NULL) goto errored;
-    page_size = lw_io_get_pagesize ();
-    if (page_size < 1) goto errored;
+    chunk_size = lw_progress_get_prefered_chunk_size (progress);
+    if (chunk_size < 1) goto errored;
     if (length < 1)
     {
       length = strlen(TEXT);
@@ -471,7 +523,7 @@ lw_utf8_casefold (gchar      *TEXT,
       while (*c != '\0' && i < length) {
         c = _casefold_character (c);
         i = c - TEXT;
-        if (G_UNLIKELY(chunk++ >= page_size))
+        if (G_UNLIKELY(chunk++ >= chunk_size))
         {
           lw_progress_set_current (progress, i);
           chunk = 0;
@@ -528,7 +580,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
 
     //Declarations
     GHashTable *conversions = NULL;
-    gint page_size = 0;
+    gint chunk_size = 0;
     gint chunk = 0;
     gchar * c = NULL;
     
@@ -537,8 +589,8 @@ lw_utf8_furiganafold (gchar      *TEXT,
     if (c == NULL) goto errored;
     conversions = _get_furiganafold_hashtable ();
     if (conversions == NULL) goto errored;
-    page_size = lw_io_get_pagesize ();
-    if (page_size < 1) goto errored;
+    chunk_size = lw_progress_get_prefered_chunk_size ();
+    if (chunk_size < 1) goto errored;
     if (length < 1)
     {
       length = strlen(TEXT);
@@ -557,7 +609,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
       while (*c != '\0' && i < length) {
         c = _furiganafold_character (c, conversions);
         i = c - TEXT;
-        if (G_UNLIKELY(chunk++ >= page_size))
+        if (G_UNLIKELY(chunk++ >= chunk_size))
         {
           lw_progress_set_current (progress, i);
           chunk = 0;
@@ -1669,11 +1721,11 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
 
     //Declarations    
     gint num_lines = 0;
-    gsize page_size = 0;
+    gsize chunk_size = 0;
 
     //Initializations
     if (content_length < 1) content_length = strlen(CONTENTS);
-    page_size = lw_io_get_pagesize ();
+    chunk_size = lw_progress_get_prefered_chunk_size ();
 
     if (progress != NULL)
     {
@@ -1716,7 +1768,7 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
           chunk += n - c;
           c = n;
         }
-        if (progress != NULL && chunk >= page_size)
+        if (progress != NULL && chunk >= chunk_size)
         {
           lw_progress_set_current (progress, c - CONTENTS);
           chunk = 0;

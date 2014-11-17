@@ -127,6 +127,12 @@ lw_progress_set_property (GObject        *object,
       case PROP_TOTAL_PROGRESS:
         lw_progress_set_total (self, g_value_get_double (value));
         break;
+      case PROP_CHUNK_SIZE:
+        lw_progress_set_chunk_size (self, g_value_get_long (value));
+        break;
+      case PROP_PREFERED_CHUNK_SIZE:
+        lw_progress_set_chunk_size (self, g_value_get_long (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -182,6 +188,12 @@ lw_progress_get_property (GObject    *object,
         break;
       case PROP_PROGRESS_FRACTION:
         g_value_set_double (value, lw_progress_get_fraction (self));
+        break;
+      case PROP_CHUNK_SIZE:
+        g_value_set_long (value, lw_progress_get_chunk_size (self));
+        break;
+      case PROP_PREFERED_CHUNK_SIZE:
+        g_value_set_long (value, lw_progress_get_prefered_chunk_size (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -1200,3 +1212,83 @@ lw_progress_get_step_message (LwProgress *self)
 }
 
 
+gsize
+lw_progress_get_prefered_chunk_size (LwProgress *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (progress != NULL, 0)
+    
+    LwProgressPriv *priv = NULL;
+
+    priv = self->priv;
+
+    return priv->prefered_chunk_size;
+}
+
+
+void
+lw_progress_set_prefered_chunk_size (LwProgress *self,
+                                     gsize       prefered_chunk_size)
+{
+    //Sanity checks
+    g_return_val_if_fail (progress != NULL, 0)
+    
+    LwProgressPriv *priv = NULL;
+
+    priv = self->priv;
+
+    if (priv->prefered_chunk_size == prefered_chunk_size) goto errored;
+
+    priv->prefered_chunk_size = prefered_chunk_size;
+
+    g_signal_emit (
+      G_OBJECT (self),
+      klasspriv->signalid[CLASS_SIGNALID_PREFERED_CHUNK_SIZE], 
+      0
+    );
+
+errored:
+
+    return;
+}
+
+
+gsize
+lw_progress_get_chunk_size (LwProgress *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (progress != NULL, 0)
+    
+    LwProgressPriv *priv = NULL;
+
+    priv = self->priv;
+
+    return priv->chunk_size;
+}
+
+
+void
+lw_progress_set_chunk_size (LwProgress *self,
+                            gsize       chunk_size)
+{
+    //Sanity checks
+    g_return_val_if_fail (progress != NULL, 0)
+    
+    LwProgressPriv *priv = NULL;
+
+    priv = self->priv;
+
+    if (priv->chunk_size == chunk_size) goto errored;
+
+    priv->chunk_size = chunk_size;
+
+    g_signal_emit (
+      G_OBJECT (self),
+      klasspriv->signalid[CLASS_SIGNALID_CHUNK_SIZE], 
+      0
+    );
+
+errored:
+
+    return;
+}

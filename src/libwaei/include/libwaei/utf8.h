@@ -40,6 +40,9 @@ typedef enum {
     LW_UTF8FLAG_FURIGANAFOLD
   )
 } LwUtf8Flag;
+
+typedef gsize*(*LwUtf8ChunkHandler)(gchar*, gsize, gpointer);
+
 GType lw_utf8flag_get_type (void);
 LwUtf8Flag lw_utf8flag_clean (LwUtf8Flag flags);
 #define LW_TYPE_UTF8FLAG (lw_utf8flag_get_type ())

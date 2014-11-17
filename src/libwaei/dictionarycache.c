@@ -41,6 +41,12 @@
 G_DEFINE_TYPE (LwDictionaryCache, lw_dictionarycache, G_TYPE_OBJECT)
 
 
+struct _LwWriteChunkData {
+  FILE *stream;
+  gsize bytes_written;
+}
+
+
 GQuark
 lw_dictionarycache_error_quark ()
 {
@@ -287,105 +293,6 @@ errored:
 }
 
 
-gchar*
-_make_normalized_temporary_file (LwDictionaryCache *self,
-                                 const gchar       *CONTENTS,
-                                 gsize              content_length,
-                                 LwProgress        *progress)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
-    g_return_if_fail (CONTENTS != NULL);
-
-    //Declarations
-    LwDictionaryCachePrivate *priv = NULL;
-    FILE *stream = NULL;
-    GMappedFile *mapped_file = NULL;
-    gchar *path = NULL;
-    gchar *tmpl = NULL;
-    const gchar *TMPDIR = NULL;
-    gint fd = -1;
-    gchar *name = NULL;
-    LwUtf8Flag flags = 0;
-    GError *error = NULL;
-    gsize page_size = -1;
-    gboolean has_error = FALSE;
-
-    //Initializations
-    priv = self->priv;
-    tmpl = g_strdup_printf ("%s.normalized.XXXX", lw_dictionarycache_get_name (self));
-    if (tmpl == NULL) goto errored;
-    TMPDIR = g_get_tmp_dir ();
-    if (TMPDIR == NULL) goto errored;
-    fd = g_file_open_tmp (tmpl, &name, &error);
-    if (error != NULL)
-    {
-      if (progress != NULL)
-      {
-        lw_progress_take_error (progress, g_error_new (
-          G_FILE_ERROR,
-          g_file_error_from_errno (ferror(stream)),
-          "Could not create the dictionary cache file, %s",
-          name
-        ));
-      }
-      has_error = TRUE;
-      goto errored;
-    }
-    if (fd == -1) goto errored;
-    flags = priv->flags;
-    stream = fdopen(fd, "w+");
-    if (stream == NULL) goto errored;
-    page_size = lw_io_get_pagesize ();
-    if (page_size < 1) goto errored;
-
-    //Normalize
-    {
-      gint bytes_read = -1;
-      gsize bytes_written = 0;
-      gsize bytes_normalized = 0;
-      const char *C = CONTENTS;
-      gsize left = content_length;
-      gchar *normalized = NULL;
-      if (left < 1) goto errored;
-      while (*C != '\0' && C - CONTENTS < content_length)
-      {
-        bytes_read = lw_utf8_normalize_chunk (&normalized, C, flags, page_size);
-        bytes_normalized = strlen(normalized);
-        if (normalized != NULL)
-        {
-          bytes_written = fwrite(C, sizeof(gchar), bytes_normalized, stream);
-          g_free (normalized); normalized = NULL;
-          if (bytes_written != bytes_normalized && ferror(stream) != 0)
-          {
-            if (progress != NULL)
-            {
-              lw_progress_take_error (progress, g_error_new (
-                G_FILE_ERROR,
-                g_file_error_from_errno (ferror(stream)),
-                "Could not write the dictionary cache temporary file, \"%s\"\n", 
-                name
-              ));
-            }
-            has_error = TRUE;
-            goto errored;
-          }
-        }
-        C += bytes_read;
-        left -= bytes_read;
-      }
-    }
-
-    fclose(stream); fd = -1;  stream = NULL;
-
-    path = g_build_path (TMPDIR, name, NULL);
-
-errored:
-
-    g_free (tmpl); tmpl = NULL;
-
-    return path;
-}
 
 
 static void
@@ -398,17 +305,25 @@ _write_mmapped (LwDictionaryCache *self,
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
     g_return_if_fail (CHECKSUM != NULL);
-    g_return_if_fail (CONTENTS != NULL);
+    g_return_if_fail (mapped_file != NULL);
 
     //Declarations
     gchar *path = NULL;
     LwCacheFile *cachefile = NULL;
+    gchar *contents = NULL;
+    gsize content_length = 0;
 
     //Initializations
+    contents = g_mapped_file_get_contents(mapped_file);
+    if (contents == NULL) goto errored;
+    content_length = g_mapped_file_get_length (mapped_file);
+    if (content_length < 1) goto errored;
     path = lw_dictionarycache_build_path (self, "normalized");
+    if (path == NULL) goto errored;
     cachefile = lw_cachefile_new (path);
+    if (cachefile == NULL) goto errored;
 
-    lw_cachefile_write (cachefile, CHECKSUM, CONTENTS, content_length, progress);
+    lw_cachefile_write (cachefile, CHECKSUM, contents, content_length, progress);
 
 errored:
 
@@ -437,7 +352,7 @@ _write (LwDictionaryCache *self,
     path = lw_dictionarycache_build_path (self, NAME);
     if (path == NULL) goto errored;
     cachefile = lw_cachefile_new (path);
-    bytes_written = lw_serializable_serialize_to_cachefile (serializable, CHECKSUM, cachefile, progress)
+    bytes_written = lw_serializable_serialize_to_cachefile (serializable, CHECKSUM, cachefile, progress);
 
 errored:
 
@@ -445,8 +360,52 @@ errored:
 }
 
 
-LwIndexed*
-_index (LwParsed *parsed)
+static LwMappedFile*
+_map (LwDictionaryCache *   self,
+      gchar const       *   CONTENTS,
+      gsize                 content_length,
+			gchar             * * path_out,
+      LwProgress        *   progress)
+{
+		//Sanity checks
+		g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL)
+		g_return_val_if_fail (CONTENTS != NULL, NULL)
+		g_return_val_if_fail (content_length > 0, NULL)
+    g_return_val_if_fail (LW_IS_PROGRESS (progress))
+    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+
+		//Declarations
+		gchar *path = NULL;
+		GMappedFile *mapped_file = NULL;
+		GError *error = NULL;
+		gboolean has_error = FALSE;
+
+    //Copy and normalize the dictionary contents
+    path = _write_normalized_temporary_file (self, CONTENTS, content_length, progress);
+    if (path == NULL) goto errored;
+    mapped_file = lw_mappedfile_new (path, TRUE, &error);
+    if (error != NULL)
+    {
+      lw_progress_take_error (progress, error);
+      error = NULL;
+      has_error = TRUE;
+      goto errored;
+    }
+
+errored:
+  
+    g_free (path);
+    path = NULL;
+    g_clear_error (error);
+
+		return mapped_file;
+}
+
+
+static LwIndexed*
+_index (LwDictionaryCache *self,
+        LwParsed          *parsed,
+        LwProgress        *progress)
 {
     //Sanity checks
     g_return_val_if_fail (parsed != NULL, NULL);
@@ -463,7 +422,9 @@ _index (LwParsed *parsed)
 }
 
 static LwParsed*
-_parse (GMappedFile *mapped_file)
+_parse (LwDictionaryCache *cache,
+        GMappedFile       *mapped_file,
+        LwProgress        *progress)
 {
     TODO
     parsed = parse (temporary_mapped_contents, temporary_mapped_content_length, data);
@@ -486,31 +447,25 @@ lw_dictionarycache_write (LwDictionaryCache          *self,
     g_return_if_fail (CHECKSUM != NULL);
     g_return_if_fail (CONTENTS != NULL);
 
-    //Copy and normalize the dictionary contents
-    temporary_file_path = _make_normalized_temporary_file (self, CONTENTS, content_length, progress);
-    if (temporary_file_path == NULL) goto errored;
-    temporary_mapped_file = g_mapped_file_new (temporary_file_path, TRUE, &error);
-    if (error != NULL)
-    {
-      if (progress != NULL)
-      {
-        lw_progress_take_error (progress, error);
-        error = NULL;
-      }
-      has_error = TRUE;
-      goto errored;
-    }
+    //Declarations
+    LwMappedFile *mapped = NULL;
+    LwParsed *parsed = NULL;
+    LwIndexed *indexed = NULL;
+
+    //Map the dictionary contents to a normalized file
+		mapped = _map (self, CHECKSUM, CONTENTS, content_length, progress)
+		if (mapped == NULL) goto errored;
 
     //Parse the dictionary, tokenizing the contents inline
-    parsed = _parsed (temporary_mapped_file)
+    parsed = _parse (self, temporary_mapped_file, progress)
     if (parsed == NULL) goto errored;
 
     //Create an index from the parsed data
-    indexed = _index (parsed);
+    indexed = _index (self, parsed, progress);
     if (indexed == NULL) goto errored;
 
     //Write the files perminently
-    normalized_cachefile = _write_mmapped (self, "normalized", CHECKSUM, temporary_mapped_file, progress);
+    normalized_cachefile = _write_mmapped (self, "normalized", CHECKSUM, mapped, progress);
     if (normalized_cachefile == NULL) goto errored;
     parsed_cachefile = _write (self, "parsed", CHECKSUM, LW_SERIALIZABLE (parsed), progress);
     if (parsed_cachefile == NULL) goto errored;
@@ -520,12 +475,12 @@ lw_dictionarycache_write (LwDictionaryCache          *self,
 errored:
 
     //Cleanup the temporary file
-    g_mapped_file_unref (temporary_mapped_file); temporary_mapped_file = NULL;
-    if (temporary_file_path != NULL)
+    if (mapped != NULL)
     {
-      remove(temporary_file_path);
-      g_free (temporary_file_path);
-      temporary_file_path = NULL;
+      gchar *path = lw_mappedfile_free (mapped, FALSE);
+      g_remove (path);
+      path = NULL;
+      mapped = NULL;
     }
 
     //Unreference the cachefiles
@@ -1101,4 +1056,125 @@ lw_dictionarycache_get_indexed (LwDictionaryCache *self)
     priv = self->priv;
 
     return priv->indexed;
+}
+
+
+static gsize
+_write_chunk (gchar              *chunk,
+              gsize               chunk_length,
+              _LwWriteChunkData  *data,
+              GError            **error)
+{
+		//Sanity checks
+		g_return_val_if_fail (chunk != NULL);
+		if (chunk_length < 1) return 0;
+		if (error != NULL && *error != NULL) return 0;
+
+		bytes_written = fwrite(chunk, sizeof(gchar), chunk_length, stream);
+    data.bytes_written += bytes_written;
+		if (bytes_written != chunk_length && ferror(stream) != 0)
+		{
+			*error = g_error_new (
+							G_FILE_ERROR,
+							g_file_error_from_errno (ferror(stream)),
+							"Could not write the dictionary cache temporary file, \"%s\"\n", 
+							name
+			)
+		}
+
+		return bytes_written;
+}
+
+
+gchar*
+_create_normalized_temporary_file (LwDictionaryCache  *self,
+                                   GError            **error)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL)
+    if (error != NULL && *error != NULL) return NULL;
+
+    //Declarations
+    gchar *path = NULL;
+    gchar *tmpl = NULL;
+    const gchar *TMPDIR = NULL;
+    gint fd = -1;
+    gchar const * NAME = NULL;
+    gchar *filename = NULL;
+    gboolean has_error = FALSE;
+
+    //Initializations
+    NAME = lw_dictionarycache_get_name (self);
+    if (NAME == NULL) goto errored;
+    tmpl = g_strdup_printf ("%s.normalized.XXXX", NAME);
+    if (tmpl == NULL) goto errored;
+    TMPDIR = g_get_tmp_dir ();
+    if (TMPDIR == NULL) goto errored;
+    fd = g_file_open_tmp (tmpl, &filename, &error);
+    if (error != NULL)
+    {
+      *error = error;
+      error = NULL;
+      has_error = TRUE;
+      goto errored;
+    }
+
+    path = g_build_path (TMPDIR, filename, NULL);
+
+errored:
+
+    if (fd != -1) close (fd);
+    fd = -1;
+    g_free (tmpl);
+    tmpl = NULL;
+    g_free (filename);
+    filename = NULL;
+
+    return path;
+}
+
+
+gchar*
+_write_normalized_temporary_file (LwDictionaryCache *self,
+                                 const gchar *CONTENTS,
+                                 gsize        content_length,
+                                 LwProgress  *progress)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
+    g_return_if_fail (CONTENTS != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (progress))
+    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+
+    //Declarations
+    LwDictionaryCachePrivate *priv = NULL;
+    LwUtf8Flag flags = 0;
+    LwWriteChunkData data = { 0 };
+
+    //Initializations
+    priv = self->priv;
+    flags = priv->flags;
+
+    //Create the temporary file
+    path = _create_normalized_temporary_file (self, &error);
+    if (error != NULL)
+    {
+      lw_progress_take_error (progress, error);
+      error = NULL;
+      has_error = TRUE;
+      goto errored;
+    }
+
+    //Write to it
+    data.stream = g_fopen (path, "w+");
+    lw_utf8_normalize_chunked (CONTENTS, content_length, flags, _write_chunk, data, progress)
+    if (lw_progress_should_abort (progress)) goto errored;
+
+errored:
+
+    if (data.stream != NULL) fclose(data.stream);
+    data.stream = NULL;
+    g_free (tmpl); tmpl = NULL;
+
+    return path;
 }
