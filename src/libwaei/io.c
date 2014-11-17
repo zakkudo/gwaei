@@ -82,14 +82,14 @@ lw_io_fwrite (FILE        *stream,
     g_return_val_if_fail (progress != NULL, 0);
 
     //Declarations
-    glong pagesize = 0;
+    glong chunk_size = 0;
     gsize chunk = 0;
     gsize offset = 0;
     gsize left = 0;
 
     //Initializations
-    pagesize = lw_io_get_pagesize ();
-    if (pagesize < 1) goto errored;
+    chunk_size = lw_progress_get_prefered_chunk_size ();
+    if (chunk_size < 1) goto errored;
 
     if (length < 0)
     {
@@ -102,7 +102,7 @@ lw_io_fwrite (FILE        *stream,
     while (length > 0 && feof(stream) == 0 && ferror(stream) == 0)
     {
       left = length - offset;
-      chunk = (pagesize > left) ? left : pagesize;
+      chunk = (chunk_size > left) ? left : chunk_size;
       offset += fwrite(TEXT + offset, 1, chunk, stream);
       if (progress != NULL) lw_progress_set_current (progress, offset);
     }
@@ -229,7 +229,7 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
     gsize length = 0;
     FILE *stream = NULL;
     gchar *buffer = NULL;
-    gsize page_size = -1;
+    gsize chunk_size = -1;
     GIConv conv = { 0 };
     gboolean has_error = FALSE;
     GError *error = NULL;
@@ -250,9 +250,9 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
     if (length < 1) goto errored;
     stream = g_fopen (TARGET_PATH, "wb");
     if (stream == NULL) goto errored;
-    page_size = lw_io_get_pagesize ();
-    if (page_size < 1) goto errored;
-    buffer = g_new (gchar, page_size);
+    chunk_size = lw_progress_get_prefered_chunk_size ();
+    if (chunk_size < 1) goto errored;
+    buffer = g_new (gchar, chunk_size);
     if (buffer == NULL) goto errored;
     conv = g_iconv_open (TARGET_ENCODING, SOURCE_ENCODING);
 
@@ -275,7 +275,7 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
       gsize buffer_size = NULL;
       while (C != NULL && C - CONTENTS < length)
       {
-        buffer_size = page_size;
+        buffer_size = chunk_size;
         offset = C - CONTENTS;
         C = _convert_encoding (conv, C, length - offset, buffer, &buffer_size);
         if (buffer_size > 0)
@@ -496,7 +496,7 @@ lw_io_copy (const gchar *SOURCE_PATH,
     gsize content_length = 0;
     FILE *stream = NULL;
     gsize chunk = 0;
-    gsize pagesize = 0;
+    gsize chunk_size = 0;
     gsize offset = 0;
     GError *error = NULL;
     gboolean has_error = FALSE;
@@ -520,7 +520,7 @@ lw_io_copy (const gchar *SOURCE_PATH,
     if (content_length < 1) goto errored;
     stream = g_fopen (TARGET_PATH, "wb");
     if (stream == NULL) goto errored;
-    pagesize = lw_io_get_pagesize ();
+    chunk_size = lw_progress_get_prefered_chunk_size ();
 
     if (progress != NULL)
     {
@@ -535,7 +535,7 @@ lw_io_copy (const gchar *SOURCE_PATH,
 
     while (chunk > 0)
     {
-      chunk = fwrite(contents + offset, sizeof(gchar), pagesize, stream);
+      chunk = fwrite(contents + offset, sizeof(gchar), chunk_size, stream);
       offset += chunk;
 
       if (progress != NULL)
@@ -604,7 +604,7 @@ lw_io_gunzip_file (const gchar *SOURCE_PATH,
     gzFile source = NULL;
     FILE *target = NULL;
     gint read = 0;
-    gint page_size = lw_io_get_pagesize ();
+    gint chunk_size = lw_progress_get_prefered_chunk_size ();
     gchar *buffer = NULL;
     gsize content_length = 0;
     gboolean has_error = FALSE;
@@ -633,7 +633,7 @@ lw_io_gunzip_file (const gchar *SOURCE_PATH,
       gsize uncompressed_bytes_read = 0;
       gsize offset = 0;
 
-      while ((uncompressed_bytes_read = gzread (source, buffer, page_size)) > 0)
+      while ((uncompressed_bytes_read = gzread (source, buffer, chunk_size)) > 0)
       {
         offset = gztell(source);
 
@@ -800,7 +800,7 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
     //Initializations
     gchar *tmpl = NULL;
     gchar *path = NULL;
-    gsize page_size = 0;
+    gsize chunk_size = 0;
     gint fd = -1;
     gchar *buffer = NULL;
     gboolean has_error = FALSE;
@@ -808,8 +808,8 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
 
     //Declarations
     tmpl = g_strdup ("gwaei.XXXXXX");
-    page_size = lw_io_get_pagesize ();
-    if (page_size == 0) goto errored;
+    chunk_size = lw_progress_get_prefered_chunk_size ();
+    if (chunk_size == 0) goto errored;
     path = g_build_path (g_get_tmp_dir (), tmpl, NULL);
     if (path == NULL) goto errored;
     fd = g_mkstemp (tmpl);
@@ -817,7 +817,7 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
     stream = fdopen (fd, "w+");
     if (stream == NULL) goto errored;
     fd = -1;
-    buffer = g_new0 (gchar, page_size);
+    buffer = g_new0 (gchar, chunk_size);
     if (buffer == NULL) goto errored;
 
     {
@@ -825,8 +825,8 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
       gsize bytes_to_write = 0;
       while (bytes_length > 0)
       {
-        bytes_to_write = (bytes_length > page_size) ? page_size : bytes_length;
-        if (bytes_written != page_size && ferror(stream) != 0)
+        bytes_to_write = (bytes_length > chunk_size) ? chunk_size : bytes_length;
+        if (bytes_written != chunk_size && ferror(stream) != 0)
         {
           if (progress != NULL)
           {

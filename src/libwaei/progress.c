@@ -128,10 +128,10 @@ lw_progress_set_property (GObject        *object,
         lw_progress_set_total (self, g_value_get_double (value));
         break;
       case PROP_CHUNK_SIZE:
-        lw_progress_set_chunk_size (self, g_value_get_long (value));
+        lw_progress_set_chunk_size (self, g_value_get_ulong (value));
         break;
       case PROP_PREFERED_CHUNK_SIZE:
-        lw_progress_set_chunk_size (self, g_value_get_long (value));
+        lw_progress_set_chunk_size (self, g_value_get_ulong (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -190,10 +190,10 @@ lw_progress_get_property (GObject    *object,
         g_value_set_double (value, lw_progress_get_fraction (self));
         break;
       case PROP_CHUNK_SIZE:
-        g_value_set_long (value, lw_progress_get_chunk_size (self));
+        g_value_set_ulong (value, lw_progress_get_chunk_size (self));
         break;
       case PROP_PREFERED_CHUNK_SIZE:
-        g_value_set_long (value, lw_progress_get_prefered_chunk_size (self));
+        g_value_set_ulong (value, lw_progress_get_prefered_chunk_size (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -363,6 +363,28 @@ lw_progress_class_init (LwProgressClass *klass)
         G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_PROGRESS_FRACTION, klasspriv->pspec[PROP_PROGRESS_FRACTION]);
+
+    klasspriv->pspec[PROP_CHUNK_SIZE] = g_param_spec_ulong (
+        "chunk-size",
+        "chunk size for transactions",
+        "Set the changed",
+        0,
+        G_MAXSIZE,
+        lw_io_get_pagesize (),
+        G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_CHUNK_SIZE, klasspriv->pspec[PROP_CHUNK_SIZE]);
+
+    klasspriv->pspec[PROP_PREFERED_CHUNK_SIZE] = g_param_spec_ulong (
+        "chunk-size",
+        "chunk size for transactions",
+        "Set the changed",
+        0,
+        G_MAXSIZE,
+        lw_io_get_pagesize (),
+        G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_PREFERED_CHUNK_SIZE, klasspriv->pspec[PROP_PREFERED_CHUNK_SIZE]);
 }
 
 

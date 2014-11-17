@@ -456,7 +456,7 @@ lw_dictionarycache_write (LwDictionaryCache          *self,
 		mapped = _map (self, CHECKSUM, CONTENTS, content_length, progress)
 		if (mapped == NULL) goto errored;
 
-    //Parse the dictionary, tokenizing the contents inline
+    //Parse the dictionary, tokenizing the contents inline in the mapped file
     parsed = _parse (self, temporary_mapped_file, progress)
     if (parsed == NULL) goto errored;
 
@@ -496,7 +496,7 @@ errored:
 
 void
 lw_dictionarycache_set_normalized_cachefile (LwDictionaryCache *self,
-                                           LwCacheFile       *cachefile)
+                                             LwCacheFile       *cachefile)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
