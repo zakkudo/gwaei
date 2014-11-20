@@ -135,7 +135,7 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
       _column_index_types[LW_EDICTIONARYCOLUMNID_DEFINITION] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
       _column_index_types[LW_EDICTIONARYCOLUMNID_CLASSIFICATION] = LW_DICTIONARYINDEXKEY_FILTER_ONLY;
       _column_index_types[LW_EDICTIONARYCOLUMNID_POPULAR] = LW_DICTIONARYINDEXKEY_FILTER_ONLY;
-      klass->_column_index_types = _column_index_types;
+      klass->priv->column_index_types = _column_index_types;
     }
 
     {
@@ -143,7 +143,7 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
       _column_languages[LW_EDICTIONARYCOLUMNID_WORD] = "ja"
       _column_languages[LW_EDICTIONARYCOLUMNID_READING] = "ja"
       _column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = "en"
-      klass->_column_language = _column_langages;
+      klass->priv->column_language = _column_langages;
     }
 }
 

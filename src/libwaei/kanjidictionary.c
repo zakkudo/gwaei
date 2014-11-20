@@ -126,7 +126,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
       _column_index_types[LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
       _column_index_types[LW_KANJIDICTIONARYCOLUMNID_ON_READINGS] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
       _column_index_types[LW_KANJIDICTIONARYCOLUMNID_MEANINGS] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      klass->priv->_column_index_types = _column_index_types;
+      klass->priv->column_index_types = _column_index_types;
     }
 
     {
@@ -140,7 +140,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
       _column_languages[LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS] = "ja";
       _column_languages[LW_KANJIDICTIONARYCOLUMNID_ON_READINGS] = "ja";
       _column_languages[LW_KANJIDICTIONARYCOLUMNID_MEANINGS] = "en";
-      klass->_column_language = _column_langages;
+      klass->priv->column_language = _column_langages;
     }
 }
 

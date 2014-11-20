@@ -117,7 +117,7 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
       _column_index_types[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
       _column_index_types[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
       _column_index_types[LW_EXAMPLEDICTIONARYCOLUMNID_ID] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      klass->priv->_column_index_types = _column_index_types;
+      klass->priv->column_index_types = _column_index_types;
     }
 
     {
@@ -125,7 +125,7 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
       _column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE] = "ja"
       _column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = "ja"
       _column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_ID] = "number"
-      klass->priv->_column_language = _column_langages;
+      klass->priv->column_language = _column_langages;
     }
 }
 

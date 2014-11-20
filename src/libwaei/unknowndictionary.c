@@ -112,12 +112,12 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
     {
       static gint _column_index_types[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
       _column_index_types[LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN,] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      klass->priv->_column_index_types = _column_index_types;
+      klass->priv->column_index_types = _column_index_types;
     }
 
     {
       static gchar* _column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
-      klass->priv->_column_language = _column_langages;
+      klass->priv->column_language = _column_langages;
     }
 }
 
