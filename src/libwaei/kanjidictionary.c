@@ -114,6 +114,34 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
     dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_kanjidictionary_parse;
+
+    {
+      static gint _column_index_types[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
+      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_KANJI] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
+      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
+      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
+      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
+      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
+      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
+      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
+      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_ON_READINGS] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
+      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_MEANINGS] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
+      klass->priv->_column_index_types = _column_index_types;
+    }
+
+    {
+      static gchar* _column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
+      _column_languages[LW_KANJIDICTIONARYCOLUMNID_KANJI] = "ja";
+      _column_languages[LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL] = "symbol";
+      _column_languages[LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY] = "number";
+      _column_languages[LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT] = "number";
+      _column_languages[LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL] = "number";
+      _column_languages[LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL] = "number";
+      _column_languages[LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS] = "ja";
+      _column_languages[LW_KANJIDICTIONARYCOLUMNID_ON_READINGS] = "ja";
+      _column_languages[LW_KANJIDICTIONARYCOLUMNID_MEANINGS] = "en";
+      klass->_column_language = _column_langages;
+    }
 }
 
 
