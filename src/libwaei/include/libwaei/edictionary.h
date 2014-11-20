@@ -9,29 +9,29 @@ typedef struct _LwEDictionary LwEDictionary;
 typedef struct _LwEDictionaryClass LwEDictionaryClass;
 typedef struct _LwEDictionaryPrivate LwEDictionaryPrivate;
 
-#define LW_EDICTIONARYTOKENNAME_WORD "Word"
-#define LW_EDICTIONARYTOKENNAME_READING "Reading"
-#define LW_EDICTIONARYTOKENNAME_DEFINITION "Definition"
-#define LW_EDICTIONARYTOKENNAME_CLASSIFICATION "Classification"
-#define LW_EDICTIONARYTOKENNAME_POPULAR "Popular"
+#define LW_EDICTIONARYCOLUMNNAME_WORD "Word"
+#define LW_EDICTIONARYCOLUMNNAME_READING "Reading"
+#define LW_EDICTIONARYCOLUMNNAME_DEFINITION "Definition"
+#define LW_EDICTIONARYCOLUMNNAME_CLASSIFICATION "Classification"
+#define LW_EDICTIONARYCOLUMNNAME_POPULAR "Popular"
 
-#define LW_EDICTIONARYTOKENNICK_WORD "word"
-#define LW_EDICTIONARYTOKENNICK_READING "reading"
-#define LW_EDICTIONARYTOKENNICK_DEFINITION "definition"
-#define LW_EDICTIONARYTOKENNICK_CLASSIFICATION "classification"
-#define LW_EDICTIONARYTOKENNICK_POPULAR "popular"
+#define LW_EDICTIONARYCOLUMNNICK_WORD "word"
+#define LW_EDICTIONARYCOLUMNNICK_READING "reading"
+#define LW_EDICTIONARYCOLUMNNICK_DEFINITION "definition"
+#define LW_EDICTIONARYCOLUMNNICK_CLASSIFICATION "classification"
+#define LW_EDICTIONARYCOLUMNNICK_POPULAR "popular"
 
 typedef enum {
-  LW_EDICTIONARYTOKENID_WORD,
-  LW_EDICTIONARYTOKENID_READING,
-  LW_EDICTIONARYTOKENID_DEFINITION,
-  LW_EDICTIONARYTOKENID_CLASSIFICATION,
-  LW_EDICTIONARYTOKENID_POPULAR,
-  TOTAL_EDICTIONARYTOKENIDS
-} LwEdictionaryTokenId;
+  LW_EDICTIONARYCOLUMNID_WORD,
+  LW_EDICTIONARYCOLUMNID_READING,
+  LW_EDICTIONARYCOLUMNID_DEFINITION,
+  LW_EDICTIONARYCOLUMNID_CLASSIFICATION,
+  LW_EDICTIONARYCOLUMNID_POPULAR,
+  TOTAL_EDICTIONARYCOLUMNIDS
+} LwEdictionaryColumnId;
 
-GType lw_edictionary_tokenid_get_type (void);
-#define LW_TYPE_EDICTIONARY_TOKENID (lw_edictionary_tokenid_get_type ())
+GType lw_edictionary_columnid_get_type (void);
+#define LW_TYPE_EDICTIONARYCOLUMNID (lw_edictionarycolumnid_get_type ())
 
 
 #define LW_TYPE_EDICTIONARY              (lw_edictionary_get_type())
@@ -48,6 +48,11 @@ struct _LwEDictionary {
 struct _LwEDictionaryClass {
   LwDictionaryClass parent_class;
 };
+
+
+primarykeys
+language
+
 
 //Methods
 LwDictionary* lw_edictionary_new (const gchar*, LwMorphologyEngine*);

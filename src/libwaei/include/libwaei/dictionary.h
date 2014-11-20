@@ -32,6 +32,17 @@ struct _LwDictionaryClass {
   LwDictionaryClassPrivate *priv;
 };
 
+typedef enum {
+  LW_DICTIONARYCOLUMNHANDLING_UNUSED, //!< Key is not indexed
+  LW_DICTIONARYCOLUMNHANDLING_SEARCH, //!< Key is not indexed
+  LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, //!< Key is indexed and is included by default for all searches
+  LW_DICTIONARYCOLUMNHANDLING_FILTER_ONLY //!< Key is indexed, but is only included when queried explicitly
+  TOTAL_DICTIONARYCOLUMNHANDLING
+} LwDictionaryColumnHandling;
+GType lw_dictionarycolumnhandling_get_type (void);
+#define LW_TYPE_DICTIONARYCOLUMNHANDLING (lw_dictionarycolumnhandling_get_type ())
+
+
 typedef LwParsed*(*LwDictionaryParseFunc)(LwDictionary*, gchar*, gsize, LwProgress*);
 
 //Methods

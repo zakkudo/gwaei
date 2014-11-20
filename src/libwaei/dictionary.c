@@ -268,6 +268,27 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
 }
 
 
+
+GType lw_dictionaryindexkey_get_type ()
+{
+    static GType type = 0;
+
+    if (G_UNLIKELY (type == 0))
+    {
+      GEnumValue values[] = {
+        { LW_DICTIONARYINDEXKEY_NOT_INDEXED, LW_EDICTIONARYINDEXKEYNAME_NOT_INDEXED, LW_DICTIONARYINDEXKEYNICK_NOT_INDEXED },
+        { LW_DICTIONARYINDEXKEY_IMPLICIT, LW_EDICTIONARYINDEXKEYNAME_IMPLICIT, LW_DICTIONARYINDEXKEYNICK_IMPLICIT },
+        { LW_DICTIONARYINDEXKEY_EXPLICIT_ONLY, LW_EDICTIONARYINDEXKEYNAME_EXPLICIT_ONLY, LW_DICTIONARYINDEXKEYNICK_EXPLICIT_ONLY },
+        { 0, NULL, NULL },
+      };
+
+      type = g_enum_register_static ("LwDictionaryIndexKey", values);
+    }
+
+    return type;
+}
+
+
 gsize
 lw_dictionary_length (LwDictionary *self)
 {
@@ -1402,7 +1423,7 @@ lw_dictionary_regex_search (LwDictionary  *self,
 
 
 gint
-_count_max_tokens (LwDictionary *self, gchar **lines, gint num_lines)
+_count_max_columns (LwDictionary *self, gchar **lines, gint num_lines)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), -1);
@@ -1443,8 +1464,8 @@ lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
     gchar *str = NULL;
     gchar **lines = NULL;
     gint num_lines = -1;
-    gint max_token_count = -1;
-    gchar **token_buffer = NULL;
+    gint max_column_count = -1;
+    gchar **column_buffer = NULL;
     LwDictionaryLine *dictionary_lines = NULL;
 
   /*TODO
@@ -1452,32 +1473,32 @@ lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
     //Initializations
     klass = LW_DICTIONARY_CLASS (self);
     klasspriv = klass->priv;
-    if (klasspriv->tokenize == NULL) goto errored;
-    if (klasspriv->load_tokens == NULL) goto errored;
+    if (klasspriv->columnize == NULL) goto errored;
+    if (klasspriv->load_columns == NULL) goto errored;
     str = lw_dictionarycache_str (buffer);
     if (str == NULL) goto errored;
     lines = lw_utf8_split_lines (str, &num_lines);
     if (lines == NULL) goto errored;
-    max_token_count = _count_max_tokens (self, lines, num_lines);
-    if (max_token_count < 1) goto errored;
-    token_buffer = g_new (gchar*, max_token_count);
-    if (token_buffer == NULL) goto errored;
+    max_column_count = _count_max_columns (self, lines, num_lines);
+    if (max_column_count < 1) goto errored;
+    column_buffer = g_new (gchar*, max_column_count);
+    if (column_buffer == NULL) goto errored;
     dictionary_lines = g_new (LwDictionaryLine, num_lines);
     if (dictionary_lines == NULL) goto errored;
 
     {
       gint i = 0;
-      gint num_tokens = 0;
+      gint num_columns = 0;
       for (i = 0; i < num_lines; i++)
       {
-        klasspriv->tokenize (self, lines[i], token_buffer, &num_tokens);
-        klasspriv->load_tokens (self, dictionary_lines + i, token_buffer, num_tokens);
+        klasspriv->columnize (self, lines[i], column_buffer, &num_columns);
+        klasspriv->load_columns (self, dictionary_lines + i, column_buffer, num_columns);
       }
     }
 
 errored:
 
-    g_free (token_buffer); token_buffer = NULL;
+    g_free (column_buffer); column_buffer = NULL;
 */
     return dictionary_lines;
 }

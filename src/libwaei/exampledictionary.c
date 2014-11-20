@@ -115,29 +115,29 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
 
 
 /**
- * lw_exampledictionary_tokenize
- * @buffer The text to tokenize.  It is tokenized in place and no copy is made.
- * @tokens A pointer to an alloced array to place the tokens.  This array
- * should have enough space to hold the tokenized buffer positions which is usually
- * (strlen(@buffer) + 1) * sizeof(gchar*).  The token array is %NULL terminated.
- * @num_tokens The number of tokens that were created in @tokens
+ * lw_exampledictionary_columnize
+ * @buffer The text to columnize.  It is columnized in place and no copy is made.
+ * @columns A pointer to an alloced array to place the columns.  This array
+ * should have enough space to hold the columnized buffer positions which is usually
+ * (strlen(@buffer) + 1) * sizeof(gchar*).  The column array is %NULL terminated.
+ * @num_columns The number of columns that were created in @columns
  *
- * Tokenizes a string given the standards of edict dictionaries by placing %NULL
- * characters in the buffer, and recording the positions in the @tokens array.
- * This method is made to token one line at a time.
+ * Columnizes a string given the standards of edict dictionaries by placing %NULL
+ * characters in the buffer, and recording the positions in the @columns array.
+ * This method is made to column one line at a time.
  *
- * Returns: The end of the filled token array
+ * Returns: The end of the filled column array
  */
 static gchar**
-lw_exampledictionary_tokenize_line (LwExampleDictionary  *self,
+lw_exampledictionary_columnize_line (LwExampleDictionary  *self,
                                     gchar                *buffer,
-                                    gchar               **tokens,
-                                    gsize                *num_tokens)
+                                    gchar               **columns,
+                                    gsize                *num_columns)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_EXAMPLEDICTIONARY (self));
     g_return_val_if_fail (buffer != NULL, NULL);
-    g_return_val_if_fail (tokens != NULL, NULL);
+    g_return_val_if_fail (columns != NULL, NULL);
 
     //Declarations
     gchar *c = NULL;
@@ -164,7 +164,7 @@ lw_exampledictionary_tokenize_line (LwExampleDictionary  *self,
     //   HERE
     //B: 直ぐに{すぐに} 戻る{戻ります}
 
-    tokens[length++] = c;
+    columns[length++] = c;
 
     while (*c != '\0' && !g_ascii_isspace (*c)) c = g_utf8_next_char (c);
     if (*c == '\0') goto errored;
@@ -181,7 +181,7 @@ lw_exampledictionary_tokenize_line (LwExampleDictionary  *self,
     //                    HERE
     //B: 直ぐに{すぐに} 戻る{戻ります}
 
-    tokens[length++] = c;
+    columns[length++] = c;
 
     while (*c != '\0' && *c != '#') c = g_utf8_next_char (c);
     if (*c == '\0') goto errored;
@@ -195,33 +195,33 @@ lw_exampledictionary_tokenize_line (LwExampleDictionary  *self,
     //                                        HERE
     //B: 直ぐに{すぐに} 戻る{戻ります}
 
-    tokens[length++] = c;
+    columns[length++] = c;
 
 errored:
 
-    tokens[length] = NULL;
+    columns[length] = NULL;
 
-    if (num_tokens != NULL)
+    if (num_columns != NULL)
     {
-      *num_tokens = length;
+      *num_columns = length;
     }
 
-    return tokens + length;
+    return columns + length;
 }
 
 
 static void
-lw_exampledictionary_load_line_tokens (LwExampleDictionary  *self,
+lw_exampledictionary_load_line_columns (LwExampleDictionary  *self,
                                        gchar                *buffer,
-                                       gchar               **tokens,
-                                       gint                  num_tokens,
+                                       gchar               **columns,
+                                       gint                  num_columns,
                                        LwDictionaryLine     *line)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_EXAMPLEDICTIONARY (self));
     g_return_if_fail (buffer != NULL);
-    g_return_if_fail (tokens != NULL);
-    g_return_if_fail (num_tokens > 0);
+    g_return_if_fail (columns != NULL);
+    g_return_if_fail (num_columns > 0);
     g_return_if_fail (line != NULL);
 
     //Declarations
@@ -243,9 +243,9 @@ lw_exampledictionary_load_line_tokens (LwExampleDictionary  *self,
       //B: 直ぐに{すぐに} 戻る{戻ります}
       //   ^
       //   HERE
-      if (tokens[i] != NULL && i < num_tokens)
+      if (columns[i] != NULL && i < num_columns)
       {
-        g_array_append_val (phrase, tokens[i]);
+        g_array_append_val (phrase, columns[i]);
         i++;
       }
 
@@ -254,9 +254,9 @@ lw_exampledictionary_load_line_tokens (LwExampleDictionary  *self,
       //B: 直ぐに{すぐに} 戻る{戻ります}
       //                    ^
       //                    HERE
-      if (tokens[i] != NULL && i < num_tokens)
+      if (columns[i] != NULL && i < num_columns)
       {
-        g_array_append_val (meaning, tokens[i]);
+        g_array_append_val (meaning, columns[i]);
         i++;
       }
 
@@ -265,9 +265,9 @@ lw_exampledictionary_load_line_tokens (LwExampleDictionary  *self,
       //B: 直ぐに{すぐに} 戻る{戻ります}
       //                                         ^
       //                                         HERE
-      if (tokens[i] != NULL && i < num_tokens)
+      if (columns[i] != NULL && i < num_columns)
       {
-        g_array_append_val (id, tokens[i]);
+        g_array_append_val (id, columns[i]);
         i++;
       }
     }
@@ -280,19 +280,19 @@ errored:
 
     lw_dictionaryline_take_strv (
       line,
-      LW_EXAMPLEDICTIONARYTOKENID_PHRASE,
+      LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE,
       (gchar**) g_array_free (phrase, FALSE)
     );
 
     lw_dictionaryline_take_strv (
       line,
-      LW_EXAMPLEDICTIONARYTOKENID_MEANING,
+      LW_EXAMPLEDICTIONARYCOLUMNID_MEANING,
       (gchar**) g_array_free (meaning, FALSE)
     );
 
     lw_dictionaryline_take_strv (
       line,
-      LW_EXAMPLEDICTIONARYTOKENID_ID,
+      LW_EXAMPLEDICTIONARYCOLUMNID_ID,
       (gchar**) g_array_free (id, FALSE)
     );
 }
@@ -314,9 +314,9 @@ lw_exampledictionary_parse (LwExampleDictionary *self,
 
     //Declarations
     gint num_lines = 0;
-    gchar **tokens = NULL;
+    gchar **columns = NULL;
     gsize max_line_length = 0;
-    gsize num_tokens = 0;
+    gsize num_columns = 0;
     gint length = -1;
     LwParsed *parsed = NULL;
     LwDictionaryLine *lines = NULL;
@@ -330,8 +330,8 @@ lw_exampledictionary_parse (LwExampleDictionary *self,
     if (parsed == NULL) goto errored;
     lines = g_new0 (LwDictionaryLine, num_lines);
     if (lines == NULL) goto errored;
-    tokens = g_new0 (gchar*, max_line_length + 1);
-    if (tokens == NULL) goto errored;
+    columns = g_new0 (gchar*, max_line_length + 1);
+    if (columns == NULL) goto errored;
 
     if (progress != NULL)
     {
@@ -353,8 +353,8 @@ lw_exampledictionary_parse (LwExampleDictionary *self,
 
         line = lines + i;
         lw_dictionaryline_init (line);
-        lw_exampledictionary_tokenize_line (self, c, tokens, &num_tokens);
-        lw_exampledictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
+        lw_exampledictionary_columnize_line (self, c, columns, &num_columns);
+        lw_exampledictionary_load_line_columns (self, contents, columns, num_columns, line);
         if (progress != NULL)
         {
           lw_progress_set_current (progress, c - contents);
@@ -372,7 +372,7 @@ lw_exampledictionary_parse (LwExampleDictionary *self,
 
 errored:
 
-    g_free (tokens); tokens = NULL;
+    g_free (columns); columns = NULL;
     if (parsed != NULL) lw_parsed_unref (parsed); parsed = NULL;
 }
 
