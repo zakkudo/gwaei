@@ -50,10 +50,6 @@ struct _LwEDictionaryClass {
 };
 
 
-primarykeys
-language
-
-
 //Methods
 LwDictionary* lw_edictionary_new (const gchar*, LwMorphologyEngine*);
 GType lw_edictionary_get_type (void) G_GNUC_CONST;

@@ -19,8 +19,15 @@ typedef enum {
   LW_IO_ERRORCODE_FAILED_REMOVING_FILE
 } LwIoErrorCode;
 
+struct _LwIoWriteChunkData {
+  FILE *stream;
+  gsize bytes_written;
+};
+typedef struct _LwIoWriteChunkData LwIoWriteChunkData;
+
 gsize lw_io_fwrite (FILE *stream, const gchar *TEXT, gint length, LwProgress  *progress);
 gsize lw_io_write_file (const gchar *PATH, const gchar *MODE, const gchar *TEXT, gint length, LwProgress  *progress);
+gsize lw_io_write_chunk (gchar *chunk, gsize chunk_length, LwIoWriteChunkData *data, GError **error);
 
 gboolean lw_io_remove (const gchar *URI, LwProgress *progress);
 

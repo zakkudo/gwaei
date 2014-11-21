@@ -291,6 +291,7 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
 void
 lw_utf8_normalize_chunked (gchar const        * contents, 
                            gsize                content_length,
+                           LwUtf8Flag           flags,
                            LwUtf8ChunkHandler   chunk_handler,
                            gpointer             chunk_handler_data,
                            LwProgress         * progress)

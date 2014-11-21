@@ -50,7 +50,7 @@ gboolean lw_dictionarycache_validate (LwDictionaryCache *self, const gchar *EXPE
 gboolean lw_dictionarycache_is_modifiable (LwDictionaryCache *self);
 
 void lw_dictionarycache_write (LwDictionaryCache *self, const gchar *CHECKSUM, gchar const *CONTENTS, gsize content_length, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress *progress);
-gboolean lw_dictionarycache_read (LwDictionaryCache *self, gchar const *EXPECTED_CHECKSUM, LwProgress *progress);
+void lw_dictionarycache_read (LwDictionaryCache *self, gchar const *EXPECTED_CHECKSUM, LwProgress *progress);
 
 //Properties
 LwProgress* lw_dictionarycache_get_progress (LwDictionaryCache *self);

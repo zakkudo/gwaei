@@ -52,6 +52,15 @@ struct _DeserializeData {
 };
 
 
+struct _LwParsed {
+  gsize num_lines; //! < The number of lines
+  gchar *contents_reference_pointer; //! < The reference point of each strv
+  gsize content_length;
+  LwDictionaryLine *lines; //! < A set of categorized strvs
+  gint ref_count;
+};
+
+
 LwParsed*
 lw_parsed_new (gchar *contents,
                gsize  content_length)

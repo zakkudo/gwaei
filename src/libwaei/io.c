@@ -860,4 +860,28 @@ errored:
 }
 
 
+gsize
+lw_io_write_chunk_with_data (gchar               *chunk,
+                             gsize                chunk_length,
+                             LwIoWriteChunkData  *data,
+                             GError             **error)
+{
+		//Sanity checks
+		g_return_val_if_fail (chunk != NULL);
+		if (chunk_length < 1) return 0;
+		if (error != NULL && *error != NULL) return 0;
 
+		bytes_written = fwrite(chunk, sizeof(gchar), chunk_length, stream);
+    data.bytes_written += bytes_written;
+		if (bytes_written != chunk_length && ferror(stream) != 0)
+		{
+			*error = g_error_new (
+							G_FILE_ERROR,
+							g_file_error_from_errno (ferror(stream)),
+							"Could not write the dictionary cache temporary file, \"%s\"\n", 
+							name
+			)
+		}
+
+		return bytes_written;
+}

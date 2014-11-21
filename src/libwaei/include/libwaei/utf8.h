@@ -64,6 +64,7 @@ gboolean lw_utf8_validate (const gchar *TEXT, gint length, LwProgress *progress)
 
 gchar* lw_utf8_normalize (const gchar *TEXT, gssize length, LwUtf8Flag flags);
 gint lw_utf8_normalize_chunk (gchar ** output_chunk, const gchar *TEXT, LwUtf8Flag flags, gssize max_length);
+void lw_utf8_normalize_chunked (gchar const * contents, gsize content_length, LwUtf8Flag flags, LwUtf8ChunkHandler chunk_handler, gpointer chunk_handler_data, LwProgress *progress);
 
 G_END_DECLS
 
