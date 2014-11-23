@@ -160,7 +160,7 @@ lw_utf8_validate (const gchar *TEXT,
     gsize offset = 0;
 
     //Initializations
-    chunk_size = lw_progress_get_prefered_chunk_size (progress);
+    chunk_size = lw_progress_get_chunk_size (progress);
     if (chunk_size < 1) goto errored;
     p = TEXT;
     if (p == NULL) goto errored;
@@ -314,7 +314,7 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
     GError *error = NULL;
     gboolean has_error = FALSE;
 
-    chunk_size = lw_progress_get_prefered_chunk_size (progress);
+    chunk_size = lw_progress_get_chunk_size (progress);
 
 		if (left < 1) goto errored;
 		while (*C != '\0' && C - CONTENTS < content_length)
@@ -506,7 +506,7 @@ lw_utf8_casefold (gchar      *TEXT,
     //Initializations
     c = TEXT;
     if (c == NULL) goto errored;
-    chunk_size = lw_progress_get_prefered_chunk_size (progress);
+    chunk_size = lw_progress_get_chunk_size (progress);
     if (chunk_size < 1) goto errored;
     if (length < 1)
     {
@@ -592,7 +592,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
     if (c == NULL) goto errored;
     conversions = _get_furiganafold_hashtable ();
     if (conversions == NULL) goto errored;
-    chunk_size = lw_progress_get_prefered_chunk_size (progress);
+    chunk_size = lw_progress_get_chunk_size (progress);
     if (chunk_size < 1) goto errored;
     if (length < 1)
     {
@@ -1728,7 +1728,7 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
 
     //Initializations
     if (content_length < 1) content_length = strlen(CONTENTS);
-    chunk_size = lw_progress_get_prefered_chunk_size (progress);
+    chunk_size = lw_progress_get_chunk_size (progress);
 
     if (progress != NULL)
     {
