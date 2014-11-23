@@ -45,6 +45,9 @@
 G_DEFINE_TYPE (LwExampleDictionary, lw_exampledictionary, LW_TYPE_DICTIONARY)
 
 static LwParsed* lw_exampledictionary_parse (LwExampleDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+static gint lw_exampledictionary_get_total_columns (LwDictionary *self);
+static gchar const * lw_exampledictionary_get_column_language (LwDictionary *self, gint column_num);
+static LwDictionaryColumnHandling lw_exampledictionary_get_column_handling (LwDictionary *self, gint column_num);
 
 LwDictionary* lw_exampledictionary_new (const gchar        *FILENAME,
                                         LwMorphologyEngine *morphologyengine)
@@ -111,22 +114,68 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
     dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_exampledictionary_parse;
+    dictionary_class->priv->get_column_handling = lw_exampledictionary_get_column_handling;
+    dictionary_class->priv->get_total_columns = lw_exampledictionary_get_total_columns;
+    dictionary_class->priv->get_column_language = lw_exampledictionary_get_column_language;
+}
 
+
+static gint
+lw_exampledictionary_get_total_columns (LwDictionary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), 0);
+
+    return TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS;
+}
+
+
+
+static gchar const *
+lw_exampledictionary_get_column_language (LwDictionary *self,
+                                    gint          column_num)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), 0);
+    g_return_val_if_fail (column_num > -1, 0);
+    g_return_val_if_fail (column_num < TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS, 0);
+
+    static gboolean initialized = FALSE;
+    static gchar const * column_languages[TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS] = {0};
+
+    if (G_UNLIKELY (initialized == FALSE))
     {
-      static gint _column_index_types[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
-      _column_index_types[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_EXAMPLEDICTIONARYCOLUMNID_ID] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      klass->priv->column_index_types = _column_index_types;
+      initialized = TRUE;
+      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE] = "ja";
+      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = "ja";
+      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_ID] = "number";
     }
 
+    return column_languages[column_num];
+}
+
+
+static LwDictionaryColumnHandling
+lw_exampledictionary_get_column_handling (LwDictionary *self,
+                                           gint          column_num)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), 0);
+    g_return_val_if_fail (column_num > -1, 0);
+    g_return_val_if_fail (column_num < TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS, 0);
+
+    static gboolean initialized = FALSE;
+    static gint column_handlings[TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS] = {0};
+
+    if (G_UNLIKELY (initialized == FALSE))
     {
-      static gchar* _column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
-      _column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE] = "ja"
-      _column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = "ja"
-      _column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_ID] = "number"
-      klass->priv->column_language = _column_langages;
+      initialized = TRUE;
+      column_handlings[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_EXAMPLEDICTIONARYCOLUMNID_ID] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
     }
+
+    return column_handlings[column_num];
 }
 
 

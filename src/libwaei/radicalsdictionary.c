@@ -43,6 +43,9 @@
 #include <libwaei/gettext.h>
 
 static LwParsed* lw_radicalsdictionary_parse (LwRadicalsDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+static gint lw_radicalsdictionary_get_total_columns (LwDictionary *self);
+static gchar const * lw_radicalsdictionary_get_column_language (LwDictionary *self, gint column_num);
+static LwDictionaryColumnHandling lw_radicalsdictionary_get_column_handling (LwDictionary *self, gint column_num);
 
 G_DEFINE_TYPE (LwRadicalsDictionary, lw_radicalsdictionary, LW_TYPE_DICTIONARY)
 
@@ -108,20 +111,66 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
     dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_radicalsdictionary_parse;
+    dictionary_class->priv->get_column_handling = lw_radicalsdictionary_get_column_handling;
+    dictionary_class->priv->get_total_columns = lw_radicalsdictionary_get_total_columns;
+    dictionary_class->priv->get_column_language = lw_radicalsdictionary_get_column_language;
+}
 
+
+static gint
+lw_radicalsdictionary_get_total_columns (LwDictionary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_RADICALSDICTIONARY (self), 0);
+
+    return TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS;
+}
+
+
+
+static gchar const *
+lw_radicalsdictionary_get_column_language (LwDictionary *self,
+                                    gint          column_num)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_RADICALSDICTIONARY (self), 0);
+    g_return_val_if_fail (column_num > -1, 0);
+    g_return_val_if_fail (column_num < TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS, 0);
+
+    static gboolean initialized = FALSE;
+    static gchar const * column_languages[TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS] = {0};
+
+    if (G_UNLIKELY (initialized == FALSE))
     {
-      static gint _column_index_types[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
-      _column_index_types[LW_RADICALSDICTIONARYCOLUMNID_KANJI] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_RADICALSDICTIONARYCOLUMNID_RADICALS] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      klass->priv->column_index_types = _column_index_types;
+      initialized = TRUE;
+      column_languages[LW_RADICALSDICTIONARYCOLUMNID_KANJI] = "ja";
+      column_languages[LW_RADICALSDICTIONARYCOLUMNID_RADICALS] = "ja";
     }
 
+    return column_languages[column_num];
+}
+
+
+static LwDictionaryColumnHandling
+lw_radicalsdictionary_get_column_handling (LwDictionary *self,
+                                           gint          column_num)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_RADICALSDICTIONARY (self), 0);
+    g_return_val_if_fail (column_num > -1, 0);
+    g_return_val_if_fail (column_num < TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS, 0);
+
+    static gboolean initialized = FALSE;
+    static gint column_handlings[TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS] = {0};
+
+    if (G_UNLIKELY (initialized == FALSE))
     {
-      static gchar* _column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
-      _column_languages[LW_RADICALSDICTIONARYCOLUMNID_KANJI] = "ja"
-      _column_languages[LW_RADICALSDICTIONARYCOLUMNID_RADICALS] = "ja"
-      klass->priv->column_language = _column_langages;
+      initialized = TRUE;
+      column_handlings[LW_RADICALSDICTIONARYCOLUMNID_KANJI] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_RADICALSDICTIONARYCOLUMNID_RADICALS] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
     }
+
+    return column_handlings[column_num];
 }
 
 

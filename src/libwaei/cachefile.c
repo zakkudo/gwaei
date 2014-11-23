@@ -215,7 +215,7 @@ lw_cachefile_validate (LwCacheFile *self,
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
     g_return_val_if_fail (EXPECTED_CHECKSUM == NULL, FALSE);
-    g_return_val_if_fail (LW_IS_PROGRESS (progress))
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), FALSE);
     if (lw_progress_should_abort (progress)) return FALSE;
 
     //Declarations

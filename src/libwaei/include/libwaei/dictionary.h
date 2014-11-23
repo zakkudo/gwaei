@@ -67,9 +67,6 @@ const gchar* lw_dictionary_get_filename (LwDictionary *self);
 
 const gchar* lw_dictionary_get_name (LwDictionary *self);
 
-LwMorphologyEngine* lw_dictionary_get_morphologyengine (LwDictionary *self);
-void lw_dictionary_set_morphologyengine (LwDictionary *self, LwMorphologyEngine *morphology_engine);
-
 LwProgress* lw_dictionary_get_progress (LwDictionary *self);
 void lw_dictionary_set_progress (LwDictionary *self, LwProgress *progress);
 
@@ -78,6 +75,9 @@ size_t lw_dictionary_length (LwDictionary *self);
 const gchar* lw_dictionary_get_checksum (LwDictionary *self);
 const gchar* lw_dictionary_get_contents (LwDictionary *self);
 
+gint lw_dictionary_total_columns (LwDictionary *self);
+gchar const * lw_dictionary_get_column_language (LwDictionary *self, gint column_num);
+LwDictionaryColumnHandling lw_dictionary_get_column_handling (LwDictionary *self, gint column_num);
 
 gboolean lw_dictionary_equals (LwDictionary *dictionary1, LwDictionary *dictionary2);
 

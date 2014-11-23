@@ -8,7 +8,6 @@ typedef enum
   PROP_0,
   PROP_FILENAME,
   PROP_NAME,
-  PROP_MORPHOLOGYENGINE,
   PROP_PROGRESS,
   PROP_ID,
   PROP_PATH,
@@ -28,7 +27,6 @@ struct _Data {
   gchar *path;
   GTree *caches;
 
-  LwMorphologyEngine *morphology_engine;
   GMutex mutex;
   gchar *name;
   LwProgress *progress;
@@ -56,8 +54,9 @@ struct _LwDictionaryClassPrivate {
 
   //Virtual methods
   LwDictionaryParseFunc parse;
-  gchar const * column_langauges;
-  gint column_index_types;
+  gint (* get_total_columns) (LwDictionary *self);
+  gchar const * (* get_column_language) (LwDictionary *self, gint column_num);
+  LwDictionaryColumnHandling (* get_column_handling) (LwDictionary *self, gint column_num);
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));

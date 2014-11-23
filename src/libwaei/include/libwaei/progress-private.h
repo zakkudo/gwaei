@@ -33,6 +33,8 @@ typedef enum {
 struct _Data {
   GMutex mutex;
 
+  gsize chunk_size;
+
   GCancellable *cancellable;
   GError *error;
 
@@ -56,6 +58,7 @@ struct _Data {
 struct _Config {
   gchar *filename;
   gdouble required_ratio_delta;
+  gsize prefered_chunk_size;
 };
 
 struct _LwProgressPrivate {

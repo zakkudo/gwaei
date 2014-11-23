@@ -32,18 +32,13 @@
 #include <string.h>
 
 #include <glib.h>
+#include <glib-object.h>
 
 #include <libwaei/gettext.h>
 #include <libwaei/mappedfile.h>
 
 
-struct _LwMappedFile {
-	gchar *path;
-  GMappedFile *mapped_file;
-	gint ref_count;
-};
-
-
+LwMappedFile*
 lw_mappedfile_new (gchar const *  PATH,
 									 gboolean       writable,
 									 GError      ** error)
@@ -57,14 +52,14 @@ lw_mappedfile_new (gchar const *  PATH,
 		mapped_file = g_mapped_file_new (PATH, writable, error);
 		if (mapped_file == NULL) goto errored;
 		path = g_strdup (PATH);
-		if (path == NULL) goto error;
+		if (path == NULL) goto errored;
 		self = g_new0 (LwMappedFile, 1);
 		if (mapped_file == NULL) goto errored;
-		self.mapped_file = mapped_file;
+		self->mapped_file = mapped_file;
 		mapped_file = NULL;
-		self.path = path;
+		self->path = path;
 		path = NULL;
-		mapped_file.ref_count = 1;
+		self->ref_count = 1;
 
 errored:
 
@@ -81,10 +76,10 @@ gchar*
 lw_mappedfile_free (LwMappedFile *self, gboolean free_path)
 {
 		//Sanity checks
-		if (self == NULL) return;
+		if (self == NULL) return NULL;
 
     //Declarations
-    gboolean path = NULL;
+    gchar* path = NULL;
 
     if (!free_path)
     {
@@ -94,7 +89,7 @@ lw_mappedfile_free (LwMappedFile *self, gboolean free_path)
 
 		if (self->mapped_file != NULL)
 			g_mapped_file_unref (self->mapped_file);
-		g_free (self->path;
+		g_free (self->path);
 		memset(self, 0, sizeof(LwMappedFile));
 		g_free (self);
 

@@ -88,7 +88,7 @@ lw_io_fwrite (FILE        *stream,
     gsize left = 0;
 
     //Initializations
-    chunk_size = lw_progress_get_prefered_chunk_size ();
+    chunk_size = lw_progress_get_prefered_chunk_size (progress);
     if (chunk_size < 1) goto errored;
 
     if (length < 0)
@@ -250,7 +250,7 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
     if (length < 1) goto errored;
     stream = g_fopen (TARGET_PATH, "wb");
     if (stream == NULL) goto errored;
-    chunk_size = lw_progress_get_prefered_chunk_size ();
+    chunk_size = lw_progress_get_prefered_chunk_size (progress);
     if (chunk_size < 1) goto errored;
     buffer = g_new (gchar, chunk_size);
     if (buffer == NULL) goto errored;
@@ -520,7 +520,7 @@ lw_io_copy (const gchar *SOURCE_PATH,
     if (content_length < 1) goto errored;
     stream = g_fopen (TARGET_PATH, "wb");
     if (stream == NULL) goto errored;
-    chunk_size = lw_progress_get_prefered_chunk_size ();
+    chunk_size = lw_progress_get_prefered_chunk_size (progress);
 
     if (progress != NULL)
     {
@@ -604,7 +604,7 @@ lw_io_gunzip_file (const gchar *SOURCE_PATH,
     gzFile source = NULL;
     FILE *target = NULL;
     gint read = 0;
-    gint chunk_size = lw_progress_get_prefered_chunk_size ();
+    gint chunk_size = lw_progress_get_prefered_chunk_size (progress);
     gchar *buffer = NULL;
     gsize content_length = 0;
     gboolean has_error = FALSE;
@@ -808,7 +808,7 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
 
     //Declarations
     tmpl = g_strdup ("gwaei.XXXXXX");
-    chunk_size = lw_progress_get_prefered_chunk_size ();
+    chunk_size = lw_progress_get_prefered_chunk_size (progress);
     if (chunk_size == 0) goto errored;
     path = g_build_path (g_get_tmp_dir (), tmpl, NULL);
     if (path == NULL) goto errored;
@@ -867,21 +867,30 @@ lw_io_write_chunk_with_data (gchar               *chunk,
                              GError             **error)
 {
 		//Sanity checks
-		g_return_val_if_fail (chunk != NULL);
+		g_return_val_if_fail (chunk != NULL, 0);
 		if (chunk_length < 1) return 0;
 		if (error != NULL && *error != NULL) return 0;
 
+    //Declarations
+    gsize bytes_written = 0;
+    FILE *stream = NULL;
+
+    //Initialization
+    stream = data->stream;
+    if (stream == NULL) goto errored;
 		bytes_written = fwrite(chunk, sizeof(gchar), chunk_length, stream);
-    data.bytes_written += bytes_written;
+
+    data->bytes_written += bytes_written;
 		if (bytes_written != chunk_length && ferror(stream) != 0)
 		{
 			*error = g_error_new (
 							G_FILE_ERROR,
 							g_file_error_from_errno (ferror(stream)),
-							"Could not write the dictionary cache temporary file, \"%s\"\n", 
-							name
-			)
+							"Could not write the dictionary cache temporary file\n"
+			);
 		}
+
+errored:
 
 		return bytes_written;
 }

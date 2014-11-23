@@ -45,6 +45,9 @@
 G_DEFINE_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 
 static LwParsed* lw_edictionary_parse (LwEDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+static gint lw_edictionary_get_total_columns (LwDictionary *self);
+static gchar const * lw_edictionary_get_column_language (LwDictionary *self, gint column_num);
+static LwDictionaryColumnHandling lw_edictionary_get_column_handling (LwDictionary *self, gint column_num);
 
 
 LwDictionary* lw_edictionary_new (const gchar        *FILENAME, 
@@ -127,24 +130,70 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
     dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_edictionary_parse;
+    dictionary_class->priv->get_column_handling = lw_edictionary_get_column_handling;
+    dictionary_class->priv->get_total_columns = lw_edictionary_get_total_columns;
+    dictionary_class->priv->get_column_language = lw_edictionary_get_column_language;
+}
 
+
+static gint
+lw_edictionary_get_total_columns (LwDictionary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_EDICTIONARY (self), 0);
+
+    return TOTAL_LW_EDICTIONARYCOLUMNIDS;
+}
+
+
+
+static gchar const *
+lw_edictionary_get_column_language (LwDictionary *self,
+                                    gint          column_num)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_EDICTIONARY (self), 0);
+    g_return_val_if_fail (column_num > -1, 0);
+    g_return_val_if_fail (column_num < TOTAL_LW_EDICTIONARYCOLUMNIDS, 0);
+
+    static gboolean initialized = FALSE;
+    static gchar const * column_languages[TOTAL_LW_EDICTIONARYCOLUMNIDS] = {0};
+
+    if (G_UNLIKELY (initialized == FALSE))
     {
-      static gint _column_index_types[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
-      _column_index_types[LW_EDICTIONARYCOLUMNID_WORD] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_EDICTIONARYCOLUMNID_READING] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_EDICTIONARYCOLUMNID_DEFINITION] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_EDICTIONARYCOLUMNID_CLASSIFICATION] = LW_DICTIONARYINDEXKEY_FILTER_ONLY;
-      _column_index_types[LW_EDICTIONARYCOLUMNID_POPULAR] = LW_DICTIONARYINDEXKEY_FILTER_ONLY;
-      klass->priv->column_index_types = _column_index_types;
+      initialized = TRUE;
+      column_languages[LW_EDICTIONARYCOLUMNID_WORD] = "ja";
+      column_languages[LW_EDICTIONARYCOLUMNID_READING] = "ja";
+      column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = "en";
     }
 
+    return column_languages[column_num];
+}
+
+
+static LwDictionaryColumnHandling
+lw_edictionary_get_column_handling (LwDictionary *self,
+                                    gint          column_num)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_EDICTIONARY (self), 0);
+    g_return_val_if_fail (column_num > -1, 0);
+    g_return_val_if_fail (column_num < TOTAL_LW_EDICTIONARYCOLUMNIDS, 0);
+
+    static gboolean initialized = FALSE;
+    static gint column_handlings[TOTAL_LW_EDICTIONARYCOLUMNIDS] = {0};
+
+    if (G_UNLIKELY (initialized == FALSE))
     {
-      static gchar* _column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
-      _column_languages[LW_EDICTIONARYCOLUMNID_WORD] = "ja"
-      _column_languages[LW_EDICTIONARYCOLUMNID_READING] = "ja"
-      _column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = "en"
-      klass->priv->column_language = _column_langages;
+      initialized = TRUE;
+      column_handlings[LW_EDICTIONARYCOLUMNID_WORD] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_EDICTIONARYCOLUMNID_READING] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_EDICTIONARYCOLUMNID_DEFINITION] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_EDICTIONARYCOLUMNID_CLASSIFICATION] = LW_DICTIONARYCOLUMNHANDLING_FILTER_ONLY;
+      column_handlings[LW_EDICTIONARYCOLUMNID_POPULAR] = LW_DICTIONARYCOLUMNHANDLING_FILTER_ONLY;
     }
+
+    return column_handlings[column_num];
 }
 
 

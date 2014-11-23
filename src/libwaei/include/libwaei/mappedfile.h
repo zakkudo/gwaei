@@ -3,6 +3,11 @@
 
 G_BEGIN_DECLS
 
+struct _LwMappedFile {
+	gchar *path;
+  GMappedFile *mapped_file;
+	gint ref_count;
+};
 typedef struct _LwMappedFile LwMappedFile;
 
 LwMappedFile* lw_mappedfile_new (gchar const * PATH, gboolean writable,	GError **error);

@@ -1238,13 +1238,15 @@ gsize
 lw_progress_get_prefered_chunk_size (LwProgress *self)
 {
     //Sanity checks
-    g_return_val_if_fail (progress != NULL, 0)
+    g_return_val_if_fail (self != NULL, 0);
     
-    LwProgressPriv *priv = NULL;
+    //Declarations
+    LwProgressPrivate *priv = NULL;
 
+    //Initializations
     priv = self->priv;
 
-    return priv->prefered_chunk_size;
+    return priv->config.prefered_chunk_size;
 }
 
 
@@ -1253,21 +1255,23 @@ lw_progress_set_prefered_chunk_size (LwProgress *self,
                                      gsize       prefered_chunk_size)
 {
     //Sanity checks
-    g_return_val_if_fail (progress != NULL, 0)
+    g_return_val_if_fail (self != NULL, 0);
     
-    LwProgressPriv *priv = NULL;
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
 
+    //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
 
-    if (priv->prefered_chunk_size == prefered_chunk_size) goto errored;
+    if (priv->config.prefered_chunk_size == prefered_chunk_size) goto errored;
 
-    priv->prefered_chunk_size = prefered_chunk_size;
+    priv->config.prefered_chunk_size = prefered_chunk_size;
 
-    g_signal_emit (
-      G_OBJECT (self),
-      klasspriv->signalid[CLASS_SIGNALID_PREFERED_CHUNK_SIZE], 
-      0
-    );
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PREFERED_CHUNK_SIZE]);
 
 errored:
 
@@ -1279,13 +1283,15 @@ gsize
 lw_progress_get_chunk_size (LwProgress *self)
 {
     //Sanity checks
-    g_return_val_if_fail (progress != NULL, 0)
+    g_return_val_if_fail (self != NULL, 0);
     
-    LwProgressPriv *priv = NULL;
+    //Declarations
+    LwProgressPrivate *priv = NULL;
 
+    //Initializations
     priv = self->priv;
 
-    return priv->chunk_size;
+    return priv->data.chunk_size;
 }
 
 
@@ -1294,21 +1300,23 @@ lw_progress_set_chunk_size (LwProgress *self,
                             gsize       chunk_size)
 {
     //Sanity checks
-    g_return_val_if_fail (progress != NULL, 0)
+    g_return_val_if_fail (self != NULL, 0);
     
-    LwProgressPriv *priv = NULL;
+    //Declarations
+    LwProgressPrivate *priv = NULL;
+    LwProgressClass *klass = NULL;
+    LwProgressClassPrivate *klasspriv = NULL;
 
+    //Initializations
     priv = self->priv;
+    klass = LW_PROGRESS_CLASS (self);
+    klasspriv = klass->priv;
 
-    if (priv->chunk_size == chunk_size) goto errored;
+    if (priv->data.chunk_size == chunk_size) goto errored;
 
-    priv->chunk_size = chunk_size;
+    priv->data.chunk_size = chunk_size;
 
-    g_signal_emit (
-      G_OBJECT (self),
-      klasspriv->signalid[CLASS_SIGNALID_CHUNK_SIZE], 
-      0
-    );
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CHUNK_SIZE]);
 
 errored:
 

@@ -46,6 +46,9 @@ G_DEFINE_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
 
 static LwParsed* lw_kanjidictionary_parse (LwKanjiDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 static gchar** lw_kanjidictionary_columnize_line (LwKanjiDictionary  *self, gchar *buffer, gchar **columns, gsize *num_columns);
+static gint lw_kanjidictionary_get_total_columns (LwDictionary *self);
+static gchar const * lw_kanjidictionary_get_column_language (LwDictionary *self, gint column_num);
+static LwDictionaryColumnHandling lw_kanjidictionary_get_column_handling (LwDictionary *self, gint column_num);
 
 
 LwDictionary* lw_kanjidictionary_new (const gchar        *FILENAME, 
@@ -114,34 +117,80 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
     dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_kanjidictionary_parse;
+    dictionary_class->priv->get_column_handling = lw_kanjidictionary_get_column_handling;
+    dictionary_class->priv->get_total_columns = lw_kanjidictionary_get_total_columns;
+    dictionary_class->priv->get_column_language = lw_kanjidictionary_get_column_language;
+}
 
+
+static gint
+lw_kanjidictionary_get_total_columns (LwDictionary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_KANJIDICTIONARY (self), 0);
+
+    return TOTAL_LW_KANJIDICTIONARYCOLUMNIDS;
+}
+
+
+
+static gchar const *
+lw_kanjidictionary_get_column_language (LwDictionary *self,
+                                    gint          column_num)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_KANJIDICTIONARY (self), 0);
+    g_return_val_if_fail (column_num > -1, 0);
+    g_return_val_if_fail (column_num < TOTAL_LW_KANJIDICTIONARYCOLUMNIDS, 0);
+
+    static gboolean initialized = FALSE;
+    static gchar const * column_languages[TOTAL_LW_KANJIDICTIONARYCOLUMNIDS] = {0};
+
+    if (G_UNLIKELY (initialized == FALSE))
     {
-      static gint _column_index_types[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
-      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_KANJI] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_ON_READINGS] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      _column_index_types[LW_KANJIDICTIONARYCOLUMNID_MEANINGS] = LW_DICTIONARYINDEXKEY_INDEX_AND_SEARCH;
-      klass->priv->column_index_types = _column_index_types;
+      initialized = TRUE;
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_KANJI] = "ja";
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL] = "symbol";
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY] = "number";
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT] = "number";
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL] = "number";
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL] = "number";
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS] = "ja";
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_ON_READINGS] = "ja";
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_MEANINGS] = "en";
     }
 
+    return column_languages[column_num];
+}
+
+
+static LwDictionaryColumnHandling
+lw_kanjidictionary_get_column_handling (LwDictionary *self,
+                                    gint          column_num)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_KANJIDICTIONARY (self), 0);
+    g_return_val_if_fail (column_num > -1, 0);
+    g_return_val_if_fail (column_num < TOTAL_LW_KANJIDICTIONARYCOLUMNIDS, 0);
+
+    static gboolean initialized = FALSE;
+    static gint column_handlings[TOTAL_LW_KANJIDICTIONARYCOLUMNIDS] = {0};
+
+    if (G_UNLIKELY (initialized == FALSE))
     {
-      static gchar* _column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = {0}:
-      _column_languages[LW_KANJIDICTIONARYCOLUMNID_KANJI] = "ja";
-      _column_languages[LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL] = "symbol";
-      _column_languages[LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY] = "number";
-      _column_languages[LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT] = "number";
-      _column_languages[LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL] = "number";
-      _column_languages[LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL] = "number";
-      _column_languages[LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS] = "ja";
-      _column_languages[LW_KANJIDICTIONARYCOLUMNID_ON_READINGS] = "ja";
-      _column_languages[LW_KANJIDICTIONARYCOLUMNID_MEANINGS] = "en";
-      klass->priv->column_language = _column_langages;
+      initialized = TRUE;
+      column_handlings[LW_KANJIDICTIONARYCOLUMNID_KANJI] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_KANJIDICTIONARYCOLUMNID_ON_READINGS] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_KANJIDICTIONARYCOLUMNID_MEANINGS] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
     }
+
+    return column_handlings[column_num];
 }
 
 

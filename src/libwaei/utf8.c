@@ -289,7 +289,7 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
 
 
 void
-lw_utf8_normalize_chunked (gchar const        * contents, 
+lw_utf8_normalize_chunked (gchar const        * CONTENTS, 
                            gsize                content_length,
                            LwUtf8Flag           flags,
                            LwUtf8ChunkHandler   chunk_handler,
@@ -297,20 +297,22 @@ lw_utf8_normalize_chunked (gchar const        * contents,
                            LwProgress         * progress)
 {
     //Sanity checks
-    g_return_if_fail (contents != NULL)
-    g_return_if_fail (content_length > 0)
-    g_return_if_fail (chunk_handler != NULL)
-    g_return_if_fail (LW_IS_PROGRESS (progress))
+    g_return_if_fail (CONTENTS != NULL);
+    g_return_if_fail (content_length > 0);
+    g_return_if_fail (chunk_handler != NULL);
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+    if (lw_progress_should_abort (progress)) return;
 
 		//Declarations
 		gint bytes_read = -1;
-		gsize bytes_written = 0;
+		gsize handled_bytes = 0;
 		gsize bytes_normalized = 0;
 		const char *C = CONTENTS;
 		gsize left = content_length;
 		gchar *normalized = NULL;
     gsize chunk_size = 0;
-    gerror *error = NULL;
+    GError *error = NULL;
+    gboolean has_error = FALSE;
 
     chunk_size = lw_progress_get_prefered_chunk_size (progress);
 
@@ -321,16 +323,12 @@ lw_utf8_normalize_chunked (gchar const        * contents,
 			bytes_normalized = strlen(normalized);
 			if (normalized != NULL)
 			{
-				handled_bytes = chunk_handler (normalized, bytes_normalized, chunk_hander_data, &error);
+				handled_bytes = chunk_handler (normalized, bytes_normalized, chunk_handler_data, &error);
 		    g_free (normalized); normalized = NULL;
 				if (error != NULL)
 				{
-					if (progress != NULL)
-					{
-						lw_progress_take_error (progress, error);
-            error = NULL;
-					}
-          g_clear_error (&error);
+          lw_progress_take_error (progress, error);
+          error = NULL;
 					has_error = TRUE;
 					goto errored;
 				}
@@ -338,6 +336,10 @@ lw_utf8_normalize_chunked (gchar const        * contents,
 			C += bytes_read;
 			left -= bytes_read;
 		}
+
+errored:
+
+    return;
 }
 
 
@@ -590,7 +592,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
     if (c == NULL) goto errored;
     conversions = _get_furiganafold_hashtable ();
     if (conversions == NULL) goto errored;
-    chunk_size = lw_progress_get_prefered_chunk_size ();
+    chunk_size = lw_progress_get_prefered_chunk_size (progress);
     if (chunk_size < 1) goto errored;
     if (length < 1)
     {
@@ -1726,7 +1728,7 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
 
     //Initializations
     if (content_length < 1) content_length = strlen(CONTENTS);
-    chunk_size = lw_progress_get_prefered_chunk_size ();
+    chunk_size = lw_progress_get_prefered_chunk_size (progress);
 
     if (progress != NULL)
     {

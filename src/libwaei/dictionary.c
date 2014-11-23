@@ -97,9 +97,6 @@ lw_dictionary_set_property (GObject      *object,
       case PROP_FILENAME:
         lw_dictionary_set_filename (self, g_value_get_string (value));
         break;
-      case PROP_MORPHOLOGYENGINE:
-        lw_dictionary_set_morphologyengine (self, g_value_get_object (value));
-        break;
       case PROP_PROGRESS:
         lw_dictionary_set_progress (self, g_value_get_object (value));
         break;
@@ -140,9 +137,6 @@ lw_dictionary_get_property (GObject      *object,
         break;
       case PROP_ID:
         g_value_set_string (value, lw_dictionary_get_id (self));
-        break;
-      case PROP_MORPHOLOGYENGINE:
-        g_value_set_object (value, lw_dictionary_get_morphologyengine (self));
         break;
       case PROP_PROGRESS:
         g_value_set_object (value, lw_dictionary_get_progress (self));
@@ -192,15 +186,6 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_FILENAME, klasspriv->pspec[PROP_FILENAME]);
-
-    klasspriv->pspec[PROP_MORPHOLOGYENGINE] = g_param_spec_object (
-      "morphologyengine",
-      gettext("Morphology Engine"),
-      "Set the self's Morphology Engine used for indexing",
-      LW_TYPE_MORPHOLOGYENGINE,
-      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
-    );
-    g_object_class_install_property (object_class, PROP_MORPHOLOGYENGINE, klasspriv->pspec[PROP_MORPHOLOGYENGINE]);
 
     klasspriv->pspec[PROP_PATH] = g_param_spec_string (
       "path",
@@ -286,6 +271,80 @@ GType lw_dictionarycolumnhandling_get_type ()
     }
 
     return type;
+}
+
+
+gint
+lw_dictionary_get_total_columns (LwDictionary *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+
+    //Declarations
+    LwDictionaryClass *klass = NULL;
+    LwDictionaryClassPrivate *klasspriv = NULL;
+    gint total_columns = 0;
+
+    //Initializations
+    klass = LW_DICTIONARY_GET_CLASS (self);
+    klasspriv = klass->priv;
+    total_columns = klasspriv->get_total_columns (self);
+  
+    return total_columns;
+}
+                                 
+
+gchar const *
+lw_dictionary_get_column_language (LwDictionary *self,
+                                   gint          column_num)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    g_return_val_if_fail (column_num > -1, NULL);
+
+    //Declarations
+    LwDictionaryClass *klass = NULL;
+    LwDictionaryClassPrivate *klasspriv = NULL;
+    gint total_columns = 0;
+    gchar const *language = NULL;
+
+    //Initializations
+    klass = LW_DICTIONARY_GET_CLASS (self);
+    klasspriv = klass->priv;
+    total_columns = lw_dictionary_get_total_columns (self);
+    if (total_columns < 1 || column_num >= total_columns) goto errored;
+    language = klasspriv->get_column_language (self, column_num);
+
+errored:
+
+    return language;
+}
+
+
+LwDictionaryColumnHandling
+lw_dictionary_get_column_handling (LwDictionary *self,
+                                   gint          column_num)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), LW_DICTIONARYCOLUMNHANDLING_UNUSED);
+    g_return_val_if_fail (column_num > -1, LW_DICTIONARYCOLUMNHANDLING_UNUSED);
+
+    //Declarations
+    LwDictionaryClass *klass = NULL;
+    LwDictionaryClassPrivate *klasspriv = NULL;
+    gint total_columns = 0;
+    gint handling = LW_DICTIONARYCOLUMNHANDLING_UNUSED;
+
+    //Initializations
+    klass = LW_DICTIONARY_GET_CLASS (self);
+    klasspriv = klass->priv;
+    total_columns = lw_dictionary_get_total_columns (self);
+    if (total_columns < 1 || column_num >= total_columns) goto errored;
+    handling = klasspriv->get_column_handling (self, column_num);
+
+errored:
+
+    return handling;
 }
 
 
@@ -757,61 +816,6 @@ lw_dictionary_set_filename (LwDictionary *self,
 errored:
 
     return;
-}
-
-
-LwMorphologyEngine*
-lw_dictionary_get_morphologyengine (LwDictionary *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    return priv->data.morphology_engine;
-}
-
-
-void
-lw_dictionary_set_morphologyengine (LwDictionary *self,
-                                    LwMorphologyEngine *morphology_engine)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARY (self));
-
-    //Declarations
-    LwDictionaryPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    if (morphology_engine != NULL)
-    {
-      g_object_ref_sink (morphology_engine);
-    }
-
-    if (priv->data.morphology_engine != NULL)
-    {
-      g_object_remove_weak_pointer (
-        G_OBJECT (priv->data.morphology_engine),
-        (gpointer*) &(priv->data.morphology_engine)
-      );
-      g_object_unref (priv->data.morphology_engine);
-    }
-
-    priv->data.morphology_engine = morphology_engine;
-
-    if (priv->data.morphology_engine != NULL)
-    {
-      g_object_add_weak_pointer (
-        G_OBJECT (priv->data.morphology_engine),
-        (gpointer*) &(priv->data.morphology_engine)
-      );
-    }
 }
 
 
