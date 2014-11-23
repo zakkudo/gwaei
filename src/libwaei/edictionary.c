@@ -221,29 +221,29 @@ lw_edictionary_columnid_get_type ()
 
 
 /**
- * lw_edictionary_columnize
- * @buffer The text to columnize.  It is columnized in place and no copy is made.
- * @columns A pointer to an alloced array to place the columns.  This array
- * should have enough space to hold the columnized buffer positions which is usually
- * (strlen(@buffer) + 1) * sizeof(gchar*).  The column array is %NULL terminated.
- * @num_columns The number of columns that were created in @columns
+ * lw_edictionary_tokenize
+ * @buffer The text to tokenize.  It is tokenized in place and no copy is made.
+ * @tokens A pointer to an alloced array to place the tokens.  This array
+ * should have enough space to hold the tokenized buffer positions which is usually
+ * (strlen(@buffer) + 1) * sizeof(gchar*).  The token array is %NULL terminated.
+ * @num_tokens The number of tokens that were created in @tokens
  *
  * Columnizes a string given the standards of edict dictionaries by placing %NULL
- * characters in the buffer, and recording the positions in the @columns array.
- * This method is made to column one line at a time.
+ * characters in the buffer, and recording the positions in the @tokens array.
+ * This method is made to token one line at a time.
  *
- * Returns: The end of the filled column array
+ * Returns: The end of the filled token array
  */
 static gchar**
-lw_edictionary_columnize_line (LwEDictionary  *self,
+lw_edictionary_tokenize_line (LwEDictionary  *self,
                               gchar          *buffer,
-                              gchar         **columns,
-                              gsize          *num_columns)
+                              gchar         **tokens,
+                              gsize          *num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_EDICTIONARY (self), NULL);
     g_return_val_if_fail (buffer != NULL, NULL);
-    g_return_val_if_fail (columns != NULL, NULL);
+    g_return_val_if_fail (tokens != NULL, NULL);
 
     //Declarations
     gchar *c = NULL;
@@ -259,7 +259,7 @@ lw_edictionary_columnize_line (LwEDictionary  *self,
     //^
     //HERE
 
-    columns[length++] = c;
+    tokens[length++] = c;
 
     while (*c != '\0' && g_ascii_isspace (*c)) c = g_utf8_next_char (c);
     c = lw_utf8_set_null_next_char (c);
@@ -277,7 +277,7 @@ lw_edictionary_columnize_line (LwEDictionary  *self,
 
       if (*e == ']' && e - c > 1)
       {
-        columns[length++] = c;
+        tokens[length++] = c;
         c = lw_utf8_set_null_next_char (e);
       }
       else
@@ -306,7 +306,7 @@ lw_edictionary_columnize_line (LwEDictionary  *self,
       while (*e != '\0' && *e != ')') e = g_utf8_next_char (e);
       if (*e == '\0') goto errored;
 
-      if (e - c > 1) columns[length++] = c;
+      if (e - c > 1) tokens[length++] = c;
 
       c = lw_utf8_set_null_next_char (e);
     }
@@ -332,7 +332,7 @@ lw_edictionary_columnize_line (LwEDictionary  *self,
         while (*e != '\0' && *e != '/') e = g_utf8_next_char (e);
         if (*e == '\0') goto errored;;
 
-        if (e - c > 1) columns[length++] = c;
+        if (e - c > 1) tokens[length++] = c;
 
         c = lw_utf8_set_null_next_char (e);
       }
@@ -340,29 +340,29 @@ lw_edictionary_columnize_line (LwEDictionary  *self,
 
 errored:
 
-    columns[length] = NULL;
+    tokens[length] = NULL;
 
-    if (num_columns != NULL)
+    if (num_tokens != NULL)
     {
-      *num_columns = length;
+      *num_tokens = length;
     }
 
-    return columns + length;
+    return tokens + length;
 }
 
 
 static void
-lw_edictionary_load_line_columns (LwEDictionary     *self,
+lw_edictionary_load_line_tokens (LwEDictionary     *self,
                                  gchar             *buffer,
-                                 gchar            **columns,
-                                 gint               num_columns,
+                                 gchar            **tokens,
+                                 gint               num_tokens,
                                  LwDictionaryLine  *line) 
 {
     //Sanity checks
     g_return_if_fail (LW_IS_EDICTIONARY (self));
     g_return_if_fail (buffer != NULL);
-    g_return_if_fail (columns != NULL);
-    g_return_if_fail (num_columns < 1);
+    g_return_if_fail (tokens != NULL);
+    g_return_if_fail (num_tokens < 1);
     g_return_if_fail (line != NULL);
 
     //Declarations
@@ -373,22 +373,22 @@ lw_edictionary_load_line_columns (LwEDictionary     *self,
     GArray *popular = NULL;
 
     //Initializations
-    word = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    reading = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    definition = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    classification = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    popular = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
+    word = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    reading = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    definition = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    classification = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    popular = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
 
     { //Get the element at the end first so the forward iteration is simpler...
-      gint i = num_columns - 1;
+      gint i = num_tokens - 1;
 
-      if (columns[i] != NULL && strcmp (columns[i], "(P)") == 0)
+      if (tokens[i] != NULL && strcmp (tokens[i], "(P)") == 0)
       {
-        g_array_append_val (word, columns[i]);
+        g_array_append_val (word, tokens[i]);
         i--;
       }
 
-      num_columns = i + 1;
+      num_tokens = i + 1;
 
       //１日 [ついたち] /(n) (1) first day of the month/(2) (arch) first ten days of the lunar month/(P)/
       //                                                                                             ^
@@ -402,9 +402,9 @@ lw_edictionary_load_line_columns (LwEDictionary     *self,
       //^
       //HERE
 
-      if (columns[i] != NULL && i < num_columns)
+      if (tokens[i] != NULL && i < num_tokens)
       {
-        g_array_append_val (word, columns[i]);
+        g_array_append_val (word, tokens[i]);
         i++;
       }
 
@@ -413,10 +413,10 @@ lw_edictionary_load_line_columns (LwEDictionary     *self,
       //      HERE
 
       {
-        GUnicodeScript script = lw_utf8_get_script (columns[i]);
-        if (columns[i] != NULL && i < num_columns && script == G_UNICODE_SCRIPT_HIRAGANA || script == G_UNICODE_SCRIPT_KATAKANA)
+        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        if (tokens[i] != NULL && i < num_tokens && script == G_UNICODE_SCRIPT_HIRAGANA || script == G_UNICODE_SCRIPT_KATAKANA)
         {
-          g_array_append_val (reading, columns[i]);
+          g_array_append_val (reading, tokens[i]);
           i++;
         }
       }
@@ -426,12 +426,12 @@ lw_edictionary_load_line_columns (LwEDictionary     *self,
       //                 HERE
 
       {
-        if (columns[i] != NULL && i < num_columns)
+        if (tokens[i] != NULL && i < num_tokens)
         {
-          gchar *c = columns[i];
+          gchar *c = tokens[i];
           while (*c != '\0')
           {
-            g_array_append_val (classification, columns[i]);
+            g_array_append_val (classification, tokens[i]);
             while (*c != '\0' && *c != ',') c = g_utf8_next_char (c);
             if (*c == ',') c = lw_utf8_set_null_next_char (c);
           }
@@ -443,9 +443,9 @@ lw_edictionary_load_line_columns (LwEDictionary     *self,
       //                         ^
       //                         HERE
 
-      while (columns[i] != NULL & i < num_columns)
+      while (tokens[i] != NULL & i < num_tokens)
       {
-        g_array_append_val (definition, columns[i]);
+        g_array_append_val (definition, tokens[i]);
         i++;
       }
     }
@@ -500,9 +500,9 @@ lw_edictionary_parse (LwEDictionary *self,
     gint num_lines = 0;
     LwParsed *parsed = NULL; 
     LwDictionaryLine* lines = NULL;
-    gchar **columns = NULL;
+    gchar **tokens = NULL;
     gsize max_line_length = 0;
-    gsize num_columns = 0;
+    gsize num_tokens = 0;
 
     //Initializations
     if (content_length < 1) content_length = strlen(contents);
@@ -512,8 +512,8 @@ lw_edictionary_parse (LwEDictionary *self,
     parsed = lw_parsed_new (contents, content_length);
     if (parsed == NULL) goto errored;
     lines = g_new0 (LwDictionaryLine, num_lines);
-    columns = g_new0 (gchar*, max_line_length + 1);
-    if (columns == NULL) goto errored;
+    tokens = g_new0 (gchar*, max_line_length + 1);
+    if (tokens == NULL) goto errored;
 
     if (progress != NULL)
     {
@@ -535,8 +535,8 @@ lw_edictionary_parse (LwEDictionary *self,
 
         line = lines + i;
         lw_dictionaryline_init (line);
-        lw_edictionary_columnize_line (self, c, columns, &num_columns);
-        lw_edictionary_load_line_columns (self, contents, columns, num_columns, line);
+        lw_edictionary_tokenize_line (self, c, tokens, &num_tokens);
+        lw_edictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
         if (progress != NULL)
         {
           lw_progress_set_current (progress, c - contents);
@@ -554,7 +554,7 @@ lw_edictionary_parse (LwEDictionary *self,
 
 errored:
 
-    g_free (columns); columns = NULL;
+    g_free (tokens); tokens = NULL;
     if (parsed != NULL) lw_parsed_unref (parsed); parsed = NULL;
 
     return parsed;

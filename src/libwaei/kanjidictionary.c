@@ -45,7 +45,6 @@
 G_DEFINE_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
 
 static LwParsed* lw_kanjidictionary_parse (LwKanjiDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
-static gchar** lw_kanjidictionary_columnize_line (LwKanjiDictionary  *self, gchar *buffer, gchar **columns, gsize *num_columns);
 static gint lw_kanjidictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_kanjidictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_kanjidictionary_get_column_handling (LwDictionary *self, gint column_num);
@@ -195,7 +194,7 @@ lw_kanjidictionary_get_column_handling (LwDictionary *self,
 
 
 static gchar**
-lw_kanjidictionary_columnize_line (LwKanjiDictionary  *self,
+lw_kanjidictionary_tokenize_line (LwKanjiDictionary  *self,
                                   gchar              *buffer,
                                   gchar             **columns,
                                   gsize              *num_columns)
@@ -364,17 +363,17 @@ _is_on_reading (gchar const *C)
 
 
 static void
-lw_kanjidictionary_load_line_columns (LwKanjiDictionary  *self,
+lw_kanjidictionary_load_line_tokens (LwKanjiDictionary  *self,
                                      gchar              *buffer,
-                                     gchar             **columns,
-                                     gint                num_columns,
+                                     gchar             **tokens,
+                                     gint                num_tokens,
                                      LwDictionaryLine   *line)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_KANJIDICTIONARY (self));
     g_return_if_fail (buffer != NULL);
-    g_return_if_fail (columns != NULL);
-    g_return_if_fail (num_columns > 0);
+    g_return_if_fail (tokens != NULL);
+    g_return_if_fail (num_tokens > 0);
     g_return_if_fail (line != NULL);
 
     //Declarations
@@ -389,18 +388,18 @@ lw_kanjidictionary_load_line_columns (LwKanjiDictionary  *self,
     GArray *meanings = NULL;
 
     //Initializations
-    kanji = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    unicode_symbol = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    usage_frequency = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    stroke_count = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    grade_level = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    jlpt_level = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    kun_readings = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    on_readings = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
-    meanings = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
+    kanji = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    unicode_symbol = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    usage_frequency = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    stroke_count = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    grade_level = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    jlpt_level = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    kun_readings = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    on_readings = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
+    meanings = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
 
     { //Calculate the meanings now to make things easier on the forward iteration...
-      gint i = num_columns - 1;
+      gint i = num_tokens - 1;
 
       //An example line
       //逢 3029 U9022 B162 G9 S10  Yfeng2 Wbong ホウ あ.う T1 おう {meeting}  
@@ -409,14 +408,14 @@ lw_kanjidictionary_load_line_columns (LwKanjiDictionary  *self,
 
       do
       {
-        GUnicodeScript script = lw_utf8_get_script (columns[i]);
+        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (script == G_UNICODE_SCRIPT_KATAKANA || script == G_UNICODE_SCRIPT_HIRAGANA) break;
 
-        if (columns[i] != NULL) g_array_append_val (meanings, columns[i]);
+        if (tokens[i] != NULL) g_array_append_val (meanings, tokens[i]);
         i--;
       } while (i > 0);
       
-      num_columns = i + 1;
+      num_tokens = i + 1;
     }
 
     {
@@ -428,12 +427,12 @@ lw_kanjidictionary_load_line_columns (LwKanjiDictionary  *self,
       //^
       //HERE
 
-      if (columns[i] != NULL && i < num_columns) 
+      if (tokens[i] != NULL && i < num_tokens) 
       {
-        GUnicodeScript script = lw_utf8_get_script (columns[i]);
+        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (script == G_UNICODE_SCRIPT_HAN)
         {
-          g_array_append_val (kanji, columns[i]);
+          g_array_append_val (kanji, tokens[i]);
           i++;
         }
       }
@@ -443,30 +442,30 @@ lw_kanjidictionary_load_line_columns (LwKanjiDictionary  *self,
       //   ^                                    ^
       //   HERE                                 END
 
-      while (columns[i] != NULL && i < num_columns) 
+      while (tokens[i] != NULL && i < num_tokens) 
       {
-        GUnicodeScript script = lw_utf8_get_script (columns[i]);
+        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (script == G_UNICODE_SCRIPT_KATAKANA || script == G_UNICODE_SCRIPT_HIRAGANA) break;
 
-        if (_is_unicode_symbol (columns[i]))
+        if (_is_unicode_symbol (tokens[i]))
         {
-          g_array_append_val (unicode_symbol, columns[i]);
+          g_array_append_val (unicode_symbol, tokens[i]);
         }
-        else if (_is_usage_frequency (columns[i]))
+        else if (_is_usage_frequency (tokens[i]))
         {
-          g_array_append_val (usage_frequency, columns[i]);
+          g_array_append_val (usage_frequency, tokens[i]);
         }
-        else if (_is_stroke_count (columns[i]))
+        else if (_is_stroke_count (tokens[i]))
         {
-          g_array_append_val (stroke_count, columns[i]);
+          g_array_append_val (stroke_count, tokens[i]);
         }
-        else if (_is_grade_level (columns[i]))
+        else if (_is_grade_level (tokens[i]))
         {
-          g_array_append_val (grade_level, columns[i]);
+          g_array_append_val (grade_level, tokens[i]);
         }
-        else if (_is_jlpt_level (columns[i]))
+        else if (_is_jlpt_level (tokens[i]))
         {
-          g_array_append_val (jlpt_level, columns[i]);
+          g_array_append_val (jlpt_level, tokens[i]);
         }
 
         i++;
@@ -477,18 +476,18 @@ lw_kanjidictionary_load_line_columns (LwKanjiDictionary  *self,
       //                                        ^          ^
       //                                        HERE       END
 
-      while (columns[i] != NULL && i < num_columns) 
+      while (tokens[i] != NULL && i < num_tokens) 
       {
-        GUnicodeScript script = lw_utf8_get_script (columns[i]);
+        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
         if (script != G_UNICODE_SCRIPT_KATAKANA && script != G_UNICODE_SCRIPT_HIRAGANA) break;
 
-        if (_is_kun_reading (columns[i]))
+        if (_is_kun_reading (tokens[i]))
         {
-          g_array_append_val (kun_readings, columns[i]);
+          g_array_append_val (kun_readings, tokens[i]);
         }
-        else if (_is_on_reading (columns[i]))
+        else if (_is_on_reading (tokens[i]))
         {
-          g_array_append_val (on_readings, columns[i]);
+          g_array_append_val (on_readings, tokens[i]);
         }
 
 
@@ -572,9 +571,9 @@ lw_kanjidictionary_parse (LwKanjiDictionary *self,
 
     //Declarations
     gint num_lines = 0;
-    gchar **columns = NULL;
+    gchar **tokens = NULL;
     gsize max_line_length = 0;
-    gsize num_columns = 0;
+    gsize num_tokens = 0;
     gint length = -1;
     LwParsed *parsed = NULL;
     LwDictionaryLine* lines = NULL;
@@ -588,8 +587,8 @@ lw_kanjidictionary_parse (LwKanjiDictionary *self,
     if (parsed == NULL) goto errored;
     lines = g_new0 (LwDictionaryLine, num_lines);
     if (lines == NULL) goto errored;
-    columns = g_new0 (gchar*, max_line_length + 1);
-    if (columns == NULL) goto errored;
+    tokens = g_new0 (gchar*, max_line_length + 1);
+    if (tokens == NULL) goto errored;
 
     if (progress != NULL)
     {
@@ -611,8 +610,8 @@ lw_kanjidictionary_parse (LwKanjiDictionary *self,
 
         line = lines + i;
         lw_dictionaryline_init (line);
-        lw_kanjidictionary_columnize_line (self, c, columns, &num_columns);
-        lw_kanjidictionary_load_line_columns (self, contents, columns, num_columns, line);
+        lw_kanjidictionary_tokenize_line (self, c, tokens, &num_tokens);
+        lw_kanjidictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
         if (progress != NULL)
         {
           lw_progress_set_current (progress, c - contents);
@@ -630,7 +629,7 @@ lw_kanjidictionary_parse (LwKanjiDictionary *self,
 
 errored:
 
-    g_free (columns); columns = NULL;
+    g_free (tokens); tokens = NULL;
     if (parsed != NULL) lw_parsed_unref (parsed); parsed = NULL;
 
 }

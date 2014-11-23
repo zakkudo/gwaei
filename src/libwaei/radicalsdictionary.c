@@ -175,28 +175,28 @@ lw_radicalsdictionary_get_column_handling (LwDictionary *self,
 
 
 /**
- * lw_edictionary_columnize
- * @buffer The text to columnize.  It is columnized in place and no copy is made.
- * @columns A pointer to an alloced array to place the columns.  This array
- * should have enough space to hold the columnized buffer positions which is usually
- * (strlen(@buffer) + 1) * sizeof(gchar*).  The column array is %NULL terminated.
- * @num_columns The number of columns that were created in @columns
+ * lw_edictionary_tokenize
+ * @buffer The text to tokenize.  It is tokenized in place and no copy is made.
+ * @tokens A pointer to an alloced array to place the tokens.  This array
+ * should have enough space to hold the tokenized buffer positions which is usually
+ * (strlen(@buffer) + 1) * sizeof(gchar*).  The token array is %NULL terminated.
+ * @num_tokens The number of tokens that were created in @tokens
  *
  * Columnizes a string given the standards of edict dictionaries by placing %NULL
- * characters in the buffer, and recording the positions in the @columns array.
- * This method is made to column one line at a time.
+ * characters in the buffer, and recording the positions in the @tokens array.
+ * This method is made to token one line at a time.
  *
- * Returns: The end of the filled column array
+ * Returns: The end of the filled token array
  */
 static gchar**
-lw_radicalsdictionary_columnize_line (LwRadicalsDictionary  *self,
+lw_radicalsdictionary_tokenize_line (LwRadicalsDictionary  *self,
                                      gchar                 *buffer,
-                                     gchar                **columns,
-                                     gsize                 *num_columns)
+                                     gchar                **tokens,
+                                     gsize                 *num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (buffer != NULL, NULL);
-    g_return_val_if_fail (columns != NULL, NULL);
+    g_return_val_if_fail (tokens != NULL, NULL);
 
     //Declarations
     gchar *c = NULL;
@@ -214,7 +214,7 @@ lw_radicalsdictionary_columnize_line (LwRadicalsDictionary  *self,
       //^
       //HERE
 
-      columns[length++] = c;
+      tokens[length++] = c;
       while (*c != '\0' && !g_ascii_isspace(*c) && !g_ascii_ispunct (*c)) c = g_utf8_next_char (c);
       if (*c == '\0') goto errored;
 
@@ -235,7 +235,7 @@ lw_radicalsdictionary_columnize_line (LwRadicalsDictionary  *self,
 
       while (*c != '\0')
       {
-        columns[length++] = c;
+        tokens[length++] = c;
 
         while (*c != '\0' && !g_ascii_isspace (*c) && !g_ascii_ispunct (*c)) c = g_utf8_next_char (c);
         if (*c == '\0') goto errored;
@@ -250,24 +250,24 @@ lw_radicalsdictionary_columnize_line (LwRadicalsDictionary  *self,
 
 errored:
 
-    columns[length] = NULL;
+    tokens[length] = NULL;
 
-    return columns + length;
+    return tokens + length;
 }
 
 
 static void
-lw_radicalsdictionary_load_line_columns (LwRadicalsDictionary  *self,
+lw_radicalsdictionary_load_line_tokens (LwRadicalsDictionary  *self,
                                        gchar                  *buffer,
-                                       gchar                 **columns,
-                                       gint                    num_columns,
+                                       gchar                 **tokens,
+                                       gint                    num_tokens,
                                        LwDictionaryLine       *line)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_RADICALSDICTIONARY (self));
     g_return_if_fail (buffer != NULL);
-    g_return_if_fail (columns != NULL);
-    g_return_if_fail (num_columns > 0);
+    g_return_if_fail (tokens != NULL);
+    g_return_if_fail (num_tokens > 0);
     g_return_if_fail (line != NULL);
 
     //Declarations
@@ -277,16 +277,16 @@ lw_radicalsdictionary_load_line_columns (LwRadicalsDictionary  *self,
 
     //Initializations
     kanji = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), 1);
-    radicals = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_columns);
+    radicals = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), num_tokens);
 
-    if (i < num_columns)
+    if (i < num_tokens)
     {
-      g_array_append_val (kanji, columns[i++]);
+      g_array_append_val (kanji, tokens[i++]);
     }
 
-    while (i < num_columns)
+    while (i < num_tokens)
     {
-      g_array_append_val (radicals, columns[i++]);
+      g_array_append_val (radicals, tokens[i++]);
     }
 
 errored:
@@ -324,9 +324,9 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
 
     //Declarations
     gint num_lines = 0;
-    gchar **columns = NULL;
+    gchar **tokens = NULL;
     gsize max_line_length = 0;
-    gsize num_columns = 0;
+    gsize num_tokens = 0;
     gint length = -1;
     LwParsed *parsed = NULL;
     LwDictionaryLine *lines = NULL;
@@ -340,8 +340,8 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
     if (parsed == NULL) goto errored;
     lines = g_new0 (LwDictionaryLine, num_lines);
     if (lines == NULL) goto errored;
-    columns = g_new0 (gchar*, max_line_length + 1);
-    if (columns == NULL) goto errored;
+    tokens = g_new0 (gchar*, max_line_length + 1);
+    if (tokens == NULL) goto errored;
 
     if (progress != NULL)
     {
@@ -363,8 +363,8 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
 
         line = lines + i;
         lw_dictionaryline_init (line);
-        lw_radicalsdictionary_columnize_line (self, c, columns, &num_columns);
-        lw_radicalsdictionary_load_line_columns (self, contents, columns, num_columns, line);
+        lw_radicalsdictionary_tokenize_line (self, c, tokens, &num_tokens);
+        lw_radicalsdictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
         if (progress != NULL)
         {
           lw_progress_set_current (progress, c - contents);
@@ -382,7 +382,7 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
 
 errored:
 
-    g_free (columns); columns = NULL;
+    g_free (tokens); tokens = NULL;
     if (parsed != NULL) lw_parsed_unref (parsed); parsed = NULL;
 }
 
