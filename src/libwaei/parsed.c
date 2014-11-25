@@ -40,6 +40,7 @@
 
 #include <libwaei/parsed-private.h>
 
+G_DEFINE_TYPE (LwParsed, lw_parsed, LW_TYPE_PARSED)
 
 struct _SerializeData {
   gsize *buffer;
@@ -107,6 +108,48 @@ lw_parsed_new_with_cachefile (LwCacheFile *cachefile)
 errored:
 
     return self;
+}
+
+
+static void 
+lw_parsed_init (LwParsed *self)
+{
+    self->priv = LW_PARSED_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LwParsedPrivate));
+}
+
+
+static void 
+lw_parsed_finalize (GObject *object)
+{
+    //Declarations
+    LwParsed *self = NULL;
+    LwParsedPrivate *priv = NULL;
+
+    //Initializations
+    self = LW_PARSED (object);
+    priv = self->priv;
+
+    lw_parsed_set_lines (self, NULL, 0);
+    if (priv->contents_cachefile != NULL)
+    {
+      lw_cachefile_unref (priv->contents_cachefile);
+      priv->contents_cachefile = NULL;
+    }
+
+    G_OBJECT_CLASS (lw_parsed_parent_class)->finalize (object);
+}
+
+
+static void
+lw_parsed_class_init (LwParsedClass *klass)
+{
+    //Declarations
+    GObjectClass *object_class;
+
+    //Initializations
+    object_class = G_OBJECT_CLASS (klass);
+    object_class->finalize = lw_parsed_finalize;
 }
 
 

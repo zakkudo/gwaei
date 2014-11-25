@@ -383,6 +383,6 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
 errored:
 
     g_free (tokens); tokens = NULL;
-    if (parsed != NULL) lw_parsed_unref (parsed); parsed = NULL;
+    if (parsed != NULL) g_object_unref (parsed); parsed = NULL;
 }
 

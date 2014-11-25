@@ -33,8 +33,6 @@ typedef gboolean (*LwParsedForeachFunc) (LwParsed *self, LwDictionaryLine *line,
 LwParsed* lw_parsed_new (gchar *contents, gsize content_length);
 
 GType lw_parsed_get_type (void) G_GNUC_CONST;
-void lw_parsed_unref (LwParsed *self);
-LwParsed* lw_parsed_ref (LwParsed *self);
 
 void lw_parsed_foreach (LwParsed *self, LwParsedForeachFunc func, gpointer data);
 LwDictionaryLine* lw_parsed_get_line (LwParsed *self, gsize line_number);

@@ -32,84 +32,72 @@
 #include <string.h>
 
 #include <glib.h>
+#include <glib-object.h>
 
-#include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
+#include <libwaei/serializable.h>
+#include <libwaei/indexed.h>
 
+#include <libwaei/indexed-private.h>
+
+G_DEFINE_TYPE (LwIndexed, lw_indexed, LW_TYPE_INDEXED)
 
 LwIndexed*
 lw_indexed_new (LwParsed *parsed)
 {
     //Sanity checks
-    g_return_val_if_fail (parsed != NULL, NULL);
+    g_return_val_if_fail (LW_IS_PARSED (parsed), NULL);
 
     //Declarations
     LwIndexed *self = NULL;
+    LwIndexedPrivate *priv = NULL;
 
     //Initializations
-    self = g_new0 (LwIndexed, 1);
-    self->parsed = parsed;
-    lw_parsed_ref (parsed);
+    self = LW_INDEXED (g_object_new (LW_TYPE_INDEXED, NULL));
+    priv = self->priv;
+    priv->parsed = g_object_ref (parsed);
 
     return self;
 }
 
 
-GType
-lw_indexed_get_type ()
+static void 
+lw_indexed_init (LwIndexed *self)
 {
-    static GType type = 0;
+    self->priv = LW_INDEXED_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LwIndexedPrivate));
+}
 
-    if (G_UNLIKELY (type == 0))
+
+static void 
+lw_indexed_finalize (GObject *object)
+{
+    //Declarations
+    LwIndexed *self = NULL;
+    LwIndexedPrivate *priv = NULL;
+
+    //Initializations
+    self = LW_INDEXED (object);
+    priv = self->priv;
+
+    if (priv->parsed != NULL) 
     {
-      type = g_boxed_type_register_static (
-        "LwIndexed",
-        (GBoxedCopyFunc) lw_indexed_ref,
-        (GBoxedFreeFunc) lw_indexed_unref
-      );
+      g_object_unref (priv->parsed);
     }
 
-    return type;
+    G_OBJECT_CLASS (lw_indexed_parent_class)->finalize (object);
 }
 
 
 static void
-lw_indexed_free (LwIndexed *self)
+lw_indexed_class_init (LwIndexedClass *klass)
 {
-    //Sanity checks
-    if (self == NULL) return; 
+    //Declarations
+    GObjectClass *object_class;
 
-    if (self->parsed != NULL) 
-    {
-      lw_parsed_unref (self->parsed);
-    }
-
-    memset(self, 0, sizeof(LwIndexed));
-
-    g_free (self);
-}
-
-
-void lw_indexed_unref (LwIndexed *self)
-{
-    if (self == NULL) return;
-
-    if (g_atomic_int_dec_and_test (&self->ref_count))
-    {
-      lw_indexed_free (self);
-    }
-}
-
-
-LwIndexed*
-lw_indexed_ref (LwIndexed *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    g_atomic_int_inc (&self->ref_count);
-
-    return self;
+    //Initializations
+    object_class = G_OBJECT_CLASS (klass);
+    object_class->finalize = lw_indexed_finalize;
 }
 
 

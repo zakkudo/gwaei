@@ -490,10 +490,10 @@ errored:
     //Unreference the cachefiles
     g_mapped_file_unref (normalized_cachefile); normalized_cachefile = NULL;
 
-    lw_parsed_unref (parsed); parsed = NULL;
+    g_object_unref (parsed); parsed = NULL;
     g_mapped_file_unref (parsed_cachefile); parsed_cachefile = NULL;
 
-    lw_indexed_unref (indexed); indexed = NULL;
+    g_object_unref (indexed); indexed = NULL;
     g_mapped_file_unref (indexed_cachefile); indexed_cachefile = NULL;
 */
 }
@@ -964,12 +964,12 @@ lw_dictionarycache_set_parsed (LwDictionaryCache *self,
 
     if (parsed != NULL)
     {
-      lw_parsed_ref (priv->parsed);
+      g_object_ref (priv->parsed);
     }
 
     if (priv->parsed != NULL)
     {
-      lw_parsed_unref (priv->parsed);
+      g_object_unref (priv->parsed);
       priv->parsed = NULL;
     }
 
@@ -1019,12 +1019,12 @@ lw_dictionarycache_set_indexed (LwDictionaryCache *self,
 
     if (indexed != NULL)
     {
-      lw_indexed_ref (priv->indexed);
+      g_object_ref (priv->indexed);
     }
 
     if (priv->indexed != NULL)
     {
-      lw_indexed_unref (priv->indexed);
+      g_object_unref (priv->indexed);
       priv->indexed = NULL;
     }
 
