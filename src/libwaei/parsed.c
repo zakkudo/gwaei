@@ -32,9 +32,13 @@
 #include <string.h>
 
 #include <glib.h>
+#include <glib-object.h>
 
-#include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
+#include <libwaei/serializable.h>
+#include <libwaei/parsed.h>
+
+#include <libwaei/parsed-private.h>
 
 
 struct _SerializeData {
@@ -52,15 +56,6 @@ struct _DeserializeData {
 };
 
 
-struct _LwParsed {
-  gsize num_lines; //! < The number of lines
-  gchar *contents_reference_pointer; //! < The reference point of each strv
-  gsize content_length;
-  LwDictionaryLine *lines; //! < A set of categorized strvs
-  gint ref_count;
-};
-
-
 LwParsed*
 lw_parsed_new (gchar *contents,
                gsize  content_length)
@@ -71,70 +66,45 @@ lw_parsed_new (gchar *contents,
 
     //Declarations
     LwParsed *self = NULL;
+    LwParsedPrivate *priv = NULL;
 
     //Initializations
-    self = g_new0 (LwParsed, 1);
-    self->lines = NULL;
-    self->num_lines = 0;
-    self->contents_reference_pointer = contents;
-    self->content_length = content_length;
+    self = LW_PARSED (g_object_new (LW_TYPE_PARSED, NULL));
+    priv = self->priv;
+    priv->lines = NULL;
+    priv->num_lines = 0;
+    priv->contents_reference_pointer = contents;
+    priv->content_length = content_length;
 
     return self;
 }
 
 
-GType
-lw_parsed_get_type ()
-{
-    static GType type = 0;
-
-    if (G_UNLIKELY (type == 0))
-    {
-      type = g_boxed_type_register_static (
-        "LwParsed",
-        (GBoxedCopyFunc) lw_parsed_ref,
-        (GBoxedFreeFunc) lw_parsed_unref
-      );
-    }
-
-    return type;
-}
-
-
-static void
-lw_parsed_free (LwParsed *self)
+LwParsed*
+lw_parsed_new_with_cachefile (LwCacheFile *cachefile)
 {
     //Sanity checks
-    if (self == NULL) return; 
+    g_return_val_if_fail (cachefile != NULL, NULL);
 
-    {
-      gint i = 0;
-      for (i = 0; i < self->num_lines; i++)
-      {
-        lw_dictionaryline_clear (self->lines + i);
-      }
-    }
+    //Declarations
+    LwParsed *self = NULL;
+    LwParsedPrivate *priv = NULL;
+    gchar *contents = NULL;
+    gsize content_length = NULL;
 
-    g_free (self);
-}
+    //Initializations
+    contents = (gchar*) lw_cachefile_get_contents (cachefile);
+    if (contents == NULL) goto errored;
+    content_length = lw_cachefile_length (cachefile);
+    if (content_length < 1) goto errored;
+    self = lw_parsed_new (contents, content_length);
+    priv = self->priv;
+    priv->contents_cachefile = lw_cachefile_ref (cachefile);
 
+    contents = NULL;
+    cachefile = NULL;
 
-void lw_parsed_unref (LwParsed *self)
-{
-    if (self == NULL) return;
-
-    if (g_atomic_int_dec_and_test (&self->ref_count))
-    {
-      lw_parsed_free (self);
-    }
-}
-
-LwParsed* lw_parsed_ref (LwParsed *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    g_atomic_int_inc (&self->ref_count);
+errored:
 
     return self;
 }
@@ -146,16 +116,20 @@ lw_parsed_foreach (LwParsed            *self,
                    gpointer             data)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_if_fail (LW_IS_PARSED (self));
     g_return_if_fail (func != NULL);
 
     //Declarations
+    LwParsedPrivate *priv = NULL;
     gint i = 0;
     gboolean has_error = FALSE;
 
-    while (i < self->num_lines && !has_error)
+    //Initializations
+    priv = self->priv;
+
+    while (i < priv->num_lines && !has_error)
     {
-      has_error = func(self, self->lines + i, data);
+      has_error = func(self, priv->lines + i, data);
       i++;
     }
 }
@@ -166,15 +140,17 @@ lw_parsed_get_line (LwParsed *self,
                     gsize     line_number)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (line_number > self->num_lines, NULL);
+    g_return_val_if_fail (LW_IS_PARSED (self), NULL);
+    g_return_val_if_fail (line_number > self->priv->num_lines, NULL);
 
     //Declarations
+    LwParsedPrivate *priv = NULL;
     LwDictionaryLine *line = NULL;
 
-    if (line_number < 0 || line_number >= self->num_lines) goto errored;
-
-    line = self->lines + line_number;
+    //Inititalizations
+    priv = self->priv;
+    if (line_number < 0 || line_number >= priv->num_lines) goto errored;
+    line = priv->lines + line_number;
 
 errored:
 
@@ -188,22 +164,28 @@ lw_parsed_set_lines (LwParsed         *self,
                      gsize             num_lines)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (LW_IS_PARSED (self), NULL);
 
-    if (lines == self->lines) goto errored;
+    //Declarations
+    LwParsedPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (lines == priv->lines) goto errored;
 
     {
       gint i = 0;
-      for (i = 0; i < self->num_lines; i++)
+      for (i = 0; i < priv->num_lines; i++)
       {
-        lw_dictionaryline_clear (self->lines + i);
+        lw_dictionaryline_clear (priv->lines + i);
       }
     } 
-    g_free (self->lines); self->lines = 0;
-    self->num_lines = 0;
+    g_free (priv->lines); priv->lines = 0;
+    priv->num_lines = 0;
 
-    self->lines = lines;
-    self->num_lines = num_lines;
+    priv->lines = lines;
+    priv->num_lines = num_lines;
 
 errored:
 
@@ -215,9 +197,15 @@ gsize
 lw_parsed_num_lines (LwParsed *self)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, 0);
+    g_return_val_if_fail (LW_IS_PARSED (self), 0);
 
-    return self->num_lines;
+    //Declarations
+    LwParsedPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->num_lines;
 }
 
 
@@ -227,18 +215,20 @@ _serialize (LwParsed              *self,
             struct _SerializeData *data)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, TRUE);
+    g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
     g_return_val_if_fail (dictionary_line != NULL, TRUE);
     g_return_val_if_fail (data != NULL, TRUE);
 
     //Declarations
+    LwParsedPrivate *priv = NULL;
     gsize bytes_written = 0;
     gchar *contents = NULL;
     gchar *write_pointer = NULL;
 
     //Initializations
+    priv = self->priv;
     write_pointer = (gchar*) data->write_pointer;
-    contents = self->contents_reference_pointer;
+    contents = priv->contents_reference_pointer;
     bytes_written = lw_dictionaryline_serialize (dictionary_line, contents, write_pointer, &data->error);
     if (data->error != NULL)
     {
@@ -260,10 +250,11 @@ lw_parsed_serialize (LwParsed   *self,
                      LwProgress *progress)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_if_fail (LW_IS_PARSED (self));
     g_return_if_fail (preallocated_buffer != NULL);
 
     //Declarations
+    LwParsedPrivate *priv = NULL;
     struct _SerializeData data = {
       .buffer = (gsize*) preallocated_buffer,
       .write_pointer = (gsize*) preallocated_buffer,
@@ -271,7 +262,8 @@ lw_parsed_serialize (LwParsed   *self,
     };
 
     //Copy the number of LwDictionaryLines
-    *(data.write_pointer++) = self->num_lines;
+    priv = self->priv;
+    *(data.write_pointer++) = priv->num_lines;
     data.bytes_written += sizeof(gsize);
 
     //Copy the individual seriallized LwDictionaryLine contents
@@ -289,17 +281,19 @@ _deserialize (LwParsed                *self,
               struct _DeserializeData *data)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, TRUE);
+    g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
     g_return_val_if_fail (dictionary_line != NULL, TRUE);
     g_return_val_if_fail (data != NULL, TRUE);
 
     //Declarations
+    LwParsedPrivate *priv = NULL;
     gsize bytes_read = 0;
     gchar const *contents = NULL;
     gchar const *read_pointer = NULL;
 
     //Initializations
-    contents = self->contents_reference_pointer;
+    priv = self->priv;
+    contents = priv->contents_reference_pointer;
     read_pointer = data->read_pointer;
     bytes_read = lw_dictionaryline_deserialize_into (dictionary_line, read_pointer, contents, &data->error);
     if (data->error != NULL)
@@ -323,7 +317,7 @@ lw_parsed_deserialize_into (LwParsed    *self,
                             LwProgress  *progress)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, 0);
+    g_return_val_if_fail (LW_IS_PARSED (self), 0);
     g_return_val_if_fail (serialized_data != NULL, 0);
 
     /*TODO
@@ -332,6 +326,7 @@ lw_parsed_deserialize_into (LwParsed    *self,
     */
 
     //Declarations
+    LwParsedPrivate *priv = NULL;
     LwDictionaryLine *lines = NULL;
     gsize num_lines = 0;
     gsize bytes_read = 0;
@@ -343,6 +338,7 @@ lw_parsed_deserialize_into (LwParsed    *self,
     };
 
     //Initializations
+    priv = self->priv;
     num_lines = *((gsize*) data.read_pointer);
     data.read_pointer += sizeof(gsize);
     lines = g_new0(LwDictionaryLine, num_lines);

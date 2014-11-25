@@ -156,7 +156,7 @@ lw_cachefile_get_checksum (LwCacheFile *self)
 }
 
 
-const gchar*
+gchar*
 lw_cachefile_get_contents (LwCacheFile *self)
 {
   g_return_val_if_fail (self != NULL, FALSE);

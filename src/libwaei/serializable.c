@@ -33,17 +33,61 @@
 #include <string.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
+#include <glib-object.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
+#include <libwaei/io.h>
+#include <libwaei/serializable.h>
 
-G_DEFINE_INTERFACE (LwSerializable, lw_serializable, 0);
+#include <libwaei/serializable-private.h>
+
+
+G_DEFINE_ABSTRACT_TYPE (LwSerializable, lw_serializable, G_TYPE_OBJECT);
+
+
+static void 
+lw_serializable_init (LwSerializable *self)
+{
+    self->priv = LW_SERIALIZABLE_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LwSerializablePrivate));
+}
+
+
+static void 
+lw_serializable_finalize (GObject *object)
+{
+    //Declarations
+    LwSerializable *self = NULL;
+    LwSerializablePrivate *priv = NULL;
+
+    //Initalizations
+    self = LW_SERIALIZABLE (object);
+    priv = self->priv;
+
+    if (priv->cachefile != NULL)
+    {
+      lw_cachefile_unref (priv->cachefile);
+      priv->cachefile = NULL;
+    }
+
+    memset(self->priv, 0, sizeof(LwSerializablePrivate));
+
+    G_OBJECT_CLASS (lw_serializable_parent_class)->finalize (object);
+}
 
 
 static void
-lw_serializable_default_init (LwSerializableInterface *iface)
+lw_serializable_class_init (LwSerializableClass *klass)
 {
-  //TODO
+    //Declarations
+    GObjectClass *object_class = NULL;
+
+    //Initializations
+    object_class = G_OBJECT_CLASS (klass);
+    object_class->finalize = lw_serializable_finalize;
+
+    g_type_class_add_private (object_class, sizeof (LwSerializablePrivate));
 }
 
 
@@ -53,7 +97,9 @@ lw_serializable_get_serialized_length (LwSerializable *self,
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
-
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), 0);
+    if (lw_progress_should_abort (progress)) return 0;
+ 
     return lw_serializable_serialize (self, NULL, progress);
 }
 
@@ -65,8 +111,18 @@ lw_serializable_serialize (LwSerializable *self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SERIALIZABLE (self));
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), 0);
+    if (lw_progress_should_abort (progress)) return 0;
 
-    LW_SERIALIZABLE_GET_INTERFACE (self)->serialize (self, preallocated_buffer, progress);
+    //Declarations
+    LwSerializablePrivate *priv = NULL;
+    LwSerializableClass *klass = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_SERIALIZABLE_CLASS (self);
+
+    return klass->serialize (self, preallocated_buffer, progress);
 }
 
 
@@ -77,10 +133,14 @@ lw_serializable_serialize_to_cachefile (LwSerializable *self,
                                         LwProgress     *progress)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (CHECKSUM != NULL);
+    g_return_val_if_fail (self != NULL, 0);
+    g_return_val_if_fail (CHECKSUM != NULL, 0);
+    g_return_val_if_fail (cachefile != NULL, 0);
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), 0);
+    if (lw_progress_should_abort (progress)) return 0;
 
     //Declarations
+    LwSerializablePrivate *priv = NULL;
     gsize length = 0;
     gchar *tmp_path = NULL;
     GMappedFile *mapped_file = NULL;
@@ -89,17 +149,14 @@ lw_serializable_serialize_to_cachefile (LwSerializable *self,
     gboolean has_error = FALSE;
 
     //Initializations
+    priv = self->priv;
     length = lw_serializable_get_serialized_length (self, progress);
     tmp_path = lw_io_allocate_temporary_file (length, progress);
     mapped_file = g_mapped_file_new (tmp_path, TRUE, &error);
     if (error != NULL)
     {
-      if (progress != NULL)
-      {
-        lw_progress_take_error (progress, error);
-        error = NULL;
-      }
-      g_clear_error (&error);
+      lw_progress_take_error (progress, error);
+      error = NULL;
       has_error = TRUE;
       goto errored;
     }
@@ -110,58 +167,70 @@ lw_serializable_serialize_to_cachefile (LwSerializable *self,
 
 errored:
 
+    g_remove (tmp_path);
     g_free (tmp_path); tmp_path = NULL;
     g_mapped_file_unref (mapped_file); mapped_file = NULL;
+    g_clear_error (&error);
     contents = NULL;
-    lw_cachefile_unref (cachefile); cachefile = NULL;
 }
 
 
 gsize
-lw_serializable_deserialize_into (LwSerializable *self,
+lw_serializable_deserialize_from (LwSerializable *self,
                                   gchar const    *serialized_data,
                                   gsize           serialized_length,
                                   LwProgress     *progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SERIALIZABLE (self));
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), 0);
+    if (lw_progress_should_abort (progress)) return 0;
 
-    LW_SERIALIZABLE_GET_INTERFACE (self)->deserialize_into (self, serialized_data, serialized_length, progress);
+    //Declarations
+    LwSerializablePrivate *priv = NULL;
+    LwSerializableClass *klass = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_SERIALIZABLE_CLASS (self);
+
+    klass->deserialize_into (self, serialized_data, serialized_length, progress);
+
+    lw_cachefile_unref (priv->cachefile);
+    priv->cachefile = NULL;
 }
 
 
 gsize
-lw_serializable_deserialize_from_cachefile_into (LwSerializable *self,
-                                                 gchar const    *EXPECTED_CHECKSUM,
-                                                 LwCacheFile    *cachefile,
-                                                 LwProgress     *progress)
+lw_serializable_deserialize_from_cachefile (LwSerializable *self,
+                                            gchar const    *EXPECTED_CHECKSUM,
+                                            LwCacheFile    *cachefile,
+                                            LwProgress     *progress)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), 0);
-    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
+    g_return_val_if_fail (LW_IS_SERIALIZABLE (self), 0);
+    g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, 0);
+    g_return_val_if_fail (cachefile != NULL, 0);
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), 0);
+    if (lw_progress_should_abort (progress)) return 0;
 
     //Declarations
+    LwSerializablePrivate *priv = NULL;
     gchar *content = NULL;
     gsize length = 0;
 
     //Initializations
+    priv = self->priv;
     content = lw_cachefile_read (cachefile, EXPECTED_CHECKSUM, progress);
     if (content == NULL) goto errored;
     length = lw_cachefile_length (cachefile);
     if (length == 0) goto errored;
 
-    lw_serializable_deserialize_into (self, content, length, progress);
+    lw_serializable_deserialize_from (self, content, length, progress);
 
-    lw_cachefile_unref (cachefile);
-    cachefile = NULL;
+    priv->cachefile = lw_cachefile_ref (cachefile);
 
 errored:
-
-    if (cachefile != NULL) 
-    {
-      lw_cachefile_unref (cachefile); cachefile = NULL;
-      content = NULL;
-    }
 
     return length;
 }

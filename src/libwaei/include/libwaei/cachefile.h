@@ -1,6 +1,8 @@
 #ifndef LW_CACHEFILE_INCLUDED
 #define LW_CACHEFILE_INCLUDED
 
+#include "progress.h"
+
 G_BEGIN_DECLS
 
 #define LW_CACHEFILE_ERROR lw_cachefile_error_quark ()
@@ -21,7 +23,7 @@ void lw_cachefile_unref (LwCacheFile *self);
 
 const gchar* lw_cachefile_get_checksum (LwCacheFile *self);
 
-const gchar* lw_cachefile_get_contents (LwCacheFile *self);
+gchar* lw_cachefile_get_contents (LwCacheFile *self);
 
 gsize lw_cachefile_write (LwCacheFile *self, const gchar *CHECKSUM, const gchar *CONTENTS, gssize content_length, LwProgress  *progress);
 gchar* lw_cachefile_read (LwCacheFile *self, const gchar *EXPECTED_CHECKSUM, LwProgress *progress);
