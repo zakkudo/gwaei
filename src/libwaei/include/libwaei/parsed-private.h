@@ -18,7 +18,7 @@ struct _LwParsedPrivate {
   gsize num_lines; //! < The number of lines
   gchar *contents_reference_pointer; //! < The reference point of each strv
   gsize content_length;
-  LwDictionaryLine *lines; //! < A set of categorized strvs
+  LwParsedLine *lines; //! < A set of categorized strvs
   LwCacheFile *contents_cachefile;
 };
 

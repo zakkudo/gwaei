@@ -1143,7 +1143,7 @@ lw_dictionaryinstall_download (LwDictionaryInstall *self)
     gchar *target = NULL;
     const gchar *STAGE_NAME = "download";
     GList *targets = NULL;
-
+/*TODO
     //Initializations
     priv = self->priv;
     progress = lw_dictionaryinstall_get_progress (self);
@@ -1179,7 +1179,7 @@ errored:
     g_free (basename); basename = NULL;
     g_free (target); target = NULL;
     g_list_free (targets);
-
+*/
     return (!lw_progress_errored (progress));
 }
 

@@ -1,6 +1,7 @@
 #ifndef LW_DICTIONARYINSTALL_INCLUDED
 #define LW_DICTIONARYINSTALL_INCLUDED
 
+#include "row.h"
 #include "dictionaryinstallstatehistory.h"
 
 G_BEGIN_DECLS
@@ -22,7 +23,7 @@ typedef struct _LwDictionaryInstallClassPrivate LwDictionaryInstallClassPrivate;
 struct _LwDictionaryInstall {
   GObject object;
   LwDictionaryInstallPrivate *priv;
-  struct _Row row; 
+  Row row; 
 };
 
 struct _LwDictionaryInstallClass {

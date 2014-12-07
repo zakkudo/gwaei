@@ -1,7 +1,7 @@
 #ifndef LW_WORD_INCLUDED
 #define LW_WORD_INCLUDED
 
-#include <glib-object.h>
+#include "row.h"
 
 G_BEGIN_DECLS
 
@@ -32,13 +32,8 @@ typedef enum {
 GType lw_wordfield_get_type (void);
 #define LW_TYPE_WORDFIELD (lw_wordfield_get_type ())
 
-struct _Row {
-  gint current_index;
-  gint saved_index;
-};
-
 struct _LwWord {
-  struct _Row row;
+  Row row;
   gchar *score;
   gchar *days;
   gint correct_guesses;

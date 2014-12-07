@@ -1,8 +1,12 @@
 #ifndef LW_DICTIONARY_INCLUDED
 #define LW_DICTIONARY_INCLUDED
 
+#include "row.h"
 #include "dictionarycache.h"
-#include "dictionaryline.h"
+#include "progress.h"
+#include "utf8.h"
+#include "parsed.h"
+#include "indexed.h"
 
 G_BEGIN_DECLS
 
@@ -23,7 +27,7 @@ typedef struct _LwDictionaryClassPrivate LwDictionaryClassPrivate;
 struct _LwDictionary {
   GObject object;
   LwDictionaryPrivate *priv;
-  struct _Row row; 
+  Row row; 
 };
 
 struct _LwDictionaryClass {
@@ -104,5 +108,6 @@ LwParsed* lw_dictionary_parse (LwDictionary *self, gchar *contents, gsize conten
 G_END_DECLS
 
 #include <libwaei/dictionary-callbacks.h>
+#include "search.h"
 
 #endif

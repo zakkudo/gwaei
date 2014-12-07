@@ -1,7 +1,9 @@
 #ifndef LW_DICTIONARYCACHE_INCLUDED
 #define LW_DICTIONARYCACHE_INCLUDED
 
-#include "dictionaryline.h"
+#include "utf8.h"
+#include "parsed.h"
+#include "indexed.h"
 
 G_BEGIN_DECLS
 

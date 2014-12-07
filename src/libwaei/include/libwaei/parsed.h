@@ -1,7 +1,8 @@
 #ifndef LW_PARSED_INCLUDED
 #define LW_PARSED_INCLUDED 
 
-#include "dictionaryline.h"
+#include "serializable.h"
+#include "parsedline.h"
 #include "cachefile.h"
 
 G_BEGIN_DECLS
@@ -28,20 +29,20 @@ struct _LwParsedClass {
 };
 
 
-typedef gboolean (*LwParsedForeachFunc) (LwParsed *self, LwDictionaryLine *line, gpointer user_data);
+typedef gboolean (*LwParsedForeachFunc) (LwParsed *self, LwParsedLine *line, gpointer user_data);
 
 LwParsed* lw_parsed_new (gchar *contents, gsize content_length);
 
 GType lw_parsed_get_type (void) G_GNUC_CONST;
 
 void lw_parsed_foreach (LwParsed *self, LwParsedForeachFunc func, gpointer data);
-LwDictionaryLine* lw_parsed_get_line (LwParsed *self, gsize line_number);
+LwParsedLine* lw_parsed_get_line (LwParsed *self, gsize line_number);
 gsize lw_parsed_length (LwParsed *self);
 
 gsize lw_parsed_serialize (LwParsed *self, gchar *preallocated_buffer, LwProgress *progress);
 gsize lw_parsed_deserialize_into (LwParsed *self, const gchar *serialized_data, gsize serialized_length, LwProgress *progress);
 
-void lw_parsed_set_lines (LwParsed *self, LwDictionaryLine *lines, gsize num_lines);
+void lw_parsed_set_lines (LwParsed *self, LwParsedLine *lines, gsize num_lines);
 
 G_END_DECLS
 

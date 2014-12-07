@@ -932,14 +932,14 @@ lw_dictionarycache_build_path (LwDictionaryCache *self,
     
     gchar *filename = NULL;
     gchar *path = NULL;
-
+/*TODO
     filename = lw_dictionarycache_build_filename (self, TYPE);
     if (filename == NULL) goto errored;
     path = lw_util_build_filename (LW_PATH_CACHE, filename);
     if (path == NULL) goto errored;
 
 errored:
-
+*/
     return path;
 }
 

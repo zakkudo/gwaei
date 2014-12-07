@@ -1,7 +1,8 @@
 #ifndef LW_VOCABULARY_INCLUDED
 #define LW_VOCABULARY_INCLUDED
 
-#include <libwaei/word.h>
+#include "row.h"
+#include "word.h"
 
 G_BEGIN_DECLS
 
@@ -34,7 +35,7 @@ typedef struct _LwVocabularyClassPrivate LwVocabularyClassPrivate;
 
 struct _LwVocabulary {
   GObject object;
-  struct _Row row; 
+  Row row; 
   LwVocabularyPrivate *priv;
 };
 

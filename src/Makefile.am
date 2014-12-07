@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = libwaei schemas 
+SUBDIRS = libwaei libwaei-dictionary schemas 
 #SUBDIRS += libwaei/tests
 
 if !OS_MINGW

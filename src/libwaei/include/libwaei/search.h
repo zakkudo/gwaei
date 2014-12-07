@@ -1,7 +1,8 @@
 #ifndef LW_SEARCH_INCLUDED
 #define LW_SEARCH_INCLUDED
 
-#include <libwaei/dictionary.h>
+#include "preferences.h"
+#include "dictionary.h"
 
 G_BEGIN_DECLS
 

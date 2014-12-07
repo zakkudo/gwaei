@@ -35,7 +35,6 @@
 #include <glib-object.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/serializable.h>
 #include <libwaei/parsed.h>
 
 #include <libwaei/parsed-private.h>
@@ -178,7 +177,7 @@ lw_parsed_foreach (LwParsed            *self,
 }
 
 
-LwDictionaryLine*
+LwParsedLine*
 lw_parsed_get_line (LwParsed *self,
                     gsize     line_number)
 {
@@ -188,7 +187,7 @@ lw_parsed_get_line (LwParsed *self,
 
     //Declarations
     LwParsedPrivate *priv = NULL;
-    LwDictionaryLine *line = NULL;
+    LwParsedLine *line = NULL;
 
     //Inititalizations
     priv = self->priv;
@@ -203,7 +202,7 @@ errored:
 
 void
 lw_parsed_set_lines (LwParsed         *self,
-                     LwDictionaryLine *lines,
+                     LwParsedLine *lines,
                      gsize             num_lines)
 {
     //Sanity checks
@@ -221,7 +220,7 @@ lw_parsed_set_lines (LwParsed         *self,
       gint i = 0;
       for (i = 0; i < priv->num_lines; i++)
       {
-        lw_dictionaryline_clear (priv->lines + i);
+        lw_parsedline_clear (priv->lines + i);
       }
     } 
     g_free (priv->lines); priv->lines = 0;
@@ -254,7 +253,7 @@ lw_parsed_num_lines (LwParsed *self)
 
 static gboolean
 _serialize (LwParsed              *self,
-            LwDictionaryLine      *dictionary_line,
+            LwParsedLine      *dictionary_line,
             struct _SerializeData *data)
 {
     //Sanity checks
@@ -272,7 +271,7 @@ _serialize (LwParsed              *self,
     priv = self->priv;
     write_pointer = (gchar*) data->write_pointer;
     contents = priv->contents_reference_pointer;
-    bytes_written = lw_dictionaryline_serialize (dictionary_line, contents, write_pointer, &data->error);
+    bytes_written = lw_parsedline_serialize (dictionary_line, contents, write_pointer, &data->error);
     if (data->error != NULL)
     {
       goto errored;
@@ -304,12 +303,12 @@ lw_parsed_serialize (LwParsed   *self,
       .bytes_written = 0
     };
 
-    //Copy the number of LwDictionaryLines
+    //Copy the number of LwParsedLines
     priv = self->priv;
     *(data.write_pointer++) = priv->num_lines;
     data.bytes_written += sizeof(gsize);
 
-    //Copy the individual seriallized LwDictionaryLine contents
+    //Copy the individual seriallized LwParsedLine contents
     lw_parsed_foreach (self, (LwParsedForeachFunc) _serialize, &data);
 
 errored:
@@ -320,7 +319,7 @@ errored:
 
 static gboolean
 _deserialize (LwParsed                *self,
-              LwDictionaryLine        *dictionary_line,
+              LwParsedLine        *dictionary_line,
               struct _DeserializeData *data)
 {
     //Sanity checks
@@ -338,7 +337,7 @@ _deserialize (LwParsed                *self,
     priv = self->priv;
     contents = priv->contents_reference_pointer;
     read_pointer = data->read_pointer;
-    bytes_read = lw_dictionaryline_deserialize_into (dictionary_line, read_pointer, contents, &data->error);
+    bytes_read = lw_parsedline_deserialize_into (dictionary_line, read_pointer, contents, &data->error);
     if (data->error != NULL)
     {
       goto errored;
@@ -370,7 +369,7 @@ lw_parsed_deserialize_into (LwParsed    *self,
 
     //Declarations
     LwParsedPrivate *priv = NULL;
-    LwDictionaryLine *lines = NULL;
+    LwParsedLine *lines = NULL;
     gsize num_lines = 0;
     gsize bytes_read = 0;
     struct _DeserializeData data = {
@@ -384,7 +383,7 @@ lw_parsed_deserialize_into (LwParsed    *self,
     priv = self->priv;
     num_lines = *((gsize*) data.read_pointer);
     data.read_pointer += sizeof(gsize);
-    lines = g_new0(LwDictionaryLine, num_lines);
+    lines = g_new0(LwParsedLine, num_lines);
 
     lw_parsed_foreach (self, (LwParsedForeachFunc) _deserialize, &data);
     if (data.error != NULL)
@@ -408,7 +407,7 @@ errored:
       gint i = 0;
       for (i = 0; i < num_lines; i++)
       {
-        lw_dictionaryline_clear (lines + i);
+        lw_parsedline_clear (lines + i);
       }
       g_free (lines); lines = NULL;
     }

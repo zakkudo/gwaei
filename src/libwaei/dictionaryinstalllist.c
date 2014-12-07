@@ -929,7 +929,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
     LwDictionaryInstallListPrivate *priv = NULL;
     LwPreferences *preferences = NULL;
     GList *list = NULL;
-
+/*TODO
     //Initializations
     priv = self->priv;
     preferences = lw_dictionaryinstalllist_get_preferences (self);
@@ -1005,7 +1005,7 @@ errored:
 
     g_list_free_full (list, (GDestroyNotify) g_object_unref);
     list = NULL;
-    
+*/    
     return;
 }
 

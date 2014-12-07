@@ -50,7 +50,7 @@ lw_vocabulary_get_filenames ()
     const gchar *FILENAME = NULL;
     gint length = 0;
     gchar *uri = NULL;
-
+/*TODO
     //Initializations
     uri = lw_util_build_filename (LW_PATH_VOCABULARY, NULL);
     if (uri == NULL) goto errored;
@@ -77,7 +77,7 @@ errored:
 
     if (dir != NULL) g_dir_close (dir); dir = NULL;
     if (uri != NULL) g_free (uri); uri = NULL;
-
+*/
     return filenames;
 }
 
@@ -349,7 +349,7 @@ lw_vocabulary_load_from_file (LwVocabulary *self)
     gchar *uri = NULL;
     gchar *contents = NULL;
     gsize length = 0;
-
+/*TODO
     //Initializations
     priv = self->priv;
     FILENAME = lw_vocabulary_get_filename (self);
@@ -367,6 +367,7 @@ errored:
 
     if (contents != NULL) g_free (contents); contents = NULL;
     if (uri != NULL) g_free (uri); uri = NULL;
+*/
 }
 
 
@@ -538,7 +539,7 @@ lw_vocabulary_build_uri (const gchar *FILENAME)
     //Declarations
     gchar *filename = NULL;
     gchar *uri = NULL;
-
+/*TODO
     //Initializations
     filename = g_strstrip (g_uri_escape_string (FILENAME, " ", TRUE));
     if (filename == NULL || strlen(filename) == 0) goto errored;
@@ -548,7 +549,7 @@ lw_vocabulary_build_uri (const gchar *FILENAME)
 errored:
 
     if (filename != NULL) g_free (filename); filename = NULL;
-
+*/
     return uri;
 }
 

@@ -40,7 +40,8 @@
 #include <glib/gstdio.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
+#include <libwaei/io.h>
+#include <libwaei/dictionary.h>
 
 #include <libwaei/dictionary-private.h>
 
@@ -649,7 +650,7 @@ lw_dictionary_build_directory (GType type)
     //Declarations
     gchar *path = NULL;
     gchar *directoryname = NULL;
-
+/*TODO
     //Initializations
     path = NULL;
     directoryname = lw_dictionary_build_directoryname (type);
@@ -662,7 +663,7 @@ lw_dictionary_build_directory (GType type)
 errored:
 
     g_free (directoryname);
-  
+ */ 
     return path;
 }
 
@@ -1297,18 +1298,19 @@ gchar**
 lw_dictionary_get_installed_idlist (GType type_filter)
 {
     //Declarations
-    GType* childlist;
-    GType *childiter;
+    GType* childlist = NULL;
+    GType *childiter = NULL;
 
-    const gchar* filename;
-    gchar *directorypath;
-    GDir *directory;
+    gchar const* FILENAME = NULL;
+    gchar *directorypath = NULL;
+    GDir *directory = NULL;
 
-    gchar **idlist;
-    gchar **iditer;
+    gchar **idlist = NULL;
+    gchar **iditer = NULL;
 
-    gint length;
+    gint length = 0;
 
+/*TODO
     childiter = childlist = g_new (GType, 5);
     childlist[0] = lw_edictionary_get_type ();
     childlist[1] = lw_kanjidictionary_get_type ();
@@ -1362,7 +1364,7 @@ lw_dictionary_get_installed_idlist (GType type_filter)
     }
 
     if (childlist != NULL) g_free (childlist); childlist = NULL;
-
+*/
     return idlist;
 }
 
@@ -1455,7 +1457,7 @@ _count_max_columns (LwDictionary *self, gchar **lines, gint num_lines)
 }
 
 
-LwDictionaryLine*
+LwParsedLine*
 lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
 {
     //Sanity checks
@@ -1470,7 +1472,7 @@ lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
     gint num_lines = -1;
     gint max_column_count = -1;
     gchar **column_buffer = NULL;
-    LwDictionaryLine *dictionary_lines = NULL;
+    LwParsedLine *dictionary_lines = NULL;
 
   /*TODO
 
@@ -1487,7 +1489,7 @@ lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
     if (max_column_count < 1) goto errored;
     column_buffer = g_new (gchar*, max_column_count);
     if (column_buffer == NULL) goto errored;
-    dictionary_lines = g_new (LwDictionaryLine, num_lines);
+    dictionary_lines = g_new (LwParsedLine, num_lines);
     if (dictionary_lines == NULL) goto errored;
 
     {
@@ -1508,7 +1510,7 @@ errored:
 }
 
 
-LwDictionaryLine**
+LwParsedLine**
 lw_dictionary_get_lines (LwDictionary *self,
                          LwUtf8Flag    flags,
                          gint         *num_lines)
@@ -1518,7 +1520,7 @@ lw_dictionary_get_lines (LwDictionary *self,
 
     //Declarations
     LwDictionaryCache *cache = NULL;
-    LwDictionaryLine **lines = NULL;
+    LwParsedLine **lines = NULL;
 /*
 TODO
     if (priv->data.lines != NULL) BLAH
