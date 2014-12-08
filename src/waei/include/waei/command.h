@@ -1,6 +1,8 @@
 #ifndef W_CONSOLE_INCLUDED
 #define W_CONSOLE_INCLUDED
 
+#include <libwaei/command.h>
+
 G_BEGIN_DECLS
 
 //Boilerplate
@@ -17,12 +19,12 @@ typedef struct _WCommandClassPrivate WCommandClassPrivate;
 #define W_COMMAND_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), W_TYPE_COMMAND, WCommandClass))
 
 struct _WCommand {
-  GObject object;
+  LwCommand object;
   WCommandPrivate *priv;
 };
 
 struct _WCommandClass {
-  GObjectClass parent_class;
+  LwCommandClass parent_class;
   WCommandClassPrivate *priv;
 };
 
@@ -41,16 +43,7 @@ gint w_command_search (WCommand *self);
 gint w_command_install_dictionary (WCommand *self);
 gint w_command_uninstall_dictionary (WCommand *self);
 
-void w_command_print (WCommand *self, const gchar *format, ...);
-void w_command_printerr (WCommand *self, const gchar *format, ...);
-
 //Properties
-
-void w_command_set_application (WCommand *self, WApplication *application);
-WApplication* w_command_get_application (WCommand *self);
-
-void w_command_set_command_line (WCommand *self, GApplicationCommandLine *command_line);
-GApplicationCommandLine* w_command_get_command_line (WCommand *self);
 
 void w_command_set_dictionary_install_switch_text (WCommand *self, const gchar *dictionary_install_switch_text);
 const gchar* w_command_get_dictionary_install_switch_text (WCommand *self);

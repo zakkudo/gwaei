@@ -5,8 +5,6 @@ G_BEGIN_DECLS
 
 typedef enum {
   PROP_0,
-  PROP_APPLICATION,
-  PROP_COMMAND_LINE,
   PROP_PROGRESS,
   PROP_DICTIONARY_SWITCH_TEXT,
   PROP_DICTIONARY_INSTALL_SWITCH_TEXT,
@@ -36,8 +34,6 @@ struct _Config {
 struct _Data {
   GOptionContext *context;
   LwDictionary *dictionary;
-  WApplication *application;
-  GApplicationCommandLine *command_line;
   GMainLoop *loop;
 
   LwProgress *progress;

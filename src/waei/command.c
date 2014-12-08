@@ -43,7 +43,7 @@
 #include <waei/command-private.h>
 
 
-G_DEFINE_TYPE (WCommand, w_command, G_TYPE_OBJECT)
+G_DEFINE_TYPE (WCommand, w_command, LW_TYPE_COMMAND)
 
 
 //!
@@ -220,9 +220,6 @@ w_command_finalize (GObject *object)
     self = W_COMMAND (object);
     priv = self->priv;
 
-    w_command_set_application (self, NULL);
-    w_command_set_command_line (self, NULL);
-
     G_OBJECT_CLASS (w_command_parent_class)->finalize (object);
 }
 
@@ -243,24 +240,6 @@ w_command_class_init (WCommandClass *klass)
     g_type_class_add_private (object_class, sizeof (WCommandPrivate));
 
     WCommandClassPrivate *klasspriv = klass->priv;
-
-    klasspriv->pspec[PROP_APPLICATION] = g_param_spec_object (
-        "application",
-        "FIlename construct prop",
-        "Set the filename",
-        W_TYPE_APPLICATION,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
-    );
-    g_object_class_install_property (object_class, PROP_APPLICATION, klasspriv->pspec[PROP_APPLICATION]);
-
-    klasspriv->pspec[PROP_COMMAND_LINE] = g_param_spec_object (
-        "command-line",
-        "FIlename construct prop",
-        "Set the filename",
-        G_TYPE_APPLICATION_COMMAND_LINE,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
-    );
-    g_object_class_install_property (object_class, PROP_COMMAND_LINE, klasspriv->pspec[PROP_COMMAND_LINE]);
 
     klasspriv->pspec[PROP_DICTIONARY_SWITCH_TEXT] = g_param_spec_string (
         "dictionary-switch-text",
@@ -346,6 +325,7 @@ w_command_class_init (WCommandClass *klass)
 }
 
 
+/*TODO
 //!
 //! @brief Loads the arguments from the command line into the app instance
 //!
@@ -455,6 +435,7 @@ errored:
 
     return;
 }
+*/
 
 
 gint
@@ -1128,135 +1109,6 @@ w_application_get_dictionary (WApplication *self)
 }
 */
 
-
-void
-w_command_set_application (WCommand     *self,
-                           WApplication *application)
-{
-    //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
-
-    //Declarations
-    WCommandPrivate *priv = NULL;
-    WCommandClass *klass = NULL;
-    WCommandClassPrivate *klasspriv = NULL;
-    gboolean changed = NULL;
-
-    //Initializations
-    priv = self->priv;
-    klass = W_COMMAND_CLASS (self);
-    klasspriv = klass->priv;
-    changed = (application != priv->data.application);
-
-    if (application != NULL)
-    {
-      g_application_hold (G_APPLICATION (application));
-    }
-    
-    if (priv->data.application != NULL)
-    {
-      g_application_release (G_APPLICATION (priv->data.application));
-      g_object_remove_weak_pointer (
-        G_OBJECT (priv->data.application),
-        (gpointer*) &(priv->data.application)
-      );
-    }
-
-    priv->data.application = application;
-
-    if (priv->data.application != NULL)
-    {
-      g_object_add_weak_pointer (
-        G_OBJECT (priv->data.application),
-        (gpointer*) &(priv->data.application)
-      );
-    }
-
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_APPLICATION]);
-}
-
-
-WApplication*
-w_command_get_application (WCommand *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (W_IS_COMMAND (self), NULL);
-
-    //Declarations
-    WCommandPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    return priv->data.application;
-}
-
-
-void
-w_command_set_command_line (WCommand                *self,
-                            GApplicationCommandLine *command_line)
-{
-    //Sanity checks
-    g_return_val_if_fail (W_IS_COMMAND (self), NULL);
-
-    //Declarations
-    WCommandPrivate *priv = NULL;
-    WCommandClass *klass = NULL;
-    WCommandClassPrivate *klasspriv = NULL;
-    gboolean changed = FALSE;
-
-    //Initializations
-    priv = self->priv;
-    klass = W_COMMAND_CLASS (self);
-    klasspriv = klass->priv;
-    changed = (priv->data.command_line != command_line);
-
-    if (command_line != NULL)
-    {
-      g_object_ref (command_line);
-    }
-
-    if (priv->data.command_line != NULL)
-    {
-      g_object_remove_weak_pointer (
-        G_OBJECT (priv->data.command_line),
-        (gpointer*) &(priv->data.command_line)
-      );
-      g_object_unref (priv->data.command_line);
-      priv->data.command_line = NULL;
-    }
-
-    priv->data.command_line = command_line;
-
-    if (priv->data.command_line != NULL)
-    {
-      g_object_add_weak_pointer (
-        G_OBJECT (priv->data.command_line),
-        (gpointer*) &(priv->data.command_line)
-      );
-      if (changed) w_command_parse_args (self);
-    }
-
-    if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_COMMAND_LINE]);
-}
-
-
-GApplicationCommandLine*
-w_command_get_command_line (WCommand *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (W_IS_COMMAND (self), NULL);
-
-    //Declarations
-    WCommandPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    return priv->data.command_line;
-}
-
-
 void
 w_command_set_quiet_switch (WCommand *self,
                             gboolean quiet_switch)
@@ -1797,66 +1649,6 @@ w_command_has_query_request (WCommand *self)
     has_request = (QUERY_SWITCH_TEXT != NULL && *QUERY_SWITCH_TEXT != '\0');
 
     return has_request;
-}
-
-
-void
-w_command_print (WCommand *self,
-                  const gchar *format,
-                  ...)
-{
-    //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
-    g_return_if_fail (format != NULL);
-
-    //Declarations
-    WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
-    gchar *message = NULL;
-    va_list ap;
-
-    priv = self->priv;
-    command_line = priv->data.command_line;
-    if (command_line == NULL) goto errored;
-    va_start (ap, format);
-    message = g_strdup_vprintf (format, ap);
-    va_end (ap);
-
-    G_APPLICATION_COMMAND_LINE_GET_CLASS (command_line)->print_literal (command_line, message);
-
-errored:
-
-    g_free (message);
-}
-
-
-void
-w_command_printerr (WCommand *self,
-                    const gchar *format,
-                    ...)
-{
-    //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
-    g_return_if_fail (format != NULL);
-
-    //Declarations
-    WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
-    gchar *message = NULL;
-    va_list ap;
-
-    priv = self->priv;
-    command_line = priv->data.command_line;
-    if (command_line == NULL) goto errored;
-    va_start (ap, format);
-    message = g_strdup_vprintf (format, ap);
-    va_end (ap);
-
-    G_APPLICATION_COMMAND_LINE_GET_CLASS (command_line)->printerr_literal (command_line, message);
-
-errored:
-
-    g_free (message);
 }
 
 

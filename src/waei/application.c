@@ -232,8 +232,6 @@ w_application_command_line (GApplication            *application,
     {
     }
 
-    
-
     return resolution;
 }
 
