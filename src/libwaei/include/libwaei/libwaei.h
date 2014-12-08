@@ -10,7 +10,6 @@
 #include <libwaei/parsed.h>
 #include <libwaei/indexed.h>
 #include <libwaei/cachefile.h>
-#include <libwaei/utilities.h>
 #include <libwaei/filepath.h>
 #include <libwaei/condition.h>
 #include <libwaei/dependancy.h>

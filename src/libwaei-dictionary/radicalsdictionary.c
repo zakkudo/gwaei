@@ -42,6 +42,9 @@
 #include <libwaei/dictionary-private.h>
 #include <libwaei/gettext.h>
 
+#include <libwaei-dictionary/radicalsdictionary.h>
+
+
 static LwParsed* lw_radicalsdictionary_parse (LwRadicalsDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 static gint lw_radicalsdictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_radicalsdictionary_get_column_language (LwDictionary *self, gint column_num);
@@ -261,7 +264,7 @@ lw_radicalsdictionary_load_line_tokens (LwRadicalsDictionary  *self,
                                        gchar                  *buffer,
                                        gchar                 **tokens,
                                        gint                    num_tokens,
-                                       LwDictionaryLine       *line)
+                                       LwParsedLine           *line)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_RADICALSDICTIONARY (self));
@@ -329,7 +332,7 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
     gsize num_tokens = 0;
     gint length = -1;
     LwParsed *parsed = NULL;
-    LwDictionaryLine *lines = NULL;
+    LwParsedLine *lines = NULL;
 
     //Initializations
     if (content_length < 1) content_length = strlen(contents);
@@ -338,7 +341,7 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
     if (max_line_length < 1) goto errored;
     parsed = lw_parsed_new (contents, content_length);
     if (parsed == NULL) goto errored;
-    lines = g_new0 (LwDictionaryLine, num_lines);
+    lines = g_new0 (LwParsedLine, num_lines);
     if (lines == NULL) goto errored;
     tokens = g_new0 (gchar*, max_line_length + 1);
     if (tokens == NULL) goto errored;
@@ -355,7 +358,7 @@ lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
       gchar *c = contents;
       gchar *e = contents + content_length;
       gint i = 0;
-      LwDictionaryLine *line = NULL;
+      LwParsedLine *line = NULL;
       while (c < e)
       {
         while (c < e && *c == '\0') c = g_utf8_next_char (c);

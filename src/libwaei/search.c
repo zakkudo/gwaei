@@ -36,7 +36,10 @@
 #include <libwaei/gettext.h>
 #include <libwaei/search.h>
 
+#include <libwaei/morphologystring.h>
+
 #include <libwaei/search-private.h>
+
 
 G_DEFINE_TYPE (LwSearch, lw_search, G_TYPE_OBJECT)
 
@@ -788,20 +791,21 @@ lw_search_build_flags_from_preferences (LwPreferences *preferences)
     g_return_val_if_fail (preferences != NULL, 0);
 
     //Declarations
-    gboolean furigana_insensitive;
-    gboolean case_insensitive;
-    gboolean stem_insensitive;
-    gint romaji_to_furigana;
-    gboolean want_romaji_to_furigana_conv;
-    gboolean index_results;
-    gint32 flags;
+    gboolean furigana_insensitive = FALSE;
+    gboolean case_insensitive = FALSE;
+    gboolean stem_insensitive = FALSE;
+    gint romaji_to_furigana = 0;
+    gboolean want_romaji_to_furigana_conv = FALSE;
+    gboolean index_results = FALSE;
+    gint32 flags = 0;
 
     //Initializations
     furigana_insensitive = lw_preferences_get_boolean_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_FURIGANA_INSENSITIVE);
     case_insensitive = lw_preferences_get_boolean_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_CASE_INSENSITIVE);
     stem_insensitive = lw_preferences_get_boolean_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_STEM_INSENSITIVE);
     romaji_to_furigana = lw_preferences_get_int_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_ROMAJI_TO_FURIGANA);
-    want_romaji_to_furigana_conv = (romaji_to_furigana == 0 || (romaji_to_furigana == 2 && !lw_util_is_japanese_locale()));
+    //want_romaji_to_furigana_conv = (romaji_to_furigana == 0 || (romaji_to_furigana == 2 && !lw_util_is_japanese_locale()));
+    want_romaji_to_furigana_conv = (romaji_to_furigana == 0);
     index_results = lw_preferences_get_boolean_by_schema (preferences, LW_SCHEMA_BASE, LW_KEY_INDEX_RESULTS);
     flags = LW_SEARCHFLAG_RAW;
 

@@ -84,38 +84,6 @@ w_command_init (WCommand *self)
 
 
 static void 
-w_command_constructed (GObject *object)
-{
-    //Chain the parent class
-    {
-      G_OBJECT_CLASS (w_command_parent_class)->constructed (object);
-    }
-
-    //Declarations
-    WCommand *self = NULL;
-    WCommandPrivate *priv = NULL;
-    WApplication *application = NULL;
-
-    //Initializations
-    self = W_COMMAND (object);
-    priv = self->priv;
-    application = w_command_get_application (self);
-/*
-
-    if (priv->argument.dictionary_switch_text)
-    {
-        LwDictionaryList *list = w_application_get_installed_dictionarylist (self);
-        LwDictionary *dictionary = lw_dictionarylist_get_dictionary_by_filename (list, priv->argument.dictionary_switch_text);
-        w_command_set_dictionary (self, dictionary);
-    }
-
-
-    lw_regex_initialize ();
-*/
-}
-
-
-static void 
 w_command_set_property (GObject      *object,
                         guint         property_id,
                         const GValue *value,
@@ -131,12 +99,6 @@ w_command_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_APPLICATION:
-        w_command_set_application (self, g_value_get_object (value));
-        break;
-      case PROP_COMMAND_LINE:
-        w_command_set_command_line (self, g_value_get_object (value));
-        break;
       case PROP_DICTIONARY_SWITCH_TEXT:
         w_command_set_dictionary_switch_text (self, g_value_get_string (value));
         break;
@@ -193,12 +155,6 @@ w_command_get_property (GObject    *object,
 
     switch (property_id)
     {
-      case PROP_APPLICATION:
-        g_value_set_object (value, w_command_get_application (self));
-        break;
-      case PROP_COMMAND_LINE:
-        g_value_set_object (value, w_command_get_command_line (self));
-        break;
       case PROP_DICTIONARY_SWITCH_TEXT:
         g_value_set_string (value, w_command_get_dictionary_switch_text (self));
         break;
@@ -279,7 +235,6 @@ w_command_class_init (WCommandClass *klass)
     object_class = G_OBJECT_CLASS (klass);
     klass->priv = g_new0 (WCommandClassPrivate, 1);
 
-    object_class->constructed = w_command_constructed;
     object_class->set_property = w_command_set_property;
     object_class->get_property = w_command_get_property;
     object_class->dispose = w_command_dispose;
@@ -428,11 +383,6 @@ w_command_parse_args (WCommand  *self)
     if (command_line == NULL) goto errored;
     argv = g_application_command_line_get_arguments (command_line, &argc);
 
-    //Reset the switches to their default state
-    if (priv->data.context != NULL) g_option_context_free (priv->data.context); 
-    priv->data.context = g_option_context_new (gettext("- A dictionary program for Japanese-English translation."));
-    if (priv->data.context == NULL) goto errored;
-
     SUMMARY_TEXT = gettext("waei generally outputs directly to the console.");
     description_text = g_strdup_printf(
         gettext(
@@ -470,9 +420,8 @@ w_command_parse_args (WCommand  *self)
     g_option_context_set_summary (priv->data.context, SUMMARY_TEXT);
     g_option_context_add_main_entries (priv->data.context, entries, PACKAGE);
     g_option_context_set_ignore_unknown_options (priv->data.context, TRUE);
-    g_option_context_parse (priv->data.context, &argc, &argv, &error);
 
-    query_switch_text = lw_util_get_query_from_args (argc, argv);
+    lw_application_parse_arguments (application, entries)
 
     w_command_set_exact_switch (self, exact_switch);
     w_command_set_quiet_switch (self, quiet_switch);

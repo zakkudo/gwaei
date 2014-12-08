@@ -35,7 +35,7 @@ typedef enum {
 struct _Data {
   LwMorphologyString *query;
   LwSearchStatus status;                  //!< Used to test if a search is in progress.
-  LwMorphologyEngine *morphologyengine;
+  //LwMorphologyEngine *morphologyengine;
   GMutex mutex;
   GThread *thread;
   LwDictionary *dictionary;

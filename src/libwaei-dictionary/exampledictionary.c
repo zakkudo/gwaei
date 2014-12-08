@@ -42,6 +42,8 @@
 #include <libwaei/libwaei.h>
 #include <libwaei/dictionary-private.h>
 
+#include <libwaei-dictionary/exampledictionary.h>
+
 G_DEFINE_TYPE (LwExampleDictionary, lw_exampledictionary, LW_TYPE_DICTIONARY)
 
 static LwParsed* lw_exampledictionary_parse (LwExampleDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
@@ -280,7 +282,7 @@ lw_exampledictionary_load_line_tokens (LwExampleDictionary  *self,
                                        gchar                *buffer,
                                        gchar               **tokens,
                                        gint                  num_tokens,
-                                       LwDictionaryLine     *line)
+                                       LwParsedLine         *line)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_EXAMPLEDICTIONARY (self));
@@ -384,7 +386,7 @@ lw_exampledictionary_parse (LwExampleDictionary *self,
     gsize num_tokens = 0;
     gint length = -1;
     LwParsed *parsed = NULL;
-    LwDictionaryLine *lines = NULL;
+    LwParsedLine *lines = NULL;
 
     //Initializations
     if (content_length < 1) content_length = strlen(contents);
@@ -393,7 +395,7 @@ lw_exampledictionary_parse (LwExampleDictionary *self,
     if (max_line_length < 1) goto errored;
     parsed = lw_parsed_new (contents, content_length);
     if (parsed == NULL) goto errored;
-    lines = g_new0 (LwDictionaryLine, num_lines);
+    lines = g_new0 (LwParsedLine, num_lines);
     if (lines == NULL) goto errored;
     tokens = g_new0 (gchar*, max_line_length + 1);
     if (tokens == NULL) goto errored;
@@ -410,7 +412,7 @@ lw_exampledictionary_parse (LwExampleDictionary *self,
       gchar *c = contents;
       gchar *e = contents + content_length;
       gint i = 0;
-      LwDictionaryLine *line = NULL;
+      LwParsedLine *line = NULL;
       while (c < e)
       {
         while (c < e && *c == '\0') c = g_utf8_next_char (c);

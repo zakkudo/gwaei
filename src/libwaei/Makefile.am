@@ -7,12 +7,12 @@ datadir = @datadir@
 DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" 
 
 lib_LTLIBRARIES =libwaei.la
-libwaei_la_SOURCES =libwaei.c
+libwaei_la_SOURCES =libwaei.c command.c
 libwaei_la_SOURCES +=serializable.c
 libwaei_la_SOURCES +=dependancy.c condition.c filepath.c
 libwaei_la_SOURCES +=dictionary.c dictionary-callbacks.c dictionarycache.c dictionarylist.c dictionarylist-callbacks.c
 libwaei_la_SOURCES +=dictionaryinstall.c dictionaryinstalllist.c dictionaryinstalllist-callbacks.c dictionaryinstallstatehistory.c dictionaryinstallstate.c
-libwaei_la_SOURCES +=utilities.c utf8.c
+libwaei_la_SOURCES +=utf8.c
 libwaei_la_SOURCES +=parsed.c parsedline.c
 libwaei_la_SOURCES +=indexed.c
 libwaei_la_SOURCES +=morphologystring.c morphologyengine.c

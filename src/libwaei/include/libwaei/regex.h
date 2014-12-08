@@ -1,9 +1,6 @@
 #ifndef LW_REGEX_INCLUDED
 #define LW_REGEX_INCLUDED
 
-#include <glib.h>
-#include <libwaei/utilities.h>
-
 G_BEGIN_DECLS
 
 void lw_regex_initialize (void);
