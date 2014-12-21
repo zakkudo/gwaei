@@ -33,11 +33,23 @@ struct _LwCommandClass {
 LwCommand* lw_command_new (GApplication *application, GApplicationCommandLine *command_line);
 GType lw_command_get_type (void) G_GNUC_CONST;
 
+void lw_command_print (LwCommand *self, const gchar *format, ...);
+void lw_command_printerr (LwCommand *self, const gchar *format, ...);
+
+gchar const* lw_command_get_locale (void);
+gboolean lw_command_is_japanese_locale (void);
+
 //Properties
 GApplication* lw_command_get_application (LwCommand *self);
 GApplicationCommandLine* lw_command_get_command_line (LwCommand *self);
 
-void lw_command_print (LwCommand *self, const gchar *format, ...);
-void lw_command_printerr (LwCommand *self, const gchar *format, ...);
+void lw_command_set_parameter_string (LwCommand * self, gchar const * parameter_string);
+gchar const * lw_command_get_parameter_string (LwCommand * self);
+
+void lw_command_set_description (LwCommand * self, gchar const * DESCRIPTION);
+gchar const * lw_command_get_description (LwCommand * self);
+
+void lw_command_set_summary (LwCommand * self, gchar const * summary);
+gchar const * lw_command_get_summary (LwCommand * self);
 
 #endif

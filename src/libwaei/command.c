@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <locale.h>
 
 #include <glib.h>
 
@@ -41,27 +42,14 @@
 #include <libwaei/command.h>
 
 #include <libwaei/command-private.h>
+#include <libwaei/utf8.h>
+
+#include <libwaei/searchsubcommand.h>
+#include <libwaei/installsubcommand.h>
+#include <libwaei/uninstallsubcommand.h>
 
 
-G_DEFINE_TYPE (LwCommand, lw_command, G_TYPE_OBJECT)
-
-
-LwCommand*
-lw_command_new (GApplication            *application,
-                GApplicationCommandLine *command_line)
-{
-    //Sanity checks
-    g_return_val_if_fail (G_IS_APPLICATION (application), NULL);
-    g_return_val_if_fail (G_IS_APPLICATION_COMMAND_LINE (command_line), NULL);
-
-    //Declarations
-    LwCommand *self = NULL;
-
-    //Initializations
-    self = g_object_new (LW_TYPE_COMMAND, "application", application, "command-line", command_line, NULL);
-
-    return self;
-}
+G_DEFINE_ABSTRACT_TYPE (LwCommand, lw_command, G_TYPE_OBJECT)
 
 
 static void 
@@ -75,6 +63,12 @@ lw_command_init (LwCommand *self)
 
     //Initializations
     priv = self->priv;
+
+    priv->subcommands = g_tree_new_full ((GCompareDataFunc) g_strcmp0, NULL, NULL, g_object_unref);
+
+    g_tree_insert (priv->subcommands, "search", lw_searchsubcommand_new ());
+    g_tree_insert (priv->subcommands, "install", lw_installsubcommand_new ());
+    g_tree_insert (priv->subcommands, "uninstall", lw_uninstallsubcommand_new ());
 }
 
 
@@ -99,6 +93,15 @@ lw_command_set_property (GObject      *object,
         break;
       case PROP_APPLICATION_COMMAND_LINE:
         lw_command_set_command_line (self, g_value_get_object (value));
+        break;
+      case PROP_PARAMETER_STRING:
+        lw_command_set_parameter_string (self, g_value_get_string (value));
+        break;
+      case PROP_DESCRIPTION:
+        lw_command_set_description (self, g_value_get_string (value));
+        break;
+      case PROP_SUMMARY:
+        lw_command_set_summary (self, g_value_get_string (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -128,6 +131,15 @@ lw_command_get_property (GObject    *object,
         break;
       case PROP_APPLICATION_COMMAND_LINE:
         g_value_set_object (value, lw_command_get_command_line (self));
+        break;
+      case PROP_PARAMETER_STRING:
+        g_value_set_string (value, lw_command_get_parameter_string (self));
+        break;
+      case PROP_DESCRIPTION:
+        g_value_set_string (value, lw_command_get_summary (self));
+        break;
+      case PROP_SUMMARY:
+        g_value_set_string (value, lw_command_get_summary (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -161,15 +173,36 @@ lw_command_finalize (GObject *object)
     self = LW_COMMAND (object);
     priv = self->priv;
 
-    if (priv->application != NULL)
-    {
-      lw_command_set_application (self, NULL);
-    }
-    if (priv->command_line) {
-      lw_command_set_command_line (self, NULL);
-    }
+    lw_command_set_application (self, NULL);
+    lw_command_set_command_line (self, NULL);
+    lw_command_set_command_line (self, NULL);
+    lw_command_set_parameter_string (self, NULL);
+
+    g_tree_unref (priv->subcommands);
+    priv->subcommands = NULL;
+
+    g_free (priv->command_name);
+    priv->command_name = NULL;
 
     G_OBJECT_CLASS (lw_command_parent_class)->finalize (object);
+}
+
+
+static void
+lw_command_constructed (GObject *object)
+{
+    //Chain the parent class
+    {
+      G_OBJECT_CLASS (lw_command_parent_class)->constructed (object);
+    }
+
+    LwCommand *self = NULL;
+    LwCommandPrivate *priv = NULL;
+
+    self = LW_COMMAND (object);
+    priv = self->priv;
+
+    lw_command_parse_arguments (self);
 }
 
 
@@ -185,6 +218,7 @@ lw_command_class_init (LwCommandClass *klass)
     object_class->get_property = lw_command_get_property;
     object_class->dispose = lw_command_dispose;
     object_class->finalize = lw_command_finalize;
+    object_class->constructed = lw_command_constructed;
 
     g_type_class_add_private (object_class, sizeof (LwCommandPrivate));
 
@@ -197,7 +231,11 @@ lw_command_class_init (LwCommandClass *klass)
         G_TYPE_APPLICATION,
         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_APPLICATION, klasspriv->pspec[PROP_APPLICATION]);
+    g_object_class_install_property (
+        object_class,
+        PROP_APPLICATION,
+        klasspriv->pspec[PROP_APPLICATION]
+    );
 
     klasspriv->pspec[PROP_APPLICATION_COMMAND_LINE] = g_param_spec_object (
         "command-line",
@@ -206,8 +244,13 @@ lw_command_class_init (LwCommandClass *klass)
         G_TYPE_APPLICATION_COMMAND_LINE,
         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_APPLICATION_COMMAND_LINE, klasspriv->pspec[PROP_APPLICATION_COMMAND_LINE]);
+    g_object_class_install_property (
+        object_class,
+        PROP_APPLICATION_COMMAND_LINE,
+        klasspriv->pspec[PROP_APPLICATION_COMMAND_LINE]
+    );
 }
+
 
 //Properties
 
@@ -345,109 +388,319 @@ lw_command_get_command_line (LwCommand *self)
 }
 
 
+static GOptionContext*
+lw_command_context_new (LwCommand * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+    GOptionContext *context = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (!priv->command_line)
+    {
+      return NULL;
+    }
+
+    context = g_option_context_new (priv->parameter_string);
+    if (context == NULL) goto errored;
+
+    g_option_context_set_summary (context, priv->summary);
+    g_option_context_set_description (context, priv->description);
+    g_option_context_set_ignore_unknown_options (context, TRUE);
+
+errored:
+
+    return context;
+}
+
+
+static gchar const *
+lw_command_parse_command_name (LwCommand   * self,
+                               gchar     *** argv,
+                               gint        * argc)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+    g_return_val_if_fail (argv != NULL, NULL);
+    g_return_val_if_fail (argc != NULL, NULL);
+    if (*argc < 2) return NULL;
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+    gchar *command_name = NULL;
+
+    //Initializations
+    priv = self->priv;
+    command_name = *argv[1];
+    argv[1] = NULL;
+
+    if (*argc > 2)
+    {
+      memmove(*argv[2], *argv[1], *argc - 2), 
+      *argc -= 1;
+    }
+
+    priv->command_name = command_name;
+    command_name = NULL;
+
+errored:
+
+    g_free (command_name);
+    command_name = NULL;
+
+    return command_name;
+}
+
+
+static void
+lw_command_parse_arguments (LwCommand * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+    LwCommandClass *klass = NULL;
+    LwCommandClassPrivate *klasspriv = NULL;
+    gchar **argv = NULL;
+    gint argc = 0;
+    GError *error = NULL;
+    GOptionContext *option_context = NULL;
+    gchar const *COMMAND_NAME = NULL;
+    LwSubCommand *subcommand = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
+    argv = g_application_command_line_get_arguments (priv->command_line, &argc);
+    if (argv == NULL) goto errored;  
+    COMMAND_NAME = lw_command_parse_command_name (self, &argv, &argc);
+
+    option_context = lw_command_context_new (self);
+    if (option_context == NULL) goto errored;
+
+    subcommand = LW_SUBCOMMAND (g_tree_lookup (priv->subcommands, COMMAND_NAME));
+    if (subcommand == NULL) goto errored;
+
+    {
+      GOptionGroup * option_group = lw_subcommand_build_option_group (subcommand);
+      if (option_group)
+      {
+        g_option_context_add_group (option_context, option_group);
+        option_group = NULL;
+      }
+    }
+
+    if (priv->default_subcommand)
+    {
+      GOptionEntry const * option_entries = lw_subcommand_get_option_entries (priv->default_subcommand);
+      if (option_entries)
+      {
+        g_option_context_add_main_entries (option_context, option_entries, PACKAGE);
+        option_entries = NULL;
+      }
+    }
+
+    g_option_context_parse (option_context, &argc, &argv, &error);
+
+    lw_subcommand_run (subcommand, &argv, &argc);
+
+    if (priv->command_name)
+    {
+      GQuark detail = g_quark_from_string (priv->command_name);
+      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_RUN], detail);
+    }
+    else
+    {
+      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_RUN], 0);
+    }
+    
+    
+    // Save the leftover arugments
+    if (priv->argv)
+    {
+      priv->argv = argv;
+      argv = NULL;
+    }
+    priv->argc = argc;
+
+    option_context = NULL;
+
+errored:
+
+    g_option_context_free (option_context);
+    option_context = NULL;
+
+    if (error != NULL)
+    {
+      fprintf(stderr, "%s\n", error->message);
+      g_clear_error (&error);
+      error = NULL;
+    }
+
+    g_strfreev (argv); argv = NULL;
+}
+
+
+void
+lw_command_set_parameter_string (LwCommand   * self,
+                                 gchar const * parameter_string)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+    LwCommandClass *klass = NULL;
+    LwCommandClassPrivate *klasspriv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
+    if (g_strcmp0(priv->parameter_string, parameter_string) == 0) goto errored;
+
+    priv->parameter_string = g_strdup (parameter_string);
+
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PARAMETER_STRING]);
+
+errored:
+
+    return;
+}
+
+
+gchar const *
+lw_command_get_parameter_string (LwCommand * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->parameter_string;
+}
+
+
+void
+lw_command_set_description (LwCommand   * self,
+                            gchar const * DESCRIPTION)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+    LwCommandClass *klass = NULL;
+    LwCommandClassPrivate *klasspriv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
+    if (g_strcmp0(priv->description, DESCRIPTION) == 0) goto errored;
+
+    priv->description = g_strdup (DESCRIPTION);
+
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DESCRIPTION]);
+
+errored:
+
+    return;
+}
+
+
+gchar const *
+lw_command_get_description (LwCommand * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->description;
+}
+
+
+void
+lw_command_set_summary (LwCommand   * self,
+                        gchar const * SUMMARY)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+    LwCommandClass *klass = NULL;
+    LwCommandClassPrivate *klasspriv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_COMMAND_CLASS (self);
+    klasspriv = klass->priv;
+    if (g_strcmp0(priv->summary, SUMMARY) == 0) goto errored;
+
+    priv->summary = g_strdup (SUMMARY);
+
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_SUMMARY]);
+
+errored:
+
+    return;
+}
+
+
+gchar const *
+lw_command_get_summary (LwCommand * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->summary;
+}
+
+
 //Methods
 
 
-/*TODO
+gchar const*
+lw_command_get_locale ()
+{
+    return setlocale(LC_ALL, NULL);
+}
 
-//!
-//! @brief Checks for a Japanese local messages setting
-//! @returns A boolean stating whether the locale is a Japanese utf8 one
-//! @return Returns true if it is a japanese local
-//!
+
 gboolean 
-lw_util_is_japanese_locale ()
+lw_command_is_japanese_locale ()
 {
-    return (setlocale(LC_ALL, NULL) != NULL &&
-             (
-               strcmp(setlocale(LC_ALL, NULL), "ja_JP.UTF8")  == 0 ||
-               strcmp(setlocale(LC_ALL, NULL), "ja_JP.UTF-8") == 0 ||
-               strcmp(setlocale(LC_ALL, NULL), "ja_JP.utf8")  == 0 ||
-               strcmp(setlocale(LC_ALL, NULL), "ja_JP.utf-8") == 0 ||
-               strcmp(setlocale(LC_ALL, NULL), "ja_JP")       == 0 ||
-               strcmp(setlocale(LC_ALL, NULL), "ja")          == 0 ||
-               strcmp(setlocale(LC_ALL, NULL), "japanese")    == 0
-             )
-           );
-}
-
-
-//!
-//! @brief Converts the arguments passed to the program into a query search string
-//! @param argc The argc argument passed to main
-//! @param argv The argv argument passed to main
-//! @returns An allocated string that must be freed with g_free
-//!
-gchar* 
-lw_util_get_query_from_args (int argc, char** argv)
-{
-    //Sanity check
-    if (argc < 2) return NULL;
-
     //Declarations
-    gchar *text = NULL;
-    gchar *query = NULL;
-    gint i = 0;
-    gint length = 0;
-    gchar *ptr = NULL;
+    const gchar *LOCALE = NULL;
 
-    //Get the required length of the combined string
-    for (i = 1; i < argc; i++) 
-    {
-      length += strlen (argv[i]) + 1;
-    }
+    //Initialization
+    LOCALE = lw_command_get_locale ();
 
-    //Allocate it and set up the iterator
-    text = (char*) malloc(length * sizeof(char) + 1);
-    if (text == NULL) return NULL;
-    ptr = text;
-
-    //Copy the argument words into the query
-    for (i = 1; i < argc; i++)
-    { 
-      strcpy(ptr, argv[i]);
-      ptr += strlen(argv[i]);
-
-      if (i == argc - 1) break;
-
-      strcpy(ptr, " ");
-      ptr += strlen(" ");
-    }
-
-    query = g_strdup (text);
-    lw_utf8_sanitize (query);
-
-    //Cleanup
-    if (text != NULL) free (text);
-
-    return query;
+    return (LOCALE != NULL && strncmp(LOCALE, "ja", 2) == 0);
 }
-
-
-gchar*
-lw_util_get_environment_data_folder ()
-{
-    gchar **environment = g_get_environ ();
-    if (environment == NULL) return NULL;
-    gchar *folder = g_strdup (g_environ_getenv (environment, "LIBWAEI_DATA_FOLDER"));
-    g_strfreev (environment); environment = NULL;
-    return folder;
-}
-
-
-lw_application_parse_arguments (LwApplication *self)
-{
-    //Reset the switches to their default state
-    if (priv->data.context != NULL) g_option_context_free (priv->data.context); 
-    priv->data.context = g_option_context_new (gettext("- A dictionary program for Japanese-English translation."));
-    if (priv->data.context == NULL) goto errored;
-
-    g_option_context_parse (priv->data.context, &argc, &argv, &error);
-
-    query_switch_text = lw_util_get_query_from_args (argc, argv);
-}
-
-*/
 
 
 void
@@ -476,7 +729,7 @@ lw_command_print (LwCommand *self,
 
 errored:
 
-    g_free (message);
+    g_free (message); message = NULL;
 }
 
 
@@ -495,6 +748,7 @@ lw_command_printerr (LwCommand *self,
     gchar *message = NULL;
     va_list ap;
 
+    //Initializations
     priv = self->priv;
     command_line = priv->command_line;
     if (command_line == NULL) goto errored;
@@ -506,6 +760,6 @@ lw_command_printerr (LwCommand *self,
 
 errored:
 
-    g_free (message);
+    g_free (message); message = NULL;
 }
 

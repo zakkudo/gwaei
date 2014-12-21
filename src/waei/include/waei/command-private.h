@@ -28,18 +28,6 @@ typedef enum {
   TOTAL_SIGNALIDS
 } SignalId;
 
-struct _Config {
-};
-
-struct _Data {
-  GOptionContext *context;
-  LwDictionary *dictionary;
-  GMainLoop *loop;
-
-  LwProgress *progress;
-  guint signalid[TOTAL_SIGNALIDS];
-};
-
 struct _Argument {
   gboolean quiet_switch;
   gboolean exact_switch;
@@ -56,11 +44,10 @@ struct _Argument {
 };
 
 struct _WCommandPrivate {
-  gint* argc;
-  gchar*** argv;
-  
-  struct _Config config;
-  struct _Data data;
+  LwDictionary *dictionary;
+  GMainLoop *loop;
+  LwProgress *progress;
+  guint signalid[TOTAL_SIGNALIDS];
   struct _Argument argument;
 };
 

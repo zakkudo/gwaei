@@ -645,34 +645,47 @@ errored:
 //! @return a newly allocated sanitized utf8 encoded string or NULL if text was too.
 //!         If the result is non-NULL it must be freed with g_free(). 
 //!
-void
-lw_utf8_sanitize (gchar *buffer)
+gchar*
+lw_utf8_sanitize (gchar const * BUFFER)
 {
     //Sanity Check
-    g_return_if_fail (buffer != NULL);
+    if (BUFFER == NULL) return NULL;
+    
     
     //Declarations
-    const gchar *end; 
-    gchar *ptr;
-    gunichar c;
-    gint bytes;
+    gchar *copy = NULL;
+    gchar const *end = NULL; 
+
+    //Initializations
+    copy = g_strdup(BUFFER);
+    if (copy == NULL) goto errored;
 
     //Validate the string as proper utf8
-    if (!g_utf8_validate (buffer, -1, &end)) *((gchar*)end) = '\0'; 
+    if (!g_utf8_validate (copy, -1, &end))
+    {
+      copy[end - copy] = '\0';
+    }
 
     //Clear unprintable characters
-    for (ptr = buffer; *ptr != '\0'; ptr = g_utf8_next_char (ptr))
     {
-      c = g_utf8_get_char (ptr);
-      if (!g_unichar_isprint (c))
+      gchar *ptr = copy;
+      while (*ptr != '\0')
       {
-        bytes = g_unichar_to_utf8 (c, NULL);
-        memset(ptr, ' ', bytes);
+        gunichar c = g_utf8_get_char (ptr);
+        if (!g_unichar_isprint (c))
+        {
+          gint bytes = g_unichar_to_utf8 (c, NULL);
+          memset(ptr, ' ', bytes);
+        }
+        ptr = g_utf8_next_char (ptr);
       }
     }
 
-    //Strip any possible whitespace at the beginning or end
-    g_strstrip (buffer); 
+    g_strstrip (copy);
+
+errored:
+
+    return copy; 
 }
 
 

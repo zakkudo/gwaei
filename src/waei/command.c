@@ -59,9 +59,22 @@ w_command_new (WApplication            *application,
 
     //Declarations
     WCommand *self = NULL;
+    gchar const * parameter_string = "";
+    gchar const * description = "";
+    gchar const * summary = "";
+    const GOptionEntry *option_entries = "";
 
     //Initializations
-    self = g_object_new (W_TYPE_COMMAND, "application", application, "command-line", command_line, NULL);
+    self = g_object_new (
+        W_TYPE_COMMAND,
+        "application", application,
+        "command-line", command_line,
+        "parameter-string", parameter_string,
+        "description", description,
+        "summary", summary,
+        "option-entries", option_entries,
+        NULL
+    );
 
     return self;
 }

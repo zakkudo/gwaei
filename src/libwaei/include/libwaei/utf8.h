@@ -50,7 +50,7 @@ LwUtf8Flag lw_utf8flag_clean (LwUtf8Flag flags);
 gchar* lw_utf8_set_null_next_char (gchar *TEXT);
 gint* lw_utf8_get_numbers (const gchar *TEXT);
 gsize lw_utf8_replace_linebreaks_with_nullcharacter (gchar *CONTENTS, gsize content_length, gsize *max_line_length, LwProgress *progress);
-void lw_utf8_sanitize (gchar *buffer);
+gchar* lw_utf8_sanitize (gchar const * BUFFER);
 GUnicodeScript lw_utf8_get_script (gchar *TEXT);
 gchar* lw_utf8_convert_printf_pattern_to_regex_pattern (const gchar *PATTERN);
 
