@@ -53,7 +53,7 @@ lw_uninstallsubcommand_new ()
     LwSubCommand* self = NULL;
 
     //Initializations
-    self =  LW_SUBCOMMAND (g_object_new (LW_TYPE_UNINSTALLSUBCOMMAND, NULL));
+    self =  LW_SUBCOMMAND (g_object_new (LW_TYPE_UNINSTALLSUBCOMMAND, "name", "uninstall", NULL));
 
     return self;
 }

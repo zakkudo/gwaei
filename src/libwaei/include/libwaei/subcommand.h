@@ -40,6 +40,8 @@ GOptionGroup * lw_subcommand_build_option_group (LwSubCommand * self);
 GOptionEntry const * lw_subcommand_get_option_entries (LwSubCommand * self);
 void lw_subcommand_set_option_entries (LwSubCommand * self, GOptionEntry const * option_entries);
 
+gchar const * lw_subcommand_get_name (LwSubCommand * self);
+
 //Properties
 
 

@@ -64,6 +64,8 @@ lw_subcommand_finalize (GObject *object)
     self = LW_SUBCOMMAND (object);
     priv = self->priv;
 
+    lw_subcommand_set_name (self, NULL);
+
     G_OBJECT_CLASS (lw_subcommand_parent_class)->finalize (object);
 }
 
@@ -75,8 +77,8 @@ lw_subcommand_set_property (GObject      *object,
                             GParamSpec   *pspec)
 {
     //Declarations
-    LwSubCommand *self;
-    LwSubCommandPrivate *priv;
+    LwSubCommand *self = NULL;
+    LwSubCommandPrivate *priv = NULL;
 
     //Initializations
     self = LW_SUBCOMMAND (object);
@@ -84,6 +86,12 @@ lw_subcommand_set_property (GObject      *object,
 
     switch (property_id)
     {
+      case PROP_NAME:
+        lw_subcommand_set_name (self, g_value_get_string (value));
+        break;
+      case PROP_OPTION_ENTRIES:
+        lw_subcommand_set_option_entries (self, g_value_get_pointer (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -107,6 +115,12 @@ lw_subcommand_get_property (GObject      *object,
 
     switch (property_id)
     {
+      case PROP_NAME:
+        g_value_set_string (value, lw_subcommand_get_name (self));
+        break;
+      case PROP_OPTION_ENTRIES:
+        g_value_set_pointer (value, (gpointer) lw_subcommand_get_option_entries (self));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -119,7 +133,6 @@ lw_subcommand_class_init (LwSubCommandClass *klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
-    LwSubCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
@@ -130,7 +143,30 @@ lw_subcommand_class_init (LwSubCommandClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwSubCommandPrivate));
 
-    klasspriv = klass->priv;
+    klass->priv->pspec[PROP_NAME] = g_param_spec_string (
+        "name",
+        "Name",
+        "The name of the subcommand as will appear in the command-line",
+        NULL,
+        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
+    );
+    g_object_class_install_property (
+        object_class,
+        PROP_NAME,
+        klass->priv->pspec[PROP_NAME]
+    );
+
+    klass->priv->pspec[PROP_OPTION_ENTRIES] = g_param_spec_pointer (
+        "option-entries",
+        "Option Entries",
+        "Entries that will by parsed by GOptionContext for this subcommand",
+        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
+    );
+    g_object_class_install_property (
+        object_class,
+        PROP_OPTION_ENTRIES,
+        klass->priv->pspec[PROP_OPTION_ENTRIES]
+    );
 }
 
 
@@ -198,7 +234,6 @@ lw_subcommand_set_option_entries (LwSubCommand       * self,
     //Declarations
     LwSubCommandPrivate *priv = NULL;
     LwSubCommandClass *klass = NULL;
-    LwSubCommandClassPrivate *klasspriv = NULL;
     gint length = 0;
     GOptionEntry* copy = NULL;
 
@@ -206,7 +241,6 @@ lw_subcommand_set_option_entries (LwSubCommand       * self,
     priv = self->priv;
     if (priv->option_entries == option_entries) goto errored;
     klass = LW_SUBCOMMAND_CLASS (self);
-    klasspriv = klass->priv;
 
     length = 1;
     while (option_entries[length].long_name != NULL) length++;
@@ -218,7 +252,7 @@ lw_subcommand_set_option_entries (LwSubCommand       * self,
     priv->option_entries = copy;
     copy = NULL;
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_OPTION_ENTRIES]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_OPTION_ENTRIES]);
 
 errored:
 
@@ -226,3 +260,48 @@ errored:
 
     return;
 }
+
+
+gchar const *
+lw_subcommand_get_name (LwSubCommand * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_SUBCOMMAND (self), NULL);
+
+    //Declarations
+    LwSubCommandPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->name;
+}
+
+
+static void
+lw_subcommand_set_name (LwSubCommand * self,
+                        gchar const  * NAME)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_SUBCOMMAND (self), NULL);
+
+    //Declarations
+    LwSubCommandPrivate *priv = NULL;
+    LwSubCommandClass *klass = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_SUBCOMMAND_GET_CLASS (self);
+    
+    if (g_strcmp0 (priv->name, NAME) == 0) goto errored;
+
+    g_free (priv->name);
+    priv->name = g_strdup (NAME);
+    
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_NAME]);
+
+errored:
+
+    return;
+}
+

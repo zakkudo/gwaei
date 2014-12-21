@@ -52,8 +52,6 @@ struct _LwCommandClassPrivate {
 static void lw_command_set_application (LwCommand *self, GApplication *application);
 static void lw_command_set_command_line (LwCommand *self, GApplicationCommandLine *command_line);
 
-static void lw_command_parse_arguments (LwCommand * self);
-
 G_END_DECLS
 
 #endif

@@ -66,9 +66,9 @@ lw_command_init (LwCommand *self)
 
     priv->subcommands = g_tree_new_full ((GCompareDataFunc) g_strcmp0, NULL, NULL, g_object_unref);
 
-    g_tree_insert (priv->subcommands, "search", lw_searchsubcommand_new ());
-    g_tree_insert (priv->subcommands, "install", lw_installsubcommand_new ());
-    g_tree_insert (priv->subcommands, "uninstall", lw_uninstallsubcommand_new ());
+    lw_command_add_subcommand (self, lw_searchsubcommand_new ());
+    lw_command_add_subcommand (self, lw_installsubcommand_new ());
+    lw_command_add_subcommand (self, lw_uninstallsubcommand_new ());
 }
 
 
@@ -201,8 +201,6 @@ lw_command_constructed (GObject *object)
 
     self = LW_COMMAND (object);
     priv = self->priv;
-
-    lw_command_parse_arguments (self);
 }
 
 
@@ -453,12 +451,120 @@ errored:
     g_free (command_name);
     command_name = NULL;
 
-    return command_name;
+    return priv->command_name;
 }
 
 
-static void
-lw_command_parse_arguments (LwCommand * self)
+static LwSubCommand*
+lw_command_parse_optional_subcommand (LwCommand        * self,
+                                      GOptionContext   * option_context,
+                                      gchar          *** argv,
+                                      gint             * argc)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+    g_return_val_if_fail (option_context != NULL, NULL);
+    g_return_val_if_fail (argv != NULL, NULL);
+    g_return_val_if_fail (argc != NULL, NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+    gchar const * COMMAND_NAME = NULL;
+    LwSubCommand * subcommand = NULL;
+    GOptionGroup * option_group = NULL;
+
+    //Initialization
+    priv = self->priv;
+    COMMAND_NAME = lw_command_parse_command_name (self, argv, argc);
+    if (COMMAND_NAME == NULL) goto errored;
+    subcommand = lw_command_lookup_subcommand (self, COMMAND_NAME);
+    if (subcommand == NULL) goto errored;
+    option_group = lw_subcommand_build_option_group (subcommand);
+    if (option_group)
+    {
+      g_option_context_add_group (option_context, option_group);
+      option_group = NULL;
+    }
+
+errored:
+
+    g_option_group_free (option_group);
+    option_group = NULL;
+
+    return subcommand;
+}
+
+
+static LwSubCommand*
+lw_command_parse_default_subcommand (LwCommand        * self,
+                                     GOptionContext   * option_context,
+                                     gchar          *** argv,
+                                     gint             * argc)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+    g_return_val_if_fail (option_context != NULL, NULL);
+    g_return_val_if_fail (argv != NULL, NULL);
+    g_return_val_if_fail (argc != NULL, NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (priv->default_subcommand != NULL)
+    {
+      GOptionEntry const * option_entries = lw_subcommand_get_option_entries (priv->default_subcommand);
+      if (option_entries)
+      {
+        g_option_context_add_main_entries (option_context, option_entries, PACKAGE);
+        option_entries = NULL;
+      }
+    }
+
+errored:
+
+    return priv->default_subcommand;
+}
+
+
+static LwSubCommand*
+lw_command_parse_subcommand (LwCommand        * self,
+                             GOptionContext   * option_context,
+                             gchar          *** argv,
+                             gint             * argc)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+    g_return_val_if_fail (option_context != NULL, NULL);
+    g_return_val_if_fail (argv != NULL, NULL);
+    g_return_val_if_fail (argc != NULL, NULL);
+
+    //Declarations
+    LwSubCommand *optional_subcommand = NULL;
+    LwSubCommand *default_subcommand = NULL;
+    LwSubCommand *subcommand = NULL;
+
+    //Initializations
+    default_subcommand = lw_command_parse_default_subcommand (self, option_context, argv, argc);
+    optional_subcommand = lw_command_parse_optional_subcommand (self, option_context, argv, argc);
+
+    if (optional_subcommand != NULL)
+    {
+      subcommand = optional_subcommand;
+    }
+    else
+    {
+      subcommand = default_subcommand;
+    }
+
+    return subcommand; 
+}
+
+
+void
+lw_command_run (LwCommand * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
@@ -471,7 +577,6 @@ lw_command_parse_arguments (LwCommand * self)
     gint argc = 0;
     GError *error = NULL;
     GOptionContext *option_context = NULL;
-    gchar const *COMMAND_NAME = NULL;
     LwSubCommand *subcommand = NULL;
 
     //Initializations
@@ -480,54 +585,28 @@ lw_command_parse_arguments (LwCommand * self)
     klasspriv = klass->priv;
     argv = g_application_command_line_get_arguments (priv->command_line, &argc);
     if (argv == NULL) goto errored;  
-    COMMAND_NAME = lw_command_parse_command_name (self, &argv, &argc);
-
     option_context = lw_command_context_new (self);
     if (option_context == NULL) goto errored;
-
-    subcommand = LW_SUBCOMMAND (g_tree_lookup (priv->subcommands, COMMAND_NAME));
-    if (subcommand == NULL) goto errored;
-
-    {
-      GOptionGroup * option_group = lw_subcommand_build_option_group (subcommand);
-      if (option_group)
-      {
-        g_option_context_add_group (option_context, option_group);
-        option_group = NULL;
-      }
-    }
-
-    if (priv->default_subcommand)
-    {
-      GOptionEntry const * option_entries = lw_subcommand_get_option_entries (priv->default_subcommand);
-      if (option_entries)
-      {
-        g_option_context_add_main_entries (option_context, option_entries, PACKAGE);
-        option_entries = NULL;
-      }
-    }
-
+    subcommand = lw_command_parse_subcommand (self, option_context, &argv, &argc);
     g_option_context_parse (option_context, &argc, &argv, &error);
 
-    lw_subcommand_run (subcommand, &argv, &argc);
-
-    if (priv->command_name)
+    if (subcommand != NULL)
     {
-      GQuark detail = g_quark_from_string (priv->command_name);
-      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_RUN], detail);
-    }
-    else
-    {
-      g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_RUN], 0);
+      lw_subcommand_run (subcommand, &argv, &argc);
+      if (priv->command_name)
+      {
+        GQuark detail = g_quark_from_string (priv->command_name);
+        g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_RUN], detail);
+      }
+      else
+      {
+        g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_RUN], 0);
+      }
     }
     
-    
-    // Save the leftover arugments
-    if (priv->argv)
-    {
-      priv->argv = argv;
-      argv = NULL;
-    }
+    if (priv->argv != argv) g_strfreev (priv->argv);
+    priv->argv = argv;
+    argv = NULL;
     priv->argc = argc;
 
     option_context = NULL;
@@ -763,3 +842,50 @@ errored:
     g_free (message); message = NULL;
 }
 
+
+void
+lw_command_add_subcommand (LwCommand    * self,
+                           LwSubCommand * subcommand)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_COMMAND (self));
+    g_return_if_fail (LW_IS_SUBCOMMAND (subcommand));
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+    gchar const *SUBCOMMAND_NAME = NULL;
+
+    //Initializations
+    priv = self->priv;
+    SUBCOMMAND_NAME = lw_subcommand_get_name (subcommand);
+    if (SUBCOMMAND_NAME == NULL) goto errored;
+    if (g_tree_lookup (priv->subcommands, SUBCOMMAND_NAME) != NULL) goto errored;
+
+    g_tree_insert (priv->subcommands, (gchar*) SUBCOMMAND_NAME, subcommand);
+
+errored:
+
+    return ;
+}
+
+
+LwSubCommand*
+lw_command_lookup_subcommand (LwCommand   * self,
+                              gchar const * SUBCOMMAND_NAME)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+    g_return_val_if_fail (SUBCOMMAND_NAME != NULL, NULL);
+
+    //Declarations
+    LwCommandPrivate *priv = NULL;
+    LwSubCommand *subcommand = NULL;
+
+    //Initializations
+    priv = self->priv;
+    subcommand = LW_SUBCOMMAND (g_tree_lookup(priv->subcommands, SUBCOMMAND_NAME));
+
+errored:
+
+    return subcommand;
+}

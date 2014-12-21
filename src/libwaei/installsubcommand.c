@@ -52,7 +52,7 @@ lw_installsubcommand_new ()
     LwSubCommand* self = NULL;
 
     //Initializations
-    self =  LW_SUBCOMMAND (g_object_new (LW_TYPE_INSTALLSUBCOMMAND, NULL));
+    self =  LW_SUBCOMMAND (g_object_new (LW_TYPE_INSTALLSUBCOMMAND, "name", "install", NULL));
 
     return self;
 }

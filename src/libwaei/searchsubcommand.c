@@ -52,7 +52,7 @@ lw_searchsubcommand_new ()
     LwSubCommand* self = NULL;
 
     //Initializations
-    self =  LW_SUBCOMMAND (g_object_new (LW_TYPE_SEARCHSUBCOMMAND, NULL));
+    self =  LW_SUBCOMMAND (g_object_new (LW_TYPE_SEARCHSUBCOMMAND, "name", "search", NULL));
 
     return self;
 }

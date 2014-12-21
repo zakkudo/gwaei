@@ -3,6 +3,8 @@
 
 #include <gio/gio.h>
 
+#include "subcommand.h"
+
 G_BEGIN_DECLS
 
 //Boilerplate
@@ -51,5 +53,10 @@ gchar const * lw_command_get_description (LwCommand * self);
 
 void lw_command_set_summary (LwCommand * self, gchar const * summary);
 gchar const * lw_command_get_summary (LwCommand * self);
+
+void lw_command_add_subcommand (LwCommand * self, LwSubCommand * subcommand);
+LwSubCommand* lw_command_lookup_subcommand (LwCommand * self, gchar const * SUBCOMMAND_NAME);
+
+void lw_command_run (LwCommand * self);
 
 #endif
