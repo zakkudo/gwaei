@@ -148,9 +148,12 @@ AM_GLIB_GNU_GETTEXT
 GWAEI_LOCALEDIR=[${datadir}/locale]
 AC_SUBST(GWAEI_LOCALEDIR)
 
+dictionarydir=[${libdir}/${PACKAGE}/dictionary]
+AC_SUBST(dictionarydir)
+
 AC_CONFIG_MACRO_DIR([m4])
 
-AC_CONFIG_FILES([Makefile src/Makefile src/libwaei/Makefile src/libwaei/include/libwaei/Makefile src/libwaei/tests/Makefile src/libwaei-dictionary/Makefile src/libwaei-dictionary/include/libwaei-dictionary/Makefile src/waei/Makefile src/waei/include/waei/Makefile src/libgwaei/Makefile src/libgwaei/include/libgwaei/Makefile src/gwaei/Makefile src/gwaei/mingw/Makefile src/gwaei/include/gwaei/Makefile mandir/Makefile src/desktop/Makefile src/images/Makefile src/schemas/Makefile rpm/gwaei.spec rpm/fedora/SPECS/gwaei.spec po/Makefile.in src/kpengine/Makefile src/libwaei/doxyfile src/waei/doxyfile src/gwaei/doxyfile])
+AC_CONFIG_FILES([Makefile src/Makefile src/libwaei/Makefile src/libwaei/include/libwaei/Makefile src/libwaei/tests/Makefile src/dictionary/Makefile src/dictionary/include/dictionary/Makefile src/waei/Makefile src/waei/include/waei/Makefile src/libgwaei/Makefile src/libgwaei/include/libgwaei/Makefile src/gwaei/Makefile src/gwaei/mingw/Makefile src/gwaei/include/gwaei/Makefile mandir/Makefile src/desktop/Makefile src/images/Makefile src/schemas/Makefile rpm/gwaei.spec rpm/fedora/SPECS/gwaei.spec po/Makefile.in src/kpengine/Makefile src/libwaei/doxyfile src/waei/doxyfile src/gwaei/doxyfile])
 
 AC_OUTPUT
 

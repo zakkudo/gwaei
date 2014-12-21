@@ -6,7 +6,7 @@ ACLOCAL_AMFLAGS = -I m4
 datadir = @datadir@
 DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" 
 
-lib_LTLIBRARIES =libgwaei.la
+pkglib_LTLIBRARIES =libgwaei.la
 libgwaei_la_SOURCES =libgwaei.c actiongroup.c actionable.c menuable.c resultsview.c 
 
 libgwaei_la_SOURCES +=window.c window-callbacks.c

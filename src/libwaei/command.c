@@ -161,7 +161,6 @@ lw_command_dispose (GObject *object)
 }
 
 
-
 static void 
 lw_command_finalize (GObject *object)
 {
@@ -220,9 +219,7 @@ lw_command_class_init (LwCommandClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwCommandPrivate));
 
-    LwCommandClassPrivate *klasspriv = klass->priv;
-
-    klasspriv->pspec[PROP_APPLICATION] = g_param_spec_object (
+    klass->priv->pspec[PROP_APPLICATION] = g_param_spec_object (
         "application",
         "Application",
         "Application associated with the command line.",
@@ -232,10 +229,10 @@ lw_command_class_init (LwCommandClass *klass)
     g_object_class_install_property (
         object_class,
         PROP_APPLICATION,
-        klasspriv->pspec[PROP_APPLICATION]
+        klass->priv->pspec[PROP_APPLICATION]
     );
 
-    klasspriv->pspec[PROP_APPLICATION_COMMAND_LINE] = g_param_spec_object (
+    klass->priv->pspec[PROP_APPLICATION_COMMAND_LINE] = g_param_spec_object (
         "command-line",
         "Command Line",
         "The current command line context.",
@@ -245,7 +242,7 @@ lw_command_class_init (LwCommandClass *klass)
     g_object_class_install_property (
         object_class,
         PROP_APPLICATION_COMMAND_LINE,
-        klasspriv->pspec[PROP_APPLICATION_COMMAND_LINE]
+        klass->priv->pspec[PROP_APPLICATION_COMMAND_LINE]
     );
 }
 
@@ -263,12 +260,10 @@ lw_command_set_application (LwCommand    *self,
     //Declarations
     LwCommandPrivate *priv = NULL;
     LwCommandClass *klass = NULL;
-    LwCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
     klass = LW_COMMAND_CLASS (self);
-    klasspriv = klass->priv;
     if (application == priv->application) goto errored;
 
     if (application != NULL)
@@ -295,7 +290,7 @@ lw_command_set_application (LwCommand    *self,
       );
     }
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_APPLICATION]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_APPLICATION]);
 
 errored:
     
@@ -330,12 +325,10 @@ lw_command_set_command_line (LwCommand               *self,
     //Declarations
     LwCommandPrivate *priv = NULL;
     LwCommandClass *klass = NULL;
-    LwCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
     klass = LW_COMMAND_CLASS (self);
-    klasspriv = klass->priv;
     if (command_line == priv->command_line) goto errored;
 
     if (command_line != NULL)
@@ -362,7 +355,7 @@ lw_command_set_command_line (LwCommand               *self,
       );
     }
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_APPLICATION_COMMAND_LINE]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_APPLICATION_COMMAND_LINE]);
 
 errored:
     
@@ -572,7 +565,6 @@ lw_command_run (LwCommand * self)
     //Declarations
     LwCommandPrivate *priv = NULL;
     LwCommandClass *klass = NULL;
-    LwCommandClassPrivate *klasspriv = NULL;
     gchar **argv = NULL;
     gint argc = 0;
     GError *error = NULL;
@@ -582,7 +574,6 @@ lw_command_run (LwCommand * self)
     //Initializations
     priv = self->priv;
     klass = LW_COMMAND_CLASS (self);
-    klasspriv = klass->priv;
     argv = g_application_command_line_get_arguments (priv->command_line, &argc);
     if (argv == NULL) goto errored;  
     option_context = lw_command_context_new (self);
@@ -596,11 +587,11 @@ lw_command_run (LwCommand * self)
       if (priv->command_name)
       {
         GQuark detail = g_quark_from_string (priv->command_name);
-        g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_RUN], detail);
+        g_signal_emit (self, klass->priv->signalid[CLASS_SIGNALID_RUN], detail);
       }
       else
       {
-        g_signal_emit (self, klasspriv->signalid[CLASS_SIGNALID_RUN], 0);
+        g_signal_emit (self, klass->priv->signalid[CLASS_SIGNALID_RUN], 0);
       }
     }
     
@@ -637,17 +628,15 @@ lw_command_set_parameter_string (LwCommand   * self,
     //Declarations
     LwCommandPrivate *priv = NULL;
     LwCommandClass *klass = NULL;
-    LwCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
     klass = LW_COMMAND_CLASS (self);
-    klasspriv = klass->priv;
     if (g_strcmp0(priv->parameter_string, parameter_string) == 0) goto errored;
 
     priv->parameter_string = g_strdup (parameter_string);
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PARAMETER_STRING]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_PARAMETER_STRING]);
 
 errored:
 
@@ -681,17 +670,15 @@ lw_command_set_description (LwCommand   * self,
     //Declarations
     LwCommandPrivate *priv = NULL;
     LwCommandClass *klass = NULL;
-    LwCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
     klass = LW_COMMAND_CLASS (self);
-    klasspriv = klass->priv;
     if (g_strcmp0(priv->description, DESCRIPTION) == 0) goto errored;
 
     priv->description = g_strdup (DESCRIPTION);
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DESCRIPTION]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_DESCRIPTION]);
 
 errored:
 
@@ -725,17 +712,15 @@ lw_command_set_summary (LwCommand   * self,
     //Declarations
     LwCommandPrivate *priv = NULL;
     LwCommandClass *klass = NULL;
-    LwCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
     klass = LW_COMMAND_CLASS (self);
-    klasspriv = klass->priv;
     if (g_strcmp0(priv->summary, SUMMARY) == 0) goto errored;
 
     priv->summary = g_strdup (SUMMARY);
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_SUMMARY]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_SUMMARY]);
 
 errored:
 
