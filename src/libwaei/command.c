@@ -219,6 +219,20 @@ lw_command_class_init (LwCommandClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwCommandPrivate));
 
+    //Signals
+
+    klass->priv->signalid[CLASS_SIGNALID_RUN] = g_signal_new (
+        "run",
+        G_OBJECT_CLASS_TYPE (klass),
+        G_SIGNAL_RUN_FIRST | G_SIGNAL_DETAILED,
+        G_STRUCT_OFFSET (LwCommandClass, run),
+        NULL, NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 0
+    );
+
+    //Properties
+
     klass->priv->pspec[PROP_APPLICATION] = g_param_spec_object (
         "application",
         "Application",
@@ -587,11 +601,11 @@ lw_command_run (LwCommand * self)
       if (priv->command_name)
       {
         GQuark detail = g_quark_from_string (priv->command_name);
-        g_signal_emit (self, klass->priv->signalid[CLASS_SIGNALID_RUN], detail);
+        g_signal_emit (self, klass->priv->signalid[CLASS_SIGNALID_RUN], detail, subcommand);
       }
       else
       {
-        g_signal_emit (self, klass->priv->signalid[CLASS_SIGNALID_RUN], 0);
+        g_signal_emit (self, klass->priv->signalid[CLASS_SIGNALID_RUN], 0, subcommand);
       }
     }
     

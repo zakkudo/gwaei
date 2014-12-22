@@ -28,6 +28,9 @@ struct _LwCommand {
 struct _LwCommandClass {
   GObjectClass parent_class;
   LwCommandClassPrivate *priv;
+
+  //Signal ids
+  void (*run) (LwCommand * self, gchar *subcommand_name, gpointer data);
 };
 
 //Methods
