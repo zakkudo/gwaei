@@ -37,6 +37,7 @@
 #include <stdio.h>
 
 #include <glib.h>
+#include <glib-object.h>
 
 #include <libwaei/libwaei.h>
 #include <libwaei/dictionary-private.h>
@@ -50,7 +51,7 @@ static gint lw_radicalsdictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_radicalsdictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_radicalsdictionary_get_column_handling (LwDictionary *self, gint column_num);
 
-G_DEFINE_TYPE (LwRadicalsDictionary, lw_radicalsdictionary, LW_TYPE_DICTIONARY)
+G_DEFINE_DYNAMIC_TYPE (LwRadicalsDictionary, lw_radicalsdictionary, LW_TYPE_DICTIONARY)
 
 
 LwDictionary* lw_radicalsdictionary_new (const gchar        *FILENAME,
@@ -97,6 +98,12 @@ static void
 lw_radicalsdictionary_finalize (GObject *object)
 {
     G_OBJECT_CLASS (lw_radicalsdictionary_parent_class)->finalize (object);
+}
+
+
+static void
+lw_radicalsdictionary_class_finalize (LwRadicalsDictionaryClass *klass)
+{
 }
 
 

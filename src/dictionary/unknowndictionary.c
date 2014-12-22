@@ -37,6 +37,7 @@
 #include <stdio.h>
 
 #include <glib.h>
+#include <glib-object.h>
 
 #include <libwaei/libwaei.h>
 #include <libwaei/dictionary-private.h>
@@ -45,7 +46,7 @@
 #include <dictionary/unknowndictionary.h>
 
 
-G_DEFINE_TYPE (LwUnknownDictionary, lw_unknowndictionary, LW_TYPE_DICTIONARY)
+G_DEFINE_DYNAMIC_TYPE (LwUnknownDictionary, lw_unknowndictionary, LW_TYPE_DICTIONARY)
 
 static LwParsed* lw_unknowndictionary_parse (LwUnknownDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 static gint lw_unknowndictionary_get_total_columns (LwDictionary *self);
@@ -96,6 +97,12 @@ static void
 lw_unknowndictionary_finalize (GObject *object)
 {
     G_OBJECT_CLASS (lw_unknowndictionary_parent_class)->finalize (object);
+}
+
+
+static void
+lw_unknowndictionary_class_finalize (LwUnknownDictionaryClass *klass)
+{
 }
 
 

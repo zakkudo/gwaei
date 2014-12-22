@@ -46,7 +46,7 @@
 #include <libwaei/dictionary-private.h>
 
 
-G_DEFINE_ABSTRACT_TYPE (LwDictionary, lw_dictionary, G_TYPE_OBJECT);
+G_DEFINE_DYNAMIC_TYPE_EXTENDED (LwDictionary, lw_dictionary, G_TYPE_OBJECT, G_TYPE_FLAG_ABSTRACT, {})
 
 
 static void 
@@ -158,6 +158,15 @@ lw_dictionary_get_property (GObject      *object,
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
     }
+}
+
+
+static void
+lw_dictionary_class_finalize (LwDictionaryClass *klass)
+{
+    memset(klass->priv, 0, sizeof(LwDictionaryClassPrivate));
+    g_free (klass->priv);
+    klass->priv = NULL;
 }
 
 

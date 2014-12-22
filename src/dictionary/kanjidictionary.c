@@ -37,6 +37,7 @@
 #include <stdio.h>
 
 #include <glib.h>
+#include <glib-object.h>
 
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
@@ -44,7 +45,7 @@
 
 #include <dictionary/kanjidictionary.h>
 
-G_DEFINE_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
+G_DEFINE_DYNAMIC_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
 
 static LwParsed* lw_kanjidictionary_parse (LwKanjiDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 static gint lw_kanjidictionary_get_total_columns (LwDictionary *self);
@@ -101,6 +102,12 @@ static void
 lw_kanjidictionary_finalize (GObject *object)
 {
     G_OBJECT_CLASS (lw_kanjidictionary_parent_class)->finalize (object);
+}
+
+
+static void
+lw_kanjidictionary_class_finalize (LwKanjiDictionaryClass *klass)
+{
 }
 
 

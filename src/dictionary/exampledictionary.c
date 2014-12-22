@@ -37,6 +37,7 @@
 #include <stdio.h>
 
 #include <glib.h>
+#include <glib-object.h>
 
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
@@ -44,7 +45,7 @@
 
 #include <dictionary/exampledictionary.h>
 
-G_DEFINE_TYPE (LwExampleDictionary, lw_exampledictionary, LW_TYPE_DICTIONARY)
+G_DEFINE_DYNAMIC_TYPE (LwExampleDictionary, lw_exampledictionary, LW_TYPE_DICTIONARY)
 
 static LwParsed* lw_exampledictionary_parse (LwExampleDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
 static gint lw_exampledictionary_get_total_columns (LwDictionary *self);
@@ -99,6 +100,12 @@ static void
 lw_exampledictionary_finalize (GObject *object)
 {
     G_OBJECT_CLASS (lw_exampledictionary_parent_class)->finalize (object);
+}
+
+
+static void
+lw_exampledictionary_class_finalize (LwExampleDictionaryClass *klass)
+{
 }
 
 

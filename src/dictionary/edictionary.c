@@ -127,6 +127,12 @@ lw_edictionary_finalize (GObject *object)
 
 
 static void
+lw_edictionary_class_finalize (LwEDictionaryClass *klass)
+{
+}
+
+
+static void
 lw_edictionary_class_init (LwEDictionaryClass *klass)
 {
     //Declarations
@@ -143,12 +149,6 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
     dictionary_class->priv->get_column_handling = lw_edictionary_get_column_handling;
     dictionary_class->priv->get_total_columns = lw_edictionary_get_total_columns;
     dictionary_class->priv->get_column_language = lw_edictionary_get_column_language;
-}
-
-
-static void
-lw_edictionary_class_finalize (LwEDictionaryClass *klass)
-{
 }
 
 
