@@ -52,13 +52,6 @@ static gint lw_edictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_edictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_edictionary_get_column_handling (LwDictionary *self, gint column_num);
 
-//https://developer.gnome.org/glib/stable/glib-Dynamic-Loading-of-Modules.html#GModule
-//https://developer.gnome.org/gobject/stable/GTypePlugin.html
-//https://developer.gnome.org/gobject/stable/GTypeModule.html
-
-//GType type = g_type_register_dynamic (LW_TYPE_DICTIONARY, "LwEDictionary", plugin, 0)
-//GType type = g_type_module_register_type (modeule, LW_TYPE_DICTIONARY, "LwEDictionary", 
-
 
 LwDictionary* lw_edictionary_new (const gchar        *FILENAME, 
                                   LwMorphologyEngine *morphologyengine)

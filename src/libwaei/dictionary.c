@@ -175,7 +175,6 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
@@ -186,53 +185,51 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
 
     g_type_class_add_private (object_class, sizeof (LwDictionaryPrivate));
 
-    klasspriv = klass->priv;
-
-    klasspriv->pspec[PROP_FILENAME] = g_param_spec_string (
+    klass->priv->pspec[PROP_FILENAME] = g_param_spec_string (
       "filename",
       gettext("Filename"),
       "Set the self's data.filename",
       "",
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_FILENAME, klasspriv->pspec[PROP_FILENAME]);
+    g_object_class_install_property (object_class, PROP_FILENAME, klass->priv->pspec[PROP_FILENAME]);
 
-    klasspriv->pspec[PROP_PATH] = g_param_spec_string (
+    klass->priv->pspec[PROP_PATH] = g_param_spec_string (
       "path",
       gettext("Path"),
       "Set the self's data.filename",
       "",
       G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_PATH, klasspriv->pspec[PROP_PATH]);
+    g_object_class_install_property (object_class, PROP_PATH, klass->priv->pspec[PROP_PATH]);
 
-    klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
+    klass->priv->pspec[PROP_PROGRESS] = g_param_spec_object (
       "progress",
       gettext("Progress"),
       "Set the self's data.filename",
       LW_TYPE_PROGRESS,
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_PROGRESS, klasspriv->pspec[PROP_PROGRESS]);
+    g_object_class_install_property (object_class, PROP_PROGRESS, klass->priv->pspec[PROP_PROGRESS]);
 
-    klasspriv->pspec[PROP_ID] = g_param_spec_string (
+    klass->priv->pspec[PROP_ID] = g_param_spec_string (
       "id",
       gettext("Id"),
       "Set the self's data.filename",
       "",
       G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_ID, klasspriv->pspec[PROP_ID]);
+    g_object_class_install_property (object_class, PROP_ID, klass->priv->pspec[PROP_ID]);
 
-    klasspriv->pspec[PROP_CACHETREE] = g_param_spec_pointer (
+    klass->priv->pspec[PROP_CACHETREE] = g_param_spec_pointer (
       "cache-tree",
       gettext("Buffer"),
       "Set the self's data.filename",
       G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_CACHETREE, klasspriv->pspec[PROP_CACHETREE]);
+    g_object_class_install_property (object_class, PROP_CACHETREE, klass->priv->pspec[PROP_CACHETREE]);
 
-    klasspriv->pspec[PROP_LENGTH] = g_param_spec_ulong (
+    klass->priv->pspec[PROP_LENGTH] = g_param_spec_ulong (
       "length",
       gettext("Length"),
       "Set the self's data.filename",
@@ -241,25 +238,25 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
       0,
       G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_LENGTH, klasspriv->pspec[PROP_LENGTH]);
+    g_object_class_install_property (object_class, PROP_LENGTH, klass->priv->pspec[PROP_LENGTH]);
 
-    klasspriv->pspec[PROP_CHECKSUM] = g_param_spec_string (
+    klass->priv->pspec[PROP_CHECKSUM] = g_param_spec_string (
       "checksum",
       gettext("Checksum"),
       "Set the self's data.filename",
       "",
       G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_CHECKSUM, klasspriv->pspec[PROP_CHECKSUM]);
+    g_object_class_install_property (object_class, PROP_CHECKSUM, klass->priv->pspec[PROP_CHECKSUM]);
 
-    klasspriv->pspec[PROP_CONTENTS] = g_param_spec_string (
+    klass->priv->pspec[PROP_CONTENTS] = g_param_spec_string (
       "contents",
       gettext("Contents"),
       "Set the self's data.filename",
       "",
       G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_CONTENTS, klasspriv->pspec[PROP_CONTENTS]);
+    g_object_class_install_property (object_class, PROP_CONTENTS, klass->priv->pspec[PROP_CONTENTS]);
 }
 
 
@@ -292,13 +289,11 @@ lw_dictionary_get_total_columns (LwDictionary *self)
 
     //Declarations
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     gint total_columns = 0;
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
-    klasspriv = klass->priv;
-    total_columns = klasspriv->get_total_columns (self);
+    total_columns = klass->priv->get_total_columns (self);
   
     return total_columns;
 }
@@ -314,16 +309,14 @@ lw_dictionary_get_column_language (LwDictionary *self,
 
     //Declarations
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     gint total_columns = 0;
     gchar const *language = NULL;
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
-    klasspriv = klass->priv;
     total_columns = lw_dictionary_get_total_columns (self);
     if (total_columns < 1 || column_num >= total_columns) goto errored;
-    language = klasspriv->get_column_language (self, column_num);
+    language = klass->priv->get_column_language (self, column_num);
 
 errored:
 
@@ -341,16 +334,14 @@ lw_dictionary_get_column_handling (LwDictionary *self,
 
     //Declarations
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     gint total_columns = 0;
     gint handling = LW_DICTIONARYCOLUMNHANDLING_UNUSED;
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
-    klasspriv = klass->priv;
     total_columns = lw_dictionary_get_total_columns (self);
     if (total_columns < 1 || column_num >= total_columns) goto errored;
-    handling = klasspriv->get_column_handling (self, column_num);
+    handling = klass->priv->get_column_handling (self, column_num);
 
 errored:
 
@@ -397,19 +388,17 @@ lw_dictionary_take_contents (LwDictionary *self,
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
     changed = (contents != priv->data.contents);
 
     if (changed == FALSE) goto errored;
 
     priv->data.contents = contents;
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CONTENTS]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CONTENTS]);
 
 errored:
     
@@ -481,13 +470,11 @@ lw_dictionary_take_checksum (LwDictionary *self,
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
 
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
     changed = (g_strcmp0 (checksum, priv->data.checksum) != 0);
 
     g_free (priv->data.checksum);
@@ -495,7 +482,7 @@ lw_dictionary_take_checksum (LwDictionary *self,
 
     if (changed == FALSE) goto errored;
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CHECKSUM]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CHECKSUM]);
 
 errored:
 
@@ -728,7 +715,6 @@ lw_dictionary_sync_path (LwDictionary *self)
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     GType type = G_TYPE_INVALID;
     const gchar *FILENAME = NULL;
     gchar *path = NULL;
@@ -736,7 +722,6 @@ lw_dictionary_sync_path (LwDictionary *self)
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
     type = G_OBJECT_TYPE (self);
     FILENAME = lw_dictionary_get_filename (self);
     path = lw_dictionary_build_path (type, FILENAME);
@@ -754,7 +739,7 @@ lw_dictionary_sync_path (LwDictionary *self)
     }
     priv->data.mapped_file = g_mapped_file_new (priv->data.path, FALSE, NULL);
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PATH]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_PATH]);
 
 errored:
 
@@ -804,12 +789,10 @@ lw_dictionary_set_filename (LwDictionary *self,
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
     if (g_strcmp0 (FILENAME, priv->data.filename) == 0) goto errored;
 
     g_free (priv->data.filename);
@@ -818,7 +801,7 @@ lw_dictionary_set_filename (LwDictionary *self,
     g_free (priv->data.name);
     priv->data.name = g_strdup (gettext(priv->data.filename));
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_FILENAME]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_FILENAME]);
 
     lw_dictionary_sync_id (self);
     lw_dictionary_sync_path (self);
@@ -862,12 +845,10 @@ lw_dictionary_set_progress (LwDictionary *self,
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
     if (priv->data.progress == progress) goto errored;
 
     if (progress != NULL)
@@ -894,7 +875,7 @@ lw_dictionary_set_progress (LwDictionary *self,
       );
     }
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_PROGRESS]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_PROGRESS]);
 
 errored:
 
@@ -912,13 +893,11 @@ lw_dictionary_set_cachetree (LwDictionary *self,
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = self->priv;
     if (priv->data.caches == tree) goto errored;
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
 
     if (tree != NULL)
     {
@@ -937,7 +916,7 @@ lw_dictionary_set_cachetree (LwDictionary *self,
       g_tree_ref (priv->data.caches);
     }
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_CACHETREE]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CACHETREE]);
 
 errored:
 
@@ -971,14 +950,12 @@ lw_dictionary_set_cache (LwDictionary        *self,
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     gpointer key = NULL;
     LwUtf8Flag flags = 0;
 
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
     flags = lw_dictionarycache_get_flags (cache);
     key = GINT_TO_POINTER (flags);
     if (priv->data.caches == NULL) goto errored;
@@ -1048,7 +1025,6 @@ lw_dictionary_ensure_cache (LwDictionary      *self,
 
     //Declarations
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     const gchar *CHECKSUM = NULL;
     const gchar *CONTENTS = NULL;
     gsize content_length = 0;
@@ -1060,11 +1036,10 @@ lw_dictionary_ensure_cache (LwDictionary      *self,
     
     //Initializations
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
     CHECKSUM = lw_dictionary_get_checksum (self);
     CONTENTS = lw_dictionary_get_contents (self);
     content_length = lw_dictionary_length (self);
-    func = (LwDictionaryCacheParseFunc) klasspriv->parse;
+    func = (LwDictionaryCacheParseFunc) klass->priv->parse;
 
     lw_dictionarycache_set_contents (cache, CHECKSUM, CONTENTS, content_length, (LwDictionaryCacheParseFunc) _dictionarycache_parse, &data, progress);
 
@@ -1129,13 +1104,11 @@ lw_dictionary_parse (LwDictionary *self,
 
     //Declarations
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
 
     //Initializations
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
 
-    return klasspriv->parse (self, contents, content_length, progress);
+    return klass->priv->parse (self, contents, content_length, progress);
 }
 
 
@@ -1240,7 +1213,6 @@ lw_dictionary_sync_id (LwDictionary *self)
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     gchar *id = NULL;
     GType type = G_TYPE_INVALID;
     const gchar *FILENAME = NULL;
@@ -1248,7 +1220,6 @@ lw_dictionary_sync_id (LwDictionary *self)
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
     type = G_OBJECT_TYPE (self);
     FILENAME = lw_dictionary_get_filename (self);
     if (FILENAME == NULL) goto errored;
@@ -1260,7 +1231,7 @@ lw_dictionary_sync_id (LwDictionary *self)
     priv->data.id = id;
     id = NULL;
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_ID]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_ID]);
 
 errored:
 
@@ -1475,7 +1446,6 @@ lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
 
     //Declarations
     LwDictionaryClass *klass = NULL;
-    LwDictionaryClassPrivate *klasspriv = NULL;
     gchar *str = NULL;
     gchar **lines = NULL;
     gint num_lines = -1;
@@ -1487,9 +1457,8 @@ lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
 
     //Initializations
     klass = LW_DICTIONARY_CLASS (self);
-    klasspriv = klass->priv;
-    if (klasspriv->columnize == NULL) goto errored;
-    if (klasspriv->load_columns == NULL) goto errored;
+    if (klass->priv->columnize == NULL) goto errored;
+    if (klass->priv->load_columns == NULL) goto errored;
     str = lw_dictionarycache_str (buffer);
     if (str == NULL) goto errored;
     lines = lw_utf8_split_lines (str, &num_lines);
@@ -1506,8 +1475,8 @@ lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
       gint num_columns = 0;
       for (i = 0; i < num_lines; i++)
       {
-        klasspriv->columnize (self, lines[i], column_buffer, &num_columns);
-        klasspriv->load_columns (self, dictionary_lines + i, column_buffer, num_columns);
+        klass->priv->columnize (self, lines[i], column_buffer, &num_columns);
+        klass->priv->load_columns (self, dictionary_lines + i, column_buffer, num_columns);
       }
     }
 
