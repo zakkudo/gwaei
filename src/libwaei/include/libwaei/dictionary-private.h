@@ -12,7 +12,7 @@ typedef enum
   PROP_ID,
   PROP_PATH,
   PROP_CACHETREE,
-  PROP_LENGTH,
+  PROP_CONTENT_LENGTH,
   PROP_CHECKSUM,
   PROP_CONTENTS,
   TOTAL_PROPS
@@ -23,7 +23,7 @@ typedef enum {
   TOTAL_CLASS_SIGNALIDS
 } ClassSignalId;
 
-struct _Data {
+struct _LwDictionaryPrivate {
   gchar *path;
   GTree *caches;
 
@@ -37,15 +37,6 @@ struct _Data {
   GMappedFile *mapped_file;
   gchar *contents;
   gchar *checksum;
-};
-
-struct _Config {
-  gboolean selected;
-};
-
-struct _LwDictionaryPrivate {
-  struct _Data data;
-  struct _Config config;
 };
 
 struct _LwDictionaryClassPrivate {

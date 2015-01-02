@@ -68,8 +68,8 @@ lw_dictionary_finalize (GObject *object)
     self = LW_DICTIONARY (object);
     priv = self->priv;
 
-    g_free (priv->data.filename); priv->data.filename = NULL;
-    g_free (priv->data.name); priv->data.name = NULL;
+    g_free (priv->filename); priv->filename = NULL;
+    g_free (priv->name); priv->name = NULL;
 
     lw_dictionary_set_cachetree (self, NULL);
 
@@ -151,7 +151,7 @@ lw_dictionary_get_property (GObject      *object,
       case PROP_CONTENTS:
         g_value_set_static_string (value, lw_dictionary_get_contents (self));
         break;
-      case PROP_LENGTH:
+      case PROP_CONTENT_LENGTH:
         g_value_set_long (value, lw_dictionary_length (self));
         break;
       default:
@@ -229,16 +229,16 @@ lw_dictionary_class_init (LwDictionaryClass *klass)
     );
     g_object_class_install_property (object_class, PROP_CACHETREE, klass->priv->pspec[PROP_CACHETREE]);
 
-    klass->priv->pspec[PROP_LENGTH] = g_param_spec_ulong (
-      "length",
-      gettext("Length"),
+    klass->priv->pspec[PROP_CONTENT_LENGTH] = g_param_spec_ulong (
+      "content-length",
+      gettext("Content Length"),
       "Set the self's data.filename",
       0,
       G_MAXULONG,
       0,
       G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_LENGTH, klass->priv->pspec[PROP_LENGTH]);
+    g_object_class_install_property (object_class, PROP_CONTENT_LENGTH, klass->priv->pspec[PROP_CONTENT_LENGTH]);
 
     klass->priv->pspec[PROP_CHECKSUM] = g_param_spec_string (
       "checksum",
@@ -361,8 +361,8 @@ lw_dictionary_length (LwDictionary *self)
 
     //Initializations
     priv = self->priv;
-    if (priv->data.mapped_file == NULL) goto errored;
-    length = g_mapped_file_get_length (priv->data.mapped_file);
+    if (priv->mapped_file == NULL) goto errored;
+    length = g_mapped_file_get_length (priv->mapped_file);
 
 errored:
 
@@ -393,11 +393,11 @@ lw_dictionary_take_contents (LwDictionary *self,
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    changed = (contents != priv->data.contents);
+    changed = (contents != priv->contents);
 
     if (changed == FALSE) goto errored;
 
-    priv->data.contents = contents;
+    priv->contents = contents;
     g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CONTENTS]);
 
 errored:
@@ -420,10 +420,10 @@ lw_dictionary_sync_contents (LwDictionary *self,
 
     //Initializations
     priv = self->priv;
-    if (priv->data.mapped_file == NULL) goto errored;
+    if (priv->mapped_file == NULL) goto errored;
 
-    contents = g_mapped_file_get_contents (priv->data.mapped_file);
-    length = g_mapped_file_get_length (priv->data.mapped_file);
+    contents = g_mapped_file_get_contents (priv->mapped_file);
+    length = g_mapped_file_get_length (priv->mapped_file);
 
     if (!lw_utf8_validate (contents, length, progress))
     {
@@ -437,7 +437,7 @@ errored:
 }
 
 
-const gchar*
+gchar const*
 lw_dictionary_get_contents (LwDictionary *self)
 {
     //Sanity checks
@@ -449,14 +449,14 @@ lw_dictionary_get_contents (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    if (priv->data.contents == NULL)
+    if (priv->contents == NULL)
     {
       lw_dictionary_sync_contents (self, NULL);
     }
 
 errored:
 
-    return priv->data.contents;
+    return priv->contents;
 }
 
 
@@ -475,10 +475,10 @@ lw_dictionary_take_checksum (LwDictionary *self,
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    changed = (g_strcmp0 (checksum, priv->data.checksum) != 0);
+    changed = (g_strcmp0 (checksum, priv->checksum) != 0);
 
-    g_free (priv->data.checksum);
-    priv->data.checksum = checksum;
+    g_free (priv->checksum);
+    priv->checksum = checksum;
 
     if (changed == FALSE) goto errored;
 
@@ -497,7 +497,7 @@ lw_dictionary_sync_checksum (LwDictionary *self)
     g_return_if_fail (LW_IS_DICTIONARY (self));
 
     //Declarations
-    const gchar *CONTENTS = NULL;
+    gchar const *CONTENTS = NULL;
     gint length = -1;
     gchar *checksum = NULL;
 
@@ -515,7 +515,7 @@ errored:
 }
 
 
-const gchar*
+gchar const*
 lw_dictionary_get_checksum (LwDictionary *self)
 {
     //Sanity checks
@@ -527,12 +527,12 @@ lw_dictionary_get_checksum (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    if (priv->data.checksum == NULL)
+    if (priv->checksum == NULL)
     {
       lw_dictionary_sync_checksum (self);
     }
 
-    return priv->data.checksum;
+    return priv->checksum;
 }
 
 
@@ -555,13 +555,13 @@ lw_dictionary_uninstall (LwDictionary *self)
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwProgress *progress = NULL;
-    const gchar *PATH = NULL;
-    const gchar *MESSAGE = NULL;
-    const gchar *name = lw_dictionary_get_name (self);
+    gchar const *PATH = NULL;
+    gchar const *MESSAGE = NULL;
+    gchar const *name = lw_dictionary_get_name (self);
 
     //Initializations
     priv = self->priv;
-    progress = priv->data.progress;
+    progress = priv->progress;
     PATH = lw_dictionary_get_path (self);
     if (PATH == NULL) goto errored;
   printf("BREAK2 lw_dictionary_uninstall \n");
@@ -591,7 +591,7 @@ lw_dictionary_open (LwDictionary *self)
 
     //Declarations
     FILE *file = NULL;
-    const gchar *PATH = NULL;
+    gchar const *PATH = NULL;
 
     //Initializations
     PATH = lw_dictionary_get_path (self);
@@ -612,9 +612,9 @@ lw_dictionary_build_directoryname (GType type)
     g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);
 
     //Declarations
-    const gchar* TYPENAME = NULL;
-    const gchar *start = NULL;
-    const gchar *end = NULL;
+    gchar const* TYPENAME = NULL;
+    gchar const *start = NULL;
+    gchar const *end = NULL;
     gchar *name = NULL;
     gchar *lowercase = NULL;
 
@@ -665,7 +665,7 @@ errored:
 }
 
 
-const gchar* 
+gchar const* 
 lw_dictionary_get_path (LwDictionary *self)
 {
     //Sanity checks
@@ -677,13 +677,13 @@ lw_dictionary_get_path (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.path;
+    return priv->path;
 }
 
 
 gchar*
 lw_dictionary_build_path (GType         type,
-                          const gchar * FILENAME)
+                          gchar const * FILENAME)
 {
     //Sanity checks
     g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);
@@ -717,7 +717,7 @@ lw_dictionary_sync_path (LwDictionary *self)
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
     GType type = G_TYPE_INVALID;
-    const gchar *FILENAME = NULL;
+    gchar const *FILENAME = NULL;
     gchar *path = NULL;
 
     //Initializations
@@ -726,19 +726,19 @@ lw_dictionary_sync_path (LwDictionary *self)
     type = G_OBJECT_TYPE (self);
     FILENAME = lw_dictionary_get_filename (self);
     path = lw_dictionary_build_path (type, FILENAME);
-    if (g_strcmp0 (path, priv->data.path) == 0) goto errored;
+    if (g_strcmp0 (path, priv->path) == 0) goto errored;
 
-    g_free(priv->data.path);
-    priv->data.path = path;
+    g_free(priv->path);
+    priv->path = path;
     path = NULL;
 
     lw_dictionary_set_cachetree (self, NULL);
     
-    if (priv->data.mapped_file != NULL)
+    if (priv->mapped_file != NULL)
     {
-      g_mapped_file_unref (priv->data.mapped_file);
+      g_mapped_file_unref (priv->mapped_file);
     }
-    priv->data.mapped_file = g_mapped_file_new (priv->data.path, FALSE, NULL);
+    priv->mapped_file = g_mapped_file_new (priv->path, FALSE, NULL);
 
     g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_PATH]);
 
@@ -748,7 +748,7 @@ errored:
 }
 
 
-const gchar*
+gchar const*
 lw_dictionary_get_name (LwDictionary *self)
 {
     //Sanity checks
@@ -760,11 +760,11 @@ lw_dictionary_get_name (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.name;
+    return priv->name;
 }
 
 
-const gchar*
+gchar const*
 lw_dictionary_get_filename (LwDictionary *self)
 {
     //Sanity checks
@@ -776,13 +776,13 @@ lw_dictionary_get_filename (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.filename;
+    return priv->filename;
 }
 
 
 void
 lw_dictionary_set_filename (LwDictionary *self,
-                            const gchar *FILENAME)
+                            gchar const *FILENAME)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
@@ -794,13 +794,13 @@ lw_dictionary_set_filename (LwDictionary *self,
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    if (g_strcmp0 (FILENAME, priv->data.filename) == 0) goto errored;
+    if (g_strcmp0 (FILENAME, priv->filename) == 0) goto errored;
 
-    g_free (priv->data.filename);
-    priv->data.filename = g_strdup (FILENAME);
+    g_free (priv->filename);
+    priv->filename = g_strdup (FILENAME);
 
-    g_free (priv->data.name);
-    priv->data.name = g_strdup (gettext(priv->data.filename));
+    g_free (priv->name);
+    priv->name = g_strdup (gettext(priv->filename));
 
     g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_FILENAME]);
 
@@ -813,8 +813,8 @@ errored:
 }
 
 
-LwProgress*
-lw_dictionary_get_progress (LwDictionary *self)
+LwProgress *
+lw_dictionary_get_progress (LwDictionary * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -825,20 +825,20 @@ lw_dictionary_get_progress (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    if (priv->data.progress == NULL)
+    if (priv->progress == NULL)
     {
       LwProgress *progress = lw_progress_new ();
       lw_dictionary_set_progress (self, progress);
       progress = NULL;
     }
 
-    return priv->data.progress;
+    return priv->progress;
 }
 
 
 void
-lw_dictionary_set_progress (LwDictionary *self,
-                            LwProgress   *progress)
+lw_dictionary_set_progress (LwDictionary * self,
+                            LwProgress   * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
@@ -850,29 +850,29 @@ lw_dictionary_set_progress (LwDictionary *self,
     //Initializations
     priv = self->priv;
     klass = LW_DICTIONARY_CLASS (self);
-    if (priv->data.progress == progress) goto errored;
+    if (priv->progress == progress) goto errored;
 
     if (progress != NULL)
     {
       g_object_ref_sink (progress);
     }
 
-    if (priv->data.progress != NULL)
+    if (priv->progress != NULL)
     {
       g_object_remove_weak_pointer (
-        G_OBJECT (priv->data.progress),
-        (gpointer*) &(priv->data.progress)
+        G_OBJECT (priv->progress),
+        (gpointer*) &(priv->progress)
       );
-      g_object_unref (priv->data.progress);
+      g_object_unref (priv->progress);
     }
 
-    priv->data.progress = progress;
+    priv->progress = progress;
 
-    if (priv->data.progress != NULL)
+    if (priv->progress != NULL)
     {
       g_object_add_weak_pointer (
-        G_OBJECT (priv->data.progress),
-        (gpointer*) &(priv->data.progress)
+        G_OBJECT (priv->progress),
+        (gpointer*) &(priv->progress)
       );
     }
 
@@ -885,8 +885,8 @@ errored:
 
 
 void
-lw_dictionary_set_cachetree (LwDictionary *self,
-                              GTree        *tree)
+lw_dictionary_set_cachetree (LwDictionary * self,
+                             GTree        * tree)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
@@ -897,7 +897,7 @@ lw_dictionary_set_cachetree (LwDictionary *self,
 
     //Initializations
     priv = self->priv;
-    if (priv->data.caches == tree) goto errored;
+    if (priv->caches == tree) goto errored;
     klass = LW_DICTIONARY_CLASS (self);
 
     if (tree != NULL)
@@ -905,16 +905,16 @@ lw_dictionary_set_cachetree (LwDictionary *self,
       g_tree_ref (tree);
     }
 
-    if (priv->data.caches == NULL)
+    if (priv->caches == NULL)
     {
-      g_tree_unref (priv->data.caches);
+      g_tree_unref (priv->caches);
     }
 
-    priv->data.caches = tree;
+    priv->caches = tree;
 
-    if (priv->data.caches != NULL)
+    if (priv->caches != NULL)
     {
-      g_tree_ref (priv->data.caches);
+      g_tree_ref (priv->caches);
     }
 
     g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CACHETREE]);
@@ -937,13 +937,13 @@ lw_dictionary_get_cachetree (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.caches;
+    return priv->caches;
 }
 
 
 void
-lw_dictionary_set_cache (LwDictionary        *self,
-                          LwDictionaryCache  *cache)
+lw_dictionary_set_cache (LwDictionary      * self,
+                         LwDictionaryCache * cache)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
@@ -959,16 +959,16 @@ lw_dictionary_set_cache (LwDictionary        *self,
     klass = LW_DICTIONARY_CLASS (self);
     flags = lw_dictionarycache_get_flags (cache);
     key = GINT_TO_POINTER (flags);
-    if (priv->data.caches == NULL) goto errored;
-    if (g_tree_lookup (priv->data.caches, key) == cache) goto errored;
+    if (priv->caches == NULL) goto errored;
+    if (g_tree_lookup (priv->caches, key) == cache) goto errored;
 
     if (cache != NULL)
     {
-      g_tree_insert (priv->data.caches, key, cache);
+      g_tree_insert (priv->caches, key, cache);
     }
     else
     {
-      g_tree_remove (priv->data.caches, key);
+      g_tree_remove (priv->caches, key);
     }
 
 errored:
@@ -1026,8 +1026,8 @@ lw_dictionary_ensure_cache (LwDictionary      *self,
 
     //Declarations
     LwDictionaryClass *klass = NULL;
-    const gchar *CHECKSUM = NULL;
-    const gchar *CONTENTS = NULL;
+    gchar const *CHECKSUM = NULL;
+    gchar const *CONTENTS = NULL;
     gsize content_length = 0;
     LwDictionaryCacheParseFunc func = NULL;
     struct _DictionaryCacheData data = {
@@ -1063,7 +1063,7 @@ lw_dictionary_get_cache (LwDictionary *self,
     LwDictionaryClass *klass = NULL;
     GTree *caches = NULL;
     LwDictionaryCache *cache = NULL;
-    const gchar *FILENAME = NULL;
+    gchar const *FILENAME = NULL;
 
     //Initializations
     priv = self->priv;
@@ -1121,8 +1121,8 @@ lw_dictionary_equals (LwDictionary *dictionary1,
     g_return_val_if_fail (dictionary1 != NULL && dictionary2 != NULL, FALSE);
 
     //Declarations
-    const gchar *FILENAME1;
-    const gchar *FILENAME2;
+    gchar const *FILENAME1;
+    gchar const *FILENAME2;
     GType type1;
     GType type2;
     gboolean filenames_are_equal;
@@ -1143,7 +1143,7 @@ lw_dictionary_equals (LwDictionary *dictionary1,
 
 gchar*
 lw_dictionary_build_id_from_type (GType        type, 
-                                  const gchar *FILENAME)
+                                  gchar const *FILENAME)
 {
     //Sanity checks
     g_return_val_if_fail (FILENAME != NULL, NULL);
@@ -1168,7 +1168,7 @@ errored:
 
 
 gchar*
-lw_dictionary_directoryname_to_typename (const gchar *DIRECTORYNAME)
+lw_dictionary_directoryname_to_typename (gchar const *DIRECTORYNAME)
 {
     //Sanity checks
     g_return_val_if_fail (DIRECTORYNAME != NULL, NULL);
@@ -1189,7 +1189,7 @@ errored:
 }
 
 
-const gchar*
+gchar const*
 lw_dictionary_get_id (LwDictionary *self)
 {
     //Sanity checks
@@ -1201,7 +1201,7 @@ lw_dictionary_get_id (LwDictionary *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.id;
+    return priv->id;
 }
 
 
@@ -1216,7 +1216,7 @@ lw_dictionary_sync_id (LwDictionary *self)
     LwDictionaryClass *klass = NULL;
     gchar *id = NULL;
     GType type = G_TYPE_INVALID;
-    const gchar *FILENAME = NULL;
+    gchar const *FILENAME = NULL;
 
     //Initializations
     priv = self->priv;
@@ -1226,10 +1226,10 @@ lw_dictionary_sync_id (LwDictionary *self)
     if (FILENAME == NULL) goto errored;
     id = lw_dictionary_build_id_from_type (type, FILENAME);
 
-    if (g_strcmp0 (id, priv->data.id) == 0) goto errored;
+    if (g_strcmp0 (id, priv->id) == 0) goto errored;
 
-    g_free (priv->data.id);
-    priv->data.id = id;
+    g_free (priv->id);
+    priv->id = id;
     id = NULL;
 
     g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_ID]);
@@ -1242,40 +1242,7 @@ errored:
 }
 
 
-gboolean
-lw_dictionary_is_selected (LwDictionary *self)
-{
-    //Sanity check
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), FALSE);
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-
-    //Initializations
-    priv = self->priv;
-
-    return priv->config.selected;
-}
-
-
-void
-lw_dictionary_set_selected (LwDictionary *self, 
-                            gboolean      selected)
-{
-    //Sanity check
-    g_return_if_fail (LW_IS_DICTIONARY (self));
-
-    //Declarations
-    LwDictionaryPrivate *priv;
-
-    //Initializations
-    priv = self->priv;
-
-    priv->config.selected = selected;
-}
-
-
-gchar**
+gchar **
 lw_dictionary_get_installed_idlist (GType type_filter)
 {
     //Declarations
@@ -1382,7 +1349,7 @@ lw_dictionary_regex_search (LwDictionary  *self,
       for (i = 0; i < num_lines && !lw_progress_should_abort (progress); i++)
       {
         /*TODO
-        const gchar *BUFFER = lw_dictionarycache_get_line (buffer, i);
+        gchar const *BUFFER = lw_dictionarycache_get_line (buffer, i);
         if (BUFFER == NULL) break;
 
         if (g_regex_match (regex, BUFFER, 0, NULL) == TRUE)
@@ -1407,9 +1374,7 @@ lw_dictionary_regex_search (LwDictionary  *self,
 }
 
 
-
-
-gint
+static gint
 _count_max_columns (LwDictionary *self, gchar **lines, gint num_lines)
 {
     //Sanity checks
@@ -1502,7 +1467,7 @@ lw_dictionary_get_lines (LwDictionary *self,
     LwParsedLine **lines = NULL;
 /*
 TODO
-    if (priv->data.lines != NULL) BLAH
+    if (priv->lines != NULL) BLAH
 
     //Initializations
     buffer = lw_dictionary_get_buffer (self, flags);

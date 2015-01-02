@@ -50,9 +50,9 @@ lw_dictionarycache_error_quark ()
 }
 
 
-LwDictionaryCache*
-lw_dictionarycache_new (const gchar *NAME,
-                        LwUtf8Flag   flags)
+LwDictionaryCache *
+lw_dictionarycache_new (gchar const * NAME,
+                        LwUtf8Flag    flags)
 {
     //Declarations
     LwDictionaryCache *self = NULL;
@@ -69,7 +69,7 @@ lw_dictionarycache_new (const gchar *NAME,
 
 
 static void 
-lw_dictionarycache_init (LwDictionaryCache *self)
+lw_dictionarycache_init (LwDictionaryCache * self)
 {
     self->priv = LW_DICTIONARYCACHE_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwDictionaryCachePrivate));
@@ -83,10 +83,10 @@ lw_dictionarycache_init (LwDictionaryCache *self)
 
 
 static void 
-lw_dictionarycache_set_property (GObject      *object,
-                                 guint         property_id,
-                                 const GValue *value,
-                                 GParamSpec   *pspec)
+lw_dictionarycache_set_property (GObject      * object,
+                                 guint          property_id,
+                                 const GValue * value,
+                                 GParamSpec   * pspec)
 {
     //Declarations
     LwDictionaryCache *self = NULL;
@@ -118,10 +118,10 @@ lw_dictionarycache_set_property (GObject      *object,
 
 
 static void 
-lw_dictionarycache_get_property (GObject    *object,
-                                  guint       property_id,
-                                  GValue     *value,
-                                  GParamSpec *pspec)
+lw_dictionarycache_get_property (GObject     * object,
+                                  guint        property_id,
+                                  GValue     * value,
+                                  GParamSpec * pspec)
 {
     //Declarations
     LwDictionaryCache *self = NULL;
@@ -153,7 +153,7 @@ lw_dictionarycache_get_property (GObject    *object,
 
 
 static void 
-lw_dictionarycache_finalize (GObject *object)
+lw_dictionarycache_finalize (GObject * object)
 {
     //Declarations
     LwDictionaryCache *self = NULL;
@@ -168,7 +168,7 @@ lw_dictionarycache_finalize (GObject *object)
 
 
 static void
-lw_dictionarycache_dispose (GObject *object)
+lw_dictionarycache_dispose (GObject * object)
 {
     //Declarations
     LwDictionaryCache *self = NULL;
@@ -183,7 +183,7 @@ lw_dictionarycache_dispose (GObject *object)
 
 
 static void
-lw_dictionarycache_class_init (LwDictionaryCacheClass *klass)
+lw_dictionarycache_class_init (LwDictionaryCacheClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
@@ -222,7 +222,7 @@ lw_dictionarycache_class_init (LwDictionaryCacheClass *klass)
 
 
 static void
-lw_dictionarycache_clear (LwDictionaryCache *self)
+lw_dictionarycache_clear (LwDictionaryCache * self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
@@ -271,11 +271,11 @@ errored:
 
 
 LwCacheFile*
-_write_serializable (LwDictionaryCache *self,
-                     gchar const        *NAME,
-                     gchar const        *CHECKSUM,
-                     LwSerializable     *serializable,
-                     LwProgress         *progress)
+_write_serializable (LwDictionaryCache * self,
+                     gchar const       * NAME,
+                     gchar const       * CHECKSUM,
+                     LwSerializable    * serializable,
+                     LwProgress        * progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
@@ -299,7 +299,7 @@ errored:
 }
 
 
-static LwCacheFile*
+static LwCacheFile *
 _map_contents (LwDictionaryCache * self,
                gchar const       * CONTENTS,
                gsize               content_length,
@@ -334,7 +334,7 @@ errored:
 }
 
 
-static LwParsed*
+static LwParsed *
 _parse (LwDictionaryCache          * self,
         LwCacheFile                * mapped,
         LwDictionaryCacheParseFunc   parse,
@@ -355,10 +355,10 @@ _parse (LwDictionaryCache          * self,
 }
 
 
-static LwIndexed*
-_index (LwDictionaryCache *self,
-        LwParsed          *parsed,
-        LwProgress        *progress)
+static LwIndexed *
+_index (LwDictionaryCache * self,
+        LwParsed          * parsed,
+        LwProgress        * progress)
 {
     //Sanity checks
     g_return_val_if_fail (parsed != NULL, NULL);
@@ -376,13 +376,13 @@ _index (LwDictionaryCache *self,
 
 
 void
-lw_dictionarycache_write (LwDictionaryCache          *self,
-                          gchar const                *CHECKSUM,
-                          gchar const                *CONTENTS,
-                          gsize                       content_length,
-                          LwDictionaryCacheParseFunc  parse,
-                          gpointer                    data,
-                          LwProgress                 *progress)
+lw_dictionarycache_write (LwDictionaryCache          * self,
+                          gchar const                * CHECKSUM,
+                          gchar const                * CONTENTS,
+                          gsize                        content_length,
+                          LwDictionaryCacheParseFunc   parse,
+                          gpointer                     data,
+                          LwProgress                 * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
@@ -500,9 +500,9 @@ errored:
 
 
 void
-lw_dictionarycache_read (LwDictionaryCache *self,
-                         gchar const       *EXPECTED_CHECKSUM,
-                         LwProgress        *progress)
+lw_dictionarycache_read (LwDictionaryCache * self,
+                         gchar const       * EXPECTED_CHECKSUM,
+                         LwProgress        * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
@@ -556,13 +556,13 @@ errored:
 
 
 void
-lw_dictionarycache_set_contents (LwDictionaryCache          *self, 
-                                 gchar const                *CHECKSUM,
-                                 gchar const                *CONTENTS,
-                                 gsize                       content_length,
-                                 LwDictionaryCacheParseFunc  parse,
-                                 gpointer                    data,
-                                 LwProgress                 *progress)
+lw_dictionarycache_set_contents (LwDictionaryCache          * self, 
+                                 gchar const                * CHECKSUM,
+                                 gchar const                * CONTENTS,
+                                 gsize                        content_length,
+                                 LwDictionaryCacheParseFunc   parse,
+                                 gpointer                     data,
+                                 LwProgress                 * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
@@ -621,7 +621,7 @@ errored:
 
 
 LwUtf8Flag
-lw_dictionarycache_get_flags (LwDictionaryCache *self)
+lw_dictionarycache_get_flags (LwDictionaryCache * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), 0);
@@ -637,8 +637,8 @@ lw_dictionarycache_get_flags (LwDictionaryCache *self)
 
 
 static void
-lw_dictionarycache_set_name (LwDictionaryCache *self,
-                             const gchar       *NAME)
+lw_dictionarycache_set_name (LwDictionaryCache * self,
+                             gchar const       * NAME)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
@@ -665,8 +665,8 @@ errored:
 }
 
 
-const gchar*
-lw_dictionarycache_get_name (LwDictionaryCache *self)
+gchar const *
+lw_dictionarycache_get_name (LwDictionaryCache * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
@@ -681,9 +681,9 @@ lw_dictionarycache_get_name (LwDictionaryCache *self)
 }
 
 
-gchar*
-lw_dictionarycache_build_filename (LwDictionaryCache *self,
-                                   gchar const       *CACHETYPE) 
+gchar *
+lw_dictionarycache_build_filename (LwDictionaryCache * self,
+                                   gchar const       * CACHETYPE) 
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), FALSE);
@@ -691,7 +691,7 @@ lw_dictionarycache_build_filename (LwDictionaryCache *self,
     //Declarations    
     LwDictionaryCachePrivate *priv = NULL;
     GFlagsClass *flags_class = NULL;
-    const gchar *NAME = NULL;
+    gchar const *NAME = NULL;
     gchar const * * flag_names = NULL;
     gchar *filename = NULL;
     gint i = 0;
@@ -738,7 +738,7 @@ errored:
 
 
 gchar *
-lw_dictionarycache_build_directory (LwDictionaryCache *self)
+lw_dictionarycache_build_directory (LwDictionaryCache * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
@@ -762,8 +762,8 @@ errored:
 
 
 gchar *
-lw_dictionarycache_build_path (LwDictionaryCache *self,
-                               gchar const       *CACHETYPE)
+lw_dictionarycache_build_path (LwDictionaryCache * self,
+                               gchar const       * CACHETYPE)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
@@ -791,8 +791,8 @@ errored:
 
 
 void
-lw_dictionarycache_set_parsed (LwDictionaryCache *self,
-                               LwParsed          *parsed)
+lw_dictionarycache_set_parsed (LwDictionaryCache * self,
+                               LwParsed          * parsed)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
@@ -829,8 +829,8 @@ errored:
 }
 
 
-LwParsed*
-lw_dictionarycache_get_parsed (LwDictionaryCache *self)
+LwParsed *
+lw_dictionarycache_get_parsed (LwDictionaryCache * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
@@ -846,8 +846,8 @@ lw_dictionarycache_get_parsed (LwDictionaryCache *self)
 
 
 void
-lw_dictionarycache_set_indexed (LwDictionaryCache *self,
-                                LwIndexed         *indexed)
+lw_dictionarycache_set_indexed (LwDictionaryCache * self,
+                                LwIndexed         * indexed)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
@@ -884,8 +884,8 @@ errored:
 }
 
 
-LwIndexed*
-lw_dictionarycache_get_indexed (LwDictionaryCache *self)
+LwIndexed *
+lw_dictionarycache_get_indexed (LwDictionaryCache * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
@@ -900,9 +900,9 @@ lw_dictionarycache_get_indexed (LwDictionaryCache *self)
 }
 
 
-gchar*
-_create_normalized_temporary_file (LwDictionaryCache  *self,
-                                   GError            **error)
+gchar *
+_create_normalized_temporary_file (LwDictionaryCache  * self,
+                                   GError            ** error)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
@@ -911,7 +911,7 @@ _create_normalized_temporary_file (LwDictionaryCache  *self,
     //Declarations
     gchar *path = NULL;
     gchar *tmpl = NULL;
-    const gchar *TMPDIR = NULL;
+    gchar const *TMPDIR = NULL;
     gint fd = -1;
     gchar const * NAME = NULL;
     gchar *filename = NULL;
@@ -976,11 +976,11 @@ errored:
 }
 
 
-static gchar*
-lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache *self,
-                                                    const gchar *CONTENTS,
-                                                    gsize        content_length,
-                                                    LwProgress  *progress)
+static gchar *
+lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
+                                                    gchar const       * CONTENTS,
+                                                    gsize               content_length,
+                                                    LwProgress        * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));

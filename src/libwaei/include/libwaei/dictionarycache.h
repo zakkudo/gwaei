@@ -40,18 +40,18 @@ struct _LwDictionaryCacheClass {
 
 
 //Methods
-LwDictionaryCache* lw_dictionarycache_new (const gchar *NAME, LwUtf8Flag flags);
+LwDictionaryCache* lw_dictionarycache_new (gchar const *NAME, LwUtf8Flag flags);
 GType lw_dictionarycache_get_type (void) G_GNUC_CONST;
 
 void lw_dictionarycache_set_contents (LwDictionaryCache *self, gchar const *CHECKSUM, gchar const *contents, gsize content_length, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress *progress);
 
-void lw_dictionarycache_write (LwDictionaryCache *self, const gchar *CHECKSUM, gchar const *CONTENTS, gsize content_length, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress *progress);
+void lw_dictionarycache_write (LwDictionaryCache *self, gchar const *CHECKSUM, gchar const *CONTENTS, gsize content_length, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress *progress);
 void lw_dictionarycache_read (LwDictionaryCache *self, gchar const *EXPECTED_CHECKSUM, LwProgress *progress);
 
 //Properties
 LwUtf8Flag lw_dictionarycache_get_flags (LwDictionaryCache *self);
 
-const gchar* lw_dictionarycache_get_name (LwDictionaryCache *self);
+gchar const* lw_dictionarycache_get_name (LwDictionaryCache *self);
 
 gchar* lw_dictionarycache_build_filename (LwDictionaryCache *self, gchar const *TYPE);
 gchar* lw_dictionarycache_build_path (LwDictionaryCache *self, gchar const *TYPE);
