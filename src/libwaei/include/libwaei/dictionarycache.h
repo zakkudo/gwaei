@@ -26,7 +26,7 @@ typedef struct _LwDictionaryCacheClassPrivate LwDictionaryCacheClassPrivate;
 #define LW_IS_DICTIONARYCACHE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARYCACHE))
 #define LW_DICTIONARYCACHE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARYCACHE, LwDictionaryCacheClass))
 
-typedef LwParsed*(*LwDictionaryCacheParseFunc)(LwMappedFile * mapped_file, gpointer data);
+typedef LwParsed*(*LwDictionaryCacheParseFunc)(LwCacheFile * cache_file, gpointer data);
 
 struct _LwDictionaryCache {
     GObject object;

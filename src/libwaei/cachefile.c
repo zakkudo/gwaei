@@ -266,23 +266,24 @@ errored:
 
 
 gsize
-lw_cachefile_write_mappedfile (LwCacheFile  * self,
-                               const gchar  * CHECKSUM,
-                               LwMappedFile * mapped_file,
-                               LwProgress   * progress)
+lw_cachefile_write_cachefile (LwCacheFile  * self,
+                              const gchar  * CHECKSUM,
+                              LwCacheFile  * cache_file,
+                              LwProgress   * progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_CACHEFILE (self), 0);
-    g_return_val_if_fail (LW_IS_MAPPEDFILE (mapped_file), 0);
+    g_return_val_if_fail (LW_IS_CACHEFILE (cache_file), 0);
 
     //Declarations
     gchar * contents = NULL;
     gsize content_length = 0;
 
     //Initializations
-    contents = lw_mappedfile_get_contents (mapped_file);
-    content_length = lw_mappedfile_length (mapped_file);
-    lw_cachefile_write (self, CHECKSUM, contents, content_length, progress);
+    contents = lw_cachefile_get_contents (cache_file);
+    content_length = lw_cachefile_length (cache_file);
+
+    return lw_cachefile_write (self, CHECKSUM, contents, content_length, progress);
 }
 
 

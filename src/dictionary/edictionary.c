@@ -497,15 +497,17 @@ errored:
 
 static LwParsed*
 lw_edictionary_parse (LwEDictionary *self,
-                      gchar         *contents,
-                      gsize          content_length,
+                      LwCacheFile   *cache_file,
                       LwProgress    *progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_EDICTIONARY (self), NULL);
-    g_return_val_if_fail (contents != NULL, NULL);
+    g_return_val_if_fail (LW_IS_CACHEFILE (cache_file), NULL);
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), NULL);
 
     //Declarations
+    gchar *contents = NULL;
+    gsize content_length = 0;
     gint num_lines = 0;
     LwParsed *parsed = NULL; 
     LwParsedLine* lines = NULL;
@@ -514,11 +516,12 @@ lw_edictionary_parse (LwEDictionary *self,
     gsize num_tokens = 0;
 
     //Initializations
-    if (content_length < 1) content_length = strlen(contents);
+    contents = lw_cachefile_get_contents (cache_file);
+    content_length = lw_cachefile_length (cache_file);
     num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
     if (num_lines == 0) goto errored;
     if (max_line_length < 1) goto errored;
-    parsed = lw_parsed_new (contents, content_length);
+    parsed = lw_parsed_new (cache);
     if (parsed == NULL) goto errored;
     lines = g_new0 (LwParsedLine, num_lines);
     tokens = g_new0 (gchar*, max_line_length + 1);

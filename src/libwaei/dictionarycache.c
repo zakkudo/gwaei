@@ -239,16 +239,16 @@ lw_dictionarycache_clear (LwDictionaryCache *self)
 
 
 static LwCacheFile*
-_write_mapped (LwDictionaryCache *self,
-               gchar const       *NAME,
-               gchar const       *CHECKSUM,
-               LwMappedFile      *mapped_file,
-               LwProgress        *progress)
+_write_mapped (LwDictionaryCache * self,
+               gchar const       * NAME,
+               gchar const       * CHECKSUM,
+               LwCacheFile       * mapped,
+               LwProgress        * progress)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
-    g_return_if_fail (CHECKSUM != NULL);
-    g_return_if_fail (mapped_file != NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+    g_return_val_if_fail (CHECKSUM != NULL, NULL);
+    g_return_val_if_fail (LW_IS_CACHEFILE (mapped), NULL);
 
     //Declarations
     gchar *path = NULL;
@@ -260,7 +260,7 @@ _write_mapped (LwDictionaryCache *self,
     cachefile = lw_cachefile_new (path);
     if (cachefile == NULL) goto errored;
 
-    lw_cachefile_write_mappedfile (cachefile, CHECKSUM, mapped_file, progress);
+    lw_cachefile_write_cachefile (cachefile, CHECKSUM, mapped, progress);
 
 errored:
 
@@ -299,11 +299,11 @@ errored:
 }
 
 
-static LwMappedFile*
-_map (LwDictionaryCache * self,
-      gchar const       * CONTENTS,
-      gsize               content_length,
-      LwProgress        * progress)
+static LwCacheFile*
+_map_contents (LwDictionaryCache * self,
+               gchar const       * CONTENTS,
+               gsize               content_length,
+               LwProgress        * progress)
 {
 		//Sanity checks
 		g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
@@ -314,48 +314,42 @@ _map (LwDictionaryCache * self,
 
 		//Declarations
 		gchar * path = NULL;
-		LwMappedFile * mapped_file = NULL;
-		GError * error = NULL;
-		gboolean has_error = FALSE;
+		LwCacheFile * cache_file = NULL;
 
     //Copy and normalize the dictionary contents
     path = lw_dictionarycache_write_normalized_temporary_file (self, CONTENTS, content_length, progress);
     if (path == NULL) goto errored;
 
-    mapped_file = lw_mappedfile_new (path);
-    if (mapped_file == NULL) goto errored;
+    cache_file = lw_cachefile_new (path);
+    if (cache_file == NULL) goto errored;
 
-    lw_mappedfile_set_delete_on_free (mapped_file, TRUE);
+    lw_mappedfile_set_delete_on_free (LW_MAPPEDFILE (cache_file), TRUE);
 
 errored:
   
     g_free (path);
     path = NULL;
-    g_clear_error (&error);
 
-		return mapped_file;
+		return cache_file;
 }
 
 
 static LwParsed*
 _parse (LwDictionaryCache          * self,
-        LwMappedFile               * mapped_file,
+        LwCacheFile                * mapped,
         LwDictionaryCacheParseFunc   parse,
         gpointer                     data)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+    g_return_val_if_fail (LW_IS_MAPPEDFILE (mapped), NULL);
     g_return_val_if_fail (parse != NULL, NULL);
 
     //Declarations
     LwParsed *parsed = NULL;
-    gchar * contents = NULL;
-    gsize content_length = 0;
 
     //Initializations
-    contents = lw_mappedfile_get_contents (mapped_file);
-    content_length = lw_mappedfile_length (mapped_file);
-    parsed = parse (mapped_file, data);
+    parsed = parse (mapped, data);
 
     return parsed;
 }
@@ -396,7 +390,7 @@ lw_dictionarycache_write (LwDictionaryCache          *self,
     g_return_if_fail (CONTENTS != NULL);
 
     //Declarations
-    LwMappedFile *mapped = NULL;
+    LwCacheFile *mapped_contents = NULL;
     LwParsed *parsed = NULL;
     LwIndexed *indexed = NULL;
     LwCacheFile *normalized_cachefile = NULL;
@@ -404,11 +398,11 @@ lw_dictionarycache_write (LwDictionaryCache          *self,
     LwCacheFile *indexed_cachefile = NULL;
 
     //Map the dictionary contents to a normalized file
-		mapped = _map (self, CONTENTS, content_length, progress);
-		if (mapped == NULL) goto errored;
+		mapped_contents = _map_contents (self, CONTENTS, content_length, progress);
+		if (mapped_contents == NULL) goto errored;
 
     //Parse the dictionary, tokenizing the contents inline in the mapped file
-    parsed = _parse (self, mapped, parse, data);
+    parsed = _parse (self, mapped_contents, parse, data);
     if (parsed == NULL) goto errored;
 
     //Create an index from the parsed data
@@ -416,7 +410,7 @@ lw_dictionarycache_write (LwDictionaryCache          *self,
     if (indexed == NULL) goto errored;
 
     //Write the files perminently if we made it this far
-    normalized_cachefile = _write_mapped (self, "normalized", CHECKSUM, mapped, progress);
+    normalized_cachefile = _write_mapped (self, "normalized", CHECKSUM, mapped_contents, progress);
     if (normalized_cachefile == NULL) goto errored;
     parsed_cachefile = _write_serializable (self, "parsed", CHECKSUM, LW_SERIALIZABLE (parsed), progress);
     if (parsed_cachefile == NULL) goto errored;
@@ -425,27 +419,55 @@ lw_dictionarycache_write (LwDictionaryCache          *self,
 
 errored:
 
-    g_object_unref (indexed);
-    indexed = NULL;
+    if (indexed != NULL)
+    {
+      g_object_unref (indexed);
+      indexed = NULL;
+    }
 
-    g_object_unref (parsed);
-    parsed = NULL;
+    if (parsed != NULL)
+    {
+      g_object_unref (parsed);
+      parsed = NULL;
+    }
 
     //Cleanup the temporary file
-    if (mapped != NULL)
+    if (mapped_contents != NULL)
     {
-      g_object_unref (mapped);
-      mapped = NULL;
+      g_object_unref (mapped_contents);
+      mapped_contents = NULL;
     }
 
     //Unreference the cachefiles
-    g_object_unref (normalized_cachefile); normalized_cachefile = NULL;
+    if (normalized_cachefile != NULL)
+    {
+      g_object_unref (normalized_cachefile);
+      normalized_cachefile = NULL;
+    }
 
-    g_object_unref (parsed); parsed = NULL;
-    g_object_unref (parsed_cachefile); parsed_cachefile = NULL;
+    if (parsed != NULL)
+    {
+      g_object_unref (parsed);
+      parsed = NULL;
+    }
 
-    g_object_unref (indexed); indexed = NULL;
-    g_object_unref (indexed_cachefile); indexed_cachefile = NULL;
+    if (parsed_cachefile != NULL)
+    {
+      g_object_unref (parsed_cachefile);
+      parsed_cachefile = NULL;
+    }
+
+    if (indexed != NULL)
+    {
+      g_object_unref (indexed);
+      indexed = NULL;
+    }
+
+    if (indexed_cachefile != NULL)
+    {
+      g_object_unref (indexed_cachefile);
+      indexed_cachefile = NULL;
+    }
 }
 
 
