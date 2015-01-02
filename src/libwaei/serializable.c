@@ -67,7 +67,7 @@ lw_serializable_finalize (GObject *object)
 
     if (priv->cachefile != NULL)
     {
-      lw_cachefile_unref (priv->cachefile);
+      g_object_unref (priv->cachefile);
       priv->cachefile = NULL;
     }
 
@@ -196,7 +196,7 @@ lw_serializable_deserialize_from (LwSerializable *self,
 
     klass->deserialize_into (self, serialized_data, serialized_length, progress);
 
-    lw_cachefile_unref (priv->cachefile);
+    g_object_unref (priv->cachefile);
     priv->cachefile = NULL;
 }
 
@@ -228,7 +228,7 @@ lw_serializable_deserialize_from_cachefile (LwSerializable *self,
 
     lw_serializable_deserialize_from (self, content, length, progress);
 
-    priv->cachefile = lw_cachefile_ref (cachefile);
+    priv->cachefile = g_object_ref (cachefile);
 
 errored:
 

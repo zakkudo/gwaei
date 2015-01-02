@@ -11,6 +11,7 @@ G_BEGIN_DECLS
 typedef struct _LwParsed LwParsed;
 typedef struct _LwParsedClass LwParsedClass;
 typedef struct _LwParsedPrivate LwParsedPrivate;
+typedef struct _LwParsedClassPrivate LwParsedClassPrivate;
 
 #define LW_TYPE_PARSED              (lw_parsed_get_type())
 #define LW_PARSED(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_PARSED, LwParsed))
@@ -26,12 +27,13 @@ struct _LwParsed {
 
 struct _LwParsedClass {
   LwSerializableClass parent_class;
+  LwParsedClassPrivate *priv;
 };
 
 
 typedef gboolean (*LwParsedForeachFunc) (LwParsed *self, LwParsedLine *line, gpointer user_data);
 
-LwParsed* lw_parsed_new (gchar *contents, gsize content_length);
+LwParsed* lw_parsed_new (LwMappedFile * mapped_file);
 
 GType lw_parsed_get_type (void) G_GNUC_CONST;
 
@@ -39,10 +41,9 @@ void lw_parsed_foreach (LwParsed *self, LwParsedForeachFunc func, gpointer data)
 LwParsedLine* lw_parsed_get_line (LwParsed *self, gsize line_number);
 gsize lw_parsed_length (LwParsed *self);
 
-gsize lw_parsed_serialize (LwParsed *self, gchar *preallocated_buffer, LwProgress *progress);
-gsize lw_parsed_deserialize_into (LwParsed *self, const gchar *serialized_data, gsize serialized_length, LwProgress *progress);
-
 void lw_parsed_set_lines (LwParsed *self, LwParsedLine *lines, gsize num_lines);
+
+LwMappedFile* lw_parsed_get_contents_mappedfile (LwParsed * self);
 
 G_END_DECLS
 

@@ -4,8 +4,8 @@ SUBDIRS = include/libwaei
 LIBRARY_VERSION = 2:0:0
 ACLOCAL_AMFLAGS = -I m4
 datadir = @datadir@
-dictionarydir = @dictionarydir@
-DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" -DPKGLIBDIR=\"$(pkglibdir)\" -DDICTIONARYDIR=\"$(dictionarydir)\"
+dictionarylibdir = @dictionarylibdir@
+DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" -DPKGLIBDIR=\"$(pkglibdir)\" -DDICTIONARYLIBDIR=\"$(dictionarylibdir)\"
 
 pkglib_LTLIBRARIES =libwaei.la
 libwaei_la_SOURCES =libwaei.c command.c subcommand.c searchsubcommand.c installsubcommand.c uninstallsubcommand.c

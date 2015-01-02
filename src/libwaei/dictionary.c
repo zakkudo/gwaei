@@ -637,29 +637,30 @@ errored:
 }
 
 
-gchar*
+gchar *
 lw_dictionary_build_directory (GType type)
 {
     //Sanity checks
     g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);
 
     //Declarations
-    gchar *path = NULL;
-    gchar *directoryname = NULL;
-/*TODO
-    //Initializations
-    path = NULL;
+    gchar * path = NULL;
+    gchar * directoryname = NULL;
+    gchar const * data_dir = NULL;
+
     directoryname = lw_dictionary_build_directoryname (type);
     if (directoryname == NULL) goto errored;
-    path = lw_util_build_filename (LW_PATH_DICTIONARY, directoryname);
+    data_dir = g_get_user_data_dir ();
+    path = g_build_filename (data_dir, "libwaei", "dictionary", directoryname);
     if (path == NULL) goto errored;
 
-    g_mkdir_with_parents (path, 0755);
+    g_mkdir_with_parents (path, 0700);
 
 errored:
 
     g_free (directoryname);
- */ 
+    directoryname = NULL;
+
     return path;
 }
 
@@ -681,8 +682,8 @@ lw_dictionary_get_path (LwDictionary *self)
 
 
 gchar*
-lw_dictionary_build_path (GType        type,
-                          const gchar *FILENAME)
+lw_dictionary_build_path (GType         type,
+                          const gchar * FILENAME)
 {
     //Sanity checks
     g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);

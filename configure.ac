@@ -148,8 +148,8 @@ AM_GLIB_GNU_GETTEXT
 GWAEI_LOCALEDIR=[${datadir}/locale]
 AC_SUBST(GWAEI_LOCALEDIR)
 
-dictionarydir=[${libdir}/${PACKAGE}/dictionary]
-AC_SUBST(dictionarydir)
+dictionarylibdir=[${libdir}/${PACKAGE}/dictionary]
+AC_SUBST(dictionarylibdir)
 
 AC_CONFIG_MACRO_DIR([m4])
 

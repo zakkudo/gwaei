@@ -41,7 +41,7 @@
 #include <waei/waei.h>
 #include <waei/application-private.h>
 
-G_DEFINE_TYPE (WApplication, w_application, G_TYPE_APPLICATION)
+G_DEFINE_TYPE (WApplication, w_application, LW_TYPE_APPLICATION)
 
 //!
 //! @brief creates a new instance of the gwaei applicaiton

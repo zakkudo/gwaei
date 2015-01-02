@@ -4,14 +4,14 @@ SUBDIRS = include/dictionary
 LIBRARY_VERSION = 1:0:0
 ACLOCAL_AMFLAGS = -I m4
 datadir = @datadir@
-dictionarydir = @dictionarydir@
-DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" -DPKGLIBDIR=\"$(pkglibdir)\" -DDICTIONARYDIR=\"$(dictionarydir)\"
+dictionarylibdir = @dictionarylibdir@
+DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" -DPKGLIBDIR=\"$(pkglibdir)\" -DDICTIONARYLIBDIR=\"$(dictionarylibdir)\"
 
 ALL_LDFLAGS=-no-undefined -version-info $(LIBRARY_VERSION)  $(LIBWAEI_LIBS)
 ALL_CPPFLAGS=-I$(top_srcdir)/src/libwaei/include -I$(top_srcdir)/src/dictionary/include $(WAEI_CFLAGS) $(WAEI_DEFS) $(DEFINITIONS)
 ALL_LIBADD=$(WAEI_LIBS) ../libwaei/libwaei.la
 
-dictionary_LTLIBRARIES =libedictionary.la libkanjidictionary.la libradicalsdictionary.la libexampledictionary.la libunknowndictionary.la
+dictionarylib_LTLIBRARIES =libedictionary.la libkanjidictionary.la libradicalsdictionary.la libexampledictionary.la libunknowndictionary.la
 
 libedictionary_la_SOURCES =edictionary.c
 libedictionary_la_LDFLAGS =$(ALL_LDFLAGS)

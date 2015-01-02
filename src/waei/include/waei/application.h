@@ -17,12 +17,12 @@ typedef struct _WApplicationClassPrivate WApplicationClassPrivate;
 #define W_APPLICATION_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), W_TYPE_APPLICATION, WApplicationClass))
 
 struct _WApplication {
-  GApplication application;
+  LwApplication application;
   WApplicationPrivate *priv;
 };
 
 struct _WApplicationClass {
-  GApplicationClass parent_class;
+  LwApplicationClass parent_class;
   WApplicationClassPrivate *priv;
 };
 

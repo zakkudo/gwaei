@@ -57,54 +57,16 @@ struct _DeserializeData {
 
 
 LwParsed*
-lw_parsed_new (gchar *contents,
-               gsize  content_length)
+lw_parsed_new (LwMappedFile *contents_mappedfile)
 {
     //Sanity checks
-    g_return_val_if_fail (contents != NULL, NULL);
-    g_return_val_if_fail (content_length > 0, NULL);
+    g_return_val_if_fail (LW_IS_MAPPEDFILE (contents_mappedfile), NULL);
 
     //Declarations
     LwParsed *self = NULL;
-    LwParsedPrivate *priv = NULL;
 
     //Initializations
-    self = LW_PARSED (g_object_new (LW_TYPE_PARSED, NULL));
-    priv = self->priv;
-    priv->lines = NULL;
-    priv->num_lines = 0;
-    priv->contents_reference_pointer = contents;
-    priv->content_length = content_length;
-
-    return self;
-}
-
-
-LwParsed*
-lw_parsed_new_with_cachefile (LwCacheFile *cachefile)
-{
-    //Sanity checks
-    g_return_val_if_fail (cachefile != NULL, NULL);
-
-    //Declarations
-    LwParsed *self = NULL;
-    LwParsedPrivate *priv = NULL;
-    gchar *contents = NULL;
-    gsize content_length = NULL;
-
-    //Initializations
-    contents = (gchar*) lw_cachefile_get_contents (cachefile);
-    if (contents == NULL) goto errored;
-    content_length = lw_cachefile_length (cachefile);
-    if (content_length < 1) goto errored;
-    self = lw_parsed_new (contents, content_length);
-    priv = self->priv;
-    priv->contents_cachefile = lw_cachefile_ref (cachefile);
-
-    contents = NULL;
-    cachefile = NULL;
-
-errored:
+    self = LW_PARSED (g_object_new (LW_TYPE_PARSED, "contents-mappedfile", contents_mappedfile, NULL));
 
     return self;
 }
@@ -130,13 +92,61 @@ lw_parsed_finalize (GObject *object)
     priv = self->priv;
 
     lw_parsed_set_lines (self, NULL, 0);
-    if (priv->contents_cachefile != NULL)
-    {
-      lw_cachefile_unref (priv->contents_cachefile);
-      priv->contents_cachefile = NULL;
-    }
+    lw_parsed_set_contents_mappedfile (self, NULL);
 
     G_OBJECT_CLASS (lw_parsed_parent_class)->finalize (object);
+}
+
+
+static void 
+lw_parsed_set_property (GObject      *object,
+                        guint         property_id,
+                        const GValue *value,
+                        GParamSpec   *pspec)
+{
+    //Declarations
+    LwParsed *self = NULL;
+    LwParsedPrivate *priv = NULL;
+
+    //Initializations
+    self = LW_PARSED (object);
+    priv = self->priv;
+
+    switch (property_id)
+    {
+      case PROP_CONTENTS_MAPPEDFILE:
+        lw_parsed_set_contents_mappedfile (self, g_value_get_object (value));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void 
+lw_parsed_get_property (GObject      *object,
+                        guint         property_id,
+                        GValue       *value,
+                        GParamSpec   *pspec)
+{
+    //Declarations
+    LwParsed *self = NULL;
+    LwParsedPrivate *priv = NULL;
+
+    //Initializations
+    self = LW_PARSED (object);
+    priv = self->priv;
+
+    switch (property_id)
+    {
+      case PROP_CONTENTS_MAPPEDFILE:
+        g_value_set_object (value, lw_parsed_get_contents_mappedfile (self));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
 }
 
 
@@ -144,11 +154,40 @@ static void
 lw_parsed_class_init (LwParsedClass *klass)
 {
     //Declarations
-    GObjectClass *object_class;
+    GObjectClass *object_class = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
     object_class->finalize = lw_parsed_finalize;
+
+    klass->priv->pspec[PROP_CONTENTS_MAPPEDFILE] = g_param_spec_object (
+      "contents-mappedfile",
+      gettext("Contents Mapped File"),
+      "Contents of the parsed object. This data is not necessarily human readable.",
+      LW_TYPE_MAPPEDFILE,
+      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_CONTENTS_MAPPEDFILE, klass->priv->pspec[PROP_CONTENTS_MAPPEDFILE]);
+
+    klass->priv->pspec[PROP_CONTENTS] = g_param_spec_string (
+      "contents",
+      gettext("Contents"),
+      "Contents of the parsed object. This data is not necessarily human readable.",
+      "",
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_CONTENTS, klass->priv->pspec[PROP_CONTENTS]);
+
+    klass->priv->pspec[PROP_CONTENT_LENGTH] = g_param_spec_ulong (
+      "content-length",
+      gettext("Content Length"),
+      "Contents of the parsed object. This data is not necessarily human readable.",
+      0,
+      G_MAXULONG,
+      0,
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_CONTENT_LENGTH, klass->priv->pspec[PROP_CONTENT_LENGTH]);
 }
 
 
@@ -253,12 +292,12 @@ lw_parsed_num_lines (LwParsed *self)
 
 static gboolean
 _serialize (LwParsed              *self,
-            LwParsedLine      *dictionary_line,
+            LwParsedLine      *parsed_line,
             struct _SerializeData *data)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
-    g_return_val_if_fail (dictionary_line != NULL, TRUE);
+    g_return_val_if_fail (parsed_line != NULL, TRUE);
     g_return_val_if_fail (data != NULL, TRUE);
 
     //Declarations
@@ -270,8 +309,8 @@ _serialize (LwParsed              *self,
     //Initializations
     priv = self->priv;
     write_pointer = (gchar*) data->write_pointer;
-    contents = priv->contents_reference_pointer;
-    bytes_written = lw_parsedline_serialize (dictionary_line, contents, write_pointer, &data->error);
+    contents = priv->contents;
+    bytes_written = lw_parsedline_serialize (parsed_line, contents, write_pointer, &data->error);
     if (data->error != NULL)
     {
       goto errored;
@@ -286,7 +325,7 @@ errored:
 }
 
 
-gsize
+static gsize
 lw_parsed_serialize (LwParsed   *self,
                      gchar      *preallocated_buffer,
                      LwProgress *progress)
@@ -319,12 +358,12 @@ errored:
 
 static gboolean
 _deserialize (LwParsed                *self,
-              LwParsedLine        *dictionary_line,
+              LwParsedLine        *parsed_line,
               struct _DeserializeData *data)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
-    g_return_val_if_fail (dictionary_line != NULL, TRUE);
+    g_return_val_if_fail (parsed_line != NULL, TRUE);
     g_return_val_if_fail (data != NULL, TRUE);
 
     //Declarations
@@ -335,9 +374,9 @@ _deserialize (LwParsed                *self,
 
     //Initializations
     priv = self->priv;
-    contents = priv->contents_reference_pointer;
+    contents = priv->contents;
     read_pointer = data->read_pointer;
-    bytes_read = lw_parsedline_deserialize_into (dictionary_line, read_pointer, contents, &data->error);
+    bytes_read = lw_parsedline_deserialize_into (parsed_line, read_pointer, contents, &data->error);
     if (data->error != NULL)
     {
       goto errored;
@@ -352,7 +391,7 @@ errored:
 }
 
 
-gsize
+static gsize
 lw_parsed_deserialize_into (LwParsed    *self,
                             const gchar *serialized_data,
                             gsize        serialized_length,
@@ -416,4 +455,63 @@ errored:
 }
 
 
+static void
+lw_parsed_set_contents_mappedfile (LwParsed     * self,
+                                   LwMappedFile * contents_mappedfile)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PARSED (self));
+    g_return_if_fail (LW_IS_MAPPEDFILE (contents_mappedfile));
+
+    //Declarations
+    LwParsedPrivate *priv = NULL;
+    LwParsedClass *klass = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_PARSED_GET_CLASS (self);
+    if (contents_mappedfile == priv->contents_mappedfile) goto errored;
+
+    if (contents_mappedfile != NULL)
+    {
+      g_object_ref (contents_mappedfile);
+    }
+
+    if (priv->contents_mappedfile != NULL)
+    {
+      g_object_unref (priv->contents_mappedfile);
+      priv->contents = NULL;
+      priv->content_length = 0;
+    }
+
+    priv->contents_mappedfile = priv->contents_mappedfile;
+
+    if (priv->contents_mappedfile != NULL)
+    {
+      priv->contents = lw_mappedfile_get_contents (priv->contents_mappedfile);
+      priv->content_length = lw_mappedfile_length (priv->contents_mappedfile);
+    }
+
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CONTENTS_MAPPEDFILE]);
+
+errored:
+
+    return;
+}
+
+
+LwMappedFile*
+lw_parsed_get_contents_mappedfile (LwParsed * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
+
+    //Declarations
+    LwParsedPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->contents_mappedfile;
+}
 

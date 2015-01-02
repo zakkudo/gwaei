@@ -33,15 +33,18 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <glib/gstdio.h>
 
 #include <libwaei/gettext.h>
 #include <libwaei/mappedfile.h>
 
+#include <libwaei/mappedfile-private.h>
+
+G_DEFINE_TYPE (LwMappedFile, lw_mappedfile, G_TYPE_OBJECT)
+
 
 LwMappedFile*
-lw_mappedfile_new (gchar const *  PATH,
-									 gboolean       writable,
-									 GError      ** error)
+lw_mappedfile_new (gchar const * PATH)
 {
 		//Declarations
 		LwMappedFile *self = NULL;
@@ -49,124 +52,417 @@ lw_mappedfile_new (gchar const *  PATH,
 		gchar *path = NULL;
 
 		//Initializations
-		mapped_file = g_mapped_file_new (PATH, writable, error);
-		if (mapped_file == NULL) goto errored;
-		path = g_strdup (PATH);
-		if (path == NULL) goto errored;
-		self = g_new0 (LwMappedFile, 1);
-		if (mapped_file == NULL) goto errored;
-		self->mapped_file = mapped_file;
-		mapped_file = NULL;
-		self->path = path;
-		path = NULL;
-		self->ref_count = 1;
-
-errored:
-
-		if (mapped_file = NULL) g_mapped_file_unref (mapped_file);
-		mapped_file = NULL;
-		g_free(path); 
-		path = NULL;
-
+    self = LW_MAPPEDFILE (g_object_new (LW_TYPE_MAPPEDFILE, "path", PATH, NULL));
+      
 		return self;
 }
 
 
-gchar*
-lw_mappedfile_free (LwMappedFile *self, gboolean free_path)
+static void 
+lw_mappedfile_init (LwMappedFile *self)
 {
-		//Sanity checks
-		if (self == NULL) return NULL;
+    self->priv = LW_MAPPEDFILE_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LwMappedFilePrivate));
+}
 
+
+static void 
+lw_mappedfile_finalize (GObject *object)
+{
     //Declarations
-    gchar* path = NULL;
+    LwMappedFile *self = NULL;
+    LwMappedFilePrivate *priv = NULL;
 
-    if (!free_path)
+    //Initalizations
+    self = LW_MAPPEDFILE (object);
+    priv = self->priv;
+
+    if (priv->delete_on_free && priv->path != NULL)
     {
-      path = self->path;
-      path = NULL;
+      g_remove (priv->path);
     }
 
-		if (self->mapped_file != NULL)
-			g_mapped_file_unref (self->mapped_file);
-		g_free (self->path);
-		memset(self, 0, sizeof(LwMappedFile));
-		g_free (self);
+    lw_mappedfile_set_path (self, NULL);
 
-    return path;
+    memset(self->priv, 0, sizeof(LwMappedFilePrivate));
+
+    G_OBJECT_CLASS (lw_mappedfile_parent_class)->finalize (object);
+}
+
+
+static void 
+lw_mappedfile_set_property (GObject      *object,
+                            guint         property_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
+{
+    //Declarations
+    LwMappedFile *self = NULL;
+    LwMappedFilePrivate *priv = NULL;
+
+    //Initializations
+    self = LW_MAPPEDFILE (object);
+    priv = self->priv;
+
+    switch (property_id)
+    {
+      case PROP_PATH:
+        lw_mappedfile_set_path (self, g_value_get_string (value));
+        break;
+      case PROP_DELETE_ON_FREE:
+        lw_mappedfile_set_delete_on_free (self, g_value_get_boolean (value));
+        break;
+      case PROP_WRITABLE:
+        lw_mappedfile_set_writable (self, g_value_get_boolean (value));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void 
+lw_mappedfile_get_property (GObject      *object,
+                            guint         property_id,
+                            GValue       *value,
+                            GParamSpec   *pspec)
+{
+    //Declarations
+    LwMappedFile *self = NULL;
+    LwMappedFilePrivate *priv = NULL;
+
+    //Initializations
+    self = LW_MAPPEDFILE (object);
+    priv = self->priv;
+
+    switch (property_id)
+    {
+      case PROP_CONTENTS:
+        g_value_set_string (value, lw_mappedfile_get_contents (self));
+        break;
+      case PROP_CONTENT_LENGTH:
+        g_value_set_ulong (value, lw_mappedfile_length (self));
+        break;
+      case PROP_PATH:
+        g_value_set_string (value, lw_mappedfile_get_path (self));
+        break;
+      case PROP_DELETE_ON_FREE:
+        g_value_set_boolean (value, lw_mappedfile_get_delete_on_free (self));
+        break;
+      case PROP_WRITABLE:
+        g_value_set_boolean (value, lw_mappedfile_get_writable (self));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void
+lw_mappedfile_class_finalize (LwMappedFileClass *klass)
+{
+    memset(klass->priv, 0, sizeof(LwMappedFileClassPrivate));
+    g_free (klass->priv);
+    klass->priv = NULL;
+}
+
+
+static void
+lw_mappedfile_class_init (LwMappedFileClass *klass)
+{
+    //Declarations
+    GObjectClass *object_class = NULL;
+
+    //Initializations
+    object_class = G_OBJECT_CLASS (klass);
+    klass->priv = g_new0 (LwMappedFileClassPrivate, 1);
+    object_class->set_property = lw_mappedfile_set_property;
+    object_class->get_property = lw_mappedfile_get_property;
+    object_class->finalize = lw_mappedfile_finalize;
+
+    g_type_class_add_private (object_class, sizeof (LwMappedFilePrivate));
+
+    klass->priv->pspec[PROP_CONTENTS] = g_param_spec_string (
+      "contents",
+      gettext("Contents"),
+      "The content string for the mapped file",
+      "",
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_CONTENTS, klass->priv->pspec[PROP_CONTENTS]);
+
+    klass->priv->pspec[PROP_CONTENT_LENGTH] = g_param_spec_ulong (
+      "content-length",
+      gettext("Content Length"),
+      "The length of the contents",
+      0,
+      G_MAXULONG,
+      0,
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_CONTENT_LENGTH, klass->priv->pspec[PROP_CONTENT_LENGTH]);
+
+    klass->priv->pspec[PROP_PATH] = g_param_spec_string (
+      "path",
+      gettext("Path"),
+      "The path of the mapped file",
+      "",
+      G_PARAM_CONSTRUCT | G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_PATH, klass->priv->pspec[PROP_PATH]);
+
+    klass->priv->pspec[PROP_DELETE_ON_FREE] = g_param_spec_boolean (
+      "delete-on-free",
+      gettext("Delete on Free"),
+      "Delete the mapped file when the object is freed",
+      FALSE,
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_DELETE_ON_FREE, klass->priv->pspec[PROP_DELETE_ON_FREE]);
+}
+
+
+static GMappedFile *
+_get_mapped_file (LwMappedFile * self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    
+    //Declarations
+    LwMappedFilePrivate *priv = NULL;
+    GMappedFile *mapped_file = NULL;
+    GError *error = NULL;
+
+    //Initializations
+    priv = self->priv;
+    if (priv->path == NULL) goto errored;
+
+    if (priv->mapped_file == NULL)
+    {
+		  priv->mapped_file = g_mapped_file_new (priv->path, priv->writable, &error);
+    }
+    if (error != NULL) goto errored;
+
+    mapped_file = priv->mapped_file;
+
+errored:
+    
+    if (error != NULL)
+    {
+      g_clear_error (&error);
+      error = NULL;
+
+      if (priv->mapped_file != NULL)
+      {
+        g_mapped_file_unref (priv->mapped_file);
+        priv->mapped_file = NULL;
+        mapped_file = NULL;
+      }
+    }
+
+    return mapped_file;
 }
 
 
 void
-lw_mappedfile_unref (LwMappedFile *self)
+_clear_mapped_file (LwMappedFile *self)
 {
-		//Sanity checks
-		if (self == NULL) return;
+    //Sanity checks
+    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    
+    //Declarations
+    LwMappedFilePrivate *priv = NULL;
+    GMappedFile *mapped_file = NULL;
+    GError *error = NULL;
 
-    if (g_atomic_int_dec_and_test (&self->ref_count))
-		{
-			lw_mappedfile_free (self, TRUE);
-		}
-}
+    //Initializations
+    priv = self->priv;
 
-
-LwMappedFile*
-lw_mappedfile_ref (LwMappedFile *self)
-{
-		//Sanity checks
-		g_return_val_if_fail (self != NULL, NULL);
-
-    g_atomic_int_inc (&self->ref_count);
-
-		return self;
-}
-
-
-GType
-lw_mappedfile_get_type ()
-{
-    static GType type = 0;
-
-    if (G_UNLIKELY (type == 0))
+    if (priv->path == NULL && priv->mapped_file != NULL)
     {
-      type = g_boxed_type_register_static (
-        "LwMappedFile",
-        (GBoxedCopyFunc) lw_mappedfile_ref,
-        (GBoxedFreeFunc) lw_mappedfile_unref
-      );
+      g_mapped_file_unref (priv->mapped_file);
+      priv->mapped_file = NULL;
     }
-
-    return type;
 }
 
 
 gsize
-lw_mappedfile_get_length (LwMappedFile *self)
+lw_mappedfile_length (LwMappedFile *self)
 {
-		//Sanity checks
-		g_return_val_if_fail (self != NULL, 0);
+    //Sanity checks
+    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    
+    //Declarations
+    LwMappedFilePrivate *priv = NULL;
+    GMappedFile *mapped_file = NULL;
+    gsize length = 0;
 
-		return g_mapped_file_get_length (self->mapped_file);
+    //Initializations
+    priv = self->priv;
+    mapped_file = _get_mapped_file (self);
+    if (mapped_file == NULL) goto errored;
+		length = g_mapped_file_get_length (mapped_file);
+
+errored:
+
+    return length;
 }
 
 
-gchar*
+gchar *
 lw_mappedfile_get_contents (LwMappedFile *self)
 {
-		//Sanity checks
-		g_return_val_if_fail (self != NULL, 0);
+    //Sanity checks
+    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    
+    //Declarations
+    LwMappedFilePrivate *priv = NULL;
+    GMappedFile *mapped_file = NULL;
+    gchar *contents = NULL;
 
-		return g_mapped_file_get_contents (self->mapped_file);
+    //Initializations
+    priv = self->priv;
+    mapped_file = _get_mapped_file (self);
+    if (mapped_file == NULL) goto errored;
+    contents = g_mapped_file_get_contents (mapped_file);
+
+errored:
+
+    return contents;
 }
 
 
-gchar const*
+void
+lw_mappedfile_set_path (LwMappedFile * self,
+                        gchar const  * PATH)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    
+    //Declarations
+    LwMappedFilePrivate *priv = NULL;
+    LwMappedFileClass *klass = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_MAPPEDFILE_GET_CLASS (self);
+
+    if (g_strcmp0 (priv->path, PATH) == 0) goto errored;
+
+    g_free (priv->path);
+    priv->path = g_strdup (PATH);
+
+    _clear_mapped_file (self);
+
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_PATH]);
+
+errored:
+
+    return; 
+}
+
+
+gchar const *
 lw_mappedfile_get_path (LwMappedFile *self)
 {
-		//Sanity checks
-		g_return_val_if_fail (self != NULL, 0);
+    //Sanity checks
+    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    
+    //Declarations
+    LwMappedFilePrivate *priv = NULL;
 
-		return self->path;
+    //Initializations
+    priv = self->priv;
+
+		return priv->path;
 }
 
 
+void
+lw_mappedfile_set_delete_on_free (LwMappedFile *self,
+                                  gboolean delete_on_free)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    
+    //Declarations
+    LwMappedFilePrivate *priv = NULL;
+    LwMappedFileClass *klass = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_MAPPEDFILE_GET_CLASS (self);
+    if (priv->delete_on_free == delete_on_free) goto errored;
+
+    priv->delete_on_free = delete_on_free;
+
+    _clear_mapped_file (self);
+
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_DELETE_ON_FREE]);
+
+errored:
+
+    return;
+}
+
+
+gboolean
+lw_mappedfile_get_delete_on_free (LwMappedFile *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    
+    //Declarations
+    LwMappedFilePrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->delete_on_free;
+}
+
+
+static void
+lw_mappedfile_set_writable (LwMappedFile *self,
+                            gboolean      writable)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    
+    //Declarations
+    LwMappedFilePrivate *priv = NULL;
+    LwMappedFileClass *klass = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_MAPPEDFILE_GET_CLASS (self);
+    if (writable == priv->writable) goto errored;
+    priv->writable = writable;
+
+    _clear_mapped_file (self);
+
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_WRITABLE]);
+
+errored:
+
+    return;
+}
+
+
+gboolean
+lw_mappedfile_get_writable (LwMappedFile *self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    
+    //Declarations
+    LwMappedFilePrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->writable;
+}
+                 

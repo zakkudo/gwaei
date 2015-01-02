@@ -32,10 +32,17 @@
 #include <stdlib.h>
 
 #include <glib.h>
+#include <glib-object.h>
 #include <glib/gstdio.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
+#include <libwaei/io.h>
+#include <libwaei/utf8.h>
+#include <libwaei/cachefile.h>
+
+#include <libwaei/cachefile-private.h>
+
+G_DEFINE_TYPE (LwCacheFile, lw_cachefile, LW_TYPE_MAPPEDFILE)
 
 GQuark
 lw_cachefile_error_quark ()
@@ -44,23 +51,11 @@ lw_cachefile_error_quark ()
 }
 
 
-struct _LwCacheFile {
-  GMappedFile *mapped_file;
-  FILE * stream;
-  gchar const * CHECKSUM;
-  gchar * contents;
-  gsize length;
-  gint ref_count;
-  gchar * path;
-};
-
-static FILE* _ensure_fopen (LwCacheFile *self, GError **error);
-void static _ensure_fclose (LwCacheFile *self, GError **error);
-
 //Public Methods///////////////////////////////
 
+
 LwCacheFile*
-lw_cachefile_new (const gchar *PATH)
+lw_cachefile_new (gchar const * PATH)
 {
     //Sanity checks
     g_return_val_if_fail (PATH != NULL, FALSE);
@@ -68,100 +63,163 @@ lw_cachefile_new (const gchar *PATH)
     //Declarations
     LwCacheFile *self = NULL;
 
-    self = g_new0 (LwCacheFile, 1);
-    self->path = g_strdup (PATH);
-    self->ref_count = 1;
+    //Initializations
+    self = LW_CACHEFILE (g_object_new (LW_TYPE_CACHEFILE,
+      "path", PATH,
+      "writable", TRUE,
+      "delete-on-free", FALSE,
+      NULL
+    ));
 
     return self;
+}
+
+
+static void 
+lw_cachefile_init (LwCacheFile *self)
+{
+    self->priv = LW_CACHEFILE_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LwCacheFilePrivate));
+}
+
+
+static void 
+lw_cachefile_finalize (GObject *object)
+{
+    //Declarations
+    LwCacheFile *self = NULL;
+    LwCacheFilePrivate *priv = NULL;
+
+    //Initalizations
+    self = LW_CACHEFILE (object);
+    priv = self->priv;
+
+    _ensure_fclose (self, NULL);
+
+    memset(self->priv, 0, sizeof(LwCacheFilePrivate));
+
+    G_OBJECT_CLASS (lw_cachefile_parent_class)->finalize (object);
+}
+
+
+static void 
+lw_cachefile_set_property (GObject      *object,
+                           guint         property_id,
+                           const GValue *value,
+                           GParamSpec   *pspec)
+{
+    //Declarations
+    LwCacheFile *self = NULL;
+    LwCacheFilePrivate *priv = NULL;
+
+    //Initializations
+    self = LW_CACHEFILE (object);
+    priv = self->priv;
+
+    switch (property_id)
+    {
+      case PROP_PATH:
+        lw_cachefile_set_path (self, g_value_get_string (value));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void 
+lw_cachefile_get_property (GObject      *object,
+                           guint         property_id,
+                           GValue       *value,
+                           GParamSpec   *pspec)
+{
+    //Declarations
+    LwCacheFile *self = NULL;
+    LwCacheFilePrivate *priv = NULL;
+
+    //Initializations
+    self = LW_CACHEFILE (object);
+    priv = self->priv;
+
+    switch (property_id)
+    {
+      case PROP_PATH:
+        g_value_set_string (value, lw_cachefile_get_path (self));
+        break;
+      case PROP_CHECKSUM:
+        g_value_set_string (value, lw_cachefile_get_checksum (self));
+        break;
+      case PROP_CONTENTS:
+        g_value_set_string (value, lw_cachefile_get_contents (self));
+        break;
+      case PROP_CONTENT_LENGTH:
+        g_value_set_ulong (value, lw_cachefile_length (self));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+        break;
+    }
+}
+
+
+static void
+lw_cachefile_class_finalize (LwCacheFileClass *klass)
+{
+    memset(klass->priv, 0, sizeof(LwCacheFileClassPrivate));
+    g_free (klass->priv);
+    klass->priv = NULL;
+}
+
+
+static void
+lw_cachefile_class_init (LwCacheFileClass *klass)
+{
+    //Declarations
+    GObjectClass *object_class = NULL;
+
+    //Initializations
+    object_class = G_OBJECT_CLASS (klass);
+    klass->priv = g_new0 (LwCacheFileClassPrivate, 1);
+    object_class->set_property = lw_cachefile_set_property;
+    object_class->get_property = lw_cachefile_get_property;
+    object_class->finalize = lw_cachefile_finalize;
+
+    g_type_class_add_private (object_class, sizeof (LwCacheFilePrivate));
+
+    klass->priv->pspec[PROP_CHECKSUM] = g_param_spec_string (
+      "checksum",
+      gettext("Checksum"),
+      "Checksum of the file",
+      "",
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_CHECKSUM, klass->priv->pspec[PROP_CHECKSUM]);
+
+    g_object_class_override_property (object_class, PROP_CONTENTS, "contents");
+    g_object_class_override_property (object_class, PROP_CONTENT_LENGTH, "content-length");
+    g_object_class_override_property (object_class, PROP_PATH, "path");
 }
 
 
 void
 lw_cachefile_clear (LwCacheFile *self)
 {
-    if (self->mapped_file != NULL) g_mapped_file_unref (self->mapped_file);
-    self->mapped_file = NULL;
-    if (self->stream != NULL) fclose (self->stream);
-    self->stream = NULL;
-    self->CHECKSUM = NULL;
-    self->contents = NULL;
-}
-
-
-void
-lw_cachefile_free (LwCacheFile *self)
-{
     //Sanity checks
-    if (self == NULL) return;
+    g_return_if_fail (LW_IS_CACHEFILE (self));
 
     //Declarations
+    LwCacheFilePrivate *priv = NULL;
 
-    if (self->mapped_file != NULL) g_mapped_file_unref (self->mapped_file);
-    _ensure_fclose (self, NULL);
-    g_free (self->path);
+    //Initializations
+    priv = self->priv;
 
-    memset(self, 0, sizeof(LwCacheFile));
-
-    g_free (self);
-}
-
-
-GType
-lw_cachefile_get_type ()
-{
-    static GType type = 0;
-
-    if (G_UNLIKELY (type == 0))
-    {
-      type = g_boxed_type_register_static (
-        "LwCacheFile",
-        (GBoxedCopyFunc) lw_cachefile_ref,
-        (GBoxedFreeFunc) lw_cachefile_unref
-      );
-    }
-
-    return type;
-}
-
-
-LwCacheFile*
-lw_cachefile_ref (LwCacheFile *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-
-    g_atomic_int_inc (&self->ref_count);
-}
-
-
-void
-lw_cachefile_unref (LwCacheFile *self)
-{
-    //Sanity checks
-    if (self == NULL) return;
-
-    if (g_atomic_int_dec_and_test (&self->ref_count))
-    {
-      lw_cachefile_free (self);
-    }
-}
-
-
-const gchar*
-lw_cachefile_get_checksum (LwCacheFile *self)
-{
-    g_return_val_if_fail (self != NULL, FALSE);
-
-    return self->CHECKSUM;
-}
-
-
-gchar*
-lw_cachefile_get_contents (LwCacheFile *self)
-{
-  g_return_val_if_fail (self != NULL, FALSE);
-
-  return self->contents;
+    lw_mappedfile_set_path (LW_MAPPEDFILE (self), NULL);
+    if (priv->stream != NULL) fclose (priv->stream);
+    priv->stream = NULL;
+    priv->CHECKSUM = NULL;
+    priv->contents = NULL;
+    priv->content_length = 0;
 }
 
 
@@ -173,19 +231,21 @@ lw_cachefile_write (LwCacheFile *self,
                     LwProgress  *progress)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, 0);
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), 0);
     g_return_val_if_fail (CHECKSUM != NULL, 0);
     g_return_val_if_fail (CONTENTS != NULL, 0);
 
     //Declarations
+    LwCacheFilePrivate *priv = NULL;
     gboolean is_new_file = FALSE;
     FILE* stream = NULL;
     gsize bytes_written = 0;
 
     //Initializations
-    is_new_file = (self->stream == NULL);
+    priv = self->priv;
+    is_new_file = (priv->stream == NULL);
     stream = _ensure_fopen (self, NULL);
-    if (self->stream == NULL) goto errored;
+    if (priv->stream == NULL) goto errored;
 
     if (is_new_file)
     {
@@ -205,65 +265,97 @@ errored:
 }
 
 
+gsize
+lw_cachefile_write_mappedfile (LwCacheFile  * self,
+                               const gchar  * CHECKSUM,
+                               LwMappedFile * mapped_file,
+                               LwProgress   * progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), 0);
+    g_return_val_if_fail (LW_IS_MAPPEDFILE (mapped_file), 0);
+
+    //Declarations
+    gchar * contents = NULL;
+    gsize content_length = 0;
+
+    //Initializations
+    contents = lw_mappedfile_get_contents (mapped_file);
+    content_length = lw_mappedfile_length (mapped_file);
+    lw_cachefile_write (self, CHECKSUM, contents, content_length, progress);
+}
 
 
 gboolean
-lw_cachefile_validate (LwCacheFile *self,
-                       const gchar *EXPECTED_CHECKSUM,
-                       LwProgress  *progress)
+lw_cachefile_validate (LwCacheFile * self,
+                       gchar const * EXPECTED_CHECKSUM,
+                       LwProgress  * progress)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), FALSE);
     g_return_val_if_fail (EXPECTED_CHECKSUM == NULL, FALSE);
     g_return_val_if_fail (LW_IS_PROGRESS (progress), FALSE);
     if (lw_progress_should_abort (progress)) return FALSE;
 
     //Declarations
+    LwCacheFilePrivate *priv = NULL;
     gboolean is_valid = TRUE;
+    gchar const * PATH = NULL;
+    gchar const * CHECKSUM = NULL;
+    gchar const * CONTENTS = NULL;
+    gchar * contents = NULL;
+    gsize length = 0;
 
-    if (self->CHECKSUM == NULL || !lw_utf8_validate (self->CHECKSUM, -1, NULL))
+    //Initializations
+    priv = self->priv;
+    PATH = lw_mappedfile_get_path (LW_MAPPEDFILE (self));
+    CHECKSUM = priv->CHECKSUM;
+    contents = priv->contents;
+    length = priv->content_length;
+
+    if (CHECKSUM == NULL || !lw_utf8_validate (CHECKSUM, -1, NULL))
     {
       lw_progress_take_error (progress, g_error_new (
         LW_CACHEFILE_ERROR,
         LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM,
         "The checksum of the cache file %s is corrupt. It should be valid utf8",
-        self->path
+        PATH
       ));
       is_valid = FALSE;
       goto errored;
     }
 
-    if (g_strcmp0 (EXPECTED_CHECKSUM, self->CHECKSUM) != 0)
+    if (g_strcmp0 (EXPECTED_CHECKSUM, CHECKSUM) != 0)
     {
       lw_progress_take_error (progress, g_error_new (
         LW_CACHEFILE_ERROR,
         LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM,
         "The checksum for %s was different from exected\n",
-        self->path
+        PATH
       ));
       is_valid = FALSE;
       goto errored;
     }
 
-    if (self->contents == NULL)
+    if (priv->contents == NULL)
     {
       lw_progress_take_error (progress, g_error_new (
         LW_CACHEFILE_ERROR,
         LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS,
         "The contents of the cachefile are missing %s",
-        self->path
+        PATH
       ));
       is_valid = FALSE;
       goto errored;
     }
 
-    if (!lw_utf8_validate (self->contents, -1, progress))
+    if (!lw_utf8_validate (priv->contents, -1, progress))
     {
       lw_progress_take_error (progress, g_error_new (
         LW_CACHEFILE_ERROR,
         LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS,
         "The cache file %s is corrupt. It should be valid utf8.",
-        self->path
+        PATH
       ));
       is_valid = FALSE;
       goto errored;
@@ -280,22 +372,26 @@ errored:
 }
 
 
-gchar*
+gchar *
 lw_cachefile_read (LwCacheFile *self,
                    const gchar *EXPECTED_CHECKSUM,
                    LwProgress  *progress)
 {
-    g_return_val_if_fail (self != NULL, FALSE);
-    g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, FALSE);
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
+    g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, NULL);
     g_return_val_if_fail (LW_IS_PROGRESS (progress), NULL);
     if (lw_progress_should_abort (progress)) return NULL;
 
     //Declarations
+    LwCacheFilePrivate *priv = NULL;
     GError *error = NULL;
+
+    //Initializations
+    priv = self->priv;
 
     _ensure_fclose (self, &error);
 
-    if (error != NULL || self->mapped_file == NULL)
+    if (error != NULL)
     {
       if (error != NULL)
       {
@@ -306,20 +402,20 @@ lw_cachefile_read (LwCacheFile *self,
       goto errored;
     }
 
-    self->length = g_mapped_file_get_length (self->mapped_file);
-    self->contents = g_mapped_file_get_contents (self->mapped_file);
-    self->CHECKSUM = self->contents;
+    priv->content_length = lw_mappedfile_length (LW_MAPPEDFILE (self));
+    priv->contents = lw_mappedfile_get_contents (LW_MAPPEDFILE (self));
+    priv->CHECKSUM = priv->contents;
 
     {
       gint i = 0;
-      while (i < self->length && self->contents[i] != '\0') i++;
-      if (self->contents[i] == '\0' && i < self->length)
+      while (i < priv->content_length && priv->contents[i] != '\0') i++;
+      if (priv->contents[i] == '\0' && i < priv->content_length)
       {
-        self->contents = self->contents + i + 1;
+        priv->contents = priv->contents + i + 1;
       }
       else
       {
-        self->contents = NULL;
+        priv->contents = NULL;
       }
     }
 
@@ -327,13 +423,9 @@ lw_cachefile_read (LwCacheFile *self,
 
 errored:
 
-    return self->contents;
+    return priv->contents;
 }
 
-
-
-
-//Private Methods/////////////////////////////
 
 
 static FILE*
@@ -341,25 +433,28 @@ _ensure_fopen (LwCacheFile  *self,
                GError      **error)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
 
-    if (g_file_test (self->path, G_FILE_TEST_IS_REGULAR))
+    //Declarations
+    LwCacheFilePrivate *priv = NULL;
+    LwMappedFile *mapped_file = NULL;
+
+    //Initializations
+    priv = self->priv;
+    mapped_file = LW_MAPPEDFILE (self);
+
+    if (g_file_test (priv->path, G_FILE_TEST_IS_REGULAR))
     {
-      g_chmod (self->path, 0644);
+      g_chmod (priv->path, 0644);
     }
 
-    if (self->stream == NULL)
+    if (priv->stream == NULL)
     {
-      if (self->mapped_file != NULL)
-      {
-        GMappedFile *f = self->mapped_file;
-        self->mapped_file = NULL;
-        g_mapped_file_unref (f);
-      }
-      self->stream = fopen(self->path, "w+");
+      lw_mappedfile_set_path (mapped_file, NULL);
+      priv->stream = fopen(priv->path, "w+");
     }
 
-    return self->stream;
+    return priv->stream;
 }
 
 
@@ -368,22 +463,63 @@ _ensure_fclose (LwCacheFile  *self,
                 GError      **error)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_if_fail (LW_IS_CACHEFILE (self));
 
-    if (self->stream != NULL)
+    //Declarations
+    LwCacheFilePrivate *priv = NULL;
+    LwMappedFile *mapped_file = NULL;
+
+    //Initializations
+    priv = self->priv;
+    mapped_file = LW_MAPPEDFILE (self);
+
+    if (priv->stream != NULL)
     {
-      fputc('\0', self->stream);
-      fclose (self->stream);
-      self->stream = NULL;
+      fputc('\0', priv->stream);
+      fclose (priv->stream);
+      priv->stream = NULL;
     }
-    if (g_file_test (self->path, G_FILE_TEST_IS_REGULAR))
+    if (g_file_test (priv->path, G_FILE_TEST_IS_REGULAR))
     {
-      g_chmod (self->path, 0444);
+      g_chmod (priv->path, 0444);
     }
-    if (self->mapped_file == NULL)
-    {
-      self->mapped_file = g_mapped_file_new (self->path, TRUE, error);
-    }
+
+    lw_mappedfile_set_path (mapped_file, priv->path);
+}
+
+
+//Properties
+
+
+gchar const *
+lw_cachefile_get_checksum (LwCacheFile *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
+
+    //Declarations
+    LwCacheFilePrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->CHECKSUM;
+}
+
+
+gchar *
+lw_cachefile_get_contents (LwCacheFile *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
+
+    //Declarations
+    LwCacheFilePrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->contents;
 }
 
 
@@ -391,21 +527,55 @@ gsize
 lw_cachefile_length (LwCacheFile *self)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, 0);
-    g_return_val_if_fail (self->CHECKSUM < self->contents, 0);
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), 0);
+    g_return_val_if_fail (self->priv->CHECKSUM < self->priv->contents, 0);
 
     //Declarations
-    GMappedFile *mapped_file = NULL;
-    gsize length = 0;
+    LwCacheFilePrivate *priv = NULL;
 
     //Initializations
-    mapped_file = self->mapped_file;
-    if (mapped_file == NULL) goto errored;
-    length = g_mapped_file_get_length (mapped_file);
-    length -= (self->contents - self->CHECKSUM);
+    priv = self->priv;
+    if (priv->CHECKSUM < priv->contents, 0) return 0;
+
+    return priv->content_length;
+}
+
+
+static void
+lw_cachefile_set_path (LwCacheFile * self,
+                       gchar const * PATH)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_CACHEFILE (self));
+
+    //Declarations
+    LwCacheFilePrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    if (g_strcmp0 (priv->path, PATH) == 0) goto errored;
+
+    g_free (priv->path);
+    priv->path = g_strdup (PATH);
 
 errored:
 
-    return length;
+    lw_mappedfile_set_path (LW_MAPPEDFILE (self), NULL);
+}
+
+
+gchar const *
+lw_cachefile_get_path (LwCacheFile *self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
+
+    //Declarations
+    LwCacheFilePrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->path;
 }
 
