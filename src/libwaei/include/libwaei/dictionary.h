@@ -57,14 +57,12 @@ GType lw_dictionarycolumnhandling_get_type (void);
 typedef LwParsed*(*LwDictionaryParseFunc)(LwDictionary*, gchar*, gsize, LwProgress*);
 
 //Methods
+LwDictionary * lw_dictionary_new (GType type, gchar const * FILENAME);
 GType lw_dictionary_get_type (void) G_GNUC_CONST;
 
 //Properties
 
 gchar const* lw_dictionary_get_path (LwDictionary *self);
-void lw_dictionary_sync_path (LwDictionary *self);
-gchar* lw_dictionary_build_path (GType type, gchar const *FILENAME);
-
 void lw_dictionary_set_filename (LwDictionary *self, gchar const *FILENAME);
 gchar const* lw_dictionary_get_filename (LwDictionary *self);
 
@@ -86,11 +84,9 @@ gboolean lw_dictionary_equals (LwDictionary *dictionary1, LwDictionary *dictiona
 
 gchar** lw_dictionary_get_installed_idlist (GType type_filter);
 gchar* lw_dictionary_build_id_from_type (GType type, gchar const *FILENAME);
-void lw_dictionary_sync_id (LwDictionary *self);
 gchar const* lw_dictionary_get_id (LwDictionary *self);
 
 gchar* lw_dictionary_build_directory (GType type);
-gchar* lw_dictionary_directoryname_to_typename (gchar const *DIRECTORYNAME);
 
 void lw_dictionary_set_cachetree (LwDictionary *self, GTree *tree);
 GTree* lw_dictionary_get_cachetree (LwDictionary *self);
@@ -104,6 +100,11 @@ gint lw_dictionary_num_lines (LwDictionary *self);
 gboolean  lw_dictionary_uninstall (LwDictionary *self);
 
 LwParsed* lw_dictionary_parse (LwDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+
+LwMappedFile* lw_dictionary_get_contents_mappedfile (LwDictionary * self);
+
+gchar const * lw_dictionary_get_install_directory ();
+gchar * lw_dictionary_build_path_by_type_and_name (GType type, gchar const * FILENAME);
 
 G_END_DECLS
 

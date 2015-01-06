@@ -710,7 +710,7 @@ lw_dictionaryinstall_sync_install_path (LwDictionaryInstall *self)
     FILENAME = lw_dictionaryinstall_get_name (self);
     if (g_type_is_a (type, LW_TYPE_DICTIONARY) && FILENAME != NULL)
     {
-      path = lw_dictionary_build_path (type, FILENAME);
+      path = lw_dictionary_build_path_by_type_and_name (type, FILENAME);
     }
 
     if (g_strcmp0 (path, priv->data.install_path) == 0) goto errored;

@@ -12,9 +12,10 @@ typedef enum
   PROP_ID,
   PROP_PATH,
   PROP_CACHETREE,
-  PROP_CONTENT_LENGTH,
   PROP_CHECKSUM,
   PROP_CONTENTS,
+  PROP_CONTENT_LENGTH,
+  PROP_CONTENTS_MAPPEDFILE,
   TOTAL_PROPS
 } LwDictionaryProps;
 
@@ -34,8 +35,7 @@ struct _LwDictionaryPrivate {
   gchar *filename;
   gchar *id;
 
-  GMappedFile *mapped_file;
-  gchar *contents;
+  LwMappedFile *contents_mappedfile;
   gchar *checksum;
 };
 
@@ -43,22 +43,30 @@ struct _LwDictionaryClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
   GParamSpec *pspec[TOTAL_PROPS];
 
+  gchar *install_path;
+
   //Virtual methods
   LwDictionaryParseFunc parse;
-  gint (* get_total_columns) (LwDictionary *self);
-  gchar const * (* get_column_language) (LwDictionary *self, gint column_num);
-  LwDictionaryColumnHandling (* get_column_handling) (LwDictionary *self, gint column_num);
+  gint (* get_total_columns) (LwDictionary * self);
+  gchar const * (* get_column_language) (LwDictionary * self, gint column_num);
+  LwDictionaryColumnHandling (* get_column_handling) (LwDictionary * self, gint column_num);
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));
 
 //Properties
 
-void lw_dictionary_take_checksum (LwDictionary *self, gchar *checksum);
-void lw_dictionary_sync_checksum (LwDictionary *self);
+static void lw_dictionary_set_checksum (LwDictionary * self, gchar const * CHECKSUM);
+static void lw_dictionary_sync_checksum (LwDictionary * self);
 
-void lw_dictionary_take_contents (LwDictionary *self, gchar *contents);
-void lw_dictionary_sync_contents (LwDictionary *self, LwProgress *progress);
+static void lw_dictionary_set_contents_mappedfile (LwDictionary * self, LwMappedFile * contents_mappedfile);
+
+static void lw_dictionary_sync_contents_mappedfile (LwDictionary * self);
+
+static void lw_dictionary_sync_path (LwDictionary * self);
+static gchar * lw_dictionary_build_path (LwDictionary * self);
+
+static void lw_dictionary_sync_id (LwDictionary * self);
 
 G_END_DECLS
 

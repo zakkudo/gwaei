@@ -906,9 +906,6 @@ lw_dictionarylist_length (LwDictionaryList *self)
 }
 
 
-
-
-
 void 
 lw_dictionarylist_load_installed (LwDictionaryList   *self, 
                                   LwMorphologyEngine *morphologyengine)
@@ -917,44 +914,57 @@ lw_dictionarylist_load_installed (LwDictionaryList   *self,
     g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
-    gchar** idlist = NULL;
-    gchar **iditer = NULL;
-    gchar** pair = NULL;
-    gchar *typename = NULL;
-    GType type = 0;
-    LwDictionary *dictionary = NULL;
-    const gchar *FILENAME = NULL;
-    GList *dictionaries = NULL;
+    GList * dictionaries = NULL;
+    gchar const * INSTALL_DIRECTORY = NULL;
+    GDir * installdirectory = NULL;
+    gchar const * TYPENAME = NULL;
 
     //Initializations
+    INSTALL_DIRECTORY = lw_dictionary_get_install_directory ();
+    installdirectory = g_dir_open (INSTALL_DIRECTORY, 0, NULL);
+
     lw_dictionarylist_clear (self);
 
-    idlist = lw_dictionary_get_installed_idlist (G_TYPE_NONE);
-    if (idlist != NULL)
+    while ((TYPENAME = g_dir_read_name (installdirectory)) != NULL)
     {
-      for (iditer = idlist; *iditer != NULL; iditer++)
+      GType type = g_type_from_name (TYPENAME);
+      if (type != G_TYPE_INVALID && g_type_is_a (type, LW_TYPE_DICTIONARY))
       {
-        pair = g_strsplit_set (*iditer, "/", 2);
-        if (pair != NULL && pair[0] != NULL && pair[1] != NULL) 
+        gchar * typedirectorypath = g_build_path (INSTALL_DIRECTORY, TYPENAME, NULL);
+        if (typedirectorypath != NULL)
         {
-          typename = lw_dictionary_directoryname_to_typename (pair[0]);
-          type = g_type_from_name (typename);
-          FILENAME = pair[1];
-          dictionary = LW_DICTIONARY (g_object_new (type, "filename", FILENAME, "morphologyengine", morphologyengine, NULL));
-          if (dictionary != NULL && LW_IS_DICTIONARY (dictionary))
-            dictionaries = g_list_prepend (dictionaries, dictionary);
-          if (typename != NULL) g_free (typename); typename = NULL;
+          GDir * typedirectory = g_dir_open (typedirectorypath, 0, NULL);
+          if (typedirectory != NULL)
+          {
+            gchar const * FILENAME = NULL;
+            while ((FILENAME = g_dir_read_name (typedirectory)) != NULL)
+            {
+              LwDictionary * dictionary = lw_dictionary_new (type, FILENAME);
+              if (dictionary != NULL)
+              {
+                dictionaries = g_list_prepend (dictionaries, dictionary);
+              }
+            }
+            g_dir_close (typedirectory);
+            typedirectory = NULL;
+          }
+          g_free (typedirectorypath);
+          typedirectorypath = NULL;
         }
-        g_strfreev (pair); pair = NULL;
       }
-      g_strfreev (idlist); idlist = NULL;
     }
-
+    
     dictionaries = g_list_reverse (dictionaries);
 
     lw_dictionarylist_insert (self, -1, dictionaries);
 
 errored:
+
+    if (installdirectory != NULL)
+    {
+      g_dir_close (installdirectory);
+      installdirectory = NULL;
+    }
 
     g_list_free_full (dictionaries, (GDestroyNotify) g_object_unref);
     dictionaries = NULL;

@@ -744,13 +744,16 @@ lw_dictionarycache_build_directory (LwDictionaryCache * self)
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     
     //Declarations
-    gchar const * cache_dir = NULL;
+    gchar const * NAME = NULL;
+    gchar const * CACHE_DIR = NULL;
     gchar * path = NULL;
 
     //Initializations
-    cache_dir = g_get_user_cache_dir ();
-    if (cache_dir == NULL) goto errored;
-    path = g_build_filename (cache_dir, "libwaei", "dictionary");
+    NAME = lw_dictionarycache_get_name (self);
+    if (NAME == NULL) goto errored;
+    CACHE_DIR = g_get_user_cache_dir ();
+    if (CACHE_DIR == NULL) goto errored;
+    path = g_build_filename (CACHE_DIR, "libwaei", "dictionary", NAME, NULL);
     if (path == NULL) goto errored;
 
     g_mkdir_with_parents (path, 0700);
