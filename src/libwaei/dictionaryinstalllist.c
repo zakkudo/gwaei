@@ -929,6 +929,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
     LwDictionaryInstallListPrivate *priv = NULL;
     LwPreferences *preferences = NULL;
     GList *list = NULL;
+
 /*TODO
     //Initializations
     priv = self->priv;
@@ -938,7 +939,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
     {
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
       lw_dictionaryinstall_set_name (d, "English");
-      lw_dictionaryinstall_set_gtype (d, LW_TYPE_EDICTIONARY);
+      lw_dictionaryinstall_set_gtype (d, g_type_from_name ("LwEDictionary"));
       lw_dictionaryinstall_set_description (d, gettext("The venerable edict by Jim Breen."));
       lw_dictionaryinstall_set_text_encoding (d, "euc-jp");
       lw_dictionaryinstall_set_preferences (d, preferences);
@@ -949,7 +950,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
     {
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
       lw_dictionaryinstall_set_name (d, "Kanji");
-      lw_dictionaryinstall_set_gtype (d, LW_TYPE_KANJIDICTIONARY);
+      lw_dictionaryinstall_set_gtype (d, g_type_from_name ("LwKanjiDictionary"));
       lw_dictionaryinstall_set_description (d, gettext("A Kanji dictionary based off of kanjidic with radical information combined."));
       lw_dictionaryinstall_set_text_encoding (d, "euc-jp");
       lw_dictionaryinstall_set_preferences (d, preferences);
@@ -961,7 +962,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
     {
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
       lw_dictionaryinstall_set_name (d, "Radicals");
-      lw_dictionaryinstall_set_gtype (d, LW_TYPE_RADICALSDICTIONARY);
+      lw_dictionaryinstall_set_gtype (d, g_type_from_name ("LwRadicalsDictionary"));
       lw_dictionaryinstall_set_description (d, gettext("Radicals"));
       lw_dictionaryinstall_set_text_encoding (d, "euc-jp");
       lw_dictionaryinstall_set_preferences (d, preferences);
@@ -972,7 +973,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
     {
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
       lw_dictionaryinstall_set_name (d, "Names");
-      lw_dictionaryinstall_set_gtype (d, LW_TYPE_EDICTIONARY);
+      lw_dictionaryinstall_set_gtype (d, g_type_from_name ("LwEDictionary"));
       lw_dictionaryinstall_set_description (d, 
         gettext("Based off of Enamdic, but with the names split from the "
                 "places for 2 separate dictionaries.")
@@ -986,7 +987,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
     {
       LwDictionaryInstall *d = lw_dictionaryinstall_new ();
       lw_dictionaryinstall_set_name (d, "Examples");
-      lw_dictionaryinstall_set_gtype (d, LW_TYPE_EXAMPLEDICTIONARY);
+      lw_dictionaryinstall_set_gtype (d, g_type_from_name ("LwExampleDictionary"));
       lw_dictionaryinstall_set_description (d, 
         gettext("A collection of Japanese/English sentences initially compiled "
                 "by Professor Yasuhito Tanaka at Hyogo University and his students.")
@@ -1005,8 +1006,7 @@ errored:
 
     g_list_free_full (list, (GDestroyNotify) g_object_unref);
     list = NULL;
-*/    
-    return;
+*/
 }
 
 

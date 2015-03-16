@@ -7,7 +7,7 @@ datadir = @datadir@
 dictionarylibdir = @dictionarylibdir@
 DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" -DPKGLIBDIR=\"$(pkglibdir)\" -DDICTIONARYLIBDIR=\"$(dictionarylibdir)\"
 
-ALL_LDFLAGS=-no-undefined -version-info $(LIBRARY_VERSION)  $(LIBWAEI_LIBS)
+ALL_LDFLAGS=-version-info $(LIBRARY_VERSION)  $(LIBWAEI_LIBS)
 ALL_CPPFLAGS=-I$(top_srcdir)/src/libwaei/include -I$(top_srcdir)/src/dictionary/include $(WAEI_CFLAGS) $(WAEI_DEFS) $(DEFINITIONS)
 ALL_LIBADD=$(WAEI_LIBS) ../libwaei/libwaei.la
 

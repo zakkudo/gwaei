@@ -502,6 +502,7 @@ lw_dictionaryinstall_set_gtype (LwDictionaryInstall *self,
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+    g_return_val_if_fail (g_type_is_a (gtype, LW_TYPE_DICTIONARY), NULL);
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;

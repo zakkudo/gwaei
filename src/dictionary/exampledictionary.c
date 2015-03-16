@@ -47,7 +47,7 @@
 
 G_DEFINE_DYNAMIC_TYPE (LwExampleDictionary, lw_exampledictionary, LW_TYPE_DICTIONARY)
 
-static LwParsed* lw_exampledictionary_parse (LwExampleDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+static LwParsed* lw_exampledictionary_parse (LwExampleDictionary *self, LwCacheFile *cache_file, LwProgress *progress);
 static gint lw_exampledictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_exampledictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_exampledictionary_get_column_handling (LwDictionary *self, gint column_num);
@@ -88,10 +88,10 @@ lw_exampledictionary_constructed (GObject *object)
     dictionary = LW_DICTIONARY (object);
     priv = dictionary->priv;
 
-    if (strcmp(priv->data.filename, "Examples") == 0)
+    if (strcmp(priv->filename, "Examples") == 0)
     {
-      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
-      priv->data.name = g_strdup (gettext("Examples"));
+      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
+      priv->name = g_strdup (gettext("Examples"));
     }
 }
 
@@ -203,10 +203,10 @@ lw_exampledictionary_get_column_handling (LwDictionary *self,
  * Returns: The end of the filled token array
  */
 static gchar**
-lw_exampledictionary_tokenize_line (LwExampleDictionary  *self,
-                                    gchar                *buffer,
-                                    gchar               **tokens,
-                                    gsize                *num_tokens)
+lw_exampledictionary_columnize (LwExampleDictionary  *self,
+                                gchar                *buffer,
+                                gchar               **tokens,
+                                gsize                *num_tokens)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_EXAMPLEDICTIONARY (self));
@@ -285,11 +285,11 @@ errored:
 
 
 static void
-lw_exampledictionary_load_line_tokens (LwExampleDictionary  *self,
-                                       gchar                *buffer,
-                                       gchar               **tokens,
-                                       gint                  num_tokens,
-                                       LwParsedLine         *line)
+lw_exampledictionary_load_columns (LwExampleDictionary  *self,
+                                   gchar                *buffer,
+                                   gchar               **tokens,
+                                   gint                  num_tokens,
+                                   LwParsedLine         *line)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_EXAMPLEDICTIONARY (self));
@@ -378,29 +378,31 @@ errored:
 //!
 static LwParsed*
 lw_exampledictionary_parse (LwExampleDictionary *self,
-                            gchar               *contents,
-                            gsize                content_length,
+                            LwCacheFile         *cache_file,
                             LwProgress          *progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), NULL);
-    g_return_val_if_fail (contents != NULL, NULL);
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
 
     //Declarations
+    gchar *contents = NULL;
+    gsize content_length = NULL;
     gint num_lines = 0;
+    LwParsed *parsed = NULL;
+    LwParsedLine *lines = NULL;
     gchar **tokens = NULL;
     gsize max_line_length = 0;
     gsize num_tokens = 0;
-    gint length = -1;
-    LwParsed *parsed = NULL;
-    LwParsedLine *lines = NULL;
 
     //Initializations
-    if (content_length < 1) content_length = strlen(contents);
+    contents = lw_cachefile_get_contents (cache_file);
+    if (contents == NULL) goto errored;
+    content_length = lw_cachefile_length (cache_file);
     num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
     if (num_lines < 1) goto errored;
     if (max_line_length < 1) goto errored;
-    parsed = lw_parsed_new (contents, content_length);
+    parsed = lw_parsed_new (LW_MAPPEDFILE (cache_file));
     if (parsed == NULL) goto errored;
     lines = g_new0 (LwParsedLine, num_lines);
     if (lines == NULL) goto errored;
@@ -427,8 +429,8 @@ lw_exampledictionary_parse (LwExampleDictionary *self,
 
         line = lines + i;
         lw_parsedline_init (line);
-        lw_exampledictionary_tokenize_line (self, c, tokens, &num_tokens);
-        lw_exampledictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
+        lw_exampledictionary_columnize (self, c, tokens, &num_tokens);
+        lw_exampledictionary_load_columns (self, contents, tokens, num_tokens, line);
         if (progress != NULL)
         {
           lw_progress_set_current (progress, c - contents);

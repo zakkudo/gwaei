@@ -47,7 +47,7 @@
 
 G_DEFINE_DYNAMIC_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
 
-static LwParsed* lw_kanjidictionary_parse (LwKanjiDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+static LwParsed* lw_kanjidictionary_parse (LwKanjiDictionary *self, LwCacheFile *cache_file, LwProgress *progress);
 static gint lw_kanjidictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_kanjidictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_kanjidictionary_get_column_handling (LwDictionary *self, gint column_num);
@@ -89,10 +89,10 @@ lw_kanjidictionary_constructed (GObject *object)
     dictionary = LW_DICTIONARY (object);
     priv = dictionary->priv;
 
-    if (strcmp(priv->data.filename, "Kanji") == 0)
+    if (strcmp(priv->filename, "Kanji") == 0)
     {
-      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
-      priv->data.name = g_strdup (gettext("Kanji"));
+      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
+      priv->name = g_strdup (gettext("Kanji"));
     }
 
 }
@@ -203,10 +203,10 @@ lw_kanjidictionary_get_column_handling (LwDictionary *self,
 
 
 static gchar**
-lw_kanjidictionary_tokenize_line (LwKanjiDictionary  *self,
-                                  gchar              *buffer,
-                                  gchar             **columns,
-                                  gsize              *num_columns)
+lw_kanjidictionary_columnize (LwKanjiDictionary  *self,
+                              gchar              *buffer,
+                              gchar             **columns,
+                              gsize              *num_columns)
 {
     //Sanity checks
     g_return_val_if_fail (buffer != NULL, NULL);
@@ -372,11 +372,11 @@ _is_on_reading (gchar const *C)
 
 
 static void
-lw_kanjidictionary_load_line_tokens (LwKanjiDictionary  *self,
-                                     gchar              *buffer,
-                                     gchar             **tokens,
-                                     gint                num_tokens,
-                                     LwParsedLine       *line)
+lw_kanjidictionary_load_columns (LwKanjiDictionary  *self,
+                                 gchar              *buffer,
+                                 gchar             **tokens,
+                                 gint                num_tokens,
+                                 LwParsedLine       *line)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_KANJIDICTIONARY (self));
@@ -570,29 +570,31 @@ errored:
 //!
 static LwParsed*
 lw_kanjidictionary_parse (LwKanjiDictionary *self,
-                          gchar             *contents,
-                          gsize              content_length,
+                          LwCacheFile       *cache_file,
                           LwProgress        *progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_KANJIDICTIONARY (self), NULL);
-    g_return_val_if_fail (contents != NULL, NULL);
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
 
     //Declarations
+    gchar *contents = NULL;
+    gsize content_length = 0;
     gint num_lines = 0;
+    LwParsed *parsed = NULL;
+    LwParsedLine* lines = NULL;
     gchar **tokens = NULL;
     gsize max_line_length = 0;
     gsize num_tokens = 0;
-    gint length = -1;
-    LwParsed *parsed = NULL;
-    LwParsedLine* lines = NULL;
 
     //Initializations
-    if (content_length < 1) content_length = strlen(contents);
+    contents = lw_cachefile_get_contents (cache_file);
+    if (contents == NULL) goto errored;
+    content_length = lw_cachefile_length (cache_file);
     num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
     if (num_lines < 1) goto errored;
     if (max_line_length < 1) goto errored;
-    parsed = lw_parsed_new (contents, content_length);
+    parsed = lw_parsed_new (LW_MAPPEDFILE (cache_file));
     if (parsed == NULL) goto errored;
     lines = g_new0 (LwParsedLine, num_lines);
     if (lines == NULL) goto errored;
@@ -619,8 +621,8 @@ lw_kanjidictionary_parse (LwKanjiDictionary *self,
 
         line = lines + i;
         lw_parsedline_init (line);
-        lw_kanjidictionary_tokenize_line (self, c, tokens, &num_tokens);
-        lw_kanjidictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
+        lw_kanjidictionary_columnize (self, c, tokens, &num_tokens);
+        lw_kanjidictionary_load_columns (self, contents, tokens, num_tokens, line);
         if (progress != NULL)
         {
           lw_progress_set_current (progress, c - contents);

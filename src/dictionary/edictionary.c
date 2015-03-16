@@ -47,7 +47,7 @@
 
 G_DEFINE_DYNAMIC_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 
-static LwParsed* lw_edictionary_parse (LwEDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
+static LwParsed* lw_edictionary_parse (LwEDictionary *self, LwCacheFile *cache_file, LwProgress *progress);
 static gint lw_edictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_edictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_edictionary_get_column_handling (LwDictionary *self, gint column_num);
@@ -89,25 +89,25 @@ lw_edictionary_constructed (GObject *object)
     dictionary = LW_DICTIONARY (object);
     priv = dictionary->priv;
 
-    if (strcmp(priv->data.filename, "English") == 0)
+    if (strcmp(priv->filename, "English") == 0)
     {
-      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
-      priv->data.name = g_strdup (gettext("English"));
+      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
+      priv->name = g_strdup (gettext("English"));
     }
-    else if (strcmp(priv->data.filename, "Names") == 0)
+    else if (strcmp(priv->filename, "Names") == 0)
     {
-      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
-      priv->data.name = g_strdup (gettext("Names"));
+      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
+      priv->name = g_strdup (gettext("Names"));
     }
-    else if (strcmp(priv->data.filename, "Places") == 0)
+    else if (strcmp(priv->filename, "Places") == 0)
     {
-      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
-      priv->data.name = g_strdup (gettext("Places"));
+      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
+      priv->name = g_strdup (gettext("Places"));
     }
-    else if (strcmp(priv->data.filename, "Names and Places") == 0)
+    else if (strcmp(priv->filename, "Names and Places") == 0)
     {
-      if (priv->data.name != NULL) g_free (priv->data.name); priv->data.name = NULL;
-      priv->data.name = g_strdup (gettext("Names and Places"));
+      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
+      priv->name = g_strdup (gettext("Names and Places"));
     }
 }
 
@@ -244,10 +244,10 @@ lw_edictionary_columnid_get_type ()
  * Returns: The end of the filled token array
  */
 static gchar**
-lw_edictionary_tokenize_line (LwEDictionary  *self,
-                              gchar          *buffer,
-                              gchar         **tokens,
-                              gsize          *num_tokens)
+lw_edictionary_columnize (LwEDictionary  *self,
+                          gchar          *buffer,
+                          gchar         **tokens,
+                          gsize          *num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_EDICTIONARY (self), NULL);
@@ -361,11 +361,11 @@ errored:
 
 
 static void
-lw_edictionary_load_line_tokens (LwEDictionary     *self,
-                                 gchar             *buffer,
-                                 gchar            **tokens,
-                                 gint               num_tokens,
-                                 LwParsedLine      *line) 
+lw_edictionary_load_columns (LwEDictionary     *self,
+                             gchar             *buffer,
+                             gchar            **tokens,
+                             gint               num_tokens,
+                             LwParsedLine      *line) 
 {
     //Sanity checks
     g_return_if_fail (LW_IS_EDICTIONARY (self));
@@ -517,11 +517,12 @@ lw_edictionary_parse (LwEDictionary *self,
 
     //Initializations
     contents = lw_cachefile_get_contents (cache_file);
+    if (contents == NULL) goto errored;
     content_length = lw_cachefile_length (cache_file);
     num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
     if (num_lines == 0) goto errored;
     if (max_line_length < 1) goto errored;
-    parsed = lw_parsed_new (cache);
+    parsed = lw_parsed_new (LW_MAPPEDFILE(cache_file));
     if (parsed == NULL) goto errored;
     lines = g_new0 (LwParsedLine, num_lines);
     tokens = g_new0 (gchar*, max_line_length + 1);
@@ -547,8 +548,8 @@ lw_edictionary_parse (LwEDictionary *self,
 
         line = lines + i;
         lw_parsedline_init (line);
-        lw_edictionary_tokenize_line (self, c, tokens, &num_tokens);
-        lw_edictionary_load_line_tokens (self, contents, tokens, num_tokens, line);
+        lw_edictionary_columnize (self, c, tokens, &num_tokens);
+        lw_edictionary_load_columns (self, contents, tokens, num_tokens, line);
         if (progress != NULL)
         {
           lw_progress_set_current (progress, c - contents);

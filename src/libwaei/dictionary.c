@@ -969,7 +969,8 @@ _count_max_columns (LwDictionary *self, gchar **lines, gint num_lines)
 
 
 LwParsedLine*
-lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
+lw_dictionary_build_lines (LwDictionary      *self,
+                           LwDictionaryCache *cache)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -983,9 +984,7 @@ lw_dictionary_build_lines (LwDictionary *self, LwDictionaryCache *cache)
     gint max_column_count = -1;
     gchar **column_buffer = NULL;
     LwParsedLine *dictionary_lines = NULL;
-
-  /*TODO
-
+/*TODO
     //Initializations
     klass = LW_DICTIONARY_CLASS (self);
     if (klass->priv->columnize == NULL) goto errored;
