@@ -673,9 +673,11 @@ LwParsed * _dictionarycache_parse (LwCacheFile                 * cache_file,
     LwProgress *progress = NULL;
 
     dictionary = data->dictionary;
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
     progress = data->progress;
+    g_return_val_if_fail (LW_IS_PROGRESS (progress), NULL);
 
-    lw_dictionary_parse(dictionary, cache_file, progress);
+    return lw_dictionary_parse (dictionary, cache_file, progress);
 }
 
 
