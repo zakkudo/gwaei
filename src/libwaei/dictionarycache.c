@@ -527,7 +527,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     //Load the parsed information
     parsed_cachefile = _read_cachefile (self, "parsed", EXPECTED_CHECKSUM, progress);
     if (parsed_cachefile == NULL) goto errored;
-    parsed = lw_parsed_new (LW_MAPPEDFILE (normalized_cachefile)); 
+    parsed = lw_parsed_new (normalized_cachefile); 
     if (parsed == NULL) goto errored;
     lw_serializable_deserialize_from_cachefile (LW_SERIALIZABLE (parsed), EXPECTED_CHECKSUM, parsed_cachefile, progress);
     if (lw_progress_should_abort (progress)) goto errored;
@@ -557,16 +557,14 @@ errored:
 
 void
 lw_dictionarycache_set_contents (LwDictionaryCache          * self, 
-                                 gchar const                * CHECKSUM,
-                                 gchar const                * CONTENTS,
-                                 gsize                        content_length,
+                                 LwCacheFile                * cache_file,
                                  LwDictionaryCacheParseFunc   parse,
                                  gpointer                     data,
                                  LwProgress                 * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
-    g_return_if_fail (CONTENTS != NULL);
+    g_return_if_fail (LW_IS_CACHEFILE (cache_file));
     g_return_if_fail (parse == NULL);
     g_return_if_fail (LW_IS_PROGRESS (progress));
     if (lw_progress_should_abort (progress)) return;
@@ -574,13 +572,15 @@ lw_dictionarycache_set_contents (LwDictionaryCache          * self,
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
     LwParsed *parsed = NULL;
+    gchar const * CHECKSUM = NULL;
+    gchar const * CONTENTS = NULL;
+    gsize content_length = 0;
 
     //Initializations
+    CHECKSUM = lw_cachefile_get_checksum (cache_file);
+    CONTENTS = lw_cachefile_get_contents (cache_file);
+    content_length = lw_cachefile_length (cache_file);
     priv = self->priv;
-    if (content_length < 1)
-    {
-      content_length = strlen(CONTENTS);
-    }
 
     lw_dictionarycache_read (self, CHECKSUM, progress);
     if (lw_progress_should_abort (progress))

@@ -33,7 +33,7 @@ struct _LwParsedClass {
 
 typedef gboolean (*LwParsedForeachFunc) (LwParsed *self, LwParsedLine *line, gpointer user_data);
 
-LwParsed* lw_parsed_new (LwMappedFile * mapped_file);
+LwParsed* lw_parsed_new (LwCacheFile * cache_file);
 
 GType lw_parsed_get_type (void) G_GNUC_CONST;
 
@@ -43,7 +43,7 @@ gsize lw_parsed_length (LwParsed *self);
 
 void lw_parsed_set_lines (LwParsed *self, LwParsedLine *lines, gsize num_lines);
 
-LwMappedFile* lw_parsed_get_contents_mappedfile (LwParsed * self);
+LwCacheFile* lw_parsed_get_cachefile (LwParsed * self);
 
 G_END_DECLS
 

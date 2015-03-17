@@ -46,10 +46,11 @@
 #include <dictionary/radicalsdictionary.h>
 
 
-static LwParsed* lw_radicalsdictionary_parse (LwRadicalsDictionary *self, LwCacheFile *cache_file, LwProgress *progress);
 static gint lw_radicalsdictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_radicalsdictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_radicalsdictionary_get_column_handling (LwDictionary *self, gint column_num);
+static gchar** lw_radicalsdictionary_columnize (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
+static void lw_radicalsdictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
 
 G_DEFINE_DYNAMIC_TYPE (LwRadicalsDictionary, lw_radicalsdictionary, LW_TYPE_DICTIONARY)
 
@@ -71,7 +72,7 @@ LwDictionary* lw_radicalsdictionary_new (const gchar        *FILENAME,
 
 
 static void 
-lw_radicalsdictionary_init (LwRadicalsDictionary *dictionary)
+lw_radicalsdictionary_init (LwRadicalsDictionary *radicalsdictionary)
 {
 }
 
@@ -124,6 +125,8 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
     dictionary_class->priv->get_column_handling = lw_radicalsdictionary_get_column_handling;
     dictionary_class->priv->get_total_columns = lw_radicalsdictionary_get_total_columns;
     dictionary_class->priv->get_column_language = lw_radicalsdictionary_get_column_language;
+    dictionary_class->priv->columnize = lw_radicalsdictionary_columnize;
+    dictionary_class->priv->load_columns = lw_radicalsdictionary_load_columns;
 }
 
 
@@ -199,10 +202,10 @@ lw_radicalsdictionary_get_column_handling (LwDictionary *self,
  * Returns: The end of the filled token array
  */
 static gchar**
-lw_radicalsdictionary_columnize (LwRadicalsDictionary  *self,
-                                 gchar                 *buffer,
-                                 gchar                **tokens,
-                                 gsize                 *num_tokens)
+lw_radicalsdictionary_columnize (LwDictionary  *self,
+                                 gchar         *buffer,
+                                 gchar        **tokens,
+                                 gsize         *num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (buffer != NULL, NULL);
@@ -267,11 +270,11 @@ errored:
 
 
 static void
-lw_radicalsdictionary_load_columns (LwRadicalsDictionary  *self,
-                                    gchar                  *buffer,
-                                    gchar                 **tokens,
-                                    gint                    num_tokens,
-                                    LwParsedLine           *line)
+lw_radicalsdictionary_load_columns (LwDictionary  *self,
+                                    gchar         *buffer,
+                                    gchar        **tokens,
+                                    gint           num_tokens,
+                                    LwParsedLine  *line)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_RADICALSDICTIONARY (self));
@@ -316,85 +319,3 @@ errored:
       (gchar**) g_array_free (radicals, FALSE)
     );
 }
-
-
-//!
-//! @brief Parses a string for an unknown format string
-//! @param rl The Resultline object this method works on
-//!
-static LwParsed*
-lw_radicalsdictionary_parse (LwRadicalsDictionary *self,
-                             LwCacheFile          *cache_file,
-                             LwProgress           *progress)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_RADICALSDICTIONARY (self), NULL);
-    g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
-
-    //Declarations
-    gchar *contents = NULL;
-    gsize content_length = 0;
-    gint num_lines = 0;
-    LwParsed *parsed = NULL;
-    LwParsedLine *lines = NULL;
-    gchar **tokens = NULL;
-    gsize max_line_length = 0;
-    gsize num_tokens = 0;
-
-    //Initializations
-    contents = lw_cachefile_get_contents (cache_file);
-    if (contents == NULL) goto errored;
-    content_length = lw_cachefile_length (cache_file);
-    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
-    if (num_lines < 1) goto errored;
-    if (max_line_length < 1) goto errored;
-    parsed = lw_parsed_new (LW_MAPPEDFILE (cache_file));
-    if (parsed == NULL) goto errored;
-    lines = g_new0 (LwParsedLine, num_lines);
-    if (lines == NULL) goto errored;
-    tokens = g_new0 (gchar*, max_line_length + 1);
-    if (tokens == NULL) goto errored;
-
-    if (progress != NULL)
-    {
-      lw_progress_set_secondary_message (progress, "Parsing...");
-      lw_progress_set_completed (progress, FALSE);
-      lw_progress_set_total (progress, content_length);
-      lw_progress_set_current (progress, 0);
-    }
-
-    {
-      gchar *c = contents;
-      gchar *e = contents + content_length;
-      gint i = 0;
-      LwParsedLine *line = NULL;
-      while (c < e)
-      {
-        while (c < e && *c == '\0') c = g_utf8_next_char (c);
-        if (c >= e) break;
-
-        line = lines + i;
-        lw_parsedline_init (line);
-        lw_radicalsdictionary_columnize (self, c, tokens, &num_tokens);
-        lw_radicalsdictionary_load_columns (self, contents, tokens, num_tokens, line);
-        if (progress != NULL)
-        {
-          lw_progress_set_current (progress, c - contents);
-        }
-        i++;
-        while (c < e && *c != '\0') c = g_utf8_next_char (c);
-      }
-    }
-
-    if (progress != NULL)
-    {
-      lw_progress_set_current (progress, content_length);
-      lw_progress_set_completed (progress, TRUE);
-    }
-
-errored:
-
-    g_free (tokens); tokens = NULL;
-    if (parsed != NULL) g_object_unref (parsed); parsed = NULL;
-}
-

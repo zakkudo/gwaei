@@ -6,7 +6,7 @@ G_BEGIN_DECLS
 typedef enum
 {
   PROP_0,
-  PROP_CONTENTS_MAPPEDFILE,
+  PROP_CACHEFILE,
   PROP_CONTENTS,
   PROP_CONTENT_LENGTH,
   TOTAL_PROPS
@@ -22,7 +22,7 @@ struct _LwParsedPrivate {
   gchar *contents; //! < The reference point of each strv
   gsize content_length;
   LwParsedLine *lines; //! < A set of categorized strvs
-  LwMappedFile *contents_mappedfile;
+  LwCacheFile *cache_file;
 };
 
 struct _LwParsedClassPrivate {
@@ -35,7 +35,7 @@ struct _LwParsedClassPrivate {
 static gsize lw_parsed_serialize (LwParsed *self, gchar *preallocated_buffer, LwProgress *progress);
 static gsize lw_parsed_deserialize_into (LwParsed *self, const gchar *serialized_data, gsize serialized_length, LwProgress *progress);
 
-static void lw_parsed_set_contents_mappedfile (LwParsed * self, LwMappedFile * contents_mappedfile);
+static void lw_parsed_set_cachefile (LwParsed * self, LwCacheFile * cache_file);
 
 G_END_DECLS
 

@@ -57,16 +57,16 @@ struct _DeserializeData {
 
 
 LwParsed*
-lw_parsed_new (LwMappedFile *contents_mappedfile)
+lw_parsed_new (LwCacheFile *cache_file)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_MAPPEDFILE (contents_mappedfile), NULL);
+    g_return_val_if_fail (LW_IS_CACHEFILE (cache_file), NULL);
 
     //Declarations
     LwParsed *self = NULL;
 
     //Initializations
-    self = LW_PARSED (g_object_new (LW_TYPE_PARSED, "contents-mappedfile", contents_mappedfile, NULL));
+    self = LW_PARSED (g_object_new (LW_TYPE_PARSED, "cache_file", cache_file, NULL));
 
     return self;
 }
@@ -92,7 +92,7 @@ lw_parsed_finalize (GObject *object)
     priv = self->priv;
 
     lw_parsed_set_lines (self, NULL, 0);
-    lw_parsed_set_contents_mappedfile (self, NULL);
+    lw_parsed_set_cachefile (self, NULL);
 
     G_OBJECT_CLASS (lw_parsed_parent_class)->finalize (object);
 }
@@ -114,8 +114,8 @@ lw_parsed_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_CONTENTS_MAPPEDFILE:
-        lw_parsed_set_contents_mappedfile (self, g_value_get_object (value));
+      case PROP_CACHEFILE:
+        lw_parsed_set_cachefile (self, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -140,8 +140,8 @@ lw_parsed_get_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_CONTENTS_MAPPEDFILE:
-        g_value_set_object (value, lw_parsed_get_contents_mappedfile (self));
+      case PROP_CACHEFILE:
+        g_value_set_object (value, lw_parsed_get_cachefile (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -160,14 +160,14 @@ lw_parsed_class_init (LwParsedClass *klass)
     object_class = G_OBJECT_CLASS (klass);
     object_class->finalize = lw_parsed_finalize;
 
-    klass->priv->pspec[PROP_CONTENTS_MAPPEDFILE] = g_param_spec_object (
-      "contents-mappedfile",
+    klass->priv->pspec[PROP_CACHEFILE] = g_param_spec_object (
+      "cache_file",
       gettext("Contents Mapped File"),
       "Contents of the parsed object. This data is not necessarily human readable.",
-      LW_TYPE_MAPPEDFILE,
+      LW_TYPE_CACHEFILE,
       G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_CONTENTS_MAPPEDFILE, klass->priv->pspec[PROP_CONTENTS_MAPPEDFILE]);
+    g_object_class_install_property (object_class, PROP_CACHEFILE, klass->priv->pspec[PROP_CACHEFILE]);
 
     klass->priv->pspec[PROP_CONTENTS] = g_param_spec_string (
       "contents",
@@ -456,12 +456,12 @@ errored:
 
 
 static void
-lw_parsed_set_contents_mappedfile (LwParsed     * self,
-                                   LwMappedFile * contents_mappedfile)
+lw_parsed_set_cachefile (LwParsed    * self,
+                         LwCacheFile * cache_file)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_PARSED (self));
-    g_return_if_fail (LW_IS_MAPPEDFILE (contents_mappedfile));
+    g_return_if_fail (LW_IS_CACHEFILE (cache_file));
 
     //Declarations
     LwParsedPrivate *priv = NULL;
@@ -470,29 +470,29 @@ lw_parsed_set_contents_mappedfile (LwParsed     * self,
     //Initializations
     priv = self->priv;
     klass = LW_PARSED_GET_CLASS (self);
-    if (contents_mappedfile == priv->contents_mappedfile) goto errored;
+    if (cache_file == priv->cache_file) goto errored;
 
-    if (contents_mappedfile != NULL)
+    if (cache_file != NULL)
     {
-      g_object_ref (contents_mappedfile);
+      g_object_ref (cache_file);
     }
 
-    if (priv->contents_mappedfile != NULL)
+    if (priv->cache_file != NULL)
     {
-      g_object_unref (priv->contents_mappedfile);
+      g_object_unref (priv->cache_file);
       priv->contents = NULL;
       priv->content_length = 0;
     }
 
-    priv->contents_mappedfile = priv->contents_mappedfile;
+    priv->cache_file = priv->cache_file;
 
-    if (priv->contents_mappedfile != NULL)
+    if (priv->cache_file != NULL)
     {
-      priv->contents = lw_mappedfile_get_contents (priv->contents_mappedfile);
-      priv->content_length = lw_mappedfile_length (priv->contents_mappedfile);
+      priv->contents = lw_cachefile_get_contents (priv->cache_file);
+      priv->content_length = lw_cachefile_length (priv->cache_file);
     }
 
-    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CONTENTS_MAPPEDFILE]);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CACHEFILE]);
 
 errored:
 
@@ -500,8 +500,8 @@ errored:
 }
 
 
-LwMappedFile*
-lw_parsed_get_contents_mappedfile (LwParsed * self)
+LwCacheFile*
+lw_parsed_get_cachefile (LwParsed * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
@@ -512,6 +512,6 @@ lw_parsed_get_contents_mappedfile (LwParsed * self)
     //Initializations
     priv = self->priv;
 
-    return priv->contents_mappedfile;
+    return priv->cache_file;
 }
 

@@ -54,8 +54,6 @@ GType lw_dictionarycolumnhandling_get_type (void);
 #define LW_DICTIONARYCOLUMNHANDLINGNICK_FILTER_ONLY "filter-only"
 
 
-typedef LwParsed*(*LwDictionaryParseFunc)(LwDictionary*, gchar*, gsize, LwProgress*);
-
 //Methods
 LwDictionary * lw_dictionary_new (GType type, gchar const * FILENAME);
 GType lw_dictionary_get_type (void) G_GNUC_CONST;
@@ -99,9 +97,7 @@ gint lw_dictionary_num_lines (LwDictionary *self);
 
 gboolean  lw_dictionary_uninstall (LwDictionary *self);
 
-LwParsed* lw_dictionary_parse (LwDictionary *self, gchar *contents, gsize content_length, LwProgress *progress);
-
-LwMappedFile* lw_dictionary_get_contents_mappedfile (LwDictionary * self);
+LwParsed* lw_dictionary_parse (LwDictionary * self, LwCacheFile * cache_file, LwProgress * progress);
 
 gchar const * lw_dictionary_get_install_directory ();
 gchar * lw_dictionary_build_path_by_type_and_name (GType type, gchar const * FILENAME);

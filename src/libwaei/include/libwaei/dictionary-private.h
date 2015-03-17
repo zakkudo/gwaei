@@ -15,7 +15,7 @@ typedef enum
   PROP_CHECKSUM,
   PROP_CONTENTS,
   PROP_CONTENT_LENGTH,
-  PROP_CONTENTS_MAPPEDFILE,
+  PROP_CACHEFILE,
   TOTAL_PROPS
 } LwDictionaryProps;
 
@@ -35,8 +35,7 @@ struct _LwDictionaryPrivate {
   gchar *filename;
   gchar *id;
 
-  LwMappedFile *contents_mappedfile;
-  gchar *checksum;
+  LwCacheFile *cachefile;
 };
 
 struct _LwDictionaryClassPrivate {
@@ -46,22 +45,21 @@ struct _LwDictionaryClassPrivate {
   gchar *install_path;
 
   //Virtual methods
-  LwDictionaryParseFunc parse;
   gint (* get_total_columns) (LwDictionary * self);
   gchar const * (* get_column_language) (LwDictionary * self, gint column_num);
   LwDictionaryColumnHandling (* get_column_handling) (LwDictionary * self, gint column_num);
+  gchar** (* columnize) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
+  void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));
 
 //Properties
 
-static void lw_dictionary_set_checksum (LwDictionary * self, gchar const * CHECKSUM);
-static void lw_dictionary_sync_checksum (LwDictionary * self);
+static LwCacheFile* lw_dictionary_get_cachefile (LwDictionary * self);
+static void lw_dictionary_set_cachefile (LwDictionary * self, LwCacheFile * cachefile);
 
-static void lw_dictionary_set_contents_mappedfile (LwDictionary * self, LwMappedFile * contents_mappedfile);
-
-static void lw_dictionary_sync_contents_mappedfile (LwDictionary * self);
+static void lw_dictionary_sync_cachefile (LwDictionary * self);
 
 static void lw_dictionary_sync_path (LwDictionary * self);
 static gchar * lw_dictionary_build_path (LwDictionary * self);
