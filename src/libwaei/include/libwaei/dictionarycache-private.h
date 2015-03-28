@@ -30,7 +30,7 @@ struct _LwDictionaryCacheClassPrivate {
 
 static void lw_dictionarycache_set_flags (LwDictionaryCache *self, LwUtf8Flag flags);
 
-static gchar* lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache *self, gchar const *CONTENTS, gsize content_length, LwProgress  *progress);
+static gchar* lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache *self, gchar const *CHECKSUM, gchar const *CONTENTS, gsize content_length, LwProgress  *progress);
 
 static void lw_dictionarycache_clear (LwDictionaryCache *self);
 

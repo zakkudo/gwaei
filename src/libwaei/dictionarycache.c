@@ -301,12 +301,14 @@ errored:
 
 static LwCacheFile *
 _map_contents (LwDictionaryCache * self,
+               gchar const       * CHECKSUM,
                gchar const       * CONTENTS,
                gsize               content_length,
                LwProgress        * progress)
 {
 		//Sanity checks
 		g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+    g_return_val_if_fail (CHECKSUM != NULL, NULL);
 		g_return_val_if_fail (CONTENTS != NULL, NULL);
 		g_return_val_if_fail (content_length > 0, NULL);
     g_return_val_if_fail (LW_IS_PROGRESS (progress), NULL);
@@ -317,7 +319,7 @@ _map_contents (LwDictionaryCache * self,
 		LwCacheFile * cache_file = NULL;
 
     //Copy and normalize the dictionary contents
-    path = lw_dictionarycache_write_normalized_temporary_file (self, CONTENTS, content_length, progress);
+    path = lw_dictionarycache_write_normalized_temporary_file (self, CHECKSUM, CONTENTS, content_length, progress);
     if (path == NULL) goto errored;
 
     cache_file = lw_cachefile_new (path);
@@ -398,7 +400,7 @@ lw_dictionarycache_write (LwDictionaryCache          * self,
     LwCacheFile *indexed_cachefile = NULL;
 
     //Map the dictionary contents to a normalized file
-		mapped_contents = _map_contents (self, CONTENTS, content_length, progress);
+		mapped_contents = _map_contents (self, CHECKSUM, CONTENTS, content_length, progress);
 		if (mapped_contents == NULL) goto errored;
 
     //Parse the dictionary, tokenizing the contents inline in the mapped file
@@ -981,12 +983,14 @@ errored:
 
 static gchar *
 lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
+                                                    gchar const       * CHECKSUM,
                                                     gchar const       * CONTENTS,
                                                     gsize               content_length,
                                                     LwProgress        * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
+    g_return_if_fail (CHECKSUM != NULL);
     g_return_if_fail (CONTENTS != NULL);
     g_return_if_fail (LW_IS_PROGRESS (progress));
     if (lw_progress_should_abort (progress)) return NULL;
@@ -1015,6 +1019,7 @@ lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
 
     //Write to it
     data.stream = g_fopen (path, "w+");
+    fwrite(CHECKSUM, sizeof(gchar), strlen(CHECKSUM), data.stream);
     lw_utf8_normalize_chunked (CONTENTS, content_length, flags, (LwUtf8ChunkHandler) lw_io_write_chunk, &data, progress);
     if (lw_progress_should_abort (progress)) goto errored;
 
