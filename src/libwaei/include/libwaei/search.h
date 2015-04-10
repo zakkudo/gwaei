@@ -3,6 +3,7 @@
 
 #include "preferences.h"
 #include "dictionary.h"
+#include "utf8.h"
 
 G_BEGIN_DECLS
 

@@ -4,6 +4,7 @@
 #include <libwaei/definitions.h>
 #include <libwaei/utf8.h>
 #include <libwaei/regex.h>
+#include <libwaei/parenthesisnode.h>
 #include <libwaei/progress.h>
 #include <libwaei/io.h>
 #include <libwaei/serializable.h>

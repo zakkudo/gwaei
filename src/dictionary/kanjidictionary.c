@@ -125,7 +125,6 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
     object_class->constructed = lw_kanjidictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_kanjidictionary_parse;
     dictionary_class->priv->get_column_handling = lw_kanjidictionary_get_column_handling;
     dictionary_class->priv->get_total_columns = lw_kanjidictionary_get_total_columns;
     dictionary_class->priv->get_column_language = lw_kanjidictionary_get_column_language;

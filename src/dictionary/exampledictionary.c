@@ -123,7 +123,6 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
     object_class->constructed = lw_exampledictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->parse = (LwDictionaryParseFunc) lw_exampledictionary_parse;
     dictionary_class->priv->get_column_handling = lw_exampledictionary_get_column_handling;
     dictionary_class->priv->get_total_columns = lw_exampledictionary_get_total_columns;
     dictionary_class->priv->get_column_language = lw_exampledictionary_get_column_language;

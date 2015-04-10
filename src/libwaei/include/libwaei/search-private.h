@@ -32,7 +32,7 @@ typedef enum {
   TOTAL_CLASS_SIGNALIDS
 } ClassSignalId;
 
-struct _Data {
+struct _LwSearchPrivate {
   LwMorphologyString *query;
   LwSearchStatus status;                  //!< Used to test if a search is in progress.
   //LwMorphologyEngine *morphologyengine;
@@ -43,16 +43,9 @@ struct _Data {
   LwProgress *progress;
 
   GRegex *regex;
-};
 
-struct _Config {
   LwSearchFlag flags;
   gint max_results;
-};
-
-struct _LwSearchPrivate {
-  struct _Data data;
-  struct _Config config;
 };
 
 struct _LwSearchClassPrivate {

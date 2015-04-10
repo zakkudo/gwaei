@@ -1550,14 +1550,14 @@ lw_utf8_delimit_script_changes (const gchar *DELIMITOR, const gchar* TEXT, gbool
     g_return_val_if_fail (DELIMITOR != NULL && TEXT != NULL, NULL);
 
     //Declarations
-    gchar *buffer;
-    gint count;
-    const gchar *source_ptr;
-    gchar *target_ptr;
-    GUnicodeScript this_script, previous_script;
-    gunichar c;
-    gboolean script_changed;
-    gint delimitor_length;
+    gchar *buffer = NULL;
+    gint count = 0;
+    const gchar *source_ptr = NULL;
+    gchar *target_ptr = NULL;
+    GUnicodeScript this_script = 0, previous_script = 0;
+    gunichar c = 0;
+    gboolean script_changed = 0;
+    gint delimitor_length = 0;
 
     //Initializations
     count = 0;
@@ -1941,4 +1941,22 @@ errored:
     if (num_lines != NULL) *num_lines = count;
 
     return lines;
+}
+
+
+gboolean
+lw_utf8_isescaped (gchar const * TEXT,
+                   gchar const * CHAR_PTR)
+{
+    gboolean is_escaped = FALSE;
+
+    while (CHAR_PTR > TEXT)
+    {
+      if (*(CHAR_PTR-1) == '\\')
+      {
+        is_escaped = !is_escaped;
+      }
+      CHAR_PTR--;
+    }
+    return is_escaped;
 }
