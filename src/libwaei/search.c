@@ -620,7 +620,7 @@ lw_search_get_status (LwSearch *self)
 
 
 GType
-lw_searchflags_get_type ()
+lw_searchflag_get_type ()
 {
     static GType type = 0;
 

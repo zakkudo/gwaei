@@ -982,16 +982,22 @@ lw_dictionarylist_find (LwDictionaryList* self,
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
     gchar *id = NULL;
+    gchar * normalized = NULL;
     LwDictionary *dictionary = NULL;
 
     //Initializations
     priv = self->priv;
-    id = g_utf8_casefold (lw_dictionary_build_id_from_type (TYPE, FILENAME), -1);
-    dictionary = lw_dictionarylist_find_by_id (self, id);
+    id = g_strdup_printf ("%s/%s", g_type_name (TYPE), FILENAME);
+    if (id == NULL) goto errored;
+    normalized = g_utf8_casefold (id, -1);
+    if (normalized == NULL) goto errored;
+
+    dictionary = lw_dictionarylist_find_by_id (self, normalized);
 
 errored:
 
-    if (id != NULL) g_free (id); id = NULL;
+    g_free (id); id = NULL;
+    g_free (normalized); normalized = NULL;
 
     return dictionary;
 }

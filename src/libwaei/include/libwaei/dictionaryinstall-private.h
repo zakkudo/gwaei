@@ -33,7 +33,7 @@ struct _Index {
   GHashTable *id;
 };
 
-struct _Data {
+struct _LwDictionaryInstallPrivate {
   struct _Index index;
   gchar *id;
   gchar *name;
@@ -47,16 +47,9 @@ struct _Data {
   LwProgress *progress;
   LwDictionaryInstallStateHistory *history;
   gchar *install_path;
-};
 
-struct _Config {
   gboolean merge_radicals_into_kanji;
   gboolean split_places_from_names;
-};
-
-struct _LwDictionaryInstallPrivate {
-  struct _Data data;
-  struct _Config config;
 };
 
 

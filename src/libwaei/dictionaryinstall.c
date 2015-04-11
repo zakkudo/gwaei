@@ -83,7 +83,7 @@ lw_dictionaryinstall_init (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    priv->data.history = lw_dictionaryinstallstatehistory_new ();
+    priv->history = lw_dictionaryinstallstatehistory_new ();
 }
 
 
@@ -370,13 +370,13 @@ lw_dictionaryinstall_set_name (LwDictionaryInstall *self,
     priv = self->priv;
     klass = LW_DICTIONARYINSTALL_CLASS (self);
     klasspriv = klass->priv;
-    if (g_strcmp0 (NAME, priv->data.name) == 0)
+    if (g_strcmp0 (NAME, priv->name) == 0)
     {
       goto errored;
     }
 
-    g_free (priv->data.name);
-    priv->data.name = g_strdup (NAME);
+    g_free (priv->name);
+    priv->name = g_strdup (NAME);
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_NAME]);
 
@@ -401,7 +401,7 @@ lw_dictionaryinstall_get_name (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.name;
+    return priv->name;
 }
                         
 
@@ -422,14 +422,14 @@ lw_dictionaryinstall_set_description (LwDictionaryInstall *self,
     priv = self->priv;
     klass = LW_DICTIONARYINSTALL_CLASS (self);
     klasspriv = klass->priv;
-    changed = (g_strcmp0 (DESCRIPTION, priv->data.description) != 0);
+    changed = (g_strcmp0 (DESCRIPTION, priv->description) != 0);
 
-    if (priv->data.description != NULL)
+    if (priv->description != NULL)
     {
-      g_free (priv->data.description);
+      g_free (priv->description);
     }
 
-    priv->data.description = g_strdup (DESCRIPTION);
+    priv->description = g_strdup (DESCRIPTION);
 
     if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DESCRIPTION]);
 }
@@ -447,7 +447,7 @@ lw_dictionaryinstall_get_description (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.description;
+    return priv->description;
 }
 
 
@@ -468,14 +468,14 @@ lw_dictionaryinstall_set_text_encoding (LwDictionaryInstall *self,
     priv = self->priv;
     klass = LW_DICTIONARYINSTALL_CLASS (self);
     klasspriv = klass->priv;
-    changed = (g_strcmp0 (TEXT_ENCODING, priv->data.text_encoding) != 0);
+    changed = (g_strcmp0 (TEXT_ENCODING, priv->text_encoding) != 0);
 
-    if (priv->data.text_encoding != NULL)
+    if (priv->text_encoding != NULL)
     {
-      g_free (priv->data.text_encoding);
+      g_free (priv->text_encoding);
     }
 
-    priv->data.text_encoding = g_strdup (TEXT_ENCODING);
+    priv->text_encoding = g_strdup (TEXT_ENCODING);
 
     if (changed) g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_TEXT_ENCODING]);
 }
@@ -493,7 +493,7 @@ lw_dictionaryinstall_get_text_encoding (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.text_encoding;
+    return priv->text_encoding;
 }
 
 void
@@ -513,12 +513,12 @@ lw_dictionaryinstall_set_gtype (LwDictionaryInstall *self,
     priv = self->priv;
     klass = LW_DICTIONARYINSTALL_CLASS (self);
     klasspriv = klass->priv;
-    if (gtype == priv->data.gtype)
+    if (gtype == priv->gtype)
     {
       goto errored;
     }
     
-    priv->data.gtype = gtype;
+    priv->gtype = gtype;
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_GTYPE]);
     lw_dictionaryinstall_sync_id (self);
@@ -542,7 +542,7 @@ lw_dictionaryinstall_get_gtype (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
     
-    return priv->data.gtype;
+    return priv->gtype;
 }
 
 
@@ -563,11 +563,11 @@ lw_dictionaryinstall_set_download_key (LwDictionaryInstall *self,
     priv = self->priv;
     klass = LW_DICTIONARYINSTALL_CLASS (self);
     klasspriv = klass->priv;
-    changed = (g_strcmp0 (DOWNLOAD_KEY, priv->data.download_key) != 0);
+    changed = (g_strcmp0 (DOWNLOAD_KEY, priv->download_key) != 0);
     if (changed == FALSE) goto errored;
 
-    g_free (priv->data.download_key);
-    priv->data.download_key = g_strdup (DOWNLOAD_KEY);
+    g_free (priv->download_key);
+    priv->download_key = g_strdup (DOWNLOAD_KEY);
 
     lw_dictionaryinstall_sync_download_uri (self);
 
@@ -591,7 +591,7 @@ lw_dictionaryinstall_get_download_key (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.download_key;
+    return priv->download_key;
 }
 
 
@@ -612,11 +612,11 @@ lw_dictionaryinstall_set_download_uri (LwDictionaryInstall *self,
     priv = self->priv;
     klass = LW_DICTIONARYINSTALL_CLASS (self);
     klasspriv = klass->priv;
-    changed = (g_strcmp0 (DOWNLOAD_URI, priv->data.download_uri) != 0);
+    changed = (g_strcmp0 (DOWNLOAD_URI, priv->download_uri) != 0);
     if (changed == FALSE) goto errored;
 
-    g_free (priv->data.download_uri);
-    priv->data.download_uri = g_strdup (DOWNLOAD_URI);
+    g_free (priv->download_uri);
+    priv->download_uri = g_strdup (DOWNLOAD_URI);
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DOWNLOAD_URI]);
 
@@ -646,7 +646,7 @@ lw_dictionaryinstall_sync_download_uri (LwDictionaryInstall *self)
     KEY = lw_dictionaryinstall_get_download_key (self);
     if (KEY == NULL) goto errored;
     uri = lw_preferences_get_string_by_schema (preferences, LW_SCHEMA_DICTIONARY, KEY);
-    changed = (g_strcmp0 (uri, priv->data.download_uri) != 0);
+    changed = (g_strcmp0 (uri, priv->download_uri) != 0);
     if (changed == FALSE) goto errored;
 
     lw_dictionaryinstall_set_download_uri (self, uri);
@@ -669,7 +669,7 @@ lw_dictionaryinstall_get_download_uri (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.download_uri;
+    return priv->download_uri;
 }
 
 
@@ -685,7 +685,7 @@ lw_dictionaryinstall_get_install_path (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.install_path;
+    return priv->install_path;
 }
 
 
@@ -714,10 +714,10 @@ lw_dictionaryinstall_sync_install_path (LwDictionaryInstall *self)
       path = lw_dictionary_build_path_by_type_and_name (type, FILENAME);
     }
 
-    if (g_strcmp0 (path, priv->data.install_path) == 0) goto errored;
+    if (g_strcmp0 (path, priv->install_path) == 0) goto errored;
 
-    g_free (priv->data.install_path);
-    priv->data.install_path = path;
+    g_free (priv->install_path);
+    priv->install_path = path;
     path = NULL;
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_INSTALL_PATH]);
@@ -745,7 +745,7 @@ lw_dictionaryinstall_set_preferences (LwDictionaryInstall *self,
     priv = self->priv;
     klass = LW_DICTIONARYINSTALL_CLASS (self);
     klasspriv = klass->priv;
-    changed = (preferences != priv->data.preferences);
+    changed = (preferences != priv->preferences);
     if (!changed) goto errored;
 
     if (preferences != NULL)
@@ -753,22 +753,22 @@ lw_dictionaryinstall_set_preferences (LwDictionaryInstall *self,
       g_object_ref (preferences);
     }
 
-    if (priv->data.preferences != NULL)
+    if (priv->preferences != NULL)
     {
       g_object_remove_weak_pointer (
-        G_OBJECT (priv->data.preferences),
-        (gpointer) &(priv->data.preferences)
+        G_OBJECT (priv->preferences),
+        (gpointer) &(priv->preferences)
       );
-      g_object_unref (priv->data.preferences);
+      g_object_unref (priv->preferences);
     }
 
-    priv->data.preferences = preferences;
+    priv->preferences = preferences;
 
-    if (priv->data.preferences != NULL)
+    if (priv->preferences != NULL)
     {
       g_object_add_weak_pointer (
-        G_OBJECT (priv->data.preferences),
-        (gpointer*) &(priv->data.preferences)
+        G_OBJECT (priv->preferences),
+        (gpointer*) &(priv->preferences)
       );
     }
 
@@ -793,7 +793,7 @@ lw_dictionaryinstall_get_preferences (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.preferences;
+    return priv->preferences;
 }
 
 
@@ -814,7 +814,7 @@ lw_dictionaryinstall_set_progress (LwDictionaryInstall *self,
     priv = self->priv;
     klass = LW_DICTIONARYINSTALL_CLASS (self);
     klasspriv = klass->priv;
-    changed = (progress != priv->data.progress);
+    changed = (progress != priv->progress);
     if (!changed) goto errored;
 
     if (progress != NULL)
@@ -822,22 +822,22 @@ lw_dictionaryinstall_set_progress (LwDictionaryInstall *self,
       g_object_ref (progress);
     }
 
-    if (priv->data.progress != NULL)
+    if (priv->progress != NULL)
     {
       g_object_remove_weak_pointer (
-        G_OBJECT (priv->data.progress),
-        (gpointer*) &(priv->data.progress)
+        G_OBJECT (priv->progress),
+        (gpointer*) &(priv->progress)
       );
-      g_object_unref (priv->data.progress);
+      g_object_unref (priv->progress);
     }
 
-    priv->data.progress = progress;
+    priv->progress = progress;
 
-    if (priv->data.progress != NULL)
+    if (priv->progress != NULL)
     {
       g_object_add_weak_pointer (
-        G_OBJECT (priv->data.progress),
-        (gpointer*) &(priv->data.progress)
+        G_OBJECT (priv->progress),
+        (gpointer*) &(priv->progress)
       );
     }
 
@@ -861,14 +861,14 @@ lw_dictionaryinstall_get_progress (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    if (priv->data.progress == NULL)
+    if (priv->progress == NULL)
     {
       LwProgress *progress = lw_progress_new ();
       lw_dictionaryinstall_set_progress (self, progress);
       progress = NULL;
     }
 
-    return priv->data.progress;
+    return priv->progress;
 }
 
 
@@ -884,7 +884,7 @@ lw_dictionaryinstall_get_dependancies (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.dependancies;
+    return priv->dependancies;
 }
 
 
@@ -905,7 +905,7 @@ lw_dictionaryinstall_set_dependancies (LwDictionaryInstall *self,
     priv = self->priv;
     klass = LW_DICTIONARYINSTALL_CLASS (self);
     klasspriv = klass->priv;
-    if (dependancies == priv->data.dependancies) goto errored;
+    if (dependancies == priv->dependancies) goto errored;
 
     {
       GList *link = NULL;
@@ -919,8 +919,8 @@ lw_dictionaryinstall_set_dependancies (LwDictionaryInstall *self,
       }
     }
 
-    g_list_free_full (priv->data.dependancies, (GDestroyNotify) lw_dependancy_free);
-    priv->data.dependancies = sanitized_list_copy;
+    g_list_free_full (priv->dependancies, (GDestroyNotify) lw_dependancy_free);
+    priv->dependancies = sanitized_list_copy;
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DEPENDENCIES]);
 
@@ -981,7 +981,7 @@ lw_dictionaryinstall_get_id (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    return priv->data.id;
+    return priv->id;
 }
 
 
@@ -1001,10 +1001,10 @@ lw_dictionaryinstall_set_id (LwDictionaryInstall *self,
     priv = self->priv;
     klass = LW_DICTIONARYINSTALL_CLASS (self);
     klasspriv = klass->priv;
-    if (g_strcmp0 (priv->data.id, ID) == 0) goto errored;
+    if (g_strcmp0 (priv->id, ID) == 0) goto errored;
 
-    g_free (priv->data.id);
-    priv->data.id = g_strdup (ID);
+    g_free (priv->id);
+    priv->id = g_strdup (ID);
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_ID]);
 
@@ -1027,12 +1027,16 @@ lw_dictionaryinstall_sync_id (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    if (g_type_is_a (priv->data.gtype, LW_TYPE_DICTIONARY) && priv->data.name)
-    {
-      id = lw_dictionary_build_id_from_type (priv->data.gtype, priv->data.name);
-    }
+    if (!g_type_is_a (priv->gtype, LW_TYPE_DICTIONARY) && priv->name) goto errored;
+    id = g_strdup_printf("%s/%s", g_type_name (priv->gtype), priv->name);
+    if (id == NULL) goto errored;
 
     lw_dictionaryinstall_set_id (self, id);
+
+errored:
+
+    g_free (id);
+    id = NULL;
 }
 
 /*
@@ -1133,7 +1137,7 @@ lw_dictionaryinstall_download (LwDictionaryInstall *self)
 {
     //Sanity check
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
-    if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
+    if (lw_progress_should_abort (self->priv->progress)) return FALSE;
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
@@ -1172,7 +1176,7 @@ lw_dictionaryinstall_download (LwDictionaryInstall *self)
       printf("BREAK %s %s\n", URI, target);
     }
 
-    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, STAGE_NAME, TRUE, targets);
+    lw_dictionaryinstallstatehistory_add_named_paths (priv->history, STAGE_NAME, TRUE, targets);
 
 errored:
 
@@ -1224,7 +1228,7 @@ lw_dictionaryinstall_decompress (LwDictionaryInstall *self)
 {
     //Sanity check
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
-    if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
+    if (lw_progress_should_abort (self->priv->progress)) return FALSE;
 
     //Declarations
 		LwDictionaryInstallPrivate *priv = NULL;
@@ -1240,11 +1244,11 @@ lw_dictionaryinstall_decompress (LwDictionaryInstall *self)
 
     //Initializations
 		priv = self->priv;
-    state = lw_dictionaryinstallstatehistory_current (priv->data.history);
+    state = lw_dictionaryinstallstatehistory_current (priv->history);
 
     lw_dictionaryinstallstate_foreach (state, (LwDictionaryInstallStateForeachFunc) _decompress, &data);
     data.targets = g_list_reverse (data.targets);
-    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, data.STAGE_NAME, TRUE, data.targets);
+    lw_dictionaryinstallstatehistory_add_named_paths (priv->history, data.STAGE_NAME, TRUE, data.targets);
 
 errored:
 
@@ -1299,7 +1303,7 @@ lw_dictionaryinstall_convert_text_encoding (LwDictionaryInstall *self)
 {
     //Sanity check
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
-    if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
+    if (lw_progress_should_abort (self->priv->progress)) return FALSE;
 
     //Declarations
 		LwDictionaryInstallPrivate *priv = NULL;
@@ -1315,12 +1319,12 @@ lw_dictionaryinstall_convert_text_encoding (LwDictionaryInstall *self)
 
     //Initializations
 		priv = self->priv;
-    state = lw_dictionaryinstallstatehistory_current (priv->data.history);
+    state = lw_dictionaryinstallstatehistory_current (priv->history);
     if (state == NULL) goto errored;
 
     lw_dictionaryinstallstate_foreach (state, (LwDictionaryInstallStateForeachFunc) _convert_text_encoding, &data);
     data.targets = g_list_reverse (data.targets);
-    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, data.STAGE_NAME, TRUE, data.targets);
+    lw_dictionaryinstallstatehistory_add_named_paths (priv->history, data.STAGE_NAME, TRUE, data.targets);
 
 errored:
 
@@ -1364,7 +1368,7 @@ lw_dictionaryinstall_finish (LwDictionaryInstall *self)
 {
     //Sanity check
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
-    if (lw_progress_should_abort (self->priv->data.progress)) return FALSE;
+    if (lw_progress_should_abort (self->priv->progress)) return FALSE;
 
     //Declarations
 		LwDictionaryInstallPrivate *priv = NULL;
@@ -1381,12 +1385,12 @@ lw_dictionaryinstall_finish (LwDictionaryInstall *self)
     //Initializations
 		priv = self->priv;
     progress = lw_dictionaryinstall_get_progress (self);
-    state = lw_dictionaryinstallstatehistory_current (priv->data.history);
+    state = lw_dictionaryinstallstatehistory_current (priv->history);
     if (state == NULL) goto errored;
 
     lw_dictionaryinstallstate_foreach (state, (LwDictionaryInstallStateForeachFunc) _finish, &data);
     data.targets = g_list_reverse (data.targets);
-    lw_dictionaryinstallstatehistory_add_named_paths (priv->data.history, data.STAGE_NAME, FALSE, data.targets);
+    lw_dictionaryinstallstatehistory_add_named_paths (priv->history, data.STAGE_NAME, FALSE, data.targets);
 
 errored:
 
@@ -1423,7 +1427,7 @@ lw_dictionaryinstall_clean_temporary_files (LwDictionaryInstall *self)
     //Initializations
     priv = self->priv;
 
-    lw_dictionaryinstallstatehistory_foreach (priv->data.history, _clean, NULL);
+    lw_dictionaryinstallstatehistory_foreach (priv->history, _clean, NULL);
 }
 
 
@@ -1432,7 +1436,7 @@ lw_dictionaryinstall_install (LwDictionaryInstall *self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), FALSE);
-    if (lw_progress_errored (self->priv->data.progress)) return FALSE;
+    if (lw_progress_errored (self->priv->progress)) return FALSE;
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;

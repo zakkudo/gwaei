@@ -357,7 +357,7 @@ _add_to_index (LwDictionaryInstallList *self,
     FILENAME = lw_dictionaryinstall_get_name (dictionaryinstall);
     type = lw_dictionaryinstall_get_gtype (dictionaryinstall);
     TYPENAME = g_type_name (type);
-    id = lw_dictionary_build_id_from_type (type, FILENAME);
+    id = g_strdup (lw_dictionaryinstall_get_id (dictionaryinstall));
 
     normalized_filename = lw_utf8_normalize (FILENAME, -1, LW_UTF8FLAG_ALL);
     normalized_typename = lw_utf8_normalize (TYPENAME, -1, LW_UTF8FLAG_ALL);
@@ -415,7 +415,7 @@ _remove_from_index (LwDictionaryInstallList *self,
     FILENAME = lw_dictionaryinstall_get_name (dictionaryinstall);
     type = lw_dictionaryinstall_get_gtype (dictionaryinstall);
     TYPENAME = g_type_name (type);
-    id = lw_dictionary_build_id_from_type (type, FILENAME);
+    id = g_strdup (lw_dictionaryinstall_get_id (dictionaryinstall));
 
     normalized_filename = lw_utf8_normalize (FILENAME, -1, LW_UTF8FLAG_ALL);
     normalized_typename = lw_utf8_normalize (TYPENAME, -1, LW_UTF8FLAG_ALL);
