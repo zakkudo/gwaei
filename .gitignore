@@ -120,6 +120,4 @@ ChangeLog
 ltmain.sh
 mkinstalldirs
 
-src/libwaei/tests/index
-src/libwaei/tests/morphology
-src/libwaei/tests/edictionary
+src/libwaei/tests/parenthesisnode

@@ -20,36 +20,42 @@ void index_test_teardown (Fixture *fixture, gconstpointer data) {}
 
 
 void
-parse_no_parenthesis_string (Fixture *fixture, gconstpointer data)
+parse_no_parenthesis_english_string (Fixture *fixture, gconstpointer data)
 {
-/*TODO
-    //Arrange
-    fixture->index = lw_index_new (fixture->engine);
+    //Declarations
+    LwParenthesisNode * root = NULL;
+    gchar const * TEXT = "test english search";
 
-    gint expected_offsets[] = { 10, 20, 35 };
-    gint expected_length = G_N_ELEMENTS (expected_offsets);
-    gint i = 0;
-    const gchar *KEY = "test";
-
-    for (i = 0; i < expected_length; i++)
-    {
-      lw_index_append_data_offset (fixture->index, KEY, expected_offsets[i]);
-    }
-
-    //Act
-    LwOffsets* actual_offsets = lw_index_get_data_offsets (fixture->index, KEY);
-    gint actual_length = lw_index_get_data_offsets_length (fixture->index, KEY);
+    //Initializations
+    root = lw_parenthesisnode_new (TEXT);
 
     //Assert
-    g_assert_cmpuint (expected_length, ==, actual_length);
+    LwParenthesisNode expected_root = {
+      .has_parenthesis = FALSE,
+      .refs = 1,
+      .OPEN = TEXT,
+      .CLOSE = TEXT + strlen(TEXT) - 1,
+      .explicit_children = NULL,
+      .children = root->children
+    }; 
 
-    for (i = 0; i < expected_length; i++)
-    {
-      g_assert_cmpuint (expected_offsets[i], ==, actual_offsets[i]);
-    }
+    g_assert (memcmp(&expected_root, root, sizeof(LwParenthesisNode)) == 0);
+    g_assert_cmpint (g_list_length (root->children), ==, 1);
 
-    lw_index_free (fixture->index);
-*/
+    LwParenthesisNode * node = NULL;
+    node = root->children->data;
+    
+    LwParenthesisNode expected_node = {
+      .has_parenthesis = FALSE,
+      .refs = 1,
+      .OPEN = TEXT,
+      .CLOSE = TEXT + strlen(TEXT) - 1,
+      .explicit_children = NULL,
+      .children = NULL,
+    };
+
+    lw_parenthesisnode_unref (root);
+    root = NULL;
 }
 
 
@@ -58,7 +64,7 @@ main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
-    g_test_add ("/libwaei/parenthesisnode/parse_no_parenthesis_string", Fixture, NULL, NULL, parse_no_parenthesis_string, NULL);
+    g_test_add ("/libwaei/parenthesisnode/parse_no_parenthesis_english_string", Fixture, NULL, NULL, parse_no_parenthesis_english_string, NULL);
 
     return g_test_run();
 }

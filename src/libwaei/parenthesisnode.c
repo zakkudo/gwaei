@@ -72,8 +72,7 @@ lw_parenthesischildnode_new (gchar const * OPEN,
                              gboolean      has_parenthesis)
 {
   //Sanity checks
-  g_return_val_if_fail (OPEN != NULL && CLOSE == NULL, NULL);
-  g_return_val_if_fail (OPEN == NULL && CLOSE != NULL, NULL);
+  g_return_val_if_fail (OPEN != NULL && CLOSE != NULL, NULL);
 
   //Declarations
   LwParenthesisNode * self = NULL;
@@ -126,7 +125,7 @@ lw_parenthesisnode_sync_children (LwParenthesisNode * self)
     gchar const * CLOSE = NULL;
 
     //Initializations
-    C = self->OPEN;
+    OPEN = C = self->OPEN;
 
     //Iterate adding parenthesis and non-parenthesis groups
     for (link = self->explicit_children; link != NULL; link = link->next)
@@ -264,6 +263,9 @@ errored:
 
     if (node) lw_parenthesisnode_unref (node);
     node = NULL;
+
+    g_free (OPEN);
+    OPEN = NULL;
 
     lw_parenthesisnode_set_explicit_children (self, children_out);
     children_out = NULL;
