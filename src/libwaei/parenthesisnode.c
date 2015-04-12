@@ -132,8 +132,8 @@ lw_parenthesisnode_sync_children (LwParenthesisNode * self)
     {
       node = LW_PARENTHESISNODE (link->data);
       CLOSE = node->OPEN;
-      if (CLOSE > OPEN && *CLOSE == '(') CLOSE--;  // Remove overlap
-      if (CLOSE > OPEN && *OPEN == '(') OPEN++;
+      if (*CLOSE == '(' || *CLOSE == ')') CLOSE--;  // Remove overlap
+      if (*OPEN == '(' || *OPEN == ')') OPEN++;
       if (OPEN <= CLOSE)
       {
         LwParenthesisNode *new_node = lw_parenthesischildnode_new (OPEN, CLOSE, FALSE);
@@ -146,8 +146,8 @@ lw_parenthesisnode_sync_children (LwParenthesisNode * self)
 
     //Get final non-parenthesis group
     CLOSE = self->CLOSE;
-    if (*CLOSE == '(' && CLOSE > OPEN) CLOSE--;  // Remove overlap
-    if (CLOSE > OPEN && *OPEN == '(') OPEN++;
+    if (*CLOSE == '(' || *CLOSE == ')') CLOSE--;  // Remove overlap
+    if (*OPEN == '(' || *OPEN == ')') OPEN++;
     if (OPEN < CLOSE)
     {
         LwParenthesisNode *new_node = lw_parenthesischildnode_new (OPEN, CLOSE, FALSE);
