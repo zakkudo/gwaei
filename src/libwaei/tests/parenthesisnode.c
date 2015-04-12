@@ -20,7 +20,7 @@ void index_test_teardown (Fixture *fixture, gconstpointer data) {}
 
 
 void
-parse_english_string_with_no_parenthesis (Fixture *fixture, gconstpointer data)
+parse_string_with_no_parenthesis (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     LwParenthesisNode * root = NULL;
@@ -64,7 +64,7 @@ parse_english_string_with_no_parenthesis (Fixture *fixture, gconstpointer data)
 
 
 void
-parse_english_string_with_single_parenthesis (Fixture *fixture, gconstpointer data)
+parse_string_with_single_parenthesis (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     LwParenthesisNode * root = NULL;
@@ -119,6 +119,104 @@ parse_english_string_with_single_parenthesis (Fixture *fixture, gconstpointer da
       g_assert (memcmp(&expected_node, node, sizeof(LwParenthesisNode)) == 0);
     }
 
+    g_assert (root->children->next->data == root->explicit_children->data);
+
+    lw_parenthesisnode_unref (root);
+    root = NULL;
+}
+
+
+void
+parse_string_with_embedded_parenthesis (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    LwParenthesisNode * root = NULL;
+    gchar const * TEXT = "1(2(3))";
+
+    //Initializations
+    root = lw_parenthesisnode_new (TEXT);
+
+    //Assert
+    LwParenthesisNode expected_root = {
+      .has_parenthesis = FALSE,
+      .refs = 1,
+      .OPEN = TEXT,
+      .CLOSE = TEXT + strlen(TEXT) - 1,
+      .explicit_children = root->explicit_children,
+      .children = root->children
+    }; 
+
+    g_assert (memcmp(&expected_root, root, sizeof(LwParenthesisNode)) == 0);
+    g_assert_cmpint (g_list_length (root->explicit_children), ==, 1);
+    g_assert_cmpint (g_list_length (root->children), ==, 2);
+
+    {
+      LwParenthesisNode * node = NULL;
+      node = root->children->data;
+      
+      LwParenthesisNode expected_node = {
+        .has_parenthesis = FALSE,
+        .refs = 1,
+        .OPEN = TEXT,
+        .CLOSE = TEXT,
+        .explicit_children = NULL,
+        .children = NULL,
+      };
+
+      g_assert (memcmp(&expected_node, node, sizeof(LwParenthesisNode)) == 0);
+    }
+
+    {
+      LwParenthesisNode * node = NULL;
+      node = root->children->next->data;
+      
+      LwParenthesisNode expected_node = {
+        .has_parenthesis = TRUE,
+        .refs = 2,
+        .OPEN = TEXT + strlen("1"),
+        .CLOSE = TEXT + strlen("1(2(3))") - 1,
+        .explicit_children = node->explicit_children,
+        .children = node->children,
+      };
+
+      g_assert (memcmp(&expected_node, node, sizeof(LwParenthesisNode)) == 0);
+    }
+
+    {
+      LwParenthesisNode * node = NULL;
+      node = LW_PARENTHESISNODE (root->children->next->data)->children->data;
+      
+      LwParenthesisNode expected_node = {
+        .has_parenthesis = FALSE,
+        .refs = 1,
+        .OPEN = TEXT + strlen("1("),
+        .CLOSE = TEXT + strlen("1(2") - 1,
+        .explicit_children = NULL,
+        .children = NULL,
+      };
+
+      g_assert (memcmp(&expected_node, node, sizeof(LwParenthesisNode)) == 0);
+    }
+
+    {
+      LwParenthesisNode * node = NULL;
+      node = LW_PARENTHESISNODE (root->children->next->data)->children->next->data;
+      
+      LwParenthesisNode expected_node = {
+        .has_parenthesis = TRUE,
+        .refs = 2,
+        .OPEN = TEXT + strlen("1(2"),
+        .CLOSE = TEXT + strlen("1(2(3)") - 1,
+        .explicit_children = NULL,
+        .children = NULL,
+      };
+
+      g_assert (memcmp(&expected_node, node, sizeof(LwParenthesisNode)) == 0);
+    }
+
+    g_assert (root->children->next->data == root->explicit_children->data);
+    g_assert (LW_PARENTHESISNODE (root->children->next->data)->children->next->data == LW_PARENTHESISNODE (root->explicit_children->data)->explicit_children->data);
+
     lw_parenthesisnode_unref (root);
     root = NULL;
 }
@@ -129,8 +227,9 @@ main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
-    g_test_add ("/libwaei/parenthesisnode/parse_english_string_with_no_parenthesis", Fixture, NULL, NULL, parse_english_string_with_no_parenthesis, NULL);
-    g_test_add ("/libwaei/parenthesisnode/parse_english_string_with_single_parenthesis", Fixture, NULL, NULL, parse_english_string_with_single_parenthesis, NULL);
+    //g_test_add ("/libwaei/parenthesisnode/parse_string_with_no_parenthesis", Fixture, NULL, NULL, parse_string_with_no_parenthesis, NULL);
+    //g_test_add ("/libwaei/parenthesisnode/parse_string_with_single_parenthesis", Fixture, NULL, NULL, parse_string_with_single_parenthesis, NULL);
+    g_test_add ("/libwaei/parenthesisnode/parse_string_with_embedded_parenthesis", Fixture, NULL, NULL, parse_string_with_embedded_parenthesis, NULL);
 
     return g_test_run();
 }

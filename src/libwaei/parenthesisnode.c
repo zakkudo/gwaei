@@ -131,10 +131,10 @@ lw_parenthesisnode_sync_children (LwParenthesisNode * self)
     for (link = self->explicit_children; link != NULL; link = link->next)
     {
       node = LW_PARENTHESISNODE (link->data);
-      OPEN = C;
       CLOSE = node->OPEN;
-      if (*CLOSE == '(' && CLOSE > OPEN) CLOSE--;  // Remove overlap
-      if (OPEN < CLOSE)
+      if (CLOSE > OPEN && *CLOSE == '(') CLOSE--;  // Remove overlap
+      if (CLOSE > OPEN && *OPEN == '(') OPEN++;
+      if (OPEN <= CLOSE)
       {
         LwParenthesisNode *new_node = lw_parenthesischildnode_new (OPEN, CLOSE, FALSE);
         if (new_node == NULL) goto errored;
@@ -147,6 +147,7 @@ lw_parenthesisnode_sync_children (LwParenthesisNode * self)
     //Get final non-parenthesis group
     CLOSE = self->CLOSE;
     if (*CLOSE == '(' && CLOSE > OPEN) CLOSE--;  // Remove overlap
+    if (CLOSE > OPEN && *OPEN == '(') OPEN++;
     if (OPEN < CLOSE)
     {
         LwParenthesisNode *new_node = lw_parenthesischildnode_new (OPEN, CLOSE, FALSE);
@@ -154,6 +155,7 @@ lw_parenthesisnode_sync_children (LwParenthesisNode * self)
         children = g_list_prepend (children, new_node);
     }
 
+    g_list_free_full (self->children, (GDestroyNotify) lw_parenthesisnode_unref);
     self->children = g_list_reverse (children);
     children = NULL;
 
@@ -192,7 +194,26 @@ lw_parenthesisnode_contains (LwParenthesisNode * self,
     g_return_val_if_fail (self != NULL, FALSE);
     g_return_val_if_fail (other != NULL, FALSE);
 
-    return (self->OPEN >= other->OPEN && self->CLOSE <= other->CLOSE);
+    return (self->OPEN <= other->OPEN && self->CLOSE >= other->CLOSE);
+}
+
+
+static GList*
+lw_parenthesisnode_take_children (LwParenthesisNode * self, GList * nodes)
+{
+    GList * children = NULL;
+    GList * child = NULL;
+
+    while (nodes != NULL && lw_parenthesisnode_contains (self, nodes->data)) {
+      child = nodes;
+      nodes = g_list_remove_link (nodes, nodes);
+      children = g_list_concat (child, children);
+    }
+
+    lw_parenthesisnode_set_explicit_children (self, children);
+    children = NULL;
+
+    return nodes;
 }
 
 
@@ -225,25 +246,21 @@ lw_parenthesisnode_parse_string (LwParenthesisNode * self,
       {
         if ((*C == '(' || *C == '[') && !isescaped)
         {
-          OPEN[num_open++] = C;
+          OPEN[num_open] = C;
+          num_open++;
         }
         else if (*C == ')' && !isescaped)
         {
           if (num_open < 1) goto errored;
-          node = lw_parenthesischildnode_new (OPEN[--num_open], C, TRUE);
+          num_open--;
+          node = lw_parenthesischildnode_new (OPEN[num_open], C, TRUE);
+
           if (children != NULL && lw_parenthesisnode_contains (node, children->data))
           {
-            //Take ownership of the children pairs
-            children = g_list_reverse (children);
-            lw_parenthesisnode_set_explicit_children (node, children);
-            children = NULL;
-            children = g_list_prepend (children, node);
+            children = lw_parenthesisnode_take_children (node, children);
           }
-          else
-          {
-            //Is another child/sibling node to the pairs
-            children = g_list_prepend (children, node);
-          }
+          //Is another child/sibling node to the pairs
+          children = g_list_prepend (children, node);
           node = NULL;
         }
       }

@@ -11,7 +11,7 @@ struct _LwParenthesisNode {
 };
 typedef struct _LwParenthesisNode LwParenthesisNode;
 
-#define LW_PARENTHESISNODE(obj) (LwParenthesisNode*)(obj)
+#define LW_PARENTHESISNODE(obj) ((LwParenthesisNode*)(obj))
 GType lw_parenthesisnode_get_type (void);
 
 
