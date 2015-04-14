@@ -17,7 +17,7 @@ GType lw_parenthesisnode_get_type (void);
 
 //Methods
 
-LwParenthesisNode* lw_parenthesisnode_new (gchar const * TEXT);
+LwParenthesisNode* lw_parenthesisnode_new_tree_from_string (gchar const * TEXT);
 gboolean lw_parenthesisnode_contains (LwParenthesisNode * self, LwParenthesisNode * other);
 void lw_parenthesisnode_unref (LwParenthesisNode *self);
 LwParenthesisNode * lw_parenthesisnode_ref (LwParenthesisNode * self);

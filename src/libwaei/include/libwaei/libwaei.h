@@ -5,6 +5,7 @@
 #include <libwaei/utf8.h>
 #include <libwaei/regex.h>
 #include <libwaei/parenthesisnode.h>
+#include <libwaei/querynode.h>
 #include <libwaei/progress.h>
 #include <libwaei/io.h>
 #include <libwaei/serializable.h>

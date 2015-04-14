@@ -42,34 +42,10 @@
 static void lw_parenthesisnode_parse_string (LwParenthesisNode * self, gchar const * TEXT);
 
 
-LwParenthesisNode*
-lw_parenthesisnode_new (gchar const * TEXT)
-{
-  //Sanity checks
-  g_return_val_if_fail (TEXT != NULL, NULL);
-
-  //Declarations
-  LwParenthesisNode * self = NULL;
-
-  //Inititalizations
-  self = g_new0 (LwParenthesisNode, 1);
-  if (self == NULL) goto errored;
-  self->refs = 1;
-  self->has_parenthesis = FALSE;
-  self->OPEN = TEXT;
-  self->CLOSE = (*TEXT == '\0') ? TEXT : TEXT + strlen(TEXT) - 1;
-  lw_parenthesisnode_parse_string (self, TEXT);
-
-errored:
-
-  return self;
-}
-
-
 static LwParenthesisNode*
-lw_parenthesischildnode_new (gchar const * OPEN,
-                             gchar const * CLOSE,
-                             gboolean      has_parenthesis)
+lw_parenthesisnode_new (gchar const * OPEN,
+                        gchar const * CLOSE,
+                        gboolean      has_parenthesis)
 {
   //Sanity checks
   g_return_val_if_fail (OPEN != NULL && CLOSE != NULL, NULL);
@@ -90,6 +66,30 @@ errored:
   return self;
 }
 
+
+LwParenthesisNode*
+lw_parenthesisnode_new_tree_from_string (gchar const * TEXT)
+{
+  //Sanity checks
+  g_return_val_if_fail (TEXT != NULL, NULL);
+
+  //Declarations
+  LwParenthesisNode * self = NULL;
+  gchar const * OPEN = NULL;
+  gchar const * CLOSE = NULL;
+
+  //Inititalizations
+  OPEN = TEXT;
+  CLOSE = (*TEXT == '\0') ? TEXT : TEXT + strlen(TEXT) - 1;
+  self = lw_parenthesisnode_new (OPEN, CLOSE, FALSE);
+  if (self == NULL) goto errored;
+
+  lw_parenthesisnode_parse_string (self, TEXT);
+
+errored:
+
+  return self;
+}
 
 
 GType
@@ -136,7 +136,7 @@ lw_parenthesisnode_sync_children (LwParenthesisNode * self)
       if (*OPEN == '(' || *OPEN == ')') OPEN++;
       if (OPEN <= CLOSE)
       {
-        LwParenthesisNode *new_node = lw_parenthesischildnode_new (OPEN, CLOSE, FALSE);
+        LwParenthesisNode *new_node = lw_parenthesisnode_new (OPEN, CLOSE, FALSE);
         if (new_node == NULL) goto errored;
         children = g_list_prepend (children, new_node);
       }
@@ -150,7 +150,7 @@ lw_parenthesisnode_sync_children (LwParenthesisNode * self)
     if (*OPEN == '(' || *OPEN == ')') OPEN++;
     if (OPEN < CLOSE)
     {
-        LwParenthesisNode *new_node = lw_parenthesischildnode_new (OPEN, CLOSE, FALSE);
+        LwParenthesisNode *new_node = lw_parenthesisnode_new (OPEN, CLOSE, FALSE);
         if (new_node == NULL) goto errored;
         children = g_list_prepend (children, new_node);
     }
@@ -253,7 +253,7 @@ lw_parenthesisnode_parse_string (LwParenthesisNode * self,
         {
           if (num_open < 1) goto errored;
           num_open--;
-          node = lw_parenthesischildnode_new (OPEN[num_open], C, TRUE);
+          node = lw_parenthesisnode_new (OPEN[num_open], C, TRUE);
 
           if (children != NULL && lw_parenthesisnode_contains (node, children->data))
           {
