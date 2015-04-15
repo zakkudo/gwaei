@@ -1,5 +1,5 @@
 
-SUBDIRS = include/libwaei 
+SUBDIRS = include/libwaei
 
 LIBRARY_VERSION = 2:0:0
 ACLOCAL_AMFLAGS = -I m4

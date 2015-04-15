@@ -39,15 +39,15 @@
 #include <libwaei/gettext.h>
 
 
+static LwQueryNode * _parse_leaf_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * next_operation_out, GError ** error);
+static LwQueryNode * _parse_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation, GError ** error);
+
+
 GQuark
 lw_querynode_error_quark ()
 {
     return g_quark_from_static_string ("lw-querynode-error");
 }
-
-
-static LwQueryNode * lw_querynode_parse_string (gchar const *  TEXT, GError      ** error);
-static LwQueryNode * lw_querynode_parse_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation  * next_operation_out, GError ** error);
 
 
 static LwQueryNode *
@@ -91,6 +91,36 @@ errored:
 }
 
 
+static LwQueryNode *
+lw_querynode_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis_node,
+                                            LwQueryNodeOperation  * next_operation_out,
+                                            GError               ** error)
+{
+    //Sanity checks
+    g_return_val_if_fail (parenthesis_node != NULL, NULL);
+    if (error != NULL && *error != NULL) return NULL;
+
+    //Delcarations
+    GList *link = NULL;
+    LwQueryNode * query_node = NULL;
+    gboolean is_leaf = FALSE;
+
+    //Initializations
+    is_leaf = (parenthesis_node->children == NULL);
+
+    if (is_leaf)
+    {
+      query_node = _parse_leaf_parenthesisnode (parenthesis_node, next_operation_out, error);
+    }
+    else
+    {
+      query_node = _parse_parenthesisnode (parenthesis_node, next_operation_out, error);
+    }
+
+    return query_node;
+}
+
+
 LwQueryNode *
 lw_querynode_new_tree_from_string (gchar const *  TEXT,
                                    GError      ** error)
@@ -100,17 +130,21 @@ lw_querynode_new_tree_from_string (gchar const *  TEXT,
     if (error != NULL && *error != NULL) return NULL;
 
     //Declarations
-    LwQueryNode * self = NULL;
+    LwParenthesisNode *parenthesis_node = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwQueryNode *query_node = NULL;
 
     //Initializations
-    self = lw_querynode_new (NULL, NULL, NULL, LW_QUERYNODE_OPERATION_NONE);
-    if (self == NULL) goto errored;
-
-    lw_querynode_parse_string (TEXT, error);
+    parenthesis_node = lw_parenthesisnode_new_tree_from_string (TEXT, error);
+    if (parenthesis_node == NULL || (error != NULL && *error != NULL)) goto errored;
+    query_node = lw_querynode_new_tree_from_parenthesisnode (parenthesis_node, &operation, error);
 
 errored:
 
-    return self;
+    if (parenthesis_node != NULL) lw_parenthesisnode_unref (parenthesis_node);
+    parenthesis_node = NULL;
+
+    return query_node;
 }
 
 
@@ -148,18 +182,18 @@ _read_regex_parenthesis (gchar const * c,
 
 
 static GList *
-_tokenize_leaf (LwParenthesisNode    *  node,
+_tokenize_leaf (LwParenthesisNode    *  parenthesis_node,
                 LwQueryNodeOperation *  next_node_operation_out,
                 GError               ** error)
 {
     //Sanity checks
-    g_return_if_fail (node != NULL);
+    g_return_if_fail (parenthesis_node != NULL);
     if (error != NULL && *error != NULL) return NULL;
 
     // Declarations
-    gchar const * c = node->OPEN;
-    gchar const * OPEN = node->OPEN;
-    gchar const * CLOSE = node->CLOSE;
+    gchar const * c = parenthesis_node->OPEN;
+    gchar const * OPEN = parenthesis_node->OPEN;
+    gchar const * CLOSE = parenthesis_node->CLOSE;
     GList * children = NULL;
     GList * children_out;
     LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
@@ -170,10 +204,17 @@ _tokenize_leaf (LwParenthesisNode    *  node,
     c = OPEN = _read_regex_parenthesis (OPEN, &PARENTHESIS);
     if (PARENTHESIS != NULL && *CLOSE != ')')
     {
-      *error = g_error_new (LW_QUERYNODE_ERROR, LW_QUERYNODE_UNCLOSED_PARENTHESIS, "Expected closing parenthesis at character %d", CLOSE - c);
+      *error = g_error_new (
+        LW_QUERYNODE_ERROR,
+        LW_QUERYNODE_UNCLOSED_PARENTHESIS,
+        "Expected closing parenthesis at character %d", CLOSE - c
+      );
       goto errored;
     }
-    CLOSE--;
+    if (PARENTHESIS != NULL)
+    {
+      CLOSE--;
+    }
 
     if (next_node_operation_out != NULL) operation = *next_node_operation_out;
 
@@ -181,7 +222,7 @@ _tokenize_leaf (LwParenthesisNode    *  node,
     {
       if (!lw_utf8_isescaped (OPEN, c))
       {
-        if (strcmp(c, "&&"))
+        if (strcmp(c, "&&") == 0)
         {
           if (OPEN < c)
           {
@@ -192,7 +233,7 @@ _tokenize_leaf (LwParenthesisNode    *  node,
           operation = LW_QUERYNODE_OPERATION_AND;
           OPEN = c;
         }
-        else if (strcmp(c, "||"))
+        else if (strcmp(c, "||") == 0)
         {
           if (OPEN < c)
           {
@@ -234,17 +275,17 @@ errored:
     g_list_free_full (children, (GDestroyNotify) lw_querynode_unref);
     children = NULL;
 
-    return children;
+    return children_out;
 }
 
 
 static LwQueryNode *
-_parse_leaf_parenthesisnode (LwParenthesisNode    *  node,
+_parse_leaf_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
                              LwQueryNodeOperation *  next_operation_out,
                              GError               ** error)
 {
     //Sanity checks
-    g_return_val_if_fail (node != NULL, NULL);
+    g_return_val_if_fail (parenthesis_node != NULL, NULL);
     if (error != NULL && *error != NULL) return NULL;
 
     //Declarations
@@ -252,7 +293,7 @@ _parse_leaf_parenthesisnode (LwParenthesisNode    *  node,
     LwQueryNode * query_node = NULL;
 
     //Initializations
-    children = _tokenize_leaf (node, next_operation_out, error);
+    children = _tokenize_leaf (parenthesis_node, next_operation_out, error);
 
     if (children != NULL && children->next != NULL)
     {
@@ -297,7 +338,7 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
 
     for (link = parenthesis_node->children; link != NULL; link = link->next)
     {
-      LwQueryNode * child = lw_querynode_parse_parenthesisnode (LW_PARENTHESISNODE (link->data), &next_operation, error);
+      LwQueryNode * child = lw_querynode_new_tree_from_parenthesisnode(LW_PARENTHESISNODE (link->data), &next_operation, error);
       if (child != NULL)
       {
         children = g_list_prepend (children, child);
@@ -321,59 +362,6 @@ errored:
 
     g_list_free_full (children, (GDestroyNotify) lw_querynode_unref);
     children = NULL;
-
-    return query_node;
-}
-
-
-static LwQueryNode *
-lw_querynode_parse_parenthesisnode (LwParenthesisNode     * parenthesis_node,
-                                    LwQueryNodeOperation  * next_operation_out,
-                                    GError               ** error)
-{
-    //Sanity checks
-    g_return_val_if_fail (parenthesis_node != NULL, NULL);
-    if (error != NULL && *error != NULL) return NULL;
-
-    //Delcarations
-    GList *link = NULL;
-    LwQueryNode * query_node = NULL;
-    gboolean is_leaf = FALSE;
-
-    //Initializations
-    is_leaf = (parenthesis_node->children == NULL);
-
-    if (is_leaf)
-    {
-      query_node = _parse_leaf_parenthesisnode (parenthesis_node, next_operation_out, error);
-    }
-    else
-    {
-      query_node = _parse_parenthesisnode (parenthesis_node, next_operation_out, error);
-    }
-
-    return query_node;
-}
-
-
-static LwQueryNode *
-lw_querynode_parse_string (gchar const *  TEXT,
-                           GError      ** error)
-{
-    //Sanity checks
-    if (error != NULL && *error != NULL) return NULL;
-
-    //Declarations
-    LwParenthesisNode *parenthesis_node = NULL;
-    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
-    LwQueryNode *query_node = NULL;
-
-    //Initializations
-    parenthesis_node = lw_parenthesisnode_new_tree_from_string (TEXT);
-    query_node = lw_querynode_parse_parenthesisnode (parenthesis_node, &operation, error);
-
-    lw_parenthesisnode_unref (parenthesis_node);
-    parenthesis_node = NULL;
 
     return query_node;
 }

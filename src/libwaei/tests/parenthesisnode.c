@@ -27,7 +27,7 @@ parse_string_with_no_parenthesis (Fixture *fixture, gconstpointer data)
     gchar const * TEXT = "test english search";
 
     //Initializations
-    root = lw_parenthesisnode_new (TEXT);
+    root = lw_parenthesisnode_new_tree_from_string (TEXT, NULL);
 
     //Assert
     LwParenthesisNode expected_root = {
@@ -36,27 +36,10 @@ parse_string_with_no_parenthesis (Fixture *fixture, gconstpointer data)
       .OPEN = TEXT,
       .CLOSE = TEXT + strlen(TEXT) - 1,
       .explicit_children = NULL,
-      .children = root->children
+      .children = NULL
     }; 
 
     g_assert (memcmp(&expected_root, root, sizeof(LwParenthesisNode)) == 0);
-    g_assert_cmpint (g_list_length (root->children), ==, 1);
-
-    {
-      LwParenthesisNode * node = NULL;
-      node = root->children->data;
-      
-      LwParenthesisNode expected_node = {
-        .has_parenthesis = FALSE,
-        .refs = 1,
-        .OPEN = TEXT,
-        .CLOSE = TEXT + strlen(TEXT) - 1,
-        .explicit_children = NULL,
-        .children = NULL,
-      };
-
-      g_assert (memcmp(&expected_node, node, sizeof(LwParenthesisNode)) == 0);
-    }
 
     lw_parenthesisnode_unref (root);
     root = NULL;
@@ -71,39 +54,19 @@ parse_string_with_only_parenthesis (Fixture *fixture, gconstpointer data)
     gchar const * TEXT = "(test english search)";
 
     //Initializations
-    root = lw_parenthesisnode_new (TEXT);
+    root = lw_parenthesisnode_new_tree_from_string (TEXT, NULL);
 
     //Assert
     LwParenthesisNode expected_root = {
-      .has_parenthesis = FALSE,
+      .has_parenthesis = TRUE,
       .refs = 1,
       .OPEN = TEXT,
       .CLOSE = TEXT + strlen(TEXT) - 1,
-      .explicit_children = root->explicit_children,
-      .children = root->children
+      .explicit_children = NULL,
+      .children = NULL
     }; 
 
     g_assert (memcmp(&expected_root, root, sizeof(LwParenthesisNode)) == 0);
-    g_assert_cmpint (g_list_length (root->children), ==, 1);
-    g_assert_cmpint (g_list_length (root->explicit_children), ==, 1);
-
-    {
-      LwParenthesisNode * node = NULL;
-      node = root->children->data;
-      
-      LwParenthesisNode expected_node = {
-        .has_parenthesis = TRUE,
-        .refs = 2,
-        .OPEN = TEXT,
-        .CLOSE = TEXT + strlen(TEXT) - 1,
-        .explicit_children = NULL,
-        .children = NULL,
-      };
-
-      g_assert (memcmp(&expected_node, node, sizeof(LwParenthesisNode)) == 0);
-    }
-
-    g_assert (root->children->data == root->explicit_children->data);
 
     lw_parenthesisnode_unref (root);
     root = NULL;
@@ -118,7 +81,7 @@ parse_string_ends_with_parenthesis (Fixture *fixture, gconstpointer data)
     gchar const * TEXT = "test english(search)";
 
     //Initializations
-    root = lw_parenthesisnode_new (TEXT);
+    root = lw_parenthesisnode_new_tree_from_string (TEXT, NULL);
 
     //Assert
     LwParenthesisNode expected_root = {
@@ -181,7 +144,7 @@ parse_string_starts_with_parenthesis (Fixture *fixture, gconstpointer data)
     gchar const * TEXT = "(search)test english";
 
     //Initializations
-    root = lw_parenthesisnode_new (TEXT);
+    root = lw_parenthesisnode_new_tree_from_string (TEXT, NULL);
 
     //Assert
     LwParenthesisNode expected_root = {
@@ -244,7 +207,7 @@ parse_string_with_parenthesis (Fixture *fixture, gconstpointer data)
     gchar const * TEXT = "test(search)english";
 
     //Initializations
-    root = lw_parenthesisnode_new (TEXT);
+    root = lw_parenthesisnode_new_tree_from_string (TEXT, NULL);
 
     //Assert
     LwParenthesisNode expected_root = {
@@ -323,7 +286,7 @@ parse_string_with_embedded_parenthesis (Fixture *fixture, gconstpointer data)
     gchar const * TEXT = "1(2(3))";
 
     //Initializations
-    root = lw_parenthesisnode_new (TEXT);
+    root = lw_parenthesisnode_new_tree_from_string (TEXT, NULL);
 
     //Assert
     LwParenthesisNode expected_root = {
