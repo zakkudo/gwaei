@@ -121,3 +121,4 @@ ltmain.sh
 mkinstalldirs
 
 src/libwaei/tests/parenthesisnode
+src/libwaei/tests/querynode
