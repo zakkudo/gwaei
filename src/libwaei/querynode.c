@@ -156,22 +156,22 @@ _read_regex_parenthesis (gchar const * c,
     g_return_val_if_fail (c != NULL, NULL);
     g_return_val_if_fail (PARENTHESIS != NULL, NULL);
 
-    if (strcmp(c, "(?=") == 0)
+    if (strncmp(c, "(?=", strlen("(?=")) == 0)
     {
       *PARENTHESIS = "(?=";
       c += strlen("(?=");
     }
-    else if (strcmp(c, "(?<=") == 0)
+    else if (strncmp(c, "(?<=", strlen("(?<=")) == 0)
     {
       *PARENTHESIS = "(?<=";
       c += strlen("(?<=");
     }
-    else if (strcmp(c, "(?<!") == 0)
+    else if (strncmp(c, "(?<!", strlen("(?<!")) == 0)
     {
       *PARENTHESIS = "(?<!";
       c += strlen("(?<!");
     }
-    else if (strcmp(c, "(") == 0)
+    else if (strncmp(c, "(", strlen("(")) == 0)
     {
       *PARENTHESIS = "(";
       c += strlen("(");
@@ -222,7 +222,7 @@ _tokenize_leaf (LwParenthesisNode    *  parenthesis_node,
     {
       if (!lw_utf8_isescaped (OPEN, c))
       {
-        if (strcmp(c, "&&") == 0)
+        if (strncmp(c, "&&", strlen("&&")) == 0)
         {
           if (OPEN < c)
           {
@@ -233,7 +233,7 @@ _tokenize_leaf (LwParenthesisNode    *  parenthesis_node,
           operation = LW_QUERYNODE_OPERATION_AND;
           OPEN = c;
         }
-        else if (strcmp(c, "||") == 0)
+        else if (strncmp(c, "||", strlen("||")) == 0)
         {
           if (OPEN < c)
           {
