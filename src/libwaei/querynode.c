@@ -305,7 +305,7 @@ _parse_leaf_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
     else if (children != NULL)
     {
       query_node = children->data;
-      g_list_free (children->data);
+      g_list_free (children);
       children = NULL;
     }
 
@@ -402,3 +402,32 @@ lw_querynode_unref (LwQueryNode *self)
       lw_querynode_free (self);
     }
 }
+
+
+void
+lw_querynode_assert_equals (LwQueryNode *self,
+                            LwQueryNode *other)
+{
+    g_assert_nonnull (self);
+    g_assert_nonnull (other);
+    g_assert_cmpuint (self->operation, ==, other->operation);
+    g_assert_cmpstr (self->language, ==, other->language);
+    g_assert_cmpstr (self->data, ==, other->data);
+    g_assert_cmpint (self->refs, ==, other->refs);
+
+    g_assert_cmpint (g_list_length (self->children), ==, g_list_length(other->children));
+
+    {
+      GList * self_link = self->children;
+      GList * other_link = other->children;
+
+      while (self_link != NULL && other_link != NULL)
+      {
+        lw_querynode_assert_equals (self_link->data, other_link->data);
+
+        self_link = self_link->next;
+        other_link = other_link->next;
+      }
+    }
+}
+

@@ -3,24 +3,43 @@
 #include <glib/gstdio.h>
 #include <libwaei/libwaei.h>
 
-/*
-  Methods tested
-
-  lw_index_append_data_offset
-  lw_index_get_data_offsets
-  lw_index_get_data_offsets_length
-  lw_index_search
-  lw_index_data_is_valid
-*/
-
-struct _Fixture { gint unused; };
+struct _Fixture { GHashTable * children; };
 typedef struct _Fixture Fixture;
-void index_test_setup (Fixture *fixture, gconstpointer data) {}
-void index_test_teardown (Fixture *fixture, gconstpointer data) {}
+
+void
+_set_children (struct _Fixture  * fixture,
+               GList           ** children,
+               LwQueryNode      * nodes,
+               gint               num_nodes)
+{
+    while (num_nodes-- > 0)
+    {
+      *children = g_list_prepend (*children, &nodes[num_nodes]);
+    }
+
+    if (!g_hash_table_contains (fixture->children, children))
+    {
+      g_hash_table_add (fixture->children, *children);
+    }
+}
+
+
+void setup (Fixture *fixture, gconstpointer data)
+{
+    fixture->children = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, (GDestroyNotify) g_list_free);
+}
+
+
+void teardown (Fixture *fixture, gconstpointer data)
+{
+    g_hash_table_unref (fixture->children);
+    fixture->children = NULL;
+}
 
 
 void
-parse_string_with_no_parenthesis (Fixture *fixture, gconstpointer data)
+parse_string_with_no_parenthesis (Fixture       * fixture,
+                                  gconstpointer   data)
 {
     //Declarations
     LwQueryNode * root = NULL;
@@ -33,34 +52,174 @@ parse_string_with_no_parenthesis (Fixture *fixture, gconstpointer data)
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
       .language = NULL,
-      .data = root->data,
+      .data = "test english search",
       .children = NULL,
       .refs = 1,
     }; 
 
-    g_assert (memcmp(&expected_root, root, sizeof(LwQueryNode)) == 0);
-/*
-    g_assert_cmpint (g_list_length (root->children), ==, 1);
+    lw_querynode_assert_equals (root, &expected_root);
 
-    {
-      LwParenthesisNode * node = NULL;
-      node = root->children->data;
-      
-      LwParenthesisNode expected_node = {
-        .has_parenthesis = FALSE,
-        .refs = 1,
-        .OPEN = TEXT,
-        .CLOSE = TEXT + strlen(TEXT) - 1,
-        .explicit_children = NULL,
-        .children = NULL,
-      };
-
-      g_assert (memcmp(&expected_node, node, sizeof(LwParenthesisNode)) == 0);
-    }
-
-    lw_parenthesisnode_unref (root);
+    lw_querynode_unref (root);
     root = NULL;
-*/
+}
+
+
+void
+parse_string_with_only_parenthesis (Fixture       * fixture,
+                                    gconstpointer   data)
+{
+    //Declarations
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "(test english search)";
+
+    //Initializations
+    root = lw_querynode_new_tree_from_string (TEXT, NULL);
+
+    //Assert
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = "(test english search)",
+      .children = NULL,
+      .refs = 1,
+    }; 
+
+    lw_querynode_assert_equals (root, &expected_root);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+parse_string_ends_with_parenthesis (Fixture       * fixture,
+                                    gconstpointer   data)
+{
+    //Declarations
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "test english(search)";
+
+    //Initializations
+    root = lw_querynode_new_tree_from_string (TEXT, NULL);
+
+    //Assert
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = NULL,
+      .children = NULL,
+      .refs = 1,
+    }; 
+
+    LwQueryNode children[] = {{
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = "test english",
+      .children = NULL,
+      .refs = 1,
+    }, {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = "(search)",
+      .children = NULL,
+      .refs = 1,
+    }};
+    _set_children (fixture, &(expected_root.children), children, G_N_ELEMENTS(children));
+
+    lw_querynode_assert_equals (root, &expected_root);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+parse_string_starts_with_parenthesis (Fixture       * fixture,
+                                      gconstpointer   data)
+{
+    //Declarations
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "(test)english search";
+
+    //Initializations
+    root = lw_querynode_new_tree_from_string (TEXT, NULL);
+
+    //Assert
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = NULL,
+      .children = NULL,
+      .refs = 1,
+    }; 
+
+    LwQueryNode children[] = {{
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = "(test)",
+      .children = NULL,
+      .refs = 1,
+    }, {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = "english search",
+      .children = NULL,
+      .refs = 1,
+    }};
+    _set_children (fixture, &(expected_root.children), children, G_N_ELEMENTS(children));
+
+    lw_querynode_assert_equals (root, &expected_root);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+parse_string_with_parenthesis (Fixture       * fixture,
+                               gconstpointer   data)
+{
+    //Declarations
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "test(english)search";
+
+    //Initializations
+    root = lw_querynode_new_tree_from_string (TEXT, NULL);
+
+    //Assert
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = NULL,
+      .children = NULL,
+      .refs = 1,
+    }; 
+
+    LwQueryNode children[] = {{
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = "test",
+      .children = NULL,
+      .refs = 1,
+    }, {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = "(english)",
+      .children = NULL,
+      .refs = 1,
+    }, {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .language = NULL,
+      .data = "search",
+      .children = NULL,
+      .refs = 1,
+    }};
+    _set_children (fixture, &(expected_root.children), children, G_N_ELEMENTS(children));
+
+    lw_querynode_assert_equals (root, &expected_root);
+
+    lw_querynode_unref (root);
+    root = NULL;
 }
 
 
@@ -69,7 +228,11 @@ main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
-    g_test_add ("/libwaei/parenthesisnode/parse_string_with_no_parenthesis", Fixture, NULL, NULL, parse_string_with_no_parenthesis, NULL);
+    g_test_add ("/libwaei/querynode/parse_string_with_no_parenthesis", Fixture, NULL, setup, parse_string_with_no_parenthesis, teardown);
+    g_test_add ("/libwaei/querynode/parse_string_with_only_parenthesis", Fixture, NULL, setup, parse_string_with_only_parenthesis, teardown);
+    g_test_add ("/libwaei/querynode/parse_string_ends_with_parenthesis", Fixture, NULL, setup, parse_string_ends_with_parenthesis, teardown);
+    g_test_add ("/libwaei/querynode/parse_string_starts_with_parenthesis", Fixture, NULL, setup, parse_string_starts_with_parenthesis, teardown);
+    g_test_add ("/libwaei/querynode/parse_string_with_parenthesis", Fixture, NULL, setup, parse_string_with_parenthesis, teardown);
 
     return g_test_run();
 }

@@ -27,5 +27,6 @@ LwParenthesisNode* lw_parenthesisnode_new_tree_from_string (gchar const * TEXT, 
 gboolean lw_parenthesisnode_contains (LwParenthesisNode * self, LwParenthesisNode * other);
 void lw_parenthesisnode_unref (LwParenthesisNode *self);
 LwParenthesisNode * lw_parenthesisnode_ref (LwParenthesisNode * self);
+void lw_parenthesisnode_assert_equals (LwParenthesisNode * self, LwParenthesisNode * other);
 
 #endif

@@ -377,3 +377,51 @@ lw_parenthesisnode_ref (LwParenthesisNode * self)
 
     return self;
 }
+
+
+void
+lw_parenthesisnode_assert_equals (LwParenthesisNode * self,
+                                  LwParenthesisNode * other)
+{
+    g_assert_nonnull (self);
+    g_assert_nonnull (other);
+
+    g_assert_cmpint (self->has_parenthesis, ==, other->has_parenthesis);
+    g_assert_cmpint (self->refs, ==, other->refs);
+    g_assert_cmpstr (self->OPEN, ==, other->OPEN);
+    g_assert_cmpstr (self->CLOSE, ==, other->CLOSE);
+    
+    g_assert_cmpint (g_list_length (self->explicit_children), ==, g_list_length (other->explicit_children));
+    g_assert_cmpint (g_list_length (self->children), ==, g_list_length (other->children));
+
+    {
+      GList *self_link = NULL;
+      GList *other_link = NULL;
+
+      self_link = self->children;
+      other_link = other->children;
+      while (self_link != NULL && other_link != NULL)
+      {
+        lw_parenthesisnode_assert_equals (self_link->data, other_link->data);
+
+        self_link = self_link->next;
+        other_link = other_link->next;
+      }
+    }
+
+    {
+      GList *self_link = NULL;
+      GList *other_link = NULL;
+
+      self_link = self->explicit_children;
+      other_link = other->explicit_children;
+      while (self_link != NULL && other_link != NULL)
+      {
+        lw_parenthesisnode_assert_equals (self_link->data, other_link->data);
+        g_assert_cmpint (g_list_index (self->children, self_link->data), !=, -1);
+
+        self_link = self_link->next;
+        other_link = other_link->next;
+      }
+    }
+}

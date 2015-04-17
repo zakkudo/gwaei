@@ -29,6 +29,7 @@ typedef enum {
 LwQueryNode * lw_querynode_new_tree_from_string (gchar const * TEXT, GError ** error);
 LwQueryNode* lw_querynode_ref (LwQueryNode * self);
 void lw_querynode_unref (LwQueryNode *self);
+void lw_querynode_assert_equals (LwQueryNode *self, LwQueryNode *other);
 
 
 #endif
