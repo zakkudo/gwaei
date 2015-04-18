@@ -39,8 +39,8 @@
 #include <libwaei/gettext.h>
 
 
-static LwQueryNode * _parse_leaf_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * next_operation_out, GError ** error);
-static LwQueryNode * _parse_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation, GError ** error);
+static LwQueryNode * _parse_leaf_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
+static LwQueryNode * _parse_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
 
 
 GQuark
@@ -93,7 +93,7 @@ errored:
 
 static LwQueryNode *
 lw_querynode_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis_node,
-                                            LwQueryNodeOperation  * next_operation_out,
+                                            LwQueryNodeOperation  * operation_out,
                                             GError               ** error)
 {
     //Sanity checks
@@ -110,11 +110,11 @@ lw_querynode_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis_
 
     if (is_leaf)
     {
-      query_node = _parse_leaf_parenthesisnode (parenthesis_node, next_operation_out, error);
+      query_node = _parse_leaf_parenthesisnode (parenthesis_node, operation_out, error);
     }
     else
     {
-      query_node = _parse_parenthesisnode (parenthesis_node, next_operation_out, error);
+      query_node = _parse_parenthesisnode (parenthesis_node, operation_out, error);
     }
 
     return query_node;
@@ -183,7 +183,7 @@ _read_regex_parenthesis (gchar const * c,
 
 static GList *
 _tokenize_leaf (LwParenthesisNode    *  parenthesis_node,
-                LwQueryNodeOperation *  next_node_operation_out,
+                LwQueryNodeOperation *  operation_out,
                 GError               ** error)
 {
     //Sanity checks
@@ -211,12 +211,16 @@ _tokenize_leaf (LwParenthesisNode    *  parenthesis_node,
       );
       goto errored;
     }
+
     if (PARENTHESIS != NULL)
     {
       CLOSE--;
     }
 
-    if (next_node_operation_out != NULL) operation = *next_node_operation_out;
+    if (PARENTHESIS == NULL && operation_out != NULL)
+    {
+      operation = *operation_out;
+    }
 
     while (*c != '\0' && c <= CLOSE)
     {
@@ -262,13 +266,13 @@ _tokenize_leaf (LwParenthesisNode    *  parenthesis_node,
       operation = LW_QUERYNODE_OPERATION_NONE;
     }
 
+    if (PARENTHESIS == NULL && operation_out != NULL)
+    {
+      *operation_out = operation;
+    }
+
     children_out = g_list_reverse (children);
     children = NULL;
-
-    if (next_node_operation_out != NULL)
-    {
-      *next_node_operation_out = operation;
-    }
 
 errored:
 
@@ -281,7 +285,7 @@ errored:
 
 static LwQueryNode *
 _parse_leaf_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
-                             LwQueryNodeOperation *  next_operation_out,
+                             LwQueryNodeOperation *  operation_out,
                              GError               ** error)
 {
     //Sanity checks
@@ -291,22 +295,38 @@ _parse_leaf_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
     //Declarations
     GList * children = NULL;
     LwQueryNode * query_node = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwQueryNodeOperation inner_operation = LW_QUERYNODE_OPERATION_NONE;
+
+    if (operation_out != NULL)
+    {
+      operation = *operation_out;
+    }
 
     //Initializations
-    children = _tokenize_leaf (parenthesis_node, next_operation_out, error);
+    children = _tokenize_leaf (parenthesis_node, &inner_operation, error);
+    if (children == NULL) goto errored;
 
+    //Has multiple children, so create a parent node
     if (children != NULL && children->next != NULL)
     {
-      query_node = lw_querynode_new (NULL, NULL, NULL, *next_operation_out); //Create a parent
+      query_node = lw_querynode_new (NULL, NULL, NULL, operation);
       if (query_node == NULL) goto errored;
       query_node->children = children;
       children = NULL;
     }
+    //One one child, so just return it durectly
     else if (children != NULL)
     {
       query_node = children->data;
+      query_node->operation = operation;
       g_list_free (children);
       children = NULL;
+    }
+
+    if (operation_out != NULL)
+    {
+      *operation_out = inner_operation;
     }
 
 errored:
@@ -320,7 +340,7 @@ errored:
 
 static LwQueryNode *
 _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
-                        LwQueryNodeOperation *  operation,
+                        LwQueryNodeOperation *  operation_out,
                         GError               ** error)
 {
     //Sanity checks
@@ -331,32 +351,37 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
     GList * children = NULL;
     GList * link = NULL;
     LwQueryNode * query_node = NULL;
-    LwQueryNodeOperation next_operation;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
 
     //Initializations
-    next_operation = LW_QUERYNODE_OPERATION_NONE;
+    if (operation_out != NULL)
+    {
+      operation = *operation_out;
+    }
 
     for (link = parenthesis_node->children; link != NULL; link = link->next)
     {
-      LwQueryNode * child = lw_querynode_new_tree_from_parenthesisnode(LW_PARENTHESISNODE (link->data), &next_operation, error);
+      LwQueryNode * child = lw_querynode_new_tree_from_parenthesisnode (LW_PARENTHESISNODE (link->data), &operation, error);
       if (child != NULL)
       {
         children = g_list_prepend (children, child);
       }
     }
-    if (children == NULL) goto errored;
-    if (next_operation != LW_QUERYNODE_OPERATION_NONE)
-    {
-      *error = g_error_new (LW_QUERYNODE_ERROR, LW_QUERYNODE_HANGING_LOGICAL_CONNECTOR, "Could not patch a logical connector between two expressions %d", next_operation);
-      goto errored;
-    }
 
-    query_node = lw_querynode_new (NULL, NULL, NULL, *operation);
+    if (children == NULL) goto errored;
+
+    //Create a parent node to hold the children
+    query_node = lw_querynode_new (NULL, NULL, NULL, *operation_out);
     if (query_node == NULL) goto errored;
-    operation = LW_QUERYNODE_OPERATION_NONE;
+    operation_out = LW_QUERYNODE_OPERATION_NONE;
 
     query_node->children = g_list_reverse (children);
     children = NULL;
+
+    if (operation_out != NULL)
+    {
+      *operation_out = operation;
+    }
 
 errored:
 
