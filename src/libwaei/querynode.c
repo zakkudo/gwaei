@@ -521,13 +521,27 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
 
     if (children == NULL) goto errored;
 
-    //Create a parent node to hold the children
-    query_node = lw_querynode_new (NULL, NULL, NULL, *operation_out);
-    if (query_node == NULL) goto errored;
-    *operation_out = LW_QUERYNODE_OPERATION_NONE;
+    if (children != NULL)
+    {
+      //There is only one, so we'll use it directly
+      if (children->next == NULL)
+      {
+        query_node = children->data;
+        g_list_free (children);
+        children = NULL;
+      }
+      //Create a parent node to hold the children
+      else
+      {
+        query_node = lw_querynode_new (NULL, NULL, NULL, *operation_out);
+        if (query_node == NULL) goto errored;
+        *operation_out = LW_QUERYNODE_OPERATION_NONE;
 
-    query_node->children = g_list_reverse (children);
-    children = NULL;
+        query_node->children = g_list_reverse (children);
+        children = NULL;
+      }
+    }
+    
 
     if (operation_out != NULL)
     {

@@ -273,6 +273,67 @@ parse_string_with_parenthesis (Fixture *fixture, gconstpointer data)
 }
 
 
+
+void
+parse_string_with_empty_parenthesis (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    LwParenthesisNode * root = NULL;
+    gchar const * TEXT = "1()";
+    GError *error = NULL;
+
+    //Initializations
+    root = lw_parenthesisnode_new_tree_from_string (TEXT, &error);
+
+    //Assert
+    LwParenthesisNode expected_root = {
+      .has_parenthesis = FALSE,
+      .refs = 1,
+      .OPEN = TEXT,
+      .CLOSE = TEXT + strlen(TEXT) - 1,
+      .explicit_children = NULL,
+      .children = NULL 
+    }; 
+
+    LwParenthesisNode explicit_children[] = {{
+      .has_parenthesis = TRUE,
+      .refs = 2,
+      .OPEN = TEXT + strlen("1"),
+      .CLOSE = TEXT + strlen("1()") - 1,
+      .explicit_children = NULL,
+      .children = NULL,
+    }};
+    _set_children (fixture, &(expected_root.explicit_children), explicit_children, G_N_ELEMENTS(explicit_children));
+
+    LwParenthesisNode children[] = {{
+      .has_parenthesis = FALSE,
+      .refs = 1,
+      .OPEN = TEXT,
+      .CLOSE = TEXT + strlen("1") - 1,
+      .explicit_children = NULL,
+      .children = NULL,
+    }, {
+      .has_parenthesis = TRUE,
+      .refs = 2,
+      .OPEN = TEXT + strlen("1"),
+      .CLOSE = TEXT + strlen("1()") - 1,
+      .explicit_children = NULL,
+      .children = NULL,
+    }};
+    _set_children (fixture, &(expected_root.children), children, G_N_ELEMENTS(children));
+
+    //Act
+    root = lw_parenthesisnode_new_tree_from_string (TEXT, &error);
+
+    //Assert
+    lw_parenthesisnode_assert_equals (root, &expected_root);
+    g_assert_null (error);
+
+    lw_parenthesisnode_unref (root);
+    root = NULL;
+}
+
+
 void
 parse_string_with_embedded_parenthesis (Fixture *fixture, gconstpointer data)
 {
@@ -407,6 +468,7 @@ main (gint argc, gchar *argv[])
     g_test_add ("/libwaei/parenthesisnode/parse_string_ends_with_parenthesis", Fixture, NULL, setup, parse_string_ends_with_parenthesis, teardown);
     g_test_add ("/libwaei/parenthesisnode/parse_string_starts_with_parenthesis", Fixture, NULL, setup, parse_string_starts_with_parenthesis, teardown);
     g_test_add ("/libwaei/parenthesisnode/parse_string_with_parenthesis", Fixture, NULL, setup, parse_string_with_parenthesis, teardown);
+    g_test_add ("/libwaei/parenthesisnode/parse_string_with_empty_parenthesis", Fixture, NULL, setup, parse_string_with_empty_parenthesis, teardown);
     g_test_add ("/libwaei/parenthesisnode/parse_string_with_embedded_parenthesis", Fixture, NULL, setup, parse_string_with_embedded_parenthesis, teardown);
     g_test_add ("/libwaei/parenthesisnode/parse_string_with_only_start_parenthesis", Fixture, NULL, setup, parse_string_with_only_start_parenthesis, teardown);
     g_test_add ("/libwaei/parenthesisnode/parse_string_with_only_end_parenthesis", Fixture, NULL, setup, parse_string_with_only_end_parenthesis, teardown);
