@@ -103,6 +103,7 @@ lw_querynode_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis_
     //Delcarations
     GList *link = NULL;
     LwQueryNode * query_node = NULL;
+    LwQueryNode * query_node_out = NULL;
     gboolean is_leaf = FALSE;
 
     //Initializations
@@ -111,19 +112,30 @@ lw_querynode_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis_
     if (is_leaf)
     {
       query_node = _parse_leaf_parenthesisnode (parenthesis_node, operation_out, error);
+      if (error != NULL && *error != NULL) goto errored;
     }
     else
     {
       query_node = _parse_parenthesisnode (parenthesis_node, operation_out, error);
+      if (error != NULL && *error != NULL) goto errored;
     }
 
-    return query_node;
+    query_node_out = query_node;
+    query_node = NULL;
+
+errored:
+
+    if (query_node != NULL) lw_querynode_unref (query_node);
+    query_node = NULL;
+
+    return query_node_out;
 }
 
 
 LwQueryNode *
-lw_querynode_new_tree_from_string (gchar const *  TEXT,
-                                   GError      ** error)
+lw_querynode_new_tree_from_string (gchar const          *  TEXT,
+                                   LwQueryNodeOperation *  operation_out,
+                                   GError               ** error)
 {
     //Sanity checks
     g_return_val_if_fail (TEXT != NULL, NULL);
@@ -134,10 +146,21 @@ lw_querynode_new_tree_from_string (gchar const *  TEXT,
     LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
     LwQueryNode *query_node = NULL;
 
+    if (operation_out != NULL)
+    {
+      operation = *operation_out;
+    }
+
     //Initializations
     parenthesis_node = lw_parenthesisnode_new_tree_from_string (TEXT, error);
     if (parenthesis_node == NULL || (error != NULL && *error != NULL)) goto errored;
     query_node = lw_querynode_new_tree_from_parenthesisnode (parenthesis_node, &operation, error);
+    if (error != NULL && *error != NULL) goto errored;
+
+    if (operation_out != NULL)
+    {
+      *operation_out = operation;
+    }
 
 errored:
 
@@ -181,6 +204,183 @@ _read_regex_parenthesis (gchar const * c,
 }
 
 
+struct _LeafIterator {
+  gchar const * PARENTHESIS;
+  gchar const * CLOSE;
+  gchar const * OPEN;
+  gchar const * c;
+  LwQueryNodeOperation operation;
+};
+typedef struct _LeafIterator LeafIterator;
+
+
+static void
+leafiterator_init (LeafIterator         * self,
+                   LwParenthesisNode    * parenthesis_node,
+                   LwQueryNodeOperation * operation_out,
+                   GError               ** error)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+    if (error != NULL && *error != NULL) return;
+
+    self->c = parenthesis_node->OPEN;
+    self->OPEN = parenthesis_node->OPEN;
+    self->CLOSE = parenthesis_node->CLOSE;
+    self->operation = LW_QUERYNODE_OPERATION_NONE;
+
+    self->c = self->OPEN = _read_regex_parenthesis (parenthesis_node->OPEN, &self->PARENTHESIS);
+
+    if (self->PARENTHESIS != NULL)
+    {
+      self->CLOSE--;
+    }
+
+    if (self->PARENTHESIS == NULL && operation_out != NULL)
+    {
+      self->operation = *operation_out;
+    }
+
+errored:
+
+    return;
+}
+
+
+static void
+leafiterator_clear (LeafIterator         *  self,
+                    LwQueryNodeOperation *  operation_out,
+                    GError               ** error)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    if (error != NULL && *error != NULL) return;
+
+    if (self->PARENTHESIS == NULL && operation_out != NULL)
+    {
+      *operation_out = self->operation;
+    }
+
+errored:
+
+    return;
+}
+
+
+static LwQueryNode *
+leafiterator_new_connector_node (LeafIterator          * self,
+                                 const gchar           * CONNECTOR_STR,
+                                 LwQueryNodeOperation    next_operation,
+                                 GError               ** error)
+{
+    //Declarations
+    LwQueryNode * query_node = NULL;
+
+    if (self->OPEN < self->c)
+    {
+      query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, self->c, self->operation);
+      if (query_node == NULL) goto errored;
+    }
+    else
+    {
+      g_set_error (
+        error,
+        LW_QUERYNODE_ERROR,
+        LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR,
+        "is missing left side of query before logical connector"
+      );
+      goto errored;
+    }
+    self->c += strlen(CONNECTOR_STR);
+    self->operation = next_operation;
+    self->OPEN = self->c;
+
+errored:
+
+    return query_node;
+}
+
+
+static LwQueryNode *
+leafiterator_new_final_node (LeafIterator          * self,
+                             GError               ** error)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+    if (error != NULL && *error != NULL) return NULL;
+
+    //Declarations
+    LwQueryNode *query_node = NULL;
+
+    if (self->OPEN < self->c)
+    {
+      query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, self->c, self->operation);
+      self->operation = LW_QUERYNODE_OPERATION_NONE;
+    }
+
+    if (self->PARENTHESIS != NULL && self->operation != LW_QUERYNODE_OPERATION_NONE)
+    {
+      g_set_error (
+        error,
+        LW_QUERYNODE_ERROR,
+        LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR,
+        "is missing right side of query after logical connector"
+      );
+      goto errored;
+    }
+
+    self->c = NULL;
+
+errored:
+
+    return query_node;
+}
+
+
+static LwQueryNode*
+leafiterator_read (LeafIterator  * self,
+                   GError       ** error)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+    if (error != NULL && *error != NULL) return NULL;
+    if (self->c == NULL) return NULL;
+
+    //Declarations
+    LwQueryNode * query_node = NULL;
+    gboolean isescaped = FALSE;
+
+    while (*self->c != '\0' && self->c <= self->CLOSE && query_node == NULL)
+    {
+      isescaped = (lw_utf8_isescaped (self->OPEN, self->c));
+      if (!isescaped && strncmp(self->c, "&&", strlen("&&")) == 0)
+      {
+        query_node = leafiterator_new_connector_node (self, "&&", LW_QUERYNODE_OPERATION_AND, error);
+        if (error != NULL && *error != NULL) goto errored;
+      }
+      else if (!isescaped && strncmp(self->c, "||", strlen("||")) == 0)
+      {
+        query_node = leafiterator_new_connector_node (self, "&&", LW_QUERYNODE_OPERATION_OR, error);
+        if (error != NULL && *error != NULL) goto errored;
+      }
+      else
+      {
+        self->c = g_utf8_next_char (self->c);
+      }
+    }
+
+    if (query_node == NULL)
+    {
+      query_node = leafiterator_new_final_node (self, error);
+      if (error != NULL && *error != NULL) goto errored;
+    }
+
+errored:
+
+    return query_node;
+}
+
+
 static GList *
 _tokenize_leaf (LwParenthesisNode    *  parenthesis_node,
                 LwQueryNodeOperation *  operation_out,
@@ -191,91 +391,30 @@ _tokenize_leaf (LwParenthesisNode    *  parenthesis_node,
     if (error != NULL && *error != NULL) return NULL;
 
     // Declarations
-    gchar const * c = parenthesis_node->OPEN;
-    gchar const * OPEN = parenthesis_node->OPEN;
-    gchar const * CLOSE = parenthesis_node->CLOSE;
+    LeafIterator iter = {0};
     GList * children = NULL;
-    GList * children_out;
-    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
-    gchar const * PARENTHESIS = NULL;
+    GList * children_out = NULL;
+    LwQueryNode * query_node = NULL;
 
     //Initializations
+    leafiterator_init (&iter, parenthesis_node, operation_out, error);
+    if (error != NULL && *error != NULL) goto errored;
 
-    c = OPEN = _read_regex_parenthesis (OPEN, &PARENTHESIS);
-    if (PARENTHESIS != NULL && *CLOSE != ')')
-    {
-      *error = g_error_new (
-        LW_QUERYNODE_ERROR,
-        LW_QUERYNODE_UNCLOSED_PARENTHESIS,
-        "Expected closing parenthesis at character %d", CLOSE - c
-      );
-      goto errored;
-    }
-
-    if (PARENTHESIS != NULL)
-    {
-      CLOSE--;
-    }
-
-    if (PARENTHESIS == NULL && operation_out != NULL)
-    {
-      operation = *operation_out;
-    }
-
-    while (*c != '\0' && c <= CLOSE)
-    {
-      if (!lw_utf8_isescaped (OPEN, c))
+    do {
+      query_node = leafiterator_read (&iter, error);
+      if (error != NULL && *error != NULL) goto errored;
+      if (query_node != NULL)
       {
-        if (strncmp(c, "&&", strlen("&&")) == 0)
-        {
-          if (OPEN < c)
-          {
-            LwQueryNode *query_node = lw_querynode_new (PARENTHESIS, OPEN, c, operation);
-            children = g_list_prepend (children, query_node);
-          }
-          c += strlen("&&");
-          operation = LW_QUERYNODE_OPERATION_AND;
-          OPEN = c;
-        }
-        else if (strncmp(c, "||", strlen("||")) == 0)
-        {
-          if (OPEN < c)
-          {
-            LwQueryNode *query_node = lw_querynode_new (PARENTHESIS, OPEN, c, operation);
-            children = g_list_prepend (children, query_node);
-          }
-          c += strlen("||");
-          operation = LW_QUERYNODE_OPERATION_OR;
-          OPEN = c;
-        }
-        else
-        {
-          c = g_utf8_next_char (c);
-        }
+        children = g_list_prepend (children, query_node);
       }
-      else
-      {
-        c = g_utf8_next_char (c);
-      }
-    }
-
-    if (OPEN < c)
-    {
-      LwQueryNode *query_node = lw_querynode_new (PARENTHESIS, OPEN, c, operation);
-      children = g_list_prepend (children, query_node);
-      operation = LW_QUERYNODE_OPERATION_NONE;
-    }
-
-    if (PARENTHESIS == NULL && operation_out != NULL)
-    {
-      *operation_out = operation;
-    }
+    } while (query_node != NULL);
 
     children_out = g_list_reverse (children);
     children = NULL;
 
 errored:
 
+    leafiterator_clear (&iter, operation_out, error);
     g_list_free_full (children, (GDestroyNotify) lw_querynode_unref);
     children = NULL;
 
@@ -305,6 +444,7 @@ _parse_leaf_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
 
     //Initializations
     children = _tokenize_leaf (parenthesis_node, &inner_operation, error);
+    if (error != NULL && *error != NULL) goto errored;
     if (children == NULL) goto errored;
 
     //Has multiple children, so create a parent node
@@ -368,12 +508,23 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
       }
     }
 
+    if (operation_out != NULL && *operation_out != LW_QUERYNODE_OPERATION_NONE)
+    {
+      g_set_error (
+        error,
+        LW_QUERYNODE_ERROR,
+        LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR,
+        "is missing right side of query after logical connector"
+      );
+      goto errored;
+    }
+
     if (children == NULL) goto errored;
 
     //Create a parent node to hold the children
     query_node = lw_querynode_new (NULL, NULL, NULL, *operation_out);
     if (query_node == NULL) goto errored;
-    operation_out = LW_QUERYNODE_OPERATION_NONE;
+    *operation_out = LW_QUERYNODE_OPERATION_NONE;
 
     query_node->children = g_list_reverse (children);
     children = NULL;

@@ -93,6 +93,7 @@ lw_parenthesisnode_new_tree_from_string (gchar const *  TEXT,
   OPEN = TEXT;
   CLOSE = (*TEXT == '\0') ? TEXT : TEXT + strlen(TEXT) - 1;
   explicit_children = _parse_string (TEXT, error);
+  if (error != NULL && *error != NULL) goto errored;
   children = _calculate_children (OPEN, CLOSE, explicit_children);
 
   //One one child returned, so return it directly 
@@ -290,10 +291,11 @@ _parse_string (gchar const *  TEXT,
         {
           if (num_open < 1)
           {
-            *error = g_error_new (
+            g_set_error (
+              error,
               LW_PARENTHESISNODE_ERROR,
-              LW_PARENTHESISNODE_UNMATCHED_PARENTHESIS_ERROR,
-              "Could not find closing parenthesis"
+              LW_PARENTHESISNODE_UNMATCHED_END_PARENTHESIS_ERROR,
+              "There are more closing parenthesis than open parenthesis."
             );
             goto errored;
           }
@@ -313,16 +315,28 @@ _parse_string (gchar const *  TEXT,
       {
         if (num_open < 1)
         {
-          *error = g_error_new (
+          g_set_error (
+            error,
             LW_PARENTHESISNODE_ERROR,
-            LW_PARENTHESISNODE_UNMATCHED_PARENTHESIS_ERROR,
-            "Could not find closing parenthesis"
+            LW_PARENTHESISNODE_UNMATCHED_END_PARENTHESIS_ERROR,
+            "There are mroe closing parenthesis than open parenthesis"
           );
           goto errored;
         }
         num_open--;
       }
       C = g_utf8_next_char (C);
+    }
+
+    if (num_open > 0)
+    {
+      g_set_error (
+        error,
+        LW_PARENTHESISNODE_ERROR,
+        LW_PARENTHESISNODE_UNMATCHED_START_PARENTHESIS_ERROR,
+        "There are more opening parenthesis than closing parenthesis."
+      );
+      goto errored;
     }
 
     explicit_children_out = g_list_reverse (explicit_children);

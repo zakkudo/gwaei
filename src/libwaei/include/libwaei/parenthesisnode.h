@@ -15,9 +15,11 @@ typedef struct _LwParenthesisNode LwParenthesisNode;
 GType lw_parenthesisnode_get_type (void);
 
 #define LW_PARENTHESISNODE_ERROR lw_parenthesisnode_error_quark ()
+GQuark lw_parenthesisnode_error_quark (void);
 
 typedef enum {
-  LW_PARENTHESISNODE_UNMATCHED_PARENTHESIS_ERROR,
+  LW_PARENTHESISNODE_UNMATCHED_START_PARENTHESIS_ERROR,
+  LW_PARENTHESISNODE_UNMATCHED_END_PARENTHESIS_ERROR,
 } LwParenthesisNodeErrorCode;
 
 
