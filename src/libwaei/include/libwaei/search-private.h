@@ -53,6 +53,15 @@ struct _LwSearchClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 };
 
+
+struct _LwSearchData {
+    LwQueryNode * root;
+    GHashTable * column_mapping;
+    LwSearch * search;
+};
+typedef struct _LwSearchData LwSearchData;
+
+
 #define LW_SEARCH_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SEARCH, LwSearchPrivate));
 
 G_END_DECLS

@@ -49,7 +49,7 @@ parse_string_with_no_parenthesis (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "test english search",
       .children = NULL,
       .refs = 1,
@@ -79,7 +79,7 @@ parse_string_with_only_parenthesis (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "(test english search)",
       .children = NULL,
       .refs = 1,
@@ -109,7 +109,7 @@ parse_string_ends_with_parenthesis (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -117,13 +117,13 @@ parse_string_ends_with_parenthesis (Fixture       * fixture,
 
     LwQueryNode children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "test english",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "(search)",
       .children = NULL,
       .refs = 1,
@@ -153,7 +153,7 @@ parse_string_starts_with_parenthesis (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -161,13 +161,13 @@ parse_string_starts_with_parenthesis (Fixture       * fixture,
 
     LwQueryNode children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "(test)",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "english search",
       .children = NULL,
       .refs = 1,
@@ -197,7 +197,7 @@ parse_string_with_parenthesis (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -205,19 +205,19 @@ parse_string_with_parenthesis (Fixture       * fixture,
 
     LwQueryNode children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "test",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "(english)",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "search",
       .children = NULL,
       .refs = 1,
@@ -247,7 +247,7 @@ parse_string_two_tokens_split_by_and (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -255,13 +255,13 @@ parse_string_two_tokens_split_by_and (Fixture       * fixture,
 
     LwQueryNode children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "1",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_AND,
-      .language = NULL,
+      .key = NULL,
       .data = "2",
       .children = NULL,
       .refs = 1,
@@ -291,7 +291,7 @@ parse_string_two_tokens_split_by_or (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -299,13 +299,13 @@ parse_string_two_tokens_split_by_or (Fixture       * fixture,
 
     LwQueryNode children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "1",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_OR,
-      .language = NULL,
+      .key = NULL,
       .data = "2",
       .children = NULL,
       .refs = 1,
@@ -336,7 +336,7 @@ parse_string_three_tokens_split_by_and_and_or (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -344,19 +344,19 @@ parse_string_three_tokens_split_by_and_and_or (Fixture       * fixture,
 
     LwQueryNode children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "1",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_AND,
-      .language = NULL,
+      .key = NULL,
       .data = "2",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_OR,
-      .language = NULL,
+      .key = NULL,
       .data = "3",
       .children = NULL,
       .refs = 1,
@@ -387,7 +387,7 @@ parse_string_and_embedded_in_or (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -395,13 +395,13 @@ parse_string_and_embedded_in_or (Fixture       * fixture,
 
     LwQueryNode children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "1",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_OR,
-      .language = NULL,
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -410,13 +410,13 @@ parse_string_and_embedded_in_or (Fixture       * fixture,
 
     LwQueryNode embedded_children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "(2)",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_AND,
-      .language = NULL,
+      .key = NULL,
       .data = "(3)",
       .children = NULL,
       .refs = 1,
@@ -447,7 +447,7 @@ parse_string_and_embedded_in_or_with_capture (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -455,13 +455,13 @@ parse_string_and_embedded_in_or_with_capture (Fixture       * fixture,
 
     LwQueryNode children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "1",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_OR,
-      .language = NULL,
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -470,13 +470,13 @@ parse_string_and_embedded_in_or_with_capture (Fixture       * fixture,
 
     LwQueryNode embedded_children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "(?=2)",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_AND,
-      .language = NULL,
+      .key = NULL,
       .data = "(?=3)",
       .children = NULL,
       .refs = 1,
@@ -506,7 +506,7 @@ parse_string_hanging_and (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "1",
       .children = NULL,
       .refs = 1,
@@ -662,7 +662,7 @@ parse_string_with_empty_parenthesis (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .language = NULL,
+      .key = NULL,
       .data = "1",
       .children = NULL,
       .refs = 1,

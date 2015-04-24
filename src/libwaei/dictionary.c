@@ -1191,3 +1191,11 @@ errored:
 
     return parsed;
 }
+
+
+gint *
+lw_dictionary_calculate_applicable_columns_for_text (LwDictionary * self,
+                                                     gchar const  * TEXT)
+{
+    //TODO
+}

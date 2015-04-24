@@ -92,6 +92,64 @@ errored:
 
 
 static LwQueryNode *
+lw_querynode_new_keyed (gchar const          * KEY,
+                        gchar const          * VALUE,
+                        LwQueryNodeOperation   operation)
+{
+    //Sanity checks
+    g_return_val_if_fail (KEY != NULL && VALUE != NULL, NULL);
+
+    //Declarations
+    LwQueryNode * self = NULL;
+    gchar * data = NULL;
+    gchar * key = NULL;
+
+    //Initializations
+    if (KEY != NULL && *KEY != '\0')
+    {
+      key = g_strdup (KEY);
+      if (key == NULL && KEY != NULL) goto errored;
+    }
+
+    if (VALUE != NULL && *VALUE != '\0')
+    {
+      data = g_strdup (VALUE);
+      if (data == NULL && VALUE != NULL) goto errored;
+    }
+
+    self = g_new0 (LwQueryNode, 1);
+    if (self == NULL) goto errored;
+
+    self->key = key;
+    key = NULL;
+
+    self->data = data;
+    data = NULL;
+
+    if (self->data == NULL)
+    {
+      self->operation = LW_QUERYNODE_OPERATION_KEY;
+    }
+    else
+    {
+      self->operation = operation;
+    }
+
+    self->refs = 1;
+
+    self->data = data;
+    data = NULL;
+
+errored:
+
+    g_free (data); data = NULL;
+    g_free (key); key = NULL;
+
+    return self;
+}
+
+
+static LwQueryNode *
 lw_querynode_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis_node,
                                             LwQueryNodeOperation  * operation_out,
                                             GError               ** error)
@@ -267,6 +325,195 @@ errored:
 }
 
 
+static GList *
+_tokenize_explicit_columns (LeafIterator          * self,
+                            LwQueryNodeOperation    operation,
+                            GError               ** error)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+
+    //Declarations
+    GList * children = NULL;
+    GList * children_out = NULL;
+    gchar const * OPEN = NULL;
+    gchar const * CLOSE = NULL;
+    gchar const * BEFORE_LAST_WHITESPACE = NULL;
+    gchar const * AFTER_LAST_WHITESPACE = NULL;
+    gchar const * DELIMITER = NULL;
+    gchar const * C = NULL;
+    gchar * key_buffer = NULL;
+    gchar * value_buffer = NULL;
+    gchar const * LAST_NON_WHITESPACE = NULL;
+    gchar const * LAST_WHITESPACE = NULL;
+    gchar const * PREVIOUS_C = NULL;
+    gunichar ch = 0;
+    gint len = 0;
+    LwQueryNode * query_node = NULL;
+
+    //Initializations
+    OPEN = self->OPEN;
+    CLOSE = self->CLOSE;
+    PREVIOUS_C = C = self->OPEN;
+    len = CLOSE - OPEN + 1;
+    if (len == 0) goto errored;
+    key_buffer = g_new0 (gchar, len);
+    if (key_buffer == NULL) goto errored;
+    value_buffer = g_new0 (gchar, len);
+    if (value_buffer == NULL) goto errored;
+
+    while (*C != '\0' && C < self->CLOSE)
+    {
+      ch = g_utf8_get_char (C);
+
+      if (g_unichar_isspace (ch))
+      {
+        if (LAST_WHITESPACE != PREVIOUS_C)
+        {
+          BEFORE_LAST_WHITESPACE = PREVIOUS_C;
+        }
+        LAST_WHITESPACE = C;
+      }
+      else
+      {
+        if (LAST_NON_WHITESPACE != PREVIOUS_C)
+        {
+          AFTER_LAST_WHITESPACE = PREVIOUS_C;
+        }
+        LAST_NON_WHITESPACE = C;
+      }
+
+      if (*C == ':')
+      {
+        // First keyed query node
+        if (DELIMITER == NULL)
+        {
+          DELIMITER = C;
+          if (AFTER_LAST_WHITESPACE != NULL && AFTER_LAST_WHITESPACE < DELIMITER)
+          {
+            len = C - AFTER_LAST_WHITESPACE;
+            strncpy(key_buffer, C, len);
+            key_buffer[len] = '\0';
+
+            //It's okay for there to be no key (It just turns it into a normal search token)
+
+            if (self->OPEN < BEFORE_LAST_WHITESPACE)
+            {
+              query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, BEFORE_LAST_WHITESPACE, LW_QUERYNODE_OPERATION_AND);
+              if (query_node == NULL) goto errored;
+              children = g_list_prepend (children, query_node);
+              query_node = NULL;
+            }
+          }
+        }
+        // Any keyed query nodes after
+        else if (DELIMITER != NULL && (LAST_WHITESPACE < C && LAST_WHITESPACE > DELIMITER))
+        {
+          //Close the previous keyed query node
+          DELIMITER = g_utf8_next_char (DELIMITER);
+          len = LAST_WHITESPACE - DELIMITER;
+          strncpy(value_buffer, DELIMITER, len);
+          value_buffer[len] = '\0';
+
+          if (*value_buffer == '\0')
+          {
+            g_set_error (
+              error,
+              LW_QUERYNODE_ERROR,
+              LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE,
+              "key with no value for token %s", key_buffer
+            );
+            goto errored;
+          }
+          query_node = lw_querynode_new_keyed (key_buffer, value_buffer, LW_QUERYNODE_OPERATION_AND);
+          if (query_node == NULL) goto errored;
+          children = g_list_prepend (children, query_node);
+          *key_buffer = '\0';
+          *value_buffer = '\0';
+          query_node = NULL;
+          DELIMITER = C;
+        }
+      }
+      PREVIOUS_C = C;
+      C = g_utf8_next_char (C);
+    }
+
+    //Close off the final keyed querynode if it was started
+    if (DELIMITER != NULL)
+    {
+      DELIMITER = g_utf8_next_char (DELIMITER);
+      if (DELIMITER != '\0')
+      {
+        g_free (value_buffer);
+        value_buffer = g_strdup (DELIMITER);
+        query_node = lw_querynode_new_keyed (key_buffer, value_buffer, LW_QUERYNODE_OPERATION_AND);
+        if (query_node == NULL) goto errored;
+        children = g_list_prepend (children, query_node);
+        *key_buffer = '\0';
+        *value_buffer = '\0';
+        query_node = NULL;
+      }
+      // Null value is okay for the last keyed query as long as it can be joined later
+    }
+    //If there were no keyed query nodes, just use the whole substring for a query node
+    else
+    {
+      query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, self->CLOSE, LW_QUERYNODE_OPERATION_AND);
+      if (query_node == NULL) goto errored;
+      children = g_list_prepend (children, query_node);
+      query_node = NULL;
+    }
+
+    children_out = g_list_reverse (children);
+    children = NULL;
+
+errored:
+
+    g_list_free_full (children, (GDestroyNotify) lw_querynode_unref); children = NULL;
+
+    if (query_node != NULL) lw_querynode_unref (query_node);
+    query_node = NULL;
+
+    g_free (key_buffer); key_buffer = NULL;
+    g_free (value_buffer); value_buffer = NULL;
+
+    return children_out;
+}
+
+
+static LwQueryNode *
+_parent_possible_children (GList * children, LwQueryNodeOperation operation)
+{
+    //Declarations
+    LwQueryNode * query_node = NULL;
+
+    if (children == NULL) return NULL;
+
+    //Has multiple children, so create a parent node
+    if (children != NULL)
+    {
+      if (children->next != NULL)
+      {
+        query_node = lw_querynode_new (NULL, NULL, NULL, operation);
+        if (query_node == NULL) goto errored;
+        query_node->children = children;
+        children = NULL;
+      }
+      //One one child, so just return it directly
+      else
+      {
+        query_node = children->data;
+        query_node->operation = operation;
+        g_list_free (children);
+        children = NULL;
+      }
+    }
+
+errored:
+
+    return query_node;
+}
+
 static LwQueryNode *
 leafiterator_new_connector_node (LeafIterator          * self,
                                  const gchar           * CONNECTOR_STR,
@@ -275,11 +522,14 @@ leafiterator_new_connector_node (LeafIterator          * self,
 {
     //Declarations
     LwQueryNode * query_node = NULL;
+    LwQueryNode * query_node_out = NULL;
+    GList * children = NULL;
 
     if (self->OPEN < self->c)
     {
-      query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, self->c, self->operation);
-      if (query_node == NULL) goto errored;
+      children = _tokenize_explicit_columns (self, next_operation, error);
+      if (error != NULL && *error != NULL) goto errored;
+      query_node = _parent_possible_children (children, next_operation);
     }
     else
     {
@@ -295,9 +545,15 @@ leafiterator_new_connector_node (LeafIterator          * self,
     self->operation = next_operation;
     self->OPEN = self->c;
 
+    query_node_out = query_node;
+    query_node = NULL;
+
 errored:
 
-    return query_node;
+    if (query_node != NULL) lw_querynode_unref (query_node);
+    query_node = NULL;
+
+    return query_node_out;
 }
 
 
@@ -447,22 +703,7 @@ _parse_leaf_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
     if (error != NULL && *error != NULL) goto errored;
     if (children == NULL) goto errored;
 
-    //Has multiple children, so create a parent node
-    if (children != NULL && children->next != NULL)
-    {
-      query_node = lw_querynode_new (NULL, NULL, NULL, operation);
-      if (query_node == NULL) goto errored;
-      query_node->children = children;
-      children = NULL;
-    }
-    //One one child, so just return it durectly
-    else if (children != NULL)
-    {
-      query_node = children->data;
-      query_node->operation = operation;
-      g_list_free (children);
-      children = NULL;
-    }
+    query_node = _parent_possible_children (children, operation);
 
     if (operation_out != NULL)
     {
@@ -601,7 +842,6 @@ lw_querynode_assert_equals (LwQueryNode *self,
     g_assert_nonnull (self);
     g_assert_nonnull (other);
     g_assert_cmpuint (self->operation, ==, other->operation);
-    g_assert_cmpstr (self->language, ==, other->language);
     g_assert_cmpstr (self->data, ==, other->data);
     g_assert_cmpint (self->refs, ==, other->refs);
 
@@ -621,3 +861,240 @@ lw_querynode_assert_equals (LwQueryNode *self,
     }
 }
 
+
+void
+lw_querynode_walk (LwQueryNode         * self,
+                   LwQueryNodeWalkFunc   func,
+                   gpointer              data)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    //Declarations
+    GList * link = NULL;
+
+    if (func(self, data)) goto errored;
+
+    for (link = self->children; link != NULL; link = link->next)
+    {
+      lw_querynode_walk (link->data, func, data);
+    }
+
+errored:
+
+    return;
+}
+
+
+static gboolean
+_querynode_apply_implied_logical_junctions (LwQueryNode * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, FALSE);
+
+    //Declarations
+    GList * link = NULL;
+    gboolean has_junction_out = FALSE;
+    gboolean has_junction = FALSE;
+    LwQueryNode * query_node = NULL;
+    LwQueryNode * next_query_node = NULL;
+
+    for (link = self->children; link != NULL; link = link->next)
+    {
+      query_node = LW_QUERYNODE (link->data);
+      next_query_node = (link->next) ? LW_QUERYNODE (link->next->data) : NULL;
+      has_junction = _querynode_apply_implied_logical_junctions (query_node);
+      if (has_junction)
+      {
+        if (query_node != NULL && query_node->operation == LW_QUERYNODE_OPERATION_NONE)
+        {
+          query_node->operation = LW_QUERYNODE_OPERATION_AND;
+        }
+        if (next_query_node != NULL && next_query_node->operation == LW_QUERYNODE_OPERATION_NONE)
+        {
+          next_query_node->operation = LW_QUERYNODE_OPERATION_AND;
+        }
+        has_junction_out = TRUE;
+      }
+    }
+
+    return has_junction_out;
+}
+
+
+static GList *
+_reduce_previous_none_operations (GList *  children,
+                                  GList *  link,
+                                  gchar ** tokens)
+{
+    //Declarations
+    gchar * new_data = NULL;
+    LwQueryNode * query_node = NULL;
+    GList * previous_link = NULL;
+    LwQueryNode * previous_query_node = NULL;
+
+    //Initializations
+    new_data = g_strjoinv (NULL, tokens);
+    if (new_data == NULL) goto errored;
+    query_node = LW_QUERYNODE (link->data);
+    previous_link = link->prev;
+    previous_query_node = (previous_link != NULL) ? LW_QUERYNODE (previous_link->data) : NULL;
+
+    while (previous_query_node != NULL && previous_query_node->operation == LW_QUERYNODE_OPERATION_NONE)
+    {
+      lw_querynode_unref (previous_query_node);
+      children = g_list_delete_link (children, previous_link);
+      
+      previous_query_node = NULL;
+      previous_link = link->prev;
+      previous_query_node = (previous_link != NULL) ? LW_QUERYNODE (previous_link->data) : NULL;
+    }
+
+    g_free (query_node->data);
+    query_node->data = new_data;
+    new_data = NULL;
+
+errored:
+
+    g_free (new_data); new_data = NULL;
+
+    return children;
+}
+
+
+static LwQueryNode *
+_querynode_reduce (LwQueryNode * self)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    //Declaration
+    GList * link = NULL;
+    gint num_children = 0;
+    gchar ** tokens = NULL;
+    gint num_tokens = 0;
+    LwQueryNode * query_node = NULL;
+
+    //Initializations
+    num_children = g_list_length (self->children);
+    tokens = g_new0 (gchar *, num_children + 1);
+    if (tokens == NULL) goto errored;
+
+    for (link = self->children; link != NULL; link = link->next)
+    {
+      //Make sure the children nodes are sane
+      link->data = query_node = _querynode_reduce (LW_QUERYNODE (link->data));
+
+      //Reduce the previous children if they are none operations
+      if (query_node->operation != LW_QUERYNODE_OPERATION_NONE)
+      {
+        if (num_tokens > 1 && link->prev != NULL)
+        {
+          self->children = _reduce_previous_none_operations (self->children, link->prev, tokens);
+        }
+        if (num_tokens > 0)
+        {
+          memset(tokens, 0, num_children * sizeof(tokens));
+          num_tokens = 0;
+        }
+      }
+      else if (query_node->operation == LW_QUERYNODE_OPERATION_NONE && query_node->data != NULL)
+      {
+        tokens[num_tokens++] = query_node->data;
+      }
+    }
+
+    //If there is only one child, merge it into the parent
+    if (self->children != NULL && self->children->next == NULL)
+    {
+      query_node = LW_QUERYNODE (self->children->data);
+      self->children = g_list_delete_link (self->children, self->children);
+
+      lw_querynode_unref (self);
+      self = query_node;
+      query_node = NULL;
+    }
+
+errored:
+
+    g_free (tokens); tokens = NULL;
+
+    return self;
+}
+
+
+static void
+_querynode_compile (LwQueryNode * self,
+                    LwUtf8Flag    flags,
+                    GError      ** error)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    if (error != NULL && *error != NULL) return;
+
+    //Declarations
+    GList *link = NULL;
+    LwQueryNode *query_node = NULL;
+    gchar * normalized_pattern = NULL;
+    GRegex * regex = NULL;
+
+    //Initializations
+    normalized_pattern = lw_utf8_normalize (self->data, -1, flags);
+    if (normalized_pattern == NULL) goto errored;
+    regex = g_regex_new (normalized_pattern, G_REGEX_OPTIMIZE, 0, error);
+    if (error != NULL && *error != NULL) goto errored;
+
+    for (link = self->children; link != NULL; link = link->next)
+    {
+      query_node = LW_QUERYNODE (link->data);
+      _querynode_compile (query_node, flags, error);
+      if (error != NULL && *error != NULL) goto errored;
+    }
+
+    if (query_node->regex != NULL) g_regex_unref (query_node->regex);
+    query_node->regex = regex;
+    regex = NULL;
+
+errored:
+
+    if (regex != NULL) g_regex_unref (regex);
+    regex =  NULL;
+
+    g_free (normalized_pattern);
+    normalized_pattern = NULL;
+}
+
+
+gint
+lw_querynode_nnodes (LwQueryNode * self)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    //Declarations
+    gint nnodes = 1;
+    LwQueryNode * query_node = NULL;
+    GList * link = NULL;
+
+    for (link = self->children; link != NULL; link = link->next)
+    {
+      query_node = LW_QUERYNODE (link->data);
+      nnodes += lw_querynode_nnodes (query_node);
+    }
+
+    return nnodes;
+}
+
+
+void
+lw_querynode_compile (LwQueryNode *  self,
+                      LwUtf8Flag     flags,
+                      GError      ** error)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    _querynode_apply_implied_logical_junctions (self);
+    _querynode_reduce (self);
+    _querynode_compile (self, flags, error);
+}

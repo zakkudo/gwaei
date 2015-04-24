@@ -6,32 +6,43 @@ typedef enum _LwQueryNodeOperation {
   LW_QUERYNODE_OPERATION_NONE,
   LW_QUERYNODE_OPERATION_OR,
   LW_QUERYNODE_OPERATION_AND,
+  LW_QUERYNODE_OPERATION_KEY,
   TOTAL_LW_QUERYNODE_OPERATIONS
 } LwQueryNodeOperation;
 
 struct _LwQueryNode {
   LwQueryNodeOperation operation;
-  gchar const * language;
+  gchar * key;
   gchar * data;
   GList * children;
   gint refs;
+
+  GRegex * regex;
 };
 typedef struct _LwQueryNode LwQueryNode;
 
+typedef gboolean(*LwQueryNodeWalkFunc)(LwQueryNode * self, gpointer data);
+
 #define LW_QUERYNODE_ERROR lw_querynode_error_quark ()
 GQuark lw_querynode_error_quark (void);
+
+#define LW_QUERYNODE(obj) ((LwQueryNode*)(obj))
 
 typedef enum {
   LW_QUERYNODE_UNCLOSED_PARENTHESIS,
   LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR,
   LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR,
+  LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE,
 } LwQueryNodeErrorCode;
 
 
 LwQueryNode * lw_querynode_new_tree_from_string (gchar const * TEXT, LwQueryNodeOperation * operation_out, GError ** error);
 LwQueryNode* lw_querynode_ref (LwQueryNode * self);
 void lw_querynode_unref (LwQueryNode *self);
-void lw_querynode_assert_equals (LwQueryNode *self, LwQueryNode *other);
+void lw_querynode_assert_equals (LwQueryNode * self, LwQueryNode *other);
+void lw_querynode_walk (LwQueryNode * self, LwQueryNodeWalkFunc func, gpointer data);
+gint lw_querynode_nnodes (LwQueryNode * self);
+void lw_querynode_compile (LwQueryNode * self, LwUtf8Flag flags, GError ** error);
 
 
 #endif

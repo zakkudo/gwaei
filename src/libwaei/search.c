@@ -43,6 +43,9 @@
 
 G_DEFINE_TYPE (LwSearch, lw_search, G_TYPE_OBJECT)
 
+static LwSearchData * lw_searchdata_new (LwSearch * search, GError ** error);
+static void lw_searchdata_free (LwSearchData * self);
+
 //!
 //! @brief Creates a new LwSearch object. 
 //! @param query The text to be self for
@@ -836,8 +839,9 @@ _lw_search_get_index_flags (LwSearch *self)
 */
 
 static gpointer 
-lw_search_stream_results_thread (LwSearch *self)
+lw_search_stream_results_thread (LwSearchData *self)
 {
+/*TODO
     //Sanity checks
     g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
 
@@ -855,7 +859,6 @@ printf("BREAK lw_search_stream_results_thread\n");
     dictionary = priv->dictionary;
     flags = priv->flags;
 
-/*TODO
     //Index the dictionary if it isn't already
     if (flags & LW_SEARCHFLAG_USE_INDEX)
     {
@@ -887,7 +890,6 @@ printf("BREAK lw_search_stream_results_thread index is loaded\n");
       if (self->resulttable != NULL) g_hash_table_unref (self->resulttable);
       self->resulttable = lw_dictionary_regex_search (dictionary, priv->query, flags, progress);
     }
-    */
 
 errored:
 
@@ -896,7 +898,29 @@ errored:
 
     g_mutex_unlock (&priv->mutex);
 
+    searchdata_free (self);
+    */
+
     return NULL;
+}
+
+
+static LwSearchData *
+lw_searchdata_new (LwSearch *  search,
+                   GError   ** error)
+{
+/*TODO
+    querynode = lw_querynode_new_from_string (string);  TODO
+    lw_querynode_compile (querynode, flags, &error);
+    the search thread will take ownership of the querynode and then free it when the search ends
+
+    columntable = g_hash_table_new ()
+    lw_querynode_walk (querynode, assign_nodes_to_dictionary_columns, data);
+}
+
+static void
+searchdata_free (SearchData * self)
+*/
 }
 
 
@@ -907,42 +931,58 @@ errored:
 //! @param exact Whether to show only exact matches for this self
 //!
 void 
-lw_search_start (LwSearch *self)
+lw_search_start (LwSearch *  self,
+                 gboolean    dry_run,
+                 GError   ** error)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
 
-    lw_search_stream_results_thread ((gpointer) self);
+/*TODO
+    create temporary container for all of this that gets freed when done
+    data = lw_searchdata_new (self, error);
+    if (error != NULL && *error != NULL) goto errored;
+
+    lw_search_stream_results_thread ((gpointer) data);
+*/
+
+errored:
+
+    return;
 }
 
 
 void
-lw_search_start_async (LwSearch *self)
+lw_search_start_async (LwSearch *  self,
+                       gboolean    dry_run,
+                       GError   ** error)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
 
     //Declarations
     LwSearchPrivate *priv = NULL;
-    GError *error = NULL;
+    LwSearchData * data = NULL;
 
     //Initializations
     priv = self->priv;
     priv->thread = NULL;
     priv->status = LW_SEARCHSTATUS_SEARCHING;
 
+    data = lw_searchdata_new (self, error);
+    if (error != NULL && *error != NULL) goto errored;
+
     priv->thread = g_thread_try_new (
       "libwaei-search-thread",
       (GThreadFunc) lw_search_stream_results_thread, 
-      (gpointer) self, 
-      &error
+      (gpointer) data, 
+      error
     );
+    if (error != NULL && *error != NULL) goto errored;
 
-    if (error != NULL)
-    {
-      g_warning ("Thread Creation Error: %s\n", error->message);
-      g_clear_error (&error);
-    }
+errored:
+
+    return;
 }
 
 

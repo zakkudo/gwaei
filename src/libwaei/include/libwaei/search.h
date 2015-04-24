@@ -4,6 +4,7 @@
 #include "preferences.h"
 #include "dictionary.h"
 #include "utf8.h"
+#include "querynode.h"
 
 G_BEGIN_DECLS
 
@@ -96,8 +97,8 @@ LwSearch* lw_search_new_by_preferences (const gchar *QUERY, LwDictionary  *dicti
 GType lw_search_get_type (void) G_GNUC_CONST;
 
 
-void lw_search_start (LwSearch *self);
-void lw_search_start_async (LwSearch *self);
+void lw_search_start (LwSearch *self, gboolean dry_run, GError ** error);
+void lw_search_start_async (LwSearch *self, gboolean dry_run, GError ** error);
 
 //Properties
 
