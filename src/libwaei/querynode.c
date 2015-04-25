@@ -327,7 +327,6 @@ errored:
 
 static GList *
 _tokenize_explicit_columns (LeafIterator          * self,
-                            LwQueryNodeOperation    operation,
                             GError               ** error)
 {
     //Sanity checks
@@ -353,7 +352,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
 
     //Initializations
     OPEN = self->OPEN;
-    CLOSE = self->CLOSE;
+    CLOSE = self->c;
     PREVIOUS_C = C = self->OPEN;
     len = CLOSE - OPEN + 1;
     if (len == 0) goto errored;
@@ -362,7 +361,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
     value_buffer = g_new0 (gchar, len);
     if (value_buffer == NULL) goto errored;
 
-    while (*C != '\0' && C < self->CLOSE)
+    while (*C != '\0' && C < CLOSE)
     {
       ch = g_utf8_get_char (C);
 
@@ -458,7 +457,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
     //If there were no keyed query nodes, just use the whole substring for a query node
     else
     {
-      query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, self->CLOSE, LW_QUERYNODE_OPERATION_AND);
+      query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, CLOSE, LW_QUERYNODE_OPERATION_AND);
       if (query_node == NULL) goto errored;
       children = g_list_prepend (children, query_node);
       query_node = NULL;
@@ -482,37 +481,44 @@ errored:
 
 
 static LwQueryNode *
-_parent_possible_children (GList * children, LwQueryNodeOperation operation)
+_parent_possible_children (GList                ** children_out,
+                           LwQueryNodeOperation    operation)
 {
+    //Sanity check
+    g_return_val_if_fail (children_out != NULL, NULL);
+    if (*children_out == NULL) return NULL;
+
     //Declarations
     LwQueryNode * query_node = NULL;
+    GList * children = NULL;
 
-    if (children == NULL) return NULL;
+    //Initializations
+    children = *children_out;
 
     //Has multiple children, so create a parent node
-    if (children != NULL)
+    if (children->next != NULL)
     {
-      if (children->next != NULL)
-      {
-        query_node = lw_querynode_new (NULL, NULL, NULL, operation);
-        if (query_node == NULL) goto errored;
-        query_node->children = children;
-        children = NULL;
-      }
-      //One one child, so just return it directly
-      else
-      {
-        query_node = children->data;
-        query_node->operation = operation;
-        g_list_free (children);
-        children = NULL;
-      }
+      query_node = lw_querynode_new (NULL, NULL, NULL, operation);
+      if (query_node == NULL) goto errored;
+      query_node->children = children;
+      children = NULL;
     }
+    //One one child, so just return it directly
+    else
+    {
+      query_node = children->data;
+      query_node->operation = operation;
+      g_list_free (children);
+      children = NULL;
+    }
+
+    *children_out = NULL;
 
 errored:
 
     return query_node;
 }
+
 
 static LwQueryNode *
 leafiterator_new_connector_node (LeafIterator          * self,
@@ -527,9 +533,9 @@ leafiterator_new_connector_node (LeafIterator          * self,
 
     if (self->OPEN < self->c)
     {
-      children = _tokenize_explicit_columns (self, next_operation, error);
+      children = _tokenize_explicit_columns (self, error);
       if (error != NULL && *error != NULL) goto errored;
-      query_node = _parent_possible_children (children, next_operation);
+      query_node = _parent_possible_children (&children, self->operation);
     }
     else
     {
@@ -593,7 +599,7 @@ errored:
 }
 
 
-static LwQueryNode*
+static LwQueryNode *
 leafiterator_read (LeafIterator  * self,
                    GError       ** error)
 {
@@ -703,7 +709,7 @@ _parse_leaf_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
     if (error != NULL && *error != NULL) goto errored;
     if (children == NULL) goto errored;
 
-    query_node = _parent_possible_children (children, operation);
+    query_node = _parent_possible_children (&children, operation);
 
     if (operation_out != NULL)
     {
