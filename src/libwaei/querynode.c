@@ -108,13 +108,13 @@ lw_querynode_new_keyed (gchar const          * KEY,
     if (KEY != NULL && *KEY != '\0')
     {
       key = g_strdup (KEY);
-      if (key == NULL && KEY != NULL) goto errored;
+      if (key == NULL) goto errored;
     }
 
     if (VALUE != NULL && *VALUE != '\0')
     {
       data = g_strdup (VALUE);
-      if (data == NULL && VALUE != NULL) goto errored;
+      if (data == NULL) goto errored;
     }
 
     self = g_new0 (LwQueryNode, 1);
@@ -136,9 +136,6 @@ lw_querynode_new_keyed (gchar const          * KEY,
     }
 
     self->refs = 1;
-
-    self->data = data;
-    data = NULL;
 
 errored:
 
@@ -375,9 +372,9 @@ _tokenize_explicit_columns (LeafIterator          * self,
       }
       else
       {
-        if (LAST_NON_WHITESPACE != PREVIOUS_C)
+        if (LAST_WHITESPACE == PREVIOUS_C)
         {
-          AFTER_LAST_WHITESPACE = PREVIOUS_C;
+          AFTER_LAST_WHITESPACE = C;
         }
         LAST_NON_WHITESPACE = C;
       }
@@ -391,14 +388,14 @@ _tokenize_explicit_columns (LeafIterator          * self,
           if (AFTER_LAST_WHITESPACE != NULL && AFTER_LAST_WHITESPACE < DELIMITER)
           {
             len = C - AFTER_LAST_WHITESPACE;
-            strncpy(key_buffer, C, len);
+            strncpy(key_buffer, AFTER_LAST_WHITESPACE, len);
             key_buffer[len] = '\0';
 
             //It's okay for there to be no key (It just turns it into a normal search token)
 
-            if (self->OPEN < BEFORE_LAST_WHITESPACE)
+            if (BEFORE_LAST_WHITESPACE != NULL && self->OPEN <= BEFORE_LAST_WHITESPACE)
             {
-              query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, BEFORE_LAST_WHITESPACE, LW_QUERYNODE_OPERATION_AND);
+              query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, g_utf8_next_char (BEFORE_LAST_WHITESPACE), LW_QUERYNODE_OPERATION_NONE);
               if (query_node == NULL) goto errored;
               children = g_list_prepend (children, query_node);
               query_node = NULL;
@@ -443,8 +440,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
       DELIMITER = g_utf8_next_char (DELIMITER);
       if (DELIMITER != '\0')
       {
-        g_free (value_buffer);
-        value_buffer = g_strdup (DELIMITER);
+        strcpy(value_buffer, DELIMITER);
         query_node = lw_querynode_new_keyed (key_buffer, value_buffer, LW_QUERYNODE_OPERATION_AND);
         if (query_node == NULL) goto errored;
         children = g_list_prepend (children, query_node);
@@ -573,22 +569,14 @@ leafiterator_new_final_node (LeafIterator          * self,
 
     //Declarations
     LwQueryNode *query_node = NULL;
+    GList * children = NULL;
 
     if (self->OPEN < self->c)
     {
-      query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, self->c, self->operation);
+      children = _tokenize_explicit_columns (self, error);
+      if (error != NULL && *error != NULL) goto errored;
+      query_node = _parent_possible_children (&children, self->operation);
       self->operation = LW_QUERYNODE_OPERATION_NONE;
-    }
-
-    if (self->PARENTHESIS != NULL && self->operation != LW_QUERYNODE_OPERATION_NONE)
-    {
-      g_set_error (
-        error,
-        LW_QUERYNODE_ERROR,
-        LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR,
-        "is missing right side of query after logical connector"
-      );
-      goto errored;
     }
 
     self->c = NULL;
@@ -635,6 +623,17 @@ leafiterator_read (LeafIterator  * self,
     {
       query_node = leafiterator_new_final_node (self, error);
       if (error != NULL && *error != NULL) goto errored;
+
+      if (self->PARENTHESIS && self->operation != LW_QUERYNODE_OPERATION_NONE)
+      {
+        g_set_error (
+          error,
+          LW_QUERYNODE_ERROR,
+          LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR,
+          "is missing left side of query before logical connector"
+        );
+        goto errored;
+      }
     }
 
 errored:
@@ -821,6 +820,8 @@ lw_querynode_free (LwQueryNode *self)
     if (self == NULL) return;
 
     g_free (self->data);
+    g_free (self->key);
+    if (self->regex != NULL) g_regex_unref (self->regex);
     g_list_free_full (self->children, (GDestroyNotify) lw_querynode_free);
     
     memset(self, 0, sizeof(LwQueryNode));
