@@ -126,14 +126,7 @@ lw_querynode_new_keyed (gchar const          * KEY,
     self->data = data;
     data = NULL;
 
-    if (self->data == NULL)
-    {
-      self->operation = LW_QUERYNODE_OPERATION_KEY;
-    }
-    else
-    {
-      self->operation = operation;
-    }
+    self->operation = operation;
 
     self->refs = 1;
 
@@ -441,10 +434,25 @@ _tokenize_explicit_columns (LeafIterator          * self,
       DELIMITER = g_utf8_next_char (DELIMITER);
       if (DELIMITER != '\0')
       {
-        strcpy(value_buffer, DELIMITER);
+        gint len = self->CLOSE - DELIMITER + 1;
+        strncpy(value_buffer, DELIMITER, len);
+        value_buffer[len] = '\0';
+
+        if (*key_buffer == '\0' && *value_buffer == '\0')
+        {
+          g_set_error (
+            error,
+            LW_QUERYNODE_ERROR,
+            LW_QUERYNODE_ERROR_MISSING_KEY_AND_VALUE_FOR_KEYED_QUERYNODE,
+            "key:value"
+          );
+          goto errored;
+        }
+
         query_node = lw_querynode_new_keyed (key_buffer, value_buffer, LW_QUERYNODE_OPERATION_AND);
         if (query_node == NULL) goto errored;
         children = g_list_prepend (children, query_node);
+
         *key_buffer = '\0';
         *value_buffer = '\0';
         query_node = NULL;
@@ -933,18 +941,29 @@ _querynode_apply_implied_logical_junctions (LwQueryNode * self)
 static GList *
 _reduce_previous_none_operations (GList *  children,
                                   GList *  link,
-                                  gchar ** tokens)
+                                  gchar ** tokens,
+                                  gint  *  num_tokens_out)
 {
+    //Sanity checks
+    g_return_val_if_fail (tokens != NULL, NULL);
+    g_return_val_if_fail (num_tokens_out != NULL, NULL);
+
+    if (children == NULL) return children;
+    if (*num_tokens_out < 1 || *tokens == NULL) return children;
+    if (link == NULL) return children;
+    if (link->prev == NULL) return children;
+
     //Declarations
-    gchar * new_data = NULL;
     LwQueryNode * query_node = NULL;
+    gchar * new_data = NULL;
     GList * previous_link = NULL;
     LwQueryNode * previous_query_node = NULL;
 
     //Initializations
+    query_node = LW_QUERYNODE (link->data);
+    if (query_node == NULL || query_node->operation != LW_QUERYNODE_OPERATION_NONE) goto errored;
     new_data = g_strjoinv (NULL, tokens);
     if (new_data == NULL) goto errored;
-    query_node = LW_QUERYNODE (link->data);
     previous_link = link->prev;
     previous_query_node = (previous_link != NULL) ? LW_QUERYNODE (previous_link->data) : NULL;
 
@@ -953,7 +972,6 @@ _reduce_previous_none_operations (GList *  children,
       lw_querynode_unref (previous_query_node);
       children = g_list_delete_link (children, previous_link);
       
-      previous_query_node = NULL;
       previous_link = link->prev;
       previous_query_node = (previous_link != NULL) ? LW_QUERYNODE (previous_link->data) : NULL;
     }
@@ -961,6 +979,9 @@ _reduce_previous_none_operations (GList *  children,
     g_free (query_node->data);
     query_node->data = new_data;
     new_data = NULL;
+
+    memset(tokens, 0, *num_tokens_out * sizeof(gchar*));
+    *num_tokens_out = 0;
 
 errored:
 
@@ -970,7 +991,7 @@ errored:
 }
 
 
-static LwQueryNode *
+static void
 _querynode_reduce (LwQueryNode * self)
 {
     //Sanity checks
@@ -985,41 +1006,47 @@ _querynode_reduce (LwQueryNode * self)
 
     //Initializations
     num_children = g_list_length (self->children);
+    if (num_children == 0) goto errored;
     tokens = g_new0 (gchar *, num_children + 1);
     if (tokens == NULL) goto errored;
 
     for (link = self->children; link != NULL; link = link->next)
     {
-      //Make sure the children nodes are sane
-      link->data = query_node = _querynode_reduce (LW_QUERYNODE (link->data));
-
-      //Reduce the previous children if they are none operations
-      if (query_node->operation != LW_QUERYNODE_OPERATION_NONE)
+      query_node = LW_QUERYNODE (link->data);
+      _querynode_reduce (query_node);
+      if (query_node->operation == LW_QUERYNODE_OPERATION_NONE)
       {
-        if (num_tokens > 1 && link->prev != NULL)
+        if (query_node->data != NULL)
         {
-          self->children = _reduce_previous_none_operations (self->children, link->prev, tokens);
-        }
-        if (num_tokens > 0)
-        {
-          memset(tokens, 0, num_children * sizeof(tokens));
-          num_tokens = 0;
+          tokens[num_tokens++] = query_node->data;
         }
       }
-      else if (query_node->operation == LW_QUERYNODE_OPERATION_NONE && query_node->data != NULL)
+      else if (query_node->operation != LW_QUERYNODE_OPERATION_NONE)
       {
-        tokens[num_tokens++] = query_node->data;
+        self->children = _reduce_previous_none_operations (self->children, link->prev, tokens, &num_tokens);
       }
     }
+    self->children = _reduce_previous_none_operations (self->children, g_list_last (self->children), tokens, &num_tokens);
+    
 
     //If there is only one child, merge it into the parent
     if (self->children != NULL && self->children->next == NULL)
     {
+      // Prune the link
       query_node = LW_QUERYNODE (self->children->data);
       self->children = g_list_delete_link (self->children, self->children);
 
-      lw_querynode_unref (self);
-      self = query_node;
+      // Free the leftover data
+      g_free (self->key);
+      g_free (self->data);
+      if (self->regex) g_regex_unref (self->regex);
+      g_list_free_full (self->children, (GDestroyNotify) lw_querynode_unref);
+
+      // Replace it
+      memcpy(self, query_node, sizeof(LwQueryNode));
+
+      // Remove the old node
+      g_free (query_node);
       query_node = NULL;
     }
 
