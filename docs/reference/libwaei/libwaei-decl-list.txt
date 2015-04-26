@@ -18,14 +18,6 @@ lw_application_get_type
 </SECTION>
 
 <SECTION>
-<FILE>application-private</FILE>
-Props
-LwApplicationPrivate
-LwApplicationClassPrivate
-LW_APPLICATION_GET_PRIVATE
-</SECTION>
-
-<SECTION>
 <FILE>cachefile</FILE>
 <TITLE>LwCacheFile</TITLE>
 LW_CACHEFILE_ERROR
@@ -51,15 +43,6 @@ LwCacheFile
 LwCacheFileClass
 LwCacheFilePrivate
 lw_cachefile_get_type
-</SECTION>
-
-<SECTION>
-<FILE>cachefile-private</FILE>
-LwCacheFileProps
-ClassSignalId
-LwCacheFilePrivate
-LwCacheFileClassPrivate
-LW_CACHEFILE_GET_PRIVATE
 </SECTION>
 
 <SECTION>
@@ -93,16 +76,6 @@ LwCommand
 LwCommandClass
 LwCommandPrivate
 lw_command_get_type
-</SECTION>
-
-<SECTION>
-<FILE>command-private</FILE>
-Prop
-SignalId
-ClassSignalId
-LwCommandPrivate
-LwCommandClassPrivate
-LW_COMMAND_GET_PRIVATE
 </SECTION>
 
 <SECTION>
@@ -210,15 +183,6 @@ lw_dictionary_index_get_path
 </SECTION>
 
 <SECTION>
-<FILE>dictionary-private</FILE>
-LwDictionaryProps
-ClassSignalId
-LwDictionaryPrivate
-LwDictionaryClassPrivate
-LW_DICTIONARY_GET_PRIVATE
-</SECTION>
-
-<SECTION>
 <FILE>dictionarycache</FILE>
 <TITLE>LwDictionaryCache</TITLE>
 LW_DICTIONARYCACHE_ERROR
@@ -248,14 +212,6 @@ LwDictionaryCache
 LwDictionaryCacheClass
 LwDictionaryCachePrivate
 lw_dictionarycache_get_type
-</SECTION>
-
-<SECTION>
-<FILE>dictionarycache-private</FILE>
-Props
-LwDictionaryCachePrivate
-LwDictionaryCacheClassPrivate
-LW_DICTIONARYCACHE_GET_PRIVATE
 </SECTION>
 
 <SECTION>
@@ -309,18 +265,6 @@ lw_dictionaryinstall_get_type
 </SECTION>
 
 <SECTION>
-<FILE>dictionaryinstall-private</FILE>
-Props
-SignalId
-Index
-LwDictionaryInstallPrivate
-LwDictionaryInstallClassPrivate
-LW_DICTIONARYINSTALL_GET_PRIVATE
-lw_dictionaryinstall_get_name
-lw_dictionaryinstall_set_name
-</SECTION>
-
-<SECTION>
 <FILE>dictionaryinstalllist</FILE>
 <TITLE>LwDictionaryInstallList</TITLE>
 LW_SCHEMA_DICTIONARY
@@ -358,25 +302,6 @@ lw_dictionaryinstalllist_get_type
 <FILE>dictionaryinstalllist-callbacks</FILE>
 lw_dictionaryinstalllist_connect_signals
 lw_dictionaryinstalllist_disconnect_signals
-</SECTION>
-
-<SECTION>
-<FILE>dictionaryinstalllist-private</FILE>
-Props
-SignalId
-ClassSignalId
-Index
-Data
-Config
-LwDictionaryInstallListPrivate
-LwDictionaryInstallListClassPrivate
-LW_DICTIONARYINSTALLLIST_GET_PRIVATE
-lw_dictionaryinstalllist_menumodel_insert
-lw_dictionaryinstalllist_menumodel_append
-lw_dictionaryinstalllist_sync_menumodel
-lw_dictionaryinstalllist_set_preferences
-lw_dictionaryinstalllist_get_preferences
-lw_dictionaryinstalllist_set_menumodel
 </SECTION>
 
 <SECTION>
@@ -456,25 +381,6 @@ lw_dictionarylist_reordered_cb
 </SECTION>
 
 <SECTION>
-<FILE>dictionarylist-private</FILE>
-Props
-SignalId
-ClassSignalId
-Index
-Data
-Config
-LwDictionaryListPrivate
-LwDictionaryListClassPrivate
-LW_DICTIONARYLIST_GET_PRIVATE
-lw_dictionarylist_menumodel_insert
-lw_dictionarylist_menumodel_append
-lw_dictionarylist_sync_menumodel
-lw_dictionarylist_set_preferences
-lw_dictionarylist_get_preferences
-lw_dictionarylist_set_menumodel
-</SECTION>
-
-<SECTION>
 <FILE>dictionarymodule</FILE>
 <TITLE>LwDictionaryModule</TITLE>
 LwDictionaryModuleRegisterTypeFunc
@@ -493,14 +399,6 @@ LwDictionaryModule
 LwDictionaryModuleClass
 LwDictionaryModulePrivate
 lw_dictionarymodule_get_type
-</SECTION>
-
-<SECTION>
-<FILE>dictionarymodule-private</FILE>
-Props
-LwDictionaryModulePrivate
-LwDictionaryModuleClassPrivate
-LW_DICTIONARYMODULE_GET_PRIVATE
 </SECTION>
 
 <SECTION>
@@ -587,14 +485,6 @@ lw_indexed_get_type
 </SECTION>
 
 <SECTION>
-<FILE>indexed-private</FILE>
-LwIndexedProps
-ClassSignalId
-LwIndexedPrivate
-LW_INDEXED_GET_PRIVATE
-</SECTION>
-
-<SECTION>
 <FILE>installsubcommand</FILE>
 <TITLE>LwInstallSubCommand</TITLE>
 lw_installsubcommand_new
@@ -610,14 +500,6 @@ LwInstallSubCommand
 LwInstallSubCommandClass
 LwInstallSubCommandPrivate
 lw_installsubcommand_get_type
-</SECTION>
-
-<SECTION>
-<FILE>installsubcommand-private</FILE>
-LwInstallSubCommandProps
-LwInstallSubCommandPrivate
-LwInstallSubCommandClassPrivate
-LW_INSTALLSUBCOMMAND_GET_PRIVATE
 </SECTION>
 
 <SECTION>
@@ -664,15 +546,6 @@ lw_mappedfile_get_type
 </SECTION>
 
 <SECTION>
-<FILE>mappedfile-private</FILE>
-Prop
-ClassSignalId
-LwMappedFilePrivate
-LwMappedFileClassPrivate
-LW_MAPPEDFILE_GET_PRIVATE
-</SECTION>
-
-<SECTION>
 <FILE>morphologyengine</FILE>
 <TITLE>LwMorphologyEngine</TITLE>
 LW_MORPHOLOGY_SPELLCHECK_DELIMITOR
@@ -704,14 +577,6 @@ lw_morphologyengine_hunspell_new
 <FILE>morphologyengine-mecab</FILE>
 lw_morphologyengine_mecab_analyze
 lw_morphologyengine_mecab_new
-</SECTION>
-
-<SECTION>
-<FILE>morphologyengine-private</FILE>
-LwMorphologyEngineProps
-LwMorphologyEnginePrivate
-LwMorphologyEngineClassPrivate
-LW_MORPHOLOGYENGINE_GET_PRIVATE
 </SECTION>
 
 <SECTION>
@@ -763,15 +628,6 @@ LwParsed
 LwParsedClass
 LwParsedPrivate
 lw_parsed_get_type
-</SECTION>
-
-<SECTION>
-<FILE>parsed-private</FILE>
-Prop
-ClassSignalId
-LwParsedPrivate
-LwParsedClassPrivate
-LW_PARSED_GET_PRIVATE
 </SECTION>
 
 <SECTION>
@@ -868,13 +724,6 @@ lw_preferences_get_type
 </SECTION>
 
 <SECTION>
-<FILE>preferences-private</FILE>
-Props
-LwPreferencesPrivate
-LW_PREFERENCES_GET_PRIVATE
-</SECTION>
-
-<SECTION>
 <FILE>progress</FILE>
 <TITLE>LwProgress</TITLE>
 LwProgressCallback
@@ -921,18 +770,6 @@ LwProgress
 LwProgressClass
 LwProgressPrivate
 lw_progress_get_type
-</SECTION>
-
-<SECTION>
-<FILE>progress-private</FILE>
-Props
-ClassSignalId
-Data
-Config
-LwProgressPrivate
-LwProgressClassPrivate
-LW_PROGRESS_GET_PRIVATE
-lw_progress_sync_ratio_delta
 </SECTION>
 
 <SECTION>
@@ -1052,17 +889,6 @@ lw_searchstatus_get_type
 </SECTION>
 
 <SECTION>
-<FILE>search-private</FILE>
-Props
-SignalId
-ClassSignalId
-LwSearchPrivate
-LwSearchClassPrivate
-LwSearchData
-LW_SEARCH_GET_PRIVATE
-</SECTION>
-
-<SECTION>
 <FILE>searchsubcommand</FILE>
 <TITLE>LwSearchSubCommand</TITLE>
 lw_searchsubcommand_new
@@ -1078,14 +904,6 @@ LwSearchSubCommand
 LwSearchSubCommandClass
 LwSearchSubCommandPrivate
 lw_searchsubcommand_get_type
-</SECTION>
-
-<SECTION>
-<FILE>searchsubcommand-private</FILE>
-LwSearchSubCommandProps
-LwSearchSubCommandPrivate
-LwSearchSubCommandClassPrivate
-LW_SEARCHSUBCOMMAND_GET_PRIVATE
 </SECTION>
 
 <SECTION>
@@ -1107,14 +925,6 @@ LwSerializable
 LwSerializableClass
 LwSerializablePrivate
 lw_serializable_get_type
-</SECTION>
-
-<SECTION>
-<FILE>serializable-private</FILE>
-LwSerializableProps
-ClassSignalId
-LwSerializablePrivate
-LW_SERIALIZABLE_GET_PRIVATE
 </SECTION>
 
 <SECTION>
@@ -1141,15 +951,6 @@ lw_subcommand_get_type
 </SECTION>
 
 <SECTION>
-<FILE>subcommand-private</FILE>
-LwSubCommandProps
-ClassSignalId
-LwSubCommandPrivate
-LwSubCommandClassPrivate
-LW_SUBCOMMAND_GET_PRIVATE
-</SECTION>
-
-<SECTION>
 <FILE>uninstallsubcommand</FILE>
 <TITLE>LwUninstallSubCommand</TITLE>
 lw_uninstallsubcommand_new
@@ -1165,14 +966,6 @@ LwUninstallSubCommand
 LwUninstallSubCommandClass
 LwUninstallSubCommandPrivate
 lw_uninstallsubcommand_get_type
-</SECTION>
-
-<SECTION>
-<FILE>uninstallsubcommand-private</FILE>
-Prop
-LwUninstallSubCommandPrivate
-LwUninstallSubCommandClassPrivate
-LW_UNINSTALLSUBCOMMAND_GET_PRIVATE
 </SECTION>
 
 <SECTION>
@@ -1265,17 +1058,6 @@ LwVocabulary
 LwVocabularyClass
 LwVocabularyPrivate
 lw_vocabulary_get_type
-</SECTION>
-
-<SECTION>
-<FILE>vocabulary-private</FILE>
-Props
-ClassSignalId
-Data
-Config
-LwVocabularyPrivate
-LwVocabularyClassPrivate
-LW_VOCABULARY_GET_PRIVATE
 </SECTION>
 
 <SECTION>

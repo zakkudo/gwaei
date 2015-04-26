@@ -48,7 +48,30 @@ EXTRA_HFILES=
 
 # Header files or dirs to ignore when scanning. Use base file/dir names
 # e.g. IGNORE_HFILES=gtkdebug.h gtkintl.h private_code
-IGNORE_HFILES=$(top_srcdir)/src/libwaei/include/libwaei/*-private.h
+IGNORE_HFILES=\
+application-private.h\
+cachefile-private.h\
+command-private.h\
+dictionary-private.h\
+dictionarycache-private.h\
+dictionaryinstall-private.h\
+dictionaryinstalllist-private.h\
+dictionarylist-private.h\
+dictionarymodule-private.h\
+indexed-private.h\
+installsubcommand-private.h\
+mappedfile-private.h\
+morphologyengine-private.h\
+parsed-private.h\
+preferences-private.h\
+progress-private.h\
+search-private.h\
+searchsubcommand-private.h\
+serializable-private.h\
+subcommand-private.h\
+uninstallsubcommand-private.h\
+vocabulary-private.h
+
 
 # Images to copy into HTML directory.
 # e.g. HTML_IMAGES=$(top_srcdir)/gtk/stock-icons/stock_about_24.png
@@ -67,8 +90,8 @@ expand_content_files=
 # signals and properties.
 # e.g. GTKDOC_CFLAGS=-I$(top_srcdir) -I$(top_builddir) $(GTK_DEBUG_FLAGS)
 # e.g. GTKDOC_LIBS=$(top_builddir)/gtk/$(gtktargetlib)
-GTKDOC_CFLAGS=
-GTKDOC_LIBS=$(WAEI_LIBS) $(top_srcdir)/src/libwaei/libwaei.la
+GTKDOC_CFLAGS=-I$(top_srcdir)/src/libwaei/include $(LIBWAEI_CFLAGS) $(DEFINITIONS)
+GTKDOC_LIBS=$(LIBWAEI_LIBS) $(top_srcdir)/src/libwaei/libwaei.la
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make

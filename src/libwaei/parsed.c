@@ -39,7 +39,7 @@
 
 #include <libwaei/parsed-private.h>
 
-G_DEFINE_TYPE (LwParsed, lw_parsed, LW_TYPE_PARSED)
+G_DEFINE_TYPE (LwParsed, lw_parsed, LW_TYPE_SERIALIZABLE)
 
 struct _SerializeData {
   gsize *buffer;

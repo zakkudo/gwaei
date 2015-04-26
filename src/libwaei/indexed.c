@@ -40,7 +40,7 @@
 
 #include <libwaei/indexed-private.h>
 
-G_DEFINE_TYPE (LwIndexed, lw_indexed, LW_TYPE_INDEXED)
+G_DEFINE_TYPE (LwIndexed, lw_indexed, LW_TYPE_SERIALIZABLE)
 
 LwIndexed*
 lw_indexed_new (LwParsed *parsed)

@@ -125,10 +125,10 @@ LwCommand * self, gchar const * SUBCOMMAND_NAME
 LwCommand * self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwCommandClassPrivate</NAME>
+<NAME>LwCommandPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwCommandPrivate</NAME>
+<NAME>LwCommandClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>G_SETTINGS_ENABLE_BACKEND</NAME>
@@ -445,43 +445,6 @@ LwPreferences*, const gchar*, gulong
 <STRUCT>
 <NAME>LwPreferencesPrivate</NAME>
 </STRUCT>
-<ENUM>
-<NAME>LwSubCommandProps</NAME>
-typedef enum
-{
-  PROP_0,
-  PROP_NAME,
-  PROP_OPTION_ENTRIES,
-  TOTAL_PROPS
-} LwSubCommandProps;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_UNUSED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>LwSubCommandPrivate</NAME>
-struct _LwSubCommandPrivate {
-  gchar *name;
-  gchar *descrioption;
-  gchar *help_description;
-  GOptionEntry * option_entries;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwSubCommandClassPrivate</NAME>
-struct _LwSubCommandClassPrivate {
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_SUBCOMMAND_GET_PRIVATE</NAME>
-#define LW_SUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SUBCOMMAND, LwSubCommandPrivate));
-</MACRO>
 <MACRO>
 <NAME>LW_TYPE_APPLICATION</NAME>
 #define LW_TYPE_APPLICATION              (lw_application_get_type())
@@ -552,204 +515,6 @@ struct _LwQuery {
 <STRUCT>
 <NAME>LwQuery</NAME>
 </STRUCT>
-<ENUM>
-<NAME>Props</NAME>
-typedef enum {
-    PROP_0,
-    PROP_PREFERENCES,
-    TOTAL_PROPS
-} Props;
-</ENUM>
-<ENUM>
-<NAME>SignalId</NAME>
-typedef enum {
-  SIGNALID_CHANGED,
-  SIGNALID_INSERTED,
-  SIGNALID_DELETED,
-  SIGNALID_REORDERED,
-  TOTAL_SIGNALIDS
-} SignalId;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_ROW_CHANGED,
-  CLASS_SIGNALID_ROW_INSERTED,
-  CLASS_SIGNALID_ROW_DELETED,
-  CLASS_SIGNALID_ROWS_REORDERED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>Index</NAME>
-struct _Index {
-  GHashTable *typename;
-  GHashTable *filename;
-  GHashTable *id;
-};
-</STRUCT>
-<STRUCT>
-<NAME>Data</NAME>
-struct _Data {
-  struct _Index index;
-  GList *list; //<!-- A Glist of LwWord
-  GList **array;
-  gint length;
-  gboolean changed; //<!-- hint of there are any savable changes
-  gboolean loaded;
-  GMenuModel *menu_model;
-  guint signalid[TOTAL_SIGNALIDS];
-};
-</STRUCT>
-<STRUCT>
-<NAME>Config</NAME>
-struct _Config {
-  LwPreferences *preferences;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwDictionaryListPrivate</NAME>
-struct _LwDictionaryListPrivate {
-  struct _Data data;
-  struct _Config config;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwDictionaryListClassPrivate</NAME>
-struct _LwDictionaryListClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_DICTIONARYLIST_GET_PRIVATE</NAME>
-#define LW_DICTIONARYLIST_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYLIST, LwDictionaryListPrivate));
-</MACRO>
-<FUNCTION>
-<NAME>lw_dictionarylist_menumodel_insert</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryList *dictioanry_list, LwDictionary *dictionary, gint index_ 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionarylist_menumodel_append</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryList *dictionary_list, LwDictionary *dictionary 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionarylist_sync_menumodel</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryList *dictionary_list 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionarylist_set_preferences</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryList *dictionary_list, LwPreferences *preferences 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionarylist_get_preferences</NAME>
-<RETURNS>LwPreferences * </RETURNS>
-LwDictionaryList *dictionary_list 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionarylist_set_menumodel</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryList *dictionary_list, GMenuModel *menu_model 
-</FUNCTION>
-<ENUM>
-<NAME>Props</NAME>
-typedef enum {
-    PROP_0,
-    PROP_FILENAME,
-    PROP_CHANGED,
-    PROP_LOADED,
-    TOTAL_PROPS
-} Props;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_ROW_CHANGED,
-  CLASS_SIGNALID_ROW_INSERTED,
-  CLASS_SIGNALID_ROW_DELETED,
-  CLASS_SIGNALID_ROWS_REORDERED,
-  CLASS_SIGNALID_FILENAME_CHANGED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>Data</NAME>
-struct _Data {
-  GList *list; //<!-- A Glist of LwWord
-  GList **array;
-  gint length;
-  gboolean changed; //<!-- hint of there are any savable changes
-  gboolean loaded;
-};
-</STRUCT>
-<STRUCT>
-<NAME>Config</NAME>
-struct _Config {
-  gchar *filename;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwVocabularyPrivate</NAME>
-struct _LwVocabularyPrivate {
-  struct _Data data;
-  struct _Config config;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwVocabularyClassPrivate</NAME>
-struct _LwVocabularyClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_VOCABULARY_GET_PRIVATE</NAME>
-#define LW_VOCABULARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_VOCABULARY, LwVocabularyPrivate));
-</MACRO>
-<ENUM>
-<NAME>LwCacheFileProps</NAME>
-typedef enum
-{
-  PROP_0,
-  PROP_PATH,
-  PROP_CHECKSUM,
-  PROP_CONTENTS,
-  PROP_CONTENT_LENGTH,
-  TOTAL_PROPS
-} LwCacheFileProps;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_UNUSED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>LwCacheFilePrivate</NAME>
-struct _LwCacheFilePrivate {
-  FILE * stream;
-  gchar const * CHECKSUM;
-  gsize content_length;
-  gchar * contents;
-  gchar * path;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwCacheFileClassPrivate</NAME>
-struct _LwCacheFileClassPrivate {
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_CACHEFILE_GET_PRIVATE</NAME>
-#define LW_CACHEFILE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_CACHEFILE, LwCacheFilePrivate));
-</MACRO>
 <MACRO>
 <NAME>LW_PARSEDLINE_ERROR</NAME>
 #define LW_PARSEDLINE_ERROR lw_parsedline_error_quark ()
@@ -813,31 +578,6 @@ LwParsedLine *self, gchar const *serialized_data, gchar const *contents_referenc
 <STRUCT>
 <NAME>LwParsedLine</NAME>
 </STRUCT>
-<ENUM>
-<NAME>Props</NAME>
-typedef enum {
-  PROP_0,
-  PROP_NAME,
-  TOTAL_PROPS
-} Props;
-</ENUM>
-<STRUCT>
-<NAME>LwDictionaryModulePrivate</NAME>
-struct _LwDictionaryModulePrivate {
-  gchar *name;
-  GModule *module;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwDictionaryModuleClassPrivate</NAME>
-struct _LwDictionaryModuleClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_DICTIONARYMODULE_GET_PRIVATE</NAME>
-#define LW_DICTIONARYMODULE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYMODULE, LwDictionaryModulePrivate));
-</MACRO>
 <MACRO>
 <NAME>LW_TYPE_MAPPEDFILE</NAME>
 #define LW_TYPE_MAPPEDFILE              (lw_mappedfile_get_type())
@@ -926,80 +666,6 @@ LwMappedFile *self
 </STRUCT>
 <STRUCT>
 <NAME>LwMappedFilePrivate</NAME>
-</STRUCT>
-<ENUM>
-<NAME>Props</NAME>
-typedef enum {
-    PROP_0,
-    PROP_STATUS,
-    PROP_DICTIONARY,
-    PROP_QUERY,
-    PROP_FLAGS,
-    PROP_MAX_RESULTS,
-    PROP_PROGRESS,
-    PROP_REGEX,
-    TOTAL_PROPS
-} Props;
-</ENUM>
-<ENUM>
-<NAME>SignalId</NAME>
-typedef enum {
-  SIGNALID_CHANGED,
-  SIGNALID_INSERTED,
-  SIGNALID_DELETED,
-  SIGNALID_REORDERED,
-  TOTAL_SIGNALIDS
-} SignalId;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_ROW_CHANGED,
-  CLASS_SIGNALID_ROW_INSERTED,
-  CLASS_SIGNALID_ROW_DELETED,
-  CLASS_SIGNALID_ROWS_REORDERED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>LwSearchPrivate</NAME>
-struct _LwSearchPrivate {
-  LwMorphologyString *query;
-  LwSearchStatus status;                  //!< Used to test if a search is in progress.
-  //LwMorphologyEngine *morphologyengine;
-  GMutex mutex;
-  GThread *thread;
-  LwDictionary *dictionary;
-  GQueue *results;
-  LwProgress *progress;
-
-  GRegex *regex;
-
-  LwSearchFlag flags;
-  gint max_results;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwSearchClassPrivate</NAME>
-struct _LwSearchClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwSearchData</NAME>
-struct _LwSearchData {
-    LwQueryNode * root;
-    GHashTable * column_mapping;
-    LwSearch * search;
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_SEARCH_GET_PRIVATE</NAME>
-#define LW_SEARCH_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SEARCH, LwSearchPrivate));
-</MACRO>
-<STRUCT>
-<NAME>LwSearchData</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_dictionaryinstalllist_connect_signals</NAME>
@@ -1282,10 +948,10 @@ LwProgress *self
 LwProgress *self, gsize chunk_size 
 </FUNCTION>
 <STRUCT>
-<NAME>LwProgressClassPrivate</NAME>
+<NAME>LwProgressPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwProgressPrivate</NAME>
+<NAME>LwProgressClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_CACHEFILE</NAME>
@@ -1758,36 +1424,6 @@ LwMorphologyEngine*, const gchar*
 <RETURNS>mecab_t * </RETURNS>
 void 
 </FUNCTION>
-<ENUM>
-<NAME>LwMorphologyEngineProps</NAME>
-typedef enum {
-  PROP_0,
-  PROP_LOCALE,
-  TOTAL_PROPS
-} LwMorphologyEngineProps;
-</ENUM>
-<STRUCT>
-<NAME>LwMorphologyEnginePrivate</NAME>
-struct _LwMorphologyEnginePrivate {
-#ifdef HAVE_MECAB
-  mecab_t *mecab;
-#endif
-#ifdef HAVE_HUNSPELL
-  Hunhandle *hunspell;
-#endif
-  gchar *locale;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwMorphologyEngineClassPrivate</NAME>
-struct _LwMorphologyEngineClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_MORPHOLOGYENGINE_GET_PRIVATE</NAME>
-#define LW_MORPHOLOGYENGINE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_MORPHOLOGYENGINE, LwMorphologyEnginePrivate));
-</MACRO>
 <FUNCTION>
 <NAME>lw_regex_initialize</NAME>
 <RETURNS>void  </RETURNS>
@@ -2048,91 +1684,6 @@ LwSubCommand * self
 <STRUCT>
 <NAME>LwSubCommandPrivate</NAME>
 </STRUCT>
-<ENUM>
-<NAME>Props</NAME>
-typedef enum {
-    PROP_0,
-    PROP_NAME,
-    PROP_FLAGS,
-    PROP_PARSED,
-    PROP_INDEXED,
-    TOTAL_PROPS
-} Props;
-</ENUM>
-<STRUCT>
-<NAME>LwDictionaryCachePrivate</NAME>
-struct _LwDictionaryCachePrivate {
-  gchar *name;
-  LwUtf8Flag flags;
-  LwParsed *parsed;
-  LwIndexed *indexed;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwDictionaryCacheClassPrivate</NAME>
-struct _LwDictionaryCacheClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_DICTIONARYCACHE_GET_PRIVATE</NAME>
-#define LW_DICTIONARYCACHE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYCACHE, LwDictionaryCachePrivate));
-</MACRO>
-<ENUM>
-<NAME>Prop</NAME>
-typedef enum {
-  PROP_0,
-  PROP_APPLICATION,
-  PROP_APPLICATION_COMMAND_LINE,
-  PROP_PARAMETER_STRING,
-  PROP_DESCRIPTION,
-  PROP_SUMMARY,
-  PROP_OPTION_GROUP,
-  TOTAL_PROPS
-} Prop;
-</ENUM>
-<ENUM>
-<NAME>SignalId</NAME>
-typedef enum {
-  TOTAL_SIGNALIDS
-} SignalId;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_RUN,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>LwCommandPrivate</NAME>
-struct _LwCommandPrivate {
-  gint argc;
-  gchar * * argv;
-  GApplication *application;
-  GApplicationCommandLine *command_line;
-  gchar *parameter_string;
-  guint signalid[TOTAL_SIGNALIDS];
-
-  gchar * description;
-  gchar * summary;
-
-  gchar * command_name;
-  GTree * subcommands;
-  LwSubCommand * default_subcommand;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwCommandClassPrivate</NAME>
-struct _LwCommandClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_COMMAND_GET_PRIVATE</NAME>
-#define LW_COMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_COMMAND, LwCommandPrivate))
-</MACRO>
 <MACRO>
 <NAME>LW_TYPE_DICTIONARYINSTALL</NAME>
 #define LW_TYPE_DICTIONARYINSTALL              (lw_dictionaryinstall_get_type())
@@ -2343,10 +1894,10 @@ LwDictionaryInstall *self
 LwDictionaryInstall *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryInstallClassPrivate</NAME>
+<NAME>LwDictionaryInstallPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryInstallPrivate</NAME>
+<NAME>LwDictionaryInstallClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_SEARCH_MAX_CHUNK</NAME>
@@ -2803,82 +2354,6 @@ gchar const * contents, gsize content_length, LwUtf8Flag flags, LwUtf8ChunkHandl
 <RETURNS>gboolean  </RETURNS>
 gchar const * STR, gchar const * CHAR_PTR 
 </FUNCTION>
-<ENUM>
-<NAME>Props</NAME>
-typedef enum {
-    PROP_0,
-    PROP_ID,
-    PROP_NAME,
-    PROP_DESCRIPTION,
-    PROP_GTYPE,
-    PROP_TEXT_ENCODING,
-    PROP_PREFERENCES,
-    PROP_DOWNLOAD_KEY,
-    PROP_DOWNLOAD_URI,
-    PROP_INSTALL_PATH,
-    PROP_SPLIT_PLACES_FROM_NAMES,
-    PROP_MERGE_RADICALS_INTO_KANJI,
-    PROP_PROGRESS,
-    PROP_STATUS,
-    PROP_DEPENDENCIES,
-    TOTAL_PROPS
-} Props;
-</ENUM>
-<ENUM>
-<NAME>SignalId</NAME>
-typedef enum {
-    CLASS_SIGNALID_UNUSED,
-    TOTAL_CLASS_SIGNALIDS
-} SignalId;
-</ENUM>
-<STRUCT>
-<NAME>Index</NAME>
-struct _Index {
-  GHashTable *id;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwDictionaryInstallPrivate</NAME>
-struct _LwDictionaryInstallPrivate {
-  struct _Index index;
-  gchar *id;
-  gchar *name;
-  gchar *description;
-  LwPreferences *preferences;
-  gchar *download_key;
-  gchar *download_uri;
-  gchar *text_encoding;
-  GList *dependancies;
-  GType gtype;
-  LwProgress *progress;
-  LwDictionaryInstallStateHistory *history;
-  gchar *install_path;
-
-  gboolean merge_radicals_into_kanji;
-  gboolean split_places_from_names;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwDictionaryInstallClassPrivate</NAME>
-struct _LwDictionaryInstallClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_DICTIONARYINSTALL_GET_PRIVATE</NAME>
-#define LW_DICTIONARYINSTALL_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYINSTALL, LwDictionaryInstallPrivate));
-</MACRO>
-<FUNCTION>
-<NAME>lw_dictionaryinstall_get_name</NAME>
-<RETURNS>const gchar * </RETURNS>
-LwDictionaryInstall *self 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionaryinstall_set_name</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryInstall *self, const gchar *NAME 
-</FUNCTION>
 <STRUCT>
 <NAME>Row</NAME>
 struct _Row {
@@ -3042,37 +2517,11 @@ LwDictionaryList *self
 LwDictionaryList *self, GList *dictionaries 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryListClassPrivate</NAME>
-</STRUCT>
-<STRUCT>
 <NAME>LwDictionaryListPrivate</NAME>
 </STRUCT>
-<ENUM>
-<NAME>Prop</NAME>
-typedef enum
-{
-  PROP_0,
-  TOTAL_PROPS
-} Prop;
-</ENUM>
 <STRUCT>
-<NAME>LwUninstallSubCommandPrivate</NAME>
-struct _LwUninstallSubCommandPrivate {
-  gchar **dictionary_names;
-  GList *dictionaries;
-  gboolean list_switch;
-};
+<NAME>LwDictionaryListClassPrivate</NAME>
 </STRUCT>
-<STRUCT>
-<NAME>LwUninstallSubCommandClassPrivate</NAME>
-struct _LwUninstallSubCommandClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_UNINSTALLSUBCOMMAND_GET_PRIVATE</NAME>
-#define LW_UNINSTALLSUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_UNINSTALLSUBCOMMAND, LwUninstallSubCommandPrivate));
-</MACRO>
 <MACRO>
 <NAME>LW_DICTIONARYINSTALLSTATEHISTORY</NAME>
 #define LW_DICTIONARYINSTALLSTATEHISTORY(obj) (LwDictionaryInstallStateHistory*)obj
@@ -3181,208 +2630,6 @@ LwDependancy *self
 <STRUCT>
 <NAME>LwDependancy</NAME>
 </STRUCT>
-<ENUM>
-<NAME>LwDictionaryProps</NAME>
-typedef enum
-{
-  PROP_0,
-  PROP_FILENAME,
-  PROP_NAME,
-  PROP_PROGRESS,
-  PROP_ID,
-  PROP_PATH,
-  PROP_CACHETREE,
-  PROP_CHECKSUM,
-  PROP_CONTENTS,
-  PROP_CONTENT_LENGTH,
-  PROP_CACHEFILE,
-  TOTAL_PROPS
-} LwDictionaryProps;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_UNUSED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>LwDictionaryPrivate</NAME>
-struct _LwDictionaryPrivate {
-  gchar *path;
-  GTree *caches;
-
-  GMutex mutex;
-  gchar *name;
-  LwProgress *progress;
-
-  gchar *filename;
-  gchar *id;
-
-  LwCacheFile *cachefile;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwDictionaryClassPrivate</NAME>
-struct _LwDictionaryClassPrivate {
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-  GParamSpec *pspec[TOTAL_PROPS];
-
-  gchar *install_path;
-
-  //Virtual methods
-  gint (* get_total_columns) (LwDictionary * self);
-  gchar const * (* get_column_language) (LwDictionary * self, gint column_num);
-  LwDictionaryColumnHandling (* get_column_handling) (LwDictionary * self, gint column_num);
-  gchar** (* columnize) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
-  void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_DICTIONARY_GET_PRIVATE</NAME>
-#define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));
-</MACRO>
-<ENUM>
-<NAME>Props</NAME>
-typedef enum {
-    PROP_0,
-    PROP_PREFERENCES,
-    TOTAL_PROPS
-} Props;
-</ENUM>
-<ENUM>
-<NAME>SignalId</NAME>
-typedef enum {
-  SIGNALID_CHANGED,
-  SIGNALID_INSERTED,
-  SIGNALID_DELETED,
-  SIGNALID_REORDERED,
-  TOTAL_SIGNALIDS
-} SignalId;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_ROW_CHANGED,
-  CLASS_SIGNALID_ROW_INSERTED,
-  CLASS_SIGNALID_ROW_DELETED,
-  CLASS_SIGNALID_ROWS_REORDERED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>Index</NAME>
-struct _Index {
-  GHashTable *typename;
-  GHashTable *filename;
-  GHashTable *id;
-};
-</STRUCT>
-<STRUCT>
-<NAME>Data</NAME>
-struct _Data {
-  struct _Index index;
-  GList *list; //<!-- A Glist of LwWord
-  GList **array;
-  gint length;
-  gboolean changed; //<!-- hint of there are any savable changes
-  gboolean loaded;
-};
-</STRUCT>
-<STRUCT>
-<NAME>Config</NAME>
-struct _Config {
-  LwPreferences *preferences;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwDictionaryInstallListPrivate</NAME>
-struct _LwDictionaryInstallListPrivate {
-  struct _Data data;
-  struct _Config config;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwDictionaryInstallListClassPrivate</NAME>
-struct _LwDictionaryInstallListClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_DICTIONARYINSTALLLIST_GET_PRIVATE</NAME>
-#define LW_DICTIONARYINSTALLLIST_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYINSTALLLIST, LwDictionaryInstallListPrivate));
-</MACRO>
-<FUNCTION>
-<NAME>lw_dictionaryinstalllist_menumodel_insert</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryInstallList *dictioanry_list, LwDictionary *dictionary, gint index_ 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionaryinstalllist_menumodel_append</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryInstallList *dictionary_list, LwDictionary *dictionary 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionaryinstalllist_sync_menumodel</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryInstallList *dictionary_list 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionaryinstalllist_set_preferences</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryInstallList *dictionary_list, LwPreferences *preferences 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionaryinstalllist_get_preferences</NAME>
-<RETURNS>LwPreferences * </RETURNS>
-LwDictionaryInstallList *dictionary_list 
-</FUNCTION>
-<FUNCTION>
-<NAME>lw_dictionaryinstalllist_set_menumodel</NAME>
-<RETURNS>void  </RETURNS>
-LwDictionaryInstallList *dictionary_list, GMenuModel *menu_model 
-</FUNCTION>
-<ENUM>
-<NAME>Prop</NAME>
-typedef enum
-{
-  PROP_0,
-  PROP_CONTENTS,
-  PROP_CONTENT_LENGTH,
-  PROP_DELETE_ON_FREE,
-  PROP_WRITABLE,
-  PROP_PATH,
-  TOTAL_PROPS
-} Prop;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_UNUSED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>LwMappedFilePrivate</NAME>
-struct _LwMappedFilePrivate {
-	gchar * path;
-  GMappedFile * mapped_file;
-  gboolean delete_on_free;
-  gboolean writable;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwMappedFileClassPrivate</NAME>
-struct _LwMappedFileClassPrivate {
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_MAPPEDFILE_GET_PRIVATE</NAME>
-#define LW_MAPPEDFILE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_MAPPEDFILE, LwMappedFilePrivate));
-</MACRO>
 <MACRO>
 <NAME>LW_TYPE_INDEXED</NAME>
 #define LW_TYPE_INDEXED              (lw_indexed_get_type())
@@ -3522,10 +2769,10 @@ LwParsed *self, LwParsedLine *lines, gsize num_lines
 LwParsed * self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwParsedPrivate</NAME>
+<NAME>LwParsedClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwParsedClassPrivate</NAME>
+<NAME>LwParsedPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_SEARCHSUBCOMMAND</NAME>
@@ -3896,110 +3143,6 @@ LwDictionaryModule *self
 <STRUCT>
 <NAME>LwDictionaryModuleClassPrivate</NAME>
 </STRUCT>
-<ENUM>
-<NAME>Props</NAME>
-typedef enum {
-    PROP_0,
-    PROP_ERROR,
-    PROP_ERRORED,
-    PROP_CANCELLABLE,
-    PROP_CANCELLED,
-    PROP_PRIMARY_MESSAGE,
-    PROP_SECONDARY_MESSAGE,
-    PROP_STEP_MESSAGE,
-    PROP_COMPLETED,
-    PROP_CURRENT_PROGRESS,
-    PROP_TOTAL_PROGRESS,
-    PROP_PROGRESS_FRACTION,
-    PROP_CHUNK_SIZE,
-    PROP_PREFERED_CHUNK_SIZE,
-    TOTAL_PROPS
-} Props;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_PROGRESS_CHANGED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>Data</NAME>
-struct _Data {
-  GMutex mutex;
-
-  gsize chunk_size;
-
-  GCancellable *cancellable;
-  GError *error;
-
-  gdouble previous_progress;
-  gdouble current_progress;
-  gdouble total_progress;
-
-  gdouble ratio_delta;
-
-  gint64 start_time;
-
-  gchar *job_title;
-  gchar *step_message;
-  gchar *primary_message;
-  gchar *secondary_message;
-  gchar *units;
-
-  gboolean complete;
-};
-</STRUCT>
-<STRUCT>
-<NAME>Config</NAME>
-struct _Config {
-  gchar *filename;
-  gdouble required_ratio_delta;
-  gsize prefered_chunk_size;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwProgressPrivate</NAME>
-struct _LwProgressPrivate {
-  struct _Data data;
-  struct _Config config;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwProgressClassPrivate</NAME>
-struct _LwProgressClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_PROGRESS_GET_PRIVATE</NAME>
-#define LW_PROGRESS_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_PROGRESS, LwProgressPrivate));
-</MACRO>
-<FUNCTION>
-<NAME>lw_progress_sync_ratio_delta</NAME>
-<RETURNS>void  </RETURNS>
-LwProgress *progress 
-</FUNCTION>
-<ENUM>
-<NAME>Props</NAME>
-typedef enum
-{
-  PROP_0,
-  PROP_BACKEND,
-} Props;
-</ENUM>
-<STRUCT>
-<NAME>LwPreferencesPrivate</NAME>
-struct _LwPreferencesPrivate {
-  GHashTable *settings;
-  GSettingsBackend *backend;
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_PREFERENCES_GET_PRIVATE</NAME>
-#define LW_PREFERENCES_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_PREFERENCES, LwPreferencesPrivate));
-</MACRO>
 <MACRO>
 <NAME>LW_FILEPATH</NAME>
 #define LW_FILEPATH(obj) (LwFilePath*)obj
@@ -4116,90 +3259,6 @@ char const * PATH
 <STRUCT>
 <NAME>LwIoWriteChunkData</NAME>
 </STRUCT>
-<ENUM>
-<NAME>LwInstallSubCommandProps</NAME>
-typedef enum
-{
-  PROP_0,
-  TOTAL_PROPS
-} LwInstallSubCommandProps;
-</ENUM>
-<STRUCT>
-<NAME>LwInstallSubCommandPrivate</NAME>
-struct _LwInstallSubCommandPrivate {
-   gchar **dictionaryinstall_names;
-   GList *dictionaryinstalls;
-   gboolean list_switch;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwInstallSubCommandClassPrivate</NAME>
-struct _LwInstallSubCommandClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_INSTALLSUBCOMMAND_GET_PRIVATE</NAME>
-#define LW_INSTALLSUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_INSTALLSUBCOMMAND, LwInstallSubCommandPrivate));
-</MACRO>
-<ENUM>
-<NAME>LwSerializableProps</NAME>
-typedef enum
-{
-  PROP_0,
-  TOTAL_PROPS
-} LwSerializableProps;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_UNUSED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>LwSerializablePrivate</NAME>
-struct _LwSerializablePrivate {
-  LwCacheFile *cachefile;
-  gchar *contents;
-  gsize content_length;
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_SERIALIZABLE_GET_PRIVATE</NAME>
-#define LW_SERIALIZABLE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SERIALIZABLE, LwSerializablePrivate));
-</MACRO>
-<ENUM>
-<NAME>LwSearchSubCommandProps</NAME>
-typedef enum
-{
-  PROP_0,
-  PROP_QUERY,
-  PROP_DICTIONARY,
-  PROP_SEARCH,
-  TOTAL_PROPS
-} LwSearchSubCommandProps;
-</ENUM>
-<STRUCT>
-<NAME>LwSearchSubCommandPrivate</NAME>
-struct _LwSearchSubCommandPrivate {
-  gboolean exact_switch;
-  gchar *query_text;
-  gchar *dictionary_text;
-  LwSearch *search;
-  LwDictionary *dictionary;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwSearchSubCommandClassPrivate</NAME>
-struct _LwSearchSubCommandClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_SEARCHSUBCOMMAND_GET_PRIVATE</NAME>
-#define LW_SEARCHSUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SEARCHSUBCOMMAND, LwSearchSubCommandPrivate));
-</MACRO>
 <MACRO>
 <NAME>LW_TYPE_INSTALLSUBCOMMAND</NAME>
 #define LW_TYPE_INSTALLSUBCOMMAND              (lw_installsubcommand_get_type())
@@ -4249,10 +3308,10 @@ void
 void 
 </FUNCTION>
 <STRUCT>
-<NAME>LwInstallSubCommandClassPrivate</NAME>
+<NAME>LwInstallSubCommandPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwInstallSubCommandPrivate</NAME>
+<NAME>LwInstallSubCommandClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
 <NAME>Group</NAME>
@@ -4305,10 +3364,10 @@ const gchar *TEXT, LwUtf8Flag flags
 LwMorphologyString *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwToken</NAME>
+<NAME>LwMorphologyString</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwMorphologyString</NAME>
+<NAME>LwToken</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_dictionary_sync_downloadlist_cb</NAME>
@@ -4621,29 +3680,6 @@ LwMorphologyEngine *self
 <STRUCT>
 <NAME>LwMorphologyEnginePrivate</NAME>
 </STRUCT>
-<ENUM>
-<NAME>Props</NAME>
-typedef enum {
-  PROP_0,
-  TOTAL_PROPS
-} Props;
-</ENUM>
-<STRUCT>
-<NAME>LwApplicationPrivate</NAME>
-struct _LwApplicationPrivate {
-  GTree *dictionarymodules;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwApplicationClassPrivate</NAME>
-struct _LwApplicationClassPrivate {
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_APPLICATION_GET_PRIVATE</NAME>
-#define LW_APPLICATION_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_APPLICATION, LwApplicationPrivate))
-</MACRO>
 <MACRO>
 <NAME>LW_SCHEMA_DICTIONARY</NAME>
 #define LW_SCHEMA_DICTIONARY       "org.gnome.gwaei.dictionary"
@@ -4921,31 +3957,6 @@ LwDictionary *dictionary
 <RETURNS>gchar * </RETURNS>
 LwDictionary *dictionary 
 </FUNCTION>
-<ENUM>
-<NAME>LwIndexedProps</NAME>
-typedef enum
-{
-  PROP_0,
-  TOTAL_PROPS
-} LwIndexedProps;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_UNUSED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>LwIndexedPrivate</NAME>
-struct _LwIndexedPrivate {
-  LwParsed *parsed;
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_INDEXED_GET_PRIVATE</NAME>
-#define LW_INDEXED_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_INDEXED, LwIndexedPrivate));
-</MACRO>
 <MACRO>
 <NAME>LW_INDEX_CHECKSUM_TYPE</NAME>
 #define LW_INDEX_CHECKSUM_TYPE G_CHECKSUM_SHA256
@@ -5061,45 +4072,6 @@ LwIndexTableType type
 <STRUCT>
 <NAME>LwIndex</NAME>
 </STRUCT>
-<ENUM>
-<NAME>Prop</NAME>
-typedef enum
-{
-  PROP_0,
-  PROP_CACHEFILE,
-  PROP_CONTENTS,
-  PROP_CONTENT_LENGTH,
-  TOTAL_PROPS
-} Prop;
-</ENUM>
-<ENUM>
-<NAME>ClassSignalId</NAME>
-typedef enum {
-  CLASS_SIGNALID_UNUSED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-</ENUM>
-<STRUCT>
-<NAME>LwParsedPrivate</NAME>
-struct _LwParsedPrivate {
-  gsize num_lines; //! < The number of lines
-  gchar *contents; //! < The reference point of each strv
-  gsize content_length;
-  LwParsedLine *lines; //! < A set of categorized strvs
-  LwCacheFile *cache_file;
-};
-</STRUCT>
-<STRUCT>
-<NAME>LwParsedClassPrivate</NAME>
-struct _LwParsedClassPrivate {
-  guint signalid[TOTAL_CLASS_SIGNALIDS];
-  GParamSpec *pspec[TOTAL_PROPS];
-};
-</STRUCT>
-<MACRO>
-<NAME>LW_PARSED_GET_PRIVATE</NAME>
-#define LW_PARSED_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_PARSED, LwParsedPrivate));
-</MACRO>
 <MACRO>
 <NAME>gettext</NAME>
 #  define gettext(Msgid) \
