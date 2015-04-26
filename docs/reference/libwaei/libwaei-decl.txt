@@ -125,10 +125,10 @@ LwCommand * self, gchar const * SUBCOMMAND_NAME
 LwCommand * self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwCommandPrivate</NAME>
+<NAME>LwCommandClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwCommandClassPrivate</NAME>
+<NAME>LwCommandPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>G_SETTINGS_ENABLE_BACKEND</NAME>
@@ -922,10 +922,10 @@ LwMappedFile * self
 LwMappedFile *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwMappedFilePrivate</NAME>
+<NAME>LwMappedFileClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwMappedFileClassPrivate</NAME>
+<NAME>LwMappedFilePrivate</NAME>
 </STRUCT>
 <ENUM>
 <NAME>Props</NAME>
@@ -1282,10 +1282,10 @@ LwProgress *self
 LwProgress *self, gsize chunk_size 
 </FUNCTION>
 <STRUCT>
-<NAME>LwProgressPrivate</NAME>
+<NAME>LwProgressClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwProgressClassPrivate</NAME>
+<NAME>LwProgressPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_CACHEFILE</NAME>
@@ -1961,10 +1961,10 @@ void
 void 
 </FUNCTION>
 <STRUCT>
-<NAME>LwUninstallSubCommandPrivate</NAME>
+<NAME>LwUninstallSubCommandClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwUninstallSubCommandClassPrivate</NAME>
+<NAME>LwUninstallSubCommandPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_SUBCOMMAND</NAME>
@@ -2043,10 +2043,10 @@ LwSubCommand * self, GOptionEntry const * option_entries
 LwSubCommand * self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwSubCommandPrivate</NAME>
+<NAME>LwSubCommandClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwSubCommandClassPrivate</NAME>
+<NAME>LwSubCommandPrivate</NAME>
 </STRUCT>
 <ENUM>
 <NAME>Props</NAME>
@@ -2343,10 +2343,10 @@ LwDictionaryInstall *self
 LwDictionaryInstall *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryInstallPrivate</NAME>
+<NAME>LwDictionaryInstallClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryInstallClassPrivate</NAME>
+<NAME>LwDictionaryInstallPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_SEARCH_MAX_CHUNK</NAME>
@@ -3042,10 +3042,10 @@ LwDictionaryList *self
 LwDictionaryList *self, GList *dictionaries 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryListPrivate</NAME>
+<NAME>LwDictionaryListClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryListClassPrivate</NAME>
+<NAME>LwDictionaryListPrivate</NAME>
 </STRUCT>
 <ENUM>
 <NAME>Prop</NAME>
@@ -3522,10 +3522,10 @@ LwParsed *self, LwParsedLine *lines, gsize num_lines
 LwParsed * self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwParsedClassPrivate</NAME>
+<NAME>LwParsedPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwParsedPrivate</NAME>
+<NAME>LwParsedClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_SEARCHSUBCOMMAND</NAME>
@@ -3576,10 +3576,10 @@ void
 void 
 </FUNCTION>
 <STRUCT>
-<NAME>LwSearchSubCommandPrivate</NAME>
+<NAME>LwSearchSubCommandClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwSearchSubCommandClassPrivate</NAME>
+<NAME>LwSearchSubCommandPrivate</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_morphologyengine_hunspell_analyze</NAME>
@@ -4305,10 +4305,10 @@ const gchar *TEXT, LwUtf8Flag flags
 LwMorphologyString *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwMorphologyString</NAME>
+<NAME>LwToken</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwToken</NAME>
+<NAME>LwMorphologyString</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_dictionary_sync_downloadlist_cb</NAME>
@@ -4773,10 +4773,10 @@ LwDictionaryInstallList *self, const gchar *DESCRIPTION
 LwDictionaryInstallList *self, GList *dictionaryinstalls 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryInstallListPrivate</NAME>
+<NAME>LwDictionaryInstallListClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryInstallListClassPrivate</NAME>
+<NAME>LwDictionaryInstallListPrivate</NAME>
 </STRUCT>
 <STRUCT>
 <NAME>LwRange</NAME>
@@ -5340,8 +5340,8 @@ LwDictionaryCache *self
 LwDictionaryCache *self, LwIndexed *indexed 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryCachePrivate</NAME>
+<NAME>LwDictionaryCacheClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryCacheClassPrivate</NAME>
+<NAME>LwDictionaryCachePrivate</NAME>
 </STRUCT>

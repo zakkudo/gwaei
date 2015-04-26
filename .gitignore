@@ -105,6 +105,8 @@ src/kpengine/Makefile.in
 src/schemas/Makefile.in
 src/schemas/org.gnome.*.valid
 src/schemas/gschemas.compiled
+html
+xml
 
 configure
 gnome-doc-utils.make
@@ -122,3 +124,5 @@ mkinstalldirs
 
 src/libwaei/tests/parenthesisnode
 src/libwaei/tests/querynode
+
+*.bak
