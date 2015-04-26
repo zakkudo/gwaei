@@ -3,7 +3,7 @@
 #include <glib/gstdio.h>
 #include <libwaei/libwaei.h>
 
-struct _Fixture { GHashTable * children; };
+struct _Fixture { GHashTable * children; GList * regexes;};
 typedef struct _Fixture Fixture;
 
 void
@@ -23,6 +23,22 @@ _set_children (struct _Fixture  * fixture,
     }
 }
 
+GRegex*
+_new_regex (struct _Fixture * fixture,
+            char const      * PATTERN)
+{
+    GRegex *regex = NULL;
+
+    regex = g_regex_new (PATTERN, 0, 0, NULL);
+
+    if (regex != NULL)
+    {
+      fixture->regexes = g_list_prepend (fixture->regexes, regex);
+    }
+
+    return regex;
+}
+
 
 void setup (Fixture *fixture, gconstpointer data)
 {
@@ -34,6 +50,8 @@ void teardown (Fixture *fixture, gconstpointer data)
 {
     g_hash_table_unref (fixture->children);
     fixture->children = NULL;
+    g_list_free_full (fixture->regexes, (GDestroyNotify) g_regex_unref);
+    fixture->regexes = NULL;
 }
 
 
@@ -1055,6 +1073,7 @@ compile_string_with_parenthesis (Fixture       * fixture,
       .children = NULL,
       .refs = 1,
     }; 
+    expected_root.regex = _new_regex (fixture, "1(2)3");
 
     //Act
     root = lw_querynode_new_tree_from_string (TEXT, &operation, &error);
@@ -1086,6 +1105,7 @@ compile_string_with_only_parenthesis (Fixture       * fixture,
       .children = NULL,
       .refs = 1,
     }; 
+    expected_root.regex = _new_regex (fixture, "(1)");
 
     //Act
     root = lw_querynode_new_tree_from_string (TEXT, &operation, &error);
@@ -1117,6 +1137,39 @@ compile_string_with_no_parenthesis (Fixture       * fixture,
       .children = NULL,
       .refs = 1,
     }; 
+    expected_root.regex = _new_regex (fixture, "1");
+
+    //Act
+    root = lw_querynode_new_tree_from_string (TEXT, &operation, &error);
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+
+    //Assert
+    lw_querynode_assert_equals (root, &expected_root);
+    g_assert_null (error);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+compile_string_with_keyed_embedded (Fixture       * fixture,
+                                    gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "1:(2)";
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .key = "1",
+      .data = "(2)",
+      .children = NULL,
+      .refs = 1,
+    }; 
+    expected_root.regex = _new_regex (fixture, "(2)");
 
     //Act
     root = lw_querynode_new_tree_from_string (TEXT, &operation, &error);
@@ -1167,6 +1220,7 @@ main (gint argc, gchar *argv[])
     g_test_add ("/compile/compile_string_with_parenthesis", Fixture, NULL, setup, compile_string_with_parenthesis, teardown);
     g_test_add ("/compile/compile_string_with_only_parenthesis", Fixture, NULL, setup, compile_string_with_only_parenthesis, teardown);
     g_test_add ("/compile/compile_string_with_no_parenthesis", Fixture, NULL, setup, compile_string_with_no_parenthesis, teardown);
+    g_test_add ("/compile/compile_string_with_keyed_embedded", Fixture, NULL, setup, compile_string_with_keyed_embedded, teardown);
 
     return g_test_run();
 }

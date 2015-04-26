@@ -26,7 +26,7 @@ struct _LwDictionaryModule {
 };
 
 struct _LwDictionaryModuleClass {
-  GTypeModuleClass *parent_class;
+  GTypeModuleClass parent_class;
   LwDictionaryModuleClassPrivate *priv;
 };
 

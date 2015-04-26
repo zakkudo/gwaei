@@ -9,7 +9,7 @@ DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" 
 
 pkglib_LTLIBRARIES =libwaei.la
 libwaei_la_SOURCES =libwaei.c command.c subcommand.c searchsubcommand.c installsubcommand.c uninstallsubcommand.c
-libwaei_la_SOURCES =application.c
+libwaei_la_SOURCES +=application.c
 libwaei_la_SOURCES +=serializable.c
 libwaei_la_SOURCES +=parenthesisnode.c querynode.c
 libwaei_la_SOURCES +=dependancy.c condition.c filepath.c

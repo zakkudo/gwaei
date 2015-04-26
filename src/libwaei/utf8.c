@@ -219,10 +219,10 @@ errored:
 //!
 //! @brief Will change a query into a & delimited set of tokens (logical and)
 //!
-gchar*
-lw_utf8_normalize (const gchar *TEXT,
-                   gssize       length,
-                   LwUtf8Flag   flags)
+gchar *
+lw_utf8_normalize (const gchar * TEXT,
+                   gssize        length,
+                   LwUtf8Flag    flags)
 {
     //Sanity checks
     if (TEXT == NULL) return NULL;
@@ -232,8 +232,6 @@ lw_utf8_normalize (const gchar *TEXT,
     gchar *temp = NULL;
     
     //Initializations
-    if (buffer == NULL) goto errored;
-
     if (flags & LW_UTF8FLAG_COMPARABLE)
     {
       buffer = g_utf8_normalize (TEXT, -1, G_NORMALIZE_ALL);
@@ -241,6 +239,10 @@ lw_utf8_normalize (const gchar *TEXT,
     else if (flags & LW_UTF8FLAG_PRINTABLE)
     {
       buffer = g_utf8_normalize (TEXT, -1, G_NORMALIZE_DEFAULT);
+    }
+    else
+    {
+      buffer = g_strdup (TEXT);
     }
 
     if (flags & LW_UTF8FLAG_CASEFOLD)

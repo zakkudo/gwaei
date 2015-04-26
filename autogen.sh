@@ -7,6 +7,7 @@ libtoolize --force
 glib-gettextize --copy --force
 intltoolize --copy --force --automake
 gnome-doc-prepare --copy --force
+gtkdocize
 aclocal -I m4 --force
 autoheader -f
 automake --copy --force --add-missing

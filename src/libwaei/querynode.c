@@ -860,6 +860,14 @@ lw_querynode_assert_equals (LwQueryNode *self,
     g_assert_cmpuint (self->operation, ==, other->operation);
     g_assert_cmpstr (self->data, ==, other->data);
     g_assert_cmpint (self->refs, ==, other->refs);
+    if (self->regex != NULL && other->regex != NULL)
+    {
+      g_assert_cmpstr (g_regex_get_pattern (self->regex), ==, g_regex_get_pattern (other->regex));
+    }
+    else
+    {
+      g_assert (self->regex == other->regex);
+    }
 
     g_assert_cmpint (g_list_length (self->children), ==, g_list_length(other->children));
 
@@ -1053,8 +1061,6 @@ _querynode_reduce (LwQueryNode * self)
 errored:
 
     g_free (tokens); tokens = NULL;
-
-    return self;
 }
 
 
@@ -1086,8 +1092,8 @@ _querynode_compile (LwQueryNode * self,
       if (error != NULL && *error != NULL) goto errored;
     }
 
-    if (query_node->regex != NULL) g_regex_unref (query_node->regex);
-    query_node->regex = regex;
+    if (self->regex != NULL) goto errored;
+    self->regex = regex;
     regex = NULL;
 
 errored:

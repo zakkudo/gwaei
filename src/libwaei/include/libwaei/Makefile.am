@@ -1,4 +1,4 @@
 libraryincludedir = $(includedir)/libwaei
-libraryinclude_HEADERS = definitions.h dictionary.h dictionary-index.h dictionaryinstall.h dictionarylist.h history.h cachefile.h io.h libwaei.h morphologystring.h preferences.h range.h regex.h search.h word.h vocabulary.h progress.h parenthesisnode.h querynode.h
+libraryinclude_HEADERS = definitions.h dictionary.h dictionary-index.h dictionaryinstall.h dictionarylist.h cachefile.h io.h libwaei.h morphologystring.h preferences.h range.h regex.h search.h word.h vocabulary.h progress.h parenthesisnode.h querynode.h
 
-noinst_HEADERS = gettext.h dictionary-private.h dictionary-callbacks.h dictionarylist-private.h dictionarylist-callbacks.h history-private.h vocabulary-private.h dictionaryinstall-private.h
+noinst_HEADERS = gettext.h dictionary-private.h dictionary-callbacks.h dictionarylist-private.h dictionarylist-callbacks.h vocabulary-private.h dictionaryinstall-private.h

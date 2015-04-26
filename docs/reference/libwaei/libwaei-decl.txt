@@ -1,0 +1,5347 @@
+<MACRO>
+<NAME>LW_TYPE_COMMAND</NAME>
+#define LW_TYPE_COMMAND              (lw_command_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_COMMAND</NAME>
+#define LW_COMMAND(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_COMMAND, LwCommand))
+</MACRO>
+<MACRO>
+<NAME>LW_COMMAND_CLASS</NAME>
+#define LW_COMMAND_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_COMMAND, LwCommandClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_COMMAND</NAME>
+#define LW_IS_COMMAND(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_COMMAND))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_COMMAND_CLASS</NAME>
+#define LW_IS_COMMAND_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_COMMAND))
+</MACRO>
+<MACRO>
+<NAME>LW_COMMAND_GET_CLASS</NAME>
+#define LW_COMMAND_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_COMMAND, LwCommandClass))
+</MACRO>
+<STRUCT>
+<NAME>LwCommand</NAME>
+struct _LwCommand {
+  GObject object;
+  LwCommandPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwCommandClass</NAME>
+struct _LwCommandClass {
+  GObjectClass parent_class;
+  LwCommandClassPrivate *priv;
+
+  //Signal ids
+  void (*run) (LwCommand * self, gchar *subcommand_name, gpointer data);
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_command_new</NAME>
+<RETURNS>LwCommand * </RETURNS>
+GApplication *application, GApplicationCommandLine *command_line 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_print</NAME>
+<RETURNS>void  </RETURNS>
+LwCommand *self, const gchar *format, ... 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_printerr</NAME>
+<RETURNS>void  </RETURNS>
+LwCommand *self, const gchar *format, ... 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_get_locale</NAME>
+<RETURNS>gchar  const*</RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_is_japanese_locale</NAME>
+<RETURNS>gboolean  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_get_application</NAME>
+<RETURNS>GApplication * </RETURNS>
+LwCommand *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_get_command_line</NAME>
+<RETURNS>GApplicationCommandLine * </RETURNS>
+LwCommand *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_set_parameter_string</NAME>
+<RETURNS>void  </RETURNS>
+LwCommand * self, gchar const * parameter_string 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_get_parameter_string</NAME>
+<RETURNS>gchar  const *</RETURNS>
+LwCommand * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_set_description</NAME>
+<RETURNS>void  </RETURNS>
+LwCommand * self, gchar const * DESCRIPTION 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_get_description</NAME>
+<RETURNS>gchar  const *</RETURNS>
+LwCommand * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_set_summary</NAME>
+<RETURNS>void  </RETURNS>
+LwCommand * self, gchar const * summary 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_get_summary</NAME>
+<RETURNS>gchar  const *</RETURNS>
+LwCommand * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_add_subcommand</NAME>
+<RETURNS>void  </RETURNS>
+LwCommand * self, LwSubCommand * subcommand 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_lookup_subcommand</NAME>
+<RETURNS>LwSubCommand * </RETURNS>
+LwCommand * self, gchar const * SUBCOMMAND_NAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_command_run</NAME>
+<RETURNS>void  </RETURNS>
+LwCommand * self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwCommandPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwCommandClassPrivate</NAME>
+</STRUCT>
+<MACRO>
+<NAME>G_SETTINGS_ENABLE_BACKEND</NAME>
+#define G_SETTINGS_ENABLE_BACKEND
+</MACRO>
+<MACRO>
+<NAME>LW_SCHEMA_GNOME_INTERFACE</NAME>
+#define LW_SCHEMA_GNOME_INTERFACE   "org.gnome.desktop.interface"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_TOOLBAR_STYLE</NAME>
+#define LW_KEY_TOOLBAR_STYLE        "toolbar-style"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_DOCUMENT_FONT_NAME</NAME>
+#define LW_KEY_DOCUMENT_FONT_NAME   "font-name"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_PROGRAM_VERSION</NAME>
+#define LW_KEY_PROGRAM_VERSION      "version"
+</MACRO>
+<MACRO>
+<NAME>LW_SCHEMA_BASE</NAME>
+#define LW_SCHEMA_BASE               "org.gnome.gwaei"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_WINDOW_SIZE</NAME>
+#define LW_KEY_WINDOW_SIZE           "window-size"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_TABBAR_SHOW</NAME>
+#define LW_KEY_TABBAR_SHOW           "tabbar-show"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_MENUBAR_SHOW</NAME>
+#define LW_KEY_MENUBAR_SHOW          "menubar-show"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_TOOLBAR_SHOW</NAME>
+#define LW_KEY_TOOLBAR_SHOW          "toolbar-show"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_STATUSBAR_SHOW</NAME>
+#define LW_KEY_STATUSBAR_SHOW        "statusbar-show"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_SPELLCHECK_DICTIONARY</NAME>
+#define LW_KEY_SPELLCHECK_DICTIONARY "spellcheck-dictionary"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_SEARCH_AS_YOU_TYPE</NAME>
+#define LW_KEY_SEARCH_AS_YOU_TYPE    "search-as-you-type"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_SPELLCHECK</NAME>
+#define LW_KEY_SPELLCHECK           "query-spellcheck"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_FURIGANA_INSENSITIVE</NAME>
+#define LW_KEY_FURIGANA_INSENSITIVE "query-furigana-insensitive"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_CASE_INSENSITIVE</NAME>
+#define LW_KEY_CASE_INSENSITIVE     "query-case-insensitive"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_STEM_INSENSITIVE</NAME>
+#define LW_KEY_STEM_INSENSITIVE     "query-stem-insensitive"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_ROMAJI_TO_FURIGANA</NAME>
+#define LW_KEY_ROMAJI_TO_FURIGANA   "query-romaji-to-furigana"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_INDEX_RESULTS</NAME>
+#define LW_KEY_INDEX_RESULTS        "index-results"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_ONTLY_EXACT_MATCHES</NAME>
+#define LW_KEY_ONTLY_EXACT_MATCHES  "only-exact-matches"
+</MACRO>
+<MACRO>
+<NAME>LW_SCHEMA_FONT</NAME>
+#define LW_SCHEMA_FONT               "org.gnome.gwaei.fonts"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_FONT_USE_GLOBAL_FONT</NAME>
+#define LW_KEY_FONT_USE_GLOBAL_FONT  "use-global-document-font"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_FONT_CUSTOM_FONT</NAME>
+#define LW_KEY_FONT_CUSTOM_FONT      "custom-document-font"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_FONT_MAGNIFICATION</NAME>
+#define LW_KEY_FONT_MAGNIFICATION    "magnification"
+</MACRO>
+<MACRO>
+<NAME>LW_SCHEMA_HIGHLIGHT</NAME>
+#define LW_SCHEMA_HIGHLIGHT     "org.gnome.gwaei.highlighting"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_MATCH_FG</NAME>
+#define LW_KEY_MATCH_FG         "match-foreground"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_MATCH_BG</NAME>
+#define LW_KEY_MATCH_BG         "match-background"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_HEADER_FG</NAME>
+#define LW_KEY_HEADER_FG        "header-foreground"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_HEADER_BG</NAME>
+#define LW_KEY_HEADER_BG        "header-background"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_COMMENT_FG</NAME>
+#define LW_KEY_COMMENT_FG       "comment-foreground"
+</MACRO>
+<MACRO>
+<NAME>LW_MATCH_FG_DEFAULT</NAME>
+#define LW_MATCH_FG_DEFAULT       "#000000"
+</MACRO>
+<MACRO>
+<NAME>LW_MATCH_BG_DEFAULT</NAME>
+#define LW_MATCH_BG_DEFAULT       "#CCEECC"
+</MACRO>
+<MACRO>
+<NAME>LW_HEADER_FG_DEFAULT</NAME>
+#define LW_HEADER_FG_DEFAULT      "#EE1111"
+</MACRO>
+<MACRO>
+<NAME>LW_HEADER_BG_DEFAULT</NAME>
+#define LW_HEADER_BG_DEFAULT      "#FFDEDE"
+</MACRO>
+<MACRO>
+<NAME>LW_COMMENT_FG_DEFAULT</NAME>
+#define LW_COMMENT_FG_DEFAULT     "#2222DD"
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_PREFERENCES</NAME>
+#define LW_TYPE_PREFERENCES              (lw_preferences_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_PREFERENCES</NAME>
+#define LW_PREFERENCES(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_PREFERENCES, LwPreferences))
+</MACRO>
+<MACRO>
+<NAME>LW_PREFERENCES_CLASS</NAME>
+#define LW_PREFERENCES_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_PREFERENCES, LwPreferencesClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_PREFERENCES</NAME>
+#define LW_IS_PREFERENCES(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_PREFERENCES))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_PREFERENCES_CLASS</NAME>
+#define LW_IS_PREFERENCES_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_PREFERENCES))
+</MACRO>
+<MACRO>
+<NAME>LW_PREFERENCES_GET_CLASS</NAME>
+#define LW_PREFERENCES_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_PREFERENCES, LwPreferencesClass))
+</MACRO>
+<STRUCT>
+<NAME>LwPreferences</NAME>
+struct _LwPreferences {
+  GObject object;
+  LwPreferencesPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwPreferencesClass</NAME>
+struct _LwPreferencesClass {
+  GObjectClass parent_class;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_preferences_new</NAME>
+<RETURNS>LwPreferences * </RETURNS>
+GSettingsBackend* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_default</NAME>
+<RETURNS>LwPreferences * </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_schema_is_installed</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_settings_object</NAME>
+<RETURNS>GSettings * </RETURNS>
+LwPreferences*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_reset_value</NAME>
+<RETURNS>void  </RETURNS>
+GSettings*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_reset_value_by_schema</NAME>
+<RETURNS>void  </RETURNS>
+LwPreferences*, const gchar*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_int</NAME>
+<RETURNS>int  </RETURNS>
+GSettings*, const gchar * 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_int_by_schema</NAME>
+<RETURNS>int  </RETURNS>
+LwPreferences*, const gchar*, const gchar * 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_set_int</NAME>
+<RETURNS>void  </RETURNS>
+GSettings*, const gchar*, const int 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_set_int_by_schema</NAME>
+<RETURNS>void  </RETURNS>
+LwPreferences*, const gchar*, const gchar*, const int 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_boolean</NAME>
+<RETURNS>gboolean  </RETURNS>
+GSettings*, const gchar * 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_boolean_by_schema</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwPreferences*, const gchar*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_set_boolean</NAME>
+<RETURNS>void  </RETURNS>
+GSettings*, const gchar*, const gboolean 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_set_boolean_by_schema</NAME>
+<RETURNS>void  </RETURNS>
+LwPreferences*, const gchar*, const gchar*, const gboolean 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_string</NAME>
+<RETURNS>gchar * </RETURNS>
+GSettings*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_string_by_schema</NAME>
+<RETURNS>gchar * </RETURNS>
+LwPreferences*, const gchar*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_set_string</NAME>
+<RETURNS>void  </RETURNS>
+GSettings*, const gchar*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_set_string_by_schema</NAME>
+<RETURNS>void  </RETURNS>
+LwPreferences*, const gchar*, const gchar*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_strv</NAME>
+<RETURNS>gchar ** </RETURNS>
+GSettings *settings, const gchar *KEY 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_get_strv_by_schema</NAME>
+<RETURNS>gchar ** </RETURNS>
+LwPreferences *preferences, const gchar *SCHEMA, const gchar *KEY 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_set_strv</NAME>
+<RETURNS>void  </RETURNS>
+GSettings  *settings, const gchar *KEY, const gchar *const *REQUEST 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_set_strv_by_schema</NAME>
+<RETURNS>void   </RETURNS>
+LwPreferences *preferences, const gchar *SCHEMA, const gchar *KEY, const gchar *const *REQUEST 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_add_change_listener</NAME>
+<RETURNS>gulong  </RETURNS>
+GSettings*, const gchar*, void (*callback_function) (GSettings*, gchar*, gpointer), gpointer 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_add_change_listener_by_schema</NAME>
+<RETURNS>gulong  </RETURNS>
+LwPreferences*, const gchar*, const gchar*, void (*callback_function) (GSettings*, gchar*, gpointer), gpointer 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_remove_change_listener</NAME>
+<RETURNS>void  </RETURNS>
+GSettings*, gulong 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_preferences_remove_change_listener_by_schema</NAME>
+<RETURNS>void  </RETURNS>
+LwPreferences*, const gchar*, gulong 
+</FUNCTION>
+<STRUCT>
+<NAME>LwPreferencesPrivate</NAME>
+</STRUCT>
+<ENUM>
+<NAME>LwSubCommandProps</NAME>
+typedef enum
+{
+  PROP_0,
+  PROP_NAME,
+  PROP_OPTION_ENTRIES,
+  TOTAL_PROPS
+} LwSubCommandProps;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_UNUSED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>LwSubCommandPrivate</NAME>
+struct _LwSubCommandPrivate {
+  gchar *name;
+  gchar *descrioption;
+  gchar *help_description;
+  GOptionEntry * option_entries;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwSubCommandClassPrivate</NAME>
+struct _LwSubCommandClassPrivate {
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_SUBCOMMAND_GET_PRIVATE</NAME>
+#define LW_SUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SUBCOMMAND, LwSubCommandPrivate));
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_APPLICATION</NAME>
+#define LW_TYPE_APPLICATION              (lw_application_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_APPLICATION</NAME>
+#define LW_APPLICATION(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_APPLICATION, LwApplication))
+</MACRO>
+<MACRO>
+<NAME>LW_APPLICATION_CLASS</NAME>
+#define LW_APPLICATION_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_APPLICATION, LwApplicationClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_APPLICATION</NAME>
+#define LW_IS_APPLICATION(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_APPLICATION))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_APPLICATION_CLASS</NAME>
+#define LW_IS_APPLICATION_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_APPLICATION))
+</MACRO>
+<MACRO>
+<NAME>LW_APPLICATION_GET_CLASS</NAME>
+#define LW_APPLICATION_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_APPLICATION, LwApplicationClass))
+</MACRO>
+<STRUCT>
+<NAME>LwApplication</NAME>
+struct _LwApplication {
+  GApplication application;
+  LwApplicationPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwApplicationClass</NAME>
+struct _LwApplicationClass {
+  GApplicationClass parent_class;
+  LwApplicationClassPrivate *priv;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_application_new</NAME>
+<RETURNS>GApplication *  </RETURNS>
+GApplicationFlags flags 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_application_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_application_get_program_name</NAME>
+<RETURNS>char  const *</RETURNS>
+LwApplication* application 
+</FUNCTION>
+<STRUCT>
+<NAME>LwApplicationPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwApplicationClassPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwQuery</NAME>
+struct _LwQuery {
+  gchar *buffer;
+  LwQueryNode *root;
+  LwDictionary *dictionary;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwQuery</NAME>
+</STRUCT>
+<ENUM>
+<NAME>Props</NAME>
+typedef enum {
+    PROP_0,
+    PROP_PREFERENCES,
+    TOTAL_PROPS
+} Props;
+</ENUM>
+<ENUM>
+<NAME>SignalId</NAME>
+typedef enum {
+  SIGNALID_CHANGED,
+  SIGNALID_INSERTED,
+  SIGNALID_DELETED,
+  SIGNALID_REORDERED,
+  TOTAL_SIGNALIDS
+} SignalId;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_ROW_CHANGED,
+  CLASS_SIGNALID_ROW_INSERTED,
+  CLASS_SIGNALID_ROW_DELETED,
+  CLASS_SIGNALID_ROWS_REORDERED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>Index</NAME>
+struct _Index {
+  GHashTable *typename;
+  GHashTable *filename;
+  GHashTable *id;
+};
+</STRUCT>
+<STRUCT>
+<NAME>Data</NAME>
+struct _Data {
+  struct _Index index;
+  GList *list; //<!-- A Glist of LwWord
+  GList **array;
+  gint length;
+  gboolean changed; //<!-- hint of there are any savable changes
+  gboolean loaded;
+  GMenuModel *menu_model;
+  guint signalid[TOTAL_SIGNALIDS];
+};
+</STRUCT>
+<STRUCT>
+<NAME>Config</NAME>
+struct _Config {
+  LwPreferences *preferences;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryListPrivate</NAME>
+struct _LwDictionaryListPrivate {
+  struct _Data data;
+  struct _Config config;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryListClassPrivate</NAME>
+struct _LwDictionaryListClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_DICTIONARYLIST_GET_PRIVATE</NAME>
+#define LW_DICTIONARYLIST_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYLIST, LwDictionaryListPrivate));
+</MACRO>
+<FUNCTION>
+<NAME>lw_dictionarylist_menumodel_insert</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *dictioanry_list, LwDictionary *dictionary, gint index_ 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_menumodel_append</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *dictionary_list, LwDictionary *dictionary 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_sync_menumodel</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *dictionary_list 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_set_preferences</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *dictionary_list, LwPreferences *preferences 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_get_preferences</NAME>
+<RETURNS>LwPreferences * </RETURNS>
+LwDictionaryList *dictionary_list 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_set_menumodel</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *dictionary_list, GMenuModel *menu_model 
+</FUNCTION>
+<ENUM>
+<NAME>Props</NAME>
+typedef enum {
+    PROP_0,
+    PROP_FILENAME,
+    PROP_CHANGED,
+    PROP_LOADED,
+    TOTAL_PROPS
+} Props;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_ROW_CHANGED,
+  CLASS_SIGNALID_ROW_INSERTED,
+  CLASS_SIGNALID_ROW_DELETED,
+  CLASS_SIGNALID_ROWS_REORDERED,
+  CLASS_SIGNALID_FILENAME_CHANGED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>Data</NAME>
+struct _Data {
+  GList *list; //<!-- A Glist of LwWord
+  GList **array;
+  gint length;
+  gboolean changed; //<!-- hint of there are any savable changes
+  gboolean loaded;
+};
+</STRUCT>
+<STRUCT>
+<NAME>Config</NAME>
+struct _Config {
+  gchar *filename;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwVocabularyPrivate</NAME>
+struct _LwVocabularyPrivate {
+  struct _Data data;
+  struct _Config config;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwVocabularyClassPrivate</NAME>
+struct _LwVocabularyClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_VOCABULARY_GET_PRIVATE</NAME>
+#define LW_VOCABULARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_VOCABULARY, LwVocabularyPrivate));
+</MACRO>
+<ENUM>
+<NAME>LwCacheFileProps</NAME>
+typedef enum
+{
+  PROP_0,
+  PROP_PATH,
+  PROP_CHECKSUM,
+  PROP_CONTENTS,
+  PROP_CONTENT_LENGTH,
+  TOTAL_PROPS
+} LwCacheFileProps;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_UNUSED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>LwCacheFilePrivate</NAME>
+struct _LwCacheFilePrivate {
+  FILE * stream;
+  gchar const * CHECKSUM;
+  gsize content_length;
+  gchar * contents;
+  gchar * path;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwCacheFileClassPrivate</NAME>
+struct _LwCacheFileClassPrivate {
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_CACHEFILE_GET_PRIVATE</NAME>
+#define LW_CACHEFILE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_CACHEFILE, LwCacheFilePrivate));
+</MACRO>
+<MACRO>
+<NAME>LW_PARSEDLINE_ERROR</NAME>
+#define LW_PARSEDLINE_ERROR lw_parsedline_error_quark ()
+</MACRO>
+<ENUM>
+<NAME>LwParsedLineErrorCode</NAME>
+typedef enum {
+  LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR
+} LwParsedLineErrorCode;
+</ENUM>
+<STRUCT>
+<NAME>LwParsedLine</NAME>
+struct _LwParsedLine {
+  GTree *tree;
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_PARSEDLINE</NAME>
+#define LW_PARSEDLINE(obj) (LwParsedLine*)obj
+</MACRO>
+<FUNCTION>
+<NAME>lw_parsedline_init</NAME>
+<RETURNS>void  </RETURNS>
+LwParsedLine *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsedline_init_static</NAME>
+<RETURNS>void  </RETURNS>
+LwParsedLine *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsedline_clear</NAME>
+<RETURNS>void  </RETURNS>
+LwParsedLine *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsedline_take_strv</NAME>
+<RETURNS>void  </RETURNS>
+LwParsedLine *self, gint id, gchar ** strv 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsedline_get_strv</NAME>
+<RETURNS>gchar  const **</RETURNS>
+LwParsedLine *self, gint id 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsedline_get_serialized_length</NAME>
+<RETURNS>gsize  </RETURNS>
+LwParsedLine *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsedline_serialize</NAME>
+<RETURNS>gsize  </RETURNS>
+LwParsedLine *self, gchar *contents_reference_point, gchar *preallocated_buffer, GError **error 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsedline_deserialize_into</NAME>
+<RETURNS>gsize  </RETURNS>
+LwParsedLine *self, gchar const *serialized_data, gchar const *contents_reference_point, GError **error 
+</FUNCTION>
+<STRUCT>
+<NAME>LwParsedLine</NAME>
+</STRUCT>
+<ENUM>
+<NAME>Props</NAME>
+typedef enum {
+  PROP_0,
+  PROP_NAME,
+  TOTAL_PROPS
+} Props;
+</ENUM>
+<STRUCT>
+<NAME>LwDictionaryModulePrivate</NAME>
+struct _LwDictionaryModulePrivate {
+  gchar *name;
+  GModule *module;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryModuleClassPrivate</NAME>
+struct _LwDictionaryModuleClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_DICTIONARYMODULE_GET_PRIVATE</NAME>
+#define LW_DICTIONARYMODULE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYMODULE, LwDictionaryModulePrivate));
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_MAPPEDFILE</NAME>
+#define LW_TYPE_MAPPEDFILE              (lw_mappedfile_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_MAPPEDFILE</NAME>
+#define LW_MAPPEDFILE(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_MAPPEDFILE, LwMappedFile))
+</MACRO>
+<MACRO>
+<NAME>LW_MAPPEDFILE_CLASS</NAME>
+#define LW_MAPPEDFILE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_MAPPEDFILE, LwMappedFileClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_MAPPEDFILE</NAME>
+#define LW_IS_MAPPEDFILE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_MAPPEDFILE))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_MAPPEDFILE_CLASS</NAME>
+#define LW_IS_MAPPEDFILE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_MAPPEDFILE))
+</MACRO>
+<MACRO>
+<NAME>LW_MAPPEDFILE_GET_CLASS</NAME>
+#define LW_MAPPEDFILE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_MAPPEDFILE, LwMappedFileClass))
+</MACRO>
+<STRUCT>
+<NAME>LwMappedFile</NAME>
+struct _LwMappedFile {
+  GObject object;
+  LwMappedFilePrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwMappedFileClass</NAME>
+struct _LwMappedFileClass {
+  GObjectClass parent_class;
+  LwMappedFileClassPrivate *priv;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_mappedfile_new</NAME>
+<RETURNS>LwMappedFile * </RETURNS>
+gchar const * PATH 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_mappedfile_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_mappedfile_length</NAME>
+<RETURNS>gsize  </RETURNS>
+LwMappedFile * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_mappedfile_get_contents</NAME>
+<RETURNS>gchar  * </RETURNS>
+LwMappedFile  * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_mappedfile_set_path</NAME>
+<RETURNS>void  </RETURNS>
+LwMappedFile * self, gchar const * PATH 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_mappedfile_get_path</NAME>
+<RETURNS>gchar  const *</RETURNS>
+LwMappedFile * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_mappedfile_set_delete_on_free</NAME>
+<RETURNS>void  </RETURNS>
+LwMappedFile * self, gboolean delete_on_free 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_mappedfile_get_delete_on_free</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwMappedFile * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_mappedfile_get_writable</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwMappedFile *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwMappedFilePrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwMappedFileClassPrivate</NAME>
+</STRUCT>
+<ENUM>
+<NAME>Props</NAME>
+typedef enum {
+    PROP_0,
+    PROP_STATUS,
+    PROP_DICTIONARY,
+    PROP_QUERY,
+    PROP_FLAGS,
+    PROP_MAX_RESULTS,
+    PROP_PROGRESS,
+    PROP_REGEX,
+    TOTAL_PROPS
+} Props;
+</ENUM>
+<ENUM>
+<NAME>SignalId</NAME>
+typedef enum {
+  SIGNALID_CHANGED,
+  SIGNALID_INSERTED,
+  SIGNALID_DELETED,
+  SIGNALID_REORDERED,
+  TOTAL_SIGNALIDS
+} SignalId;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_ROW_CHANGED,
+  CLASS_SIGNALID_ROW_INSERTED,
+  CLASS_SIGNALID_ROW_DELETED,
+  CLASS_SIGNALID_ROWS_REORDERED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>LwSearchPrivate</NAME>
+struct _LwSearchPrivate {
+  LwMorphologyString *query;
+  LwSearchStatus status;                  //!< Used to test if a search is in progress.
+  //LwMorphologyEngine *morphologyengine;
+  GMutex mutex;
+  GThread *thread;
+  LwDictionary *dictionary;
+  GQueue *results;
+  LwProgress *progress;
+
+  GRegex *regex;
+
+  LwSearchFlag flags;
+  gint max_results;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwSearchClassPrivate</NAME>
+struct _LwSearchClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwSearchData</NAME>
+struct _LwSearchData {
+    LwQueryNode * root;
+    GHashTable * column_mapping;
+    LwSearch * search;
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_SEARCH_GET_PRIVATE</NAME>
+#define LW_SEARCH_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SEARCH, LwSearchPrivate));
+</MACRO>
+<STRUCT>
+<NAME>LwSearchData</NAME>
+</STRUCT>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_connect_signals</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallList *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_disconnect_signals</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallList *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwParenthesisNode</NAME>
+struct _LwParenthesisNode {
+  gboolean has_parenthesis;
+  gint refs;
+  gchar const * OPEN;
+  gchar const * CLOSE;
+  GList *explicit_children;
+  GList *children;
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_PARENTHESISNODE</NAME>
+#define LW_PARENTHESISNODE(obj) ((LwParenthesisNode*)(obj))
+</MACRO>
+<FUNCTION>
+<NAME>lw_parenthesisnode_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<MACRO>
+<NAME>LW_PARENTHESISNODE_ERROR</NAME>
+#define LW_PARENTHESISNODE_ERROR lw_parenthesisnode_error_quark ()
+</MACRO>
+<FUNCTION>
+<NAME>lw_parenthesisnode_error_quark</NAME>
+<RETURNS>GQuark  </RETURNS>
+void 
+</FUNCTION>
+<ENUM>
+<NAME>LwParenthesisNodeErrorCode</NAME>
+typedef enum {
+  LW_PARENTHESISNODE_UNMATCHED_START_PARENTHESIS_ERROR,
+  LW_PARENTHESISNODE_UNMATCHED_END_PARENTHESIS_ERROR,
+} LwParenthesisNodeErrorCode;
+</ENUM>
+<FUNCTION>
+<NAME>lw_parenthesisnode_new_tree_from_string</NAME>
+<RETURNS>LwParenthesisNode * </RETURNS>
+gchar const * TEXT, GError ** error 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parenthesisnode_contains</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwParenthesisNode * self, LwParenthesisNode * other 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parenthesisnode_unref</NAME>
+<RETURNS>void  </RETURNS>
+LwParenthesisNode *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parenthesisnode_ref</NAME>
+<RETURNS>LwParenthesisNode  * </RETURNS>
+LwParenthesisNode * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parenthesisnode_assert_equals</NAME>
+<RETURNS>void  </RETURNS>
+LwParenthesisNode * self, LwParenthesisNode * other 
+</FUNCTION>
+<STRUCT>
+<NAME>LwParenthesisNode</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_TYPE_PROGRESS</NAME>
+#define LW_TYPE_PROGRESS              (lw_progress_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_PROGRESS</NAME>
+#define LW_PROGRESS(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_PROGRESS, LwProgress))
+</MACRO>
+<MACRO>
+<NAME>LW_PROGRESS_CLASS</NAME>
+#define LW_PROGRESS_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_PROGRESS, LwProgressClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_PROGRESS</NAME>
+#define LW_IS_PROGRESS(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_PROGRESS))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_PROGRESS_CLASS</NAME>
+#define LW_IS_PROGRESS_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_PROGRESS))
+</MACRO>
+<MACRO>
+<NAME>LW_PROGRESS_GET_CLASS</NAME>
+#define LW_PROGRESS_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_PROGRESS, LwProgressClass))
+</MACRO>
+<USER_FUNCTION>
+<NAME>LwProgressCallback</NAME>
+<RETURNS>gint </RETURNS>
+LwProgress *progress, gpointer data
+</USER_FUNCTION>
+<STRUCT>
+<NAME>LwProgress</NAME>
+struct _LwProgress {
+  GObject object;
+  LwProgressPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwProgressClass</NAME>
+struct _LwProgressClass {
+  GObjectClass parent_class;
+  LwProgressClassPrivate *priv;
+
+  //Signals
+  void (*changed) (LwProgress* progress, gpointer data);
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_progress_new</NAME>
+<RETURNS>LwProgress * </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_should_abort</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_clear</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_cancel</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_is_cancelled</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_cancellable</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, GCancellable *cancellable 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_cancellable</NAME>
+<RETURNS>GCancellable * </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_error</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, GError *error 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_take_error</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, GError *error 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_error</NAME>
+<RETURNS>GError * </RETURNS>
+LwProgress  *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_errored</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_completed</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, gboolean complete 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_completed</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_current</NAME>
+<RETURNS>gdouble  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_current</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, gdouble current_progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_total</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_total</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, gdouble total_progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_fraction</NAME>
+<RETURNS>gdouble  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_primary_message</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, const gchar *MESSAGE 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_primary_message_printf</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, const gchar *FORMAT, ... 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_primary_message</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_secondary_message</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, const gchar *MESSAGE 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_secondary_message_printf</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, const gchar *FORMAT, ... 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_secondary_message</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_step_message</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, const gchar *MESSAGE 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_step_message_printf</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, const gchar *FORMAT, ... 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_step_message</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_prefered_chunk_size</NAME>
+<RETURNS>gsize  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_prefered_chunk_size</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, gsize prefered_chunk_size 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_get_chunk_size</NAME>
+<RETURNS>gsize  </RETURNS>
+LwProgress *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_progress_set_chunk_size</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *self, gsize chunk_size 
+</FUNCTION>
+<STRUCT>
+<NAME>LwProgressPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwProgressClassPrivate</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_TYPE_CACHEFILE</NAME>
+#define LW_TYPE_CACHEFILE              (lw_cachefile_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_CACHEFILE</NAME>
+#define LW_CACHEFILE(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_CACHEFILE, LwCacheFile))
+</MACRO>
+<MACRO>
+<NAME>LW_CACHEFILE_CLASS</NAME>
+#define LW_CACHEFILE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_CACHEFILE, LwCacheFileClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_CACHEFILE</NAME>
+#define LW_IS_CACHEFILE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_CACHEFILE))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_CACHEFILE_CLASS</NAME>
+#define LW_IS_CACHEFILE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_CACHEFILE))
+</MACRO>
+<MACRO>
+<NAME>LW_CACHEFILE_GET_CLASS</NAME>
+#define LW_CACHEFILE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_CACHEFILE, LwCacheFileClass))
+</MACRO>
+<STRUCT>
+<NAME>LwCacheFile</NAME>
+struct _LwCacheFile {
+  LwMappedFile object;
+  LwCacheFilePrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwCacheFileClass</NAME>
+struct _LwCacheFileClass {
+  LwMappedFileClass parent_class;
+  LwCacheFileClassPrivate *priv;
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_CACHEFILE_ERROR</NAME>
+#define LW_CACHEFILE_ERROR lw_cachefile_error_quark ()
+</MACRO>
+<ENUM>
+<NAME>LwCacheFileErrorCode</NAME>
+typedef enum {
+  LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM,
+  LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS
+} LwCacheFileErrorCode;
+</ENUM>
+<FUNCTION>
+<NAME>lw_cachefile_new</NAME>
+<RETURNS>LwCacheFile  * </RETURNS>
+gchar const * PATH 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_cachefile_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_cachefile_write</NAME>
+<RETURNS>gsize  </RETURNS>
+LwCacheFile *self, const gchar *CHECKSUM, const gchar *CONTENTS, gssize content_length, LwProgress  *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_cachefile_write_mappedfile</NAME>
+<RETURNS>gsize  </RETURNS>
+LwCacheFile * self, const gchar * CHECKSUM, LwMappedFile * mapped_file, LwProgress * progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_cachefile_write_cachefile</NAME>
+<RETURNS>gsize  </RETURNS>
+LwCacheFile  * self, const gchar * CHECKSUM, LwCacheFile * cache_file, LwProgress * progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_cachefile_read</NAME>
+<RETURNS>gchar * </RETURNS>
+LwCacheFile *self, const gchar *EXPECTED_CHECKSUM, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_cachefile_get_checksum</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwCacheFile *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_cachefile_get_contents</NAME>
+<RETURNS>gchar * </RETURNS>
+LwCacheFile *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_cachefile_length</NAME>
+<RETURNS>gsize  </RETURNS>
+LwCacheFile *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_cachefile_get_path</NAME>
+<RETURNS>gchar  const *</RETURNS>
+LwCacheFile *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwCacheFileClassPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwCacheFilePrivate</NAME>
+</STRUCT>
+<ENUM>
+<NAME>LwQueryNodeOperation</NAME>
+typedef enum _LwQueryNodeOperation {
+  LW_QUERYNODE_OPERATION_NONE,
+  LW_QUERYNODE_OPERATION_OR,
+  LW_QUERYNODE_OPERATION_AND,
+  TOTAL_LW_QUERYNODE_OPERATIONS
+} LwQueryNodeOperation;
+</ENUM>
+<STRUCT>
+<NAME>LwQueryNode</NAME>
+struct _LwQueryNode {
+  LwQueryNodeOperation operation;
+  gchar * key;
+  gchar * data;
+  GList * children;
+  gint refs;
+
+  GRegex * regex;
+};
+</STRUCT>
+<USER_FUNCTION>
+<NAME>LwQueryNodeWalkFunc</NAME>
+<RETURNS>gboolean </RETURNS>
+LwQueryNode * self, gpointer data
+</USER_FUNCTION>
+<MACRO>
+<NAME>LW_QUERYNODE_ERROR</NAME>
+#define LW_QUERYNODE_ERROR lw_querynode_error_quark ()
+</MACRO>
+<FUNCTION>
+<NAME>lw_querynode_error_quark</NAME>
+<RETURNS>GQuark  </RETURNS>
+void 
+</FUNCTION>
+<MACRO>
+<NAME>LW_QUERYNODE</NAME>
+#define LW_QUERYNODE(obj) ((LwQueryNode*)(obj))
+</MACRO>
+<ENUM>
+<NAME>LwQueryNodeErrorCode</NAME>
+typedef enum {
+  LW_QUERYNODE_UNCLOSED_PARENTHESIS,
+  LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR,
+  LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR,
+  LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE,
+  LW_QUERYNODE_ERROR_MISSING_KEY_AND_VALUE_FOR_KEYED_QUERYNODE,
+} LwQueryNodeErrorCode;
+</ENUM>
+<FUNCTION>
+<NAME>lw_querynode_new_tree_from_string</NAME>
+<RETURNS>LwQueryNode  * </RETURNS>
+gchar const * TEXT, LwQueryNodeOperation * operation_out, GError ** error 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_querynode_ref</NAME>
+<RETURNS>LwQueryNode * </RETURNS>
+LwQueryNode * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_querynode_unref</NAME>
+<RETURNS>void  </RETURNS>
+LwQueryNode *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_querynode_assert_equals</NAME>
+<RETURNS>void  </RETURNS>
+LwQueryNode * self, LwQueryNode *other 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_querynode_walk</NAME>
+<RETURNS>void  </RETURNS>
+LwQueryNode * self, LwQueryNodeWalkFunc func, gpointer data 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_querynode_nnodes</NAME>
+<RETURNS>gint  </RETURNS>
+LwQueryNode * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_querynode_compile</NAME>
+<RETURNS>void  </RETURNS>
+LwQueryNode * self, LwUtf8Flag flags, GError ** error 
+</FUNCTION>
+<STRUCT>
+<NAME>LwQueryNode</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_CONDITION</NAME>
+#define LW_CONDITION(obj) (LwCondition*)obj
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_CONDITION</NAME>
+#define LW_TYPE_CONDITION (lw_condition_get_type ())
+</MACRO>
+<FUNCTION>
+<NAME>lw_condition_new_boolean</NAME>
+<RETURNS>LwCondition * </RETURNS>
+const gchar *property_name, gboolean expected_value 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_condition_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_condition_copy</NAME>
+<RETURNS>LwCondition * </RETURNS>
+LwCondition *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_condition_free</NAME>
+<RETURNS>void  </RETURNS>
+LwCondition *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_condition_matches</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwCondition *self, GObject *object 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_condition_list_matches</NAME>
+<RETURNS>gboolean  </RETURNS>
+GList *conditions, GObject *object 
+</FUNCTION>
+<STRUCT>
+<NAME>LwCondition</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_SCHEMA_VOCABULARY</NAME>
+#define LW_SCHEMA_VOCABULARY         "org.gnome.gwaei.vocabulary"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_TRIM_FLASHCARDS</NAME>
+#define LW_KEY_TRIM_FLASHCARDS       "trim-flashcards"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_SHUFFLE_FLASHCARDS</NAME>
+#define LW_KEY_SHUFFLE_FLASHCARDS    "shuffle-flashcards"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_FLASHCARD_DECK_SIZE</NAME>
+#define LW_KEY_FLASHCARD_DECK_SIZE   "flashcard-deck-size"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_TRACK_RESULTS</NAME>
+#define LW_KEY_TRACK_RESULTS         "track-results"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_ORDER</NAME>
+#define LW_KEY_ORDER                 "order"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_POSITION_COLUMN_SHOW</NAME>
+#define LW_KEY_POSITION_COLUMN_SHOW  "position-column-show"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_SCORE_COLUMN_SHOW</NAME>
+#define LW_KEY_SCORE_COLUMN_SHOW     "score-column-show"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_TIMESTAMP_COLUMN_SHOW</NAME>
+#define LW_KEY_TIMESTAMP_COLUMN_SHOW "timestamp-column-show"
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_VOCABULARY</NAME>
+#define LW_TYPE_VOCABULARY              (lw_vocabulary_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_VOCABULARY</NAME>
+#define LW_VOCABULARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_VOCABULARY, LwVocabulary))
+</MACRO>
+<MACRO>
+<NAME>LW_VOCABULARY_CLASS</NAME>
+#define LW_VOCABULARY_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_VOCABULARY, LwVocabularyClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_VOCABULARY</NAME>
+#define LW_IS_VOCABULARY(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_VOCABULARY))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_VOCABULARY_CLASS</NAME>
+#define LW_IS_VOCABULARY_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_VOCABULARY))
+</MACRO>
+<MACRO>
+<NAME>LW_VOCABULARY_GET_CLASS</NAME>
+#define LW_VOCABULARY_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_VOCABULARY, LwVocabularyClass))
+</MACRO>
+<STRUCT>
+<NAME>LwVocabulary</NAME>
+struct _LwVocabulary {
+  GObject object;
+  Row row; 
+  LwVocabularyPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwVocabularyClass</NAME>
+struct _LwVocabularyClass {
+  GObjectClass parent_class;
+  LwVocabularyClassPrivate *priv;
+
+  //Signals
+  void (*row_changed) (LwVocabulary* vocabulary, gint position, gpointer data);
+  void (*row_inserted) (LwVocabulary* vocabulary, gint position, gpointer data);
+  void (*row_deleted) (LwVocabulary* vocabulary, gint position, gpointer data);
+  void (*rows_reordered) (LwVocabulary* vocabulary, gint *order, gpointer data);
+  void (*filename_changed) (LwVocabulary* vocabulary, const gchar* OLD_FILENAME, gpointer data);
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_vocabulary_new</NAME>
+<RETURNS>LwVocabulary * </RETURNS>
+const gchar* NAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_get_filenames</NAME>
+<RETURNS>gchar ** </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_set_changed</NAME>
+<RETURNS>void  </RETURNS>
+LwVocabulary *self, gboolean changed 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_has_changes</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwVocabulary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_set_filename</NAME>
+<RETURNS>void  </RETURNS>
+LwVocabulary *self, const gchar *FILENAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_get_filename</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwVocabulary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_set_loaded</NAME>
+<RETURNS>void  </RETURNS>
+LwVocabulary *self, gboolean loaded 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_is_loaded</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwVocabulary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_get_word_by_index</NAME>
+<RETURNS>LwWord * </RETURNS>
+LwVocabulary *self, gint index 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_get_indices</NAME>
+<RETURNS>gint * </RETURNS>
+LwVocabulary *self, GList *words 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_load</NAME>
+<RETURNS>void  </RETURNS>
+LwVocabulary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_save</NAME>
+<RETURNS>void  </RETURNS>
+LwVocabulary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_length</NAME>
+<RETURNS>gint  </RETURNS>
+LwVocabulary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_generate_new_filename</NAME>
+<RETURNS>gchar * </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_generate_copied_filename</NAME>
+<RETURNS>gchar * </RETURNS>
+const gchar *FILENAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_has_file</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwVocabulary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_filename_exists</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar *FILENAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_build_uri</NAME>
+<RETURNS>gchar * </RETURNS>
+const gchar *FILENAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_insert</NAME>
+<RETURNS>gint * </RETURNS>
+LwVocabulary *self, gint position, GList *wordlist 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_remove</NAME>
+<RETURNS>GList * </RETURNS>
+LwVocabulary *self, gint *indices 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_remove_words</NAME>
+<RETURNS>void  </RETURNS>
+LwVocabulary *self, GList *words 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_nth</NAME>
+<RETURNS>LwWord * </RETURNS>
+LwVocabulary *self, gint index 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_to_string</NAME>
+<RETURNS>gchar * </RETURNS>
+LwVocabulary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_load_from_string</NAME>
+<RETURNS>gchar * </RETURNS>
+LwVocabulary *self, const gchar *TEXT, gboolean take_filename_from_text 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_set</NAME>
+<RETURNS>void  </RETURNS>
+LwVocabulary *self, gint position, ... 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_set_valist</NAME>
+<RETURNS>void  </RETURNS>
+LwVocabulary *self, gint position, va_list va 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_vocabulary_sort</NAME>
+<RETURNS>void  </RETURNS>
+LwVocabulary *self, GCompareDataFunc compare_func 
+</FUNCTION>
+<STRUCT>
+<NAME>LwVocabularyPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwVocabularyClassPrivate</NAME>
+</STRUCT>
+<FUNCTION>
+<NAME>lw_morphologyengine_mecab_analyze</NAME>
+<RETURNS>GList * </RETURNS>
+LwMorphologyEngine*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_morphologyengine_mecab_new</NAME>
+<RETURNS>mecab_t * </RETURNS>
+void 
+</FUNCTION>
+<ENUM>
+<NAME>LwMorphologyEngineProps</NAME>
+typedef enum {
+  PROP_0,
+  PROP_LOCALE,
+  TOTAL_PROPS
+} LwMorphologyEngineProps;
+</ENUM>
+<STRUCT>
+<NAME>LwMorphologyEnginePrivate</NAME>
+struct _LwMorphologyEnginePrivate {
+#ifdef HAVE_MECAB
+  mecab_t *mecab;
+#endif
+#ifdef HAVE_HUNSPELL
+  Hunhandle *hunspell;
+#endif
+  gchar *locale;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwMorphologyEngineClassPrivate</NAME>
+struct _LwMorphologyEngineClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_MORPHOLOGYENGINE_GET_PRIVATE</NAME>
+#define LW_MORPHOLOGYENGINE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_MORPHOLOGYENGINE, LwMorphologyEnginePrivate));
+</MACRO>
+<FUNCTION>
+<NAME>lw_regex_initialize</NAME>
+<RETURNS>void  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_regex_free</NAME>
+<RETURNS>void  </RETURNS>
+void 
+</FUNCTION>
+<ENUM>
+<NAME>LwRegexDataIndex</NAME>
+typedef enum {
+  LW_RE_NUMBER,
+  LW_RE_STROKES,
+  LW_RE_GRADE,
+  LW_RE_FREQUENCY,
+  LW_RE_JLPT,
+  LW_RE_PARENTHESES,
+  LW_RE_KANJI_DICTIONARY_SPACERS,
+  LW_RE_JAPANESE,
+  LW_RE_ENGLISH,
+  LW_RE_SECTION,
+  LW_RE_CONTIGUOUS,
+  LW_RE_TOTAL
+} LwRegexDataIndex;
+</ENUM>
+<FUNCTION>
+<NAME>lw_regex_remove_parenthesis</NAME>
+<RETURNS>gchar * </RETURNS>
+const gchar* TEXT 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_regex_remove_kanji_dictionary_spacers</NAME>
+<RETURNS>gchar * </RETURNS>
+const gchar* TEXT 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_regex_get_japanese_matches</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar *HAYSTACK, GMatchInfo **match_info 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_regex_get_sections</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar *HAYSTACK, GMatchInfo **match_info 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_regex_get_contiguous</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar *HAYSTACK, GMatchInfo **match_info 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_connect_signals</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *dictionarylist 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_disconnect_signals</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *dictionarylist 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_inserted_cb</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *dictionary_list, gint position, gpointer data 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_deleted_cb</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *dictionary_list, gint position, gpointer data 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_reordered_cb</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *dictionary_list, gint *new_order, gpointer data 
+</FUNCTION>
+<MACRO>
+<NAME>LW_DICTIONARYINSTALLSTATE</NAME>
+#define LW_DICTIONARYINSTALLSTATE(obj) (LwDictionaryInstallState*)obj
+</MACRO>
+<USER_FUNCTION>
+<NAME>LwDictionaryInstallStateForeachFunc</NAME>
+<RETURNS>void </RETURNS>
+LwDictionaryInstallState *state, LwFilePath *filepath, gpointer user_data
+</USER_FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstate_new_glist</NAME>
+<RETURNS>LwDictionaryInstallState * </RETURNS>
+const gchar *NAME, gboolean is_temporary, GList *paths 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstate_free</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallState *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstate_foreach</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallState *self, LwDictionaryInstallStateForeachFunc func, gpointer user_data 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstate_remove_files</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallState *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstate_get_filepaths</NAME>
+<RETURNS>LwFilePath ** </RETURNS>
+LwDictionaryInstallState *self, gint *length 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstate_length</NAME>
+<RETURNS>gint  </RETURNS>
+LwDictionaryInstallState *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstate_is_temporary</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionaryInstallState *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwDictionaryInstallState</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_TYPE_UNINSTALLSUBCOMMAND</NAME>
+#define LW_TYPE_UNINSTALLSUBCOMMAND              (lw_uninstallsubcommand_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_UNINSTALLSUBCOMMAND</NAME>
+#define LW_UNINSTALLSUBCOMMAND(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_UNINSTALLSUBCOMMAND, LwUninstallSubCommand))
+</MACRO>
+<MACRO>
+<NAME>LW_UNINSTALLSUBCOMMAND_CLASS</NAME>
+#define LW_UNINSTALLSUBCOMMAND_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_UNINSTALLSUBCOMMAND, LwUninstallSubCommandClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_UNINSTALLSUBCOMMAND</NAME>
+#define LW_IS_UNINSTALLSUBCOMMAND(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_UNINSTALLSUBCOMMAND))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_UNINSTALLSUBCOMMAND_CLASS</NAME>
+#define LW_IS_UNINSTALLSUBCOMMAND_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_UNINSTALLSUBCOMMAND))
+</MACRO>
+<MACRO>
+<NAME>LW_UNINSTALLSUBCOMMAND_GET_CLASS</NAME>
+#define LW_UNINSTALLSUBCOMMAND_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_UNINSTALLSUBCOMMAND, LwUninstallSubCommandClass))
+</MACRO>
+<STRUCT>
+<NAME>LwUninstallSubCommand</NAME>
+struct _LwUninstallSubCommand {
+  LwSubCommand object;
+  LwUninstallSubCommandPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwUninstallSubCommandClass</NAME>
+struct _LwUninstallSubCommandClass {
+  LwSubCommandClass parent_class;
+  LwUninstallSubCommandClassPrivate *priv;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_uninstallsubcommand_new</NAME>
+<RETURNS>LwSubCommand * </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_uninstallsubcommand_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<STRUCT>
+<NAME>LwUninstallSubCommandPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwUninstallSubCommandClassPrivate</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_TYPE_SUBCOMMAND</NAME>
+#define LW_TYPE_SUBCOMMAND              (lw_subcommand_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_SUBCOMMAND</NAME>
+#define LW_SUBCOMMAND(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_SUBCOMMAND, LwSubCommand))
+</MACRO>
+<MACRO>
+<NAME>LW_SUBCOMMAND_CLASS</NAME>
+#define LW_SUBCOMMAND_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_SUBCOMMAND, LwSubCommandClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_SUBCOMMAND</NAME>
+#define LW_IS_SUBCOMMAND(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_SUBCOMMAND))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_SUBCOMMAND_CLASS</NAME>
+#define LW_IS_SUBCOMMAND_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_SUBCOMMAND))
+</MACRO>
+<MACRO>
+<NAME>LW_SUBCOMMAND_GET_CLASS</NAME>
+#define LW_SUBCOMMAND_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_SUBCOMMAND, LwSubCommandClass))
+</MACRO>
+<USER_FUNCTION>
+<NAME>LwSubCommandRunFunc</NAME>
+<RETURNS>void </RETURNS>
+LwSubCommand* self, gchar *** argv, gint * argc
+</USER_FUNCTION>
+<STRUCT>
+<NAME>LwSubCommand</NAME>
+struct _LwSubCommand {
+  GObject object;
+  LwSubCommandPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwSubCommandClass</NAME>
+struct _LwSubCommandClass {
+  GObjectClass parent_class;
+  LwSubCommandClassPrivate *priv;
+
+  // Virtual methods
+  LwSubCommandRunFunc run;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_subcommand_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_subcommand_run</NAME>
+<RETURNS>void  </RETURNS>
+LwSubCommand *self, gchar *** argv, gint * argc 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_subcommand_build_option_group</NAME>
+<RETURNS>GOptionGroup  * </RETURNS>
+LwSubCommand * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_subcommand_get_option_entries</NAME>
+<RETURNS>GOptionEntry  const *</RETURNS>
+LwSubCommand * self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_subcommand_set_option_entries</NAME>
+<RETURNS>void  </RETURNS>
+LwSubCommand * self, GOptionEntry const * option_entries 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_subcommand_get_name</NAME>
+<RETURNS>gchar  const *</RETURNS>
+LwSubCommand * self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwSubCommandPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwSubCommandClassPrivate</NAME>
+</STRUCT>
+<ENUM>
+<NAME>Props</NAME>
+typedef enum {
+    PROP_0,
+    PROP_NAME,
+    PROP_FLAGS,
+    PROP_PARSED,
+    PROP_INDEXED,
+    TOTAL_PROPS
+} Props;
+</ENUM>
+<STRUCT>
+<NAME>LwDictionaryCachePrivate</NAME>
+struct _LwDictionaryCachePrivate {
+  gchar *name;
+  LwUtf8Flag flags;
+  LwParsed *parsed;
+  LwIndexed *indexed;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryCacheClassPrivate</NAME>
+struct _LwDictionaryCacheClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_DICTIONARYCACHE_GET_PRIVATE</NAME>
+#define LW_DICTIONARYCACHE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYCACHE, LwDictionaryCachePrivate));
+</MACRO>
+<ENUM>
+<NAME>Prop</NAME>
+typedef enum {
+  PROP_0,
+  PROP_APPLICATION,
+  PROP_APPLICATION_COMMAND_LINE,
+  PROP_PARAMETER_STRING,
+  PROP_DESCRIPTION,
+  PROP_SUMMARY,
+  PROP_OPTION_GROUP,
+  TOTAL_PROPS
+} Prop;
+</ENUM>
+<ENUM>
+<NAME>SignalId</NAME>
+typedef enum {
+  TOTAL_SIGNALIDS
+} SignalId;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_RUN,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>LwCommandPrivate</NAME>
+struct _LwCommandPrivate {
+  gint argc;
+  gchar * * argv;
+  GApplication *application;
+  GApplicationCommandLine *command_line;
+  gchar *parameter_string;
+  guint signalid[TOTAL_SIGNALIDS];
+
+  gchar * description;
+  gchar * summary;
+
+  gchar * command_name;
+  GTree * subcommands;
+  LwSubCommand * default_subcommand;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwCommandClassPrivate</NAME>
+struct _LwCommandClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_COMMAND_GET_PRIVATE</NAME>
+#define LW_COMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_COMMAND, LwCommandPrivate))
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_DICTIONARYINSTALL</NAME>
+#define LW_TYPE_DICTIONARYINSTALL              (lw_dictionaryinstall_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYINSTALL</NAME>
+#define LW_DICTIONARYINSTALL(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARYINSTALL, LwDictionaryInstall))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYINSTALL_CLASS</NAME>
+#define LW_DICTIONARYINSTALL_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_DICTIONARYINSTALL, LwDictionaryInstallClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARYINSTALL</NAME>
+#define LW_IS_DICTIONARYINSTALL(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_DICTIONARYINSTALL))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARYINSTALL_CLASS</NAME>
+#define LW_IS_DICTIONARYINSTALL_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARYINSTALL))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYINSTALL_GET_CLASS</NAME>
+#define LW_DICTIONARYINSTALL_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARYINSTALL, LwDictionaryInstallClass))
+</MACRO>
+<STRUCT>
+<NAME>LwDictionaryInstall</NAME>
+struct _LwDictionaryInstall {
+  GObject object;
+  LwDictionaryInstallPrivate *priv;
+  Row row; 
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryInstallClass</NAME>
+struct _LwDictionaryInstallClass {
+  GObjectClass parent_class;
+  LwDictionaryInstallClassPrivate *priv;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_new</NAME>
+<RETURNS>LwDictionaryInstall * </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_name</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, const gchar *NAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_name</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_description</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, const gchar *DESCRIPTION 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_description</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_text_encoding</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, const gchar *TEXT_ENCODING 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_text_encoding</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_gtype</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, GType gtype 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_gtype</NAME>
+<RETURNS>GType  </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_download_key</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, const gchar *DOWNLOAD_KEY 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_download_key</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_download_uri</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, const gchar *DOWNLOAD_URI 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_download_uri</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_sync_download_uri</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_preferences</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, LwPreferences *preferences 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_preferences</NAME>
+<RETURNS>LwPreferences * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_merge_radicals_into_kanji</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, gboolean merge 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_merge_radicals_into_kanji</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_merge_radicals_into_kanji</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_progress</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_progress</NAME>
+<RETURNS>LwProgress * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_split_places_from_names</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, gboolean split 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_split_places_from_names</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_split_places_from_names</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_dependancies</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, GList* dependencies 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_dependancies</NAME>
+<RETURNS>GList * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_simple_boolean_dependancy</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, const gchar *NAME, const gchar *PROPERTY_NAME, gboolean VALUE 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_id</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_id</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, const gchar *ID 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_sync_id</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_install_path</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_sync_install_path</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_install</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwDictionaryInstallPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryInstallClassPrivate</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_SEARCH_MAX_CHUNK</NAME>
+#define LW_SEARCH_MAX_CHUNK 1000
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSTATUSNAME_IDLE</NAME>
+#define LW_SEARCHSTATUSNAME_IDLE "Idle"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSTATUSNAME_SEARCHING</NAME>
+#define LW_SEARCHSTATUSNAME_SEARCHING "Searching"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSTATUSNAME_FINISHING</NAME>
+#define LW_SEARCHSTATUSNAME_FINISHING "Finishing"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSTATUSNAME_CANCELING</NAME>
+#define LW_SEARCHSTATUSNAME_CANCELING "Canceling"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSTATUSNICK_IDLE</NAME>
+#define LW_SEARCHSTATUSNICK_IDLE "idle"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSTATUSNICK_SEARCHING</NAME>
+#define LW_SEARCHSTATUSNICK_SEARCHING "searching"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSTATUSNICK_FINISHING</NAME>
+#define LW_SEARCHSTATUSNICK_FINISHING "finishing"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSTATUSNICK_CANCELING</NAME>
+#define LW_SEARCHSTATUSNICK_CANCELING "canceling"
+</MACRO>
+<ENUM>
+<NAME>LwSearchStatus</NAME>
+typedef enum {
+  LW_SEARCHSTATUS_IDLE,
+  LW_SEARCHSTATUS_SEARCHING,
+  LW_SEARCHSTATUS_FINISHING,
+  LW_SEARCHSTATUS_CANCELING
+} LwSearchStatus;
+</ENUM>
+<FUNCTION>
+<NAME>lw_searchstatus_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<MACRO>
+<NAME>LW_TYPE_SEARCHSTATUS</NAME>
+#define LW_TYPE_SEARCHSTATUS (lw_searchstatus_get_type ())
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNAME_RAW</NAME>
+#define LW_SEARCHFLAGNAME_RAW "Raw"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE</NAME>
+#define LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE "Furigana Insensitive"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNAME_CASE_INSENSITIVE</NAME>
+#define LW_SEARCHFLAGNAME_CASE_INSENSITIVE "Case Insensitive"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNAME_STEM_INSENSITIVE</NAME>
+#define LW_SEARCHFLAGNAME_STEM_INSENSITIVE "Stem Insensitive"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA</NAME>
+#define LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA "Romaji to Furigana"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNAME_USE_INDEX</NAME>
+#define LW_SEARCHFLAGNAME_USE_INDEX "Use Index"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNAME_INSENSITIVE</NAME>
+#define LW_SEARCHFLAGNAME_INSENSITIVE "Insensitive"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNICK_RAW</NAME>
+#define LW_SEARCHFLAGNICK_RAW "raw"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNICK_FURIGANA_INSENSITIVE</NAME>
+#define LW_SEARCHFLAGNICK_FURIGANA_INSENSITIVE "furigana-insensitive"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNICK_CASE_INSENSITIVE</NAME>
+#define LW_SEARCHFLAGNICK_CASE_INSENSITIVE "case-insensitive"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNICK_STEM_INSENSITIVE</NAME>
+#define LW_SEARCHFLAGNICK_STEM_INSENSITIVE "stem-insensitive"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNICK_ROMAJI_TO_FURIGANA</NAME>
+#define LW_SEARCHFLAGNICK_ROMAJI_TO_FURIGANA "romaji-to furigana"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNICK_USE_INDEX</NAME>
+#define LW_SEARCHFLAGNICK_USE_INDEX "use-index"
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHFLAGNICK_INSENSITIVE</NAME>
+#define LW_SEARCHFLAGNICK_INSENSITIVE "insensitive"
+</MACRO>
+<ENUM>
+<NAME>LwSearchFlag</NAME>
+typedef enum {
+  LW_SEARCHFLAG_RAW = (1 << 0),
+  LW_SEARCHFLAG_FURIGANA_INSENSITIVE = (1 << 1),
+  LW_SEARCHFLAG_CASE_INSENSITIVE = (1 << 2),
+  LW_SEARCHFLAG_STEM_INSENSITIVE = (1 << 3),
+  LW_SEARCHFLAG_ROMAJI_TO_FURIGANA = (1 << 4),
+  LW_SEARCHFLAG_USE_INDEX = (1 << 5),
+  LW_SEARCHFLAG_INSENSITIVE = (LW_SEARCHFLAG_FURIGANA_INSENSITIVE | LW_SEARCHFLAG_CASE_INSENSITIVE | LW_SEARCHFLAG_STEM_INSENSITIVE),
+} LwSearchFlag;
+</ENUM>
+<FUNCTION>
+<NAME>lw_searchflag_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<MACRO>
+<NAME>LW_TYPE_SEARCHFLAG</NAME>
+#define LW_TYPE_SEARCHFLAG (lw_searchflag_get_type ())
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_SEARCH</NAME>
+#define LW_TYPE_SEARCH              (lw_search_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCH</NAME>
+#define LW_SEARCH(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_SEARCH, LwSearch))
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCH_CLASS</NAME>
+#define LW_SEARCH_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_SEARCH, LwSearchClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_SEARCH</NAME>
+#define LW_IS_SEARCH(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_SEARCH))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_SEARCH_CLASS</NAME>
+#define LW_IS_SEARCH_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_SEARCH))
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCH_GET_CLASS</NAME>
+#define LW_SEARCH_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_SEARCH, LwSearchClass))
+</MACRO>
+<STRUCT>
+<NAME>LwSearch</NAME>
+struct _LwSearch {
+  GObject object;
+  LwSearchPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwSearchClass</NAME>
+struct _LwSearchClass {
+  GObjectClass parent_class;
+  LwSearchClassPrivate *priv;
+
+  //Signals
+  void (*row_changed) (LwSearch* search, gint position, gpointer data);
+  void (*row_inserted) (LwSearch* search, gint position, gpointer data);
+  void (*row_deleted) (LwSearch* search, gint position, gpointer data);
+  void (*rows_reordered) (LwSearch* search, gint *order, gpointer data);
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_search_new</NAME>
+<RETURNS>LwSearch * </RETURNS>
+const gchar *QUERY, LwDictionary *dictionary, LwSearchFlag flags 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_new_by_preferences</NAME>
+<RETURNS>LwSearch * </RETURNS>
+const gchar *QUERY, LwDictionary  *dictionary, LwPreferences *preferences 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_start</NAME>
+<RETURNS>void  </RETURNS>
+LwSearch *self, gboolean dry_run, GError ** error 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_start_async</NAME>
+<RETURNS>void  </RETURNS>
+LwSearch *self, gboolean dry_run, GError ** error 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_set_dictionary</NAME>
+<RETURNS>void  </RETURNS>
+LwSearch *self, LwDictionary *dictionary 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_get_dictionary</NAME>
+<RETURNS>LwDictionary * </RETURNS>
+LwSearch *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_set_query</NAME>
+<RETURNS>void  </RETURNS>
+LwSearch *self, const gchar *QUERY 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_get_query</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwSearch *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_set_max_results</NAME>
+<RETURNS>void  </RETURNS>
+LwSearch *self, gint max_results 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_get_max_results</NAME>
+<RETURNS>gint  </RETURNS>
+LwSearch *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_set_status</NAME>
+<RETURNS>void  </RETURNS>
+LwSearch *self, LwSearchStatus status 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_get_status</NAME>
+<RETURNS>LwSearchStatus  </RETURNS>
+LwSearch *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_set_progress</NAME>
+<RETURNS>void  </RETURNS>
+LwSearch *self, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_get_progress</NAME>
+<RETURNS>LwProgress * </RETURNS>
+LwSearch *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_get_regex</NAME>
+<RETURNS>GRegex * </RETURNS>
+LwSearch *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_set_regex</NAME>
+<RETURNS>void  </RETURNS>
+LwSearch *self, GRegex *regex 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_sync_regex</NAME>
+<RETURNS>void  </RETURNS>
+LwSearch *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_get_flags</NAME>
+<RETURNS>LwSearchFlag  </RETURNS>
+LwSearch *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_set_flags</NAME>
+<RETURNS>void  </RETURNS>
+LwSearch *self, LwSearchFlag flags 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_search_build_flags_from_preferences</NAME>
+<RETURNS>LwSearchFlag  </RETURNS>
+LwPreferences *preferences 
+</FUNCTION>
+<STRUCT>
+<NAME>LwSearchClassPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwSearchPrivate</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_UTF8_ERROR</NAME>
+#define LW_UTF8_ERROR lw_utf8_error_quark ()
+</MACRO>
+<ENUM>
+<NAME>LwUtf8ErrorCode</NAME>
+typedef enum {
+  LW_UTF8_ERRORCODE_INVALID_CHARACTER,
+  LW_UTF8_ERRORCODE_VALIDATION_ERROR_
+} LwUtf8ErrorCode;
+</ENUM>
+<MACRO>
+<NAME>LW_UTF8FLAGNAME_NONE</NAME>
+#define LW_UTF8FLAGNAME_NONE "None"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNAME_PRINTABLE</NAME>
+#define LW_UTF8FLAGNAME_PRINTABLE "Printable"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNAME_COMPARABLE</NAME>
+#define LW_UTF8FLAGNAME_COMPARABLE "Comparable"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNAME_CASEFOLD</NAME>
+#define LW_UTF8FLAGNAME_CASEFOLD "Case Fold"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNAME_FURIGANAFOLD</NAME>
+#define LW_UTF8FLAGNAME_FURIGANAFOLD "Furigana Fold"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNAME_ALL</NAME>
+#define LW_UTF8FLAGNAME_ALL "All"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNICK_NONE</NAME>
+#define LW_UTF8FLAGNICK_NONE "none"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNICK_PRINTABLE</NAME>
+#define LW_UTF8FLAGNICK_PRINTABLE "printable"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNICK_COMPARABLE</NAME>
+#define LW_UTF8FLAGNICK_COMPARABLE "comparable"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNICK_CASEFOLD</NAME>
+#define LW_UTF8FLAGNICK_CASEFOLD "case-fold"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNICK_FURIGANAFOLD</NAME>
+#define LW_UTF8FLAGNICK_FURIGANAFOLD "furigana-fold"
+</MACRO>
+<MACRO>
+<NAME>LW_UTF8FLAGNICK_ALL</NAME>
+#define LW_UTF8FLAGNICK_ALL "all"
+</MACRO>
+<ENUM>
+<NAME>LwUtf8Flag</NAME>
+typedef enum {
+  LW_UTF8FLAG_NONE = 0,
+  LW_UTF8FLAG_PRINTABLE = (1 << 0),
+  LW_UTF8FLAG_COMPARABLE = (1 << 1),
+  LW_UTF8FLAG_CASEFOLD = (1 << 2),
+  LW_UTF8FLAG_FURIGANAFOLD = (1 << 3),
+  LW_UTF8FLAG_ALL = (
+    LW_UTF8FLAG_PRINTABLE |
+    LW_UTF8FLAG_COMPARABLE |
+    LW_UTF8FLAG_CASEFOLD |
+    LW_UTF8FLAG_FURIGANAFOLD
+  )
+} LwUtf8Flag;
+</ENUM>
+<USER_FUNCTION>
+<NAME>LwUtf8ChunkHandler</NAME>
+<RETURNS>gsize </RETURNS>
+gchar*, gsize, gpointer, GError**
+</USER_FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8flag_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8flag_clean</NAME>
+<RETURNS>LwUtf8Flag  </RETURNS>
+LwUtf8Flag flags 
+</FUNCTION>
+<MACRO>
+<NAME>LW_TYPE_UTF8FLAG</NAME>
+#define LW_TYPE_UTF8FLAG (lw_utf8flag_get_type ())
+</MACRO>
+<FUNCTION>
+<NAME>lw_utf8_set_null_next_char</NAME>
+<RETURNS>gchar * </RETURNS>
+gchar *TEXT 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_get_numbers</NAME>
+<RETURNS>gint * </RETURNS>
+const gchar *TEXT 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_replace_linebreaks_with_nullcharacter</NAME>
+<RETURNS>gsize  </RETURNS>
+gchar *CONTENTS, gsize content_length, gsize *max_line_length, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_sanitize</NAME>
+<RETURNS>gchar * </RETURNS>
+gchar const * BUFFER 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_get_script</NAME>
+<RETURNS>GUnicodeScript  </RETURNS>
+gchar *TEXT 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_convert_printf_pattern_to_regex_pattern</NAME>
+<RETURNS>gchar * </RETURNS>
+const gchar *PATTERN 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_furiganafold</NAME>
+<RETURNS>void  </RETURNS>
+gchar *TEXT, gsize length, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_casefold</NAME>
+<RETURNS>void  </RETURNS>
+gchar *TEXT, gsize length, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_count_lines</NAME>
+<RETURNS>gint  </RETURNS>
+gchar *buffer 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_split_lines</NAME>
+<RETURNS>gchar ** </RETURNS>
+gchar *buffer, gint *num_lines 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_validate</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar *TEXT, gint length, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_normalize</NAME>
+<RETURNS>gchar * </RETURNS>
+const gchar *TEXT, gssize length, LwUtf8Flag flags 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_normalize_chunk</NAME>
+<RETURNS>gint  </RETURNS>
+gchar ** output_chunk, const gchar *TEXT, LwUtf8Flag flags, gssize max_length 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_normalize_chunked</NAME>
+<RETURNS>void  </RETURNS>
+gchar const * contents, gsize content_length, LwUtf8Flag flags, LwUtf8ChunkHandler chunk_handler, gpointer chunk_handler_data, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_utf8_isescaped</NAME>
+<RETURNS>gboolean  </RETURNS>
+gchar const * STR, gchar const * CHAR_PTR 
+</FUNCTION>
+<ENUM>
+<NAME>Props</NAME>
+typedef enum {
+    PROP_0,
+    PROP_ID,
+    PROP_NAME,
+    PROP_DESCRIPTION,
+    PROP_GTYPE,
+    PROP_TEXT_ENCODING,
+    PROP_PREFERENCES,
+    PROP_DOWNLOAD_KEY,
+    PROP_DOWNLOAD_URI,
+    PROP_INSTALL_PATH,
+    PROP_SPLIT_PLACES_FROM_NAMES,
+    PROP_MERGE_RADICALS_INTO_KANJI,
+    PROP_PROGRESS,
+    PROP_STATUS,
+    PROP_DEPENDENCIES,
+    TOTAL_PROPS
+} Props;
+</ENUM>
+<ENUM>
+<NAME>SignalId</NAME>
+typedef enum {
+    CLASS_SIGNALID_UNUSED,
+    TOTAL_CLASS_SIGNALIDS
+} SignalId;
+</ENUM>
+<STRUCT>
+<NAME>Index</NAME>
+struct _Index {
+  GHashTable *id;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryInstallPrivate</NAME>
+struct _LwDictionaryInstallPrivate {
+  struct _Index index;
+  gchar *id;
+  gchar *name;
+  gchar *description;
+  LwPreferences *preferences;
+  gchar *download_key;
+  gchar *download_uri;
+  gchar *text_encoding;
+  GList *dependancies;
+  GType gtype;
+  LwProgress *progress;
+  LwDictionaryInstallStateHistory *history;
+  gchar *install_path;
+
+  gboolean merge_radicals_into_kanji;
+  gboolean split_places_from_names;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryInstallClassPrivate</NAME>
+struct _LwDictionaryInstallClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_DICTIONARYINSTALL_GET_PRIVATE</NAME>
+#define LW_DICTIONARYINSTALL_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYINSTALL, LwDictionaryInstallPrivate));
+</MACRO>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_get_name</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwDictionaryInstall *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstall_set_name</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstall *self, const gchar *NAME 
+</FUNCTION>
+<STRUCT>
+<NAME>Row</NAME>
+struct _Row {
+  gint current_index;
+  gint saved_index;
+};
+</STRUCT>
+<STRUCT>
+<NAME>Row</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_SCHEMA_DICTIONARY</NAME>
+#define LW_SCHEMA_DICTIONARY       "org.gnome.gwaei.dictionary"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_ENGLISH_SOURCE</NAME>
+#define LW_KEY_ENGLISH_SOURCE      "english-source"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_KANJI_SOURCE</NAME>
+#define LW_KEY_KANJI_SOURCE        "kanji-source"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_NAMES_PLACES_SOURCE</NAME>
+#define LW_KEY_NAMES_PLACES_SOURCE "names-places-source"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_RADICALS_SOURCE</NAME>
+#define LW_KEY_RADICALS_SOURCE     "radicals-source"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_EXAMPLES_SOURCE</NAME>
+#define LW_KEY_EXAMPLES_SOURCE     "examples-source"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_ORDER</NAME>
+#define LW_KEY_ORDER               "order"
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_DICTIONARYLIST</NAME>
+#define LW_TYPE_DICTIONARYLIST              (lw_dictionarylist_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYLIST</NAME>
+#define LW_DICTIONARYLIST(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARYLIST, LwDictionaryList))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYLIST_CLASS</NAME>
+#define LW_DICTIONARYLIST_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_DICTIONARYLIST, LwDictionaryListClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARYLIST</NAME>
+#define LW_IS_DICTIONARYLIST(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_DICTIONARYLIST))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARYLIST_CLASS</NAME>
+#define LW_IS_DICTIONARYLIST_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARYLIST))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYLIST_GET_CLASS</NAME>
+#define LW_DICTIONARYLIST_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARYLIST, LwDictionaryListClass))
+</MACRO>
+<STRUCT>
+<NAME>LwDictionaryList</NAME>
+struct _LwDictionaryList {
+  GObject object;
+  LwDictionaryListPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryListClass</NAME>
+struct _LwDictionaryListClass {
+  GObjectClass parent_class;
+  LwDictionaryListClassPrivate *priv;
+
+  //Signals
+  void (*row_changed) (LwDictionaryList* dictionarylist, gint position, gpointer data);
+  void (*row_inserted) (LwDictionaryList* dictionarylist, gint position, gpointer data);
+  void (*row_deleted) (LwDictionaryList* dictionarylist, gint position, gpointer data);
+  void (*rows_reordered) (LwDictionaryList* dictionarylist, gint *order, gpointer data);
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_dictionarylist_new</NAME>
+<RETURNS>LwDictionaryList * </RETURNS>
+LwPreferences *preferences 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_load_order</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_dictionaries</NAME>
+<RETURNS>GList * </RETURNS>
+LwDictionaryList *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_find</NAME>
+<RETURNS>LwDictionary * </RETURNS>
+LwDictionaryList* self, const GType TYPE, const gchar* FILENAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_fuzzy_find</NAME>
+<RETURNS>LwDictionary * </RETURNS>
+LwDictionaryList *self, const gchar *FUZZY_DESCRIPTION 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_find_by_filename</NAME>
+<RETURNS>LwDictionary * </RETURNS>
+LwDictionaryList *self, const gchar *FILENAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_find_by_id</NAME>
+<RETURNS>LwDictionary * </RETURNS>
+LwDictionaryList *self, const gchar *ID 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_load_installed</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *self, LwMorphologyEngine *morphologyengine 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_get_menumodel</NAME>
+<RETURNS>GMenuModel * </RETURNS>
+LwDictionaryList *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_dictionary_exists</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionaryList *self, LwDictionary *dictionary 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_nth</NAME>
+<RETURNS>LwDictionary * </RETURNS>
+LwDictionaryList *self, gint index 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_remove</NAME>
+<RETURNS>GList * </RETURNS>
+LwDictionaryList *self, gint *indices 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_clear</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryList *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_length</NAME>
+<RETURNS>gint  </RETURNS>
+LwDictionaryList *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarylist_get_indices</NAME>
+<RETURNS>gint * </RETURNS>
+LwDictionaryList *self, GList *dictionaries 
+</FUNCTION>
+<STRUCT>
+<NAME>LwDictionaryListPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryListClassPrivate</NAME>
+</STRUCT>
+<ENUM>
+<NAME>Prop</NAME>
+typedef enum
+{
+  PROP_0,
+  TOTAL_PROPS
+} Prop;
+</ENUM>
+<STRUCT>
+<NAME>LwUninstallSubCommandPrivate</NAME>
+struct _LwUninstallSubCommandPrivate {
+  gchar **dictionary_names;
+  GList *dictionaries;
+  gboolean list_switch;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwUninstallSubCommandClassPrivate</NAME>
+struct _LwUninstallSubCommandClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_UNINSTALLSUBCOMMAND_GET_PRIVATE</NAME>
+#define LW_UNINSTALLSUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_UNINSTALLSUBCOMMAND, LwUninstallSubCommandPrivate));
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYINSTALLSTATEHISTORY</NAME>
+#define LW_DICTIONARYINSTALLSTATEHISTORY(obj) (LwDictionaryInstallStateHistory*)obj
+</MACRO>
+<USER_FUNCTION>
+<NAME>LwDictionaryInstallStateHistoryForeachFunc</NAME>
+<RETURNS>void </RETURNS>
+LwDictionaryInstallStateHistory *self, LwDictionaryInstallState *state, gpointer user_data
+</USER_FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstatehistory_new</NAME>
+<RETURNS>LwDictionaryInstallStateHistory * </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstatehistory_free</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallStateHistory *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstatehistory_add</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallStateHistory *self, LwDictionaryInstallState *state 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstatehistory_add_named_paths</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallStateHistory *self, const gchar *NAME, gboolean is_temporary, GList *paths 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstatehistory_current</NAME>
+<RETURNS>LwDictionaryInstallState * </RETURNS>
+LwDictionaryInstallStateHistory *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstatehistory_clear</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallStateHistory *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstallstatehistory_foreach</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallStateHistory *self, LwDictionaryInstallStateHistoryForeachFunc func, gpointer user_data 
+</FUNCTION>
+<STRUCT>
+<NAME>LwDictionaryInstallStateHistory</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_DEPENDANCY</NAME>
+#define LW_DEPENDANCY(obj) (LwDependancy*)obj
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_DEPENDANCY</NAME>
+#define LW_TYPE_DEPENDANCY (lw_dependancy_get_type ())
+</MACRO>
+<FUNCTION>
+<NAME>lw_dependancy_new</NAME>
+<RETURNS>LwDependancy * </RETURNS>
+const gchar *NAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dependancy_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dependancy_copy</NAME>
+<RETURNS>LwDependancy * </RETURNS>
+LwDependancy* self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dependancy_free</NAME>
+<RETURNS>void  </RETURNS>
+LwDependancy *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dependancy_get_name</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwDependancy *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dependancy_set_conditions</NAME>
+<RETURNS>void  </RETURNS>
+LwDependancy *self, GList* conditions 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dependancy_is_required_for</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDependancy *self, GObject *object 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dependancy_satisfy</NAME>
+<RETURNS>void  </RETURNS>
+LwDependancy *self, GObject *object 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dependancy_is_satisfied_for</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDependancy *self, GObject *object 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dependancy_get_satisfaction</NAME>
+<RETURNS>GObject * </RETURNS>
+LwDependancy *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwDependancy</NAME>
+</STRUCT>
+<ENUM>
+<NAME>LwDictionaryProps</NAME>
+typedef enum
+{
+  PROP_0,
+  PROP_FILENAME,
+  PROP_NAME,
+  PROP_PROGRESS,
+  PROP_ID,
+  PROP_PATH,
+  PROP_CACHETREE,
+  PROP_CHECKSUM,
+  PROP_CONTENTS,
+  PROP_CONTENT_LENGTH,
+  PROP_CACHEFILE,
+  TOTAL_PROPS
+} LwDictionaryProps;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_UNUSED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>LwDictionaryPrivate</NAME>
+struct _LwDictionaryPrivate {
+  gchar *path;
+  GTree *caches;
+
+  GMutex mutex;
+  gchar *name;
+  LwProgress *progress;
+
+  gchar *filename;
+  gchar *id;
+
+  LwCacheFile *cachefile;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryClassPrivate</NAME>
+struct _LwDictionaryClassPrivate {
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+  GParamSpec *pspec[TOTAL_PROPS];
+
+  gchar *install_path;
+
+  //Virtual methods
+  gint (* get_total_columns) (LwDictionary * self);
+  gchar const * (* get_column_language) (LwDictionary * self, gint column_num);
+  LwDictionaryColumnHandling (* get_column_handling) (LwDictionary * self, gint column_num);
+  gchar** (* columnize) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
+  void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_DICTIONARY_GET_PRIVATE</NAME>
+#define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));
+</MACRO>
+<ENUM>
+<NAME>Props</NAME>
+typedef enum {
+    PROP_0,
+    PROP_PREFERENCES,
+    TOTAL_PROPS
+} Props;
+</ENUM>
+<ENUM>
+<NAME>SignalId</NAME>
+typedef enum {
+  SIGNALID_CHANGED,
+  SIGNALID_INSERTED,
+  SIGNALID_DELETED,
+  SIGNALID_REORDERED,
+  TOTAL_SIGNALIDS
+} SignalId;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_ROW_CHANGED,
+  CLASS_SIGNALID_ROW_INSERTED,
+  CLASS_SIGNALID_ROW_DELETED,
+  CLASS_SIGNALID_ROWS_REORDERED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>Index</NAME>
+struct _Index {
+  GHashTable *typename;
+  GHashTable *filename;
+  GHashTable *id;
+};
+</STRUCT>
+<STRUCT>
+<NAME>Data</NAME>
+struct _Data {
+  struct _Index index;
+  GList *list; //<!-- A Glist of LwWord
+  GList **array;
+  gint length;
+  gboolean changed; //<!-- hint of there are any savable changes
+  gboolean loaded;
+};
+</STRUCT>
+<STRUCT>
+<NAME>Config</NAME>
+struct _Config {
+  LwPreferences *preferences;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryInstallListPrivate</NAME>
+struct _LwDictionaryInstallListPrivate {
+  struct _Data data;
+  struct _Config config;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryInstallListClassPrivate</NAME>
+struct _LwDictionaryInstallListClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_DICTIONARYINSTALLLIST_GET_PRIVATE</NAME>
+#define LW_DICTIONARYINSTALLLIST_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYINSTALLLIST, LwDictionaryInstallListPrivate));
+</MACRO>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_menumodel_insert</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallList *dictioanry_list, LwDictionary *dictionary, gint index_ 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_menumodel_append</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallList *dictionary_list, LwDictionary *dictionary 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_sync_menumodel</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallList *dictionary_list 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_set_preferences</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallList *dictionary_list, LwPreferences *preferences 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_get_preferences</NAME>
+<RETURNS>LwPreferences * </RETURNS>
+LwDictionaryInstallList *dictionary_list 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_set_menumodel</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallList *dictionary_list, GMenuModel *menu_model 
+</FUNCTION>
+<ENUM>
+<NAME>Prop</NAME>
+typedef enum
+{
+  PROP_0,
+  PROP_CONTENTS,
+  PROP_CONTENT_LENGTH,
+  PROP_DELETE_ON_FREE,
+  PROP_WRITABLE,
+  PROP_PATH,
+  TOTAL_PROPS
+} Prop;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_UNUSED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>LwMappedFilePrivate</NAME>
+struct _LwMappedFilePrivate {
+	gchar * path;
+  GMappedFile * mapped_file;
+  gboolean delete_on_free;
+  gboolean writable;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwMappedFileClassPrivate</NAME>
+struct _LwMappedFileClassPrivate {
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_MAPPEDFILE_GET_PRIVATE</NAME>
+#define LW_MAPPEDFILE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_MAPPEDFILE, LwMappedFilePrivate));
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_INDEXED</NAME>
+#define LW_TYPE_INDEXED              (lw_indexed_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_INDEXED</NAME>
+#define LW_INDEXED(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_INDEXED, LwIndexed))
+</MACRO>
+<MACRO>
+<NAME>LW_INDEXED_CLASS</NAME>
+#define LW_INDEXED_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_INDEXED, LwIndexedClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_INDEXED</NAME>
+#define LW_IS_INDEXED(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_INDEXED))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_INDEXED_CLASS</NAME>
+#define LW_IS_INDEXED_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_INDEXED))
+</MACRO>
+<MACRO>
+<NAME>LW_INDEXED_GET_CLASS</NAME>
+#define LW_INDEXED_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_INDEXED, LwIndexedClass))
+</MACRO>
+<STRUCT>
+<NAME>LwIndexed</NAME>
+struct _LwIndexed {
+  LwSerializable object;
+  LwIndexedPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwIndexedClass</NAME>
+struct _LwIndexedClass {
+  LwSerializableClass parent_class;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_indexed_new</NAME>
+<RETURNS>LwIndexed * </RETURNS>
+LwParsed *parsed 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_indexed_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_indexed_serialize</NAME>
+<RETURNS>gsize  </RETURNS>
+LwIndexed *self, gchar *preallocated_buffer, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_indexed_deserialize_into</NAME>
+<RETURNS>gsize  </RETURNS>
+LwIndexed *self, const gchar *serialized_data, gsize sereialized_length, LwProgress *progress 
+</FUNCTION>
+<STRUCT>
+<NAME>LwIndexedPrivate</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_TYPE_PARSED</NAME>
+#define LW_TYPE_PARSED              (lw_parsed_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_PARSED</NAME>
+#define LW_PARSED(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_PARSED, LwParsed))
+</MACRO>
+<MACRO>
+<NAME>LW_PARSED_CLASS</NAME>
+#define LW_PARSED_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_PARSED, LwParsedClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_PARSED</NAME>
+#define LW_IS_PARSED(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_PARSED))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_PARSED_CLASS</NAME>
+#define LW_IS_PARSED_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_PARSED))
+</MACRO>
+<MACRO>
+<NAME>LW_PARSED_GET_CLASS</NAME>
+#define LW_PARSED_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_PARSED, LwParsedClass))
+</MACRO>
+<STRUCT>
+<NAME>LwParsed</NAME>
+struct _LwParsed {
+  LwSerializable object;
+  LwParsedPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwParsedClass</NAME>
+struct _LwParsedClass {
+  LwSerializableClass parent_class;
+  LwParsedClassPrivate *priv;
+};
+</STRUCT>
+<USER_FUNCTION>
+<NAME>LwParsedForeachFunc</NAME>
+<RETURNS>gboolean </RETURNS>
+LwParsed *self, LwParsedLine *line, gpointer user_data
+</USER_FUNCTION>
+<FUNCTION>
+<NAME>lw_parsed_new</NAME>
+<RETURNS>LwParsed * </RETURNS>
+LwCacheFile * cache_file 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsed_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsed_foreach</NAME>
+<RETURNS>void  </RETURNS>
+LwParsed *self, LwParsedForeachFunc func, gpointer data 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsed_get_line</NAME>
+<RETURNS>LwParsedLine * </RETURNS>
+LwParsed *self, gsize line_number 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsed_length</NAME>
+<RETURNS>gsize  </RETURNS>
+LwParsed *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsed_set_lines</NAME>
+<RETURNS>void  </RETURNS>
+LwParsed *self, LwParsedLine *lines, gsize num_lines 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_parsed_get_cachefile</NAME>
+<RETURNS>LwCacheFile * </RETURNS>
+LwParsed * self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwParsedClassPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwParsedPrivate</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_TYPE_SEARCHSUBCOMMAND</NAME>
+#define LW_TYPE_SEARCHSUBCOMMAND              (lw_searchsubcommand_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSUBCOMMAND</NAME>
+#define LW_SEARCHSUBCOMMAND(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_SEARCHSUBCOMMAND, LwSearchSubCommand))
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSUBCOMMAND_CLASS</NAME>
+#define LW_SEARCHSUBCOMMAND_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_SEARCHSUBCOMMAND, LwSearchSubCommandClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_SEARCHSUBCOMMAND</NAME>
+#define LW_IS_SEARCHSUBCOMMAND(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_SEARCHSUBCOMMAND))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_SEARCHSUBCOMMAND_CLASS</NAME>
+#define LW_IS_SEARCHSUBCOMMAND_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_SEARCHSUBCOMMAND))
+</MACRO>
+<MACRO>
+<NAME>LW_SEARCHSUBCOMMAND_GET_CLASS</NAME>
+#define LW_SEARCHSUBCOMMAND_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_SEARCHSUBCOMMAND, LwSearchSubCommandClass))
+</MACRO>
+<STRUCT>
+<NAME>LwSearchSubCommand</NAME>
+struct _LwSearchSubCommand {
+  LwSubCommand object;
+  LwSearchSubCommandPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwSearchSubCommandClass</NAME>
+struct _LwSearchSubCommandClass {
+  LwSubCommandClass parent_class;
+  LwSearchSubCommandClassPrivate *priv;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_searchsubcommand_new</NAME>
+<RETURNS>LwSubCommand * </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_searchsubcommand_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<STRUCT>
+<NAME>LwSearchSubCommandPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwSearchSubCommandClassPrivate</NAME>
+</STRUCT>
+<FUNCTION>
+<NAME>lw_morphologyengine_hunspell_analyze</NAME>
+<RETURNS>GList * </RETURNS>
+LwMorphologyEngine *engine, const gchar* TEXT, gboolean include_spellcheck 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_morphologyengine_hunspell_new</NAME>
+<RETURNS>Hunhandle * </RETURNS>
+const gchar* 
+</FUNCTION>
+<MACRO>
+<NAME>LW_TYPE_DICTIONARY</NAME>
+#define LW_TYPE_DICTIONARY              (lw_dictionary_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARY</NAME>
+#define LW_DICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARY, LwDictionary))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARY_CLASS</NAME>
+#define LW_DICTIONARY_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_DICTIONARY, LwDictionaryClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARY</NAME>
+#define LW_IS_DICTIONARY(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_DICTIONARY))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARY_CLASS</NAME>
+#define LW_IS_DICTIONARY_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARY))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARY_GET_CLASS</NAME>
+#define LW_DICTIONARY_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARY, LwDictionaryClass))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARY_CHECKSUM</NAME>
+#define LW_DICTIONARY_CHECKSUM G_CHECKSUM_SHA512 
+</MACRO>
+<STRUCT>
+<NAME>LwDictionary</NAME>
+struct _LwDictionary {
+  GObject object;
+  LwDictionaryPrivate *priv;
+  Row row; 
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryClass</NAME>
+struct _LwDictionaryClass {
+  GObjectClass parent_class;
+  LwDictionaryClassPrivate *priv;
+};
+</STRUCT>
+<ENUM>
+<NAME>LwDictionaryColumnHandling</NAME>
+typedef enum {
+  LW_DICTIONARYCOLUMNHANDLING_UNUSED, //!< An unused field
+  LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, //!< Key is indexed and is included by default for all searches
+  LW_DICTIONARYCOLUMNHANDLING_FILTER_ONLY, //!< Key is indexed, but is only included when queried explicitly
+  TOTAL_DICTIONARYCOLUMNHANDLING
+} LwDictionaryColumnHandling;
+</ENUM>
+<FUNCTION>
+<NAME>lw_dictionarycolumnhandling_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<MACRO>
+<NAME>LW_TYPE_DICTIONARYCOLUMNHANDLING</NAME>
+#define LW_TYPE_DICTIONARYCOLUMNHANDLING (lw_dictionarycolumnhandling_get_type ())
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED</NAME>
+#define LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED "Unused"
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH</NAME>
+#define LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH "Index and Search"
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYCOLUMNHANDLINGNAME_FILTER_ONLY</NAME>
+#define LW_DICTIONARYCOLUMNHANDLINGNAME_FILTER_ONLY "Filter Only"
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYCOLUMNHANDLINGNICK_UNUSED</NAME>
+#define LW_DICTIONARYCOLUMNHANDLINGNICK_UNUSED "unused"
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYCOLUMNHANDLINGNICK_INDEX_AND_SEARCH</NAME>
+#define LW_DICTIONARYCOLUMNHANDLINGNICK_INDEX_AND_SEARCH "index-and-search"
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYCOLUMNHANDLINGNICK_FILTER_ONLY</NAME>
+#define LW_DICTIONARYCOLUMNHANDLINGNICK_FILTER_ONLY "filter-only"
+</MACRO>
+<FUNCTION>
+<NAME>lw_dictionary_new</NAME>
+<RETURNS>LwDictionary  * </RETURNS>
+GType type, gchar const * FILENAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_path</NAME>
+<RETURNS>gchar  const*</RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_set_filename</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionary *self, gchar const *FILENAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_filename</NAME>
+<RETURNS>gchar  const*</RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_name</NAME>
+<RETURNS>gchar  const*</RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_progress</NAME>
+<RETURNS>LwProgress * </RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_set_progress</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionary *self, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_length</NAME>
+<RETURNS>size_t  </RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_checksum</NAME>
+<RETURNS>gchar  const*</RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_contents</NAME>
+<RETURNS>gchar  const*</RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_total_columns</NAME>
+<RETURNS>gint  </RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_column_language</NAME>
+<RETURNS>gchar  const *</RETURNS>
+LwDictionary *self, gint column_num 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_column_handling</NAME>
+<RETURNS>LwDictionaryColumnHandling  </RETURNS>
+LwDictionary *self, gint column_num 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_equals</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionary *dictionary1, LwDictionary *dictionary2 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_installed_idlist</NAME>
+<RETURNS>gchar ** </RETURNS>
+GType type_filter 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_build_id_from_type</NAME>
+<RETURNS>gchar * </RETURNS>
+GType type, gchar const *FILENAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_id</NAME>
+<RETURNS>gchar  const*</RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_build_directory</NAME>
+<RETURNS>gchar * </RETURNS>
+GType type 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_set_cachetree</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionary *self, GTree *tree 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_cachetree</NAME>
+<RETURNS>GTree * </RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_cache</NAME>
+<RETURNS>LwDictionaryCache * </RETURNS>
+LwDictionary *self, LwProgress *progress, LwUtf8Flag flags 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_set_cache</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionary *self, LwDictionaryCache *cache 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_lines</NAME>
+<RETURNS>gchar  * const *</RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_num_lines</NAME>
+<RETURNS>gint  </RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_uninstall</NAME>
+<RETURNS>gboolean   </RETURNS>
+LwDictionary *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_parse</NAME>
+<RETURNS>LwParsed * </RETURNS>
+LwDictionary * self, LwCacheFile * cache_file, LwProgress * progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_get_install_directory</NAME>
+<RETURNS>gchar  const *</RETURNS>
+ 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_build_path_by_type_and_name</NAME>
+<RETURNS>gchar  * </RETURNS>
+GType type, gchar const * FILENAME 
+</FUNCTION>
+<STRUCT>
+<NAME>LwDictionaryPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryClassPrivate</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_TYPE_DICTIONARYMODULE</NAME>
+#define LW_TYPE_DICTIONARYMODULE              (lw_dictionarymodule_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYMODULE</NAME>
+#define LW_DICTIONARYMODULE(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARYMODULE, LwDictionaryModule))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYMODULE_CLASS</NAME>
+#define LW_DICTIONARYMODULE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_DICTIONARYMODULE, LwDictionaryModuleClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARYMODULE</NAME>
+#define LW_IS_DICTIONARYMODULE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_DICTIONARYMODULE))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARYMODULE_CLASS</NAME>
+#define LW_IS_DICTIONARYMODULE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARYMODULE))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYMODULE_GET_CLASS</NAME>
+#define LW_DICTIONARYMODULE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARYMODULE, LwDictionaryModuleClass))
+</MACRO>
+<USER_FUNCTION>
+<NAME>LwDictionaryModuleRegisterTypeFunc</NAME>
+<RETURNS>GType </RETURNS>
+GTypeModule * self
+</USER_FUNCTION>
+<STRUCT>
+<NAME>LwDictionaryModule</NAME>
+struct _LwDictionaryModule {
+  GTypeModule object;
+  LwDictionaryModulePrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryModuleClass</NAME>
+struct _LwDictionaryModuleClass {
+  GTypeModuleClass parent_class;
+  LwDictionaryModuleClassPrivate *priv;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_dictionarymodule_new</NAME>
+<RETURNS>GTypeModule * </RETURNS>
+const gchar *NAME 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarymodule_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarymodule_get_available</NAME>
+<RETURNS>GList  * </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarymodule_get_name</NAME>
+<RETURNS>gchar  const *</RETURNS>
+LwDictionaryModule *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwDictionaryModulePrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryModuleClassPrivate</NAME>
+</STRUCT>
+<ENUM>
+<NAME>Props</NAME>
+typedef enum {
+    PROP_0,
+    PROP_ERROR,
+    PROP_ERRORED,
+    PROP_CANCELLABLE,
+    PROP_CANCELLED,
+    PROP_PRIMARY_MESSAGE,
+    PROP_SECONDARY_MESSAGE,
+    PROP_STEP_MESSAGE,
+    PROP_COMPLETED,
+    PROP_CURRENT_PROGRESS,
+    PROP_TOTAL_PROGRESS,
+    PROP_PROGRESS_FRACTION,
+    PROP_CHUNK_SIZE,
+    PROP_PREFERED_CHUNK_SIZE,
+    TOTAL_PROPS
+} Props;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_PROGRESS_CHANGED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>Data</NAME>
+struct _Data {
+  GMutex mutex;
+
+  gsize chunk_size;
+
+  GCancellable *cancellable;
+  GError *error;
+
+  gdouble previous_progress;
+  gdouble current_progress;
+  gdouble total_progress;
+
+  gdouble ratio_delta;
+
+  gint64 start_time;
+
+  gchar *job_title;
+  gchar *step_message;
+  gchar *primary_message;
+  gchar *secondary_message;
+  gchar *units;
+
+  gboolean complete;
+};
+</STRUCT>
+<STRUCT>
+<NAME>Config</NAME>
+struct _Config {
+  gchar *filename;
+  gdouble required_ratio_delta;
+  gsize prefered_chunk_size;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwProgressPrivate</NAME>
+struct _LwProgressPrivate {
+  struct _Data data;
+  struct _Config config;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwProgressClassPrivate</NAME>
+struct _LwProgressClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_PROGRESS_GET_PRIVATE</NAME>
+#define LW_PROGRESS_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_PROGRESS, LwProgressPrivate));
+</MACRO>
+<FUNCTION>
+<NAME>lw_progress_sync_ratio_delta</NAME>
+<RETURNS>void  </RETURNS>
+LwProgress *progress 
+</FUNCTION>
+<ENUM>
+<NAME>Props</NAME>
+typedef enum
+{
+  PROP_0,
+  PROP_BACKEND,
+} Props;
+</ENUM>
+<STRUCT>
+<NAME>LwPreferencesPrivate</NAME>
+struct _LwPreferencesPrivate {
+  GHashTable *settings;
+  GSettingsBackend *backend;
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_PREFERENCES_GET_PRIVATE</NAME>
+#define LW_PREFERENCES_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_PREFERENCES, LwPreferencesPrivate));
+</MACRO>
+<MACRO>
+<NAME>LW_FILEPATH</NAME>
+#define LW_FILEPATH(obj) (LwFilePath*)obj
+</MACRO>
+<FUNCTION>
+<NAME>lw_filepath_new</NAME>
+<RETURNS>LwFilePath * </RETURNS>
+const gchar *PATH 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_filepath_free</NAME>
+<RETURNS>void  </RETURNS>
+LwFilePath *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_filepath_get_path</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwFilePath *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_filepath_get_basename</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwFilePath *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_filepath_get_suffixless</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwFilePath *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_filepath_get_suffix</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwFilePath *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwFilePath</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_IO_ERROR</NAME>
+#define LW_IO_ERROR lw_io_error_quark ()
+</MACRO>
+<ENUM>
+<NAME>LwIoErrorCode</NAME>
+typedef enum {
+  LW_IO_ERRORCODE_WRITE_ERROR,
+  LW_IO_ERRORCODE_CORRUPT_ARCHIVE,
+  LW_IO_ERRORCODE_TEXT_ENCODING_CONVERSION_ERROR,
+  LW_IO_ERRORCODE_DOWNLOAD_ERROR,
+  LW_IO_ERRORCODE_FAILED_REMOVING_FILE
+} LwIoErrorCode;
+</ENUM>
+<STRUCT>
+<NAME>LwIoWriteChunkData</NAME>
+struct _LwIoWriteChunkData {
+  FILE *stream;
+  gsize bytes_written;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_io_fwrite</NAME>
+<RETURNS>gsize  </RETURNS>
+FILE *stream, const gchar *TEXT, gint length, LwProgress  *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_io_write_file</NAME>
+<RETURNS>gsize  </RETURNS>
+const gchar *PATH, const gchar *MODE, const gchar *TEXT, gint length, LwProgress  *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_io_write_chunk_with_data</NAME>
+<RETURNS>gsize  </RETURNS>
+gchar *chunk, gsize chunk_length, LwIoWriteChunkData *data, GError **error 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_io_remove</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar *URI, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_io_copy</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar *SOURCE_PATH, const gchar *TARGET_PATH, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_io_copy_with_encoding</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar *SOURCE_PATH, const gchar *TARGET_PATH, const gchar *SOURCE_ENCODING, const gchar *TARGET_ENCODING, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_io_download</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar*SOURCE_PATH, const gchar*TARGET_PATH, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_io_gunzip_file</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar *SOURCE_PATH, const gchar *TARGET_PATH, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_io_get_pagesize</NAME>
+<RETURNS>gsize  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_io_allocate_temporary_file</NAME>
+<RETURNS>gchar * </RETURNS>
+gsize bytes_length, LwProgress  *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_io_get_file_size</NAME>
+<RETURNS>gsize  </RETURNS>
+char const * PATH 
+</FUNCTION>
+<STRUCT>
+<NAME>LwIoWriteChunkData</NAME>
+</STRUCT>
+<ENUM>
+<NAME>LwInstallSubCommandProps</NAME>
+typedef enum
+{
+  PROP_0,
+  TOTAL_PROPS
+} LwInstallSubCommandProps;
+</ENUM>
+<STRUCT>
+<NAME>LwInstallSubCommandPrivate</NAME>
+struct _LwInstallSubCommandPrivate {
+   gchar **dictionaryinstall_names;
+   GList *dictionaryinstalls;
+   gboolean list_switch;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwInstallSubCommandClassPrivate</NAME>
+struct _LwInstallSubCommandClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_INSTALLSUBCOMMAND_GET_PRIVATE</NAME>
+#define LW_INSTALLSUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_INSTALLSUBCOMMAND, LwInstallSubCommandPrivate));
+</MACRO>
+<ENUM>
+<NAME>LwSerializableProps</NAME>
+typedef enum
+{
+  PROP_0,
+  TOTAL_PROPS
+} LwSerializableProps;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_UNUSED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>LwSerializablePrivate</NAME>
+struct _LwSerializablePrivate {
+  LwCacheFile *cachefile;
+  gchar *contents;
+  gsize content_length;
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_SERIALIZABLE_GET_PRIVATE</NAME>
+#define LW_SERIALIZABLE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SERIALIZABLE, LwSerializablePrivate));
+</MACRO>
+<ENUM>
+<NAME>LwSearchSubCommandProps</NAME>
+typedef enum
+{
+  PROP_0,
+  PROP_QUERY,
+  PROP_DICTIONARY,
+  PROP_SEARCH,
+  TOTAL_PROPS
+} LwSearchSubCommandProps;
+</ENUM>
+<STRUCT>
+<NAME>LwSearchSubCommandPrivate</NAME>
+struct _LwSearchSubCommandPrivate {
+  gboolean exact_switch;
+  gchar *query_text;
+  gchar *dictionary_text;
+  LwSearch *search;
+  LwDictionary *dictionary;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwSearchSubCommandClassPrivate</NAME>
+struct _LwSearchSubCommandClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_SEARCHSUBCOMMAND_GET_PRIVATE</NAME>
+#define LW_SEARCHSUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SEARCHSUBCOMMAND, LwSearchSubCommandPrivate));
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_INSTALLSUBCOMMAND</NAME>
+#define LW_TYPE_INSTALLSUBCOMMAND              (lw_installsubcommand_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_INSTALLSUBCOMMAND</NAME>
+#define LW_INSTALLSUBCOMMAND(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_INSTALLSUBCOMMAND, LwInstallSubCommand))
+</MACRO>
+<MACRO>
+<NAME>LW_INSTALLSUBCOMMAND_CLASS</NAME>
+#define LW_INSTALLSUBCOMMAND_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_INSTALLSUBCOMMAND, LwInstallSubCommandClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_INSTALLSUBCOMMAND</NAME>
+#define LW_IS_INSTALLSUBCOMMAND(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_INSTALLSUBCOMMAND))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_INSTALLSUBCOMMAND_CLASS</NAME>
+#define LW_IS_INSTALLSUBCOMMAND_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_INSTALLSUBCOMMAND))
+</MACRO>
+<MACRO>
+<NAME>LW_INSTALLSUBCOMMAND_GET_CLASS</NAME>
+#define LW_INSTALLSUBCOMMAND_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_INSTALLSUBCOMMAND, LwInstallSubCommandClass))
+</MACRO>
+<STRUCT>
+<NAME>LwInstallSubCommand</NAME>
+struct _LwInstallSubCommand {
+  LwSubCommand object;
+  LwInstallSubCommandPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwInstallSubCommandClass</NAME>
+struct _LwInstallSubCommandClass {
+  LwSubCommandClass parent_class;
+  LwInstallSubCommandClassPrivate *priv;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_installsubcommand_new</NAME>
+<RETURNS>LwSubCommand * </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_installsubcommand_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<STRUCT>
+<NAME>LwInstallSubCommandClassPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwInstallSubCommandPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>Group</NAME>
+struct _Group {
+  gchar *str;
+  gchar *insensitive_str;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwToken</NAME>
+struct _LwToken {
+  struct _Group *raw;
+  struct _Group stem;
+  gchar *spellcheck;
+  gint start_offset;
+  gint end_offset;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_token_new</NAME>
+<RETURNS>LwToken * </RETURNS>
+const gchar *TEXT 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_token_free</NAME>
+<RETURNS>void  </RETURNS>
+LwToken *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwMorphologyString</NAME>
+struct _LwMorphologyString {
+  gchar *raw;
+  gchar *normalized;
+  gchar *internal;
+
+  GList *tokens;
+  GHashTable *lookup;
+
+  GRegex *regex;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_morphologystring_new</NAME>
+<RETURNS>LwMorphologyString * </RETURNS>
+const gchar *TEXT, LwUtf8Flag flags 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_morphologystring_free</NAME>
+<RETURNS>void  </RETURNS>
+LwMorphologyString *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwMorphologyString</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwToken</NAME>
+</STRUCT>
+<FUNCTION>
+<NAME>lw_dictionary_sync_downloadlist_cb</NAME>
+<RETURNS>void  </RETURNS>
+GSettings*, gchar*, gpointer 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_sync_progress_cb</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionary *dictionary, LwProgress *progress 
+</FUNCTION>
+<MACRO>
+<NAME>LW_WORDFIELDNAME_KANJI</NAME>
+#define LW_WORDFIELDNAME_KANJI "Kanji"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNAME_READING</NAME>
+#define LW_WORDFIELDNAME_READING "Reading"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNAME_DEFINITION</NAME>
+#define LW_WORDFIELDNAME_DEFINITION "Definition"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNAME_CORRECT_GUESSES</NAME>
+#define LW_WORDFIELDNAME_CORRECT_GUESSES "Correct Guesses"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNAME_INCORRECT_GUESSES</NAME>
+#define LW_WORDFIELDNAME_INCORRECT_GUESSES "Incorrect Guesses"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNAME_TIMESTAMP</NAME>
+#define LW_WORDFIELDNAME_TIMESTAMP "Timestamp"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNICK_KANJI</NAME>
+#define LW_WORDFIELDNICK_KANJI "kanji"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNICK_READING</NAME>
+#define LW_WORDFIELDNICK_READING "reading"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNICK_DEFINITION</NAME>
+#define LW_WORDFIELDNICK_DEFINITION "definition"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNICK_CORRECT_GUESSES</NAME>
+#define LW_WORDFIELDNICK_CORRECT_GUESSES "correct-guesses"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNICK_INCORRECT_GUESSES</NAME>
+#define LW_WORDFIELDNICK_INCORRECT_GUESSES "incorrect-guesses"
+</MACRO>
+<MACRO>
+<NAME>LW_WORDFIELDNICK_TIMESTAMP</NAME>
+#define LW_WORDFIELDNICK_TIMESTAMP "timestamp"
+</MACRO>
+<ENUM>
+<NAME>LwWordField</NAME>
+typedef enum {
+  LW_WORDFIELD_KANJI,
+  LW_WORDFIELD_READING,
+  LW_WORDFIELD_DEFINITION,
+  LW_WORDFIELD_CORRECT_GUESSES,
+  LW_WORDFIELD_INCORRECT_GUESSES,
+  LW_WORDFIELD_TIMESTAMP,
+  TOTAL_LW_WORDFIELDS
+} LwWordField;
+</ENUM>
+<FUNCTION>
+<NAME>lw_wordfield_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<MACRO>
+<NAME>LW_TYPE_WORDFIELD</NAME>
+#define LW_TYPE_WORDFIELD (lw_wordfield_get_type ())
+</MACRO>
+<STRUCT>
+<NAME>LwWord</NAME>
+struct _LwWord {
+  Row row;
+  gchar *score;
+  gchar *days;
+  gint correct_guesses;
+  gint incorrect_guesses;
+  gint32 timestamp;
+  gboolean has_changes;
+  gchar *fields[TOTAL_LW_WORDFIELDS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_WORD</NAME>
+#define LW_WORD(obj) (LwWord*)obj
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_WORD</NAME>
+#define LW_TYPE_WORD (lw_word_get_type())
+</MACRO>
+<FUNCTION>
+<NAME>lw_word_new</NAME>
+<RETURNS>LwWord * </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_new_from_string</NAME>
+<RETURNS>LwWord * </RETURNS>
+const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_free</NAME>
+<RETURNS>void  </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_set_kanji</NAME>
+<RETURNS>void  </RETURNS>
+LwWord*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_kanji</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_set_reading</NAME>
+<RETURNS>void  </RETURNS>
+LwWord*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_reading</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_set_definition</NAME>
+<RETURNS>void  </RETURNS>
+LwWord*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_definition</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_correct_guesses</NAME>
+<RETURNS>gint  </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_set_correct_guesses</NAME>
+<RETURNS>void  </RETURNS>
+LwWord*, gint 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_incorrect_guesses</NAME>
+<RETURNS>gint  </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_set_incorrect_guesses</NAME>
+<RETURNS>void  </RETURNS>
+LwWord*, gint 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_score</NAME>
+<RETURNS>gint  </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_score_as_string</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_timestamp_to_hours</NAME>
+<RETURNS>guint32  </RETURNS>
+gint64 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_set_timestamp</NAME>
+<RETURNS>void  </RETURNS>
+LwWord*, gint64 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_update_timestamp</NAME>
+<RETURNS>void  </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_set_last_studied</NAME>
+<RETURNS>void  </RETURNS>
+LwWord*, guint32 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_last_studied</NAME>
+<RETURNS>guint32  </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_last_studied_as_string</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_to_string</NAME>
+<RETURNS>gchar * </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_timestamp</NAME>
+<RETURNS>gint64  </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_get_timestamp_as_string</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwWord* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_has_changes</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwWord *word 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_word_copy</NAME>
+<RETURNS>LwWord * </RETURNS>
+LwWord *word 
+</FUNCTION>
+<STRUCT>
+<NAME>LwWord</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_TYPE_MORPHOLOGYENGINE</NAME>
+#define LW_TYPE_MORPHOLOGYENGINE              (lw_morphologyengine_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_MORPHOLOGYENGINE</NAME>
+#define LW_MORPHOLOGYENGINE(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_MORPHOLOGYENGINE, LwMorphologyEngine))
+</MACRO>
+<MACRO>
+<NAME>LW_MORPHOLOGYENGINE_CLASS</NAME>
+#define LW_MORPHOLOGYENGINE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_MORPHOLOGYENGINE, LwMorphologyEngineClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_MORPHOLOGYENGINE</NAME>
+#define LW_IS_MORPHOLOGYENGINE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_MORPHOLOGYENGINE))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_MORPHOLOGYENGINE_CLASS</NAME>
+#define LW_IS_MORPHOLOGYENGINE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_MORPHOLOGYENGINE))
+</MACRO>
+<MACRO>
+<NAME>LW_MORPHOLOGYENGINE_GET_CLASS</NAME>
+#define LW_MORPHOLOGYENGINE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_MORPHOLOGYENGINE, LwMorphologyEngineClass))
+</MACRO>
+<MACRO>
+<NAME>LW_MORPHOLOGY_SPELLCHECK_DELIMITOR</NAME>
+#define LW_MORPHOLOGY_SPELLCHECK_DELIMITOR ";"
+</MACRO>
+<STRUCT>
+<NAME>LwMorphologyEngine</NAME>
+struct _LwMorphologyEngine {
+  GObject object;
+  LwMorphologyEnginePrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwMorphologyEngineClass</NAME>
+struct _LwMorphologyEngineClass {
+  GObjectClass parent_class;
+  LwMorphologyEngineClassPrivate *priv;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_morphologyengine_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_morphologyengine_new</NAME>
+<RETURNS>LwMorphologyEngine * </RETURNS>
+const gchar *TEXT 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_morphologyengine_parse</NAME>
+<RETURNS>LwMorphologyString * </RETURNS>
+LwMorphologyEngine *self, const gchar *TEXT, LwUtf8Flag flags 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_morphologyengine_set_locale</NAME>
+<RETURNS>void  </RETURNS>
+LwMorphologyEngine *self, const gchar *LOCALE 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_morphologyengine_get_locale</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwMorphologyEngine *self 
+</FUNCTION>
+<STRUCT>
+<NAME>LwMorphologyEngineClassPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwMorphologyEnginePrivate</NAME>
+</STRUCT>
+<ENUM>
+<NAME>Props</NAME>
+typedef enum {
+  PROP_0,
+  TOTAL_PROPS
+} Props;
+</ENUM>
+<STRUCT>
+<NAME>LwApplicationPrivate</NAME>
+struct _LwApplicationPrivate {
+  GTree *dictionarymodules;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwApplicationClassPrivate</NAME>
+struct _LwApplicationClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_APPLICATION_GET_PRIVATE</NAME>
+#define LW_APPLICATION_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_APPLICATION, LwApplicationPrivate))
+</MACRO>
+<MACRO>
+<NAME>LW_SCHEMA_DICTIONARY</NAME>
+#define LW_SCHEMA_DICTIONARY       "org.gnome.gwaei.dictionary"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_ENGLISH_SOURCE</NAME>
+#define LW_KEY_ENGLISH_SOURCE      "english-source"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_KANJI_SOURCE</NAME>
+#define LW_KEY_KANJI_SOURCE        "kanji-source"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_NAMES_PLACES_SOURCE</NAME>
+#define LW_KEY_NAMES_PLACES_SOURCE "names-places-source"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_EXAMPLES_SOURCE</NAME>
+#define LW_KEY_EXAMPLES_SOURCE     "examples-source"
+</MACRO>
+<MACRO>
+<NAME>LW_KEY_ORDER</NAME>
+#define LW_KEY_ORDER               "order"
+</MACRO>
+<MACRO>
+<NAME>LW_TYPE_DICTIONARYINSTALLLIST</NAME>
+#define LW_TYPE_DICTIONARYINSTALLLIST              (lw_dictionaryinstalllist_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYINSTALLLIST</NAME>
+#define LW_DICTIONARYINSTALLLIST(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARYINSTALLLIST, LwDictionaryInstallList))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYINSTALLLIST_CLASS</NAME>
+#define LW_DICTIONARYINSTALLLIST_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_DICTIONARYINSTALLLIST, LwDictionaryInstallListClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARYINSTALLLIST</NAME>
+#define LW_IS_DICTIONARYINSTALLLIST(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_DICTIONARYINSTALLLIST))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARYINSTALLLIST_CLASS</NAME>
+#define LW_IS_DICTIONARYINSTALLLIST_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARYINSTALLLIST))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYINSTALLLIST_GET_CLASS</NAME>
+#define LW_DICTIONARYINSTALLLIST_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARYINSTALLLIST, LwDictionaryInstallListClass))
+</MACRO>
+<STRUCT>
+<NAME>LwDictionaryInstallList</NAME>
+struct _LwDictionaryInstallList {
+  GObject object;
+  LwDictionaryInstallListPrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryInstallListClass</NAME>
+struct _LwDictionaryInstallListClass {
+  GObjectClass parent_class;
+  LwDictionaryInstallListClassPrivate *priv;
+
+  //Signals
+  void (*row_changed) (LwDictionaryInstallList* dictionaryinstalllist, gint position, gpointer data);
+  void (*row_inserted) (LwDictionaryInstallList* dictionaryinstalllist, gint position, gpointer data);
+  void (*row_deleted) (LwDictionaryInstallList* dictionaryinstalllist, gint position, gpointer data);
+  void (*rows_reordered) (LwDictionaryInstallList* dictionaryinstalllist, gint *order, gpointer data);
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_new</NAME>
+<RETURNS>LwDictionaryInstallList * </RETURNS>
+LwPreferences *preferences 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_length</NAME>
+<RETURNS>gint  </RETURNS>
+LwDictionaryInstallList *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_nth</NAME>
+<RETURNS>LwDictionaryInstall * </RETURNS>
+LwDictionaryInstallList *self, gint position 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_get_indices</NAME>
+<RETURNS>gint * </RETURNS>
+LwDictionaryInstallList *self, GList *dictionaryinstalls 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_insert</NAME>
+<RETURNS>gint * </RETURNS>
+LwDictionaryInstallList *self, gint position, GList *dictionaryinstalllist 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_remove</NAME>
+<RETURNS>GList * </RETURNS>
+LwDictionaryInstallList *self, gint *indices 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_clear</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallList *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_dictionaryinstalls</NAME>
+<RETURNS>GList * </RETURNS>
+LwDictionaryInstallList *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_load_default</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryInstallList *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_fuzzy_find</NAME>
+<RETURNS>LwDictionaryInstall * </RETURNS>
+LwDictionaryInstallList *self, const gchar *DESCRIPTION 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionaryinstalllist_build_transaction</NAME>
+<RETURNS>GList * </RETURNS>
+LwDictionaryInstallList *self, GList *dictionaryinstalls 
+</FUNCTION>
+<STRUCT>
+<NAME>LwDictionaryInstallListPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryInstallListClassPrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwRange</NAME>
+struct _LwRange {
+  gchar *identifier;
+  gint lower;
+  gint higher;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_range_new_from_pattern</NAME>
+<RETURNS>LwRange * </RETURNS>
+const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_range_free</NAME>
+<RETURNS>void  </RETURNS>
+LwRange* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_range_pattern_is_valid</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_range_string_is_in_range</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwRange*, const gchar* 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_range_int_is_in_range</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwRange*, gint 
+</FUNCTION>
+<STRUCT>
+<NAME>LwRange</NAME>
+</STRUCT>
+<MACRO>
+<NAME>LW_TYPE_SERIALIZABLE</NAME>
+#define LW_TYPE_SERIALIZABLE              (lw_serializable_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_SERIALIZABLE</NAME>
+#define LW_SERIALIZABLE(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_SERIALIZABLE, LwSerializable))
+</MACRO>
+<MACRO>
+<NAME>LW_SERIALIZABLE_CLASS</NAME>
+#define LW_SERIALIZABLE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_SERIALIZABLE, LwSerializableClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_SERIALIZABLE</NAME>
+#define LW_IS_SERIALIZABLE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_SERIALIZABLE))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_SERIALIZABLE_CLASS</NAME>
+#define LW_IS_SERIALIZABLE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_SERIALIZABLE))
+</MACRO>
+<MACRO>
+<NAME>LW_SERIALIZABLE_GET_CLASS</NAME>
+#define LW_SERIALIZABLE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_SERIALIZABLE, LwSerializableClass))
+</MACRO>
+<STRUCT>
+<NAME>LwSerializable</NAME>
+struct _LwSerializable {
+    GObject object;
+    LwSerializablePrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwSerializableClass</NAME>
+struct _LwSerializableClass {
+    GObjectClass parent_class;
+    gsize (*serialize) (LwSerializable *self, gchar *preallocated_buffer, LwProgress *progress);
+    gsize (*deserialize_into) (LwSerializable *self, gchar const *serialized_data, gsize serialized_length, LwProgress *progress);
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_serializable_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_serializable_get_serialized_length</NAME>
+<RETURNS>gsize  </RETURNS>
+LwSerializable *self, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_serializable_serialize</NAME>
+<RETURNS>gsize  </RETURNS>
+LwSerializable *self, gchar *preallocated_buffer, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_serializable_serialize_to_cachefile</NAME>
+<RETURNS>gsize  </RETURNS>
+LwSerializable *self, gchar const *CHECKSUM, LwCacheFile *cachefile, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_serializable_deserialize_into</NAME>
+<RETURNS>gsize  </RETURNS>
+LwSerializable *self, gchar const *serialized_data, gsize serialized_length, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_serializable_deserialize_from_cachefile</NAME>
+<RETURNS>gsize  </RETURNS>
+LwSerializable *self, gchar const *EXPECTED_CHECKSUM, LwCacheFile *cachefile, LwProgress *progress 
+</FUNCTION>
+<STRUCT>
+<NAME>LwSerializablePrivate</NAME>
+</STRUCT>
+<FUNCTION>
+<NAME>lw_dictionary_index_search</NAME>
+<RETURNS>GHashTable * </RETURNS>
+LwDictionary *dictionary, LwMorphologyString *morphologystring, LwIndexFlag flags, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_index_create</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionary *dictionary, LwProgress*progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_index_load</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionary *dictionary, LwProgress*progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_index_is_valid</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionary *dictionary 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_index_is_loaded</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionary *dictionary 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_index_exists</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwDictionary *dictionary 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionary_index_get_path</NAME>
+<RETURNS>gchar * </RETURNS>
+LwDictionary *dictionary 
+</FUNCTION>
+<ENUM>
+<NAME>LwIndexedProps</NAME>
+typedef enum
+{
+  PROP_0,
+  TOTAL_PROPS
+} LwIndexedProps;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_UNUSED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>LwIndexedPrivate</NAME>
+struct _LwIndexedPrivate {
+  LwParsed *parsed;
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_INDEXED_GET_PRIVATE</NAME>
+#define LW_INDEXED_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_INDEXED, LwIndexedPrivate));
+</MACRO>
+<MACRO>
+<NAME>LW_INDEX_CHECKSUM_TYPE</NAME>
+#define LW_INDEX_CHECKSUM_TYPE G_CHECKSUM_SHA256
+</MACRO>
+<ENUM>
+<NAME>LwIndexTableType</NAME>
+typedef enum {
+  LW_INDEX_TABLE_RAW,        //< Level 0 (The raw form of the world) 
+  LW_INDEX_TABLE_NORMALIZED, //< Level 1 (The case/furigana insensitive form of the word)
+  LW_INDEX_TABLE_STEM,       //< Level 1 (The unconjugated form of the word)
+  LW_INDEX_TABLE_CANONICAL,  //< Level 3 (combines all of the above)
+  TOTAL_LW_INDEX_TABLES,
+  LW_INDEX_TABLE_INVALID
+} LwIndexTableType;
+</ENUM>
+<ENUM>
+<NAME>LwIndexFlag</NAME>
+typedef enum {
+  LW_INDEX_FLAG_RAW = (1 << 0),
+  LW_INDEX_FLAG_CASE_INSENSITIVE  = (1 << 1),
+  LW_INDEX_FLAG_FURIGANA_INSENSITIVE  = (1 << 1),
+  LW_INDEX_FLAG_STEM_INSENSITIVE = (1 << 2),
+  LW_INDEX_FLAG_POPULAR_ONLY = (1 << 3),
+  LW_INDEX_FLAG_NORMALIZED = (LW_INDEX_FLAG_CASE_INSENSITIVE | LW_INDEX_FLAG_FURIGANA_INSENSITIVE),
+  LW_INDEX_FLAG_CANONICAL = (LW_INDEX_FLAG_CASE_INSENSITIVE | LW_INDEX_FLAG_FURIGANA_INSENSITIVE | LW_INDEX_FLAG_STEM_INSENSITIVE)
+} LwIndexFlag;
+</ENUM>
+<STRUCT>
+<NAME>LwIndex</NAME>
+struct _LwIndex {
+  gchar *buffer[TOTAL_LW_INDEX_TABLES];
+  const gchar *checksum;
+  GHashTable *table[TOTAL_LW_INDEX_TABLES];
+  gchar *path;
+  LwMorphologyEngine *morphologyengine;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_index_new</NAME>
+<RETURNS>LwIndex * </RETURNS>
+LwMorphologyEngine *morphologyengine 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_free</NAME>
+<RETURNS>void  </RETURNS>
+LwIndex *index 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_search</NAME>
+<RETURNS>GList * </RETURNS>
+LwIndex *index, LwMorphologyString *morphologystring, LwIndexFlag flags, LwDictionaryBuffer *dictionarybuffer 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_data_is_valid</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwIndex *index, LwDictionaryBuffer *dictionarybuffer 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_append_data_offset</NAME>
+<RETURNS>void  </RETURNS>
+LwIndex *index, const gchar *KEY, gsize offset 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_get_data_offsets</NAME>
+<RETURNS>gsize * </RETURNS>
+LwIndex *index, const gchar *KEY 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_get_data_offsets_length</NAME>
+<RETURNS>gsize  </RETURNS>
+LwIndex *index, const gchar *KEY 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_add_string</NAME>
+<RETURNS>void  </RETURNS>
+LwIndex *index, const gchar *TEXT, gsize offset 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_are_equal</NAME>
+<RETURNS>gboolean  </RETURNS>
+LwIndex *index1, LwIndex *index2 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_write</NAME>
+<RETURNS>void  </RETURNS>
+LwIndex *index, const gchar* PATH, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_read</NAME>
+<RETURNS>void  </RETURNS>
+LwIndex *index, const gchar* PATH, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_create</NAME>
+<RETURNS>void  </RETURNS>
+LwIndex *index, LwDictionaryBuffer *dictionarybuffer, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_exists</NAME>
+<RETURNS>gboolean  </RETURNS>
+const gchar *PATH 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_get_matches_for_morphologylist</NAME>
+<RETURNS>GList * </RETURNS>
+LwIndex *index, LwIndexTableType type, LwMorphologyString *morphologystring 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_index_table_type_to_string</NAME>
+<RETURNS>const gchar * </RETURNS>
+LwIndexTableType type 
+</FUNCTION>
+<STRUCT>
+<NAME>LwIndex</NAME>
+</STRUCT>
+<ENUM>
+<NAME>Prop</NAME>
+typedef enum
+{
+  PROP_0,
+  PROP_CACHEFILE,
+  PROP_CONTENTS,
+  PROP_CONTENT_LENGTH,
+  TOTAL_PROPS
+} Prop;
+</ENUM>
+<ENUM>
+<NAME>ClassSignalId</NAME>
+typedef enum {
+  CLASS_SIGNALID_UNUSED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+</ENUM>
+<STRUCT>
+<NAME>LwParsedPrivate</NAME>
+struct _LwParsedPrivate {
+  gsize num_lines; //! < The number of lines
+  gchar *contents; //! < The reference point of each strv
+  gsize content_length;
+  LwParsedLine *lines; //! < A set of categorized strvs
+  LwCacheFile *cache_file;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwParsedClassPrivate</NAME>
+struct _LwParsedClassPrivate {
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+</STRUCT>
+<MACRO>
+<NAME>LW_PARSED_GET_PRIVATE</NAME>
+#define LW_PARSED_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_PARSED, LwParsedPrivate));
+</MACRO>
+<MACRO>
+<NAME>gettext</NAME>
+#  define gettext(Msgid) \
+     dgettext (DEFAULT_TEXT_DOMAIN, Msgid)
+</MACRO>
+<MACRO>
+<NAME>ngettext</NAME>
+#  define ngettext(Msgid1, Msgid2, N) \
+     dngettext (DEFAULT_TEXT_DOMAIN, Msgid1, Msgid2, N)
+</MACRO>
+<MACRO>
+<NAME>dgettext</NAME>
+# define dgettext(Domainname, Msgid) ((void) (Domainname), gettext (Msgid))
+</MACRO>
+<MACRO>
+<NAME>dcgettext</NAME>
+# define dcgettext(Domainname, Msgid, Category) \
+    ((void) (Category), dgettext (Domainname, Msgid))
+</MACRO>
+<MACRO>
+<NAME>dngettext</NAME>
+# define dngettext(Domainname, Msgid1, Msgid2, N) \
+    ((void) (Domainname), ngettext (Msgid1, Msgid2, N))
+</MACRO>
+<MACRO>
+<NAME>dcngettext</NAME>
+# define dcngettext(Domainname, Msgid1, Msgid2, N, Category) \
+    ((void) (Category), dngettext(Domainname, Msgid1, Msgid2, N))
+</MACRO>
+<MACRO>
+<NAME>textdomain</NAME>
+# define textdomain(Domainname) ((const char *) (Domainname))
+</MACRO>
+<MACRO>
+<NAME>bindtextdomain</NAME>
+# define bindtextdomain(Domainname, Dirname) \
+    ((void) (Domainname), (const char *) (Dirname))
+</MACRO>
+<MACRO>
+<NAME>bind_textdomain_codeset</NAME>
+# define bind_textdomain_codeset(Domainname, Codeset) \
+    ((void) (Domainname), (const char *) (Codeset))
+</MACRO>
+<MACRO>
+<NAME>gettext_noop</NAME>
+#define gettext_noop(String) String
+</MACRO>
+<MACRO>
+<NAME>GETTEXT_CONTEXT_GLUE</NAME>
+#define GETTEXT_CONTEXT_GLUE "\004"
+</MACRO>
+<MACRO>
+<NAME>pgettext</NAME>
+# define pgettext(Msgctxt, Msgid) \
+   pgettext_aux (DEFAULT_TEXT_DOMAIN, Msgctxt GETTEXT_CONTEXT_GLUE Msgid, Msgid, LC_ALL)
+</MACRO>
+<MACRO>
+<NAME>dpgettext</NAME>
+#define dpgettext(Domainname, Msgctxt, Msgid) \
+  pgettext_aux (Domainname, Msgctxt GETTEXT_CONTEXT_GLUE Msgid, Msgid, LC_ALL)
+</MACRO>
+<MACRO>
+<NAME>dcpgettext</NAME>
+#define dcpgettext(Domainname, Msgctxt, Msgid, Category) \
+  pgettext_aux (Domainname, Msgctxt GETTEXT_CONTEXT_GLUE Msgid, Msgid, Category)
+</MACRO>
+<MACRO>
+<NAME>npgettext</NAME>
+# define npgettext(Msgctxt, Msgid, MsgidPlural, N) \
+   npgettext_aux (DEFAULT_TEXT_DOMAIN, Msgctxt GETTEXT_CONTEXT_GLUE Msgid, Msgid, MsgidPlural, N, LC_ALL)
+</MACRO>
+<MACRO>
+<NAME>dnpgettext</NAME>
+#define dnpgettext(Domainname, Msgctxt, Msgid, MsgidPlural, N) \
+  npgettext_aux (Domainname, Msgctxt GETTEXT_CONTEXT_GLUE Msgid, Msgid, MsgidPlural, N, LC_ALL)
+</MACRO>
+<MACRO>
+<NAME>dcnpgettext</NAME>
+#define dcnpgettext(Domainname, Msgctxt, Msgid, MsgidPlural, N, Category) \
+  npgettext_aux (Domainname, Msgctxt GETTEXT_CONTEXT_GLUE Msgid, Msgid, MsgidPlural, N, Category)
+</MACRO>
+<FUNCTION>
+<NAME>pgettext_aux</NAME>
+<RETURNS>const char  *</RETURNS>
+const char *domain, const char *msg_ctxt_id, const char *msgid, int category
+</FUNCTION>
+<FUNCTION>
+<NAME>npgettext_aux</NAME>
+<RETURNS>const char  *</RETURNS>
+const char *domain, const char *msg_ctxt_id, const char *msgid, const char *msgid_plural, unsigned long int n, int category
+</FUNCTION>
+<MACRO>
+<NAME>pgettext_expr</NAME>
+#define pgettext_expr(Msgctxt, Msgid) \
+  dcpgettext_expr (NULL, Msgctxt, Msgid, LC_ALL)
+</MACRO>
+<MACRO>
+<NAME>dpgettext_expr</NAME>
+#define dpgettext_expr(Domainname, Msgctxt, Msgid) \
+  dcpgettext_expr (Domainname, Msgctxt, Msgid, LC_ALL)
+</MACRO>
+<FUNCTION>
+<NAME>dcpgettext_expr</NAME>
+<RETURNS>const char  *</RETURNS>
+const char *domain, const char *msgctxt, const char *msgid, int category
+</FUNCTION>
+<MACRO>
+<NAME>npgettext_expr</NAME>
+#define npgettext_expr(Msgctxt, Msgid, MsgidPlural, N) \
+  dcnpgettext_expr (NULL, Msgctxt, Msgid, MsgidPlural, N, LC_ALL)
+</MACRO>
+<MACRO>
+<NAME>dnpgettext_expr</NAME>
+#define dnpgettext_expr(Domainname, Msgctxt, Msgid, MsgidPlural, N) \
+  dcnpgettext_expr (Domainname, Msgctxt, Msgid, MsgidPlural, N, LC_ALL)
+</MACRO>
+<FUNCTION>
+<NAME>dcnpgettext_expr</NAME>
+<RETURNS>const char  *</RETURNS>
+const char *domain, const char *msgctxt, const char *msgid, const char *msgid_plural, unsigned long int n, int category
+</FUNCTION>
+<MACRO>
+<NAME>LW_DICTIONARYCACHE_ERROR</NAME>
+#define LW_DICTIONARYCACHE_ERROR lw_dictionarycache_error_quark ()
+</MACRO>
+<ENUM>
+<NAME>LwDictionaryCacheErrorCode</NAME>
+typedef enum {
+  LW_DICTIONARYCACHE_ERRORCODE_CORRUPT_CONTENTS
+} LwDictionaryCacheErrorCode;
+</ENUM>
+<MACRO>
+<NAME>LW_TYPE_DICTIONARYCACHE</NAME>
+#define LW_TYPE_DICTIONARYCACHE              (lw_dictionarycache_get_type())
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYCACHE</NAME>
+#define LW_DICTIONARYCACHE(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARYCACHE, LwDictionaryCache))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYCACHE_CLASS</NAME>
+#define LW_DICTIONARYCACHE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_DICTIONARYCACHE, LwDictionaryCacheClass))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARYCACHE</NAME>
+#define LW_IS_DICTIONARYCACHE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_DICTIONARYCACHE))
+</MACRO>
+<MACRO>
+<NAME>LW_IS_DICTIONARYCACHE_CLASS</NAME>
+#define LW_IS_DICTIONARYCACHE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARYCACHE))
+</MACRO>
+<MACRO>
+<NAME>LW_DICTIONARYCACHE_GET_CLASS</NAME>
+#define LW_DICTIONARYCACHE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARYCACHE, LwDictionaryCacheClass))
+</MACRO>
+<USER_FUNCTION>
+<NAME>LwDictionaryCacheParseFunc</NAME>
+<RETURNS>LwParsed *</RETURNS>
+LwCacheFile * cache_file, gpointer data
+</USER_FUNCTION>
+<STRUCT>
+<NAME>LwDictionaryCache</NAME>
+struct _LwDictionaryCache {
+    GObject object;
+    LwDictionaryCachePrivate *priv;
+};
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryCacheClass</NAME>
+struct _LwDictionaryCacheClass {
+  GObjectClass parent_class;
+  LwDictionaryCacheClassPrivate *priv;
+};
+</STRUCT>
+<FUNCTION>
+<NAME>lw_dictionarycache_new</NAME>
+<RETURNS>LwDictionaryCache * </RETURNS>
+gchar const *NAME, LwUtf8Flag flags 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_get_type</NAME>
+<RETURNS>GType  </RETURNS>
+void 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_set_contents</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryCache *self, LwCacheFile *cache_file, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_write</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryCache *self, gchar const *CHECKSUM, gchar const *CONTENTS, gsize content_length, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_read</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryCache *self, gchar const *EXPECTED_CHECKSUM, LwProgress *progress 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_get_flags</NAME>
+<RETURNS>LwUtf8Flag  </RETURNS>
+LwDictionaryCache *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_get_name</NAME>
+<RETURNS>gchar  const*</RETURNS>
+LwDictionaryCache *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_build_filename</NAME>
+<RETURNS>gchar * </RETURNS>
+LwDictionaryCache *self, gchar const *TYPE 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_build_path</NAME>
+<RETURNS>gchar * </RETURNS>
+LwDictionaryCache *self, gchar const *TYPE 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_set_parsed</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryCache *self, LwParsed *parsed 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_get_parsed</NAME>
+<RETURNS>LwParsed * </RETURNS>
+LwDictionaryCache *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_get_indexed</NAME>
+<RETURNS>LwIndexed * </RETURNS>
+LwDictionaryCache *self 
+</FUNCTION>
+<FUNCTION>
+<NAME>lw_dictionarycache_set_indexed</NAME>
+<RETURNS>void  </RETURNS>
+LwDictionaryCache *self, LwIndexed *indexed 
+</FUNCTION>
+<STRUCT>
+<NAME>LwDictionaryCachePrivate</NAME>
+</STRUCT>
+<STRUCT>
+<NAME>LwDictionaryCacheClassPrivate</NAME>
+</STRUCT>

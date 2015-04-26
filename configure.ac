@@ -19,6 +19,7 @@ GMODULE_EXPORT_REQUIRED_VERSION=2.37.0
 GTK3_REQUIRED_VERSION=3.9.0
 HUNSPELL_REQUIRED_VERSION=1.3.0
 ZLIB_REQUIRED_VERSION=1.2.3
+GTK_DOC_REQUIRED_VERSION=1.14
 
 AC_CANONICAL_HOST
 AM_CONDITIONAL([OS_MINGW],false)
@@ -73,6 +74,7 @@ AM_CONDITIONAL([WITH_HUNSPELL], [test x$hunspell = xtrue])
 AC_CHECK_LIB(m, sqrt)
 
 GNOME_DOC_INIT(,,[:]) 
+GTK_DOC_CHECK([$GTK_DOC_REQUIRED_VERSION], [--flavour no-tmpl])
 
 PKG_CHECK_MODULES(LIBWAEI, glib-2.0           >= $GLIB_REQUIRED_VERSION
                            gobject-2.0        >= $GLIB_REQUIRED_VERSION
@@ -153,7 +155,7 @@ AC_SUBST(dictionarylibdir)
 
 AC_CONFIG_MACRO_DIR([m4])
 
-AC_CONFIG_FILES([Makefile src/Makefile src/libwaei/Makefile src/libwaei/include/libwaei/Makefile src/libwaei/tests/Makefile src/dictionary/Makefile src/dictionary/include/dictionary/Makefile src/waei/Makefile src/waei/include/waei/Makefile src/libgwaei/Makefile src/libgwaei/include/libgwaei/Makefile src/gwaei/Makefile src/gwaei/mingw/Makefile src/gwaei/include/gwaei/Makefile mandir/Makefile src/desktop/Makefile src/images/Makefile src/schemas/Makefile rpm/gwaei.spec rpm/fedora/SPECS/gwaei.spec po/Makefile.in src/kpengine/Makefile src/libwaei/doxyfile src/waei/doxyfile src/gwaei/doxyfile])
+AC_CONFIG_FILES([Makefile src/Makefile src/libwaei/Makefile src/libwaei/include/libwaei/Makefile src/libwaei/tests/Makefile src/dictionary/Makefile src/dictionary/include/dictionary/Makefile src/waei/Makefile src/waei/include/waei/Makefile src/libgwaei/Makefile src/libgwaei/include/libgwaei/Makefile src/gwaei/Makefile src/gwaei/mingw/Makefile src/gwaei/include/gwaei/Makefile mandir/Makefile src/desktop/Makefile src/images/Makefile src/schemas/Makefile rpm/gwaei.spec rpm/fedora/SPECS/gwaei.spec po/Makefile.in src/kpengine/Makefile docs/reference/libwaei/Makefile])
 
 AC_OUTPUT
 
