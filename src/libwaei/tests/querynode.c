@@ -713,8 +713,8 @@ parse_string_with_keyed_value (Fixture       * fixture,
 
 
 void
-parse_string_with_starting_keyed_value (Fixture       * fixture,
-                                        gconstpointer   data)
+parse_string_with_ending_keyed_value (Fixture       * fixture,
+                                      gconstpointer   data)
 {
     //Arrange
     LwQueryNode * root = NULL;
@@ -758,6 +758,83 @@ parse_string_with_starting_keyed_value (Fixture       * fixture,
 }
 
 
+void
+parse_string_with_starting_keyed_value (Fixture       * fixture,
+                                        gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "strokes:1 2";
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .key = "strokes",
+      .data = "1 2",
+      .children = NULL,
+      .refs = 1,
+    }; 
+
+    //Act
+    root = lw_querynode_new_tree_from_string (TEXT, &operation, &error);
+
+    //Assert
+    lw_querynode_assert_equals (root, &expected_root);
+    g_assert_null (error);
+    
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+parse_string_with_multiple_keyed_values (Fixture       * fixture,
+                                         gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "strokes:1 grade:7";
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .key = NULL,
+      .data = NULL,
+      .children = NULL,
+      .refs = 1,
+    }; 
+
+    LwQueryNode children[] = {{
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .key = "strokes",
+      .data = "1",
+      .children = NULL,
+      .refs = 1,
+    }, {
+      .operation = LW_QUERYNODE_OPERATION_AND,
+      .key = "grade",
+      .data = "7",
+      .children = NULL,
+      .refs = 1,
+    }};
+    _set_children (fixture, &(expected_root.children), children, G_N_ELEMENTS(children));
+
+    //Act
+    root = lw_querynode_new_tree_from_string (TEXT, &operation, &error);
+
+    //Assert
+    lw_querynode_assert_equals (root, &expected_root);
+    g_assert_null (error);
+    
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -782,7 +859,9 @@ main (gint argc, gchar *argv[])
     g_test_add ("/libwaei/querynode/parse_string_only_end_parenthesis", Fixture, NULL, setup, parse_string_only_end_parenthesis, teardown);
     g_test_add ("/libwaei/querynode/parse_string_with_empty_parenthesis", Fixture, NULL, setup, parse_string_with_empty_parenthesis, teardown);
     g_test_add ("/libwaei/querynode/parse_string_with_keyed_value", Fixture, NULL, setup, parse_string_with_keyed_value, teardown);
+    g_test_add ("/libwaei/querynode/parse_string_with_ending_keyed_value", Fixture, NULL, setup, parse_string_with_ending_keyed_value, teardown);
     g_test_add ("/libwaei/querynode/parse_string_with_starting_keyed_value", Fixture, NULL, setup, parse_string_with_starting_keyed_value, teardown);
+    g_test_add ("/libwaei/querynode/parse_string_with_multiple_keyed_values", Fixture, NULL, setup, parse_string_with_multiple_keyed_values, teardown);
 
     return g_test_run();
 }

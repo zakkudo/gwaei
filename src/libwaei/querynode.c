@@ -350,7 +350,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
     //Initializations
     OPEN = self->OPEN;
     CLOSE = self->c;
-    PREVIOUS_C = C = self->OPEN;
+    LAST_NON_WHITESPACE = AFTER_LAST_WHITESPACE = PREVIOUS_C = C = self->OPEN;
     len = CLOSE - OPEN + 1;
     if (len == 0) goto errored;
     key_buffer = g_new0 (gchar, len);
@@ -421,7 +421,8 @@ _tokenize_explicit_columns (LeafIterator          * self,
             );
             goto errored;
           }
-          query_node = lw_querynode_new_keyed (key_buffer, value_buffer, LW_QUERYNODE_OPERATION_AND);
+          LwQueryNodeOperation operation = (children == NULL) ? LW_QUERYNODE_OPERATION_NONE : LW_QUERYNODE_OPERATION_AND;
+          query_node = lw_querynode_new_keyed (key_buffer, value_buffer, operation);
           if (query_node == NULL) goto errored;
           children = g_list_prepend (children, query_node);
           *key_buffer = '\0';
@@ -453,7 +454,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
     //If there were no keyed query nodes, just use the whole substring for a query node
     else
     {
-      query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, CLOSE, LW_QUERYNODE_OPERATION_AND);
+      query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, CLOSE, LW_QUERYNODE_OPERATION_NONE);
       if (query_node == NULL) goto errored;
       children = g_list_prepend (children, query_node);
       query_node = NULL;
