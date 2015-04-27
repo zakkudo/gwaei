@@ -19,9 +19,14 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//! @file querynode.c
-//!
+/**
+ * SECTION:querynode
+ * @short_description: A query tree structure for searches
+ * @title: LwQueryNode
+ *
+ * Creates a node structure than can easily be iterated to carry out a 
+ * seach against a list of results.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

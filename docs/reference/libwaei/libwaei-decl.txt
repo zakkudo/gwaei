@@ -499,10 +499,10 @@ void
 LwApplication* application 
 </FUNCTION>
 <STRUCT>
-<NAME>LwApplicationPrivate</NAME>
+<NAME>LwApplicationClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwApplicationClassPrivate</NAME>
+<NAME>LwApplicationPrivate</NAME>
 </STRUCT>
 <STRUCT>
 <NAME>LwQuery</NAME>
@@ -662,10 +662,10 @@ LwMappedFile * self
 LwMappedFile *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwMappedFileClassPrivate</NAME>
+<NAME>LwMappedFilePrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwMappedFilePrivate</NAME>
+<NAME>LwMappedFileClassPrivate</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_dictionaryinstalllist_connect_signals</NAME>
@@ -680,6 +680,7 @@ LwDictionaryInstallList *self
 <STRUCT>
 <NAME>LwParenthesisNode</NAME>
 struct _LwParenthesisNode {
+  /*< public >*/
   gboolean has_parenthesis;
   gint refs;
   gchar const * OPEN;
@@ -709,6 +710,7 @@ void
 <ENUM>
 <NAME>LwParenthesisNodeErrorCode</NAME>
 typedef enum {
+  /*< public >*/
   LW_PARENTHESISNODE_UNMATCHED_START_PARENTHESIS_ERROR,
   LW_PARENTHESISNODE_UNMATCHED_END_PARENTHESIS_ERROR,
 } LwParenthesisNodeErrorCode;
@@ -1597,10 +1599,10 @@ void
 void 
 </FUNCTION>
 <STRUCT>
-<NAME>LwUninstallSubCommandClassPrivate</NAME>
+<NAME>LwUninstallSubCommandPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwUninstallSubCommandPrivate</NAME>
+<NAME>LwUninstallSubCommandClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_SUBCOMMAND</NAME>
@@ -2180,10 +2182,10 @@ LwSearch *self, LwSearchFlag flags
 LwPreferences *preferences 
 </FUNCTION>
 <STRUCT>
-<NAME>LwSearchClassPrivate</NAME>
+<NAME>LwSearchPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwSearchPrivate</NAME>
+<NAME>LwSearchClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_UTF8_ERROR</NAME>
@@ -3138,10 +3140,10 @@ void
 LwDictionaryModule *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryModulePrivate</NAME>
+<NAME>LwDictionaryModuleClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryModuleClassPrivate</NAME>
+<NAME>LwDictionaryModulePrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_FILEPATH</NAME>
@@ -3364,10 +3366,10 @@ const gchar *TEXT, LwUtf8Flag flags
 LwMorphologyString *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwMorphologyString</NAME>
+<NAME>LwToken</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwToken</NAME>
+<NAME>LwMorphologyString</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_dictionary_sync_downloadlist_cb</NAME>
@@ -3675,10 +3677,10 @@ LwMorphologyEngine *self, const gchar *LOCALE
 LwMorphologyEngine *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwMorphologyEngineClassPrivate</NAME>
+<NAME>LwMorphologyEnginePrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwMorphologyEnginePrivate</NAME>
+<NAME>LwMorphologyEngineClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_SCHEMA_DICTIONARY</NAME>
@@ -4312,8 +4314,8 @@ LwDictionaryCache *self
 LwDictionaryCache *self, LwIndexed *indexed 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryCacheClassPrivate</NAME>
+<NAME>LwDictionaryCachePrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryCachePrivate</NAME>
+<NAME>LwDictionaryCacheClassPrivate</NAME>
 </STRUCT>

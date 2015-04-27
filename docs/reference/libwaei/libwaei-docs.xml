@@ -6,11 +6,11 @@
 ]>
 <book id="index">
   <bookinfo>
-    <title>libwaei Reference Manual</title>
+    <title>LibWaei Reference Manual</title>
     <releaseinfo>
-      for libwaei [VERSION].
+      for LibWaei 4.x.
       The latest version of this documentation can be found on-line at
-      <ulink role="online-location" url="http://[SERVER]/libwaei/index.html">http://[SERVER]/libwaei/</ulink>.
+      <ulink role="online-location" url="https://github.com/zakkudo/gwaei">https://github.com/zakkudo/gwaei</ulink>.
     </releaseinfo>
   </bookinfo>
 

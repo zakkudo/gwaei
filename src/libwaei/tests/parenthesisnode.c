@@ -463,15 +463,15 @@ main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
-    g_test_add ("/libwaei/parenthesisnode/parse_string_with_no_parenthesis", Fixture, NULL, setup, parse_string_with_no_parenthesis, teardown);
-    g_test_add ("/libwaei/parenthesisnode/parse_string_with_only_parenthesis", Fixture, NULL, setup, parse_string_with_only_parenthesis, teardown);
-    g_test_add ("/libwaei/parenthesisnode/parse_string_ends_with_parenthesis", Fixture, NULL, setup, parse_string_ends_with_parenthesis, teardown);
-    g_test_add ("/libwaei/parenthesisnode/parse_string_starts_with_parenthesis", Fixture, NULL, setup, parse_string_starts_with_parenthesis, teardown);
-    g_test_add ("/libwaei/parenthesisnode/parse_string_with_parenthesis", Fixture, NULL, setup, parse_string_with_parenthesis, teardown);
-    g_test_add ("/libwaei/parenthesisnode/parse_string_with_empty_parenthesis", Fixture, NULL, setup, parse_string_with_empty_parenthesis, teardown);
-    g_test_add ("/libwaei/parenthesisnode/parse_string_with_embedded_parenthesis", Fixture, NULL, setup, parse_string_with_embedded_parenthesis, teardown);
-    g_test_add ("/libwaei/parenthesisnode/parse_string_with_only_start_parenthesis", Fixture, NULL, setup, parse_string_with_only_start_parenthesis, teardown);
-    g_test_add ("/libwaei/parenthesisnode/parse_string_with_only_end_parenthesis", Fixture, NULL, setup, parse_string_with_only_end_parenthesis, teardown);
+    g_test_add ("/new_tree_from_string/parse_string_with_no_parenthesis", Fixture, NULL, setup, parse_string_with_no_parenthesis, teardown);
+    g_test_add ("/new_tree_from_string/parse_string_with_only_parenthesis", Fixture, NULL, setup, parse_string_with_only_parenthesis, teardown);
+    g_test_add ("/new_tree_from_string/parse_string_ends_with_parenthesis", Fixture, NULL, setup, parse_string_ends_with_parenthesis, teardown);
+    g_test_add ("/new_tree_from_string/parse_string_starts_with_parenthesis", Fixture, NULL, setup, parse_string_starts_with_parenthesis, teardown);
+    g_test_add ("/new_tree_from_string/parse_string_with_parenthesis", Fixture, NULL, setup, parse_string_with_parenthesis, teardown);
+    g_test_add ("/new_tree_from_string/parse_string_with_empty_parenthesis", Fixture, NULL, setup, parse_string_with_empty_parenthesis, teardown);
+    g_test_add ("/new_tree_from_string/parse_string_with_embedded_parenthesis", Fixture, NULL, setup, parse_string_with_embedded_parenthesis, teardown);
+    g_test_add ("/new_tree_from_string/parse_string_with_only_start_parenthesis", Fixture, NULL, setup, parse_string_with_only_start_parenthesis, teardown);
+    g_test_add ("/new_tree_from_string/parse_string_with_only_end_parenthesis", Fixture, NULL, setup, parse_string_with_only_end_parenthesis, teardown);
 
     return g_test_run();
 }

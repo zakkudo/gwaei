@@ -9,6 +9,16 @@ typedef enum _LwQueryNodeOperation {
   TOTAL_LW_QUERYNODE_OPERATIONS
 } LwQueryNodeOperation;
 
+
+/**
+ * LwQueryNode:
+ * @operation: a #LwQueryNodeOperation representing how the sibling nodes are linked
+ * @key: a #gchar instructing the node that the value should only be applied against a specific dictionary column
+ * @data: a #gchar representing the search data.  If it is null, this is not a leaf node and there should be children.
+ * @children: A #GList of #LwQueryNodes which should be filled when this is not a leaf node.
+ * @refs: The number of references on this node.  When the references drop to 0, the node is freed.
+ * @regex: A #GRegex that gets filled when lw_querynode_comile() is called
+ */
 struct _LwQueryNode {
   LwQueryNodeOperation operation;
   gchar * key;

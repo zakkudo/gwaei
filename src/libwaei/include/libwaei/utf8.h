@@ -54,8 +54,8 @@ gchar* lw_utf8_sanitize (gchar const * BUFFER);
 GUnicodeScript lw_utf8_get_script (gchar *TEXT);
 gchar* lw_utf8_convert_printf_pattern_to_regex_pattern (const gchar *PATTERN);
 
-void lw_utf8_furiganafold (gchar *TEXT, gsize length, LwProgress *progress);
-void lw_utf8_casefold (gchar *TEXT, gsize length, LwProgress *progress);
+void lw_utf8_furiganafold (gchar *TEXT, gssize length, LwProgress *progress);
+void lw_utf8_casefold (gchar *TEXT, gssize length, LwProgress *progress);
 
 gint lw_utf8_count_lines (gchar *buffer);
 gchar** lw_utf8_split_lines (gchar *buffer, gint *num_lines);

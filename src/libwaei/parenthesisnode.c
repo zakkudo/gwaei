@@ -19,9 +19,20 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//! @file parenthesisnode.c
-//!
+/**
+ * SECTION:parenthesisnode
+ * @short_description: A node structure describing text with parenthesis
+ * @title: LwParenthesisNode
+ *
+ * Parses a string into a set of nodes that can be used for math-like
+ * logical comparisons.  It starts by creating a list of subnodes 
+ * pointing ot subsections of the string that are surrouned by
+ * parenthesis.  I then calculates a full list of nodes by checking
+ * the nodes that are between the explicit nodes.  LwParenthesisNode
+ * is used as the bases for building a #LwQueryNodes.  The difference
+ * with #LwQueryNodes is that they are specialized for searches and 
+ * may not match one-to-one to the original string.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -74,6 +85,20 @@ errored:
 }
 
 
+/**
+ * lw_parenthesisnode_new_tree_from_string:
+ * @TEXT: Some text to use to generate the parenthesis node tree.  This text is referenced directly and not copied. It must not be freed or modified.
+ * @error: Syntax errors that causes creation of the tree to fail such as unclosed parenthesis
+ *
+ * This method is used to generate a tree representing the text
+ * passed to it.  This tree is used for generating the LwQueryNode
+ * tree which is used for searches.  The difference with LwQueryNode
+ * is that it has some extra information relating to the search and
+ * it doesn't necessarily map one-to-one to the source text as it is
+ * optimized for fast comparisons.
+ *
+ * Returns: A new LwParenthesisNode tree that can be freed with lw_parenthesisnode_unref()
+ */
 LwParenthesisNode*
 lw_parenthesisnode_new_tree_from_string (gchar const *  TEXT,
                                          GError      ** error)

@@ -494,22 +494,25 @@ _casefold_character (gchar *character)
 
 void
 lw_utf8_casefold (gchar      *TEXT,
-                  gsize       length,
+                  gssize      length,
                   LwProgress *progress)
 {
     //Sanity checks
     if (TEXT == NULL) return;
 
     //Declarations
-    gint chunk_size = 0;
+    gint chunk_size = -1;
     gint chunk = 0;
     gchar * c = NULL;
     
     //Initializations
     c = TEXT;
     if (c == NULL) goto errored;
-    chunk_size = lw_progress_get_chunk_size (progress);
-    if (chunk_size < 1) goto errored;
+    if (progress != NULL)
+    {
+      chunk_size = lw_progress_get_chunk_size (progress);
+      if (chunk_size < 1) goto errored;
+    }
     if (length < 1)
     {
       length = strlen(TEXT);
@@ -528,7 +531,7 @@ lw_utf8_casefold (gchar      *TEXT,
       while (*c != '\0' && i < length) {
         c = _casefold_character (c);
         i = c - TEXT;
-        if (G_UNLIKELY(chunk++ >= chunk_size))
+        if (G_UNLIKELY(chunk++ >= chunk_size) && chunk_size > -1)
         {
           lw_progress_set_current (progress, i);
           chunk = 0;
@@ -549,25 +552,29 @@ errored:
 
 
 static gchar*
-_furiganafold_character (gchar *character, GHashTable *conversions)
+_furiganafold_character (gchar *c, GHashTable *conversions)
 {
     //Sanity checks
-    if (character == NULL || *character == '\0') return character;
+    if (c == NULL || *c == '\0') return c;
 
     //Declarations
-    gunichar c = -1;
-    gchar *n = g_utf8_next_char (character);
-    gint bytes = n - character;
+    gunichar unichar = -1;
+    gchar * n = NULL;
+    gunichar conversion = NULL;
+    gint len = 0;
     gchar buffer[6] = { 0 };
 
     //Initializations
-    c = g_utf8_get_char (character);
+    n = g_utf8_next_char (c);
+    unichar = g_utf8_get_char (c);
 
-    if (g_hash_table_contains (conversions, GUINT_TO_POINTER (c)))
+    if (g_hash_table_contains (conversions, GUINT_TO_POINTER (unichar)))
     {
-      if (g_unichar_to_utf8 (c, buffer) == bytes)
+      conversion = (gunichar) g_hash_table_lookup (conversions, GUINT_TO_POINTER (unichar));
+      len = g_unichar_to_utf8 (conversion, buffer);
+      if (len <= n - c)
       {
-        strncpy(character, buffer, bytes);
+        strncpy (c, buffer, len);
       }
     }
     
@@ -577,7 +584,7 @@ _furiganafold_character (gchar *character, GHashTable *conversions)
 
 void
 lw_utf8_furiganafold (gchar      *TEXT,
-                      gsize       length,
+                      gssize      length,
                       LwProgress *progress)
 {
     //Sanity checks
@@ -585,7 +592,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
 
     //Declarations
     GHashTable *conversions = NULL;
-    gint chunk_size = 0;
+    gint chunk_size = -1;
     gint chunk = 0;
     gchar * c = NULL;
     
@@ -594,8 +601,11 @@ lw_utf8_furiganafold (gchar      *TEXT,
     if (c == NULL) goto errored;
     conversions = _get_furiganafold_hashtable ();
     if (conversions == NULL) goto errored;
-    chunk_size = lw_progress_get_chunk_size (progress);
-    if (chunk_size < 1) goto errored;
+    if (progress != NULL)
+    {
+      chunk_size = lw_progress_get_chunk_size (progress);
+      if (chunk_size < 1) goto errored;
+    }
     if (length < 1)
     {
       length = strlen(TEXT);
@@ -614,7 +624,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
       while (*c != '\0' && i < length) {
         c = _furiganafold_character (c, conversions);
         i = c - TEXT;
-        if (G_UNLIKELY(chunk++ >= chunk_size))
+        if (G_UNLIKELY(chunk++ >= chunk_size) && chunk_size > -1)
         {
           lw_progress_set_current (progress, i);
           chunk = 0;
