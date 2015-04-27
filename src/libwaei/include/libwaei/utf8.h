@@ -27,6 +27,18 @@ typedef enum {
 #define LW_UTF8FLAGNICK_FURIGANAFOLD "furigana-fold"
 #define LW_UTF8FLAGNICK_ALL "all"
 
+/**
+ * LwUtf8Flag:
+ * @LW_UTF8FLAG_NONE: Don't do any normalization
+ * @LW_UTF8FLAG_PRINTABLE: Normalize only things that print the same
+ * @LW_UTF8FLAG_COMPARABLE: Normalize for comparison, but the printing may change
+ * @LW_UTF8FLAG_CASEFOLD: Convert capital letters to lowercase letters
+ * @LW_UTF8FLAG_FURIGANAFOLD: Convert katakana to hiragana
+ * @LW_UTF8FLAG_ALL: All options from above are applied
+ *
+ * Enum values for deciding how a string will be normalized.  You can logically
+ * or them together for different combinations.
+ */
 typedef enum {
   LW_UTF8FLAG_NONE = 0,
   LW_UTF8FLAG_PRINTABLE = (1 << 0),

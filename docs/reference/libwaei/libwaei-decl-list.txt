@@ -984,6 +984,7 @@ LW_UTF8FLAGNICK_COMPARABLE
 LW_UTF8FLAGNICK_CASEFOLD
 LW_UTF8FLAGNICK_FURIGANAFOLD
 LW_UTF8FLAGNICK_ALL
+LwUtf8Flag
 LwUtf8ChunkHandler
 lw_utf8flag_clean
 lw_utf8_set_null_next_char
@@ -1003,7 +1004,6 @@ lw_utf8_normalize_chunked
 lw_utf8_isescaped
 <SUBSECTION Standard>
 LW_TYPE_UTF8FLAG
-LwUtf8Flag
 lw_utf8flag_get_type
 </SECTION>
 

@@ -499,10 +499,10 @@ void
 LwApplication* application 
 </FUNCTION>
 <STRUCT>
-<NAME>LwApplicationClassPrivate</NAME>
+<NAME>LwApplicationPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwApplicationPrivate</NAME>
+<NAME>LwApplicationClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
 <NAME>LwQuery</NAME>
@@ -662,10 +662,10 @@ LwMappedFile * self
 LwMappedFile *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwMappedFilePrivate</NAME>
+<NAME>LwMappedFileClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwMappedFileClassPrivate</NAME>
+<NAME>LwMappedFilePrivate</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_dictionaryinstalllist_connect_signals</NAME>
@@ -950,10 +950,10 @@ LwProgress *self
 LwProgress *self, gsize chunk_size 
 </FUNCTION>
 <STRUCT>
-<NAME>LwProgressPrivate</NAME>
+<NAME>LwProgressClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwProgressClassPrivate</NAME>
+<NAME>LwProgressPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_CACHEFILE</NAME>
@@ -1055,10 +1055,10 @@ LwCacheFile *self
 LwCacheFile *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwCacheFileClassPrivate</NAME>
+<NAME>LwCacheFilePrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwCacheFilePrivate</NAME>
+<NAME>LwCacheFileClassPrivate</NAME>
 </STRUCT>
 <ENUM>
 <NAME>LwQueryNodeOperation</NAME>
@@ -1599,10 +1599,10 @@ void
 void 
 </FUNCTION>
 <STRUCT>
-<NAME>LwUninstallSubCommandPrivate</NAME>
+<NAME>LwUninstallSubCommandClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwUninstallSubCommandClassPrivate</NAME>
+<NAME>LwUninstallSubCommandPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_SUBCOMMAND</NAME>
@@ -1681,10 +1681,10 @@ LwSubCommand * self, GOptionEntry const * option_entries
 LwSubCommand * self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwSubCommandClassPrivate</NAME>
+<NAME>LwSubCommandPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwSubCommandPrivate</NAME>
+<NAME>LwSubCommandClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_DICTIONARYINSTALL</NAME>
@@ -1896,10 +1896,10 @@ LwDictionaryInstall *self
 LwDictionaryInstall *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryInstallPrivate</NAME>
+<NAME>LwDictionaryInstallClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryInstallClassPrivate</NAME>
+<NAME>LwDictionaryInstallPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_SEARCH_MAX_CHUNK</NAME>
@@ -2314,12 +2314,12 @@ const gchar *PATTERN
 <FUNCTION>
 <NAME>lw_utf8_furiganafold</NAME>
 <RETURNS>void  </RETURNS>
-gchar *TEXT, gsize length, LwProgress *progress 
+gchar *TEXT, gssize length, LwProgress *progress 
 </FUNCTION>
 <FUNCTION>
 <NAME>lw_utf8_casefold</NAME>
 <RETURNS>void  </RETURNS>
-gchar *TEXT, gsize length, LwProgress *progress 
+gchar *TEXT, gssize length, LwProgress *progress 
 </FUNCTION>
 <FUNCTION>
 <NAME>lw_utf8_count_lines</NAME>
@@ -2771,10 +2771,10 @@ LwParsed *self, LwParsedLine *lines, gsize num_lines
 LwParsed * self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwParsedClassPrivate</NAME>
+<NAME>LwParsedPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwParsedPrivate</NAME>
+<NAME>LwParsedClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_SEARCHSUBCOMMAND</NAME>
@@ -3071,10 +3071,10 @@ LwDictionary * self, LwCacheFile * cache_file, LwProgress * progress
 GType type, gchar const * FILENAME 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryPrivate</NAME>
+<NAME>LwDictionaryClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryClassPrivate</NAME>
+<NAME>LwDictionaryPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_DICTIONARYMODULE</NAME>
@@ -3310,10 +3310,10 @@ void
 void 
 </FUNCTION>
 <STRUCT>
-<NAME>LwInstallSubCommandPrivate</NAME>
+<NAME>LwInstallSubCommandClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwInstallSubCommandClassPrivate</NAME>
+<NAME>LwInstallSubCommandPrivate</NAME>
 </STRUCT>
 <STRUCT>
 <NAME>Group</NAME>
@@ -3677,10 +3677,10 @@ LwMorphologyEngine *self, const gchar *LOCALE
 LwMorphologyEngine *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwMorphologyEnginePrivate</NAME>
+<NAME>LwMorphologyEngineClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwMorphologyEngineClassPrivate</NAME>
+<NAME>LwMorphologyEnginePrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_SCHEMA_DICTIONARY</NAME>
@@ -3811,10 +3811,10 @@ LwDictionaryInstallList *self, const gchar *DESCRIPTION
 LwDictionaryInstallList *self, GList *dictionaryinstalls 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryInstallListClassPrivate</NAME>
+<NAME>LwDictionaryInstallListPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryInstallListPrivate</NAME>
+<NAME>LwDictionaryInstallListClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
 <NAME>LwRange</NAME>

@@ -19,14 +19,16 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//!  @file progress.c
-//!
-//!  @brief LwDictionary objects represent a loaded dictionary that the program
-//!         can use to carry out searches.  You can uninstall dictionaries
-//!         by using the object, but you cannot install them. LwDictInst
-//!         objects exist for that purpose.
-//!
+/**
+ * SECTION:progress
+ * @short_description: An object to track task progress and errors
+ * @title: LwProgress
+ *
+ * This object provides a standardized threadsave interface for methods to
+ * provide progress information to a ui.  This includes percent, primary
+ * messages, secondary messages etc.  Methods using this object can also pass
+ * errors or recieve cancellation requests through the same object.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -48,6 +50,13 @@
 G_DEFINE_TYPE (LwProgress, lw_progress, G_TYPE_OBJECT)
 
 
+/**
+ * lw_progress_new:
+ *
+ * Creates a new #LwProgress object.
+ *
+ * Returns: a new #LwProgress object that can be freed with g_object_unref()
+ */
 LwProgress* 
 lw_progress_new ()
 {
@@ -131,7 +140,7 @@ lw_progress_set_property (GObject        *object,
         lw_progress_set_chunk_size (self, g_value_get_ulong (value));
         break;
       case PROP_PREFERED_CHUNK_SIZE:
-        lw_progress_set_chunk_size (self, g_value_get_ulong (value));
+        lw_progress_set_prefered_chunk_size (self, g_value_get_ulong (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -376,7 +385,7 @@ lw_progress_class_init (LwProgressClass *klass)
     g_object_class_install_property (object_class, PROP_CHUNK_SIZE, klasspriv->pspec[PROP_CHUNK_SIZE]);
 
     klasspriv->pspec[PROP_PREFERED_CHUNK_SIZE] = g_param_spec_ulong (
-        "chunk-size",
+        "prefered-chunk-size",
         "chunk size for transactions",
         "Set the changed",
         0,
@@ -403,7 +412,7 @@ lw_progress_set_cancellable (LwProgress   *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (cancellable != priv->data.cancellable);
 
@@ -495,7 +504,7 @@ lw_progress_set_current (LwProgress *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
     g_mutex_lock (&priv->data.mutex);
@@ -573,7 +582,7 @@ lw_progress_set_total (LwProgress *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (total_progress < 0.0)
@@ -649,7 +658,7 @@ lw_progress_sync_ratio_delta (LwProgress *self)
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (priv->data.total_progress != 0)
@@ -694,7 +703,7 @@ lw_progress_set_required_ratio_delta (LwProgress *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
     priv->config.required_ratio_delta = delta;
@@ -723,7 +732,7 @@ lw_progress_set_completed (LwProgress *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
     g_mutex_lock (&priv->data.mutex);
@@ -807,7 +816,7 @@ lw_progress_take_error (LwProgress *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (error != priv->data.error);
     if (!changed) goto errored;
@@ -839,6 +848,17 @@ lw_progress_get_error (LwProgress  *self)
 }
 
 
+/**
+ * lw_progress_errored:
+ *
+ * Method to query if an error set set such as by lw_progress_set_error()
+ * or lw_progress_take_error(), though lw_progress_should_abort() is usually
+ * the prefered way to check if a task should abort.  lw_progress_clear()
+ * will reset the cancelled state.  You can get the #GError though
+ * lw_progress_get_error(). lw_progress_clear() will reset the errored state.
+ *
+ * Returns: #TRUE if the operation had an error set
+ */
 gboolean
 lw_progress_errored (LwProgress *self)
 {
@@ -862,6 +882,16 @@ lw_progress_errored (LwProgress *self)
 }
 
 
+/**
+ * lw_progress_is_cancelled:
+ *
+ * Used to query specifically if lw_progress_cancel() was called,
+ * though lw_progress_should_abort() is usually the prefered way to
+ * check if a task should abort.  lw_progress_clear() will reset
+ * the cancelled state.
+ *
+ * Returns: #TRUE if the operation was cancelled
+ */
 gboolean
 lw_progress_is_cancelled (LwProgress *self)
 {
@@ -885,6 +915,13 @@ lw_progress_is_cancelled (LwProgress *self)
 }
 
 
+/**
+ * lw_progress_cancel:
+ *
+ * Use to signal that a task should abort and return as soon as possible.
+ * This method will usually be connected to a cancel button on a ui.
+ * lw_progress_clear() will reset the errored state.
+ */
 void
 lw_progress_cancel (LwProgress *self)
 {
@@ -907,7 +944,19 @@ lw_progress_cancel (LwProgress *self)
     g_mutex_unlock (&priv->data.mutex);
 }
 
+ 
 
+/**
+ * lw_progress_should_abort:
+ *
+ * Provides an easy way to query a #LwProgress object if an error occured or
+ * a cancellation request was initiated.  When either occur, this method will
+ * start returning TRUE.  When this method returns TRUE, most methods should
+ * stop their processing, cleanup and return. lw_progress_clear() can be used
+ * to reset the errored/cancelled state.
+ *
+ * Returns: #TRUE if an error occured or if the task was cancelled.
+ */
 gboolean 
 lw_progress_should_abort (LwProgress *self)
 {
@@ -940,7 +989,7 @@ lw_progress_set_primary_message (LwProgress *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
     g_mutex_lock (&self->priv->data.mutex);
@@ -1042,7 +1091,7 @@ lw_progress_set_secondary_message (LwProgress  *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
     g_mutex_lock (&self->priv->data.mutex);
@@ -1146,7 +1195,7 @@ lw_progress_set_step_message (LwProgress  *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
     g_mutex_lock (&self->priv->data.mutex);
@@ -1264,7 +1313,7 @@ lw_progress_set_prefered_chunk_size (LwProgress *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (priv->config.prefered_chunk_size == prefered_chunk_size) goto errored;
@@ -1309,7 +1358,7 @@ lw_progress_set_chunk_size (LwProgress *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_PROGRESS_CLASS (self);
+    klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
     if (priv->data.chunk_size == chunk_size) goto errored;
