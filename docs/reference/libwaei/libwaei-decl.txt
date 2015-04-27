@@ -125,10 +125,10 @@ LwCommand * self, gchar const * SUBCOMMAND_NAME
 LwCommand * self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwCommandPrivate</NAME>
+<NAME>LwCommandClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwCommandClassPrivate</NAME>
+<NAME>LwCommandPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>G_SETTINGS_ENABLE_BACKEND</NAME>
@@ -662,10 +662,10 @@ LwMappedFile * self
 LwMappedFile *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwMappedFileClassPrivate</NAME>
+<NAME>LwMappedFilePrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwMappedFilePrivate</NAME>
+<NAME>LwMappedFileClassPrivate</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_dictionaryinstalllist_connect_signals</NAME>
@@ -680,7 +680,6 @@ LwDictionaryInstallList *self
 <STRUCT>
 <NAME>LwParenthesisNode</NAME>
 struct _LwParenthesisNode {
-  /*< public >*/
   gboolean has_parenthesis;
   gint refs;
   gchar const * OPEN;
@@ -693,11 +692,6 @@ struct _LwParenthesisNode {
 <NAME>LW_PARENTHESISNODE</NAME>
 #define LW_PARENTHESISNODE(obj) ((LwParenthesisNode*)(obj))
 </MACRO>
-<FUNCTION>
-<NAME>lw_parenthesisnode_get_type</NAME>
-<RETURNS>GType  </RETURNS>
-void 
-</FUNCTION>
 <MACRO>
 <NAME>LW_PARENTHESISNODE_ERROR</NAME>
 #define LW_PARENTHESISNODE_ERROR lw_parenthesisnode_error_quark ()
@@ -1055,10 +1049,10 @@ LwCacheFile *self
 LwCacheFile *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwCacheFilePrivate</NAME>
+<NAME>LwCacheFileClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwCacheFileClassPrivate</NAME>
+<NAME>LwCacheFilePrivate</NAME>
 </STRUCT>
 <ENUM>
 <NAME>LwQueryNodeOperation</NAME>
@@ -2182,10 +2176,10 @@ LwSearch *self, LwSearchFlag flags
 LwPreferences *preferences 
 </FUNCTION>
 <STRUCT>
-<NAME>LwSearchPrivate</NAME>
+<NAME>LwSearchClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwSearchClassPrivate</NAME>
+<NAME>LwSearchPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_UTF8_ERROR</NAME>
@@ -2519,10 +2513,10 @@ LwDictionaryList *self
 LwDictionaryList *self, GList *dictionaries 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryListPrivate</NAME>
+<NAME>LwDictionaryListClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryListClassPrivate</NAME>
+<NAME>LwDictionaryListPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_DICTIONARYINSTALLSTATEHISTORY</NAME>
@@ -2771,10 +2765,10 @@ LwParsed *self, LwParsedLine *lines, gsize num_lines
 LwParsed * self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwParsedPrivate</NAME>
+<NAME>LwParsedClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwParsedClassPrivate</NAME>
+<NAME>LwParsedPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_SEARCHSUBCOMMAND</NAME>
@@ -2825,10 +2819,10 @@ void
 void 
 </FUNCTION>
 <STRUCT>
-<NAME>LwSearchSubCommandClassPrivate</NAME>
+<NAME>LwSearchSubCommandPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwSearchSubCommandPrivate</NAME>
+<NAME>LwSearchSubCommandClassPrivate</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_morphologyengine_hunspell_analyze</NAME>
@@ -3366,10 +3360,10 @@ const gchar *TEXT, LwUtf8Flag flags
 LwMorphologyString *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwToken</NAME>
+<NAME>LwMorphologyString</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwMorphologyString</NAME>
+<NAME>LwToken</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_dictionary_sync_downloadlist_cb</NAME>
@@ -3677,10 +3671,10 @@ LwMorphologyEngine *self, const gchar *LOCALE
 LwMorphologyEngine *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwMorphologyEngineClassPrivate</NAME>
+<NAME>LwMorphologyEnginePrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwMorphologyEnginePrivate</NAME>
+<NAME>LwMorphologyEngineClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_SCHEMA_DICTIONARY</NAME>

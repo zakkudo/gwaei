@@ -1,6 +1,7 @@
 #ifndef LW_QUERYNODE_INCLUDED
 #define LW_QUERYNODE_INCLUDED
 
+G_BEGIN_DECLS
 
 typedef enum _LwQueryNodeOperation {
   LW_QUERYNODE_OPERATION_NONE,
@@ -54,5 +55,6 @@ void lw_querynode_walk (LwQueryNode * self, LwQueryNodeWalkFunc func, gpointer d
 gint lw_querynode_nnodes (LwQueryNode * self);
 void lw_querynode_compile (LwQueryNode * self, LwUtf8Flag flags, GError ** error);
 
+G_END_DECLS
 
 #endif

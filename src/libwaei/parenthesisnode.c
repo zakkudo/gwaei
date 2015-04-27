@@ -153,24 +153,6 @@ errored:
 }
 
 
-GType
-lw_parenthesisnode_get_type ()
-{
-    static GType type = 0;
-
-    if (type == 0)
-    {
-      type = g_boxed_type_register_static (
-        "LwParenthesisNode",
-        (GBoxedCopyFunc) lw_parenthesisnode_ref,
-        (GBoxedFreeFunc) lw_parenthesisnode_unref
-      );
-    }
-
-    return type;
-}
-
-
 static GList *
 _calculate_children (gchar const * OPEN,
                      gchar const * CLOSE,

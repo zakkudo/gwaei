@@ -593,6 +593,7 @@ lw_morphologystring_free
 <SECTION>
 <FILE>parenthesisnode</FILE>
 LwParenthesisNode
+LW_PARENTHESISNODE
 LW_PARENTHESISNODE_ERROR
 lw_parenthesisnode_error_quark
 LwParenthesisNodeErrorCode
@@ -601,9 +602,6 @@ lw_parenthesisnode_contains
 lw_parenthesisnode_unref
 lw_parenthesisnode_ref
 lw_parenthesisnode_assert_equals
-<SUBSECTION Standard>
-LW_PARENTHESISNODE
-lw_parenthesisnode_get_type
 </SECTION>
 
 <SECTION>
