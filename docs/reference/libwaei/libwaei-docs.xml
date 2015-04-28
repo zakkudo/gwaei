@@ -6,83 +6,61 @@
 ]>
 <book id="index">
   <bookinfo>
-    <title>LibWaei Reference Manual</title>
+    <title>libwaei Reference Manual</title>
     <releaseinfo>
-      for LibWaei 4.x.
+      for libwaei [VERSION].
       The latest version of this documentation can be found on-line at
-      <ulink role="online-location" url="https://github.com/zakkudo/gwaei">https://github.com/zakkudo/gwaei</ulink>.
+      <ulink role="online-location" url="http://[SERVER]/libwaei/index.html">http://[SERVER]/libwaei/</ulink>.
     </releaseinfo>
   </bookinfo>
 
   <chapter>
     <title>[Insert title here]</title>
         <xi:include href="xml/application.xml"/>
-    <xi:include href="xml/application-private.xml"/>
     <xi:include href="xml/cachefile.xml"/>
-    <xi:include href="xml/cachefile-private.xml"/>
     <xi:include href="xml/command.xml"/>
-    <xi:include href="xml/command-private.xml"/>
     <xi:include href="xml/condition.xml"/>
     <xi:include href="xml/dependancy.xml"/>
     <xi:include href="xml/dictionary.xml"/>
     <xi:include href="xml/dictionary-callbacks.xml"/>
     <xi:include href="xml/dictionary-index.xml"/>
-    <xi:include href="xml/dictionary-private.xml"/>
     <xi:include href="xml/dictionarycache.xml"/>
-    <xi:include href="xml/dictionarycache-private.xml"/>
     <xi:include href="xml/dictionaryinstall.xml"/>
-    <xi:include href="xml/dictionaryinstall-private.xml"/>
     <xi:include href="xml/dictionaryinstalllist.xml"/>
     <xi:include href="xml/dictionaryinstalllist-callbacks.xml"/>
-    <xi:include href="xml/dictionaryinstalllist-private.xml"/>
     <xi:include href="xml/dictionaryinstallstate.xml"/>
     <xi:include href="xml/dictionaryinstallstatehistory.xml"/>
     <xi:include href="xml/dictionarylist.xml"/>
     <xi:include href="xml/dictionarylist-callbacks.xml"/>
-    <xi:include href="xml/dictionarylist-private.xml"/>
     <xi:include href="xml/dictionarymodule.xml"/>
-    <xi:include href="xml/dictionarymodule-private.xml"/>
     <xi:include href="xml/filepath.xml"/>
     <xi:include href="xml/gettext.xml"/>
     <xi:include href="xml/index.xml"/>
     <xi:include href="xml/indexed.xml"/>
-    <xi:include href="xml/indexed-private.xml"/>
     <xi:include href="xml/installsubcommand.xml"/>
-    <xi:include href="xml/installsubcommand-private.xml"/>
     <xi:include href="xml/io.xml"/>
     <xi:include href="xml/mappedfile.xml"/>
-    <xi:include href="xml/mappedfile-private.xml"/>
     <xi:include href="xml/morphologyengine.xml"/>
     <xi:include href="xml/morphologyengine-hunspell.xml"/>
     <xi:include href="xml/morphologyengine-mecab.xml"/>
-    <xi:include href="xml/morphologyengine-private.xml"/>
     <xi:include href="xml/morphologystring.xml"/>
     <xi:include href="xml/parenthesisnode.xml"/>
     <xi:include href="xml/parsed.xml"/>
-    <xi:include href="xml/parsed-private.xml"/>
     <xi:include href="xml/parsedline.xml"/>
     <xi:include href="xml/preferences.xml"/>
-    <xi:include href="xml/preferences-private.xml"/>
     <xi:include href="xml/progress.xml"/>
-    <xi:include href="xml/progress-private.xml"/>
     <xi:include href="xml/query.xml"/>
     <xi:include href="xml/querynode.xml"/>
     <xi:include href="xml/range.xml"/>
     <xi:include href="xml/regex.xml"/>
     <xi:include href="xml/row.xml"/>
     <xi:include href="xml/search.xml"/>
-    <xi:include href="xml/search-private.xml"/>
     <xi:include href="xml/searchsubcommand.xml"/>
-    <xi:include href="xml/searchsubcommand-private.xml"/>
     <xi:include href="xml/serializable.xml"/>
-    <xi:include href="xml/serializable-private.xml"/>
     <xi:include href="xml/subcommand.xml"/>
-    <xi:include href="xml/subcommand-private.xml"/>
     <xi:include href="xml/uninstallsubcommand.xml"/>
-    <xi:include href="xml/uninstallsubcommand-private.xml"/>
     <xi:include href="xml/utf8.xml"/>
     <xi:include href="xml/vocabulary.xml"/>
-    <xi:include href="xml/vocabulary-private.xml"/>
     <xi:include href="xml/word.xml"/>
 
   </chapter>

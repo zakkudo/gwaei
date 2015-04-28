@@ -30,7 +30,7 @@ typedef enum {
 } ClassSignalId;
 
 
-struct _Data {
+struct _LwProgressPrivate {
   GMutex mutex;
 
   gsize chunk_size;
@@ -53,17 +53,10 @@ struct _Data {
   gchar *units;
 
   gboolean complete;
-};
 
-struct _Config {
   gchar *filename;
   gdouble required_ratio_delta;
   gsize prefered_chunk_size;
-};
-
-struct _LwProgressPrivate {
-  struct _Data data;
-  struct _Config config;
 };
 
 struct _LwProgressClassPrivate {
@@ -72,8 +65,6 @@ struct _LwProgressClassPrivate {
 };
 
 #define LW_PROGRESS_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_PROGRESS, LwProgressPrivate));
-
-void lw_progress_sync_ratio_delta (LwProgress *progress);
 
 G_END_DECLS
 

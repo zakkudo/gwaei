@@ -499,10 +499,10 @@ void
 LwApplication* application 
 </FUNCTION>
 <STRUCT>
-<NAME>LwApplicationPrivate</NAME>
+<NAME>LwApplicationClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwApplicationClassPrivate</NAME>
+<NAME>LwApplicationPrivate</NAME>
 </STRUCT>
 <STRUCT>
 <NAME>LwQuery</NAME>
@@ -865,7 +865,7 @@ LwProgress *self, gdouble current_progress
 </FUNCTION>
 <FUNCTION>
 <NAME>lw_progress_get_total</NAME>
-<RETURNS>gboolean  </RETURNS>
+<RETURNS>gdouble  </RETURNS>
 LwProgress *self 
 </FUNCTION>
 <FUNCTION>
@@ -944,10 +944,10 @@ LwProgress *self
 LwProgress *self, gsize chunk_size 
 </FUNCTION>
 <STRUCT>
-<NAME>LwProgressClassPrivate</NAME>
+<NAME>LwProgressPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwProgressPrivate</NAME>
+<NAME>LwProgressClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_CACHEFILE</NAME>
@@ -1049,10 +1049,10 @@ LwCacheFile *self
 LwCacheFile *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwCacheFileClassPrivate</NAME>
+<NAME>LwCacheFilePrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwCacheFilePrivate</NAME>
+<NAME>LwCacheFileClassPrivate</NAME>
 </STRUCT>
 <ENUM>
 <NAME>LwQueryNodeOperation</NAME>
@@ -1405,10 +1405,10 @@ LwVocabulary *self, gint position, va_list va
 LwVocabulary *self, GCompareDataFunc compare_func 
 </FUNCTION>
 <STRUCT>
-<NAME>LwVocabularyPrivate</NAME>
+<NAME>LwVocabularyClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwVocabularyClassPrivate</NAME>
+<NAME>LwVocabularyPrivate</NAME>
 </STRUCT>
 <FUNCTION>
 <NAME>lw_morphologyengine_mecab_analyze</NAME>
@@ -1593,10 +1593,10 @@ void
 void 
 </FUNCTION>
 <STRUCT>
-<NAME>LwUninstallSubCommandClassPrivate</NAME>
+<NAME>LwUninstallSubCommandPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwUninstallSubCommandPrivate</NAME>
+<NAME>LwUninstallSubCommandClassPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_SUBCOMMAND</NAME>
@@ -1675,10 +1675,10 @@ LwSubCommand * self, GOptionEntry const * option_entries
 LwSubCommand * self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwSubCommandPrivate</NAME>
+<NAME>LwSubCommandClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwSubCommandClassPrivate</NAME>
+<NAME>LwSubCommandPrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_TYPE_DICTIONARYINSTALL</NAME>
@@ -3304,10 +3304,10 @@ void
 void 
 </FUNCTION>
 <STRUCT>
-<NAME>LwInstallSubCommandClassPrivate</NAME>
+<NAME>LwInstallSubCommandPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwInstallSubCommandPrivate</NAME>
+<NAME>LwInstallSubCommandClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
 <NAME>Group</NAME>
@@ -3671,10 +3671,10 @@ LwMorphologyEngine *self, const gchar *LOCALE
 LwMorphologyEngine *self 
 </FUNCTION>
 <STRUCT>
-<NAME>LwMorphologyEnginePrivate</NAME>
+<NAME>LwMorphologyEngineClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwMorphologyEngineClassPrivate</NAME>
+<NAME>LwMorphologyEnginePrivate</NAME>
 </STRUCT>
 <MACRO>
 <NAME>LW_SCHEMA_DICTIONARY</NAME>
@@ -3805,10 +3805,10 @@ LwDictionaryInstallList *self, const gchar *DESCRIPTION
 LwDictionaryInstallList *self, GList *dictionaryinstalls 
 </FUNCTION>
 <STRUCT>
-<NAME>LwDictionaryInstallListPrivate</NAME>
+<NAME>LwDictionaryInstallListClassPrivate</NAME>
 </STRUCT>
 <STRUCT>
-<NAME>LwDictionaryInstallListClassPrivate</NAME>
+<NAME>LwDictionaryInstallListPrivate</NAME>
 </STRUCT>
 <STRUCT>
 <NAME>LwRange</NAME>
