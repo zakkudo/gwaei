@@ -951,7 +951,7 @@ lw_progress_set_error (LwProgress *self,
 
     //Initializations
     priv = self->priv;
-    if (error != NULL && error != _error)
+    if (_error != NULL && error != _error)
     {
       error = g_error_copy (_error);
     }

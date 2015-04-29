@@ -10,6 +10,8 @@ struct _Fixture {
   gdouble current;
   gdouble fraction;
   gboolean completed;
+  gchar const * PRIMARY_MESSAGE;
+  gchar const * SECONDARY_MESSAGE;
 };
 typedef struct _Fixture Fixture;
 
@@ -26,7 +28,7 @@ assert_fixture_equal (Fixture * self,
 }
 
 
-void
+static void
 progress_changed (LwProgress * self,
                   Fixture    * fixture)
 {
@@ -37,11 +39,29 @@ progress_changed (LwProgress * self,
     fixture->completed = lw_progress_completed (self);
 }
 
+static void
+primary_message_notify (LwProgress * self,
+                        GParamSpec * pspec,
+                        Fixture    * fixture)
+{
+    fixture->PRIMARY_MESSAGE = lw_progress_get_primary_message (self);
+}
+
+static void
+secondary_message_notify (LwProgress * self,
+                          GParamSpec * pspec,
+                          Fixture    * fixture)
+{
+    fixture->SECONDARY_MESSAGE = lw_progress_get_secondary_message (self);
+}
+
 
 void setup (Fixture *fixture, gconstpointer data)
 {
   fixture->progress = lw_progress_new ();
   g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (progress_changed), fixture);
+  g_signal_connect (fixture->progress, "notify::primary-message", G_CALLBACK (primary_message_notify), fixture);
+  g_signal_connect (fixture->progress, "notify::secondary-message", G_CALLBACK (secondary_message_notify), fixture);
 }
 
 
@@ -346,6 +366,267 @@ set_completed_true_then_false (Fixture       * fixture,
 }
 
 
+void
+set_error_new (Fixture       * fixture,
+               gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+    GError * error = NULL;
+
+    //Act
+    g_set_error_literal (
+      &error,
+      g_quark_from_static_string ("test-domain"),
+      2, 
+      "test error"
+    );
+    lw_progress_set_error (progress, error);
+
+    //Assert
+    g_assert_true (g_error_matches (
+      lw_progress_get_error (progress),
+      g_quark_from_static_string ("test-domain"),
+      2
+    ));
+    g_assert (lw_progress_get_error (progress) != error);
+    g_assert_true (lw_progress_should_abort (progress));
+    g_assert_true (lw_progress_errored (progress));
+    g_assert_false (lw_progress_is_cancelled (progress));
+
+    g_clear_error (&error);
+    error = NULL;
+}
+
+
+void
+set_error_new_then_null (Fixture       * fixture,
+                         gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+    GError * error = NULL;
+
+    //Act
+    g_set_error_literal (
+      &error,
+      g_quark_from_static_string ("test-domain"),
+      2, 
+      "test error"
+    );
+    lw_progress_set_error (progress, error);
+    lw_progress_set_error (progress, NULL);
+
+    //Assert
+    g_assert_null (lw_progress_get_error (progress));
+    g_assert_false (lw_progress_should_abort (progress));
+    g_assert_false (lw_progress_errored (progress));
+    g_assert_false (lw_progress_is_cancelled (progress));
+
+    g_clear_error (&error);
+    error = NULL;
+}
+
+
+
+void
+take_error_new (Fixture       * fixture,
+                gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+    GError * error = NULL;
+
+    //Act
+    g_set_error_literal (
+      &error,
+      g_quark_from_static_string ("test-domain"),
+      2, 
+      "test error"
+    );
+    lw_progress_take_error (progress, error);
+    error = NULL;
+
+    //Assert
+    g_assert_true (g_error_matches (
+      lw_progress_get_error (progress),
+      g_quark_from_static_string ("test-domain"),
+      2
+    ));
+    g_assert (lw_progress_get_error (progress) != error);
+    g_assert_true (lw_progress_should_abort (progress));
+    g_assert_true (lw_progress_errored (progress));
+    g_assert_false (lw_progress_is_cancelled (progress));
+
+}
+
+
+void
+take_error_new_then_null (Fixture       * fixture,
+                          gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+    GError * error = NULL;
+
+    //Act
+    g_set_error_literal (
+      &error,
+      g_quark_from_static_string ("test-domain"),
+      2, 
+      "test error"
+    );
+    lw_progress_take_error (progress, error);
+    error = NULL;
+    lw_progress_take_error (progress, NULL);
+
+    //Assert
+    g_assert_null (lw_progress_get_error (progress));
+    g_assert_false (lw_progress_should_abort (progress));
+    g_assert_false (lw_progress_errored (progress));
+    g_assert_false (lw_progress_is_cancelled (progress));
+}
+
+
+void
+cancel_when_not_cancelled (Fixture       * fixture,
+        gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_cancel (progress);
+
+    //Assert
+    g_assert_true (lw_progress_should_abort (progress));
+    g_assert_false (lw_progress_errored (progress));
+    g_assert_true (lw_progress_is_cancelled (progress));
+
+}
+
+
+void
+cancel_twice (Fixture       * fixture,
+              gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_cancel (progress);
+    lw_progress_cancel (progress);
+
+    //Assert
+    g_assert_true (lw_progress_should_abort (progress));
+    g_assert_false (lw_progress_errored (progress));
+    g_assert_true (lw_progress_is_cancelled (progress));
+
+}
+
+
+void
+set_primary_message_new (Fixture       * fixture,
+                         gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_primary_message (progress, "test primary message");
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_primary_message (progress), ==, "test primary message");
+    g_assert_cmpstr (fixture->PRIMARY_MESSAGE, ==, "test primary message");
+
+}
+
+
+void
+set_primary_message_null (Fixture       * fixture,
+                          gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_primary_message (progress, NULL);
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_primary_message (progress), ==, "");
+    g_assert_cmpstr (fixture->PRIMARY_MESSAGE, ==, "");
+
+}
+
+void
+set_primary_message_twice (Fixture       * fixture,
+                          gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_primary_message (progress, "test primary message");
+    lw_progress_set_primary_message (progress, "test primary message 2");
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_primary_message (progress), ==, "test primary message 2");
+    g_assert_cmpstr (fixture->PRIMARY_MESSAGE, ==, "test primary message 2");
+}
+
+
+
+
+void
+set_secondary_message_new (Fixture       * fixture,
+                         gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_secondary_message (progress, "test secondary message");
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_secondary_message (progress), ==, "test secondary message");
+    g_assert_cmpstr (fixture->SECONDARY_MESSAGE, ==, "test secondary message");
+
+}
+
+
+void
+set_secondary_message_null (Fixture       * fixture,
+                          gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_secondary_message (progress, NULL);
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_secondary_message (progress), ==, "");
+    g_assert_cmpstr (fixture->SECONDARY_MESSAGE, ==, "");
+
+}
+
+void
+set_secondary_message_twice (Fixture       * fixture,
+                          gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_secondary_message (progress, "test secondary message");
+    lw_progress_set_secondary_message (progress, "test secondary message 2");
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_secondary_message (progress), ==, "test secondary message 2");
+    g_assert_cmpstr (fixture->SECONDARY_MESSAGE, ==, "test secondary message 2");
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -365,6 +646,22 @@ main (gint argc, gchar *argv[])
     g_test_add ("/set_completed/twice_with_no_setup", Fixture, NULL, setup, set_completed_twice_with_no_setup, teardown);
     g_test_add ("/set_completed/true", Fixture, NULL, setup, set_completed_true, teardown);
     g_test_add ("/set_completed/true_then_false", Fixture, NULL, setup, set_completed_true_then_false, teardown);
+
+    g_test_add ("/set_error/new", Fixture, NULL, setup, set_error_new, teardown);
+    g_test_add ("/set_error/new_then_null", Fixture, NULL, setup, set_error_new_then_null, teardown);
+    g_test_add ("/take_error/new", Fixture, NULL, setup, take_error_new, teardown);
+    g_test_add ("/take_error/new_then_null", Fixture, NULL, setup, take_error_new_then_null, teardown);
+
+    g_test_add ("/cancel/when_not_cancelled", Fixture, NULL, setup, cancel_when_not_cancelled, teardown);
+    g_test_add ("/cancel/twice", Fixture, NULL, setup, cancel_twice, teardown);
+
+    g_test_add ("/set_primary_message/new", Fixture, NULL, setup, set_primary_message_new, teardown);
+    g_test_add ("/set_primary_message/null", Fixture, NULL, setup, set_primary_message_null, teardown);
+    g_test_add ("/set_primary_message/twice", Fixture, NULL, setup, set_primary_message_twice, teardown);
+
+    g_test_add ("/set_secondary_message/new", Fixture, NULL, setup, set_secondary_message_new, teardown);
+    g_test_add ("/set_secondary_message/null", Fixture, NULL, setup, set_secondary_message_null, teardown);
+    g_test_add ("/set_secondary_message/twice", Fixture, NULL, setup, set_secondary_message_twice, teardown);
 
     return g_test_run();
 }
