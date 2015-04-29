@@ -91,7 +91,7 @@ lw_progress_init (LwProgress *self)
     priv->complete = FALSE;
     priv->start_time = g_get_monotonic_time ();
 
-    priv->required_ratio_delta = 0.01;
+    priv->required_ratio_delta = 0.001;
 
     g_mutex_init (&priv->mutex);
 }
@@ -759,7 +759,7 @@ lw_progress_set_total (LwProgress *self,
     LwProgressClass *klass = NULL;
     LwProgressClassPrivate *klasspriv = NULL;
     gboolean changed = FALSE;
-    gboolean sync_current_progress = FALSE;
+    gboolean truncate_current_progress = FALSE;
     gdouble epsilon = 0.0000001;
 
     //Initializations
@@ -770,24 +770,33 @@ lw_progress_set_total (LwProgress *self,
     if (total_progress < 0.0)
     {
       total_progress = 0.0;
-      sync_current_progress = TRUE;
-    }
-
-    priv->total_progress = total_progress;
-
-    if (priv->current_progress > priv->total_progress)
-    {
-      sync_current_progress = TRUE;
+      truncate_current_progress = TRUE;
     }
 
     changed = (fabs(priv->total_progress - total_progress) > epsilon);
     if (!changed) goto errored;
 
+    priv->total_progress = total_progress;
+
+    if (priv->current_progress > priv->total_progress)
+    {
+      truncate_current_progress = TRUE;
+    }
+
+
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_TOTAL_PROGRESS]);
 
-    if (sync_current_progress)
+    if (truncate_current_progress)
     {
       lw_progress_set_current (self, priv->total_progress);
+    }
+    else if (!truncate_current_progress && changed)
+    {
+      g_signal_emit (
+        G_OBJECT (self),
+        klasspriv->signalid[CLASS_SIGNALID_PROGRESS_CHANGED], 
+        0
+      );
     }
 
     lw_progress_sync_ratio_delta (self);
@@ -823,8 +832,18 @@ lw_progress_get_fraction (LwProgress *self)
 
     g_mutex_lock (&priv->mutex);
 
-    fraction = priv->current_progress / priv->total_progress;
-    if (priv->complete) fraction = 1.0;
+    if (priv->complete)
+    {
+      fraction = 1.0;
+    }
+    else if (priv->total_progress == 0.0)
+    {
+      fraction = 0.0;
+    }
+    else
+    {
+      fraction = priv->current_progress / priv->total_progress;
+    }
 
     g_mutex_unlock (&priv->mutex);
 
