@@ -125,4 +125,8 @@ mkinstalldirs
 src/libwaei/tests/parenthesisnode
 src/libwaei/tests/querynode
 
+*.stamp
+docs/reference/libwaei/libwaei*
+test*
+
 *.bak
