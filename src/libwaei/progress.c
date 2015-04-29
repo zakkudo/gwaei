@@ -85,8 +85,8 @@ lw_progress_init (LwProgress *self)
     //Initializations
     priv = self->priv;
 
-    priv->current_progress = -1.0;
-    priv->total_progress = -1.0;
+    priv->current_progress = 0.0;
+    priv->total_progress = 0.0;
     priv->ratio_delta = 0.0;
     priv->complete = FALSE;
     priv->start_time = g_get_monotonic_time ();
