@@ -25,10 +25,41 @@
  * @Title: LwProgress
  * @include: libwaei/progress.h
  *
- * This object provides a standardized threadsave interface for methods to
+ * This object provides a standardized threadsafe interface for methods to
  * provide progress information to a ui.  This includes percent, primary
  * messages, secondary messages etc.  Methods using this object can also pass
- * errors or recieve cancellation requests through the same object.
+ * errors or receive cancellation requests through the same object.
+ *
+ * A simple sample program:
+ * |[<!-- langauge="C" -->
+ * void action_that_requires_progress (LwProgress * progress) {
+ *    int i = 0;
+ *    lw_progress_set_primary_message (progress, "Actioning...");
+ *    lw_progress_set_total_progress (progress, 100);
+ *    for (i = 0; i < 100; i++) {
+ *       lw_progress_set_current (progress, i);
+ *    }
+ *    lw_progress_set_completed (progress, TRUE);
+ * }
+ *
+ * void show_progress (LwProgress * progress, gpointer data) {
+ *   if (lw_progress_get_current (progress) == 0.0) {
+ *     printf("%s\n", lw_progress_get_primary_message (progress));
+ *   }
+ *   printf("%d completed...\n", (gint)(lw_progress_get_fraction (progress) * 100));
+ *   if (lw_progress_completed (progress) {
+ *     printf("DONE\n");
+ *   }
+ * }
+ *
+ * gint main (int argc, gchar *argv[]) {
+ *   LwProgress * progress = lw_progress_new ()
+ *   g_signal_connect (progress, "progress-changed", G_CALLBACK (show_progress), NULL);
+ *   action_that_requires_progress (progress);
+ *   g_object_unref (progress);
+ * }
+ * ]|
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -49,6 +80,10 @@
 #include <libwaei/progress-private.h>
 
 G_DEFINE_TYPE (LwProgress, lw_progress, G_TYPE_OBJECT)
+
+
+static void lw_progress_set_cancellable (LwProgress * self, GCancellable * cancellable);
+static GCancellable * lw_progress_get_cancellable (LwProgress * self);
 
 
 /**
@@ -90,6 +125,7 @@ lw_progress_init (LwProgress *self)
     priv->ratio_delta = 0.0;
     priv->complete = FALSE;
     priv->start_time = g_get_monotonic_time ();
+    priv->chunk_size = lw_io_get_pagesize ();
 
     priv->required_ratio_delta = 0.001;
 
@@ -370,6 +406,20 @@ lw_progress_class_init (LwProgressClass *klass)
      */
     g_object_class_install_property (object_class, PROP_SECONDARY_MESSAGE, klasspriv->pspec[PROP_SECONDARY_MESSAGE]);
 
+    klasspriv->pspec[PROP_STEP_MESSAGE] = g_param_spec_string (
+        "step-message",
+        "changed construct prop",
+        "Set the changed",
+        "",
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    /**
+     * LwProgress:step-message:
+     *
+     * Here you can document a property.
+     */
+    g_object_class_install_property (object_class, PROP_STEP_MESSAGE, klasspriv->pspec[PROP_STEP_MESSAGE]);
+
     klasspriv->pspec[PROP_COMPLETED] = g_param_spec_boolean (
         "completed",
         "changed construct prop",
@@ -438,8 +488,8 @@ lw_progress_class_init (LwProgressClass *klass)
         "Set the changed",
         0,
         G_MAXSIZE,
-        lw_io_get_pagesize (),
-        G_PARAM_READABLE
+        0,
+        G_PARAM_READWRITE
     );
     /**
      * LwProgress:chunk-size:
@@ -466,7 +516,7 @@ lw_progress_class_init (LwProgressClass *klass)
 }
 
 
-void
+static void
 lw_progress_set_cancellable (LwProgress   *self,
                              GCancellable *cancellable)
 {
@@ -517,7 +567,7 @@ lw_progress_set_cancellable (LwProgress   *self,
 }
 
 
-GCancellable*
+static GCancellable*
 lw_progress_get_cancellable (LwProgress *self)
 {
     //Sanity checks
@@ -1005,7 +1055,7 @@ errored:
  * lw_progress_get_error:
  * @self: a #LwProgress
  *
- * Returns: The currently set error or 
+ * Returns: The currently set #GError or %NULL
  */
 GError*
 lw_progress_get_error (LwProgress  *self)
@@ -1029,9 +1079,8 @@ lw_progress_get_error (LwProgress  *self)
  *
  * Method to query if an error set set such as by lw_progress_set_error()
  * or lw_progress_take_error(), though lw_progress_should_abort() is usually
- * the prefered way to check if a task should abort.  lw_progress_clear()
- * will reset the cancelled state.  You can get the #GError though
- * lw_progress_get_error(). lw_progress_clear() will reset the errored state.
+ * the prefered way to check if a task should abort. You can get the #GError
+ * though lw_progress_get_error().
  *
  * Returns: %TRUE if the operation had an error set
  */
@@ -1064,8 +1113,7 @@ lw_progress_errored (LwProgress *self)
  *
  * Used to query specifically if lw_progress_cancel() was called,
  * though lw_progress_should_abort() is usually the prefered way to
- * check if a task should abort.  lw_progress_clear() will reset
- * the cancelled state.
+ * check if a task should abort.
  *
  * Returns: %TRUE if the operation was cancelled
  */
@@ -1098,7 +1146,6 @@ lw_progress_is_cancelled (LwProgress *self)
  *
  * Use to signal that a task should abort and return as soon as possible.
  * This method will usually be connected to a cancel button on a ui.
- * lw_progress_clear() will reset the errored state.
  */
 void
 lw_progress_cancel (LwProgress *self)
@@ -1131,8 +1178,7 @@ lw_progress_cancel (LwProgress *self)
  * Provides an easy way to query a #LwProgress object if an error occured or
  * a cancellation request was initiated.  When either occur, this method will
  * start returning TRUE.  When this method returns TRUE, most methods should
- * stop their processing, cleanup and return. lw_progress_clear() can be used
- * to reset the errored/cancelled state.
+ * stop their processing, cleanup and return.
  *
  * Returns: %TRUE if an error occured or if the task was cancelled.
  */
@@ -1197,6 +1243,13 @@ errored:
 }
 
 
+/**
+ * lw_progress_set_primary_message_vprintf:
+ * @self: a #LwProgress
+ * @FORMAT: A printf format string
+ *
+ * vprintf version of lw_progress_set_primary_message()
+ */
 void
 lw_progress_set_primary_message_vprintf (LwProgress  *self,
                                          gchar const *FORMAT,
@@ -1223,6 +1276,14 @@ errored:
 }
 
 
+/**
+ * lw_progress_set_primary_message_printf:
+ * @self: a #LwProgress
+ * @FORMAT: A printf format string
+ * @...: The arguments to fullfill the format string
+ *
+ * printf() version of lw_progress_set_primary_message()
+ */
 void
 lw_progress_set_primary_message_printf (LwProgress  *self, 
                                         gchar const *FORMAT, 
@@ -1240,6 +1301,12 @@ lw_progress_set_primary_message_printf (LwProgress  *self,
 }
 
 
+/**
+ * lw_progress_get_primary_message:
+ * @self: a #LwProgress
+ *
+ * Returns: The currently set primary message or an empty string.  This method will never return %NULL
+ */
 gchar const*
 lw_progress_get_primary_message (LwProgress *self)
 {
@@ -1311,6 +1378,14 @@ errored:
 }
 
 
+/**
+ * lw_progress_set_secondary_message_vprintf:
+ * @self: a #LwProgress
+ * @FORMAT: A printf format string
+ * @va: a #va_list as generated with va_start()
+ *
+ * vprintf() version of lw_progress_set_secondary_message()
+ */
 void
 lw_progress_set_secondary_message_vprintf (LwProgress  *self,
                                            gchar const *FORMAT,
@@ -1337,6 +1412,14 @@ errored:
 }
 
 
+/**
+ * lw_progress_set_secondary_message_printf:
+ * @self: a #LwProgress
+ * @FORMAT: A printf format string
+ * @...: The arguments to fullfill the format string
+ *
+ * printf() version of lw_progress_set_secondary_message()
+ */
 void
 lw_progress_set_secondary_message_printf (LwProgress  *self, 
                                           gchar const *FORMAT,
@@ -1354,6 +1437,12 @@ lw_progress_set_secondary_message_printf (LwProgress  *self,
 }
 
 
+/**
+ * lw_progress_get_secondary_message:
+ * @self: a #LwProgress
+ *
+ * Returns: The currently set secondary message or an empty string.  This method will never return %NULL
+ */
 gchar const*
 lw_progress_get_secondary_message (LwProgress *self)
 {
@@ -1378,6 +1467,16 @@ lw_progress_get_secondary_message (LwProgress *self)
 }
 
 
+/**
+ * lw_progress_set_step_message:
+ * @self: a #LwProgress
+ * @MESSAGE: The new secondary message
+ *
+ * Sets the secondary message which is used to inform the user of the currently
+ * running action.  If the primary message is "Installing...", the secondary
+ * message would be something like "Downloading...", or "Decompressing...".
+ *
+ */
 void
 lw_progress_set_step_message (LwProgress  *self,
                               gchar const *MESSAGE)
@@ -1415,6 +1514,16 @@ errored:
 }
 
 
+
+/**
+ * lw_progress_set_step_message_vprintf:
+ * @self: a #LwProgress
+ * @FORMAT: A printf format string
+ * @va: a #va_list as generated with va_start()
+ * 
+ *
+ * vprintf() version of lw_progress_set_step_message()
+ */
 void
 lw_progress_set_step_message_vprintf (LwProgress  *self,
                                       gchar const *FORMAT,
@@ -1441,6 +1550,14 @@ errored:
 }
 
 
+/**
+ * lw_progress_set_step_message_printf:
+ * @self: a #LwProgress
+ * @FORMAT: A printf format string
+ * @...: The arguments to fullfill the format string
+ *
+ * printf() version of lw_progress_set_step_message()
+ */
 void
 lw_progress_set_step_message_printf (LwProgress  *self,
                                      gchar const *FORMAT,
@@ -1458,6 +1575,12 @@ lw_progress_set_step_message_printf (LwProgress  *self,
 }
 
 
+/**
+ * lw_progress_get_step_message:
+ * @self: a #LwProgress
+ *
+ * Returns: The currently set step message or an empty string.  This method will never return %NULL
+ */
 gchar const*
 lw_progress_get_step_message (LwProgress *self)
 {
@@ -1483,7 +1606,7 @@ lw_progress_get_step_message (LwProgress *self)
 
 
 /**
- * lw_progress_get_chunk_size:
+ * lw_progress_get_prefered_chunk_size:
  * @self: a #LwProgress
  *
  * Returns: The current prefered chunk size or 0 to signify it isn't set
@@ -1555,11 +1678,20 @@ lw_progress_get_chunk_size (LwProgress *self)
     
     //Declarations
     LwProgressPrivate *priv = NULL;
+    gsize chunk_size = 0.0;
 
     //Initializations
     priv = self->priv;
+    if (priv->prefered_chunk_size != 0.0)
+    {
+      chunk_size = priv->prefered_chunk_size;
+    }
+    else
+    {
+      chunk_size = priv->chunk_size;
+    }
 
-    return priv->chunk_size;
+    return chunk_size;
 }
 
 

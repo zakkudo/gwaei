@@ -724,14 +724,10 @@ lw_preferences_get_type
 <SECTION>
 <FILE>progress</FILE>
 <TITLE>LwProgress</TITLE>
-LwProgressCallback
 lw_progress_new
 lw_progress_should_abort
-lw_progress_clear
 lw_progress_cancel
 lw_progress_is_cancelled
-lw_progress_set_cancellable
-lw_progress_get_cancellable
 lw_progress_set_error
 lw_progress_take_error
 lw_progress_get_error

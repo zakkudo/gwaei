@@ -18,8 +18,6 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
 #define LW_IS_PROGRESS_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_PROGRESS))
 #define LW_PROGRESS_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_PROGRESS, LwProgressClass))
 
-typedef gint (*LwProgressCallback) (LwProgress *progress, gpointer data);
-
 struct _LwProgress {
   GObject object;
   LwProgressPrivate *priv;
@@ -40,15 +38,10 @@ GType lw_progress_get_type (void) G_GNUC_CONST;
 
 gboolean lw_progress_should_abort (LwProgress *self);
 
-void lw_progress_clear (LwProgress *self);
-
 //Properties
 
 void lw_progress_cancel (LwProgress *self);
 gboolean lw_progress_is_cancelled (LwProgress *self);
-
-void lw_progress_set_cancellable (LwProgress *self, GCancellable *cancellable);
-GCancellable* lw_progress_get_cancellable (LwProgress *self);
 
 void lw_progress_set_error (LwProgress *self, GError *error);
 void lw_progress_take_error (LwProgress *self, GError *error);

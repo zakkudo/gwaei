@@ -12,6 +12,7 @@ struct _Fixture {
   gboolean completed;
   gchar const * PRIMARY_MESSAGE;
   gchar const * SECONDARY_MESSAGE;
+  gchar const * STEP_MESSAGE;
 };
 typedef struct _Fixture Fixture;
 
@@ -55,6 +56,14 @@ secondary_message_notify (LwProgress * self,
     fixture->SECONDARY_MESSAGE = lw_progress_get_secondary_message (self);
 }
 
+static void
+step_message_notify (LwProgress * self,
+                          GParamSpec * pspec,
+                          Fixture    * fixture)
+{
+    fixture->STEP_MESSAGE = lw_progress_get_step_message (self);
+}
+
 
 void setup (Fixture *fixture, gconstpointer data)
 {
@@ -62,6 +71,7 @@ void setup (Fixture *fixture, gconstpointer data)
   g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (progress_changed), fixture);
   g_signal_connect (fixture->progress, "notify::primary-message", G_CALLBACK (primary_message_notify), fixture);
   g_signal_connect (fixture->progress, "notify::secondary-message", G_CALLBACK (secondary_message_notify), fixture);
+  g_signal_connect (fixture->progress, "notify::step-message", G_CALLBACK (step_message_notify), fixture);
 }
 
 
@@ -576,10 +586,26 @@ set_primary_message_twice (Fixture       * fixture,
 
 
 
+void
+set_primary_message_printf_new (Fixture       * fixture,
+                                gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_primary_message_printf (progress, "test primary message %s", "printf");
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_primary_message (progress), ==, "test primary message printf");
+    g_assert_cmpstr (fixture->PRIMARY_MESSAGE, ==, "test primary message printf");
+
+}
+
 
 void
 set_secondary_message_new (Fixture       * fixture,
-                         gconstpointer   data)
+                           gconstpointer   data)
 {
     //Arrange
     LwProgress * progress = fixture->progress;
@@ -596,7 +622,7 @@ set_secondary_message_new (Fixture       * fixture,
 
 void
 set_secondary_message_null (Fixture       * fixture,
-                          gconstpointer   data)
+                            gconstpointer   data)
 {
     //Arrange
     LwProgress * progress = fixture->progress;
@@ -612,7 +638,7 @@ set_secondary_message_null (Fixture       * fixture,
 
 void
 set_secondary_message_twice (Fixture       * fixture,
-                          gconstpointer   data)
+                             gconstpointer   data)
 {
     //Arrange
     LwProgress * progress = fixture->progress;
@@ -624,6 +650,169 @@ set_secondary_message_twice (Fixture       * fixture,
     //Assert
     g_assert_cmpstr (lw_progress_get_secondary_message (progress), ==, "test secondary message 2");
     g_assert_cmpstr (fixture->SECONDARY_MESSAGE, ==, "test secondary message 2");
+}
+
+
+void
+set_secondary_message_printf_new (Fixture       * fixture,
+                                  gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_secondary_message_printf (progress, "test secondary message %s", "printf");
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_secondary_message (progress), ==, "test secondary message printf");
+    g_assert_cmpstr (fixture->SECONDARY_MESSAGE, ==, "test secondary message printf");
+}
+
+
+void
+set_step_message_new (Fixture       * fixture,
+                      gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_step_message (progress, "test step message");
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_step_message (progress), ==, "test step message");
+    g_assert_cmpstr (fixture->STEP_MESSAGE, ==, "test step message");
+
+}
+
+
+void
+set_step_message_null (Fixture       * fixture,
+                       gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_step_message (progress, NULL);
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_step_message (progress), ==, "");
+    g_assert_cmpstr (fixture->STEP_MESSAGE, ==, "");
+
+}
+
+void
+set_step_message_twice (Fixture       * fixture,
+                        gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_step_message (progress, "test step message");
+    lw_progress_set_step_message (progress, "test step message 2");
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_step_message (progress), ==, "test step message 2");
+    g_assert_cmpstr (fixture->STEP_MESSAGE, ==, "test step message 2");
+}
+
+
+void
+set_step_message_printf_new (Fixture       * fixture,
+                             gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_step_message_printf (progress, "test step message %s", "printf");
+
+    //Assert
+    g_assert_cmpstr (lw_progress_get_step_message (progress), ==, "test step message printf");
+    g_assert_cmpstr (fixture->STEP_MESSAGE, ==, "test step message printf");
+}
+
+
+void
+set_prefered_chunk_size_without_chunk_size (Fixture       * fixture,
+                                            gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_prefered_chunk_size (progress, 3);
+
+    //Assert
+    g_assert_cmpuint (lw_progress_get_prefered_chunk_size (progress), ==, 3);
+    g_assert_cmpuint (lw_progress_get_chunk_size (progress), ==, 3);
+}
+
+
+void
+set_prefered_chunk_size_with_chunk_size (Fixture       * fixture,
+                                         gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_prefered_chunk_size (progress, 3);
+    lw_progress_set_chunk_size (progress, 5);
+
+    //Assert
+    g_assert_cmpuint (lw_progress_get_prefered_chunk_size (progress), ==, 3);
+    g_assert_cmpuint (lw_progress_get_chunk_size (progress), ==, 3);
+}
+
+
+void
+set_prefered_chunk_unset (Fixture       * fixture,
+                          gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+
+    //Assert
+    g_assert_cmpuint (lw_progress_get_prefered_chunk_size (progress), ==, 0);
+    g_assert_cmpuint (lw_progress_get_chunk_size (progress), ==, lw_io_get_pagesize());
+}
+
+
+void
+set_chunk_when_prefered_chunk_is_set (Fixture       * fixture,
+                                      gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_prefered_chunk_size (progress, 1);
+    lw_progress_set_chunk_size (progress, 2);
+
+    //Assert
+    g_assert_cmpuint (lw_progress_get_prefered_chunk_size (progress), ==, 1);
+    g_assert_cmpuint (lw_progress_get_chunk_size (progress), ==, 1);
+}
+
+
+void
+set_chunk_when_prefered_chunk_is_unset (Fixture       * fixture,
+                                        gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_progress_set_chunk_size (progress, 2);
+
+    //Assert
+    g_assert_cmpuint (lw_progress_get_prefered_chunk_size (progress), ==, 0);
+    g_assert_cmpuint (lw_progress_get_chunk_size (progress), ==, 2);
 }
 
 
@@ -659,9 +848,26 @@ main (gint argc, gchar *argv[])
     g_test_add ("/set_primary_message/null", Fixture, NULL, setup, set_primary_message_null, teardown);
     g_test_add ("/set_primary_message/twice", Fixture, NULL, setup, set_primary_message_twice, teardown);
 
+    g_test_add ("/set_primary_message_printf/new", Fixture, NULL, setup, set_primary_message_printf_new, teardown);
+
     g_test_add ("/set_secondary_message/new", Fixture, NULL, setup, set_secondary_message_new, teardown);
     g_test_add ("/set_secondary_message/null", Fixture, NULL, setup, set_secondary_message_null, teardown);
     g_test_add ("/set_secondary_message/twice", Fixture, NULL, setup, set_secondary_message_twice, teardown);
+
+    g_test_add ("/set_secondary_message_printf/new", Fixture, NULL, setup, set_secondary_message_printf_new, teardown);
+
+    g_test_add ("/set_step_message/new", Fixture, NULL, setup, set_step_message_new, teardown);
+    g_test_add ("/set_step_message/null", Fixture, NULL, setup, set_step_message_null, teardown);
+    g_test_add ("/set_step_message/twice", Fixture, NULL, setup, set_step_message_twice, teardown);
+
+    g_test_add ("/set_step_message_printf/new", Fixture, NULL, setup, set_step_message_printf_new, teardown);
+
+    g_test_add ("/set_prefered_chunk_size/without_chunk_size", Fixture, NULL, setup, set_prefered_chunk_size_without_chunk_size, teardown);
+    g_test_add ("/set_prefered_chunk_size/with_chunk_size", Fixture, NULL, setup, set_prefered_chunk_size_with_chunk_size, teardown);
+    g_test_add ("/set_prefered_chunk_size/unset", Fixture, NULL, setup, set_prefered_chunk_unset, teardown);
+
+    g_test_add ("/set_chunk_size/when_prefered_chunk_is_set", Fixture, NULL, setup, set_chunk_when_prefered_chunk_is_set, teardown);
+    g_test_add ("/set_chunk_size/when_prefered_chunk_is_unset", Fixture, NULL, setup, set_chunk_when_prefered_chunk_is_unset, teardown);
 
     return g_test_run();
 }
