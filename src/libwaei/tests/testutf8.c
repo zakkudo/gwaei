@@ -14,6 +14,17 @@ append_progress (LwProgress * self, Fixture * fixture)
   g_array_append_val (fixture->steps, percent);
 }
 
+
+static void
+cancel_progress (LwProgress *self, Fixture * fixture)
+{
+  if (lw_progress_get_fraction (self) > .5)
+  {
+    lw_progress_cancel (self);
+  }
+}
+
+
 void setup (Fixture *fixture, gconstpointer data)
 {
     fixture->progress = lw_progress_new ();
@@ -254,6 +265,34 @@ furiganafold_with_all_hiragana (Fixture *fixture, gconstpointer data)
 }
 
 
+void
+furiganafold_where_cancels_halfway (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar * text = g_strdup("ァアィイゥウェエォオ");
+    GError * error = NULL;
+    gint i = 0;
+
+    //Initializations
+    lw_progress_set_prefered_chunk_size (fixture->progress, 1);
+    g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
+    lw_utf8_furiganafold (text, -1, fixture->progress);
+
+    //Assert
+    gint expected_steps[] = { 0, 0, 30, 60};
+    g_assert_cmpstr ("ぁあぃいぅうぇえぉオ", ==, text);
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+    g_assert_true (lw_progress_is_cancelled (fixture->progress));
+
+    g_free (text);
+    text = NULL;
+}
+
 
 gint
 main (gint argc, gchar *argv[])
@@ -271,6 +310,8 @@ main (gint argc, gchar *argv[])
     g_test_add ("/furiganafold/with_all_katakana", Fixture, NULL, setup, furiganafold_with_all_katakana, teardown);
     g_test_add ("/furiganafold/with_all_halfwidth_katakana", Fixture, NULL, setup, furiganafold_with_all_halfwidth_katakana, teardown);
     g_test_add ("/furiganafold/with_all_hiragana", Fixture, NULL, setup, furiganafold_with_all_hiragana, teardown);
+
+    g_test_add ("/furiganafold/where_cancels_halfway", Fixture, NULL, setup, furiganafold_where_cancels_halfway, teardown);
 
     return g_test_run();
 }
