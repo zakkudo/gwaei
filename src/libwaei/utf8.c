@@ -364,115 +364,39 @@ static GHashTable*
 _get_furiganafold_hashtable ()
 {
     //Declarations
-    GHashTable *table = NULL;
-    const gchar **ptr = NULL;
-    gunichar key = NULL;
-    gunichar value = NULL;
-    static const gchar* conversions[] = {
-      "ア", "あ",
-      "イ", "い",
-      "ウ", "う",
-      "エ", "え",
-      "オ", "お",
+    GHashTable * table = NULL;
+    GHashTable * table_out = NULL;
+    static const gchar * KATAKANA = "ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶヽヾヿ";
+    static const gchar * HIRAGANA = "ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖゝゞゟ";
+    gchar const * K = NULL;
+    gchar const * H = NULL;
 
-      "ァ", "ぁ",
-      "ィ", "ぃ",
-      "ゥ", "ぅ",
-      "ェ", "ぇ",
-      "ォ", "ぉ",
-
-      "カ", "か",
-      "キ", "き",
-      "ク", "く",
-      "ケ", "け",
-      "コ", "こ",
-
-      "ガ", "が",
-      "ギ", "ぎ",
-      "グ", "ぐ",
-      "ゲ", "げ",
-      "ゴ", "ご",
-
-      "マ", "ま",
-      "ミ", "み",
-      "ム", "む",
-      "メ", "め",
-      "モ", "も",
-
-      "ナ", "な",
-      "二", "に",
-      "ヌ", "ぬ",
-      "ネ", "ね",
-      "ノ", "の",
-
-      "サ", "さ",
-      "シ", "し",
-      "ス", "す",
-      "セ", "せ",
-      "ソ", "そ",
-
-      "ザ", "ざ",
-      "ジ", "じ",
-      "ズ", "ず",
-      "ゼ", "ぜ",
-      "ゾ", "ぞ",
-
-      "タ", "た",
-      "チ", "ち",
-      "ツ", "つ",
-      "テ", "て",
-      "ト", "と",
-
-      "ダ", "だ",
-      "ヂ", "ぢ",
-      "ヅ", "づ",
-      "デ", "で",
-      "ド", "ど",
-
-      "ハ", "は",
-      "ヒ", "ひ",
-      "フ", "ふ",
-      "ヘ", "へ",
-      "ホ", "ほ",
-
-      "パ", "ぱ",
-      "ピ", "ぴ",
-      "プ", "ぷ",
-      "ぺ", "ぺ",
-      "ポ", "ぽ",
-
-      "バ", "ば",
-      "ビ", "び",
-      "ブ", "ぶ",
-      "ベ", "べ",
-      "ボ", "ぼ",
-
-      "ヤ", "や",
-      "ユ", "ゆ",
-      "ヨ", "よ",
-
-      "ャ", "ゃ",
-      "ュ", "ゅ",
-      "ョ", "ょ",
-
-      "っ", "つ",
-      "ッ", "つ",
-
-      NULL
-    };
-
+    //Initializations
     table = g_hash_table_new (g_direct_hash, g_direct_equal);
-    if (table == NULL) return NULL;
-    ptr = conversions;
+    if (table == NULL) goto errored;
+    K = KATAKANA;
+    H = HIRAGANA;
 
-    while (*ptr != NULL && *(ptr + 1) != NULL)
+    while (*H != '\0' && *K != '\0')
     {
-      key = g_utf8_get_char (*(ptr++));
-      value = g_utf8_get_char (*(ptr++));
-      g_hash_table_insert (table, GUINT_TO_POINTER (key), GUINT_TO_POINTER (value));
+      gpointer key = GUINT_TO_POINTER (g_utf8_get_char (K));
+      gpointer value = GUINT_TO_POINTER (g_utf8_get_char (H));
+
+      g_hash_table_insert (table, key, value);
+
+      H = g_utf8_next_char (H);
+      K = g_utf8_next_char (K);
     }
 
-    return table;    
+    table_out = table;
+    table = NULL;
+
+errored:
+
+    if (table != NULL) g_hash_table_unref (table);
+    table = NULL;
+
+    return table_out;    
 }
 
 
@@ -506,6 +430,15 @@ _casefold_character (gchar *character)
 }
 
 
+/**
+ * lw_utf8_casefold:
+ * @TEXT: A string to casefold inline.
+ * @length: Length of the string in bytes or -1 to have it calculated
+ * @progress: An #LwProgress to track progress
+ *
+ * Folds the case to lower case so that case insensitive searches can be
+ * accomplished.
+ */
 void
 lw_utf8_casefold (gchar      *TEXT,
                   gssize      length,
@@ -584,7 +517,7 @@ _furiganafold_character (gchar *c, GHashTable *conversions)
 
     if (g_hash_table_contains (conversions, GUINT_TO_POINTER (unichar)))
     {
-      conversion = (gunichar) g_hash_table_lookup (conversions, GUINT_TO_POINTER (unichar));
+      conversion = (gunichar) GPOINTER_TO_UINT (g_hash_table_lookup (conversions, GUINT_TO_POINTER (unichar)));
       len = g_unichar_to_utf8 (conversion, buffer);
       if (len <= n - c)
       {
@@ -596,6 +529,15 @@ _furiganafold_character (gchar *c, GHashTable *conversions)
 }
 
 
+/**
+ * lw_utf8_furiganafold:
+ * @TEXT: A string to furiganafold inline.
+ * @length: Length of the string in bytes or -1 to have it calculated
+ * @progress: An #LwProgress to track progress
+ *
+ * Folds katakana to hiragana characters so furigana insensitive comparisons
+ * can be made.
+ */
 void
 lw_utf8_furiganafold (gchar      *TEXT,
                       gssize      length,
@@ -638,7 +580,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
       while (*c != '\0' && i < length) {
         c = _furiganafold_character (c, conversions);
         i = c - TEXT;
-        if (G_UNLIKELY(chunk++ >= chunk_size) && chunk_size > -1)
+        if (G_UNLIKELY(chunk++ > chunk_size) && chunk_size > -1)
         {
           lw_progress_set_current (progress, i);
           chunk = 0;
@@ -658,11 +600,19 @@ errored:
 }
 
 
-gchar*
-lw_utf8_sanitize (gchar const * BUFFER)
+/**
+ * lw_utf8_sanitize:
+ * @TEXT: A string to sanitize
+ *
+ * Sanitizes a string as utf8, replacing invalid characters with spaces.
+ * 
+ * Returns: A sanitized string that needs to be freed with g_free()
+ */
+gchar *
+lw_utf8_sanitize (gchar const * TEXT)
 {
     //Sanity Check
-    if (BUFFER == NULL) return NULL;
+    if (TEXT == NULL) return NULL;
     
     
     //Declarations
@@ -670,7 +620,7 @@ lw_utf8_sanitize (gchar const * BUFFER)
     gchar const *end = NULL; 
 
     //Initializations
-    copy = g_strdup(BUFFER);
+    copy = g_strdup (TEXT);
     if (copy == NULL) goto errored;
 
     //Validate the string as proper utf8
@@ -746,14 +696,6 @@ lw_utf8_is_hiragana_str (const char *input)
 }
 
 
-//!
-//! @brief Convenience function for seeing if a string is katakana
-//! @param input The string to check
-//! @return Returns true if it is in the range
-//! @see lw_utf8_is_hiragana_str ()
-//! @see lw_utf8_is_kanji_str ()
-//! @see lw_utf8_is_romaji_str ()
-//!
 gboolean 
 lw_utf8_is_katakana_str (const char *input)
 {
@@ -780,14 +722,6 @@ lw_utf8_is_katakana_str (const char *input)
 }
 
 
-//!
-//! @brief Convenience function for seeing if a string is furigana
-//! @param input The string to check
-//! @return Returns true if it is in the range
-//! @see lw_utf8_is_hiragana_str ()
-//! @see lw_utf8_is_kanji_str ()
-//! @see lw_utf8_is_romaji_str ()
-//!
 gboolean 
 lw_utf8_is_furigana_str (const char *input)
 {
@@ -795,15 +729,6 @@ lw_utf8_is_furigana_str (const char *input)
 }
 
 
-
-//!
-//! @brief Convenience function for seeing if a string *starts* with kanji
-//! @param input The string to check
-//! @return Returns true if the function things this is a kanji string
-//! @see lw_utf8_is_hiragana_str ()
-//! @see lw_utf8_is_katakana_str ()
-//! @see lw_utf8_is_romaji_str ()
-//!
 gboolean 
 lw_utf8_is_kanji_ish_str (const char *input)
 {
@@ -859,14 +784,6 @@ lw_utf8_string_has_japanese (const gchar *INPUT)
 }
 
 
-//!
-//! @brief Convenience function for seeing if a string is kanji
-//! @param input The string to check
-//! @return Returns true if it is in the range
-//! @see lw_utf8_is_hiragana_str ()
-//! @see lw_utf8_is_katakana_str ()
-//! @see lw_utf8_is_romaji_str ()
-//!
 gboolean 
 lw_utf8_is_kanji_str (const char *input)
 {
@@ -893,14 +810,6 @@ lw_utf8_is_kanji_str (const char *input)
 }
 
 
-//!
-//! @brief Convenience function for seeing if a string is romaji
-//! @param input The string to check
-//! @return Returns true if it is in the range
-//! @see lw_utf8_is_hiragana_str ()
-//! @see lw_utf8_is_katakana_str ()
-//! @see lw_utf8_is_kanji_str ()
-//!
 gboolean 
 lw_utf8_is_romaji_str (const char *input)
 {
@@ -927,11 +836,6 @@ lw_utf8_is_romaji_str (const char *input)
 }
 
 
-//!
-//! @brief Checks if a given string is yojijukugo (a four kanji phrase)
-//! @param INPUT
-//! @returns Returns TRUE if the text looks to be yojijukugo.  FALSE if it isn't.
-//!
 gboolean 
 lw_utf8_is_yojijukugo_str (const char* INPUT)
 {
@@ -1133,27 +1037,6 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
     }
 
     return num_lines;
-}
-
-
-GRegex*
-lw_regex_new (const gchar *PATTERN, const gchar *EXPRESSION, GError **error)
-{
-    //Declarations
-    GRegex *regex;
-    gchar *expression;
-
-    //Initializations
-    expression = g_strdup_printf (PATTERN, EXPRESSION);
-    regex = NULL;
-
-    if (expression != NULL)
-    {
-      regex = g_regex_new (expression,  (G_REGEX_CASELESS | G_REGEX_OPTIMIZE), 0, error);
-      g_free (expression); expression = NULL;
-    }
-
-    return regex;
 }
 
 
