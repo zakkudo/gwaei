@@ -294,6 +294,188 @@ furiganafold_where_cancels_halfway (Fixture *fixture, gconstpointer data)
 }
 
 
+void
+furiganafold_where_progress_is_null (Fixture * fixture, gconstpointer data)
+{
+    //Declarations
+    gchar * text = g_strdup("ァアィイゥウェエォオ");
+    GError * error = NULL;
+    gint i = 0;
+
+    //Initializations
+    lw_utf8_furiganafold (text, -1, NULL);
+
+    //Assert
+    gint expected_steps[] = { };
+    g_assert_cmpstr ("ぁあぃいぅうぇえぉお", ==, text);
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_is_cancelled (fixture->progress));
+
+    g_free (text);
+    text = NULL;
+}
+
+
+void
+casefold_no_text (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar * text = g_strdup("");
+    GError * error = NULL;
+
+    //Initializations
+    lw_utf8_casefold (text, -1, fixture->progress);
+
+    //Assert
+    gint expected_steps[] = {100};
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    g_assert_cmpstr ("", ==, text);
+
+    g_free (text);
+    text = NULL;
+}
+
+
+void
+casefold_with_mixed_text (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar * text = g_strdup("abcDEFGあいうえおカキクケコ日本語");
+    GError * error = NULL;
+    gint i = 0;
+
+    //Initializations
+    lw_utf8_casefold (text, -1, fixture->progress);
+
+    //Assert
+    gint expected_steps[] = { 0, 0, 8, 21, 47, 73, 100, 100};
+    g_assert_cmpstr ("abcdefgあいうえおカキクケコ日本語", ==, text);
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_true (lw_progress_completed (fixture->progress));
+
+    g_free (text);
+    text = NULL;
+}
+
+
+void
+casefold_with_uppercase_letters (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar * text = g_strdup("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    GError * error = NULL;
+    gint i = 0;
+
+    //Initializations
+    lw_utf8_casefold (text, -1, fixture->progress);
+
+    //Assert
+    gint expected_steps[] = { 0, 0, 15, 30, 46, 61, 76, 92, 100, 100};
+    g_assert_cmpstr ("abcdefghijklmnopqrstuvwxyz", ==, text);
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_true (lw_progress_completed (fixture->progress));
+
+    g_free (text);
+    text = NULL;
+}
+
+
+void
+casefold_with_lowercase_letters (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar * text = g_strdup("abcdefghijklmnopqrstuvwxyz");
+    GError * error = NULL;
+    gint i = 0;
+
+    //Initializations
+    lw_utf8_casefold (text, -1, fixture->progress);
+
+    //Assert
+    gint expected_steps[] = { 0, 0, 15, 30, 46, 61, 76, 92, 100, 100};
+    g_assert_cmpstr ("abcdefghijklmnopqrstuvwxyz", ==, text);
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_true (lw_progress_completed (fixture->progress));
+
+    g_free (text);
+    text = NULL;
+}
+
+
+void
+casefold_where_cancels_halfway (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar * text = g_strdup("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    GError * error = NULL;
+    gint i = 0;
+
+    //Initializations
+    lw_progress_set_prefered_chunk_size (fixture->progress, 1);
+    g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
+    lw_utf8_casefold (text, -1, fixture->progress);
+
+    //Assert
+    gint expected_steps[] = {0, 0, 11, 23, 34, 46, 57};
+    g_assert_cmpstr ("abcdefghijklmnopqrSTUVWXYZ", ==, text);
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+    g_assert_true (lw_progress_is_cancelled (fixture->progress));
+
+    g_free (text);
+    text = NULL;
+}
+
+
+void
+casefold_where_progress_is_null (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar * text = g_strdup("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    GError * error = NULL;
+    gint i = 0;
+
+    //Initializations
+    lw_progress_set_prefered_chunk_size (fixture->progress, 1);
+    lw_utf8_casefold (text, -1, NULL);
+
+    //Assert
+    gint expected_steps[] = {};
+    g_assert_cmpstr ("abcdefghijklmnopqrstuvwxyz", ==, text);
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_is_cancelled (fixture->progress));
+
+    g_free (text);
+    text = NULL;
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -310,8 +492,15 @@ main (gint argc, gchar *argv[])
     g_test_add ("/furiganafold/with_all_katakana", Fixture, NULL, setup, furiganafold_with_all_katakana, teardown);
     g_test_add ("/furiganafold/with_all_halfwidth_katakana", Fixture, NULL, setup, furiganafold_with_all_halfwidth_katakana, teardown);
     g_test_add ("/furiganafold/with_all_hiragana", Fixture, NULL, setup, furiganafold_with_all_hiragana, teardown);
-
     g_test_add ("/furiganafold/where_cancels_halfway", Fixture, NULL, setup, furiganafold_where_cancels_halfway, teardown);
+    g_test_add ("/furiganafold/where_progress_is_null", Fixture, NULL, setup, furiganafold_where_progress_is_null, teardown);
+
+    g_test_add ("/casefold/no_text", Fixture, NULL, setup, casefold_no_text, teardown);
+    g_test_add ("/casefold/with_mixed_text", Fixture, NULL, setup, casefold_with_mixed_text, teardown);
+    g_test_add ("/casefold/with_uppercase_letters", Fixture, NULL, setup, casefold_with_uppercase_letters, teardown);
+    g_test_add ("/casefold/with_lowercase_letters", Fixture, NULL, setup, casefold_with_lowercase_letters, teardown);
+    g_test_add ("/casefold/where_cancels_halfway", Fixture, NULL, setup, casefold_where_cancels_halfway, teardown);
+    g_test_add ("/casefold/where_progress_is_null", Fixture, NULL, setup, casefold_where_progress_is_null, teardown);
 
     return g_test_run();
 }

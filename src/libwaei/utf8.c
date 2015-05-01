@@ -475,11 +475,13 @@ lw_utf8_casefold (gchar      *TEXT,
 
     {
       gint i = 0;
-      while (*c != '\0' && i < length) {
+      while (*c != '\0' && i < length)
+      {
         c = _casefold_character (c);
         i = c - TEXT;
-        if (G_UNLIKELY(chunk++ >= chunk_size) && chunk_size > -1)
+        if (G_UNLIKELY(chunk++ > chunk_size) && chunk_size > -1 && progress != NULL)
         {
+          if (lw_progress_should_abort (progress)) goto errored;
           lw_progress_set_current (progress, i);
           chunk = 0;
         }
