@@ -19,14 +19,14 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//!  @file dictionary.c
-//!
-//!  @brief LwDictionary objects represent a loaded dictionary that the program
-//!         can use to carry out searches.  You can uninstall dictionaries
-//!         by using the object, but you cannot install them. LwDictInst
-//!         objects exist for that purpose.
-//!
+/**
+ * SECTION: dictionary
+ * @short_description: Parse, normalize, and uninstall Dictionaries
+ * @title: LwDictionary
+ * @include: libwaei/dictionary.h
+ *
+ * Handles dictionary parsing, installing, uninstall, and normalization caching.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

@@ -8,7 +8,7 @@
 
 G_BEGIN_DECLS
 
-#define LW_SEARCH_MAX_CHUNK 1000
+#define LW_SEARCH_DEFAULT_MAX_CHUNK 1000
 
 #define LW_SEARCHSTATUSNAME_IDLE "Idle"
 #define LW_SEARCHSTATUSNAME_SEARCHING "Searching"
@@ -92,38 +92,34 @@ struct _LwSearchClass {
 
 
 //Methods
-LwSearch* lw_search_new (const gchar *QUERY, LwDictionary *dictionary, LwSearchFlag flags);
-LwSearch* lw_search_new_by_preferences (const gchar *QUERY, LwDictionary  *dictionary, LwPreferences *preferences);
+LwSearch* lw_search_new (gchar const *QUERY, LwDictionary * dictionary, LwSearchFlag flags);
+LwSearch* lw_search_new_by_preferences (gchar const *QUERY, LwDictionary  * dictionary, LwPreferences * preferences);
 GType lw_search_get_type (void) G_GNUC_CONST;
 
 
-void lw_search_start (LwSearch *self, gboolean dry_run, GError ** error);
-void lw_search_start_async (LwSearch *self, gboolean dry_run, GError ** error);
+void lw_search_start (LwSearch * self, gboolean dry_run, GError ** error);
+void lw_search_start_async (LwSearch * self, gboolean dry_run, GError ** error);
 
 //Properties
 
-void lw_search_set_dictionary (LwSearch *self, LwDictionary *dictionary);
-LwDictionary* lw_search_get_dictionary (LwSearch *self);
+void lw_search_set_dictionary (LwSearch * self, LwDictionary * dictionary);
+LwDictionary* lw_search_get_dictionary (LwSearch * self);
 
-void lw_search_set_query (LwSearch *self, const gchar *QUERY);
-const gchar* lw_search_get_query (LwSearch *self);
+void lw_search_set_query (LwSearch * self, gchar const * QUERY);
+gchar const * lw_search_get_query (LwSearch * self);
 
-void lw_search_set_max_results (LwSearch *self, gint max_results);
-gint lw_search_get_max_results (LwSearch *self);
+void lw_search_set_max_results (LwSearch * self, gint max_results);
+gint lw_search_get_max_results (LwSearch * self);
 
-void lw_search_set_status (LwSearch *self, LwSearchStatus status);
-LwSearchStatus lw_search_get_status (LwSearch *self);
+void lw_search_set_status (LwSearch * self, LwSearchStatus status);
+LwSearchStatus lw_search_get_status (LwSearch * self);
 
-void lw_search_set_progress (LwSearch *self, LwProgress *progress);
-LwProgress* lw_search_get_progress (LwSearch *self);
+void lw_search_set_progress (LwSearch * self, LwProgress *progress);
+LwProgress* lw_search_get_progress (LwSearch * self);
 
-GRegex* lw_search_get_regex (LwSearch *self);
-void lw_search_set_regex (LwSearch *self, GRegex *regex);
-void lw_search_sync_regex (LwSearch *self);
-
-LwSearchFlag lw_search_get_flags (LwSearch *self);
-void lw_search_set_flags (LwSearch *self, LwSearchFlag flags);
-LwSearchFlag lw_search_build_flags_from_preferences (LwPreferences *preferences);
+LwSearchFlag lw_search_get_flags (LwSearch * self);
+void lw_search_set_flags (LwSearch * self, LwSearchFlag flags);
+LwSearchFlag lw_search_build_flags_from_preferences (LwPreferences * preferences);
 
 G_END_DECLS
 

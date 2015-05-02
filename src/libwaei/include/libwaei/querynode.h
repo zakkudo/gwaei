@@ -18,7 +18,7 @@ typedef enum _LwQueryNodeOperation {
  * @data: a #gchar representing the search data.  If it is null, this is not a leaf node and there should be children.
  * @children: A #GList of #LwQueryNodes which should be filled when this is not a leaf node.
  * @refs: The number of references on this node.  When the references drop to 0, the node is freed.
- * @regex: A #GRegex that gets filled when lw_querynode_comile() is called
+ * @regex: A #GRegex that gets filled when lw_querynode_compile() is called
  */
 struct _LwQueryNode {
   LwQueryNodeOperation operation;

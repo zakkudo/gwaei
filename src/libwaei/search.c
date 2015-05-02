@@ -19,9 +19,19 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//! @file searchitem.c
-//!
+/**
+ * SECTION:search
+ * @short_description: Search and search result management
+ * @title: LwSearch
+ * @include: libwaei/search.h
+ *
+ * Methods for easily executing searches.  They pair a #LwDictionary
+ * against a query string using the prefered normalization configured by
+ * #LwUtf8Flags. Searches can easily be started in a new thread or the same
+ * thread.  The results are stored in a #GSequence which should be easy
+ * to convert to things like #GtkTreeModels or whatever your prefered
+ * toolkit is for lists.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -46,14 +56,14 @@ G_DEFINE_TYPE (LwSearch, lw_search, G_TYPE_OBJECT)
 static LwSearchData * lw_searchdata_new (LwSearch * search, GError ** error);
 static void lw_searchdata_free (LwSearchData * self);
 
-//!
-//! @brief Creates a new LwSearch object. 
-//! @param query The text to be self for
-//! @param dictionary The LwDictionary object to use
-//! @param TARGET The widget to output the results to
-//! @param error A GError to place errors into or NULL
-//! @return Returns an allocated LwSearch object that should be freed with lw_search_free or NULL on error
-//!
+/**
+ * lw_search_new:
+ * @QUERY: The query string as taken from seach field
+ * @dictionary: An #LwDictionary to search against
+ * @flags: Options for normaliation of the query and dictionary search such as to make the search case-independant
+ *
+ * Returns: A new #LwSearch that should be freed with g_object_unref()
+ */
 LwSearch* 
 lw_search_new (const gchar  *QUERY,
                LwDictionary *dictionary,
@@ -73,6 +83,16 @@ lw_search_new (const gchar  *QUERY,
 }
 
 
+/**
+ * lw_search_new_by_preferences:
+ * @QUERY: The query string as taken from seach field
+ * @dictionary: An #LwDictionary to search against
+ * @preferences: An #LwPreferences object to calculate permissions from
+ *
+ * A version of lw_search_new() that automatically calculates the #LwUtf8Flags using the user's preferences
+ *
+ * Returns: A new #LwSearch that should be freed with g_object_unref()
+ */
 LwSearch* 
 lw_search_new_by_preferences (const gchar   *QUERY,
                               LwDictionary  *dictionary,
@@ -143,9 +163,6 @@ lw_search_set_property (GObject      *object,
       case PROP_PROGRESS:
         lw_search_set_progress (self, g_value_get_object (value));
         break;
-      case PROP_REGEX:
-        lw_search_set_regex (self, g_value_get_boxed (value));
-        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -186,9 +203,6 @@ lw_search_get_property (GObject    *object,
         break;
       case PROP_PROGRESS:
         g_value_set_object (value, lw_search_get_progress (self));
-        break;
-      case PROP_REGEX:
-        g_value_set_boxed (value, lw_search_get_regex (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -346,14 +360,6 @@ lw_search_class_init (LwSearchClass *klass)
     );
     g_object_class_install_property (object_class, PROP_PROGRESS, klasspriv->pspec[PROP_PROGRESS]);
 
-    klasspriv->pspec[PROP_REGEX] = g_param_spec_boxed (
-        "regex",
-        "loaded construct prop",
-        "Set the loaded",
-        G_TYPE_REGEX,
-        G_PARAM_READWRITE
-    );
-    g_object_class_install_property (object_class, PROP_REGEX, klasspriv->pspec[PROP_REGEX]);
 }
 
 
@@ -364,29 +370,31 @@ lw_search_set_query (LwSearch    *self,
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
 
-/*TODO
     //Declarations
     LwSearchPrivate *priv = NULL;
     LwSearchClass *klass = NULL;
     LwSearchClassPrivate *klasspriv = NULL;
-
-    query = lw_query_new (QUERY); TODO
+    gchar * query = NULL;
 
     //Initializations
     priv = self->priv;
     klass = LW_SEARCH_CLASS (self);
     klasspriv = klass->priv;
     if (g_strcmp0 (QUERY, priv->query) == 0) goto errored;
+    query = g_strdup (QUERY);
+    if (query == NULL && QUERY != NULL) goto errored;
 
-    
+    priv->query = query;
+    query = NULL;
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_QUERY]);
-    lw_search_sync_regex (self);
 
 errored:
 
+    g_free (query);
+    query = NULL;
+
     return;
-*/
 }
 
 
@@ -402,7 +410,7 @@ lw_search_get_query (LwSearch *self)
     //Initializations
     priv = self->priv;
 
-    return priv->query->raw;
+    return priv->query;
 }
 
 
@@ -685,106 +693,10 @@ lw_search_set_flags (LwSearch *self,
     priv->flags = flags;
 
     g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_FLAGS]);
-    lw_search_sync_regex (self);
 
 errored:
 
     return;
-}
-
-
-GRegex*
-lw_search_get_regex (LwSearch *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
-
-    //Declarations
-    LwSearchPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    return priv->regex;
-}
-
-
-void
-lw_search_set_regex (LwSearch *self,
-                     GRegex   *regex)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_SEARCH (self));
-
-    //Declarations
-    LwSearchPrivate *priv = NULL;
-    LwSearchClass *klass = NULL;
-    LwSearchClassPrivate *klasspriv = NULL;
-    const gchar *PATTERN = NULL;
-
-    //Initializations
-    priv = self->priv;
-    klass = LW_SEARCH_CLASS (self);
-    klasspriv = klass->priv;
-    if (regex == priv->regex) goto errored;
-    if (regex != NULL) PATTERN = g_regex_get_pattern (regex);
-    if (priv->regex != NULL && g_strcmp0 (PATTERN, g_regex_get_pattern (priv->regex)) == 0) goto errored;
-
-    if (regex != NULL)
-    {
-      g_regex_ref (regex);
-    }
-
-    if (priv->regex != NULL)
-    {
-      g_regex_unref (priv->regex);
-      priv->regex = NULL;
-    }
-
-    priv->regex = regex;
-
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_REGEX]);
-
-errored:
-
-    return;
-}
-
-
-void
-lw_search_sync_regex (LwSearch *self)
-{
-  /*TODO
-    g_return_if_fail (LW_IS_SEARCH (self));
-
-    //Declarations
-    LwSearchFlags flags = 0;
-    gint f = G_REGEX_OPTIMIZE;
-    GRegex *regex = NULL;
-
-    //Initializations
-    flags = lw_search_get_flags (self);
-    if (flags | LW_SEARCHFLAG_CASE_INSENSITIVE)
-    {
-      f |= G_REGEX_CASELESS;
-    }
-
-    regex = g_regex_new (pattern, f, 0, NULL);
-
-    if (regex == NULL)
-    {
-      gchar *pattern = g_regex_escape_string (pattern)
-      regex = g_regex_new (patter, f, 0, NULL);
-    }
-
-    lw_search_set_regex (self, regex);
-
-    if (regex != NULL)
-    {
-      g_regex_unref (regex);
-      regex = NULL;
-    }
-    */
 }
 
 
@@ -924,12 +836,16 @@ searchdata_free (SearchData * self)
 }
 
 
-//!
-//! @brief Start a dictionary self
-//! @param self a LwSearch argument to calculate results
-//! @param create_thread Whether the self should run in a new thread.
-//! @param exact Whether to show only exact matches for this self
-//!
+
+/**
+ * lw_search_start:
+ * @self: A #LwSearch
+ * @dry_run: Provides a way to check if any errors would occur setting up the search when %TRUE
+ * @error: A #GError or %NULL
+ *
+ * Starts a search synchonously, meaning it will lock the UI, making this most appropriate for
+ * console programs.
+ */
 void 
 lw_search_start (LwSearch *  self,
                  gboolean    dry_run,
@@ -952,6 +868,15 @@ errored:
 }
 
 
+/**
+ * lw_search_start_async:
+ * @self: A #LwSearch
+ * @dry_run: Provides a way to check if any errors would occur setting up the search when %TRUE
+ * @error: A #GError or %NULL
+ *
+ * Starts an asynchronous search.  You an monitor it's progress or cancel it by
+ * fetching the #LwProgress object using lw_search_get_progress().
+ */
 void
 lw_search_start_async (LwSearch *  self,
                        gboolean    dry_run,
@@ -1034,8 +959,6 @@ lw_search_equal (LwSearch *item1,
   gboolean dictionaries_are_equal = FALSE;
   LwSearchPrivate *priv1 = NULL;
   LwSearchPrivate *priv2 = NULL;
-  gchar *query1 = NULL;
-  gchar *query2 = NULL;
 
   //Sanity checks
   if (item1 == NULL)
@@ -1055,11 +978,8 @@ lw_search_equal (LwSearch *item1,
   priv1 = item1->priv;
   priv2 = item2->priv;
 
-  query1 = priv1->query->raw;
-  query2 = priv2->query->raw;
-
   //Initializations
-  queries_are_equal = (g_strcmp0 (query1, query2) == 0);
+  queries_are_equal = (g_strcmp0 (priv1->query, priv2->query) == 0);
   dictionaries_are_equal = (priv1->dictionary == priv2->dictionary);
 
   return (queries_are_equal && dictionaries_are_equal);

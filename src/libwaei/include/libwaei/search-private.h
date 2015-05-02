@@ -33,16 +33,14 @@ typedef enum {
 } ClassSignalId;
 
 struct _LwSearchPrivate {
-  LwMorphologyString *query;
+  gchar * query;
   LwSearchStatus status;                  //!< Used to test if a search is in progress.
   //LwMorphologyEngine *morphologyengine;
   GMutex mutex;
-  GThread *thread;
+  GThread * thread;
   LwDictionary *dictionary;
-  GQueue *results;
+  GSequence * results;
   LwProgress *progress;
-
-  GRegex *regex;
 
   LwSearchFlag flags;
   gint max_results;
