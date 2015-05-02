@@ -43,7 +43,7 @@
 #include <libwaei/libwaei.h>
 #include <libwaei/dictionary-private.h>
 
-#include <dictionary/edictionary.h>
+#include <libwaei/dictionary/edictionary.h>
 
 G_DEFINE_DYNAMIC_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 

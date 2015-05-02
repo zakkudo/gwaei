@@ -43,7 +43,7 @@
 #include <libwaei/dictionary-private.h>
 #include <libwaei/gettext.h>
 
-#include <dictionary/radicalsdictionary.h>
+#include <libwaei/dictionary/radicalsdictionary.h>
 
 
 static gint lw_radicalsdictionary_get_total_columns (LwDictionary *self);

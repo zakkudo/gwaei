@@ -43,7 +43,7 @@
 #include <libwaei/dictionary-private.h>
 #include <libwaei/gettext.h>
 
-#include <dictionary/unknowndictionary.h>
+#include <libwaei/dictionary/unknowndictionary.h>
 
 
 G_DEFINE_DYNAMIC_TYPE (LwUnknownDictionary, lw_unknowndictionary, LW_TYPE_DICTIONARY)

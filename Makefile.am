@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = src po mandir docs/reference/libwaei
+SUBDIRS = src po mandir docs/reference/libwaei docs/reference/dictionary
 
 INTLTOOL_FILES = intltool-extract.in intltool-merge.in intltool-update.in
 

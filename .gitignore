@@ -127,6 +127,7 @@ src/libwaei/tests/querynode
 
 *.stamp
 docs/reference/libwaei/libwaei*
+docs/reference/dictionary/libwaei*
 test*
 
 *.bak

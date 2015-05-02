@@ -43,7 +43,7 @@
 #include <libwaei/libwaei.h>
 #include <libwaei/dictionary-private.h>
 
-#include <dictionary/kanjidictionary.h>
+#include <libwaei/dictionary/kanjidictionary.h>
 
 G_DEFINE_DYNAMIC_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
 
