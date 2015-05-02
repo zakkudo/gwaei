@@ -1392,6 +1392,71 @@ compile_string_with_empty_parenthesis_directly_before_keyed (Fixture       * fix
 }
 
 
+
+void
+compile_string_with_furiganafold_on (Fixture       * fixture,
+                                     gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "abcABCあいうえおアイウエオ";
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .key = NULL,
+      .data = "abcABCあいうえおアイウエオ",
+      .children = NULL,
+      .refs = 1,
+    }; 
+    expected_root.regex = _new_regex (fixture, "abcABCあいうえおあいうえお");
+
+    //Act
+    root = lw_querynode_new_tree_from_string (TEXT, &operation, &error);
+    lw_querynode_compile (root, LW_UTF8FLAG_FURIGANAFOLD, &error);
+
+    //Assert
+    lw_querynode_assert_equals (root, &expected_root);
+    g_assert_null (error);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+compile_string_with_casefold_on (Fixture       * fixture,
+                                 gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "abcABCあいうえおアイウエオ";
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .key = NULL,
+      .data = "abcABCあいうえおアイウエオ",
+      .children = NULL,
+      .refs = 1,
+    }; 
+    expected_root.regex = _new_regex (fixture, "abcabcあいうえおアイウエオ");
+
+    //Act
+    root = lw_querynode_new_tree_from_string (TEXT, &operation, &error);
+    lw_querynode_compile (root, LW_UTF8FLAG_CASEFOLD, &error);
+
+    //Assert
+    lw_querynode_assert_equals (root, &expected_root);
+    g_assert_null (error);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -1434,6 +1499,8 @@ main (gint argc, gchar *argv[])
     g_test_add ("/compile/string_with_keyed_embedded_and_on_key", Fixture, NULL, setup, compile_string_with_keyed_embedded_and_on_key, teardown);
     g_test_add ("/compile/string_with_empty_parenthesis_directly_after_keyed", Fixture, NULL, setup, compile_string_with_empty_parenthesis_directly_after_keyed, teardown);
     g_test_add ("/compile/string_with_empty_parenthesis_directly_before_keyed", Fixture, NULL, setup, compile_string_with_empty_parenthesis_directly_before_keyed, teardown);
+    g_test_add ("/compile/string_with_furiganafold_on", Fixture, NULL, setup, compile_string_with_furiganafold_on, teardown);
+    g_test_add ("/compile/string_with_casefold_on", Fixture, NULL, setup, compile_string_with_casefold_on, teardown);
 
     return g_test_run();
 }
