@@ -1328,6 +1328,70 @@ compile_string_with_keyed_embedded_and_on_key (Fixture       * fixture,
 }
 
 
+void
+compile_string_with_empty_parenthesis_directly_after_keyed (Fixture       * fixture,
+                                                            gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "1:()2";
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .key = "1",
+      .data = "2",
+      .children = NULL,
+      .refs = 1,
+    }; 
+    expected_root.regex = _new_regex (fixture, "2");
+
+    //Act
+    root = lw_querynode_new_tree_from_string (TEXT, &operation, &error);
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+
+    //Assert
+    lw_querynode_assert_equals (root, &expected_root);
+    g_assert_null (error);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+compile_string_with_empty_parenthesis_directly_before_keyed (Fixture       * fixture,
+                                                             gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    gchar const * TEXT = "1():2";
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+
+    LwQueryNode expected_root = {
+      .operation = LW_QUERYNODE_OPERATION_NONE,
+      .key = "1",
+      .data = "12",
+      .children = NULL,
+      .refs = 1,
+    }; 
+    expected_root.regex = _new_regex (fixture, "12");
+
+    //Act
+    root = lw_querynode_new_tree_from_string (TEXT, &operation, &error);
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+
+    //Assert
+    lw_querynode_assert_equals (root, &expected_root);
+    g_assert_null (error);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -1361,13 +1425,15 @@ main (gint argc, gchar *argv[])
     g_test_add ("/new_tree_from_string/parse_string_with_key_and_embedded_value", Fixture, NULL, setup, parse_string_with_key_and_embedded_value, teardown);
     g_test_add ("/new_tree_from_string/parse_string_with_keyed_embedded", Fixture, NULL, setup, parse_string_with_keyed_embedded, teardown);
 
-    g_test_add ("/compile/compile_string_with_parenthesis", Fixture, NULL, setup, compile_string_with_parenthesis, teardown);
-    g_test_add ("/compile/compile_string_with_only_parenthesis", Fixture, NULL, setup, compile_string_with_only_parenthesis, teardown);
-    g_test_add ("/compile/compile_string_with_no_parenthesis", Fixture, NULL, setup, compile_string_with_no_parenthesis, teardown);
-    g_test_add ("/compile/compile_string_with_keyed_embedded", Fixture, NULL, setup, compile_string_with_keyed_embedded, teardown);
-    g_test_add ("/compile/compile_string_with_two_sets_of_parenthesis", Fixture, NULL, setup, compile_string_with_two_sets_of_parenthesis, teardown);
-    g_test_add ("/compile/compile_string_with_keyed_embedded_and_on_value", Fixture, NULL, setup, compile_string_with_keyed_embedded_and_on_value, teardown);
-    g_test_add ("/compile/compile_string_with_keyed_embedded_and_on_key", Fixture, NULL, setup, compile_string_with_keyed_embedded_and_on_key, teardown);
+    g_test_add ("/compile/string_with_parenthesis", Fixture, NULL, setup, compile_string_with_parenthesis, teardown);
+    g_test_add ("/compile/string_with_only_parenthesis", Fixture, NULL, setup, compile_string_with_only_parenthesis, teardown);
+    g_test_add ("/compile/string_with_no_parenthesis", Fixture, NULL, setup, compile_string_with_no_parenthesis, teardown);
+    g_test_add ("/compile/string_with_keyed_embedded", Fixture, NULL, setup, compile_string_with_keyed_embedded, teardown);
+    g_test_add ("/compile/string_with_two_sets_of_parenthesis", Fixture, NULL, setup, compile_string_with_two_sets_of_parenthesis, teardown);
+    g_test_add ("/compile/string_with_keyed_embedded_and_on_value", Fixture, NULL, setup, compile_string_with_keyed_embedded_and_on_value, teardown);
+    g_test_add ("/compile/string_with_keyed_embedded_and_on_key", Fixture, NULL, setup, compile_string_with_keyed_embedded_and_on_key, teardown);
+    g_test_add ("/compile/string_with_empty_parenthesis_directly_after_keyed", Fixture, NULL, setup, compile_string_with_empty_parenthesis_directly_after_keyed, teardown);
+    g_test_add ("/compile/string_with_empty_parenthesis_directly_before_keyed", Fixture, NULL, setup, compile_string_with_empty_parenthesis_directly_before_keyed, teardown);
 
     return g_test_run();
 }
