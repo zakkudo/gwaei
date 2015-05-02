@@ -26,5 +26,6 @@ changelogdir = $(docdir)
 ##DISTCLEANFILES = gnome-doc-utils.make
 DISTCLEANFILES = intltool-extract intltool-merge intltool-update po/.intltool-merge-cache
 EXTRA_DIST = mandir/gwaei.1 mandir/waei.1 autogen.sh rpm/create_rpms.sh $(INTLTOOL_FILES)
+DISTCHECK_CONFIGURE_FLAGS += --enable-introspection
 
 

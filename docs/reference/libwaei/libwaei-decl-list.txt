@@ -787,6 +787,9 @@ lw_querynode_assert_equals
 lw_querynode_walk
 lw_querynode_nnodes
 lw_querynode_compile
+<SUBSECTION Standard>
+LW_QUERYNODE_IS_DANGLING_KEY
+LW_QUERYNODE_IS_EMPTY
 </SECTION>
 
 <SECTION>

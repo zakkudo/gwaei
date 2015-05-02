@@ -75,6 +75,7 @@ AC_CHECK_LIB(m, sqrt)
 
 GNOME_DOC_INIT(,,[:]) 
 GTK_DOC_CHECK([$GTK_DOC_REQUIRED_VERSION], [--flavour no-tmpl])
+GOBJECT_INTROSPECTION_CHECK([1.30.0])
 
 PKG_CHECK_MODULES(LIBWAEI, glib-2.0           >= $GLIB_REQUIRED_VERSION
                            gobject-2.0        >= $GLIB_REQUIRED_VERSION
