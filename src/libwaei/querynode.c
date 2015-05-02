@@ -927,6 +927,7 @@ _querynode_apply_implied_logical_junctions (LwQueryNode * self)
     gboolean has_junction = FALSE;
     LwQueryNode * query_node = NULL;
     LwQueryNode * next_query_node = NULL;
+    LwQueryNode * previous_query_node = NULL;
 
     for (link = self->children; link != NULL; link = link->next)
     {
@@ -935,7 +936,7 @@ _querynode_apply_implied_logical_junctions (LwQueryNode * self)
       has_junction = _querynode_apply_implied_logical_junctions (query_node);
       if (has_junction)
       {
-        if (query_node != NULL && query_node->operation == LW_QUERYNODE_OPERATION_NONE)
+        if (query_node != NULL && query_node->operation == LW_QUERYNODE_OPERATION_NONE && (previous_query_node != NULL && !LW_QUERYNODE_IS_DANGLING_KEY (previous_query_node)))
         {
           query_node->operation = LW_QUERYNODE_OPERATION_AND;
         }
@@ -945,9 +946,10 @@ _querynode_apply_implied_logical_junctions (LwQueryNode * self)
         }
         has_junction_out = TRUE;
       }
+      previous_query_node = query_node;
     }
 
-    return has_junction_out;
+    return has_junction_out || self->operation != LW_QUERYNODE_OPERATION_NONE;
 }
 
 
@@ -980,7 +982,7 @@ _reduce_previous_none_operations (GList *  children,
     previous_link = link->prev;
     previous_query_node = (previous_link != NULL) ? LW_QUERYNODE (previous_link->data) : NULL;
 
-    while (previous_query_node != NULL && previous_query_node->operation == LW_QUERYNODE_OPERATION_NONE)
+    while (previous_query_node != NULL && previous_query_node->operation == LW_QUERYNODE_OPERATION_NONE && previous_query_node->key == NULL && previous_query_node->children == NULL)
     {
       lw_querynode_unref (previous_query_node);
       children = g_list_delete_link (children, previous_link);
@@ -1001,6 +1003,120 @@ errored:
     g_free (new_data); new_data = NULL;
 
     return children;
+}
+
+
+static void
+_querynode_reparent_possible_children (LwQueryNode * self)
+{
+    //Declarations
+    LwQueryNode * query_node = NULL;
+
+    //If there is only one child, merge it into the parent
+    if (self->children != NULL && self->children->next == NULL)
+    {
+      // Prune the link
+      query_node = LW_QUERYNODE (self->children->data);
+      if ((self->key == NULL || query_node->key == NULL) && self->data == NULL)
+      {
+        self->children = g_list_delete_link (self->children, self->children);
+
+        if (query_node->key != NULL && self->key == NULL)
+        {
+          self->key = query_node->key;
+          query_node->key = NULL;
+        }
+
+        g_free (self->data);
+        self->data = query_node->data;
+        query_node->data = NULL;
+
+        if (self->regex) g_regex_unref (self->regex);
+        self->regex = query_node->regex;
+        query_node->regex = NULL;
+
+        g_list_free_full (self->children, (GDestroyNotify) lw_querynode_unref);
+        self->children = query_node->children;
+        query_node->children = NULL;
+
+        // Remove the old node
+        g_free (query_node);
+        query_node = NULL;
+      }
+    }
+}
+
+
+static void
+_querynode_reduce_keyed_missing_values (LwQueryNode *  self,
+                                        GError      ** error)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    if (error != NULL && *error != NULL) return;
+
+    //Declarations
+    GList * link = NULL;
+    GList * next = NULL;
+    LwQueryNode * keyed_query_node = NULL;
+    LwQueryNode * query_node = NULL;
+
+    //Initializations
+    link = self->children;
+
+    while (link != NULL)
+    {
+      query_node = LW_QUERYNODE (link->data);
+      _querynode_reduce_keyed_missing_values (query_node, error);
+      if (error != NULL && *error != NULL) goto errored;
+
+      if (query_node->key != NULL && query_node->data == NULL && query_node->children == NULL)
+      {
+        keyed_query_node = query_node;
+        if (link->next != NULL)
+        {
+          link = link->next;
+          next = (link->next != NULL) ? link->next : NULL;
+          query_node = LW_QUERYNODE (link->data);
+          if (query_node->operation == LW_QUERYNODE_OPERATION_NONE)
+          {
+            self->children = g_list_remove_link (self->children, link);
+            keyed_query_node->children = link;
+            link = next;
+          }
+          else
+          {
+            g_set_error (
+              error,
+              LW_QUERYNODE_ERROR,
+              LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE,
+              "key with no value for token %s", keyed_query_node->key 
+            );
+            goto errored;
+          }
+        }
+        else
+        {
+          g_set_error (
+            error,
+            LW_QUERYNODE_ERROR,
+            LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE,
+            "key with no value for token %s", keyed_query_node->key
+          );
+          goto errored;
+        }
+      }
+      else
+      {
+        link = link->next;
+      }
+    }
+
+    _querynode_reparent_possible_children (self);
+
+errored:
+
+    return;
 }
 
 
@@ -1027,41 +1143,21 @@ _querynode_reduce (LwQueryNode * self)
     {
       query_node = LW_QUERYNODE (link->data);
       _querynode_reduce (query_node);
-      if (query_node->operation == LW_QUERYNODE_OPERATION_NONE)
+      if (query_node->operation == LW_QUERYNODE_OPERATION_NONE && query_node->key == NULL && query_node->children == NULL)
       {
         if (query_node->data != NULL)
         {
           tokens[num_tokens++] = query_node->data;
         }
       }
-      else if (query_node->operation != LW_QUERYNODE_OPERATION_NONE)
+      else if (query_node->operation != LW_QUERYNODE_OPERATION_NONE || query_node->key != NULL || query_node->children != NULL)
       {
         self->children = _reduce_previous_none_operations (self->children, link->prev, tokens, &num_tokens);
       }
     }
     self->children = _reduce_previous_none_operations (self->children, g_list_last (self->children), tokens, &num_tokens);
     
-
-    //If there is only one child, merge it into the parent
-    if (self->children != NULL && self->children->next == NULL)
-    {
-      // Prune the link
-      query_node = LW_QUERYNODE (self->children->data);
-      self->children = g_list_delete_link (self->children, self->children);
-
-      // Free the leftover data
-      g_free (self->key);
-      g_free (self->data);
-      if (self->regex) g_regex_unref (self->regex);
-      g_list_free_full (self->children, (GDestroyNotify) lw_querynode_unref);
-
-      // Replace it
-      memcpy(self, query_node, sizeof(LwQueryNode));
-
-      // Remove the old node
-      g_free (query_node);
-      query_node = NULL;
-    }
+    _querynode_reparent_possible_children (self);
 
 errored:
 
@@ -1085,10 +1181,13 @@ _querynode_compile (LwQueryNode * self,
     GRegex * regex = NULL;
 
     //Initializations
-    normalized_pattern = lw_utf8_normalize (self->data, -1, flags);
-    if (normalized_pattern == NULL) goto errored;
-    regex = g_regex_new (normalized_pattern, G_REGEX_OPTIMIZE, 0, error);
-    if (error != NULL && *error != NULL) goto errored;
+    if (self->data != NULL)
+    {
+      normalized_pattern = lw_utf8_normalize (self->data, -1, flags);
+      if (normalized_pattern == NULL) goto errored;
+      regex = g_regex_new (normalized_pattern, G_REGEX_OPTIMIZE, 0, error);
+      if (error != NULL && *error != NULL) goto errored;
+    }
 
     for (link = self->children; link != NULL; link = link->next)
     {
@@ -1141,6 +1240,8 @@ lw_querynode_compile (LwQueryNode *  self,
     g_return_if_fail (self != NULL);
 
     _querynode_apply_implied_logical_junctions (self);
+    _querynode_reduce (self);
+    _querynode_reduce_keyed_missing_values (self, error);
     _querynode_reduce (self);
     _querynode_compile (self, flags, error);
 }

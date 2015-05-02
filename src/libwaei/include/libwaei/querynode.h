@@ -38,8 +38,10 @@ GQuark lw_querynode_error_quark (void);
 
 #define LW_QUERYNODE(obj) ((LwQueryNode*)(obj))
 
+#define LW_QUERYNODE_IS_DANGLING_KEY(obj) (obj->data == NULL && obj->key != NULL && obj->children == NULL)
+#define LW_QUERYNODE_IS_EMPTY(obj) (obj->key == NULL, obj->data == NULL && obj->children == NULL)
+
 typedef enum {
-  LW_QUERYNODE_UNCLOSED_PARENTHESIS,
   LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR,
   LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR,
   LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE,
