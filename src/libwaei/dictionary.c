@@ -1197,5 +1197,19 @@ gint *
 lw_dictionary_calculate_applicable_columns_for_text (LwDictionary * self,
                                                      gchar const  * TEXT)
 {
-    //TODO
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    if (TEXT == NULL || *TEXT == '\0') return NULL;
+
+    //Declarations
+    LwDictionaryClass *klass = NULL;
+    gint * columns = NULL;
+
+    //Initializations
+    klass = LW_DICTIONARY_GET_CLASS (self);
+    columns = klass->priv->calculate_applicable_columns_for_text (self, TEXT);
+
+errored:
+
+    return columns;
 }

@@ -102,6 +102,9 @@ LwParsed* lw_dictionary_parse (LwDictionary * self, LwCacheFile * cache_file, Lw
 gchar const * lw_dictionary_get_install_directory ();
 gchar * lw_dictionary_build_path_by_type_and_name (GType type, gchar const * FILENAME);
 
+
+gint * lw_dictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
+
 G_END_DECLS
 
 #include <libwaei/dictionary-callbacks.h>

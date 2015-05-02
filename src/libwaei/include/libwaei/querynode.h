@@ -27,6 +27,7 @@ struct _LwQueryNode {
   GList * children;
   gint refs;
 
+  gint * columns;
   GRegex * regex;
 };
 typedef struct _LwQueryNode LwQueryNode;
@@ -53,7 +54,7 @@ LwQueryNode * lw_querynode_new_tree_from_string (gchar const * TEXT, LwQueryNode
 LwQueryNode* lw_querynode_ref (LwQueryNode * self);
 void lw_querynode_unref (LwQueryNode *self);
 void lw_querynode_assert_equals (LwQueryNode * self, LwQueryNode *other);
-void lw_querynode_walk (LwQueryNode * self, LwQueryNodeWalkFunc func, gpointer data);
+gboolean lw_querynode_walk (LwQueryNode * self, LwQueryNodeWalkFunc func, gpointer data);
 gint lw_querynode_nnodes (LwQueryNode * self);
 void lw_querynode_compile (LwQueryNode * self, LwUtf8Flag flags, GError ** error);
 

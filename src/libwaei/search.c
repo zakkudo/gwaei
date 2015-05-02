@@ -45,8 +45,7 @@
 
 #include <libwaei/gettext.h>
 #include <libwaei/search.h>
-
-#include <libwaei/morphologystring.h>
+#include <libwaei/querynode.h>
 
 #include <libwaei/search-private.h>
 
@@ -55,6 +54,7 @@ G_DEFINE_TYPE (LwSearch, lw_search, G_TYPE_OBJECT)
 
 static LwSearchData * lw_searchdata_new (LwSearch * search, GError ** error);
 static void lw_searchdata_free (LwSearchData * self);
+static gboolean _apply_search_columns_to_query (LwQueryNode * self, LwSearchData * data);
 
 /**
  * lw_search_new:
@@ -124,7 +124,7 @@ lw_search_init (LwSearch *self)
     priv = self->priv;
 
     g_mutex_init (&priv->mutex);
-    priv->status = LW_SEARCHSTATUS_IDLE;
+    priv->status = LW_SEARCHSTATUS_UNSTARTED;
     priv->max_results = -1;
 }
 
@@ -335,7 +335,7 @@ lw_search_class_init (LwSearchClass *klass)
         "status",
         gettext("The current search status"),
         LW_TYPE_SEARCHSTATUS,
-        LW_SEARCHSTATUS_IDLE,
+        LW_SEARCHSTATUS_UNSTARTED,
         G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
@@ -598,10 +598,10 @@ lw_searchstatus_get_type ()
     if (G_UNLIKELY (type == 0))
     {
       static GEnumValue values[] = {
-        { LW_SEARCHSTATUS_IDLE, LW_SEARCHSTATUSNAME_IDLE, LW_SEARCHSTATUSNICK_IDLE },
+        { LW_SEARCHSTATUS_UNSTARTED, LW_SEARCHSTATUSNAME_UNSTARTED, LW_SEARCHSTATUSNICK_UNSTARTED },
         { LW_SEARCHSTATUS_SEARCHING, LW_SEARCHSTATUSNAME_SEARCHING, LW_SEARCHSTATUSNICK_SEARCHING },
-        { LW_SEARCHSTATUS_FINISHING, LW_SEARCHSTATUSNAME_FINISHING, LW_SEARCHSTATUSNICK_FINISHING },
         { LW_SEARCHSTATUS_CANCELING, LW_SEARCHSTATUSNAME_CANCELING, LW_SEARCHSTATUSNICK_CANCELING },
+        { LW_SEARCHSTATUS_FINISHED,  LW_SEARCHSTATUSNAME_FINISHED,  LW_SEARCHSTATUSNICK_FINISHED },
         { 0, NULL, NULL },
       };
 
@@ -734,86 +734,82 @@ lw_search_build_flags_from_preferences (LwPreferences *preferences)
     return flags;
 }
 
-/*
-static LwIndexFlag WHAT IS THIS?
-_lw_search_get_index_flags (LwSearch *self)
-{
-    g_return_val_if_fail (self != NULL, 0);
-
-    LwIndexFlag flags  = 0;
-    if (priv->flags & LW_SEARCHFLAG_RAW) flags |= LW_INDEX_FLAG_RAW;
-    if (priv->flags & LW_SEARCHFLAG_CASE_INSENSITIVE) flags |= LW_INDEX_FLAG_CASE_INSENSITIVE;
-    if (priv->flags & LW_SEARCHFLAG_FURIGANA_INSENSITIVE) flags |= LW_INDEX_FLAG_FURIGANA_INSENSITIVE;
-    if (priv->flags & LW_SEARCHFLAG_STEM_INSENSITIVE) flags |= LW_INDEX_FLAG_STEM_INSENSITIVE;
-
-    return flags;
-}
-*/
 
 static gpointer 
-lw_search_stream_results_thread (LwSearchData *self)
+lw_search_stream_results_thread (LwSearchData *data)
 {
-/*TODO
     //Sanity checks
-    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
+    g_return_val_if_fail (data != NULL, NULL);
 
-printf("BREAK lw_search_stream_results_thread\n");
     //Declarations
+    LwSearch * self = NULL;
     LwSearchPrivate *priv = NULL;
     LwProgress *progress = NULL;
     LwDictionary *dictionary = NULL;
     LwSearchFlag flags = 0;
 
     //Initializations
+    self = data->search;
     priv = self->priv;
     g_return_val_if_fail (self != NULL, NULL);
     progress = priv->progress;
     dictionary = priv->dictionary;
     flags = priv->flags;
 
-    //Index the dictionary if it isn't already
-    if (flags & LW_SEARCHFLAG_USE_INDEX)
-    {
-printf("BREAK lw_search_stream_results_thread trying to load index\n");
-      if (!lw_dictionary_index_exists (dictionary)) lw_dictionary_index_create (dictionary, progress);
-      if (lw_progress_should_abort (progress)) goto errored;
-      lw_dictionary_index_load (dictionary, progress);
-      if (lw_progress_should_abort (progress)) goto errored;
-    }
-
     g_mutex_lock (&priv->mutex);
 
-    //Indexed self
-    if (lw_dictionary_index_is_loaded (dictionary) && flags & LW_SEARCHFLAG_USE_INDEX && !lw_util_is_regex_pattern (priv->query, NULL))
-    {
-printf("BREAK lw_search_stream_results_thread index is loaded\n");
-      LwMorphologyList *morphologylist = lw_search_get_query_as_morphologylist (self);
-
-      if (self->resulttable != NULL) g_hash_table_unref (self->resulttable); self->resulttable = NULL;
-      self->resulttable = lw_dictionary_index_search (dictionary, morphologylist, flags, progress);
-
-      lw_morphologylist_free (morphologylist); morphologylist = NULL;
-    }
-
-    //Regex self
-    else
-    {
-
-      if (self->resulttable != NULL) g_hash_table_unref (self->resulttable);
-      self->resulttable = lw_dictionary_regex_search (dictionary, priv->query, flags, progress);
-    }
+    //TODO
 
 errored:
 
-    priv->status = LW_SEARCHSTATUS_FINISHING;
+    priv->status = LW_SEARCHSTATUS_FINISHED;
     priv->thread = NULL;
 
     g_mutex_unlock (&priv->mutex);
 
-    searchdata_free (self);
-    */
+    lw_searchdata_free (data);
+    data = NULL;
 
     return NULL;
+}
+
+
+static gboolean
+_apply_search_columns_to_query (LwQueryNode  * self,
+                                LwSearchData * data)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, TRUE);
+
+    //Declarations
+    gboolean should_stop = TRUE;
+    gint * columns = NULL;
+    gchar const * QUERY = NULL;
+    LwSearch * search = NULL;
+    LwDictionary * dictionary = NULL;
+
+    //Initializations
+    search = data->search;
+    if (search == NULL) goto errored;
+    QUERY = lw_search_get_query (search);
+    if (QUERY == NULL) goto errored;
+    dictionary = lw_search_get_dictionary (search);
+    if (dictionary == NULL) goto errored;
+    columns = lw_dictionary_calculate_applicable_columns_for_text (dictionary, QUERY);
+    if (columns == NULL) goto errored;
+
+    g_free (self->columns);
+    self->columns = columns;
+    columns = NULL;
+
+    should_stop = FALSE;
+
+errored:
+
+    g_free (columns);
+    columns = NULL;
+
+    return should_stop;
 }
 
 
@@ -821,18 +817,56 @@ static LwSearchData *
 lw_searchdata_new (LwSearch *  search,
                    GError   ** error)
 {
-/*TODO
-    querynode = lw_querynode_new_from_string (string);  TODO
-    lw_querynode_compile (querynode, flags, &error);
-    the search thread will take ownership of the querynode and then free it when the search ends
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_SEARCH (search), NULL);
+    if (error != NULL && *error != NULL) return NULL;
 
-    columntable = g_hash_table_new ()
-    lw_querynode_walk (querynode, assign_nodes_to_dictionary_columns, data);
+    //Declarations
+    LwSearchData * self = NULL;
+    gchar const * QUERY = NULL;
+    LwQueryNode * root = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwUtf8Flag flags = LW_UTF8FLAG_NONE;
+
+    //Initializations
+    QUERY = lw_search_get_query (search);
+    if (QUERY == NULL) goto errored;
+    flags = lw_search_build_utf8flags (search);
+    root = lw_querynode_new_tree_from_string (QUERY, &operation, error);
+    if (error != NULL && *error != NULL) goto errored;
+    lw_querynode_compile (root, flags, error);
+    if (error != NULL && *error != NULL) goto errored;
+    if (lw_querynode_walk (root, (LwQueryNodeWalkFunc) _apply_search_columns_to_query, self)) goto errored;
+    
+    self = g_new0 (LwSearchData, 1);
+    if (self == NULL) goto errored;
+
+    self->root = root;
+    root = NULL;
+
+    self->search = g_object_ref (search);
+
+errored:
+
+    if (root != NULL) lw_querynode_unref (root);
+    root = NULL;
+
+    return self;
 }
 
 static void
-searchdata_free (SearchData * self)
-*/
+lw_searchdata_free (LwSearchData * self)
+{
+    if (self == NULL) return;
+
+    if (self->search != NULL) g_object_unref (self->search);
+    self->search = NULL;
+
+    if (self->root != NULL) lw_querynode_unref (self->root);
+    self->root = NULL;
+
+    memset(self, 0, sizeof(LwSearchData));
+    g_free (self); 
 }
 
 
@@ -854,15 +888,33 @@ lw_search_start (LwSearch *  self,
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
 
-/*TODO
-    create temporary container for all of this that gets freed when done
+    //Declarations
+    LwSearchData * data = NULL;
+    LwSearchPrivate * priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+    g_mutex_lock (&priv->mutex);
+    if (priv->status != LW_SEARCHSTATUS_UNSTARTED)
+    {
+      g_mutex_unlock (&priv->mutex);
+      goto errored;
+    }
+    else
+    {
+      g_mutex_unlock (&priv->mutex);
+    }
+
     data = lw_searchdata_new (self, error);
     if (error != NULL && *error != NULL) goto errored;
 
-    lw_search_stream_results_thread ((gpointer) data);
-*/
+    lw_search_stream_results_thread (data);
+
+    data = NULL;
 
 errored:
+
+    lw_searchdata_free (data);
 
     return;
 }
@@ -875,7 +927,9 @@ errored:
  * @error: A #GError or %NULL
  *
  * Starts an asynchronous search.  You an monitor it's progress or cancel it by
- * fetching the #LwProgress object using lw_search_get_progress().
+ * fetching the #LwProgress object using lw_search_get_progress(). If a search 
+ * is running or has already been completed, calling this method is a no-op. This
+ * method should only be called from the main thread of the application.
  */
 void
 lw_search_start_async (LwSearch *  self,
@@ -891,7 +945,23 @@ lw_search_start_async (LwSearch *  self,
 
     //Initializations
     priv = self->priv;
-    priv->thread = NULL;
+
+    g_mutex_lock (&priv->mutex);
+    if (priv->status != LW_SEARCHSTATUS_UNSTARTED)
+    {
+      g_mutex_unlock (&priv->mutex);
+      goto errored;
+    }
+    else
+    {
+      g_mutex_unlock (&priv->mutex);
+    }
+
+    if (priv->thread != NULL)
+    {
+      g_thread_join (priv->thread);
+      priv->thread = NULL;
+    }
     priv->status = LW_SEARCHSTATUS_SEARCHING;
 
     data = lw_searchdata_new (self, error);
@@ -905,17 +975,26 @@ lw_search_start_async (LwSearch *  self,
     );
     if (error != NULL && *error != NULL) goto errored;
 
+    data = NULL;
+
 errored:
+
+    lw_searchdata_free (data);
 
     return;
 }
 
 
-//!
-//! @brief Uses a searchitem to cancel a window
-//!
-//! @param self A LwSearch to gleam information from
-//!
+/**
+ * lw_search_cancel:
+ * @self: A #LwSearch
+ *
+ * Use to cancel a search in a thread-safe way.  This method will for
+ * the program to wait for the thread to join before allowing continuation
+ * of executation.  Once the thread is stopped, the #LwSearch will have its
+ * status set back to %LW_SEARCHSTATUS_UNSTARTED.  This method should only
+ * be called from the main thread of the application.
+ */
 void 
 lw_search_cancel (LwSearch *self)
 {
@@ -923,21 +1002,23 @@ lw_search_cancel (LwSearch *self)
     g_return_if_fail (LW_IS_SEARCH (self)) ;
 
     //Declarations
+    GThread * thread = NULL;
     LwSearchPrivate *priv = NULL;
 
     //Initializations
     priv = self->priv;
+    thread = priv->thread;
 
     if (priv->progress != NULL) lw_progress_cancel (priv->progress);
     lw_search_set_status (self, LW_SEARCHSTATUS_CANCELING);
 
-    if (priv->thread != NULL)
+    if (thread != NULL)
     {
-      g_thread_join (priv->thread);
       priv->thread = NULL;
+      g_thread_join (thread);
     }
 
-    lw_search_set_status (self, LW_SEARCHSTATUS_IDLE);
+    lw_search_set_status (self, LW_SEARCHSTATUS_UNSTARTED);
 }
 
 
@@ -987,7 +1068,7 @@ lw_search_equal (LwSearch *item1,
 
 
 LwUtf8Flag
-lw_search_get_utf8flags (LwSearch *self)
+lw_search_build_utf8flags (LwSearch * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_SEARCH (self), 0);
@@ -1008,11 +1089,9 @@ lw_search_get_utf8flags (LwSearch *self)
     return flags;
 }
 
-/*TODO
 
-struct RegexSearchParsedLineData {
-    LwSearch *search;
-};
+
+/*TODO
 
 static gboolean
 _regex_search_column (LwParsedLine *line,
@@ -1059,14 +1138,6 @@ _regex_search_parsed_line (LwParsed *parsed,
 
 
 void
-lw_search_calculate_search_columns (LwSearch     * self,
-                                    LwDictionary * dictionary)
-{
-    get_column_language(dictionary
-    return an array of possible matches
-}
-
-void
 lw_search_search_dictionary (LwSearch      *self,
                              LwDictionary  *dictionary)
 {
@@ -1090,7 +1161,7 @@ lw_search_search_dictionary (LwSearch      *self,
 
 
     //Initializations
-    flags = lw_search_get_utf8flags (self);
+    flags = lw_search_build_utf8flags (self);
     progress = lw_search_get_progress (self);
     if (progress == NULL) goto errored;
     cache = lw_dictionary_get_cache (dictionary, progress, flags);

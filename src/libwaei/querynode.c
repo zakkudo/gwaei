@@ -891,7 +891,7 @@ lw_querynode_assert_equals (LwQueryNode *self,
 }
 
 
-void
+gboolean
 lw_querynode_walk (LwQueryNode         * self,
                    LwQueryNodeWalkFunc   func,
                    gpointer              data)
@@ -900,18 +900,21 @@ lw_querynode_walk (LwQueryNode         * self,
     g_return_if_fail (self != NULL);
 
     //Declarations
+    gboolean should_stop = FALSE;
     GList * link = NULL;
 
-    if (func(self, data)) goto errored;
+    should_stop = func(self, data);
+    if (should_stop) goto errored;
 
     for (link = self->children; link != NULL; link = link->next)
     {
-      lw_querynode_walk (link->data, func, data);
+      should_stop = lw_querynode_walk (link->data, func, data);
+      if (should_stop) goto errored;
     }
 
 errored:
 
-    return;
+    return should_stop;
 }
 
 

@@ -53,9 +53,8 @@ struct _LwSearchClassPrivate {
 
 
 struct _LwSearchData {
-    LwQueryNode * root;
-    GHashTable * column_mapping;
     LwSearch * search;
+    LwQueryNode * root;
 };
 typedef struct _LwSearchData LwSearchData;
 

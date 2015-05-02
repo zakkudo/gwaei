@@ -495,7 +495,7 @@ lw_command_parse_optional_subcommand (LwCommand        * self,
 
 errored:
 
-    g_option_group_free (option_group);
+    g_option_group_unref (option_group);
     option_group = NULL;
 
     return subcommand;

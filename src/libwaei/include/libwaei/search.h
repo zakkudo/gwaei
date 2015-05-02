@@ -10,24 +10,24 @@ G_BEGIN_DECLS
 
 #define LW_SEARCH_DEFAULT_MAX_CHUNK 1000
 
-#define LW_SEARCHSTATUSNAME_IDLE "Idle"
+#define LW_SEARCHSTATUSNAME_UNSTARTED "Unstarted"
 #define LW_SEARCHSTATUSNAME_SEARCHING "Searching"
-#define LW_SEARCHSTATUSNAME_FINISHING "Finishing"
 #define LW_SEARCHSTATUSNAME_CANCELING "Canceling"
+#define LW_SEARCHSTATUSNAME_FINISHED "Finished"
 
-#define LW_SEARCHSTATUSNICK_IDLE "idle"
+#define LW_SEARCHSTATUSNICK_UNSTARTED "unstarted"
 #define LW_SEARCHSTATUSNICK_SEARCHING "searching"
-#define LW_SEARCHSTATUSNICK_FINISHING "finishing"
 #define LW_SEARCHSTATUSNICK_CANCELING "canceling"
+#define LW_SEARCHSTATUSNICK_FINISHED "finished"
 
 //!
 //! @brief Search status types
 //!
 typedef enum {
-  LW_SEARCHSTATUS_IDLE,
+  LW_SEARCHSTATUS_UNSTARTED,
   LW_SEARCHSTATUS_SEARCHING,
-  LW_SEARCHSTATUS_FINISHING,
-  LW_SEARCHSTATUS_CANCELING
+  LW_SEARCHSTATUS_CANCELING,
+  LW_SEARCHSTATUS_FINISHED,
 } LwSearchStatus;
 GType lw_searchstatus_get_type (void);
 #define LW_TYPE_SEARCHSTATUS (lw_searchstatus_get_type ())
@@ -120,6 +120,7 @@ LwProgress* lw_search_get_progress (LwSearch * self);
 LwSearchFlag lw_search_get_flags (LwSearch * self);
 void lw_search_set_flags (LwSearch * self, LwSearchFlag flags);
 LwSearchFlag lw_search_build_flags_from_preferences (LwPreferences * preferences);
+LwUtf8Flag lw_search_build_utf8flags (LwSearch * self);
 
 G_END_DECLS
 
