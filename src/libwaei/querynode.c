@@ -48,7 +48,7 @@
 
 static LwQueryNode * _parse_leaf_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
 static LwQueryNode * _parse_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
-static gboolean _querynode_match_parsedline (LwQueryNode * self, LwParsedLine * parsed_line, gchar const * KEY, LwQueryNodeMatchInfo * matches);
+gboolean lw_querynode_match_parsedline (LwQueryNode * self, LwParsedLine * parsed_line, LwQueryNodeMatchInfo * match_info_out);
 
 
 GQuark
@@ -429,7 +429,14 @@ _tokenize_explicit_columns (LeafIterator          * self,
           *key_buffer = '\0';
           *value_buffer = '\0';
           query_node = NULL;
+
           DELIMITER = C;
+          if (AFTER_LAST_WHITESPACE != NULL && AFTER_LAST_WHITESPACE < DELIMITER)
+          {
+            len = C - AFTER_LAST_WHITESPACE;
+            strncpy(key_buffer, AFTER_LAST_WHITESPACE, len);
+            key_buffer[len] = '\0';
+          }
         }
       }
       PREVIOUS_C = C;
@@ -866,6 +873,7 @@ lw_querynode_assert_equals (LwQueryNode *self,
     g_assert_nonnull (self);
     g_assert_nonnull (other);
     g_assert_cmpuint (self->operation, ==, other->operation);
+    g_assert_cmpstr (self->key, ==, other->key);
     g_assert_cmpstr (self->data, ==, other->data);
     g_assert_cmpint (self->refs, ==, other->refs);
     if (self->regex != NULL && other->regex != NULL)
@@ -1173,6 +1181,7 @@ errored:
 
 static void
 _querynode_compile (LwQueryNode * self,
+                    gchar const * KEY,
                     LwUtf8Flag    flags,
                     GError      ** error)
 {
@@ -1186,6 +1195,15 @@ _querynode_compile (LwQueryNode * self,
     gchar * normalized_pattern = NULL;
     GRegex * regex = NULL;
 
+    if (self->key != NULL)
+    {
+      KEY = self->key;
+    }
+    else
+    {
+      self->key = g_strdup (KEY);
+    }
+
     //Initializations
     if (self->data != NULL)
     {
@@ -1198,7 +1216,7 @@ _querynode_compile (LwQueryNode * self,
     for (link = self->children; link != NULL; link = link->next)
     {
       query_node = LW_QUERYNODE (link->data);
-      _querynode_compile (query_node, flags, error);
+      _querynode_compile (query_node, KEY, flags, error);
       if (error != NULL && *error != NULL) goto errored;
     }
 
@@ -1249,20 +1267,18 @@ lw_querynode_compile (LwQueryNode *  self,
     _querynode_reduce (self);
     _querynode_reduce_keyed_missing_values (self, error);
     _querynode_reduce (self);
-    _querynode_compile (self, flags, error);
+    _querynode_compile (self, NULL, flags, error);
 }
 
 
 static gboolean
 _children_match_parsedline (LwQueryNode           * self,
                             LwParsedLine          * parsed_line,
-                            gchar const           * KEY,
                             LwQueryNodeMatchInfo  * match_info_out)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
     g_return_val_if_fail (parsed_line != NULL, FALSE);
-    g_return_val_if_fail (KEY != NULL, FALSE);
 
     //Declarations
     LwQueryNode * query_node = NULL;
@@ -1274,7 +1290,7 @@ _children_match_parsedline (LwQueryNode           * self,
     for (link = self->children; link != NULL; link = link->next)
     {
       query_node = LW_QUERYNODE (link->data);
-      matches = _querynode_match_parsedline (query_node, parsed_line, KEY, match_info_out);
+      matches = lw_querynode_match_parsedline (query_node, parsed_line, match_info_out);
 
       if (previous_query_node != NULL)
       {
@@ -1301,42 +1317,38 @@ errored:
 
 
 static gboolean
-_value_matches_parsedline (LwQueryNode           * self,
-                           LwParsedLine          * parsed_line,
-                           gchar const           * KEY,
-                           LwQueryNodeMatchInfo  * match_info_out)
+_value_matches_column (LwQueryNode          * self,
+                       LwParsedLine         * parsed_line,
+                       gint                   column,
+                       LwQueryNodeMatchInfo * match_info_out)
 {
     //Declarations
-    gboolean matches = FALSE;
-    gint i = 0;
     gint j = 0;
     gchar const ** strv = NULL;
     GMatchInfo * match_info = NULL;
+    gboolean matches = FALSE;
 
-//TODO add code for if the key is set
+    //Initializations
+    strv = lw_parsedline_get_strv (parsed_line, column);
 
-    for (i = 0; self->columns[i] != -1; i++)
+    if (strv != NULL)
     {
-      strv = lw_parsedline_get_strv (parsed_line, self->columns[i]);
-      if (strv != NULL)
+      for (j = 0; strv[j] != NULL; j++)
       {
-        for (j = 0; strv[j] != NULL; j++)
+        if (match_info_out != NULL)
         {
-          if (match_info_out != NULL)
+          matches = g_regex_match (self->regex, strv[j], 0, &match_info);
+          while (g_match_info_matches (match_info))
           {
-            matches = g_regex_match (self->regex, strv[j], 0, &match_info);
-            while (g_match_info_matches (match_info))
-            {
-              lw_querynodematchinfo_add (match_info_out, self->columns[i], j, match_info);
-              g_match_info_next (match_info, NULL);
-            }
-            g_match_info_free (match_info);
+            lw_querynodematchinfo_add (match_info_out, column, j, match_info);
+            g_match_info_next (match_info, NULL);
           }
-          else
-          {
-            matches = g_regex_match (self->regex, strv[j], 0, NULL);
-            if (matches) goto errored;
-          }
+          g_match_info_free (match_info);
+        }
+        else
+        {
+          matches = g_regex_match (self->regex, strv[j], 0, NULL);
+          if (matches) goto errored;
         }
       }
     }
@@ -1347,31 +1359,19 @@ errored:
 }
 
 static gboolean
-_querynode_match_parsedline (LwQueryNode           * self,
-                             LwParsedLine          * parsed_line,
-                             gchar const           * KEY,
-                             LwQueryNodeMatchInfo  * match_info_out)
+_value_matches_parsedline (LwQueryNode           * self,
+                           LwParsedLine          * parsed_line,
+                           LwQueryNodeMatchInfo  * match_info_out)
 {
     //Declarations
-    GList * link = NULL;
     gboolean matches = FALSE;
+    gint i = 0;
+    gint column = -1;
 
-    if (self->key != NULL)
+    for (i = 0; self->columns[i] != -1; i++)
     {
-      KEY = self->key;
-    }
-
-    if (self->children != NULL && self->data == NULL)
-    {
-      matches = _children_match_parsedline (self, parsed_line, KEY, match_info_out);
-    }
-    else if (self->data != NULL && self->children == NULL)
-    {
-      matches = _value_matches_parsedline (self, parsed_line, KEY, match_info_out);
-    }
-    else
-    {
-      g_assert_not_reached ();
+      column = self->columns[i];
+      matches = _value_matches_column (self, parsed_line, column, match_info_out);
     }
 
 errored:
@@ -1384,5 +1384,24 @@ lw_querynode_match_parsedline (LwQueryNode           * self,
                                LwParsedLine          * parsed_line,
                                LwQueryNodeMatchInfo  * match_info_out)
 {
-    return _querynode_match_parsedline (self, parsed_line, NULL, match_info_out);
+    //Declarations
+    GList * link = NULL;
+    gboolean matches = FALSE;
+
+    if (self->children != NULL && self->data == NULL)
+    {
+      matches = _children_match_parsedline (self, parsed_line, match_info_out);
+    }
+    else if (self->data != NULL && self->children != NULL)
+    {
+      matches = _value_matches_parsedline (self, parsed_line, match_info_out);
+    }
+    else
+    {
+      g_assert_not_reached ();
+    }
+
+errored:
+
+    return matches;
 }

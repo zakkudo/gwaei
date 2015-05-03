@@ -1236,13 +1236,13 @@ compile_string_with_keyed_embedded_and_on_value (Fixture       * fixture,
 
     LwQueryNode children[] = {{
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .key = NULL,
+      .key = "1",
       .data = "(2)",
       .children = NULL,
       .refs = 1,
     }, {
       .operation = LW_QUERYNODE_OPERATION_AND,
-      .key = NULL,
+      .key = "1",
       .data = "(3)",
       .children = NULL,
       .refs = 1,
@@ -1276,7 +1276,7 @@ compile_string_with_keyed_embedded_and_on_key (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .key = "1",
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,
@@ -1372,7 +1372,7 @@ compile_string_with_empty_parenthesis_directly_before_keyed (Fixture       * fix
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .key = "1",
+      .key = NULL,
       .data = "12",
       .children = NULL,
       .refs = 1,
