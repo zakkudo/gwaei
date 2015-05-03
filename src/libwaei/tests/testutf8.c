@@ -476,6 +476,307 @@ casefold_where_progress_is_null (Fixture *fixture, gconstpointer data)
 }
 
 
+void
+contains_kanji_where_empty (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_kanji (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_kanji_where_only_kanji (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "日本語";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_kanji (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, TRUE);
+}
+
+
+void
+contains_kanji_with_nothing_kanji (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "abcあいうえおアイウエオ";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_kanji (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_kanji_with_mix (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "abcあいうえおアイウエオ日本語";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_kanji (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, TRUE);
+}
+
+
+void
+contains_furigana_where_empty (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_furigana (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_furigana_where_only_hiragana (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "あいうえお";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_furigana (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, TRUE);
+}
+
+
+void
+contains_furigana_where_only_katakana (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "アイウエオ";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_furigana (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, TRUE);
+}
+
+
+void
+contains_furigana_with_nothing_furigana (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "abc日本語";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_furigana (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_furigana_with_mix (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "abcあいうえおアイウエオ日本語";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_furigana (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, TRUE);
+}
+
+
+void
+contains_romaji_where_empty (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_romaji (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_romaji_where_only_hiragana (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "あいうえお";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_romaji (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_romaji_where_only_katakana (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "アイウエオ";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_romaji (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_romaji_with_nothing_romaji (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "あいうえおアイウエオ日本語";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_romaji (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_romaji_with_mix (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "abcあいうえおアイウエオ日本語";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_romaji (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, TRUE);
+}
+
+
+void
+contains_number_where_empty (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_number (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_number_with_only_numbers (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "0123";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_number (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, TRUE);
+}
+
+
+void
+contains_number_where_only_hiragana (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "あいうえお";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_number (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_number_where_only_katakana (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "アイウエオ";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_number (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_number_with_no_numbers (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "あいうえおアイウエオ日本語";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_number (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+contains_number_with_mix (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "0123abcあいうえおアイウエオ日本語";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_contains_number (TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, TRUE);
+}
+
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -501,6 +802,30 @@ main (gint argc, gchar *argv[])
     g_test_add ("/casefold/with_lowercase_letters", Fixture, NULL, setup, casefold_with_lowercase_letters, teardown);
     g_test_add ("/casefold/where_cancels_halfway", Fixture, NULL, setup, casefold_where_cancels_halfway, teardown);
     g_test_add ("/casefold/where_progress_is_null", Fixture, NULL, setup, casefold_where_progress_is_null, teardown);
+
+    g_test_add ("/contains_kanji/where_empty", Fixture, NULL, setup, contains_kanji_where_empty, teardown);
+    g_test_add ("/contains_kanji/where_only_kanji", Fixture, NULL, setup, contains_kanji_where_only_kanji, teardown);
+    g_test_add ("/contains_kanji/with_nothing_kanji", Fixture, NULL, setup, contains_kanji_with_nothing_kanji, teardown);
+    g_test_add ("/contains_kanji/with_mix", Fixture, NULL, setup, contains_kanji_with_mix, teardown);
+
+    g_test_add ("/contains_furigana/where_empty", Fixture, NULL, setup, contains_furigana_where_empty, teardown);
+    g_test_add ("/contains_furigana/where_only_hiragana", Fixture, NULL, setup, contains_furigana_where_only_hiragana, teardown);
+    g_test_add ("/contains_furigana/where_only_katakana", Fixture, NULL, setup, contains_furigana_where_only_katakana, teardown);
+    g_test_add ("/contains_furigana/with_nothing_furigana", Fixture, NULL, setup, contains_furigana_with_nothing_furigana, teardown);
+    g_test_add ("/contains_furigana/with_mix", Fixture, NULL, setup, contains_furigana_with_mix, teardown);
+
+    g_test_add ("/contains_romaji/where_empty", Fixture, NULL, setup, contains_romaji_where_empty, teardown);
+    g_test_add ("/contains_romaji/where_only_hiragana", Fixture, NULL, setup, contains_romaji_where_only_hiragana, teardown);
+    g_test_add ("/contains_romaji/where_only_katakana", Fixture, NULL, setup, contains_romaji_where_only_katakana, teardown);
+    g_test_add ("/contains_romaji/with_nothing_romaji", Fixture, NULL, setup, contains_romaji_with_nothing_romaji, teardown);
+    g_test_add ("/contains_romaji/with_mix", Fixture, NULL, setup, contains_romaji_with_mix, teardown);
+
+    g_test_add ("/contains_number/where_empty", Fixture, NULL, setup, contains_number_where_empty, teardown);
+    g_test_add ("/contains_number/with_only_numbers", Fixture, NULL, setup, contains_number_with_only_numbers, teardown);
+    g_test_add ("/contains_number/where_only_hiragana", Fixture, NULL, setup, contains_number_where_only_hiragana, teardown);
+    g_test_add ("/contains_number/where_only_katakana", Fixture, NULL, setup, contains_number_where_only_katakana, teardown);
+    g_test_add ("/contains_number/with_no_numbers", Fixture, NULL, setup, contains_number_with_no_numbers, teardown);
+    g_test_add ("/contains_number/with_mix", Fixture, NULL, setup, contains_number_with_mix, teardown);
 
     return g_test_run();
 }
