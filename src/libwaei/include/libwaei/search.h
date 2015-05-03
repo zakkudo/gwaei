@@ -122,6 +122,8 @@ void lw_search_set_flags (LwSearch * self, LwSearchFlag flags);
 LwSearchFlag lw_search_build_flags_from_preferences (LwPreferences * preferences);
 LwUtf8Flag lw_search_build_utf8flags (LwSearch * self);
 
+LwParsed * lw_search_get_parsed (LwSearch * self, GError ** error);
+
 G_END_DECLS
 
 #endif

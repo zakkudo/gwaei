@@ -52,6 +52,7 @@ static gchar const * lw_kanjidictionary_get_column_language (LwDictionary *self,
 static LwDictionaryColumnHandling lw_kanjidictionary_get_column_handling (LwDictionary *self, gint column_num);
 static gchar** lw_kanjidictionary_columnize (LwDictionary *self, gchar *buffer, gchar **columns, gsize *num_columns);
 static void lw_kanjidictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
+static gint * lw_kanjidictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
 
 LwDictionary* lw_kanjidictionary_new (const gchar        *FILENAME, 
@@ -130,6 +131,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
     dictionary_class->priv->get_column_language = lw_kanjidictionary_get_column_language;
     dictionary_class->priv->columnize = lw_kanjidictionary_columnize;
     dictionary_class->priv->load_columns = lw_kanjidictionary_load_columns;
+    dictionary_calss->priv->calculate_applicable_columns_for_text = lw_kanjidictionary_calculate_applicable_columns_for_text;
 }
 
 
@@ -564,4 +566,45 @@ errored:
       LW_KANJIDICTIONARYCOLUMNID_MEANINGS,
       (gchar**) g_array_free (meanings, FALSE)
     );
+}
+
+
+static gint *
+lw_kanjidictionary_calculate_applicable_columns_for_text (LwDictionary * dictionary,
+                                                            gchar const  * TEXT)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_KANJIDICTIONARY (dictionary), NULL);
+    if (TEXT == NULL || *TEXT == '\0') return NULL;
+
+    //Declarations
+    LwKanjiDictionary * self = NULL;
+    LwDictionaryClass *klass = NULL;
+    gint max_columns = 0;
+    gint * columns = NULL;
+    gint num_columns = 0;
+    gboolean contains_kanji = FALSE;
+    gboolean contains_furigana = FALSE;
+    gboolean contains_romaji = FALSE;
+    gboolean contains_number = FALSE;
+
+    //Initializations
+    self = LW_KANJIDICTIONARY (dictionary);
+    max_columns = lw_kanjidictionary_get_total_columns (dictionary);
+    columns = g_new0 (gint, max_columns + 1);
+    contains_kanji = lw_utf8_contains_kanji (TEXT);
+    contains_furigana = lw_utf8_contains_furigana (TEXT);
+    contains_romaji = lw_utf8_contains_romaji (TEXT);
+    contains_number = lw_utf8_contains_number (TEXT);
+
+    g_assert_not_reached ()
+
+    columns[num_columns++] = -1;
+
+    if (num_columns < max_columns)
+      columns = g_renew (gint, num_columns);
+
+errored:
+
+    return columns;
 }

@@ -55,6 +55,7 @@ G_DEFINE_TYPE (LwSearch, lw_search, G_TYPE_OBJECT)
 static LwSearchData * lw_searchdata_new (LwSearch * search, GError ** error);
 static void lw_searchdata_free (LwSearchData * self);
 static gboolean _apply_search_columns_to_query (LwQueryNode * self, LwSearchData * data);
+static void lw_searchdata_search_parsed (LwSearchData * self, LwParsed * parsed);
 
 /**
  * lw_search_new:
@@ -736,7 +737,7 @@ lw_search_build_flags_from_preferences (LwPreferences *preferences)
 
 
 static gpointer 
-lw_search_stream_results_thread (LwSearchData *data)
+lw_searchdata_stream_results_thread (LwSearchData *data)
 {
     //Sanity checks
     g_return_val_if_fail (data != NULL, NULL);
@@ -747,6 +748,8 @@ lw_search_stream_results_thread (LwSearchData *data)
     LwProgress *progress = NULL;
     LwDictionary *dictionary = NULL;
     LwSearchFlag flags = 0;
+    LwParsed * parsed = NULL;
+    GError * error = NULL;
 
     //Initializations
     self = data->search;
@@ -758,12 +761,19 @@ lw_search_stream_results_thread (LwSearchData *data)
 
     g_mutex_lock (&priv->mutex);
 
-    //TODO
+    parsed = lw_search_get_parsed (self, &error);
+    if (parsed == NULL) goto errored;
+    if (error != NULL) goto errored;
+    lw_searchdata_search_parsed (data, parsed);
 
 errored:
 
     priv->status = LW_SEARCHSTATUS_FINISHED;
     priv->thread = NULL;
+
+    lw_progress_set_completed (progress, TRUE);
+    lw_progress_take_error (progress, error);
+    error = NULL;
 
     g_mutex_unlock (&priv->mutex);
 
@@ -881,9 +891,9 @@ lw_searchdata_free (LwSearchData * self)
  * console programs.
  */
 void 
-lw_search_start (LwSearch *  self,
-                 gboolean    dry_run,
-                 GError   ** error)
+lw_search_dictionary (LwSearch *  self,
+                      gboolean    dry_run,
+                      GError   ** error)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -908,7 +918,7 @@ lw_search_start (LwSearch *  self,
     data = lw_searchdata_new (self, error);
     if (error != NULL && *error != NULL) goto errored;
 
-    lw_search_stream_results_thread (data);
+    lw_searchdata_stream_results_thread (data);
 
     data = NULL;
 
@@ -932,9 +942,9 @@ errored:
  * method should only be called from the main thread of the application.
  */
 void
-lw_search_start_async (LwSearch *  self,
-                       gboolean    dry_run,
-                       GError   ** error)
+lw_search_dictionary_async (LwSearch *  self,
+                            gboolean    dry_run,
+                            GError   ** error)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -969,7 +979,7 @@ lw_search_start_async (LwSearch *  self,
 
     priv->thread = g_thread_try_new (
       "libwaei-search-thread",
-      (GThreadFunc) lw_search_stream_results_thread, 
+      (GThreadFunc) lw_searchdata_stream_results_thread, 
       (gpointer) data, 
       error
     );
@@ -1090,97 +1100,99 @@ lw_search_build_utf8flags (LwSearch * self)
 }
 
 
-
-/*TODO
-
 static gboolean
-_regex_search_column (LwParsedLine *line,
-                      gpointer      data)
+_search_parsed (LwParsed     * parsed,
+                LwParsedLine * line,
+                LwSearchData * data)
 {
-      if (g_regex_match (regex, BUFFER, 0, NULL) == TRUE)
-      {
-        matchlist = g_list_prepend (matchlist, GINT_TO_POINTER (i));
-      }
-}
+    //Declarations
+    LwSearch * search = NULL;
+    LwProgress * progress = NULL;
+    gdouble current = 0.0;
+    
+    //Initializations
+    search = data->search;
+    progress = lw_search_get_progress (data->search);
+    if (progress != NULL && lw_progress_should_abort (progress)) return TRUE;
 
+    if (lw_querynode_match_parsedline (data->root, line, NULL)) {
+      g_sequence_append (search->priv->results, line);
+    }
 
-static void
-lw_search_search_parsedline(LwSearch *search,
-                            LwParsedLine *line)
-{
-}
-
-
-static gboolean
-_regex_search_parsed_line (LwParsed *parsed,
-                           LwParsedLine *line,
-                           RegexSearchParsedLineData *data)
-{
-    if (lw_progress_should_abort (progress)) return TRUE;
-
-    gint i = 0;
-    gchar **strv;
-    gboolean matches = FALSE;
-
-    for (columns[i])
+    if (progress != NULL)
     {
-      strv = g_tree_lookup(line->tree, GINT_TO_POINTER (columns[i]))
-      while (*strv != NULL && !matches) {
-        if (lw_search_search_string(search, *strv))
-          matches = TRUE;
-        strv++;
-      }
-      lw_progress_set_current (progress, i);
+      current = lw_progress_get_current (progress);
+      lw_progress_set_current (progress, current + 1);
     }
 
     return FALSE;
 }
 
 
-void
-lw_search_search_dictionary (LwSearch      *self,
-                             LwDictionary  *dictionary)
+LwParsed *
+lw_search_get_parsed (LwSearch *  self,
+                      GError   ** error)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
     g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
+    if (error != NULL && *error != NULL) return NULL;
 
     //Declarations
     LwUtf8Flag flags = 0;
+    LwDictionary * dictionary = NULL;
     LwDictionaryCache *cache = NULL;
     LwParsed *parsed = NULL;
-    GList *matchlist = NULL;
-    GRegex *regex = NULL;
-    gint chunk = 0;
-    LwProgress *progress = NULL;
-    gint num_lines = -1;
-    gchar const * DICTIONARY_NAME = NULL;
-    struct RegexSearchParsedLineData data = {
-      .search = self
-    };
-
+    LwProgress * progress = NULL;
 
     //Initializations
     flags = lw_search_build_utf8flags (self);
     progress = lw_search_get_progress (self);
     if (progress == NULL) goto errored;
+    dictionary = lw_search_get_dictionary (self);
+    if (dictionary == NULL) goto errored;
     cache = lw_dictionary_get_cache (dictionary, progress, flags);
     if (cache == NULL) goto errored;
     parsed = lw_dictionarycache_get_parsed (cache);
     if (parsed == NULL) goto errored;
-    regex = lw_search_get_regex (search);
-    if (regex == NULL) goto errored;
+
+errored:
+
+    return parsed;
+}
+
+
+static void
+lw_searchdata_search_parsed (LwSearchData * self,
+                             LwParsed     * parsed)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_SEARCH (self));
+    g_return_if_fail (parsed != NULL);
+
+    //Declarations
+    LwProgress * progress = NULL;
+    LwDictionary * dictionary = NULL;
+    gchar const * DICTIONARY_NAME = NULL;
+    gdouble num_lines = 0.0;
+
+    //Initializations
+    progress = lw_search_get_progress (self->search);
+    if (progress == NULL) goto errored;
+    dictionary = lw_search_get_dictionary (self->search);
+    if (dictionary == NULL) goto errored;
     DICTIONARY_NAME = lw_dictionary_get_name (dictionary);
     if (DICTIONARY_NAME == NULL) goto errored;
-
+    num_lines = lw_parsed_num_lines (parsed);
 
     lw_progress_set_primary_message_printf (progress, "Searching %d dictionary...", DICTIONARY_NAME);
     lw_progress_set_total (progress, num_lines);
+    lw_progress_set_current (progress, 0.0);
 
-    lw_parsed_foreach (parsed, (LwParsedForeachFunc) _regex_search_parsed_line, data);
+    lw_parsed_foreach (parsed, (LwParsedForeachFunc) _search_parsed, self);
+
+    lw_progress_set_complete (progress, TRUE);
 
 errored:
 
     return;
 }
-*/

@@ -52,6 +52,7 @@ static gchar const * lw_edictionary_get_column_language (LwDictionary *self, gin
 static LwDictionaryColumnHandling lw_edictionary_get_column_handling (LwDictionary *self, gint column_num);
 static gchar** lw_edictionary_columnize (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_edictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
+static gint * lw_edictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
 
 LwDictionary* lw_edictionary_new (const gchar        *FILENAME, 
@@ -144,6 +145,7 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
     dictionary_class->priv->get_column_language = lw_edictionary_get_column_language;
     dictionary_class->priv->columnize = lw_edictionary_columnize;
     dictionary_class->priv->load_columns = lw_edictionary_load_columns;
+    dictionary_class->priv->calculate_applicable_columns_for_text = lw_edictionary_calculate_applicable_columns_for_text;
 }
 
 
@@ -495,3 +497,56 @@ errored:
       (gchar**) g_array_free (definition, FALSE)
     );
 }
+
+
+static gint *
+lw_edictionary_calculate_applicable_columns_for_text (LwDictionary * dictionary,
+                                                      gchar const  * TEXT)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_EDICTIONARY (dictionary), NULL);
+    if (TEXT == NULL || *TEXT == '\0') return NULL;
+
+    //Declarations
+    LwEDictionary * self = NULL;
+    LwDictionaryClass *klass = NULL;
+    gint max_columns = 0;
+    gint * columns = NULL;
+    gint num_columns = 0;
+    gboolean contains_kanji = FALSE;
+    gboolean contains_furigana = FALSE;
+    gboolean contains_romaji = FALSE;
+    gboolean contains_number = FALSE;
+
+    //Initializations
+    self = LW_EDICTIONARY (dictionary);
+    max_columns = lw_edictionary_get_total_columns (dictionary);
+    columns = g_new0 (gint, max_columns + 1);
+    contains_kanji = lw_utf8_contains_kanji (TEXT);
+    contains_furigana = lw_utf8_contains_furigana (TEXT);
+    contains_romaji = lw_utf8_contains_romaji (TEXT);
+    contains_number = lw_utf8_contains_number (TEXT);
+
+    if (contains_kanji || (contains_kanji && contains_furigana))
+    {
+      columns[num_columns++] = LW_EDICTIONARYCOLUMNID_WORD;
+    }
+    if (contains_furigana && !contains_kanji)
+    {
+      columns[num_columns++] = LW_EDICTIONARYCOLUMNID_READING;
+    }
+    if (contains_romaji || contains_number)
+    {
+      columns[num_columns++] = LW_EDICTIONARYCOLUMNID_DEFINITION;
+    }
+
+    columns[num_columns++] = -1;
+
+    if (num_columns < max_columns)
+      columns = g_renew (gint, num_columns);
+
+errored:
+
+    return columns;
+}
+

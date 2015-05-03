@@ -51,6 +51,7 @@ static gchar const * lw_radicalsdictionary_get_column_language (LwDictionary *se
 static LwDictionaryColumnHandling lw_radicalsdictionary_get_column_handling (LwDictionary *self, gint column_num);
 static gchar** lw_radicalsdictionary_columnize (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_radicalsdictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
+static gint * lw_radicalsdictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
 G_DEFINE_DYNAMIC_TYPE (LwRadicalsDictionary, lw_radicalsdictionary, LW_TYPE_DICTIONARY)
 
@@ -126,6 +127,7 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
     dictionary_class->priv->get_column_language = lw_radicalsdictionary_get_column_language;
     dictionary_class->priv->columnize = lw_radicalsdictionary_columnize;
     dictionary_class->priv->load_columns = lw_radicalsdictionary_load_columns;
+    dictionary_calss->priv->calculate_applicable_columns_for_text = lw_radicalsdictionary_calculate_applicable_columns_for_text;
 }
 
 
@@ -317,4 +319,45 @@ errored:
       LW_RADICALSDICTIONARYCOLUMNID_RADICALS,
       (gchar**) g_array_free (radicals, FALSE)
     );
+}
+
+
+static gint *
+lw_radicalsdictionary_calculate_applicable_columns_for_text (LwDictionary * dictionary,
+                                                            gchar const  * TEXT)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_RADICALSDICTIONARY (dictionary), NULL);
+    if (TEXT == NULL || *TEXT == '\0') return NULL;
+
+    //Declarations
+    LwRadicalsDictionary * self = NULL;
+    LwDictionaryClass *klass = NULL;
+    gint max_columns = 0;
+    gint * columns = NULL;
+    gint num_columns = 0;
+    gboolean contains_radicals = FALSE;
+    gboolean contains_furigana = FALSE;
+    gboolean contains_romaji = FALSE;
+    gboolean contains_number = FALSE;
+
+    //Initializations
+    self = LW_RADICALSDICTIONARY (dictionary);
+    max_columns = lw_radicalsdictionary_get_total_columns (dictionary);
+    columns = g_new0 (gint, max_columns + 1);
+    contains_kanji = lw_utf8_contains_kanji (TEXT);
+    contains_furigana = lw_utf8_contains_furigana (TEXT);
+    contains_romaji = lw_utf8_contains_romaji (TEXT);
+    contains_number = lw_utf8_contains_number (TEXT);
+
+    g_assert_not_reached ()
+
+    columns[num_columns++] = -1;
+
+    if (num_columns < max_columns)
+      columns = g_renew (gint, num_columns);
+
+errored:
+
+    return columns;
 }

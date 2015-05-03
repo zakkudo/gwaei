@@ -53,6 +53,7 @@ static gchar const * lw_unknowndictionary_get_column_language (LwDictionary *sel
 static LwDictionaryColumnHandling lw_unknowndictionary_get_column_handling (LwDictionary *self, gint column_num);
 static gchar** lw_unknowndictionary_columnize (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_unknowndictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
+static gint * lw_unknowndictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
 LwDictionary* lw_unknowndictionary_new (const gchar        *FILENAME,
                                         LwMorphologyEngine *morphologyengine)
@@ -125,6 +126,7 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
     dictionary_class->priv->get_column_language = lw_unknowndictionary_get_column_language;
     dictionary_class->priv->columnize = lw_unknowndictionary_columnize;
     dictionary_class->priv->load_columns = lw_unknowndictionary_load_columns;
+    dictionary_calss->priv->calculate_applicable_columns_for_text = lw_unknowndictionary_calculate_applicable_columns_for_text;
 }
 
 
@@ -264,4 +266,45 @@ errored:
       LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN,
       (gchar**) g_array_free (unknown, FALSE)
     );
+}
+
+
+static gint *
+lw_unknowndictionary_calculate_applicable_columns_for_text (LwDictionary * dictionary,
+                                                            gchar const  * TEXT)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_UNKNOWNDICTIONARY (dictionary), NULL);
+    if (TEXT == NULL || *TEXT == '\0') return NULL;
+
+    //Declarations
+    LwUnknownDictionary * self = NULL;
+    LwDictionaryClass *klass = NULL;
+    gint max_columns = 0;
+    gint * columns = NULL;
+    gint num_columns = 0;
+    gboolean contains_kanji = FALSE;
+    gboolean contains_furigana = FALSE;
+    gboolean contains_romaji = FALSE;
+    gboolean contains_number = FALSE;
+
+    //Initializations
+    self = LW_UNKNOWNDICTIONARY (dictionary);
+    max_columns = lw_unknowndictionary_get_total_columns (dictionary);
+    columns = g_new0 (gint, max_columns + 1);
+    contains_kanji = lw_utf8_contains_kanji (TEXT);
+    contains_furigana = lw_utf8_contains_furigana (TEXT);
+    contains_romaji = lw_utf8_contains_romaji (TEXT);
+    contains_number = lw_utf8_contains_number (TEXT);
+
+    g_assert_not_reached ()
+
+    columns[num_columns++] = -1;
+
+    if (num_columns < max_columns)
+      columns = g_renew (gint, num_columns);
+
+errored:
+
+    return columns;
 }

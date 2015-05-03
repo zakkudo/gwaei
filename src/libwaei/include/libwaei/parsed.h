@@ -45,6 +45,8 @@ void lw_parsed_set_lines (LwParsed *self, LwParsedLine *lines, gsize num_lines);
 
 LwCacheFile* lw_parsed_get_cachefile (LwParsed * self);
 
+gsize lw_parsed_num_lines (LwParsed * self);
+
 G_END_DECLS
 
 #endif

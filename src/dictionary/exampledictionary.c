@@ -52,6 +52,7 @@ static gchar const * lw_exampledictionary_get_column_language (LwDictionary *sel
 static LwDictionaryColumnHandling lw_exampledictionary_get_column_handling (LwDictionary *self, gint column_num);
 static gchar** lw_exampledictionary_columnize (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_exampledictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
+static gint * lw_exampledictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
 LwDictionary* lw_exampledictionary_new (const gchar        *FILENAME,
                                         LwMorphologyEngine *morphologyengine)
@@ -128,6 +129,7 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
     dictionary_class->priv->get_column_language = lw_exampledictionary_get_column_language;
     dictionary_class->priv->columnize = lw_exampledictionary_columnize;
     dictionary_class->priv->load_columns = lw_exampledictionary_load_columns;
+    dictionary_calss->priv->calculate_applicable_columns_for_text = lw_exampledictionary_calculate_applicable_columns_for_text;
 }
 
 
@@ -371,4 +373,45 @@ errored:
       LW_EXAMPLEDICTIONARYCOLUMNID_ID,
       (gchar**) g_array_free (id, FALSE)
     );
+}
+
+
+static gint *
+lw_exampledictionary_calculate_applicable_columns_for_text (LwDictionary * dictionary,
+                                                            gchar const  * TEXT)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (dictionary), NULL);
+    if (TEXT == NULL || *TEXT == '\0') return NULL;
+
+    //Declarations
+    LwExampleDictionary * self = NULL;
+    LwDictionaryClass *klass = NULL;
+    gint max_columns = 0;
+    gint * columns = NULL;
+    gint num_columns = 0;
+    gboolean contains_kanji = FALSE;
+    gboolean contains_furigana = FALSE;
+    gboolean contains_romaji = FALSE;
+    gboolean contains_number = FALSE;
+
+    //Initializations
+    self = LW_EXAMPLEDICTIONARY (dictionary);
+    max_columns = lw_exampledictionary_get_total_columns (dictionary);
+    columns = g_new0 (gint, max_columns + 1);
+    contains_kanji = lw_utf8_contains_kanji (TEXT);
+    contains_furigana = lw_utf8_contains_furigana (TEXT);
+    contains_romaji = lw_utf8_contains_romaji (TEXT);
+    contains_number = lw_utf8_contains_number (TEXT);
+
+    g_assert_not_reached ()
+
+    columns[num_columns++] = -1;
+
+    if (num_columns < max_columns)
+      columns = g_renew (gint, num_columns);
+
+errored:
+
+    return columns;
 }
