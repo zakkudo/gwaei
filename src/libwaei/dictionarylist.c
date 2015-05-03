@@ -907,8 +907,7 @@ lw_dictionarylist_length (LwDictionaryList *self)
 
 
 void 
-lw_dictionarylist_load_installed (LwDictionaryList   *self, 
-                                  LwMorphologyEngine *morphologyengine)
+lw_dictionarylist_load_installed (LwDictionaryList   *self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYLIST (self));

@@ -36,7 +36,7 @@ struct _LwUnknownDictionaryClass {
 };
 
 //Methods
-LwDictionary* lw_unknowndictionary_new (const gchar*, LwMorphologyEngine*);
+LwDictionary* lw_unknowndictionary_new (const gchar*);
 GType lw_unknowndictionary_get_type (void) G_GNUC_CONST;
 
 GType lw_unknowndictionary_columnid_get_type (void);

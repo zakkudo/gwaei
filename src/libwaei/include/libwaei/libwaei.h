@@ -3,7 +3,6 @@
 
 #include <libwaei/definitions.h>
 #include <libwaei/utf8.h>
-#include <libwaei/regex.h>
 #include <libwaei/parenthesisnode.h>
 #include <libwaei/querynode.h>
 #include <libwaei/progress.h>
@@ -15,8 +14,6 @@
 #include <libwaei/filepath.h>
 #include <libwaei/condition.h>
 #include <libwaei/dependancy.h>
-#include <libwaei/morphologystring.h>
-#include <libwaei/morphologyengine.h>
 #include <libwaei/preferences.h>
 #include <libwaei/vocabulary.h>
 #include <libwaei/dictionary.h>

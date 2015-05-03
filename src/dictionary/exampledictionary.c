@@ -54,8 +54,7 @@ static gchar** lw_exampledictionary_columnize (LwDictionary *self, gchar *buffer
 static void lw_exampledictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
 static gint * lw_exampledictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
-LwDictionary* lw_exampledictionary_new (const gchar        *FILENAME,
-                                        LwMorphologyEngine *morphologyengine)
+LwDictionary* lw_exampledictionary_new (const gchar * FILENAME)
 {
     //Declarations
     LwDictionary *dictionary;
@@ -63,7 +62,6 @@ LwDictionary* lw_exampledictionary_new (const gchar        *FILENAME,
     //Initializations
     dictionary = LW_DICTIONARY (g_object_new (LW_TYPE_EXAMPLEDICTIONARY,
                                 "filename", FILENAME,
-                                "morphologyengine", morphologyengine,
                                 NULL));
 
     return dictionary;

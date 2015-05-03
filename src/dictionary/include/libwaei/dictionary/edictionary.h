@@ -51,7 +51,7 @@ struct _LwEDictionaryClass {
 
 
 //Methods
-LwDictionary* lw_edictionary_new (const gchar*, LwMorphologyEngine*);
+LwDictionary* lw_edictionary_new (const gchar*);
 GType lw_edictionary_get_type (void) G_GNUC_CONST;
 
 

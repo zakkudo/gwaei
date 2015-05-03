@@ -37,7 +37,7 @@ struct _LwRadicalsDictionaryClass {
 };
 
 //Methods
-LwDictionary* lw_radicalsdictionary_new (const gchar*, LwMorphologyEngine*);
+LwDictionary* lw_radicalsdictionary_new (const gchar*);
 GType lw_radicalsdictionary_get_type (void) G_GNUC_CONST;
 
 GType lw_radicalsdictionary_columnid_get_type (void);

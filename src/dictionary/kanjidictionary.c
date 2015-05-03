@@ -55,8 +55,7 @@ static void lw_kanjidictionary_load_columns (LwDictionary *self, gchar *buffer, 
 static gint * lw_kanjidictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
 
-LwDictionary* lw_kanjidictionary_new (const gchar        *FILENAME, 
-                                      LwMorphologyEngine *morphologyengine)
+LwDictionary* lw_kanjidictionary_new (const gchar * FILENAME)
 {
     //Declarations
     LwDictionary *dictionary;
@@ -64,7 +63,6 @@ LwDictionary* lw_kanjidictionary_new (const gchar        *FILENAME,
     //Initializations
     dictionary = LW_DICTIONARY (g_object_new (LW_TYPE_KANJIDICTIONARY,
                                 "filename", FILENAME,
-                                "morphologyengine", morphologyengine,
                                 NULL));
 
     return dictionary;

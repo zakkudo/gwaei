@@ -61,7 +61,7 @@ LwDictionary* lw_dictionarylist_fuzzy_find (LwDictionaryList *self, const gchar 
 LwDictionary* lw_dictionarylist_find_by_filename (LwDictionaryList *self, const gchar *FILENAME);
 LwDictionary* lw_dictionarylist_find_by_id (LwDictionaryList *self, const gchar *ID);
 
-void lw_dictionarylist_load_installed (LwDictionaryList *self, LwMorphologyEngine *morphologyengine);
+void lw_dictionarylist_load_installed (LwDictionaryList *self);
 
 GMenuModel* lw_dictionarylist_get_menumodel (LwDictionaryList *self);
 
