@@ -776,6 +776,65 @@ contains_number_with_mix (Fixture *fixture, gconstpointer data)
 }
 
 
+void
+isescaped_where_empty (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_isescaped (TEXT, TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+isescaped_where_unescaped (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "a";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_isescaped (TEXT, TEXT);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
+
+void
+isescaped_where_escaped (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "\\a";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_isescaped (TEXT, TEXT + 1);
+
+    //Assert
+    g_assert_cmpint (contains, ==, TRUE);
+}
+
+
+void
+isescaped_where_double_escaped (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "\\\\a";
+    gboolean contains = FALSE;
+
+    //Initializations
+    contains = lw_utf8_isescaped (TEXT, TEXT + 2);
+
+    //Assert
+    g_assert_cmpint (contains, ==, FALSE);
+}
+
 
 gint
 main (gint argc, gchar *argv[])
@@ -826,6 +885,11 @@ main (gint argc, gchar *argv[])
     g_test_add ("/contains_number/where_only_katakana", Fixture, NULL, setup, contains_number_where_only_katakana, teardown);
     g_test_add ("/contains_number/with_no_numbers", Fixture, NULL, setup, contains_number_with_no_numbers, teardown);
     g_test_add ("/contains_number/with_mix", Fixture, NULL, setup, contains_number_with_mix, teardown);
+
+    g_test_add ("/isescaped/where_empty", Fixture, NULL, setup, isescaped_where_empty, teardown);
+    g_test_add ("/isescaped/where_unexcaped", Fixture, NULL, setup, isescaped_where_unescaped, teardown);
+    g_test_add ("/isescaped/where_escaped", Fixture, NULL, setup, isescaped_where_escaped, teardown);
+    g_test_add ("/isescaped/where_double_escaped", Fixture, NULL, setup, isescaped_where_double_escaped, teardown);
 
     return g_test_run();
 }
