@@ -1228,7 +1228,7 @@ compile_string_with_keyed_embedded_and_on_value (Fixture       * fixture,
 
     LwQueryNode expected_root = {
       .operation = LW_QUERYNODE_OPERATION_NONE,
-      .key = "1",
+      .key = NULL,
       .data = NULL,
       .children = NULL,
       .refs = 1,

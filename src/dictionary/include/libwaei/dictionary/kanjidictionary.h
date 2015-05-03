@@ -62,6 +62,9 @@ struct _LwKanjiDictionaryClass {
 LwDictionary* lw_kanjidictionary_new (const gchar*, LwMorphologyEngine*);
 GType lw_kanjidictionary_get_type (void) G_GNUC_CONST;
 
+GType lw_kanjidictionary_columnid_get_type (void);
+#define LW_TYPE_KANJIDICTIONARYCOLUMNID (lw_kanjidictionarycolumnid_get_type ())
+
 
 G_END_DECLS
 

@@ -128,6 +128,7 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
     dictionary_class->priv->columnize = lw_radicalsdictionary_columnize;
     dictionary_class->priv->load_columns = lw_radicalsdictionary_load_columns;
     dictionary_class->priv->calculate_applicable_columns_for_text = lw_radicalsdictionary_calculate_applicable_columns_for_text;
+    dictionary_class->priv->columnid_get_type = lw_radicalsdictionary_columnid_get_type;
 }
 
 
@@ -185,6 +186,26 @@ lw_radicalsdictionary_get_column_handling (LwDictionary *self,
     }
 
     return column_handlings[column_num];
+}
+
+
+GType
+lw_radicalsdictionary_columnid_get_type ()
+{
+    static GType type = 0;
+
+    if (G_UNLIKELY (type == 0))
+    {
+      GEnumValue values[] = {
+        { LW_RADICALSDICTIONARYCOLUMNID_KANJI, LW_RADICALSDICTIONARYCOLUMNNAME_KANJI, LW_RADICALSDICTIONARYCOLUMNNICK_KANJI },
+        { LW_RADICALSDICTIONARYCOLUMNID_RADICALS, LW_RADICALSDICTIONARYCOLUMNNAME_RADICALS, LW_RADICALSDICTIONARYCOLUMNNICK_RADICALS },
+        { 0, NULL, NULL },
+      };
+
+      type = g_enum_register_static ("LwRadicalsDictionaryColumnId", values);
+    }
+
+    return type;
 }
 
 

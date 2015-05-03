@@ -132,6 +132,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
     dictionary_class->priv->columnize = lw_kanjidictionary_columnize;
     dictionary_class->priv->load_columns = lw_kanjidictionary_load_columns;
     dictionary_class->priv->calculate_applicable_columns_for_text = lw_kanjidictionary_calculate_applicable_columns_for_text;
+    dictionary_class->priv->columnid_get_type = lw_kanjidictionary_columnid_get_type;
 }
 
 
@@ -203,6 +204,33 @@ lw_kanjidictionary_get_column_handling (LwDictionary *self,
     }
 
     return column_handlings[column_num];
+}
+
+
+GType
+lw_kanjidictionary_columnid_get_type ()
+{
+    static GType type = 0;
+
+    if (G_UNLIKELY (type == 0))
+    {
+      GEnumValue values[] = {
+        { LW_KANJIDICTIONARYCOLUMNID_KANJI, LW_KANJIDICTIONARYCOLUMNNAME_KANJI, LW_KANJIDICTIONARYCOLUMNNICK_KANJI },
+        { LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL, LW_KANJIDICTIONARYCOLUMNNAME_UNICODE_SYMBOL, LW_KANJIDICTIONARYCOLUMNNICK_UNICODE_SYMBOL },
+        { LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY, LW_KANJIDICTIONARYCOLUMNNAME_USAGE_FREQUENCY, LW_KANJIDICTIONARYCOLUMNNICK_USAGE_FREQUENCY },
+        { LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT, LW_KANJIDICTIONARYCOLUMNNAME_STROKE_COUNT, LW_KANJIDICTIONARYCOLUMNNICK_STROKE_COUNT },
+        { LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL, LW_KANJIDICTIONARYCOLUMNNAME_GRADE_LEVEL, LW_KANJIDICTIONARYCOLUMNNICK_GRADE_LEVEL },
+        { LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL, LW_KANJIDICTIONARYCOLUMNNAME_JLPT_LEVEL, LW_KANJIDICTIONARYCOLUMNNICK_JLPT_LEVEL },
+        { LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS, LW_KANJIDICTIONARYCOLUMNNAME_KUN_READINGS, LW_KANJIDICTIONARYCOLUMNNICK_KUN_READINGS },
+        { LW_KANJIDICTIONARYCOLUMNID_ON_READINGS, LW_KANJIDICTIONARYCOLUMNNAME_ON_READINGS, LW_KANJIDICTIONARYCOLUMNNICK_ON_READINGS },
+        { LW_KANJIDICTIONARYCOLUMNID_MEANINGS, LW_KANJIDICTIONARYCOLUMNNAME_MEANINGS, LW_KANJIDICTIONARYCOLUMNNICK_MEANINGS },
+        { 0, NULL, NULL },
+      };
+
+      type = g_enum_register_static ("LwKanjiDictionaryColumnId", values);
+    }
+
+    return type;
 }
 
 

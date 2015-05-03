@@ -104,6 +104,7 @@ gchar * lw_dictionary_build_path_by_type_and_name (GType type, gchar const * FIL
 
 
 gint * lw_dictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
+GType lw_dictionary_columnid_get_type (LwDictionary * self);
 
 G_END_DECLS
 

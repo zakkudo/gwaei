@@ -130,6 +130,7 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
     dictionary_class->priv->columnize = lw_exampledictionary_columnize;
     dictionary_class->priv->load_columns = lw_exampledictionary_load_columns;
     dictionary_class->priv->calculate_applicable_columns_for_text = lw_exampledictionary_calculate_applicable_columns_for_text;
+    dictionary_class->priv->columnid_get_type = lw_exampledictionary_columnid_get_type;
 }
 
 
@@ -189,6 +190,27 @@ lw_exampledictionary_get_column_handling (LwDictionary *self,
     }
 
     return column_handlings[column_num];
+}
+
+
+GType
+lw_exampledictionary_columnid_get_type ()
+{
+    static GType type = 0;
+
+    if (G_UNLIKELY (type == 0))
+    {
+      GEnumValue values[] = {
+        { LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE, LW_EXAMPLEDICTIONARYCOLUMNNAME_PHRASE, LW_EXAMPLEDICTIONARYCOLUMNNICK_PHRASE },
+        { LW_EXAMPLEDICTIONARYCOLUMNID_MEANING, LW_EXAMPLEDICTIONARYCOLUMNNAME_MEANING, LW_EXAMPLEDICTIONARYCOLUMNNICK_MEANING },
+        { LW_EXAMPLEDICTIONARYCOLUMNID_ID, LW_EXAMPLEDICTIONARYCOLUMNNAME_ID, LW_EXAMPLEDICTIONARYCOLUMNNICK_ID },
+        { 0, NULL, NULL },
+      };
+
+      type = g_enum_register_static ("LwExampleDictionaryColumnId", values);
+    }
+
+    return type;
 }
 
 

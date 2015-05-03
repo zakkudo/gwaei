@@ -127,6 +127,7 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
     dictionary_class->priv->columnize = lw_unknowndictionary_columnize;
     dictionary_class->priv->load_columns = lw_unknowndictionary_load_columns;
     dictionary_class->priv->calculate_applicable_columns_for_text = lw_unknowndictionary_calculate_applicable_columns_for_text;
+    dictionary_class->priv->columnid_get_type = lw_unknowndictionary_columnid_get_type;
 }
 
 
@@ -181,6 +182,25 @@ lw_unknowndictionary_get_column_handling (LwDictionary *self,
     }
 
     return column_handlings[column_num];
+}
+
+
+GType
+lw_unknowndictionary_columnid_get_type ()
+{
+    static GType type = 0;
+
+    if (G_UNLIKELY (type == 0))
+    {
+      GEnumValue values[] = {
+        { LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN, LW_UNKNOWNDICTIONARYCOLUMNNAME_UNKNOWN, LW_UNKNOWNDICTIONARYCOLUMNNICK_UNKNOWN },
+        { 0, NULL, NULL },
+      };
+
+      type = g_enum_register_static ("LwUnknownDictionaryColumnId", values);
+    }
+
+    return type;
 }
 
 

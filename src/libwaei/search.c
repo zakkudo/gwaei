@@ -783,6 +783,34 @@ errored:
     return NULL;
 }
 
+static gint *
+_calculate_columns_by_name (LwQueryNode  * self,
+                            LwDictionary * dictionary)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
+
+    //Declarations
+    GFlagsValue * value = NULL;
+    GType type = G_TYPE_NONE;
+    gint column = -1;
+    gint * columns = NULL;
+
+    //Initializations
+    type = lw_dictionary_columnid_get_type (dictionary);
+    value = g_flags_get_value_by_name (type, self->key);
+    if (value == NULL) goto errored;
+    column = value->value;
+    columns = g_new0 (gint, 2);
+    if (columns == NULL) goto errored;
+    columns[0] = column;
+    columns[1] = -1;
+
+errored:
+
+    return columns;
+}
 
 static gboolean
 _apply_search_columns_to_query (LwQueryNode  * self,
@@ -805,7 +833,11 @@ _apply_search_columns_to_query (LwQueryNode  * self,
     if (QUERY == NULL) goto errored;
     dictionary = lw_search_get_dictionary (search);
     if (dictionary == NULL) goto errored;
-    columns = lw_dictionary_calculate_applicable_columns_for_text (dictionary, QUERY);
+    columns = _calculate_columns_by_name (self, dictionary);
+    if (columns == NULL)
+    {
+      columns = lw_dictionary_calculate_applicable_columns_for_text (dictionary, QUERY);
+    }
     if (columns == NULL) goto errored;
 
     g_free (self->columns);

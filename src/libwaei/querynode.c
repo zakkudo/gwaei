@@ -188,6 +188,16 @@ errored:
 }
 
 
+/**
+ * lw_querynode_new_tree_from_string:
+ * @TEXT: The text to generate the #LwQueryNode tree from
+ * @operation_out: Returns any hanging operations that should be passed to the next sibling.  This should generally be set to %LW_QUERYNODE_OPERATION_NONE by outside consumers of this api.
+ * @error: Pointer to a #GError or %NONE
+ *
+ * Generates a #LwQueryNode tree from a string.  This method is recursive, thus requiring a pointer to a #LwQueryNodeOperation for context.  This method uses #LwParenthesisNode as an intermediary compilation, so if there are any parentheiss errors, they will return through #GError with that domain.
+ *
+ * Returns: A new #LwQueryNode tree that can be freed with lw_querynode_unref()
+ */
 LwQueryNode *
 lw_querynode_new_tree_from_string (gchar const          *  TEXT,
                                    LwQueryNodeOperation *  operation_out,
@@ -827,6 +837,12 @@ errored:
 }
 
 
+/**
+ * lw_querynode_ref:
+ * @self: A #LwQueryNode
+ * 
+ * Returns: Increases the reference count of the #LwQueryNode and returns it
+ */
 LwQueryNode*
 lw_querynode_ref (LwQueryNode * self)
 {
@@ -854,6 +870,12 @@ lw_querynode_free (LwQueryNode *self)
 }
 
 
+/**
+ * lw_querynode_unref:
+ * @self: A #LwQueryNode
+ * 
+ * Decreases the references on the #LwQueryNode and frees it if it reaches 0
+ */
 void
 lw_querynode_unref (LwQueryNode *self)
 {
@@ -866,6 +888,13 @@ lw_querynode_unref (LwQueryNode *self)
 }
 
 
+/**
+ * lw_querynode_assert_equals:
+ * @self: A #LwQueryNode
+ * @Other: Another #LwQueryNode
+ *
+ * Returns: %TRUE if the internal fields and children match
+ */
 void
 lw_querynode_assert_equals (LwQueryNode *self,
                             LwQueryNode *other)
@@ -902,6 +931,14 @@ lw_querynode_assert_equals (LwQueryNode *self,
 }
 
 
+/**
+ * lw_querynode_walk:
+ * @self: A #LwQueryNode
+ * @func: A method to run on each #LwQueryNode
+ * @data: A #gpointer to pass to each @func
+ *
+ * Returns: %TRUE if the walk was cancelled early
+ */
 gboolean
 lw_querynode_walk (LwQueryNode         * self,
                    LwQueryNodeWalkFunc   func,
@@ -1199,7 +1236,7 @@ _querynode_compile (LwQueryNode * self,
     {
       KEY = self->key;
     }
-    else
+    else if (self->data != NULL)
     {
       self->key = g_strdup (KEY);
     }
@@ -1229,11 +1266,23 @@ errored:
     if (regex != NULL) g_regex_unref (regex);
     regex =  NULL;
 
+    if (self->data == NULL)
+    {
+      g_free (self->key);
+      self->key = NULL;
+    }
+
     g_free (normalized_pattern);
     normalized_pattern = NULL;
 }
 
 
+/**
+ * lw_querynode_nnodes:
+ * @self: A #LwQueryNode
+ *
+ * Returns: the total number of nodes
+ */
 gint
 lw_querynode_nnodes (LwQueryNode * self)
 {
@@ -1255,6 +1304,17 @@ lw_querynode_nnodes (LwQueryNode * self)
 }
 
 
+/**
+ * lw_querynode_compile:
+ * @self: A #LwQueryNode
+ * @flags: The flags for the prefered normalization of the query data
+ * @error: An #Error to track errors or %NULL to ignore them
+ *
+ * Compiles the #LwQueryNode into a more compact form that is more ideal
+ * for comparisons.  Once compiled, the #LwQueryNode structure will not be in
+ * the same form as the original query and all regexes will be filled.
+ * You should run this before any uses of lw_querynode_match_parsedline().
+ */
 void
 lw_querynode_compile (LwQueryNode *  self,
                       LwUtf8Flag     flags,
@@ -1379,6 +1439,15 @@ errored:
     return matches;
 }
 
+
+/**
+ * lw_querynode_match_parsedline:
+ * @self: A #LwQueryNode
+ * @parsed_line: A @parsed_line to search
+ * @match_info_out: A #LwQueryNodeMatchInfo to record match information or %NULL to ignore it
+ *
+ * Returns: %TRUE if @self matches against the @parsed_line
+ */
 gboolean
 lw_querynode_match_parsedline (LwQueryNode           * self,
                                LwParsedLine          * parsed_line,

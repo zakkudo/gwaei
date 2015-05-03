@@ -1213,3 +1213,31 @@ errored:
 
     return columns;
 }
+
+
+/**
+ * lw_dictionary_columnid_get_type:
+ * @self: A #LwDictionary
+ *
+ * Returns: The columnid type from the implementor of this class.
+ */
+GType
+lw_dictionary_columnid_get_type (LwDictionary * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+
+    //Declarations
+    GType type = G_TYPE_NONE;
+    LwDictionaryClass *klass = NULL;
+
+    //Initializations
+    klass = LW_DICTIONARY_GET_CLASS (self);
+    type = klass->priv->columnid_get_type ();
+
+errored:
+
+    return type;
+  
+}
+

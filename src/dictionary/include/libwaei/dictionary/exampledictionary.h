@@ -43,6 +43,8 @@ struct _LwExampleDictionaryClass {
 LwDictionary* lw_exampledictionary_new (const gchar*, LwMorphologyEngine*);
 GType lw_exampledictionary_get_type (void) G_GNUC_CONST;
 
+GType lw_exampledictionary_columnid_get_type (void);
+#define LW_TYPE_EXAMPLEDICTIONARYCOLUMNID (lw_exampledictionarycolumnid_get_type ())
 
 G_END_DECLS
 

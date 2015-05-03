@@ -146,6 +146,7 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
     dictionary_class->priv->columnize = lw_edictionary_columnize;
     dictionary_class->priv->load_columns = lw_edictionary_load_columns;
     dictionary_class->priv->calculate_applicable_columns_for_text = lw_edictionary_calculate_applicable_columns_for_text;
+    dictionary_class->priv->columnid_get_type = lw_edictionary_columnid_get_type;
 }
 
 
@@ -226,7 +227,7 @@ lw_edictionary_columnid_get_type ()
         { 0, NULL, NULL },
       };
 
-      type = g_enum_register_static ("LwEdictionaryColumnId", values);
+      type = g_enum_register_static ("LwEDictionaryColumnId", values);
     }
 
     return type;
@@ -551,4 +552,3 @@ errored:
 
     return columns;
 }
-

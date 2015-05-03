@@ -40,6 +40,8 @@ struct _LwRadicalsDictionaryClass {
 LwDictionary* lw_radicalsdictionary_new (const gchar*, LwMorphologyEngine*);
 GType lw_radicalsdictionary_get_type (void) G_GNUC_CONST;
 
+GType lw_radicalsdictionary_columnid_get_type (void);
+#define LW_TYPE_RADICALSDICTIONARYCOLUMNID (lw_radicalsdictionarycolumnid_get_type ())
 
 G_END_DECLS
 

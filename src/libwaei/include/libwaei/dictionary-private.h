@@ -51,6 +51,7 @@ struct _LwDictionaryClassPrivate {
   gchar** (* columnize) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
   void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
   gint* (* calculate_applicable_columns_for_text) (LwDictionary * self, char const * TEXT);
+  GType (* columnid_get_type) ();
 };
 
 #define LW_DICTIONARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARY, LwDictionaryPrivate));
