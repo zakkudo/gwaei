@@ -131,7 +131,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
     dictionary_class->priv->get_column_language = lw_kanjidictionary_get_column_language;
     dictionary_class->priv->columnize = lw_kanjidictionary_columnize;
     dictionary_class->priv->load_columns = lw_kanjidictionary_load_columns;
-    dictionary_calss->priv->calculate_applicable_columns_for_text = lw_kanjidictionary_calculate_applicable_columns_for_text;
+    dictionary_class->priv->calculate_applicable_columns_for_text = lw_kanjidictionary_calculate_applicable_columns_for_text;
 }
 
 
@@ -597,12 +597,12 @@ lw_kanjidictionary_calculate_applicable_columns_for_text (LwDictionary * diction
     contains_romaji = lw_utf8_contains_romaji (TEXT);
     contains_number = lw_utf8_contains_number (TEXT);
 
-    g_assert_not_reached ()
+    g_assert_not_reached ();
 
     columns[num_columns++] = -1;
 
     if (num_columns < max_columns)
-      columns = g_renew (gint, num_columns);
+      columns = g_renew (gint, columns, num_columns);
 
 errored:
 

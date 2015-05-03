@@ -1190,7 +1190,7 @@ lw_searchdata_search_parsed (LwSearchData * self,
 
     lw_parsed_foreach (parsed, (LwParsedForeachFunc) _search_parsed, self);
 
-    lw_progress_set_complete (progress, TRUE);
+    lw_progress_set_completed (progress, TRUE);
 
 errored:
 

@@ -543,7 +543,9 @@ lw_edictionary_calculate_applicable_columns_for_text (LwDictionary * dictionary,
     columns[num_columns++] = -1;
 
     if (num_columns < max_columns)
-      columns = g_renew (gint, num_columns);
+    {
+      columns = g_renew (gint, columns, num_columns);
+    }
 
 errored:
 

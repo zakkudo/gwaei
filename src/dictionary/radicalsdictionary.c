@@ -127,7 +127,7 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
     dictionary_class->priv->get_column_language = lw_radicalsdictionary_get_column_language;
     dictionary_class->priv->columnize = lw_radicalsdictionary_columnize;
     dictionary_class->priv->load_columns = lw_radicalsdictionary_load_columns;
-    dictionary_calss->priv->calculate_applicable_columns_for_text = lw_radicalsdictionary_calculate_applicable_columns_for_text;
+    dictionary_class->priv->calculate_applicable_columns_for_text = lw_radicalsdictionary_calculate_applicable_columns_for_text;
 }
 
 
@@ -337,6 +337,7 @@ lw_radicalsdictionary_calculate_applicable_columns_for_text (LwDictionary * dict
     gint * columns = NULL;
     gint num_columns = 0;
     gboolean contains_radicals = FALSE;
+    gboolean contains_kanji = FALSE;
     gboolean contains_furigana = FALSE;
     gboolean contains_romaji = FALSE;
     gboolean contains_number = FALSE;
@@ -350,12 +351,12 @@ lw_radicalsdictionary_calculate_applicable_columns_for_text (LwDictionary * dict
     contains_romaji = lw_utf8_contains_romaji (TEXT);
     contains_number = lw_utf8_contains_number (TEXT);
 
-    g_assert_not_reached ()
+    g_assert_not_reached ();
 
     columns[num_columns++] = -1;
 
     if (num_columns < max_columns)
-      columns = g_renew (gint, num_columns);
+      columns = g_renew (gint, columns, num_columns);
 
 errored:
 

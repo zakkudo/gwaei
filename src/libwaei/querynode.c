@@ -40,7 +40,9 @@
 
 #include <glib.h>
 
-#include <libwaei/libwaei.h>
+#include <libwaei/parenthesisnode.h>
+#include <libwaei/querynode.h>
+#include <libwaei/querynodematchinfo-private.h>
 #include <libwaei/gettext.h>
 
 
@@ -1378,9 +1380,9 @@ errored:
 }
 
 gboolean
-lw_querynode_match_parsedline (LwQueryNode            * self,
-                               LwParsedLine           * parsed_line,
-                               LwQueryNodeMatchInfo  ** matches)
+lw_querynode_match_parsedline (LwQueryNode           * self,
+                               LwParsedLine          * parsed_line,
+                               LwQueryNodeMatchInfo  * match_info_out)
 {
-    return _querynode_match_parsedline (self, parsed_line, NULL, matches);
+    return _querynode_match_parsedline (self, parsed_line, NULL, match_info_out);
 }

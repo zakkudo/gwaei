@@ -359,7 +359,6 @@ errored:
 }
 
 
-
 static GHashTable*
 _get_furiganafold_hashtable ()
 {
@@ -655,6 +654,11 @@ errored:
 }
 
 
+/**
+ * lw_utf8_get_script:
+ * 
+ * document me
+ */
 GUnicodeScript
 lw_utf8_get_script (gchar *TEXT)
 {
@@ -665,7 +669,7 @@ lw_utf8_get_script (gchar *TEXT)
     gunichar c = 0;
     
     //Initializations
-    c =g_utf8_get_char (TEXT);
+    c = g_utf8_get_char (TEXT);
     script = g_unichar_get_script (c);
 
     return script;
@@ -673,237 +677,6 @@ lw_utf8_get_script (gchar *TEXT)
 
 
 
-gboolean 
-lw_utf8_is_hiragana_str (const char *input)
-{
-    //Declarations
-    gboolean is_consistant;
-    gunichar character;
-    GUnicodeScript script;
-    const char *ptr;
-
-    //Initializations
-    is_consistant = TRUE;
-    
-    //Loop over the string checking for characters inconsistant with the script
-    for (ptr = input; *ptr != '\0' && is_consistant; ptr = g_utf8_next_char (ptr))
-    {
-      character = g_utf8_get_char (ptr);
-      script = g_unichar_get_script (character);
-      if (script != G_UNICODE_SCRIPT_HIRAGANA &&
-          script != G_UNICODE_SCRIPT_COMMON)
-        is_consistant = FALSE;
-    }
-
-    return is_consistant;
-}
-
-
-gboolean 
-lw_utf8_is_katakana_str (const char *input)
-{
-    //Declarations
-    gboolean is_consistant;
-    gunichar character;
-    GUnicodeScript script;
-    const char *ptr;
-
-    //Initializations
-    is_consistant = TRUE;
-    
-    //Loop over the string checking for characters inconsistant with the script
-    for (ptr = input; *ptr != '\0' && is_consistant; ptr = g_utf8_next_char (ptr))
-    {
-      character = g_utf8_get_char (ptr);
-      script = g_unichar_get_script (character);
-      if (script != G_UNICODE_SCRIPT_KATAKANA &&
-          script != G_UNICODE_SCRIPT_COMMON)
-        is_consistant = FALSE;
-    }
-
-    return is_consistant;
-}
-
-
-gboolean 
-lw_utf8_is_furigana_str (const char *input)
-{
-    return (lw_utf8_is_katakana_str (input) || lw_utf8_is_hiragana_str (input));
-}
-
-
-gboolean 
-lw_utf8_is_kanji_ish_str (const char *input)
-{
-    //Declarations
-    gboolean is_consistant;
-    gunichar character;
-    GUnicodeScript script;
-    const char *ptr;
-
-    //Initializations
-    is_consistant = TRUE;
-    
-    //Loop over the string checking for characters inconsistant with the script
-    for (ptr = input; *ptr != '\0' && is_consistant; ptr = g_utf8_next_char (ptr))
-    {
-      character = g_utf8_get_char (ptr);
-      script = g_unichar_get_script (character);
-      if (script != G_UNICODE_SCRIPT_HAN &&
-          script != G_UNICODE_SCRIPT_HIRAGANA &&
-          script != G_UNICODE_SCRIPT_KATAKANA &&
-          script != G_UNICODE_SCRIPT_COMMON)
-        is_consistant = FALSE;
-    }
-
-    return is_consistant;
-}
-
-
-gboolean
-lw_utf8_string_has_japanese (const gchar *INPUT)
-{
-    //Declarations
-    gboolean found;
-    gunichar character;
-    GUnicodeScript script;
-    const gchar *ptr;
-
-    //Initializations
-    found = FALSE;
-
-    //Loop over the string checking for characters inconsistant with the script
-    for (ptr = INPUT; *ptr != '\0' && !found; ptr = g_utf8_next_char (ptr))
-    {
-      character = g_utf8_get_char (ptr);
-      script = g_unichar_get_script (character);
-      if (script == G_UNICODE_SCRIPT_HAN ||
-          script == G_UNICODE_SCRIPT_HIRAGANA ||
-          script == G_UNICODE_SCRIPT_KATAKANA)
-        found = TRUE;
-    }
-
-    return found;
-}
-
-
-gboolean 
-lw_utf8_is_kanji_str (const char *input)
-{
-    //Declarations
-    gboolean is_consistant;
-    gunichar character;
-    GUnicodeScript script;
-    const char *ptr;
-
-    //Initializations
-    is_consistant = TRUE;
-    
-    //Loop over the string checking for characters inconsistant with the script
-    for (ptr = input; *ptr != '\0' && is_consistant; ptr = g_utf8_next_char (ptr))
-    {
-      character = g_utf8_get_char (ptr);
-      script = g_unichar_get_script (character);
-      if (script != G_UNICODE_SCRIPT_HAN &&
-          script != G_UNICODE_SCRIPT_COMMON)
-        is_consistant = FALSE;
-    }
-
-    return is_consistant;
-}
-
-
-gboolean 
-lw_utf8_is_romaji_str (const char *input)
-{
-    //Declarations
-    gboolean is_consistant;
-    gunichar character;
-    GUnicodeScript script;
-    const char *ptr;
-
-    //Initializations
-    is_consistant = TRUE;
-    
-    //Loop over the string checking for characters inconsistant with the script
-    for (ptr = input; *ptr != '\0' && is_consistant; ptr = g_utf8_next_char (ptr))
-    {
-      character = g_utf8_get_char (ptr);
-      script = g_unichar_get_script (character);
-      if (script != G_UNICODE_SCRIPT_LATIN && 
-          script != G_UNICODE_SCRIPT_COMMON)
-        is_consistant = FALSE;
-    }
-
-    return is_consistant;
-}
-
-
-gboolean 
-lw_utf8_is_yojijukugo_str (const char* INPUT)
-{
-  return (g_utf8_strlen (INPUT, -1) == 4 && lw_utf8_is_kanji_str (INPUT));
-}
-
-
-gchar *
-lw_utf8_delimit_whitespace (const gchar *DELIMITOR, const gchar* TEXT)
-{
-    //Sanity check
-    g_return_val_if_fail (DELIMITOR != NULL && TEXT != NULL, NULL);
-
-    //Declarations
-    gchar *buffer;
-    gint count;
-    const gchar *source_ptr;
-    gchar *target_ptr;
-    gunichar c;
-    gint delimitor_length;
-    gboolean inserted_delimitor;
-    gboolean is_whitespace;
-
-    //Initializations
-    count = 0;
-    delimitor_length = strlen(DELIMITOR);
-    inserted_delimitor = FALSE;
-    for (source_ptr = TEXT; *source_ptr != '\0'; source_ptr = g_utf8_next_char (source_ptr))
-    {
-      c = g_utf8_get_char (source_ptr);
-      is_whitespace = g_unichar_isspace(c);
-
-      if (is_whitespace)
-      {
-        count++;
-      }
-    }
-    buffer = g_new (gchar, strlen(TEXT) + (delimitor_length * count) + 1);
-    target_ptr = buffer;
-
-    //Create the delimited string
-    if (buffer != NULL)
-    {
-      for (source_ptr = TEXT; *source_ptr != '\0'; source_ptr = g_utf8_next_char (source_ptr))
-      {
-        c = g_utf8_get_char (source_ptr);
-        is_whitespace = g_unichar_isspace(c);
-
-        if (is_whitespace && !inserted_delimitor)
-        {
-          strcpy(target_ptr, DELIMITOR);
-          target_ptr += delimitor_length;
-          inserted_delimitor = TRUE;
-        }
-        else if (!is_whitespace)
-        {
-          target_ptr += g_unichar_to_utf8 (c, target_ptr);
-          *target_ptr = '\0';
-          inserted_delimitor = FALSE;
-        }
-      }
-    }
-
-    return buffer;
-}
 
 
 gchar*
@@ -968,6 +741,11 @@ lw_utf8_delimit_radicals (const gchar *DELIMITOR, const gchar* TEXT)
 }
 
 
+/**
+ * lw_utf8_replace_linebreaks_with_nullcharacter:
+ *
+ * TODO
+ */
 gsize
 lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
                                                gsize       content_length,
@@ -1106,16 +884,16 @@ errored:
 
 
 gint
-lw_utf8_count_lines (gchar *buffer)
+lw_utf8_count_lines (gchar const * TEXT)
 {
-    if (buffer == NULL) return 0;
+    if (TEXT == NULL) return 0;
 
     //Declarations
-    gchar *c = NULL;
+    gchar const * c = NULL;
     gint count = 0;
 
     //Initializations
-    c = buffer;
+    c = TEXT;
 
     while (*c != '\0')
     {
@@ -1179,4 +957,77 @@ lw_utf8_isescaped (gchar const * TEXT,
       CHAR_PTR--;
     }
     return is_escaped;
+}
+
+gboolean
+lw_utf8_contains_kanji (gchar const * TEXT)
+{
+    gchar const * c = NULL;
+    gunichar character = 0;
+    GUnicodeScript script = G_UNICODE_SCRIPT_INVALID_CODE;
+    gboolean found = FALSE;
+
+    for (c = TEXT; *c != '\0' && !found; c = g_utf8_next_char (c))
+    {
+      character = g_utf8_get_char (c);
+      script = g_unichar_get_script (character);
+      found = (script == G_UNICODE_SCRIPT_HAN);
+    }
+
+    return found;
+}
+
+
+gboolean
+lw_utf8_contains_furigana (gchar const * TEXT)
+{
+    gchar const * c = NULL;
+    gunichar character = 0;
+    GUnicodeScript script = G_UNICODE_SCRIPT_INVALID_CODE;
+    gboolean found = FALSE;
+
+    for (c = TEXT; *c != '\0' && !found; c = g_utf8_next_char (c))
+    {
+      character = g_utf8_get_char (c);
+      script = g_unichar_get_script (character);
+      found = (script == G_UNICODE_SCRIPT_HIRAGANA || script == G_UNICODE_SCRIPT_KATAKANA);
+    }
+
+    return found;
+}
+
+
+gboolean
+lw_utf8_contains_romaji (gchar const * TEXT)
+{
+    gchar const * c = NULL;
+    gunichar character = 0;
+    GUnicodeScript script = G_UNICODE_SCRIPT_INVALID_CODE;
+    gboolean found = FALSE;
+
+    for (c = TEXT; *c != '\0' && !found; c = g_utf8_next_char (c))
+    {
+      character = g_utf8_get_char (c);
+      script = g_unichar_get_script (character);
+      found = (script == G_UNICODE_SCRIPT_LATIN);
+    }
+
+    return found;
+}
+
+
+gboolean
+lw_utf8_contains_number (gchar const * TEXT)
+{
+    gchar const * c = NULL;
+    gunichar character = 0;
+    GUnicodeScript script = G_UNICODE_SCRIPT_INVALID_CODE;
+    gboolean found = FALSE;
+
+    for (c = TEXT; *c != '\0' && !found; c = g_utf8_next_char (c))
+    {
+      found = g_ascii_isdigit (*c);
+    }
+
+    return found;
 }

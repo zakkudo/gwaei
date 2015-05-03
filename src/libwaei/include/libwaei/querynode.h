@@ -3,6 +3,7 @@
 
 #include "querynodematchinfo.h"
 #include "parsedline.h"
+#include "utf8.h"
 
 G_BEGIN_DECLS
 
@@ -61,7 +62,7 @@ gboolean lw_querynode_walk (LwQueryNode * self, LwQueryNodeWalkFunc func, gpoint
 gint lw_querynode_nnodes (LwQueryNode * self);
 void lw_querynode_compile (LwQueryNode * self, LwUtf8Flag flags, GError ** error);
 
-gboolean lw_querynode_match_parsedline (LwQueryNode * self, LwParsedLine * parsed_line, LwQueryNodeMatchInfo ** matches);
+gboolean lw_querynode_match_parsedline (LwQueryNode * self, LwParsedLine * parsed_line, LwQueryNodeMatchInfo * match_info_out);
 
 G_END_DECLS
 
