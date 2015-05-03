@@ -942,6 +942,13 @@ errored:
 }
 
 
+/**
+ * lw_utf8_isescaped:
+ * @TEXT: The start of the text that contains the possibly escaped character
+ * @CHAR_PTR: The character to check if it's sescaped
+ *
+ * Returns: True if the character is escaped
+ */
 gboolean
 lw_utf8_isescaped (gchar const * TEXT,
                    gchar const * CHAR_PTR)
