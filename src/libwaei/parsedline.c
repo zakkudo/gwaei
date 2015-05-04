@@ -19,9 +19,13 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//! @file parsedline.c
-//!
+/**
+ * SECTION:parsedline
+ * @short_description: A simple container for parsed data of a definition line
+ * @title: LwParsedLine
+ *
+ * TODO
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -77,18 +81,18 @@ lw_parsedline_init (LwParsedLine *self)
     g_return_if_fail (self != NULL);
 
     lw_parsedline_clear (self);
-    self->tree = g_tree_new_full (_compare, NULL, NULL, (GDestroyNotify) g_free);
+    self->tree = g_tree_new_full (_compare, NULL, NULL, NULL);
 }
 
 
 void
-lw_parsedline_init_static (LwParsedLine *self)
+lw_parsedline_init_full (LwParsedLine *self, GDestroyNotify destroy_notify_func)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
 
     lw_parsedline_clear (self);
-    self->tree = g_tree_new_full (_compare, NULL, NULL, NULL);
+    self->tree = g_tree_new_full (_compare, NULL, NULL, destroy_notify_func);
 }
 
 
@@ -286,7 +290,7 @@ lw_parsedline_deserialize_into (LwParsedLine  *self,
     g_return_val_if_fail (contents_reference_point != NULL, 0);
     if (error != NULL && *error != NULL) return 0;
 
-    lw_parsedline_init_static (self);
+    lw_parsedline_init (self);
 
     //Declarations
     struct _DeserializeData data = {
@@ -311,7 +315,8 @@ lw_parsedline_deserialize_into (LwParsedLine  *self,
         strv = (gchar**) *data.read_pointer;
         if (!_merge_base_and_validate (strv, data.contents))
         {
-          data.error = g_error_new (
+          g_set_error (
+            &data.error,
             LW_PARSEDLINE_ERROR,
             LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR,
             "The Contents or the serialized Data is invalid."

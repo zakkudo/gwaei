@@ -21,7 +21,7 @@ typedef struct _LwParsedLine LwParsedLine;
 
 //Methods
 void lw_parsedline_init (LwParsedLine *self);
-void lw_parsedline_init_static (LwParsedLine *self);
+void lw_parsedline_init_full (LwParsedLine *self, GDestroyNotify destroy_notify_func);
 void lw_parsedline_clear (LwParsedLine *self);
 
 void lw_parsedline_take_strv (LwParsedLine *self, gint id, gchar ** strv);

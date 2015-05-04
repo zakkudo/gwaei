@@ -1166,7 +1166,7 @@ lw_dictionary_parse (LwDictionary *self,
         if (c >= e) break;
 
         line = lines + i;
-        lw_parsedline_init (line);
+        lw_parsedline_init_full (line, (GDestroyNotify) g_free);
         lw_dictionary_columnize (self, c, tokens, &num_tokens);
         lw_dictionary_load_columns (self, contents, tokens, num_tokens, line);
         if (progress != NULL)
