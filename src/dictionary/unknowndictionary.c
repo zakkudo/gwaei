@@ -279,7 +279,7 @@ errored:
 
     g_array_set_size (unknown, unknown->len);
 
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN,
       (gchar**) g_array_free (unknown, FALSE)

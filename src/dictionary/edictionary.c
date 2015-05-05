@@ -470,27 +470,27 @@ errored:
     g_array_set_size (classification, classification->len);
     g_array_set_size (definition, definition->len);
 
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_EDICTIONARYCOLUMNID_POPULAR,
       (gchar**) g_array_free (popular, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_EDICTIONARYCOLUMNID_WORD,
       (gchar**) g_array_free (word, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_EDICTIONARYCOLUMNID_READING,
       (gchar**) g_array_free (reading, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_EDICTIONARYCOLUMNID_CLASSIFICATION,
       (gchar**) g_array_free (classification, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_EDICTIONARYCOLUMNID_DEFINITION,
       (gchar**) g_array_free (definition, FALSE)

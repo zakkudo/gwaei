@@ -547,47 +547,47 @@ errored:
     g_array_set_size (on_readings, on_readings->len);
     g_array_set_size (meanings, meanings->len);
 
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_KANJIDICTIONARYCOLUMNID_KANJI,
       (gchar**) g_array_free (kanji, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL, 
       (gchar**) g_array_free (unicode_symbol, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY,
       (gchar**) g_array_free (usage_frequency, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT,
       (gchar**) g_array_free (stroke_count, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL,
       (gchar**) g_array_free (grade_level, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL,
       (gchar**) g_array_free (jlpt_level, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS,
       (gchar**) g_array_free (kun_readings, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_KANJIDICTIONARYCOLUMNID_ON_READINGS, 
       (gchar**) g_array_free (on_readings, FALSE)
     );
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_KANJIDICTIONARYCOLUMNID_MEANINGS,
       (gchar**) g_array_free (meanings, FALSE)

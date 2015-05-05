@@ -24,7 +24,25 @@
  * @short_description: A simple container for parsed data of a definition line
  * @title: LwParsedLine
  *
- * TODO
+ * This class forms a smaller part of #LwParsed, which represents a whole parsed
+ * file. You will not usually be creating/destroying #LwParsedLines directly.
+ *
+ * #LwParsedLine is designed to minimize memory allocations by being able to be
+ * declared on the stack, use the binary data it was deserialized from to hold
+ * it's strvs, and having the strvs reference strings in a separate chunk.  This
+ * means there are  a lot of got-chas if you try to use this class outside of the
+ * #LwParsed context.
+ *
+ * Usage example:
+ * |[<!-- langauge="C" -->
+ * LwParsedLine parsed_line = {0};
+ * lw_parsedline_init_full (&parsed_line, (GDestroyNotify) g_strfreev);
+ *
+ * lw_parsedline_set_strv (&parsed_line, 0, g_strsplit (":", "one:two"));
+ * printf("%s\n", lw_parsedline_get_strv (&parsed_line, 0)[0]);
+ *
+ * lw_parsedline_clear (&parsed_line);
+ * ]|
  */
 
 #ifdef HAVE_CONFIG_H
@@ -72,6 +90,14 @@ _compare (gconstpointer a,
 }
 
 
+/**
+ * lw_parsedline_init:
+ * @self: A #LwParsedLine
+ *
+ * Initializes an #LwParsedLine so that you can start adding strvs to it. 
+ * Call lw_parsedline_clear() when done to free the memory.
+ *
+ */
 void
 lw_parsedline_init (LwParsedLine *self)
 {
@@ -83,6 +109,13 @@ lw_parsedline_init (LwParsedLine *self)
 }
 
 
+/**
+ * lw_parsedline_init_full:
+ * @self: A #LwParsedLine
+ * @destroy_notify_func: A callback to free memory set with lw_parsedline_set_strv() when lw_parsedline_clear() is called
+ *
+ * A version of lw_parsedline_init() that allows you to pass a destroy_notify_func to cleanup the strvs.
+ */
 void
 lw_parsedline_init_full (LwParsedLine *self, GDestroyNotify destroy_notify_func)
 {
@@ -94,6 +127,12 @@ lw_parsedline_init_full (LwParsedLine *self, GDestroyNotify destroy_notify_func)
 }
 
 
+/**
+ * lw_parsedline_clear:
+ * @self: A #LwParsedLine
+ *
+ * Clears internal memory of the #LwParsedLine, calling the @destroy_notify_func from lw_parsedliine_init_full on each strv if set
+ */
 void
 lw_parsedline_clear (LwParsedLine *self)
 {
@@ -112,8 +151,14 @@ lw_parsedline_clear (LwParsedLine *self)
 }
 
 
+/**
+ * lw_parsedline_set_strv:
+ * @self: A #LwParsedLine
+ * @id: A column id to store the strv.  It will replace the current strv at that column if it was previously set.
+ * @strv: A %NULL terminated array of strings to set to the column id
+ */
 void
-lw_parsedline_take_strv (LwParsedLine  *self,
+lw_parsedline_set_strv (LwParsedLine  *self,
                          gint           id,
                          gchar        **strv)
 {
@@ -132,6 +177,13 @@ lw_parsedline_take_strv (LwParsedLine  *self,
 }
 
 
+/**
+ * lw_parsedline_get_strv:
+ * @self: A #LwParsedLine
+ * @id: The id to fetch the strv from
+ *
+ * Returns: The strv stored at @id or %NULL if it doesn't exist
+ */
 gchar const * *
 lw_parsedline_get_strv (LwParsedLine *self,
                         gint          id)
@@ -148,6 +200,12 @@ lw_parsedline_get_strv (LwParsedLine *self,
 }
 
 
+/**
+ * lw_parsedline_get_serialized_length:
+ * @self: A #LwParsedLine
+ *
+ * Returns: The calculated length of the data that would be serialized
+ */
 gsize
 lw_parsedline_get_serialized_length (LwParsedLine *self)
 {
@@ -209,6 +267,15 @@ errored:
 }
                                             
 
+/**
+ * lw_parsedline_get_serialize:
+ * @self: A #LwParsedLine
+ * @contents_reference_pointer: The raw data that the strvs reference
+ * @preallocated_buffer: Location to write the serialized data to. It must be at least the size as calculated by lw_parsedline_get_serialized_length()
+ * @error: An #GError to record errors or %NULL
+ *
+ * Returns: The bytes written to the @preallocated_buffer
+ */
 gsize
 lw_parsedline_serialize (LwParsedLine  * self,
                          gchar const   * contents_reference_pointer,
@@ -281,6 +348,15 @@ _merge_base_and_validate (gchar       ** strv,
 }
 
 
+/**
+ * lw_parsedline_deserialize_into:
+ * @self: A #LwParsedLine that should be initialized to {0}
+ * @serialized_data: The data to build the #LwParsedLine from
+ * @contents_reference_point: File used as the base offset to restore the strvs
+ * @error: An #GError to record errors or %NULL
+ *
+ * Returns: The bytes read from @serialized_data to build the #LwParsedLine
+ */
 gsize
 lw_parsedline_deserialize_into (LwParsedLine  *self,
                                 gchar const   *serialized_data,
@@ -385,6 +461,12 @@ _foreach (gpointer key,
 }
 
 
+/**
+ * lw_parsedline_foreach:
+ * @self: A #LwParsedLine
+ * @func: A function to call on each column id
+ * @data: Data to be passed to @func
+ */
 void
 lw_parsedline_foreach (LwParsedLine * self, LwParsedLineForeachFunc func, gpointer data)
 {
@@ -402,17 +484,12 @@ lw_parsedline_foreach (LwParsedLine * self, LwParsedLineForeachFunc func, gpoint
 }
 
 
-gchar **
-lw_parsedline_lookup (LwParsedLine * self, gint column)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (self->tree != NULL, NULL);
-
-    return g_tree_lookup (self->tree, GINT_TO_POINTER (column));
-}
-
-
+/**
+ * lw_parsedline_num_columns:
+ * @self: A #LwParsedLine
+ *
+ * Returns: The number of columns set
+ */
 gint
 lw_parsedline_num_columns (LwParsedLine * self)
 {
@@ -424,6 +501,13 @@ lw_parsedline_num_columns (LwParsedLine * self)
 }
 
 
+/**
+ * lw_parsedline_assert_equals:
+ * @self: A #LwParsedLine
+ * @other: Another #LwParsedLine
+ *
+ * A method used to facilitate unit testing
+ */
 void
 lw_parsedline_assert_equals (LwParsedLine * self,
                              LwParsedLine * other)

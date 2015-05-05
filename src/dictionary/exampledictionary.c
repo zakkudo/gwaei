@@ -376,19 +376,19 @@ errored:
     g_array_set_size (meaning, meaning->len);
     g_array_set_size (id, id->len);
 
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE,
       (gchar**) g_array_free (phrase, FALSE)
     );
 
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_EXAMPLEDICTIONARYCOLUMNID_MEANING,
       (gchar**) g_array_free (meaning, FALSE)
     );
 
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_EXAMPLEDICTIONARYCOLUMNID_ID,
       (gchar**) g_array_free (id, FALSE)

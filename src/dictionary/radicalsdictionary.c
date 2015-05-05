@@ -327,13 +327,13 @@ errored:
     g_array_set_size (kanji, 1);
     g_array_set_size (radicals, radicals->len);
 
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_RADICALSDICTIONARYCOLUMNID_KANJI,
       (gchar**) g_array_free (kanji, FALSE)
     );
 
-    lw_parsedline_take_strv (
+    lw_parsedline_set_strv (
       line,
       LW_RADICALSDICTIONARYCOLUMNID_RADICALS,
       (gchar**) g_array_free (radicals, FALSE)

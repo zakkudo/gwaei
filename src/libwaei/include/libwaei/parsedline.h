@@ -26,10 +26,9 @@ void lw_parsedline_init (LwParsedLine *self);
 void lw_parsedline_init_full (LwParsedLine *self, GDestroyNotify destroy_notify_func);
 void lw_parsedline_clear (LwParsedLine *self);
 
-void lw_parsedline_take_strv (LwParsedLine *self, gint id, gchar ** strv);
+void lw_parsedline_set_strv (LwParsedLine *self, gint id, gchar ** strv);
 gchar const ** lw_parsedline_get_strv (LwParsedLine *self, gint id);
 
-gchar ** lw_parsedline_lookup (LwParsedLine * self, gint column);
 gint lw_parsedline_num_columns (LwParsedLine * self);
 
 gsize lw_parsedline_get_serialized_length (LwParsedLine *self);
