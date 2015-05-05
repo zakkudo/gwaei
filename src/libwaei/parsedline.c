@@ -50,18 +50,16 @@ lw_parsedline_error_quark ()
 
 struct _SerializeData {
   gchar const *contents;
-  gsize *buffer;
-  gsize *write_pointer;
-  gsize bytes_written;
-  GError *error;
+  gchar *buffer;
+  gchar *write_pointer;
+  GError **error;
 };
 
 struct _DeserializeData {
   gchar const *contents;
-  gsize *serialized_data;
-  gsize *read_pointer;
-  gsize bytes_read;
-  GError *error;
+  gchar *serialized_data;
+  gchar *read_pointer;
+  GError **error;
 };
 
 
@@ -162,68 +160,77 @@ lw_parsedline_get_serialized_length (LwParsedLine *self)
 
 
 static gboolean
-_serialize (gpointer               key,
-            gpointer               value,
-            struct _SerializeData *data)
+_serialize (LwParsedLine           * self,
+            gint                     column,
+            gchar                 ** strv,
+            struct _SerializeData *  data)
 {
     //Sanity checks
-    g_return_val_if_fail (key != NULL, TRUE);
-    g_return_val_if_fail (value != NULL, TRUE);
+    g_return_val_if_fail (self != NULL, TRUE);
+    g_return_val_if_fail (strv != NULL, TRUE);
 
     //Declarations
-    gint id = -1;
-    gchar **strv = NULL;
     gboolean has_error = FALSE;
-    gsize bytes_written = 0;
+    gint length = 0;
+    gchar * offset = NULL;
 
     //Initializations
-    id = GPOINTER_TO_INT (key);
-    if (id < 0) goto errored;
-    strv = value;
-    if (strv == NULL) goto errored;
+    length = g_strv_length (strv);
 
-    //Set the id
-    if (data->write_pointer != NULL) *(data->write_pointer++) = (gsize) id;
-    bytes_written += sizeof(gsize);
+    //Set the column id
+    if (data->buffer != NULL) memcpy(data->write_pointer, &column, sizeof(gint));
+    data->write_pointer += sizeof(gint);
+
+    if (data->buffer != NULL) memcpy(data->write_pointer, &length, sizeof(gint));
+    data->write_pointer += sizeof(gint);
 
     //Set the string pointers
     while (*strv != NULL)
     {
-      if (data->write_pointer != NULL) *(data->write_pointer++) = *(strv++) - data->contents;
-      bytes_written += sizeof(gsize);
+      if (data->buffer != NULL)
+      {
+        offset = (gchar*) (*strv - data->contents);
+        memcpy(data->write_pointer, &offset, sizeof(gchar*));
+      }
+      data->write_pointer += sizeof(gchar*);
+      strv++;
     }
-    if (data->write_pointer != NULL) *(data->write_pointer++) = 0;
-    bytes_written += sizeof(gsize);
+
+    if (data->buffer != NULL)
+    {
+      offset = (gchar*) (*strv);
+      memcpy(data->write_pointer, &offset, sizeof(gchar*));
+    }
+    data->write_pointer += sizeof(gchar*);
 
 errored:
-
-    has_error = (bytes_written < (sizeof(gsize) * 2));
-    data->bytes_written += bytes_written;
 
     return has_error;
 }
                                             
 
 gsize
-lw_parsedline_serialize (LwParsedLine  *self,
-                         gchar         *contents_reference_pointer,
-                         gchar         *preallocated_buffer,
-                         GError       **error)
+lw_parsedline_serialize (LwParsedLine  * self,
+                         gchar const   * contents_reference_pointer,
+                         gchar         * preallocated_buffer,
+                         GError       ** error)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
-    g_return_val_if_fail (preallocated_buffer != NULL, 0);
-    g_return_val_if_fail (preallocated_buffer != NULL && contents_reference_pointer == NULL, 0);
+    if (contents_reference_pointer != NULL || preallocated_buffer != NULL)
+    {
+      g_return_val_if_fail (preallocated_buffer != NULL, 0);
+      g_return_val_if_fail (contents_reference_pointer != NULL, 0);
+    }
     if (error != NULL && *error != NULL) return 0;
 
     //Declarations
-    gsize num_tokentypes = 0;
+    gint num_tokentypes = 0;
     struct _SerializeData data = {
       .contents = contents_reference_pointer,
-      .buffer = (gsize*) preallocated_buffer,
-      .write_pointer = (gsize*) preallocated_buffer,
-      .bytes_written = 0,
-      .error = NULL,
+      .buffer = preallocated_buffer,
+      .write_pointer = preallocated_buffer,
+      .error = error,
     };
 
     if (data.contents == NULL)
@@ -236,41 +243,37 @@ lw_parsedline_serialize (LwParsedLine  *self,
     num_tokentypes = g_tree_nnodes (self->tree);
 
     //[num_tokentypes (gchar)]  [tokentypeid (strv)] [offsetbuffer (LwOffsetBuffer, lwoffset[])]... ]
-    if (data.write_pointer != NULL) *(data.write_pointer++) = (gsize) num_tokentypes;
-    data.bytes_written += sizeof(gsize);
+    if (data.buffer != NULL) memcpy(data.write_pointer, &num_tokentypes, sizeof(gint));
+    data.write_pointer += sizeof(gint);
 
-    g_tree_foreach (self->tree, (GTraverseFunc) _serialize, &data);
-    if (data.error != NULL)
-    {
-      goto errored;
-    }
+    lw_parsedline_foreach (self, (LwParsedLineForeachFunc) _serialize, &data);
+    if (data.error != NULL && *data.error != NULL) goto errored;
 
 errored:
 
-    if (data.error != NULL)
-    {
-      *error = data.error;
-      data.error = NULL;
-    }
-
-    return data.bytes_written;
+    return data.write_pointer - preallocated_buffer;
 }
 
 
 static gboolean
-_merge_base_and_validate (gchar       **strv,
-                          gchar const  *content)
+_merge_base_and_validate (gchar       ** strv,
+                          gint           length,
+                          gchar const  * content)
 {
     //Sanity checks
     g_return_val_if_fail (strv != NULL, FALSE);
+    g_return_val_if_fail (length > 0, FALSE);
     g_return_val_if_fail (content != NULL, NULL);
 
     //Declarations
     gint i = 0;
     gboolean is_valid = TRUE;
-    while (strv[i] != NULL)
+
+    //Initializations
+
+    for (i = 0; i < length && is_valid; i++)
     {
-      strv[i] = (gsize) strv[i] + (gchar*) content; //The value in strv is an offset, that needs the base to be a pointer again
+      strv[i] = ((gsize) strv[i]) + ((gchar*) content); //The value in strv is an offset, that needs the base to be a pointer again
       if (!g_utf8_validate (strv[i], -1, NULL)) is_valid = FALSE;
     }
 
@@ -295,48 +298,173 @@ lw_parsedline_deserialize_into (LwParsedLine  *self,
     //Declarations
     struct _DeserializeData data = {
       .contents = contents_reference_point,
-      .serialized_data = (gsize*) serialized_data,
-      .read_pointer = (gsize*) serialized_data,
-      .bytes_read = 0,
-      .error = NULL
+      .serialized_data = (gchar*) serialized_data,
+      .read_pointer = (gchar*) serialized_data,
+      .error = error
     };
-    gsize num_types = 0;
+    gint num_types = 0;
 
-    num_types = *(data.read_pointer++);
+    memcpy(&num_types, data.read_pointer, sizeof(gint));
+    data.read_pointer += sizeof(gint);
     if (num_types < 1) goto errored;
 
     {
       //[num_tokentypes (gchar)]  [tokentypeid (strv)] [offsetbuffer (LwOffsetBuffer, lwoffset[])]... ]
-      gsize token_type_id = 0;
-      gchar **strv = NULL;
+      gint columnid = 0;
+      gint num_tokens = 0;
+      gchar *offsets = NULL;
+      gchar ** strv = NULL;
       while (num_types-- > 0)
       {
-        token_type_id = (*data.read_pointer)++;
-        strv = (gchar**) *data.read_pointer;
-        if (!_merge_base_and_validate (strv, data.contents))
+        memcpy(&columnid, data.read_pointer, sizeof(gint));
+        data.read_pointer += sizeof(gint);
+
+        memcpy(&num_tokens, data.read_pointer, sizeof(gint));
+        memset(data.read_pointer, 0, sizeof(gint)); //Keep from deserializing these values again if accidentally called twice
+        data.read_pointer += sizeof(gint);
+        
+        if (num_tokens > 0)
         {
-          g_set_error (
-            &data.error,
-            LW_PARSEDLINE_ERROR,
-            LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR,
-            "The Contents or the serialized Data is invalid."
-          );
-          goto errored;
+          strv = (gchar**) data.read_pointer;
+          if (!_merge_base_and_validate (strv, num_tokens, data.contents))
+          {
+            g_set_error (
+              error,
+              LW_PARSEDLINE_ERROR,
+              LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR,
+              "The Contents or the serialized Data is invalid."
+            );
+            goto errored;
+          }
+          g_tree_insert (self->tree, GINT_TO_POINTER (columnid), strv);
+          data.read_pointer += sizeof(gchar*) * (num_tokens + 1);
         }
-        g_tree_insert (self->tree, GINT_TO_POINTER ((gint) token_type_id), strv);
-        while (*data.read_pointer != 0) data.read_pointer++;
-        data.read_pointer++;
       }
     }
 
 errored:
 
-    if (data.error != NULL)
+    return data.read_pointer - serialized_data;
+}
+
+static gboolean
+_add_key (LwParsedLine  * self,
+          gint            column,
+          gchar        ** strv,
+          GHashTable    * table)
+{
+    g_hash_table_add (table, GINT_TO_POINTER (column));
+}
+
+struct _ForeachData {
+  LwParsedLine * self;
+  LwParsedLineForeachFunc func;
+  gpointer data;
+};
+
+
+static gboolean
+_foreach (gpointer key,
+          gpointer value,
+          struct _ForeachData *data)
+{
+    //Sanity checks
+    g_return_val_if_fail (data != NULL, TRUE);
+    g_return_val_if_fail (data->self != NULL, TRUE);
+    g_return_val_if_fail (data->func != NULL, TRUE);
+
+    //Declarations
+    gint column = 0;
+    gchar ** strv = NULL;
+
+    //Initializations
+    column = GPOINTER_TO_INT (key);
+    strv = (gchar**) value;
+
+    return data->func(data->self, column, strv, data->data);
+}
+
+
+void
+lw_parsedline_foreach (LwParsedLine * self, LwParsedLineForeachFunc func, gpointer data)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (func != NULL, NULL);
+
+    struct _ForeachData foreach_data = {
+      .func = func,
+      .data = data,
+      .self = self
+    };
+
+    g_tree_foreach (self->tree, (GTraverseFunc) _foreach, &foreach_data);
+}
+
+
+gchar **
+lw_parsedline_lookup (LwParsedLine * self, gint column)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, NULL);
+    g_return_val_if_fail (self->tree != NULL, NULL);
+
+    return g_tree_lookup (self->tree, GINT_TO_POINTER (column));
+}
+
+
+gint
+lw_parsedline_num_columns (LwParsedLine * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, 0);
+    g_return_val_if_fail (self->tree != NULL, 0);
+
+    return g_tree_nnodes (self->tree);
+}
+
+
+void
+lw_parsedline_assert_equals (LwParsedLine * self,
+                             LwParsedLine * other)
+{
+    //Declarations
+    GHashTable * table = NULL;
+    gpointer key = NULL;
+    gchar ** strv1 = NULL;
+    gchar ** strv2 = NULL;
+    gint i = 0;
+    GHashTableIter iter = {0};
+
+    //Initializations
+    table = g_hash_table_new (g_direct_hash, g_direct_equal);
+    if (table == NULL) goto errored;
+
+    lw_parsedline_foreach (self, (LwParsedLineForeachFunc) _add_key, table);
+    lw_parsedline_foreach (other, (LwParsedLineForeachFunc) _add_key, table);
+
+    g_hash_table_iter_init (&iter, table);
+    while (g_hash_table_iter_next (&iter, &key, NULL))
     {
-      *error = data.error;
-      data.error = NULL;
+        strv1 = g_tree_lookup (self->tree, key);
+        strv2 = g_tree_lookup (other->tree, key);
+        if (strv1 != NULL && strv2 != NULL)
+        {
+          for (i = 0; strv1[i] != NULL || strv2[i] != NULL; i++)
+          {
+            g_assert_cmpstr (strv1[i], ==, strv2[i]);
+          }
+        }
+        else
+        {
+          g_assert_nonnull (strv1);
+          g_assert_nonnull (strv2);
+        }
     }
 
-    return data.bytes_read;
+errored:
+
+    if (table != NULL) g_hash_table_unref (table);
+    table = NULL;
 }
 

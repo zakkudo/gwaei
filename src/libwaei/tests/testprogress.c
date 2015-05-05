@@ -394,11 +394,11 @@ set_error_new (Fixture       * fixture,
     lw_progress_set_error (progress, error);
 
     //Assert
-    g_assert_true (g_error_matches (
+    g_assert_error (
       lw_progress_get_error (progress),
       g_quark_from_static_string ("test-domain"),
       2
-    ));
+    );
     g_assert (lw_progress_get_error (progress) != error);
     g_assert_true (lw_progress_should_abort (progress));
     g_assert_true (lw_progress_errored (progress));
@@ -458,11 +458,11 @@ take_error_new (Fixture       * fixture,
     error = NULL;
 
     //Assert
-    g_assert_true (g_error_matches (
+    g_assert_error (
       lw_progress_get_error (progress),
       g_quark_from_static_string ("test-domain"),
       2
-    ));
+    );
     g_assert (lw_progress_get_error (progress) != error);
     g_assert_true (lw_progress_should_abort (progress));
     g_assert_true (lw_progress_errored (progress));

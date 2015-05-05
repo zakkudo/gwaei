@@ -47,7 +47,6 @@ normalize_japanese_and_english (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar const * TEXT = "test English search テスト日本語けんさく";
-    GError * error = NULL;
     gchar * normalized = NULL;
 
     //Initializations
@@ -65,7 +64,6 @@ normalize_casefold_japanese_and_english (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar const * TEXT = "test English search テスト日本語けんさく";
-    GError * error = NULL;
     gchar * normalized = NULL;
 
     //Initializations
@@ -83,7 +81,6 @@ normalize_furiganafold_japanese_and_english (Fixture *fixture, gconstpointer dat
 {
     //Declarations
     gchar const * TEXT = "test English search テスト日本語けんさく";
-    GError * error = NULL;
     gchar * normalized = NULL;
 
     //Initializations
@@ -102,7 +99,6 @@ normalize_allfold_japanese_and_english (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar const * TEXT = "test English search テスト日本語けんさく";
-    GError * error = NULL;
     gchar * normalized = NULL;
 
     //Initializations
@@ -121,7 +117,6 @@ normalize_no_text (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar const * TEXT = "";
-    GError * error = NULL;
     gchar * normalized = NULL;
 
     //Initializations
@@ -140,7 +135,6 @@ furiganafold_no_text (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -165,7 +159,6 @@ furiganafold_with_mixed_text (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("abcDEFGあいうえおカキクケコ日本語");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -191,7 +184,6 @@ furiganafold_with_all_katakana (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶヷヸヹヺ・ーヽヾヿ");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -217,7 +209,6 @@ furiganafold_with_all_halfwidth_katakana (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("･ ｦ ｧ ｨ ｩ ｪ ｫ ｬ ｭ ｮ ｯｰ ｱ ｲ ｳ ｴ ｵ ｶ ｷ ｸ ｹ ｺ ｻ ｼ ｽ ｾ ｿﾀ ﾁ ﾂ ﾃ ﾄ ﾅ ﾆ ﾇ ﾈ ﾉ ﾊ ﾋ ﾌ ﾍ ﾎ ﾏﾐ ﾑ ﾒ ﾓ ﾔ ﾕ ﾖ ﾗ ﾘ ﾙ ﾚ ﾛ ﾜ ﾝ ﾞ ﾟ");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -243,7 +234,6 @@ furiganafold_with_all_hiragana (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖ゛゜ゝゞゟ");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -270,7 +260,6 @@ furiganafold_where_cancels_halfway (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("ァアィイゥウェエォオ");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -299,7 +288,6 @@ furiganafold_where_progress_is_null (Fixture * fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("ァアィイゥウェエォオ");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -326,7 +314,6 @@ casefold_no_text (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("");
-    GError * error = NULL;
 
     //Initializations
     lw_utf8_casefold (text, -1, fixture->progress);
@@ -346,7 +333,6 @@ casefold_with_mixed_text (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("abcDEFGあいうえおカキクケコ日本語");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -372,7 +358,6 @@ casefold_with_uppercase_letters (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -398,7 +383,6 @@ casefold_with_lowercase_letters (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("abcdefghijklmnopqrstuvwxyz");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -424,7 +408,6 @@ casefold_where_cancels_halfway (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations
@@ -453,7 +436,6 @@ casefold_where_progress_is_null (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     gchar * text = g_strdup("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    GError * error = NULL;
     gint i = 0;
 
     //Initializations

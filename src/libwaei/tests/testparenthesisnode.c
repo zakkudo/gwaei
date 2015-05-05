@@ -62,7 +62,7 @@ parse_string_with_no_parenthesis (Fixture *fixture, gconstpointer data)
     }; 
 
     lw_parenthesisnode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_parenthesisnode_unref (root);
     root = NULL;
@@ -91,7 +91,7 @@ parse_string_with_only_parenthesis (Fixture *fixture, gconstpointer data)
     }; 
 
     lw_parenthesisnode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_parenthesisnode_unref (root);
     root = NULL;
@@ -147,7 +147,7 @@ parse_string_ends_with_parenthesis (Fixture *fixture, gconstpointer data)
 
     //Assert
     lw_parenthesisnode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_parenthesisnode_unref (root);
     root = NULL;
@@ -203,7 +203,7 @@ parse_string_starts_with_parenthesis (Fixture *fixture, gconstpointer data)
 
     //Assert
     lw_parenthesisnode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_parenthesisnode_unref (root);
     root = NULL;
@@ -266,7 +266,7 @@ parse_string_with_parenthesis (Fixture *fixture, gconstpointer data)
 
     //Assert
     lw_parenthesisnode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_parenthesisnode_unref (root);
     root = NULL;
@@ -327,7 +327,7 @@ parse_string_with_empty_parenthesis (Fixture *fixture, gconstpointer data)
 
     //Assert
     lw_parenthesisnode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_parenthesisnode_unref (root);
     root = NULL;
@@ -412,7 +412,7 @@ parse_string_with_embedded_parenthesis (Fixture *fixture, gconstpointer data)
 
     //Assert
     lw_parenthesisnode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_parenthesisnode_unref (root);
     root = NULL;
@@ -432,7 +432,7 @@ parse_string_with_only_start_parenthesis (Fixture *fixture, gconstpointer data)
 
     //Assert
     g_assert_null (root);
-    g_assert_true (g_error_matches (error, LW_PARENTHESISNODE_ERROR, LW_PARENTHESISNODE_UNMATCHED_START_PARENTHESIS_ERROR));
+    g_assert_error (error, LW_PARENTHESISNODE_ERROR, LW_PARENTHESISNODE_UNMATCHED_START_PARENTHESIS_ERROR);
 
     g_clear_error (&error);
 }
@@ -451,7 +451,7 @@ parse_string_with_only_end_parenthesis (Fixture *fixture, gconstpointer data)
 
     //Assert
     g_assert_null (root);
-    g_assert_true (g_error_matches (error, LW_PARENTHESISNODE_ERROR, LW_PARENTHESISNODE_UNMATCHED_END_PARENTHESIS_ERROR));
+    g_assert_error (error, LW_PARENTHESISNODE_ERROR, LW_PARENTHESISNODE_UNMATCHED_END_PARENTHESIS_ERROR);
 
     g_clear_error (&error);
 }

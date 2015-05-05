@@ -78,7 +78,7 @@ parse_string_with_no_parenthesis (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -108,7 +108,7 @@ parse_string_with_only_parenthesis (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -291,7 +291,7 @@ parse_string_two_tokens_split_by_and (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -335,7 +335,7 @@ parse_string_two_tokens_split_by_or (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -386,7 +386,7 @@ parse_string_three_tokens_split_by_and_and_or (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -446,7 +446,7 @@ parse_string_and_embedded_in_or (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -506,7 +506,7 @@ parse_string_and_embedded_in_or_with_capture (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -536,7 +536,7 @@ parse_string_hanging_and (Fixture       * fixture,
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
     g_assert_cmpint (operation, ==, LW_QUERYNODE_OPERATION_AND);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -558,7 +558,7 @@ parse_string_hanging_and_in_parenthesis (Fixture       * fixture,
 
     //Assert
     g_assert_null (root);
-    g_assert_true (g_error_matches (error, LW_QUERYNODE_ERROR, LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR));
+    g_assert_error (error, LW_QUERYNODE_ERROR, LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR);
 
     g_clear_error (&error);
 }
@@ -579,7 +579,7 @@ parse_string_starts_with_hanging_and (Fixture       * fixture,
 
     //Assert
     g_assert_null (root);
-    g_assert_true (g_error_matches (error, LW_QUERYNODE_ERROR, LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR));
+    g_assert_error (error, LW_QUERYNODE_ERROR, LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR);
 
     g_clear_error (&error);
 }
@@ -600,7 +600,7 @@ parse_string_starts_with_hanging_and_in_parenthesis (Fixture       * fixture,
 
     //Assert
     g_assert_null (root);
-    g_assert_true (g_error_matches (error, LW_QUERYNODE_ERROR, LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR));
+    g_assert_error (error, LW_QUERYNODE_ERROR, LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR);
 
     g_clear_error (&error);
 }
@@ -621,7 +621,7 @@ parse_string_embedded_hanging_and (Fixture       * fixture,
 
     //Assert
     g_assert_null (root);
-    g_assert_true (g_error_matches (error, LW_QUERYNODE_ERROR, LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR));
+    g_assert_error (error, LW_QUERYNODE_ERROR, LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR);
 
     g_clear_error (&error);
 }
@@ -642,7 +642,7 @@ parse_string_only_start_parenthesis (Fixture       * fixture,
 
     //Assert
     g_assert_null (root);
-    g_assert_true (g_error_matches (error, LW_PARENTHESISNODE_ERROR, LW_PARENTHESISNODE_UNMATCHED_START_PARENTHESIS_ERROR));
+    g_assert_error (error, LW_PARENTHESISNODE_ERROR, LW_PARENTHESISNODE_UNMATCHED_START_PARENTHESIS_ERROR);
 
     g_clear_error (&error);
 }
@@ -662,7 +662,7 @@ parse_string_only_end_parenthesis (Fixture       * fixture,
 
     //Assert
     g_assert_null (root);
-    g_assert_true (g_error_matches (error, LW_PARENTHESISNODE_ERROR, LW_PARENTHESISNODE_UNMATCHED_END_PARENTHESIS_ERROR));
+    g_assert_error (error, LW_PARENTHESISNODE_ERROR, LW_PARENTHESISNODE_UNMATCHED_END_PARENTHESIS_ERROR);
 
     g_clear_error (&error);
 }
@@ -691,7 +691,7 @@ parse_string_with_empty_parenthesis (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
     
 
     lw_querynode_unref (root);
@@ -722,7 +722,7 @@ parse_string_with_keyed_value (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
     
 
     lw_querynode_unref (root);
@@ -768,7 +768,7 @@ parse_string_with_ending_keyed_value (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
     
 
     lw_querynode_unref (root);
@@ -799,7 +799,7 @@ parse_string_with_starting_keyed_value (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
     
 
     lw_querynode_unref (root);
@@ -845,7 +845,7 @@ parse_string_with_multiple_keyed_values (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
     
 
     lw_querynode_unref (root);
@@ -876,7 +876,7 @@ parse_string_with_dangling_key (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
     
 
     lw_querynode_unref (root);
@@ -907,7 +907,7 @@ parse_string_with_missing_key (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
     
 
     lw_querynode_unref (root);
@@ -930,7 +930,7 @@ parse_string_with_missing_key_and_value (Fixture       * fixture,
 
     //Assert
     g_assert_null (root);
-    g_assert_true (g_error_matches (error, LW_QUERYNODE_ERROR, LW_QUERYNODE_ERROR_MISSING_KEY_AND_VALUE_FOR_KEYED_QUERYNODE));
+    g_assert_error (error, LW_QUERYNODE_ERROR, LW_QUERYNODE_ERROR_MISSING_KEY_AND_VALUE_FOR_KEYED_QUERYNODE);
     
     g_clear_error (&error);
     error = NULL;
@@ -996,7 +996,7 @@ parse_string_with_key_and_embedded_value (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1049,7 +1049,7 @@ parse_string_with_keyed_embedded (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1081,7 +1081,7 @@ compile_string_with_parenthesis (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1113,7 +1113,7 @@ compile_string_with_only_parenthesis (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1145,7 +1145,7 @@ compile_string_with_two_sets_of_parenthesis (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1177,7 +1177,7 @@ compile_string_with_no_parenthesis (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1209,7 +1209,7 @@ compile_string_with_keyed_embedded (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1257,7 +1257,7 @@ compile_string_with_keyed_embedded_and_on_value (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1321,7 +1321,7 @@ compile_string_with_keyed_embedded_and_on_key (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1353,7 +1353,7 @@ compile_string_with_empty_parenthesis_directly_after_keyed (Fixture       * fixt
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1385,7 +1385,7 @@ compile_string_with_empty_parenthesis_directly_before_keyed (Fixture       * fix
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1418,7 +1418,7 @@ compile_string_with_furiganafold_on (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
@@ -1450,7 +1450,7 @@ compile_string_with_casefold_on (Fixture       * fixture,
 
     //Assert
     lw_querynode_assert_equals (root, &expected_root);
-    g_assert_null (error);
+    g_assert_no_error (error);
 
     lw_querynode_unref (root);
     root = NULL;
