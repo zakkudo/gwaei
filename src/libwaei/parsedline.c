@@ -399,22 +399,30 @@ lw_parsedline_deserialize_into (LwParsedLine  *self,
         memset(data.read_pointer, 0, sizeof(gint)); //Keep from deserializing these values again if accidentally called twice
         data.read_pointer += sizeof(gint);
         
-        if (num_tokens > 0)
+        if (num_tokens == 0)
         {
-          strv = (gchar**) data.read_pointer;
-          if (!_merge_base_and_validate (strv, num_tokens, data.contents))
-          {
-            g_set_error (
-              error,
-              LW_PARSEDLINE_ERROR,
-              LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR,
-              "The Contents or the serialized Data is invalid."
-            );
-            goto errored;
-          }
-          g_tree_insert (self->tree, GINT_TO_POINTER (columnid), strv);
-          data.read_pointer += sizeof(gchar*) * (num_tokens + 1);
+          g_set_error (
+            error,
+            LW_PARSEDLINE_ERROR,
+            LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR,
+            "Data is already deserialized."
+          );
+          goto errored;
         }
+
+        strv = (gchar**) data.read_pointer;
+        if (!_merge_base_and_validate (strv, num_tokens, data.contents))
+        {
+          g_set_error (
+            error,
+            LW_PARSEDLINE_ERROR,
+            LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR,
+            "The Contents or the serialized Data is invalid."
+          );
+          goto errored;
+        }
+        g_tree_insert (self->tree, GINT_TO_POINTER (columnid), strv);
+        data.read_pointer += sizeof(gchar*) * (num_tokens + 1);
       }
     }
 
