@@ -132,6 +132,14 @@ lw_utf8flag_get_type ()
 }
 
 
+/**
+ * lw_utf8flag_clean:
+ * @flags: A set of #LwUtf8Flags to clean
+ * 
+ * Removes invalid options from the flag mask.
+ *
+ * Returns: Cleaned #LwUtf8Flags
+ */
 LwUtf8Flag
 lw_utf8flag_clean (LwUtf8Flag flags)
 {
@@ -146,6 +154,14 @@ lw_utf8flag_clean (LwUtf8Flag flags)
 }
 
 
+/**
+ * lw_utf8_validate:
+ * @TEXT: A string to validate as well-formed utf-8
+ * @length: The length of the string or -1 to calculate it
+ * @progress: A #LwProgress to track progress or %NULL
+ *
+ * Returns: %TRUE if @TEXT is valid utf-8
+ */
 gboolean
 lw_utf8_validate (const gchar *TEXT,
                   gint         length,
@@ -431,20 +447,20 @@ _casefold_character (gchar *character)
 
 /**
  * lw_utf8_casefold:
- * @TEXT: A string to casefold inline.
+ * @text: A string to casefold inline. The string is modified in place.
  * @length: Length of the string in bytes or -1 to have it calculated
- * @progress: An #LwProgress to track progress
+ * @progress: An #LwProgress to track progress or %NULL
  *
  * Folds the case to lower case so that case insensitive searches can be
  * accomplished.
  */
 void
-lw_utf8_casefold (gchar      *TEXT,
+lw_utf8_casefold (gchar      *text,
                   gssize      length,
                   LwProgress *progress)
 {
     //Sanity checks
-    if (TEXT == NULL) return;
+    if (text == NULL) return;
 
     //Declarations
     gint chunk_size = -1;
@@ -452,7 +468,7 @@ lw_utf8_casefold (gchar      *TEXT,
     gchar * c = NULL;
     
     //Initializations
-    c = TEXT;
+    c = text;
     if (c == NULL) goto errored;
     if (progress != NULL)
     {
@@ -461,7 +477,7 @@ lw_utf8_casefold (gchar      *TEXT,
     }
     if (length < 1)
     {
-      length = strlen(TEXT);
+      length = strlen(text);
     }
 
     if (progress != NULL)
@@ -477,7 +493,7 @@ lw_utf8_casefold (gchar      *TEXT,
       while (*c != '\0' && i < length)
       {
         c = _casefold_character (c);
-        i = c - TEXT;
+        i = c - text;
         if (G_UNLIKELY(chunk++ > chunk_size) && chunk_size > -1 && progress != NULL)
         {
           if (lw_progress_should_abort (progress)) goto errored;
@@ -532,20 +548,20 @@ _furiganafold_character (gchar *c, GHashTable *conversions)
 
 /**
  * lw_utf8_furiganafold:
- * @TEXT: A string to furiganafold inline.
+ * @text: A string to furiganafold inline.  The string is modified in place.
  * @length: Length of the string in bytes or -1 to have it calculated
- * @progress: An #LwProgress to track progress
+ * @progress: An #LwProgress to track progress or %NULL
  *
  * Folds katakana to hiragana characters so furigana insensitive comparisons
  * can be made.
  */
 void
-lw_utf8_furiganafold (gchar      *TEXT,
+lw_utf8_furiganafold (gchar      *text,
                       gssize      length,
                       LwProgress *progress)
 {
     //Sanity checks
-    if (TEXT == NULL) return;
+    if (text == NULL) return;
 
     //Declarations
     GHashTable *conversions = NULL;
@@ -554,7 +570,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
     gchar * c = NULL;
     
     //Initializations
-    c = TEXT;
+    c = text;
     if (c == NULL) goto errored;
     conversions = _get_furiganafold_hashtable ();
     if (conversions == NULL) goto errored;
@@ -565,7 +581,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
     }
     if (length < 1)
     {
-      length = strlen(TEXT);
+      length = strlen(text);
     }
 
     if (progress != NULL)
@@ -580,7 +596,7 @@ lw_utf8_furiganafold (gchar      *TEXT,
       gint i = 0;
       while (*c != '\0' && i < length) {
         c = _furiganafold_character (c, conversions);
-        i = c - TEXT;
+        i = c - text;
         if (G_UNLIKELY(chunk++ > chunk_size) && chunk_size > -1 && progress != NULL)
         {
           if (lw_progress_should_abort (progress)) goto errored;
@@ -945,9 +961,12 @@ errored:
 /**
  * lw_utf8_isescaped:
  * @TEXT: The start of the text that contains the possibly escaped character
- * @CHAR_PTR: The character to check if it's sescaped
+ * @CHAR_PTR: The character to check if it's escaped. It must be within @TEXT
  *
- * Returns: True if the character is escaped
+ * Checks to see if a character is escaped by backstepping until there are no
+ * backslashes or the iterator hits the beginning of the string.
+ *
+ * Returns: %TRUE if the character is escaped
  */
 gboolean
 lw_utf8_isescaped (gchar const * TEXT,
@@ -966,6 +985,16 @@ lw_utf8_isescaped (gchar const * TEXT,
     return is_escaped;
 }
 
+
+/**
+ * lw_utf8_contains_kanji:
+ * @TEXT: The text to search for kanji
+ *
+ * Searches a string for any characters that have the han unicode script.
+ * (Also known as Kanji)
+ *
+ * Returns: %TRUE if any of the characters match %G_UNICODE_SCRIPT_HAN
+ */
 gboolean
 lw_utf8_contains_kanji (gchar const * TEXT)
 {
@@ -985,6 +1014,15 @@ lw_utf8_contains_kanji (gchar const * TEXT)
 }
 
 
+/**
+ * lw_utf8_contains_furigana:
+ * @TEXT: The text to search for furigana
+ *
+ * Searches a string for any characters that have a katakana or hiragana
+ * script. 
+ *
+ * Returns: %TRUE if any of the characters match %G_UNICODE_SCRIPT_HIRAGANA or %G_UNICODE_SCRIPT_KATAKANA
+ */
 gboolean
 lw_utf8_contains_furigana (gchar const * TEXT)
 {
@@ -1004,6 +1042,14 @@ lw_utf8_contains_furigana (gchar const * TEXT)
 }
 
 
+/**
+ * lw_utf8_contains_romaji:
+ * @TEXT: The text to search for romaji
+ *
+ * Searches a string for any characters that are English-looking.
+ *
+ * Returns: %TRUE if any of the characters match %G_UNICODE_SCRIPT_LATIN
+ */
 gboolean
 lw_utf8_contains_romaji (gchar const * TEXT)
 {
@@ -1023,6 +1069,14 @@ lw_utf8_contains_romaji (gchar const * TEXT)
 }
 
 
+/**
+ * lw_utf8_contains_number:
+ * @TEXT: The text to search for numbers
+ *
+ * Searches a string for any characters that are ascii numbers.
+ *
+ * Returns: %TRUE if any of the characters match 0-9
+ */
 gboolean
 lw_utf8_contains_number (gchar const * TEXT)
 {

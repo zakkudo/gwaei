@@ -7,16 +7,34 @@ G_BEGIN_DECLS
 
 #define LW_PARSEDLINE_ERROR lw_parsedline_error_quark ()
 
+/**
+ * LwParsedLineErrorCode:
+ * @LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR: There was a fatal error during deserialization
+ *
+ * Error Codes for #LwParsedLine operations
+ */
 typedef enum {
   LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR
 } LwParsedLineErrorCode;
 
+
+/**
+ * LwParsedLine:
+ *
+ * An object for holding parsed line data.  It's contents are private
+ * and should only be accessed through public methods.
+ */
 struct _LwParsedLine {
+  /*< private >*/
   GTree *tree;
 };
 
 typedef struct _LwParsedLine LwParsedLine;
 
+/**
+ * LW_PARSEDLINE:
+ * @obj: An object to cast to a #LwParsedLine
+ */
 #define LW_PARSEDLINE(obj) (LwParsedLine*)obj
 
 typedef gboolean (*LwParsedLineForeachFunc) (LwParsedLine * self, gint column, gchar ** strv, gpointer data);

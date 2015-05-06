@@ -66,8 +66,8 @@ gchar* lw_utf8_sanitize (gchar const * BUFFER);
 GUnicodeScript lw_utf8_get_script (gchar *TEXT);
 gchar* lw_utf8_convert_printf_pattern_to_regex_pattern (const gchar *PATTERN);
 
-void lw_utf8_furiganafold (gchar *TEXT, gssize length, LwProgress *progress);
-void lw_utf8_casefold (gchar *TEXT, gssize length, LwProgress *progress);
+void lw_utf8_furiganafold (gchar *text, gssize length, LwProgress *progress);
+void lw_utf8_casefold (gchar *text, gssize length, LwProgress *progress);
 
 gint lw_utf8_count_lines (gchar const * TEXT);
 
@@ -77,7 +77,7 @@ gchar* lw_utf8_normalize (const gchar *TEXT, gssize length, LwUtf8Flag flags);
 gint lw_utf8_normalize_chunk (gchar ** output_chunk, const gchar *TEXT, LwUtf8Flag flags, gssize max_length);
 void lw_utf8_normalize_chunked (gchar const * contents, gsize content_length, LwUtf8Flag flags, LwUtf8ChunkHandler chunk_handler, gpointer chunk_handler_data, LwProgress *progress);
 
-gboolean lw_utf8_isescaped (gchar const * STR, gchar const * CHAR_PTR);
+gboolean lw_utf8_isescaped (gchar const * TEXT, gchar const * CHAR_PTR);
 
 gboolean lw_utf8_contains_kanji (gchar const * TEXT);
 gboolean lw_utf8_contains_furigana (gchar const * TEXT);
