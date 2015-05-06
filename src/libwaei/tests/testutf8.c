@@ -50,7 +50,7 @@ normalize_japanese_and_english (Fixture *fixture, gconstpointer data)
     gchar * normalized = NULL;
 
     //Initializations
-    normalized = lw_utf8_normalize (TEXT, -1, LW_UTF8FLAG_NONE);
+    normalized = lw_utf8_normalize (TEXT, 0, LW_UTF8FLAG_NONE);
 
     //Assert
     g_assert_cmpstr ("test English search テスト日本語けんさく", ==, normalized);
@@ -67,7 +67,7 @@ normalize_casefold_japanese_and_english (Fixture *fixture, gconstpointer data)
     gchar * normalized = NULL;
 
     //Initializations
-    normalized = lw_utf8_normalize (TEXT, -1, LW_UTF8FLAG_CASEFOLD);
+    normalized = lw_utf8_normalize (TEXT, 0, LW_UTF8FLAG_CASEFOLD);
 
     //Assert
     g_assert_cmpstr ("test english search テスト日本語けんさく", ==, normalized);
@@ -84,7 +84,7 @@ normalize_furiganafold_japanese_and_english (Fixture *fixture, gconstpointer dat
     gchar * normalized = NULL;
 
     //Initializations
-    normalized = lw_utf8_normalize (TEXT, -1, LW_UTF8FLAG_FURIGANAFOLD);
+    normalized = lw_utf8_normalize (TEXT, 0, LW_UTF8FLAG_FURIGANAFOLD);
 
     //Assert
     g_assert_cmpstr ("test English search てすと日本語けんさく", ==, normalized);
@@ -102,7 +102,7 @@ normalize_allfold_japanese_and_english (Fixture *fixture, gconstpointer data)
     gchar * normalized = NULL;
 
     //Initializations
-    normalized = lw_utf8_normalize (TEXT, -1, LW_UTF8FLAG_ALL);
+    normalized = lw_utf8_normalize (TEXT, 0, LW_UTF8FLAG_ALL);
 
     //Assert
     g_assert_cmpstr ("test english search てすと日本語けんさく", ==, normalized);
@@ -120,7 +120,7 @@ normalize_no_text (Fixture *fixture, gconstpointer data)
     gchar * normalized = NULL;
 
     //Initializations
-    normalized = lw_utf8_normalize (TEXT, -1, LW_UTF8FLAG_NONE);
+    normalized = lw_utf8_normalize (TEXT, 0, LW_UTF8FLAG_NONE);
 
     //Assert
     g_assert_cmpstr ("", ==, normalized);
@@ -138,7 +138,7 @@ furiganafold_no_text (Fixture *fixture, gconstpointer data)
     gint i = 0;
 
     //Initializations
-    lw_utf8_furiganafold (text, -1, fixture->progress);
+    lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = {100};
@@ -162,7 +162,7 @@ furiganafold_with_mixed_text (Fixture *fixture, gconstpointer data)
     gint i = 0;
 
     //Initializations
-    lw_utf8_furiganafold (text, -1, fixture->progress);
+    lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 8, 21, 47, 73, 100, 100};
@@ -188,7 +188,7 @@ furiganafold_with_all_katakana (Fixture *fixture, gconstpointer data)
 
     //Initializations
     lw_progress_set_prefered_chunk_size (fixture->progress, 10);
-    lw_utf8_furiganafold (text, -1, fixture->progress);
+    lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 12, 25, 37, 50, 63, 75, 88, 100, 100};
@@ -213,7 +213,7 @@ furiganafold_with_all_halfwidth_katakana (Fixture *fixture, gconstpointer data)
 
     //Initializations
     lw_progress_set_prefered_chunk_size (fixture->progress, 10);
-    lw_utf8_furiganafold (text, -1, fixture->progress);
+    lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 10, 21, 31, 42, 52, 62, 74, 84, 94, 100, 100};
@@ -238,7 +238,7 @@ furiganafold_with_all_hiragana (Fixture *fixture, gconstpointer data)
 
     //Initializations
     lw_progress_set_prefered_chunk_size (fixture->progress, 10);
-    lw_utf8_furiganafold (text, -1, fixture->progress);
+    lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 13, 26, 39, 52, 65, 79, 92, 100, 100};
@@ -265,7 +265,7 @@ furiganafold_where_cancels_halfway (Fixture *fixture, gconstpointer data)
     //Initializations
     lw_progress_set_prefered_chunk_size (fixture->progress, 1);
     g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
-    lw_utf8_furiganafold (text, -1, fixture->progress);
+    lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 30, 60};
@@ -291,7 +291,7 @@ furiganafold_where_progress_is_null (Fixture * fixture, gconstpointer data)
     gint i = 0;
 
     //Initializations
-    lw_utf8_furiganafold (text, -1, NULL);
+    lw_utf8_furiganafold (text, 0, NULL);
 
     //Assert
     gint expected_steps[] = { };
@@ -316,7 +316,7 @@ casefold_no_text (Fixture *fixture, gconstpointer data)
     gchar * text = g_strdup("");
 
     //Initializations
-    lw_utf8_casefold (text, -1, fixture->progress);
+    lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = {100};
@@ -336,7 +336,7 @@ casefold_with_mixed_text (Fixture *fixture, gconstpointer data)
     gint i = 0;
 
     //Initializations
-    lw_utf8_casefold (text, -1, fixture->progress);
+    lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 8, 21, 47, 73, 100, 100};
@@ -361,7 +361,7 @@ casefold_with_uppercase_letters (Fixture *fixture, gconstpointer data)
     gint i = 0;
 
     //Initializations
-    lw_utf8_casefold (text, -1, fixture->progress);
+    lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 15, 30, 46, 61, 76, 92, 100, 100};
@@ -386,7 +386,7 @@ casefold_with_lowercase_letters (Fixture *fixture, gconstpointer data)
     gint i = 0;
 
     //Initializations
-    lw_utf8_casefold (text, -1, fixture->progress);
+    lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 15, 30, 46, 61, 76, 92, 100, 100};
@@ -413,7 +413,7 @@ casefold_where_cancels_halfway (Fixture *fixture, gconstpointer data)
     //Initializations
     lw_progress_set_prefered_chunk_size (fixture->progress, 1);
     g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
-    lw_utf8_casefold (text, -1, fixture->progress);
+    lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
     gint expected_steps[] = {0, 0, 11, 23, 34, 46, 57};
@@ -440,7 +440,7 @@ casefold_where_progress_is_null (Fixture *fixture, gconstpointer data)
 
     //Initializations
     lw_progress_set_prefered_chunk_size (fixture->progress, 1);
-    lw_utf8_casefold (text, -1, NULL);
+    lw_utf8_casefold (text, 0, NULL);
 
     //Assert
     gint expected_steps[] = {};
@@ -828,7 +828,7 @@ validate_valid_string (Fixture *fixture, gconstpointer data)
     LwProgress * progress = fixture->progress;
 
     //Initializations
-    is_valid = lw_utf8_validate (TEXT, -1, progress);
+    is_valid = lw_utf8_validate (TEXT, 0, progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 4, 16, 37, 58, 79, 100, 100};
@@ -853,7 +853,7 @@ validate_last_character_is_invalid (Fixture *fixture, gconstpointer data)
     LwProgress * progress = fixture->progress;
 
     //Initializations
-    is_valid = lw_utf8_validate (TEXT, -1, progress);
+    is_valid = lw_utf8_validate (TEXT, 0, progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 8, 14, 34, 53, 72, 91};
@@ -900,7 +900,7 @@ validate_where_progress_is_null (Fixture *fixture, gconstpointer data)
     gboolean is_valid = FALSE;
 
     //Initializations
-    is_valid = lw_utf8_validate (TEXT, -1, NULL);
+    is_valid = lw_utf8_validate (TEXT, 0, NULL);
 
     //Assert
     g_assert_true (is_valid);
@@ -914,7 +914,7 @@ validate_where_progress_is_null_with_invalid_string (Fixture *fixture, gconstpoi
     gboolean is_valid = FALSE;
 
     //Initializations
-    is_valid = lw_utf8_validate (TEXT, -1, NULL);
+    is_valid = lw_utf8_validate (TEXT, 0, NULL);
 
     //Assert
     g_assert_false (is_valid);
@@ -933,7 +933,7 @@ validate_where_progress_is_cancelled (Fixture *fixture, gconstpointer data)
     g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
 
     //Initializations
-    is_valid = lw_utf8_validate (TEXT, -1, progress);
+    is_valid = lw_utf8_validate (TEXT, 0, progress);
 
     //Assert
     gint expected_steps[] = { 0, 0, 6, 10, 14, 27, 40, 53};

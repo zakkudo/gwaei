@@ -157,14 +157,14 @@ lw_utf8flag_clean (LwUtf8Flag flags)
 /**
  * lw_utf8_validate:
  * @TEXT: A string to validate as well-formed utf-8
- * @length: The length of the string or -1 to calculate it
+ * @length: The length of the string or 0 to calculate it
  * @progress: A #LwProgress to track progress or %NULL
  *
  * Returns: %TRUE if @TEXT is valid utf-8
  */
 gboolean
 lw_utf8_validate (const gchar *TEXT,
-                  gint         length,
+                  gsize        length,
                   LwProgress  *progress)
 {
     //Sanity checks
@@ -250,7 +250,7 @@ errored:
 /**
  * lw_utf8_normalize:
  * @TEXT: A string to normalize.  A copy will be made
- * @length: Length of the string in bytes or -1 to have it calculated
+ * @length: Length of the string in bytes or 0 to have it calculated
  * @flags: Flags for the type of requested normalization
  *
  * Normalizes a string and returns a copy.  This method should be used before
@@ -262,7 +262,7 @@ errored:
  */
 gchar *
 lw_utf8_normalize (const gchar * TEXT,
-                   gssize        length,
+                   gsize         length,
                    LwUtf8Flag    flags)
 {
     //Sanity checks
@@ -306,7 +306,7 @@ static gint
 lw_utf8_normalize_chunk (gchar       **output_chunk,
                          const gchar  *TEXT,
                          LwUtf8Flag    flags,
-                         gssize        max_length)
+                         gsize         max_length)
 {
     //Sanity checks
     if (TEXT == NULL) return 0;
@@ -334,7 +334,7 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
 /**
  * lw_utf8_normalize_chunked:
  * @CONTENTS: Text to be normalized
- * @content_length: The length of the text to be normalized or -1 for it to be calculated
+ * @content_length: The length of the text to be normalized or 0 for it to be calculated
  * @flags: Mask of #LwUtf8Flags to determine the normalization mode
  * @chunk_handler: A method to be called on each chunk, such as a file writer
  * @chunk_handler_data: Data to be passed to the handler
@@ -349,7 +349,7 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
  */
 void
 lw_utf8_normalize_chunked (gchar const        * CONTENTS, 
-                           gssize               content_length,
+                           gsize                content_length,
                            LwUtf8Flag           flags,
                            LwUtf8ChunkHandler   chunk_handler,
                            gpointer             chunk_handler_data,
@@ -362,7 +362,7 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
     if (progress != NULL && lw_progress_should_abort (progress)) return;
 
 		//Declarations
-		gint bytes_read = -1;
+		gsize bytes_read = 0;
 		gsize handled_bytes = 0;
 		gsize bytes_normalized = 0;
 		const char *C = CONTENTS;
@@ -494,7 +494,7 @@ _casefold_character (gchar *character)
 /**
  * lw_utf8_casefold:
  * @text: A string to casefold inline. The string is modified in place.
- * @length: Length of the string in bytes or -1 to have it calculated
+ * @length: Length of the string in bytes or 0 to have it calculated
  * @progress: An #LwProgress to track progress or %NULL
  *
  * Folds the case to lower case so that case insensitive searches can be
@@ -502,7 +502,7 @@ _casefold_character (gchar *character)
  */
 void
 lw_utf8_casefold (gchar      *text,
-                  gssize      length,
+                  gsize       length,
                   LwProgress *progress)
 {
     //Sanity checks
@@ -607,7 +607,7 @@ _furiganafold_character (gchar *c, GHashTable *conversions)
  */
 void
 lw_utf8_furiganafold (gchar      *text,
-                      gssize      length,
+                      gsize       length,
                       LwProgress *progress)
 {
     //Sanity checks
@@ -818,7 +818,7 @@ lw_utf8_delimit_radicals (const gchar *DELIMITOR, const gchar* TEXT)
  */
 gsize
 lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
-                                               gssize      content_length,
+                                               gsize       content_length,
                                                gsize      *max_line_length,
                                                LwProgress *progress)
 {
