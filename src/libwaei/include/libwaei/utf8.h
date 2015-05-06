@@ -7,10 +7,11 @@
 G_BEGIN_DECLS
 
 #define LW_UTF8_ERROR lw_utf8_error_quark ()
+GQuark lw_utf8_error_quark (void);
 
 typedef enum {
-  LW_UTF8_ERRORCODE_INVALID_CHARACTER,
-  LW_UTF8_ERRORCODE_VALIDATION_ERROR_
+  LW_UTF8_ERRORCODE_VALIDATION_ERROR,
+  LW_UTF8_ERRORCODE_NORMALIZATION_ERROR
 } LwUtf8ErrorCode;
 
 #define LW_UTF8FLAGNAME_NONE "None"
@@ -53,7 +54,15 @@ typedef enum {
   )
 } LwUtf8Flag;
 
-typedef gsize(*LwUtf8ChunkHandler)(gchar*, gsize, gpointer, GError**);
+/**
+ * LwUtf8ChunkHandler:
+ * @chunk: Chunk of text to operate on from a larger file
+ * @chunk_length: The length of this chunk of text
+ * @data: User data passed to the handler
+ * @error: A pointer to set #GErrors which will stop chunk handling
+ * Returns: The number of bytes used from the @chunk.  If it doesn't equal chunk_length, chunk parsing will be halted.
+ */
+typedef gsize(*LwUtf8ChunkHandler)(gchar * chunk, gssize chunk_length, gpointer data, GError ** error);
 
 GType lw_utf8flag_get_type (void);
 LwUtf8Flag lw_utf8flag_clean (LwUtf8Flag flags);
@@ -61,7 +70,7 @@ LwUtf8Flag lw_utf8flag_clean (LwUtf8Flag flags);
 
 gchar* lw_utf8_set_null_next_char (gchar *TEXT);
 gint* lw_utf8_get_numbers (const gchar *TEXT);
-gsize lw_utf8_replace_linebreaks_with_nullcharacter (gchar *CONTENTS, gsize content_length, gsize *max_line_length, LwProgress *progress);
+gsize lw_utf8_replace_linebreaks_with_nullcharacter (gchar *CONTENTS, gssize content_length, gsize *max_line_length, LwProgress *progress);
 gchar* lw_utf8_sanitize (gchar const * BUFFER);
 GUnicodeScript lw_utf8_get_script (gchar *TEXT);
 gchar* lw_utf8_convert_printf_pattern_to_regex_pattern (const gchar *PATTERN);
@@ -74,8 +83,7 @@ gint lw_utf8_count_lines (gchar const * TEXT);
 gboolean lw_utf8_validate (const gchar *TEXT, gint length, LwProgress *progress);
 
 gchar* lw_utf8_normalize (const gchar *TEXT, gssize length, LwUtf8Flag flags);
-gint lw_utf8_normalize_chunk (gchar ** output_chunk, const gchar *TEXT, LwUtf8Flag flags, gssize max_length);
-void lw_utf8_normalize_chunked (gchar const * contents, gsize content_length, LwUtf8Flag flags, LwUtf8ChunkHandler chunk_handler, gpointer chunk_handler_data, LwProgress *progress);
+void lw_utf8_normalize_chunked (gchar const * contents, gssize content_length, LwUtf8Flag flags, LwUtf8ChunkHandler chunk_handler, gpointer chunk_handler_data, LwProgress *progress);
 
 gboolean lw_utf8_isescaped (gchar const * TEXT, gchar const * CHAR_PTR);
 

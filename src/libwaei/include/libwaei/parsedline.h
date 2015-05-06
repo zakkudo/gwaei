@@ -6,6 +6,7 @@ G_BEGIN_DECLS
 //Single form
 
 #define LW_PARSEDLINE_ERROR lw_parsedline_error_quark ()
+GQuark lw_parsedline_error_quark (void);
 
 /**
  * LwParsedLineErrorCode:

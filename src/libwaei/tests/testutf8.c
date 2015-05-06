@@ -858,7 +858,7 @@ validate_last_character_is_invalid (Fixture *fixture, gconstpointer data)
     //Assert
     gint expected_steps[] = { 0, 0, 8, 14, 34, 53, 72, 91};
     g_assert_false (is_valid);
-    g_assert_error (lw_progress_get_error (progress), LW_UTF8_ERROR, LW_UTF8_ERRORCODE_INVALID_CHARACTER);
+    g_assert_error (lw_progress_get_error (progress), LW_UTF8_ERROR, LW_UTF8_ERRORCODE_VALIDATION_ERROR);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {

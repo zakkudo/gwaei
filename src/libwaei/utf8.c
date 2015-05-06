@@ -169,6 +169,7 @@ lw_utf8_validate (const gchar *TEXT,
 {
     //Sanity checks
     if (TEXT == NULL) return FALSE;
+    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
 
     //Declarations
     gsize chunk_size = 0;
@@ -208,7 +209,7 @@ lw_utf8_validate (const gchar *TEXT,
         {
           lw_progress_take_error (progress, g_error_new (
             LW_UTF8_ERROR,
-            LW_UTF8_ERRORCODE_INVALID_CHARACTER,
+            LW_UTF8_ERRORCODE_VALIDATION_ERROR,
             "Invalid utf8 character at offset %d",
             offset
           ));
@@ -301,7 +302,7 @@ errored:
 }
 
 
-gint
+static gint
 lw_utf8_normalize_chunk (gchar       **output_chunk,
                          const gchar  *TEXT,
                          LwUtf8Flag    flags,
@@ -330,9 +331,25 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
 }
 
 
+/**
+ * lw_utf8_normalize_chunked:
+ * @CONTENTS: Text to be normalized
+ * @content_length: The length of the text to be normalized or -1 for it to be calculated
+ * @flags: Mask of #LwUtf8Flags to determine the normalization mode
+ * @chunk_handler: A method to be called on each chunk, such as a file writer
+ * @chunk_handler_data: Data to be passed to the handler
+ * @progress: An #LwProgress to track progress or %NULL
+ *
+ * Normalizes a long string of text in a series of chunks
+ * such that it is file-writing and progress-tracking fiendly.  The chunk size
+ * can be set by using lw_progress_set_prefered_chunk_size(),
+ * otherwise it default to the page size of your operating system.
+ * Unless your string is document sized (aka MiB in size), you
+ * should probably just use lw_utf8_normalize() with its simpler interface.
+ */
 void
 lw_utf8_normalize_chunked (gchar const        * CONTENTS, 
-                           gsize                content_length,
+                           gssize               content_length,
                            LwUtf8Flag           flags,
                            LwUtf8ChunkHandler   chunk_handler,
                            gpointer             chunk_handler_data,
@@ -342,8 +359,7 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
     g_return_if_fail (CONTENTS != NULL);
     g_return_if_fail (content_length > 0);
     g_return_if_fail (chunk_handler != NULL);
-    g_return_if_fail (LW_IS_PROGRESS (progress));
-    if (lw_progress_should_abort (progress)) return;
+    if (progress != NULL && lw_progress_should_abort (progress)) return;
 
 		//Declarations
 		gint bytes_read = -1;
@@ -356,7 +372,14 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
     GError *error = NULL;
     gboolean has_error = FALSE;
 
-    chunk_size = lw_progress_get_chunk_size (progress);
+    if (progress != NULL)
+    {
+      chunk_size = lw_progress_get_chunk_size (progress);
+    }
+    else
+    {
+      chunk_size = lw_io_get_pagesize ();
+    }
 
 		if (left < 1) goto errored;
 		while (*C != '\0' && C - CONTENTS < content_length)
@@ -374,6 +397,19 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
 					has_error = TRUE;
 					goto errored;
 				}
+        if (bytes_normalized != handled_bytes)
+        {
+          g_set_error (
+            &error,
+            LW_UTF8_ERROR,
+            LW_UTF8_ERRORCODE_NORMALIZATION_ERROR,
+            "Wasn't able to fully handle chunk of normalized text."
+          );
+          lw_progress_take_error (progress, error);
+          error = NULL;
+					has_error = TRUE;
+          goto errored;
+        }
 			}
 			C += bytes_read;
 			left -= bytes_read;
@@ -471,6 +507,7 @@ lw_utf8_casefold (gchar      *text,
 {
     //Sanity checks
     if (text == NULL) return;
+    if (progress != NULL && lw_progress_should_abort (progress)) return;
 
     //Declarations
     gsize chunk_size = 0;
@@ -575,6 +612,7 @@ lw_utf8_furiganafold (gchar      *text,
 {
     //Sanity checks
     if (text == NULL) return;
+    if (progress != NULL && lw_progress_should_abort (progress)) return;
 
     //Declarations
     GHashTable *conversions = NULL;
@@ -780,7 +818,7 @@ lw_utf8_delimit_radicals (const gchar *DELIMITOR, const gchar* TEXT)
  */
 gsize
 lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
-                                               gsize       content_length,
+                                               gssize      content_length,
                                                gsize      *max_line_length,
                                                LwProgress *progress)
 {
