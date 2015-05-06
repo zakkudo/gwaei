@@ -818,6 +818,136 @@ isescaped_where_double_escaped (Fixture *fixture, gconstpointer data)
 }
 
 
+void
+validate_valid_string (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "abcdあいうえおアイウエオ日本語";
+    gint i = 0;
+    gboolean is_valid = FALSE;
+    LwProgress * progress = fixture->progress;
+
+    //Initializations
+    is_valid = lw_utf8_validate (TEXT, -1, progress);
+
+    //Assert
+    gint expected_steps[] = { 0, 0, 4, 16, 37, 58, 79, 100, 100};
+    g_assert_true (is_valid);
+    g_assert_no_error (lw_progress_get_error (progress));
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_true (lw_progress_completed (fixture->progress));
+}
+
+
+void
+validate_last_character_is_invalid (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "彙abcdあいうえおアイウエオ日本語\xF0";
+    gint i = 0;
+    gboolean is_valid = FALSE;
+    LwProgress * progress = fixture->progress;
+
+    //Initializations
+    is_valid = lw_utf8_validate (TEXT, -1, progress);
+
+    //Assert
+    gint expected_steps[] = { 0, 0, 8, 14, 34, 53, 72, 91};
+    g_assert_false (is_valid);
+    g_assert_error (lw_progress_get_error (progress), LW_UTF8_ERROR, LW_UTF8_ERRORCODE_INVALID_CHARACTER);
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+}
+
+void
+validate_last_invalid_character_is_not_validated (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "abcd\xF0";
+    gint i = 0;
+    gboolean is_valid = FALSE;
+    LwProgress * progress = fixture->progress;
+
+    //Initializations
+    is_valid = lw_utf8_validate (TEXT, 4, progress);
+
+    //Assert
+    gint expected_steps[] = { 0, 0, 50, 100, 100};
+    g_assert_true (is_valid);
+    g_assert_no_error (lw_progress_get_error (progress));
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_true (lw_progress_completed (fixture->progress));
+}
+
+
+void
+validate_where_progress_is_null (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "abcd";
+    gboolean is_valid = FALSE;
+
+    //Initializations
+    is_valid = lw_utf8_validate (TEXT, -1, NULL);
+
+    //Assert
+    g_assert_true (is_valid);
+}
+
+void
+validate_where_progress_is_null_with_invalid_string (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "abcd\xF0";
+    gboolean is_valid = FALSE;
+
+    //Initializations
+    is_valid = lw_utf8_validate (TEXT, -1, NULL);
+
+    //Assert
+    g_assert_false (is_valid);
+}
+
+
+void
+validate_where_progress_is_cancelled (Fixture *fixture, gconstpointer data)
+{
+    //Declarations
+    gchar const * TEXT = "彙abcdあいうえおアイウエオ日本語\xF0";
+    gboolean is_valid = FALSE;
+    gint i = 0;
+    LwProgress * progress = fixture->progress;
+    lw_progress_set_prefered_chunk_size (fixture->progress, 1);
+    g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
+
+    //Initializations
+    is_valid = lw_utf8_validate (TEXT, -1, progress);
+
+    //Assert
+    gint expected_steps[] = { 0, 0, 6, 10, 14, 27, 40, 53};
+    g_assert_false (is_valid);
+    g_assert_no_error (lw_progress_get_error (progress));
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -873,7 +1003,12 @@ main (gint argc, gchar *argv[])
     g_test_add ("/isescaped/where_escaped", Fixture, NULL, setup, isescaped_where_escaped, teardown);
     g_test_add ("/isescaped/where_double_escaped", Fixture, NULL, setup, isescaped_where_double_escaped, teardown);
 
-    return g_test_run();
+    g_test_add ("/validate/valid_string", Fixture, NULL, setup, validate_valid_string, teardown);
+    g_test_add ("/validate/last_character_is_invalid", Fixture, NULL, setup, validate_last_character_is_invalid, teardown);
+    g_test_add ("/validate/last_invalid_character_is_not_validated", Fixture, NULL, setup, validate_last_invalid_character_is_not_validated, teardown);
+    g_test_add ("/validate/where_progress_is_null", Fixture, NULL, setup, validate_where_progress_is_null, teardown);
+    g_test_add ("/validate/where_progress_is_null_with_invalid_string", Fixture, NULL, setup, validate_where_progress_is_null_with_invalid_string, teardown);
+    g_test_add ("/validate/where_progress_is_cancelled", Fixture, NULL, setup, validate_where_progress_is_cancelled, teardown);
+
+    return g_test_run ();
 }
-
-

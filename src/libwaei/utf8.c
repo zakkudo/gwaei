@@ -171,7 +171,7 @@ lw_utf8_validate (const gchar *TEXT,
     if (TEXT == NULL) return FALSE;
 
     //Declarations
-    gint chunk_size = 0;
+    gsize chunk_size = 0;
     gint chunk = 0;
     gint i = 0;
     gunichar c = 0;
@@ -180,11 +180,15 @@ lw_utf8_validate (const gchar *TEXT,
     gsize offset = 0;
 
     //Initializations
-    chunk_size = lw_progress_get_chunk_size (progress);
-    if (chunk_size < 1) goto errored;
+    if (progress != NULL) {
+      chunk_size = lw_progress_get_chunk_size (progress);
+      if (chunk_size < 1) goto errored;
+    }
     p = TEXT;
     if (p == NULL) goto errored;
     is_valid = TRUE;
+
+    if (length < 1) length = strlen(TEXT);
 
     if (progress != NULL)
     {
@@ -198,7 +202,7 @@ lw_utf8_validate (const gchar *TEXT,
     {
       offset = p - TEXT;
       c = g_utf8_get_char_validated (p, length - offset);
-      if (G_UNLIKELY (c == -1))
+      if (G_UNLIKELY (c == (gunichar) -1 || c == (gunichar) -2))
       {
         if (progress != NULL)
         {
@@ -213,20 +217,26 @@ lw_utf8_validate (const gchar *TEXT,
         goto errored;
       }
 
-      if (G_UNLIKELY (chunk >= chunk_size))
+      if (progress != NULL)
       {
-        if (progress != NULL) lw_progress_set_current (progress, offset);
-        chunk = 0;
+        if (G_UNLIKELY (chunk++ >= chunk_size))
+        {
+          if (lw_progress_should_abort (progress))
+          {
+            is_valid = FALSE;
+            goto errored;
+          }
+          lw_progress_set_current (progress, offset);
+          chunk = 0;
+        }
       }
-      else
-      {
-        chunk++;
-      }
+      p = g_utf8_next_char (p);
+      i = p - TEXT;
     }
 
 errored:
 
-    if (progress != NULL)
+    if (is_valid && progress != NULL)
     {
       lw_progress_set_current (progress, length);
       lw_progress_set_completed (progress, TRUE);
@@ -463,7 +473,7 @@ lw_utf8_casefold (gchar      *text,
     if (text == NULL) return;
 
     //Declarations
-    gint chunk_size = -1;
+    gsize chunk_size = 0;
     gint chunk = 0;
     gchar * c = NULL;
     
@@ -494,11 +504,14 @@ lw_utf8_casefold (gchar      *text,
       {
         c = _casefold_character (c);
         i = c - text;
-        if (G_UNLIKELY(chunk++ > chunk_size) && chunk_size > -1 && progress != NULL)
+        if (progress != NULL)
         {
-          if (lw_progress_should_abort (progress)) goto errored;
-          lw_progress_set_current (progress, i);
-          chunk = 0;
+          if (G_UNLIKELY(chunk++ > chunk_size))
+          {
+            if (lw_progress_should_abort (progress)) goto errored;
+            lw_progress_set_current (progress, i);
+            chunk = 0;
+          }
         }
       }
     }
@@ -565,7 +578,7 @@ lw_utf8_furiganafold (gchar      *text,
 
     //Declarations
     GHashTable *conversions = NULL;
-    gint chunk_size = -1;
+    gsize chunk_size = 0;
     gint chunk = 0;
     gchar * c = NULL;
     
@@ -597,11 +610,14 @@ lw_utf8_furiganafold (gchar      *text,
       while (*c != '\0' && i < length) {
         c = _furiganafold_character (c, conversions);
         i = c - text;
-        if (G_UNLIKELY(chunk++ > chunk_size) && chunk_size > -1 && progress != NULL)
+        if (progress != NULL)
         {
-          if (lw_progress_should_abort (progress)) goto errored;
-          lw_progress_set_current (progress, i);
-          chunk = 0;
+          if (G_UNLIKELY(chunk++ > chunk_size))
+          {
+            if (lw_progress_should_abort (progress)) goto errored;
+            lw_progress_set_current (progress, i);
+            chunk = 0;
+          }
         }
       }
     }
@@ -819,10 +835,13 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
           chunk += n - c;
           c = n;
         }
-        if (progress != NULL && chunk >= chunk_size)
+        if (progress != NULL)
         {
-          lw_progress_set_current (progress, c - CONTENTS);
-          chunk = 0;
+          if (chunk++ >= chunk_size)
+          {
+            lw_progress_set_current (progress, c - CONTENTS);
+            chunk = 0;
+          }
         }
       }
     }
