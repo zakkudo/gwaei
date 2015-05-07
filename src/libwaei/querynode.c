@@ -1428,7 +1428,7 @@ _value_matches_parsedline (LwQueryNode           * self,
     gint i = 0;
     gint column = -1;
 
-    for (i = 0; self->columns[i] != -1; i++)
+    for (i = 0; self->columns[i] != -1 && !matches; i++)
     {
       column = self->columns[i];
       matches = _value_matches_column (self, parsed_line, column, match_info_out);
@@ -1461,7 +1461,7 @@ lw_querynode_match_parsedline (LwQueryNode           * self,
     {
       matches = _children_match_parsedline (self, parsed_line, match_info_out);
     }
-    else if (self->data != NULL && self->children != NULL)
+    else if (self->data != NULL && self->children == NULL)
     {
       matches = _value_matches_parsedline (self, parsed_line, match_info_out);
     }

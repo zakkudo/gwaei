@@ -3,8 +3,15 @@
 #include <glib/gstdio.h>
 #include <libwaei/libwaei.h>
 
-struct _Fixture { GHashTable * children; GList * regexes;};
+struct _Fixture {
+  GHashTable * children;
+  GList * regexes;
+  GList * strvs;
+  LwParsedLine parsed_line;
+};
 typedef struct _Fixture Fixture;
+
+static gchar const * CONTENTS = "国語\0こくご\0Japanese\0national language";
 
 void
 _set_children (struct _Fixture  * fixture,
@@ -43,6 +50,26 @@ _new_regex (struct _Fixture * fixture,
 void setup (Fixture *fixture, gconstpointer data)
 {
     fixture->children = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, (GDestroyNotify) g_list_free);
+
+    lw_parsedline_init_full (&fixture->parsed_line, (GDestroyNotify) g_free);
+
+    {
+      gchar ** buffer = g_new0(gchar*, 2);
+      buffer[0] = (gchar*) CONTENTS;
+      lw_parsedline_set_strv (&fixture->parsed_line, 1, buffer);
+    }
+
+    {
+      gchar ** buffer = g_new0(gchar*, 2);
+      buffer[0] = (gchar*) CONTENTS + strlen("語彙 ");
+      lw_parsedline_set_strv (&fixture->parsed_line, 2, buffer);
+    }
+    {
+      gchar ** buffer = g_new0(gchar*, 3);
+      buffer[0] = (gchar*) CONTENTS + strlen("国語 こくご ");
+      buffer[1] = (gchar*) CONTENTS + strlen("国語 こくご Japanese ");
+      lw_parsedline_set_strv (&fixture->parsed_line, 3, buffer);
+    }
 }
 
 
@@ -52,6 +79,8 @@ void teardown (Fixture *fixture, gconstpointer data)
     fixture->children = NULL;
     g_list_free_full (fixture->regexes, (GDestroyNotify) g_regex_unref);
     fixture->regexes = NULL;
+
+    lw_parsedline_clear (&fixture->parsed_line);
 }
 
 
@@ -1457,6 +1486,257 @@ compile_string_with_casefold_on (Fixture       * fixture,
 }
 
 
+void
+match_parsedline_matches_first_column (Fixture       * fixture,
+                                       gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {1, -1};
+    gboolean matches = FALSE;
+
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("国語", &operation, &error);
+    root->columns = columns;
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_true (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+match_parsedline_matches_nothing (Fixture       * fixture,
+                                  gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {1, -1};
+    gboolean matches = FALSE;
+
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("Non Matching Query", &operation, &error);
+    root->columns = columns;
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_false (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+match_parsedline_matches_last_in_third_column (Fixture       * fixture,
+                                               gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {3, -1};
+    gboolean matches = FALSE;
+
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("national", &operation, &error);
+    root->columns = columns;
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_true (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+match_parsedline_matches_one_of_multiple_columns (Fixture       * fixture,
+                                                  gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {1, 2, 3, -1};
+    gboolean matches = FALSE;
+
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("national", &operation, &error);
+    root->columns = columns;
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_true (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+match_parsedline_matches_second_in_strv (Fixture       * fixture,
+                                         gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {3, -1};
+    gboolean matches = FALSE;
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("Japanese", &operation, &error);
+    root->columns = columns;
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_true (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+match_parsedline_matches_or_where_one_matches (Fixture       * fixture,
+                                               gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {1, 2, 3, -1};
+    gboolean matches = FALSE;
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("English||Japanese", &operation, &error);
+    ((LwQueryNode*)root->children->data)->columns = columns;
+    ((LwQueryNode*)root->children->next->data)->columns = columns;
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_true (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+match_parsedline_or_where_neither_matches (Fixture       * fixture,
+                                           gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {1, 2, 3, -1};
+    gboolean matches = FALSE;
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("English||Frensh", &operation, &error);
+    ((LwQueryNode*)root->children->data)->columns = columns;
+    ((LwQueryNode*)root->children->next->data)->columns = columns;
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_false (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+match_parsedline_and_where_both_match (Fixture       * fixture,
+                                       gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {1, 2, 3, -1};
+    gboolean matches = FALSE;
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("Japanese&&国語", &operation, &error);
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    ((LwQueryNode*)root->children->data)->columns = columns;
+    ((LwQueryNode*)root->children->next->data)->columns = columns;
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_true (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+match_parsedline_and_where_one_matches (Fixture       * fixture,
+                                        gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {1, 2, 3, -1};
+    gboolean matches = FALSE;
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("Japanese&&English", &operation, &error);
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    ((LwQueryNode*)root->children->data)->columns = columns;
+    ((LwQueryNode*)root->children->next->data)->columns = columns;
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_false (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -1501,6 +1781,16 @@ main (gint argc, gchar *argv[])
     g_test_add ("/compile/string_with_empty_parenthesis_directly_before_keyed", Fixture, NULL, setup, compile_string_with_empty_parenthesis_directly_before_keyed, teardown);
     g_test_add ("/compile/string_with_furiganafold_on", Fixture, NULL, setup, compile_string_with_furiganafold_on, teardown);
     g_test_add ("/compile/string_with_casefold_on", Fixture, NULL, setup, compile_string_with_casefold_on, teardown);
+
+    g_test_add ("/match_parsedline/matches_first_column", Fixture, NULL, setup, match_parsedline_matches_first_column, teardown);
+    g_test_add ("/match_parsedline/matches_nothing", Fixture, NULL, setup, match_parsedline_matches_nothing, teardown);
+    g_test_add ("/match_parsedline/matches_last_in_third_column", Fixture, NULL, setup, match_parsedline_matches_last_in_third_column, teardown);
+    g_test_add ("/match_parsedline/matches_one_of_multiple_columns", Fixture, NULL, setup, match_parsedline_matches_one_of_multiple_columns, teardown);
+    g_test_add ("/match_parsedline/matches_second_in_strv", Fixture, NULL, setup, match_parsedline_matches_second_in_strv, teardown);
+    g_test_add ("/match_parsedline/matches_or_where_one_matches", Fixture, NULL, setup, match_parsedline_matches_or_where_one_matches, teardown);
+    g_test_add ("/match_parsedline/or_where_neither_matches", Fixture, NULL, setup, match_parsedline_or_where_neither_matches, teardown);
+    g_test_add ("/match_parsedline/and_where_both_match", Fixture, NULL, setup, match_parsedline_and_where_both_match, teardown);
+    g_test_add ("/match_parsedline/and_where_one_matches", Fixture, NULL, setup, match_parsedline_and_where_one_matches, teardown);
 
     return g_test_run();
 }

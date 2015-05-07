@@ -746,71 +746,6 @@ lw_utf8_get_script (gchar *TEXT)
 }
 
 
-
-
-
-gchar*
-lw_utf8_delimit_radicals (const gchar *DELIMITOR, const gchar* TEXT)
-{
-    //Sanity check
-    g_return_val_if_fail (DELIMITOR != NULL && TEXT != NULL, NULL);
-
-    //Declarations
-    gchar *buffer;
-    gint count;
-    const gchar *source_ptr;
-    gchar *target_ptr;
-    gunichar c;
-    gint delimitor_length;
-    GUnicodeScript script;
-    GUnicodeScript previous_script;
-
-    //Initializations
-    count = 0;
-    delimitor_length = strlen(DELIMITOR);
-    previous_script = G_UNICODE_SCRIPT_INVALID_CODE;
-
-    for (source_ptr = TEXT; *source_ptr != '\0'; source_ptr = g_utf8_next_char (source_ptr))
-    {
-      c = g_utf8_get_char (source_ptr);
-      script = g_unichar_get_script (c);
-
-      if (previous_script == G_UNICODE_SCRIPT_HAN && script == previous_script)
-      {
-        count++;
-      }
-      previous_script = script;
-    }
-
-    buffer = g_new (gchar, strlen(TEXT) + (delimitor_length * count) + 1);
-    target_ptr = buffer;
-    previous_script = G_UNICODE_SCRIPT_INVALID_CODE;
-
-    //Create the delimited string
-    if (buffer != NULL)
-    {
-      for (source_ptr = TEXT; *source_ptr != '\0'; source_ptr = g_utf8_next_char (source_ptr))
-      {
-        c = g_utf8_get_char (source_ptr);
-        script = g_unichar_get_script (c);
-
-        if (previous_script == G_UNICODE_SCRIPT_HAN && script == previous_script)
-        {
-          strcpy(target_ptr, DELIMITOR);
-          target_ptr += delimitor_length;
-        }
-
-        target_ptr += g_unichar_to_utf8 (c, target_ptr);
-        *target_ptr = '\0';
-
-        previous_script = script;
-      }
-    }
-
-    return buffer;
-}
-
-
 /**
  * lw_utf8_replace_linebreaks_with_nullcharacter:
  *
@@ -975,43 +910,6 @@ lw_utf8_count_lines (gchar const * TEXT)
     }
 
     return count;
-}
-
-
-gchar**
-lw_utf8_split_lines (gchar *buffer, gint *num_lines)
-{
-    //Sanity checks
-    if (buffer == NULL) return 0;
-
-    //Declarations
-    gchar *c = NULL;
-    gchar **lines = NULL;
-    gint count = 0;
-
-    //Initializations
-    c = buffer;
-    count = lw_utf8_count_lines (c);
-    lines = g_new (gchar*, count + 1);
-    if (lines == NULL) goto errored;
-
-    //Make the lines separate strings
-    {
-      gint i = 0;
-      while (*c != '\0' && i < count)
-      {
-        while (*c != '\0' && *c == '\n') c = lw_utf8_set_null_next_char (c);
-        if (*c != '\0') lines[i++] = c;
-        while (*c != '\0' && *c != '\n') c = g_utf8_next_char (c);
-      }
-      lines[i++] = NULL;
-    }
-
-errored:
-
-    if (num_lines != NULL) *num_lines = count;
-
-    return lines;
 }
 
 

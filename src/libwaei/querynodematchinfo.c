@@ -52,6 +52,11 @@
 #include <libwaei/gettext.h>
 
 
+/**
+ * lw_querynodematchinfo_new:
+ *
+ * Returns: A new #LwQueryNodeMatchInfo that can be freed with lw_querynodematchinfo_unref()
+ */
 LwQueryNodeMatchInfo *
 lw_querynodematchinfo_new ()
 {
@@ -76,7 +81,12 @@ lw_querynodematchinfo_free (LwQueryNodeMatchInfo * self)
 }
 
 
-
+/**
+ * lw_querynodematchinfo_ref:
+ * @self: A #LwQueryNodeMatchInfo
+ *
+ * Returns: The #LwQueryNodeMatchInfo with its reference count incremented
+ */
 LwQueryNodeMatchInfo*
 lw_querynodematchinfo_ref (LwQueryNodeMatchInfo * self)
 {
@@ -88,6 +98,12 @@ lw_querynodematchinfo_ref (LwQueryNodeMatchInfo * self)
 }
 
 
+/**
+ * lw_querynodematchinfo_unref:
+ * @self: A #LwQueryNodeMatchInfo
+ *
+ * Decreses the reference count on the #LwQueryNodeMatchInfo, freeing it once it reaches 0
+ */
 void
 lw_querynodematchinfo_unref (LwQueryNodeMatchInfo *self)
 {
