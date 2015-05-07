@@ -1737,6 +1737,64 @@ match_parsedline_and_where_one_matches (Fixture       * fixture,
 }
 
 
+void
+match_parsedline_and_or_where_last_matches (Fixture       * fixture,
+                                            gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {3, -1};
+    gboolean matches = FALSE;
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("French&&English||Japanese", &operation, &error);
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    ((LwQueryNode*)root->children->data)->columns = columns;
+    ((LwQueryNode*)root->children->next->data)->columns = columns;
+    ((LwQueryNode*)root->children->next->next->data)->columns = columns;
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_true (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
+void
+match_parsedline_and_or_where_last_doesnt_match (Fixture       * fixture,
+                                                 gconstpointer   data)
+{
+    //Arrange
+    LwQueryNode * root = NULL;
+    GError *error = NULL;
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwParsedLine * parsed_line = &fixture->parsed_line;
+    LwQueryNodeMatchInfo * match_info = NULL;
+    gint columns[] = {3, -1};
+    gboolean matches = FALSE;
+
+    //Act
+    root = lw_querynode_new_tree_from_string ("Japanese&&English||French", &operation, &error);
+    lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
+    ((LwQueryNode*)root->children->data)->columns = columns;
+    ((LwQueryNode*)root->children->next->data)->columns = columns;
+    ((LwQueryNode*)root->children->next->next->data)->columns = columns;
+    matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
+
+    //Assert
+    g_assert_false (matches);
+
+    lw_querynode_unref (root);
+    root = NULL;
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -1791,6 +1849,8 @@ main (gint argc, gchar *argv[])
     g_test_add ("/match_parsedline/or_where_neither_matches", Fixture, NULL, setup, match_parsedline_or_where_neither_matches, teardown);
     g_test_add ("/match_parsedline/and_where_both_match", Fixture, NULL, setup, match_parsedline_and_where_both_match, teardown);
     g_test_add ("/match_parsedline/and_where_one_matches", Fixture, NULL, setup, match_parsedline_and_where_one_matches, teardown);
+    g_test_add ("/match_parsedline/and_or_where_last_matches", Fixture, NULL, setup, match_parsedline_and_or_where_last_matches, teardown);
+    g_test_add ("/match_parsedline/and_or_where_last_doesnt_match", Fixture, NULL, setup, match_parsedline_and_or_where_last_doesnt_match, teardown);
 
     return g_test_run();
 }

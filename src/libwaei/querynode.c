@@ -42,7 +42,6 @@
 
 #include <libwaei/parenthesisnode.h>
 #include <libwaei/querynode.h>
-#include <libwaei/querynodematchinfo-private.h>
 #include <libwaei/gettext.h>
 
 
@@ -1400,7 +1399,7 @@ _value_matches_column (LwQueryNode          * self,
           matches = g_regex_match (self->regex, strv[j], 0, &match_info);
           while (g_match_info_matches (match_info))
           {
-            lw_querynodematchinfo_add (match_info_out, column, j, match_info);
+            lw_querynodematchinfo_insert (match_info_out, strv[j], match_info);
             g_match_info_next (match_info, NULL);
           }
           g_match_info_free (match_info);
@@ -1468,6 +1467,11 @@ lw_querynode_match_parsedline (LwQueryNode           * self,
     else
     {
       g_assert_not_reached ();
+    }
+
+    if (match_info_out != NULL)
+    {
+      lw_querynodematchinfo_compile (match_info_out);
     }
 
 errored:

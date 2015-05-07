@@ -3,8 +3,6 @@
 
 G_BEGIN_DECLS
 
-typedef struct _LwQueryNodeMatchInfo LwQueryNodeMatchInfo;
-
 
 /**
  * LwQueryNodeMatchInfo:
@@ -14,8 +12,34 @@ typedef struct _LwQueryNodeMatchInfo LwQueryNodeMatchInfo;
 struct _LwQueryNodeMatchInfo {
   /*< private >*/
   GTree * tree;
+  GList * markers;
+  gboolean compiled;
   gint refs;
 };
+typedef struct _LwQueryNodeMatchInfo LwQueryNodeMatchInfo;
+
+
+typedef enum {
+  LW_QUERYNODEMATCHMARKERTYPE_OPEN,
+  LW_QUERYNODEMATCHMARKERTYPE_CLOSE
+} LwQueryNodeMatchMarkerType;
+
+
+struct _LwQueryNodeMatchMarker {
+  gchar const * position;
+  gchar const * open;
+  gchar const * close;
+  LwQueryNodeMatchMarkerType type;
+  GMatchInfo * match_info;
+  gint refs;
+};
+typedef struct _LwQueryNodeMatchMarker LwQueryNodeMatchMarker;
+
+LwQueryNodeMatchMarker * lw_querynodematchmarker_new (gchar * open, gchar * close, LwQueryNodeMatchMarkerType type, GMatchInfo * match_info);
+void lw_querynodematchmarker_unref (LwQueryNodeMatchMarker * self);
+LwQueryNodeMatchMarker * lw_querynodematchmarker_ref (LwQueryNodeMatchMarker * self);
+void lw_querynodematchinfo_insert (LwQueryNodeMatchInfo * self, gchar const * token, GMatchInfo * match_info);
+void lw_querynodematchinfo_compile (LwQueryNodeMatchInfo * self);
 
 
 /**
@@ -29,6 +53,7 @@ struct _LwQueryNodeMatchInfo {
 LwQueryNodeMatchInfo * lw_querynodematchinfo_new (void);
 void lw_querynodematchinfo_unref (LwQueryNodeMatchInfo * self);
 LwQueryNodeMatchInfo * lw_querynodematchinfo_ref (LwQueryNodeMatchInfo * self);
+
 
 G_END_DECLS
 
