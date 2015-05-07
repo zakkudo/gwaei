@@ -7,6 +7,13 @@
 
 G_BEGIN_DECLS
 
+/**
+ * LwQueryNodeOperation:
+ * @LW_QUERYNODE_OPERATION_NONE: There is no specific logical relation with the previous node.  This can also mean that this is the first node in a set of children.
+ * @LW_QUERYNODE_OPERATION_OR: The result of comparisons on this node should be logically ored with the previous node.
+ * @LW_QUERYNODE_OPERATION_AND: The result of comparisons on this node should be logically anded with the previous node.
+ * @TOTAL_LW_QUERYNODE_OPERATIONS: Total number of possible query node operations
+ */
 typedef enum _LwQueryNodeOperation {
   LW_QUERYNODE_OPERATION_NONE,
   LW_QUERYNODE_OPERATION_OR,
@@ -46,6 +53,13 @@ GQuark lw_querynode_error_quark (void);
 #define LW_QUERYNODE_IS_DANGLING_KEY(obj) (obj->data == NULL && obj->key != NULL && obj->children == NULL)
 #define LW_QUERYNODE_IS_EMPTY(obj) (obj->key == NULL, obj->data == NULL && obj->children == NULL)
 
+/**
+ * LwQueryNodeErrorCode:
+ * @LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR: This will usually mean the first node in a set of children has an #LwQueryNodeOperation
+ * @LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR: Compiling finished on a set of nodes with #LwQueryNodeOperation not set to %LW_QUERYNODEOPERATION_NONE
+ * @LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE: There is a node with only it's key set, but on compilation it wasn't able to be paired with any sibling nodes for it to have a value
+ * LW_QUERYNODE_ERROR_MISSING_KEY_AND_VALUE_FOR_KEYED_QUERYNODE: Equivialent to an empy search of ":"
+ */
 typedef enum {
   LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR,
   LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR,

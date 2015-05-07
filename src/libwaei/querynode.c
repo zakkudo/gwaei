@@ -890,7 +890,7 @@ lw_querynode_unref (LwQueryNode *self)
 /**
  * lw_querynode_assert_equals:
  * @self: A #LwQueryNode
- * @Other: Another #LwQueryNode
+ * @other: Another #LwQueryNode
  *
  * Returns: %TRUE if the internal fields and children match
  */

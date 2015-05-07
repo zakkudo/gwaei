@@ -748,23 +748,30 @@ lw_utf8_get_script (gchar *TEXT)
 
 /**
  * lw_utf8_replace_linebreaks_with_nullcharacter:
+ * @contents: The content string to modify inline
+ * @content_length: THe length of @contents, or 0 for it to be calculated
+ * @max_line_length: Sets the length of the longest line encountered
+ * @progress: A #LwProgress to track progress or %NULL
  *
- * TODO
+ * This is a helper method primarily meant for #LwDictioanrys to parse a 
+ * raw dictionary file and use the contents in place.
+ *
+ * Returns: The total bytes read
  */
 gsize
-lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
+lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *contents,
                                                gsize       content_length,
                                                gsize      *max_line_length,
                                                LwProgress *progress)
 {
-    g_return_if_fail (CONTENTS != NULL);
+    g_return_if_fail (contents != NULL);
 
     //Declarations    
     gint num_lines = 0;
     gsize chunk_size = 0;
 
     //Initializations
-    if (content_length < 1) content_length = strlen(CONTENTS);
+    if (content_length < 1) content_length = strlen(contents);
     chunk_size = lw_progress_get_chunk_size (progress);
 
     if (progress != NULL)
@@ -785,7 +792,7 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
       gchar *n = NULL;
       gsize chunk = 0;
 
-      n = p = c = CONTENTS;
+      n = p = c = contents;
       e = c + content_length;
 
       while (*c != '\0' && c < e)
@@ -812,7 +819,7 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *CONTENTS,
         {
           if (chunk++ >= chunk_size)
           {
-            lw_progress_set_current (progress, c - CONTENTS);
+            lw_progress_set_current (progress, c - contents);
             chunk = 0;
           }
         }
