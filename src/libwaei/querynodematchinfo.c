@@ -183,22 +183,15 @@ _compile_markers (gchar                * token,
     LwQueryNodeMatchMarker * open_marker = NULL;
     LwQueryNodeMatchMarker * close_marker = NULL;
     GList * markers = NULL;
-    gchar * open = NULL;
-    gchar * close = NULL;
-    gint start_pos = NULL;
-    gint end_pos = NULL;
     GList * link = NULL;
 
     for (link = matches; link != NULL; link = link->next)
     {
       match_info = (GMatchInfo*) link->data;
       if (match_info != NULL) goto errored;
-      g_match_info_fetch_pos (match_info, 0, &start_pos, &end_pos);
-      open = token + start_pos;
-      close = token + end_pos;
-      open_marker = lw_querynodematchmarker_new (open, close, LW_QUERYNODEMATCHMARKERTYPE_OPEN, match_info);
+      open_marker = lw_querynodematchmarker_new (LW_QUERYNODEMATCHMARKERTYPE_OPEN, match_info);
       if (open_marker == NULL) goto errored;
-      close_marker = lw_querynodematchmarker_new (open, close, LW_QUERYNODEMATCHMARKERTYPE_CLOSE, match_info);
+      close_marker = lw_querynodematchmarker_new (LW_QUERYNODEMATCHMARKERTYPE_CLOSE, match_info);
       if (close_marker == NULL) goto errored;
       markers = g_list_prepend (markers, open_marker);
       markers = g_list_prepend (markers, close_marker);
@@ -223,11 +216,11 @@ static gint
 _sort_markers (LwQueryNodeMatchMarker * marker1,
                LwQueryNodeMatchMarker * marker2)
 {
-    if (marker1->position < marker2->position)
+    if (marker1->POSITION < marker2->POSITION)
     {
       return -1;
     }
-    else if (marker1->position > marker2->position)
+    else if (marker1->POSITION > marker2->POSITION)
     {
       return 1;
     }
@@ -284,18 +277,18 @@ lw_querynodematchinfo_get_markers (LwQueryNodeMatchInfo * self)
 /**
  * lw_querynodematchinf_read:
  * @self: a #LwQueryNodeMatchInfo
- * @start_out: A #gchar pointer to write the token start
- * @end_out: A #gchar pointer to write the token end
+ * @START_OUT: A #gchar pointer to write the token start
+ * @END_OUT: A #gchar pointer to write the token END
  * @is_match_out: A pointer to a #gboolean to write if the token denotes a highlighted match section
  *
  *
- * Returns:  %TRUE until the iterator reaches the end of the tokens
+ * Returns:  %TRUE until the iterator reaches the END of the tokens
  */
 gboolean
 lw_querynodematchinfo_read (LwQueryNodeMatchInfo      * self,
                             LwQueryNodeMatchInfoIter  * iter,
-                            gchar                    ** start_out,
-                            gchar                    ** end_out,
+                            gchar const              ** START_OUT,
+                            gchar const              ** END_OUT,
                             gboolean                  * is_match_out)
 {
     //Sanity checks
@@ -306,8 +299,8 @@ lw_querynodematchinfo_read (LwQueryNodeMatchInfo      * self,
 
     //Declarations
     gint match_level = 0;
-    gchar * start = NULL;
-    gchar * end = NULL;
+    gchar const * START = NULL;
+    gchar const * END = NULL;
     LwQueryNodeMatchMarker * marker = NULL;
 
     //Initializations
@@ -317,26 +310,26 @@ lw_querynodematchinfo_read (LwQueryNodeMatchInfo      * self,
     {
       iter->marker = self->markers;
       marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
-      iter->end = NULL;
+      iter->END = NULL;
     }
-    else if (*iter->end == '\0')
+    else if (*iter->END == '\0')
     {
       iter->marker = iter->marker->next;
       marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
-      iter->end = NULL;
+      iter->END = NULL;
     }
     else
     {
       marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
     }
 
-    if (iter->end == NULL)
+    if (iter->END == NULL)
     {
-      start = (gchar*) lw_querynodematchmarker_get_string (marker); 
+      START = (gchar*) lw_querynodematchmarker_get_string (marker); 
     }
     else
     {
-      start = g_utf8_next_char (iter->end);
+      START = g_utf8_next_char (iter->END);
     }
 
     gboolean match_changed = FALSE;
@@ -362,20 +355,20 @@ lw_querynodematchinfo_read (LwQueryNodeMatchInfo      * self,
     if (iter->marker == NULL)
     {
       marker = NULL;
-      end = start + strlen(start);
+      END = START + strlen(START);
     }
     else
     {
-      end = (gchar*) marker->position;
+      END = lw_querynodematchmarker_get_position (marker, NULL);
     }
 
     iter->marker = iter->marker->next;
     iter->match_level = match_level;
-    iter->end = end;
+    iter->END = END;
 
-    if (start_out != NULL) *start_out = start;
-    if (end_out != NULL) *end_out = end;
+    if (START_OUT != NULL) *START_OUT = START;
+    if (END_OUT != NULL) *END_OUT = END;
     if (is_match_out != NULL) *is_match_out =  match_level;
 
-    return (iter->marker->next != NULL || *iter->end != '\0');
+    return (iter->marker->next != NULL || *iter->END != '\0');
 }

@@ -45,36 +45,45 @@
 
 
 LwQueryNodeMatchMarker *
-lw_querynodematchmarker_new (gchar                      * open,
-                             gchar                      * close,
-                             LwQueryNodeMatchMarkerType   type,
+lw_querynodematchmarker_new (LwQueryNodeMatchMarkerType   type,
                              GMatchInfo                 * match_info)
 {
     //Sanity checks
-    g_return_val_if_fail (open != NULL, NULL);
-    g_return_val_if_fail (close != NULL, NULL);
     g_return_val_if_fail (match_info != NULL, NULL);
 
     //Declarations
     LwQueryNodeMatchMarker * self = NULL;
+    gchar const * TOKEN = NULL;
+    gchar const * OPEN = NULL;
+    gchar const * CLOSE = NULL;
+    gint start_pos = NULL;
+    gint end_pos = NULL;
 
     //Initializations
     match_info = g_match_info_ref (match_info);
+    TOKEN = g_match_info_get_string (match_info);
+    if (TOKEN == NULL) goto errored;
+    g_match_info_fetch_pos (match_info, 0, &start_pos, &end_pos);
+    OPEN = TOKEN + start_pos;
+    CLOSE = TOKEN + end_pos;
     
     self = g_new0 (LwQueryNodeMatchMarker, 1);
     if (self == NULL) goto errored;
 
     self->match_info = match_info;
-    self->open = open;
-    self->close = close;
+    match_info = NULL;
+    self->OPEN = OPEN;
+    self->CLOSE = CLOSE;
+    self->type = type;
+    self->refs = 1;
 
     switch (type)
     {
       case LW_QUERYNODEMATCHMARKERTYPE_OPEN:
-        self->position = open;
+        self->POSITION = OPEN;
         break;
       case LW_QUERYNODEMATCHMARKERTYPE_CLOSE:
-        self->position = close;
+        self->POSITION = CLOSE;
         break;
       default:
         g_assert_not_reached ();
@@ -132,7 +141,7 @@ lw_querynodematchmarker_get_position (LwQueryNodeMatchMarker     * self,
       *type = self->type;
     }
 
-    return self->position;
+    return self->POSITION;
 }
 
 

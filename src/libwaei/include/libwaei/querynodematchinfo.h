@@ -11,7 +11,7 @@ struct _LwQueryNodeMatchInfoIter {
   /*< private >*/
   GList * marker;
   gint match_level;
-  gchar * end;
+  gchar const * END;
 };
 typedef struct _LwQueryNodeMatchInfoIter LwQueryNodeMatchInfoIter;
 

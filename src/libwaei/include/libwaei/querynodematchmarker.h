@@ -23,9 +23,9 @@ typedef enum {
  * @refs: The current refcount
  */
 struct _LwQueryNodeMatchMarker {
-  gchar const * position;
-  gchar const * open;
-  gchar const * close;
+  gchar const * POSITION;
+  gchar const * OPEN;
+  gchar const * CLOSE;
   LwQueryNodeMatchMarkerType type;
   GMatchInfo * match_info;
   gint refs;
@@ -34,7 +34,7 @@ typedef struct _LwQueryNodeMatchMarker LwQueryNodeMatchMarker;
 
 #define LW_QUERYNODEMATCHMARKER(obj) ((LwQueryNodeMatchMarker*)(obj))
 
-LwQueryNodeMatchMarker * lw_querynodematchmarker_new (gchar * open, gchar * close, LwQueryNodeMatchMarkerType type, GMatchInfo * match_info);
+LwQueryNodeMatchMarker * lw_querynodematchmarker_new (LwQueryNodeMatchMarkerType type, GMatchInfo * match_info);
 
 void lw_querynodematchmarker_unref (LwQueryNodeMatchMarker * self);
 LwQueryNodeMatchMarker * lw_querynodematchmarker_ref (LwQueryNodeMatchMarker * self);
