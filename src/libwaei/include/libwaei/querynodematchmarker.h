@@ -15,10 +15,12 @@ typedef enum {
 
 /**
  * LwQueryNodeMatchMarker:
- * @position: The character position of this marker.  If the marker is of type #LW_QUERYNODEMATCHMARKERTYPE_OPEN it will be the same as @open. If the marker is of type #LW_QUERYNODEMATCHMARKERTYPE_CLOSE, it will be the same as @close.
- * @open: The character marking the start of this selection
- * @close: The character marking the end of this selection
+ * @TOKEN: The full string that this marker references
+ * @POSITION: The character position of this marker.  If the marker is of type #LW_QUERYNODEMATCHMARKERTYPE_OPEN it will be the same as @open. If the marker is of type #LW_QUERYNODEMATCHMARKERTYPE_CLOSE, it will be the same as @close.
+ * @OPEN: The character marking the start of this selection
+ * @CLOSE: The character marking the end of this selection
  * @type: Denotes if this object marks the start or end of a selection. @position will reflect the type.
+ * @regex: The regex used to calculate the OPEN and CLOSE values
  * @refs: The current refcount
  */
 struct _LwQueryNodeMatchMarker {
@@ -32,6 +34,13 @@ struct _LwQueryNodeMatchMarker {
 };
 typedef struct _LwQueryNodeMatchMarker LwQueryNodeMatchMarker;
 
+
+/**
+ * LW_QUERYNODEMATCHMARKER:
+ * @obj: Object to cast to a #LwQueryNodeMatchMarker
+ *
+ * Returns: The object cast to a #LwQueryNodeMatchMarker
+ */
 #define LW_QUERYNODEMATCHMARKER(obj) ((LwQueryNodeMatchMarker*)(obj))
 
 LwQueryNodeMatchMarker * lw_querynodematchmarker_new (LwQueryNodeMatchMarkerType type, GMatchInfo * match_info);

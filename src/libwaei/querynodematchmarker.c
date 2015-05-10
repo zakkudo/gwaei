@@ -21,11 +21,11 @@
 
 /**
  * SECTION:querynodematchmarker
- * @short_description: A query tree structure for searches
+ * @short_description: Mark the start and end of #GMatchInfo matches
  * @title: LwQueryNodeMatchMarker
  *
- * Creates a node structure than can easily be iterated to carry out a 
- * seach against a list of results.
+ * Designed to assist in finding match start and stop endpoints so appropriate result highlighting
+ * can be easily shown when printing query results.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -44,6 +44,18 @@
 #include <libwaei/gettext.h>
 
 
+/**
+ * lw_querynodematchmarker_new:
+ * @type: The type of marker, denoting the start or end of a match
+ * @match_info: (transfer none): The #GMatchInfo used to calculate the pointers for the start and end of the match.  The object is only used for calculating values during construction, so it can be freed after calling this method.
+ *
+ * Designed to assist in finding match start and stop endpoints so appropriate match highlighting
+ * can be shown in the view for query results. The #GRegex that #GMatchInfo is stored on the new
+ * LwQueryNodeMatchMarker with it's ref count incremented such that the caller freeing the
+ * #GMatchInfo will not free the #GRegex.
+ *
+ * Returns: (transfer full): A new #LwQueryNodeMatchMarker that can be freed with lw_querynodematchmarker_unref()
+ */
 LwQueryNodeMatchMarker *
 lw_querynodematchmarker_new (LwQueryNodeMatchMarkerType   type,
                              GMatchInfo                 * match_info)
@@ -104,6 +116,13 @@ lw_querynodematchmarker_free (LwQueryNodeMatchMarker * self)
     g_free (self);
 }
 
+
+/**
+ * lw_querynodematchmarker_unref:
+ * @self: A #LwQueryNodeMatchMarker
+ *
+ * Reduces the ref count on the object and frees it once it reaches 0
+ */
 void
 lw_querynodematchmarker_unref (LwQueryNodeMatchMarker * self)
 {
@@ -116,6 +135,13 @@ lw_querynodematchmarker_unref (LwQueryNodeMatchMarker * self)
 }
 
 
+/**
+ * lw_querynodematchmarker_ref:
+ * 
+ * Increases the reference count on an object.
+ *
+ * Returns: The #LwQueryNodeMatchMarker with its ref count incremented
+ */
 LwQueryNodeMatchMarker *
 lw_querynodematchmarker_ref (LwQueryNodeMatchMarker * self)
 {
@@ -127,6 +153,19 @@ lw_querynodematchmarker_ref (LwQueryNodeMatchMarker * self)
 }
 
 
+/**
+ * lw_querynodematchmarker_get_position:
+ * @self: A #LwQueryNodeMatchMarker
+ * @type: (out) (allow-none): A location to write the #LwQueryNodeMatchMarkerType or #NULL
+ *
+ * Gets the string pointed to by #LwQueryNodeMatchMarker, which will always be an offset of the
+ * string returned by lw_querynodematchmarker_get_string(). When #LwQueryNodeMatchMarkerType
+ * is written, it will tell you if this marker denotes the start or end of a match.  All of
+ * this together allows you to do pointer arithmetic to print substrings without having to
+ * make copies of the original.
+ *
+ * Returns: (transfer none): The substring pointed to by the marker.  It is owned by #LwQueryNodeMatchMarker and should not be freed or modified.
+ */
 gchar const *
 lw_querynodematchmarker_get_position (LwQueryNodeMatchMarker     * self,
                                       LwQueryNodeMatchMarkerType * type)
@@ -143,6 +182,11 @@ lw_querynodematchmarker_get_position (LwQueryNodeMatchMarker     * self,
 }
 
 
+/**
+ * lw_querynodematchmarker_get_regex:
+ * @self: A #LwQueryNodeMatchMarker
+ * Returns: (transfer none) The #GRegex used to create this marker. The returned #GRegex should not be unrefed or freed.
+ */
 GRegex *
 lw_querynodematchmarker_get_regex (LwQueryNodeMatchMarker * self)
 {
@@ -153,6 +197,11 @@ lw_querynodematchmarker_get_regex (LwQueryNodeMatchMarker * self)
 }
 
 
+/**
+ * lw_querynodematchmarker_get_string:
+ * @self: A #LwQueryNodeMatchMarker
+ * Returns: (transfer none): The substring that this marker references. This string is owned internally by the #LwQueryNodeMatchMarker and should not be freed or modified.  lw_querynodematchmarker_get_position() will reference an offset of this same string in memory.
+ */
 gchar const *
 lw_querynodematchmarker_get_string (LwQueryNodeMatchMarker * self)
 {
