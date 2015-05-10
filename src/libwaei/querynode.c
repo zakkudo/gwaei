@@ -47,8 +47,6 @@
 
 static LwQueryNode * _parse_leaf_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
 static LwQueryNode * _parse_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
-gboolean lw_querynode_match_parsedline (LwQueryNode * self, LwParsedLine * parsed_line, LwQueryNodeMatchInfo * match_info_out);
-
 
 GQuark
 lw_querynode_error_quark ()
@@ -1307,7 +1305,7 @@ lw_querynode_nnodes (LwQueryNode * self)
  * lw_querynode_compile:
  * @self: A #LwQueryNode
  * @flags: The flags for the prefered normalization of the query data
- * @error: An #Error to track errors or %NULL to ignore them
+ * @error: An #GError to track errors or %NULL to ignore them
  *
  * Compiles the #LwQueryNode into a more compact form that is more ideal
  * for comparisons.  Once compiled, the #LwQueryNode structure will not be in

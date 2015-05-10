@@ -8,14 +8,6 @@ G_BEGIN_DECLS
 //Preference Schema
 #define LW_SCHEMA_DICTIONARY       "org.gnome.gwaei.dictionary"
 
-//Preference Settings
-#define LW_KEY_ENGLISH_SOURCE      "english-source"
-#define LW_KEY_KANJI_SOURCE        "kanji-source"
-#define LW_KEY_NAMES_PLACES_SOURCE "names-places-source"
-#define LW_KEY_RADICALS_SOURCE     "radicals-source"
-#define LW_KEY_EXAMPLES_SOURCE     "examples-source"
-#define LW_KEY_ORDER               "order"
-
 //Boilerplate
 typedef struct _LwDictionaryList LwDictionaryList;
 typedef struct _LwDictionaryListClass LwDictionaryListClass;

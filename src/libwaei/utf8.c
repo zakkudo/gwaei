@@ -753,7 +753,7 @@ lw_utf8_get_script (gchar *TEXT)
  * @max_line_length: Sets the length of the longest line encountered
  * @progress: A #LwProgress to track progress or %NULL
  *
- * This is a helper method primarily meant for #LwDictioanrys to parse a 
+ * This is a helper method primarily meant for #LwDictionary to parse a 
  * raw dictionary file and use the contents in place.
  *
  * Returns: The total bytes read

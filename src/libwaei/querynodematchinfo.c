@@ -25,7 +25,7 @@
  * @title: LwQueryNodeMatchInfo
  *
  * Provides a way to more deeply inspect matches from #LwQueryNode when you
- * run lw_querynode_match_parseline().  One of the primary purposes of this
+ * run lw_querynode_match_parsedline().  One of the primary purposes of this
  * library is to allow easy highlighting of substrings of the match.
  */
 
@@ -51,6 +51,7 @@
 #include <libwaei/gettext.h>
 
 
+
 static gint
 _compare (gconstpointer a,
           gconstpointer b,
@@ -72,7 +73,7 @@ _destroy_match_info_list (GList * matches)
  *
  * Returns: A new #LwQueryNodeMatchInfo that can be freed with lw_querynodematchinfo_unref()
  */
-LwQueryNodeMatchInfo *
+static LwQueryNodeMatchInfo *
 lw_querynodematchinfo_new ()
 {
     //Declarations
@@ -259,78 +260,122 @@ errored:
 }
 
 
-LwQueryNodeMatchMarker *
-lw_querynodematchmarker_new (gchar                      * open,
-                             gchar                      * close,
-                             LwQueryNodeMatchMarkerType   type,
-                             GMatchInfo                 * match_info)
+GList *
+lw_querynodematchinfo_lookup_matches (LwQueryNodeMatchInfo * self,
+                                      gchar const          * token)
+{
+   //Sanity checks
+   g_return_val_if_fail (self != NULL, NULL);
+   g_return_val_if_fail (token != NULL, NULL);
+
+    return g_tree_lookup (self->tree, token);
+}
+
+GList *
+lw_querynodematchinfo_get_markers (LwQueryNodeMatchInfo * self)
+{
+   //Sanity checks
+   g_return_val_if_fail (self != NULL, NULL);
+
+  return self->markers;
+}
+
+
+/**
+ * lw_querynodematchinf_read:
+ * @self: a #LwQueryNodeMatchInfo
+ * @start_out: A #gchar pointer to write the token start
+ * @end_out: A #gchar pointer to write the token end
+ * @is_match_out: A pointer to a #gboolean to write if the token denotes a highlighted match section
+ *
+ *
+ * Returns:  %TRUE until the iterator reaches the end of the tokens
+ */
+gboolean
+lw_querynodematchinfo_read (LwQueryNodeMatchInfo      * self,
+                            LwQueryNodeMatchInfoIter  * iter,
+                            gchar                    ** start_out,
+                            gchar                    ** end_out,
+                            gboolean                  * is_match_out)
 {
     //Sanity checks
-    g_return_val_if_fail (open != NULL, NULL);
-    g_return_val_if_fail (close != NULL, NULL);
-    g_return_val_if_fail (match_info != NULL, NULL);
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (iter != NULL, FALSE);
+    if (self->markers == NULL) return FALSE;
+    if (iter->marker == NULL) return FALSE;
 
     //Declarations
-    LwQueryNodeMatchMarker * self = NULL;
+    gint match_level = 0;
+    gchar * start = NULL;
+    gchar * end = NULL;
+    LwQueryNodeMatchMarker * marker = NULL;
 
     //Initializations
-    match_info = g_match_info_ref (match_info);
-    
-    self = g_new0 (LwQueryNodeMatchMarker, 1);
-    if (self == NULL) goto errored;
+    match_level = iter->match_level;
 
-    self->match_info = match_info;
-    self->open = open;
-    self->close = close;
-
-    switch (type)
+    if (iter->marker == NULL)
     {
-      case LW_QUERYNODEMATCHMARKERTYPE_OPEN:
-        self->position = open;
-        break;
-      case LW_QUERYNODEMATCHMARKERTYPE_CLOSE:
-        self->position = close;
-        break;
-      default:
-        g_assert_not_reached ();
-        break;
+      iter->marker = self->markers;
+      marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
+      iter->end = NULL;
     }
-    
-errored:
-
-    if (match_info != NULL) g_match_info_unref (match_info);
-    match_info = NULL;
-}
-
-static void
-lw_querynodematchmarker_free (LwQueryNodeMatchMarker * self)
-{
-    if (self == NULL) return;
-
-    if (self->match_info != NULL) g_match_info_unref (self->match_info);
-    memset(self, 0, sizeof(LwQueryNodeMatchMarker));
-    g_free (self);
-}
-
-void
-lw_querynodematchmarker_unref (LwQueryNodeMatchMarker * self)
-{
-    g_return_if_fail (self != NULL);
-
-    if (g_atomic_int_dec_and_test (&self->refs))
+    else if (*iter->end == '\0')
     {
-      lw_querynodematchmarker_free (self);
+      iter->marker = iter->marker->next;
+      marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
+      iter->end = NULL;
     }
+    else
+    {
+      marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
+    }
+
+    if (iter->end == NULL)
+    {
+      start = (gchar*) lw_querynodematchmarker_get_string (marker); 
+    }
+    else
+    {
+      start = g_utf8_next_char (iter->end);
+    }
+
+    gboolean match_changed = FALSE;
+    while (iter->marker != NULL && !match_changed)
+    {
+      marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
+      switch (marker->type)
+      {
+        case LW_QUERYNODEMATCHMARKERTYPE_OPEN:
+          match_level++;
+          break;
+        case LW_QUERYNODEMATCHMARKERTYPE_CLOSE:
+          match_level--;
+          break;
+        default:
+          g_assert_not_reached ();
+          break;
+      }
+      match_changed = ((iter->match_level > 0 && match_level == 0) || (iter->match_level == 0 && match_level > 0));
+      iter->marker = iter->marker->next;
+    }
+
+    if (iter->marker == NULL)
+    {
+      marker = NULL;
+      end = start + strlen(start);
+    }
+    else
+    {
+      end = (gchar*) marker->position;
+    }
+
+    iter->marker = iter->marker->next;
+    iter->match_level = match_level;
+    iter->end = end;
+
+    if (start_out != NULL) *start_out = start;
+    if (end_out != NULL) *end_out = end;
+    if (is_match_out != NULL) *is_match_out =  match_level;
+
+    return (iter->marker->next != NULL || *iter->end != '\0');
 }
-
-
-LwQueryNodeMatchMarker *
-lw_querynodematchmarker_ref (LwQueryNodeMatchMarker * self)
-{
-    g_return_val_if_fail (self != NULL, NULL);
-
-    g_atomic_int_inc (&self->refs);
-
-    return self;
-}
-
