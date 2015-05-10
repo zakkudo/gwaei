@@ -7,7 +7,7 @@ G_BEGIN_DECLS
 /**
  * LwQueryNodeColumnMatchInfoIter:
  *
- * TODO
+ * An opaque iterator used by lw_querynodecolumnmatchinfo_read() for reading simple tokens.
  */
 struct _LwQueryNodeColumnMatchInfoIter {
   /*< private >*/
@@ -22,7 +22,7 @@ typedef struct _LwQueryNodeColumnMatchInfoIter LwQueryNodeColumnMatchInfoIter;
 /**
  * LwQueryNodeColumnMatchInfo:
  *
- * TODO
+ * An opaque container for storing match information specific to a dictionary column.
  */
 struct _LwQueryNodeColumnMatchInfo {
   /*< private >*/

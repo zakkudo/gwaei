@@ -21,10 +21,11 @@
 
 /**
  * SECTION:querynodecolumnmatchinfo
- * @short_description: TODO
+ * @short_description: Match information for a specific dictionary column
  * @title: LwQueryNodeColumnMatchInfo
  *
- * TODO
+ * Used to store matches for a specific dictionary column, making it easy to iterate 
+ * it and print highlighted results. See lw_querynodecolumnmatchinfo_read().
  */
 
 #ifdef HAVE_CONFIG_H
@@ -44,6 +45,12 @@
 #include <libwaei/gettext.h>
 
 
+/**
+ * lw_querynodecolumnmatchinfo_new:
+ * @column: Dictionary column that this match info tracks
+ * @strv: (transfer none): The strings that this match info will reference
+ * Returns: (transfer full): A new #LwQueryNodeColumnMatchInfo that can be freed with lw_querynodecolumnmatchinfo_unref()
+ */
 LwQueryNodeColumnMatchInfo *
 lw_querynodecolumnmatchinfo_new (gint column, gchar const ** strv)
 {
@@ -64,6 +71,11 @@ errored:
 }
 
 
+/**
+ * lw_querynodecolumnmatchinfo_add:
+ * @self: A #LwQueryNodeColumnMatchInfo
+ * @match_info: (transfer none): A #GMatchInfo used for creating the internal #LwQueryNodeMatchMarkers
+ */
 void
 lw_querynodecolumnmatchinfo_add (LwQueryNodeColumnMatchInfo * self,
                                  GMatchInfo                 * match_info)
@@ -284,14 +296,41 @@ _read_marked_section (LwQueryNodeColumnMatchInfo      * self,
  * lw_querynodecolumnmatchinfo_read:
  * @self: a #LwQueryNodeMatchInfo
  * @iter: A #LwQueryNodeColumnMatchInfoIter initialized to {0}
- * @i_out: An index to set or %NULL
- * @START_OUT: A #gchar pointer to write the token start or %NULL
- * @END_OUT: A #gchar pointer to write the token END or %NULL
- * @is_match_out: A pointer to a #gboolean to write if the token denotes a highlighted match section or %NULL
+ * @i_out: (out): An index to set or %NULL
+ * @START_OUT: (out) (transfer none): A #gchar pointer to write the token start or %NULL.  This string should not be freed or modified.
+ * @END_OUT: (out) (transfer none): A #gchar pointer to write the token END or %NULL. This string should not be freed or modified.
+ * @is_match_out: (out): A pointer to a #gboolean to write if the token denotes a highlighted match section or %NULL
  *
- * TODO
+ * Reads substrings iteratively from the match information such that you can easily print
+ * them with highlight information.
+ * 
+ * Example:
+ * |[<!-- language="C" -->
+ * LwQueryNodeColumnMatchInfoIter iter = {0};
+ * gchar const * start = NULL;
+ * gchar const * end = NULL;
+ * gboolean is_match = FALSE;
+ * gint previous_i = -1, i = 0;
+ * 
+ * while (lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &start, &end, &is_match))
+ * {
+ *     if (previous_i != i)
+ *     {
+ *         printf("%d) ", i);
+ *         previous_i = i;
+ *     }
+ *     if (is_match)
+ *     {
+ *         printf("[%.s]", end - start, start)
+ *     }
+ *     else
+ *     {
+ *         printf("%.s", end - start, start)
+ *     }
+ * }
+ * ]|
  *
- * Returns:  %TRUE until the iterator reaches the END of the tokens
+ * Returns:  %TRUE until there are no more tokens to iterate
  */
 gboolean
 lw_querynodecolumnmatchinfo_read (LwQueryNodeColumnMatchInfo      * self,
