@@ -1,27 +1,20 @@
 #ifndef LW_QUERYNODEMATCHINFO_INCLUDED
 #define LW_QUERYNODEMATCHINFO_INCLUDED
 
-#include <libwaei/querynodematchmarker.h>
-
+#include "querynodecolumnmatchinfo.h"
+#include "querynodematchmarker.h"
 
 G_BEGIN_DECLS
 
 
-struct _LwQueryNodeMatchInfoIter {
-  /*< private >*/
-  GList * marker;
-  gint match_level;
-  gchar const * END;
-};
-typedef struct _LwQueryNodeMatchInfoIter LwQueryNodeMatchInfoIter;
-
-
+/**
+ * LwQueryNodeMatchInfo:
+ * 
+ * An opaque object holding the fields for #LwQueryNodeMatchInfo
+ */
 struct _LwQueryNodeMatchInfo {
   /*< private >*/
   GTree * tree;
-  GList * markers;
-  GList * iter;
-  gboolean compiled;
   gint refs;
 };
 typedef struct _LwQueryNodeMatchInfo LwQueryNodeMatchInfo;
@@ -36,17 +29,11 @@ typedef struct _LwQueryNodeMatchInfo LwQueryNodeMatchInfo;
 #define LW_QUERYNODEMATCHINFO(obj) ((LwQueryNodeMatchInfo*)(obj))
 
 
-/**
- * LwQueryNodeMatchInfo:
- * 
- * An opaque object holding the fields for #LwQueryNodeMatchInfo
- */
-
 void lw_querynodematchinfo_unref (LwQueryNodeMatchInfo * self);
 LwQueryNodeMatchInfo * lw_querynodematchinfo_ref (LwQueryNodeMatchInfo * self);
 
-void lw_querynodematchinfo_insert (LwQueryNodeMatchInfo * self, gchar const * token, GMatchInfo * match_info);
-void lw_querynodematchinfo_compile (LwQueryNodeMatchInfo * self);
+void lw_querynodematchinfo_set_column (LwQueryNodeMatchInfo * self, gint column, LwQueryNodeColumnMatchInfo * column_match_info);
+LwQueryNodeColumnMatchInfo * lw_querynodematchinfo_get_column (LwQueryNodeMatchInfo * self, gint column);
 
 G_END_DECLS
 

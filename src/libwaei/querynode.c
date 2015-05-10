@@ -42,6 +42,7 @@
 
 #include <libwaei/parenthesisnode.h>
 #include <libwaei/querynode.h>
+#include <libwaei/querynodematchinfo.h>
 #include <libwaei/gettext.h>
 
 
@@ -1384,9 +1385,19 @@ _value_matches_column (LwQueryNode          * self,
     gchar const ** strv = NULL;
     GMatchInfo * match_info = NULL;
     gboolean matches = FALSE;
+    LwQueryNodeColumnMatchInfo * column_match_info = NULL;
 
     //Initializations
     strv = lw_parsedline_get_strv (parsed_line, column);
+    if (match_info_out != NULL)
+    {
+      column_match_info = lw_querynodematchinfo_get_column (match_info_out, column);
+      if (column_match_info == NULL)
+      {
+        column_match_info = lw_querynodecolumnmatchinfo_new (column, strv);
+        lw_querynodematchinfo_set_column (match_info_out, column, column_match_info);
+      }
+    }
 
     if (strv != NULL)
     {
@@ -1397,10 +1408,9 @@ _value_matches_column (LwQueryNode          * self,
           matches = g_regex_match (self->regex, strv[j], 0, &match_info);
           while (g_match_info_matches (match_info))
           {
-            lw_querynodematchinfo_insert (match_info_out, strv[j], match_info);
+            lw_querynodecolumnmatchinfo_add (column_match_info, match_info);
             g_match_info_next (match_info, NULL);
           }
-          g_match_info_free (match_info);
         }
         else
         {
@@ -1410,10 +1420,15 @@ _value_matches_column (LwQueryNode          * self,
       }
     }
 
+    column_match_info = NULL;
+
 errored:
+
+    if (column_match_info != NULL) lw_querynodecolumnmatchinfo_unref (column_match_info);
 
     return matches;
 }
+
 
 static gboolean
 _value_matches_parsedline (LwQueryNode           * self,
@@ -1465,11 +1480,6 @@ lw_querynode_match_parsedline (LwQueryNode           * self,
     else
     {
       g_assert_not_reached ();
-    }
-
-    if (match_info_out != NULL)
-    {
-      lw_querynodematchinfo_compile (match_info_out);
     }
 
 errored:

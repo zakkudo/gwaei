@@ -60,7 +60,6 @@ lw_querynodematchmarker_new (LwQueryNodeMatchMarkerType   type,
     gint end_pos = NULL;
 
     //Initializations
-    match_info = g_match_info_ref (match_info);
     TOKEN = g_match_info_get_string (match_info);
     if (TOKEN == NULL) goto errored;
     g_match_info_fetch_pos (match_info, 0, &start_pos, &end_pos);
@@ -70,8 +69,8 @@ lw_querynodematchmarker_new (LwQueryNodeMatchMarkerType   type,
     self = g_new0 (LwQueryNodeMatchMarker, 1);
     if (self == NULL) goto errored;
 
-    self->match_info = match_info;
-    match_info = NULL;
+    self->TOKEN = TOKEN;
+    self->regex = g_regex_ref (g_match_info_get_regex (match_info));
     self->OPEN = OPEN;
     self->CLOSE = CLOSE;
     self->type = type;
@@ -92,8 +91,7 @@ lw_querynodematchmarker_new (LwQueryNodeMatchMarkerType   type,
     
 errored:
 
-    if (match_info != NULL) g_match_info_unref (match_info);
-    match_info = NULL;
+    return self;
 }
 
 static void
@@ -101,7 +99,7 @@ lw_querynodematchmarker_free (LwQueryNodeMatchMarker * self)
 {
     if (self == NULL) return;
 
-    if (self->match_info != NULL) g_match_info_unref (self->match_info);
+    if (self->regex != NULL) g_regex_unref (self->regex);
     memset(self, 0, sizeof(LwQueryNodeMatchMarker));
     g_free (self);
 }
@@ -145,23 +143,13 @@ lw_querynodematchmarker_get_position (LwQueryNodeMatchMarker     * self,
 }
 
 
-GMatchInfo *
-lw_querynodematchmarker_get_match_info (LwQueryNodeMatchMarker * self)
-{
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-
-    return self->match_info;
-}
-
 GRegex *
 lw_querynodematchmarker_get_regex (LwQueryNodeMatchMarker * self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (self->match_info != NULL, NULL);
 
-    return g_match_info_get_regex (self->match_info);
+    return self->regex;
 }
 
 
@@ -170,7 +158,6 @@ lw_querynodematchmarker_get_string (LwQueryNodeMatchMarker * self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (self->match_info != NULL, NULL);
 
-    return g_match_info_get_string (self->match_info);
+    return self->TOKEN;
 }

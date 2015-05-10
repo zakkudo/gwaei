@@ -103,7 +103,6 @@ lw_querynodematchinfo_free (LwQueryNodeMatchInfo * self)
     if (self == NULL) return;
 
     if (self->tree != NULL) g_tree_unref (self->tree);
-    if (self->markers != NULL) g_list_free_full (self->markers, (GDestroyNotify) lw_querynodematchmarker_unref);
 
     memset(self, 0, sizeof(LwQueryNodeMatchInfo));
 
@@ -146,229 +145,40 @@ lw_querynodematchinfo_unref (LwQueryNodeMatchInfo * self)
 }
 
 
-void
-lw_querynodematchinfo_insert (LwQueryNodeMatchInfo  * self,
-                              gchar const           * token,
-                              GMatchInfo            * match_info)
+/**
+ * lw_querynodematchinfo_get_column:
+ * @self: A #LwQueryNodeMatchInfo
+ * @column: The column you want to fetch
+ * Returns: A #LwQueryNodeColumnMatchInfo or %NULL if it wasn't previously set
+ */
+LwQueryNodeColumnMatchInfo *
+lw_querynodematchinfo_get_column (LwQueryNodeMatchInfo * self,
+                                  gint                   column)
 {
-    //Initializations
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (match_info != NULL);
-    g_return_if_fail (token != NULL);
-    g_return_if_fail (self->compiled != FALSE);
+    g_return_val_if_fail (self != NULL, NULL);
 
-    //Declarations
-    GList * matches = NULL;
-
-    //Initializations
-    matches = g_tree_lookup (self->tree, token);
-    matches = g_list_prepend (matches, match_info);
-
-    g_tree_insert (self->tree, (gchar*) token, matches);
-}
-
-
-static gboolean
-_compile_markers (gchar                * token,
-                  GList                * matches,
-                  LwQueryNodeMatchInfo * self)
-{
-    //Sanity checks
-    g_return_val_if_fail (token != NULL, TRUE);
-    g_return_val_if_fail (matches != NULL, TRUE);
-    g_return_val_if_fail (self != NULL, TRUE);
-
-    //Declarations
-    GMatchInfo * match_info = NULL;
-    LwQueryNodeMatchMarker * open_marker = NULL;
-    LwQueryNodeMatchMarker * close_marker = NULL;
-    GList * markers = NULL;
-    GList * link = NULL;
-
-    for (link = matches; link != NULL; link = link->next)
-    {
-      match_info = (GMatchInfo*) link->data;
-      if (match_info != NULL) goto errored;
-      open_marker = lw_querynodematchmarker_new (LW_QUERYNODEMATCHMARKERTYPE_OPEN, match_info);
-      if (open_marker == NULL) goto errored;
-      close_marker = lw_querynodematchmarker_new (LW_QUERYNODEMATCHMARKERTYPE_CLOSE, match_info);
-      if (close_marker == NULL) goto errored;
-      markers = g_list_prepend (markers, open_marker);
-      markers = g_list_prepend (markers, close_marker);
-    }
-
-    match_info = NULL;
-    open_marker = NULL;
-    close_marker = NULL;
-
-errored:
-
-    if (open_marker != NULL) lw_querynodematchmarker_unref (open_marker);
-    open_marker = NULL;
-    if (close_marker != NULL) lw_querynodematchmarker_unref (close_marker);
-    close_marker = NULL;
-
-    return FALSE;
-}
-
-
-static gint
-_sort_markers (LwQueryNodeMatchMarker * marker1,
-               LwQueryNodeMatchMarker * marker2)
-{
-    if (marker1->POSITION < marker2->POSITION)
-    {
-      return -1;
-    }
-    else if (marker1->POSITION > marker2->POSITION)
-    {
-      return 1;
-    }
-    else
-    {
-      return 0;
-    }
-    
-}
-
-
-void
-lw_querynodematchinfo_compile (LwQueryNodeMatchInfo * self)
-{
-    //Sanity checks
-    g_return_if_fail (self != NULL);
-    if (self->compiled == TRUE) return;
-
-    self->compiled = TRUE;
-    g_tree_foreach (self->tree, (GTraverseFunc) _compile_markers, self);
-    if (self->compiled == FALSE) goto errored;
-    self->markers = g_list_sort (self->markers, (GCompareFunc) _sort_markers);
-
-errored:
-
-    if (self->compiled == FALSE)
-    {
-      g_list_free_full (self->markers, (GDestroyNotify) lw_querynodematchmarker_unref);
-    }
-}
-
-
-GList *
-lw_querynodematchinfo_lookup_matches (LwQueryNodeMatchInfo * self,
-                                      gchar const          * token)
-{
-   //Sanity checks
-   g_return_val_if_fail (self != NULL, NULL);
-   g_return_val_if_fail (token != NULL, NULL);
-
-    return g_tree_lookup (self->tree, token);
-}
-
-GList *
-lw_querynodematchinfo_get_markers (LwQueryNodeMatchInfo * self)
-{
-   //Sanity checks
-   g_return_val_if_fail (self != NULL, NULL);
-
-  return self->markers;
+    return g_tree_lookup (self->tree, GINT_TO_POINTER (column));
 }
 
 
 /**
- * lw_querynodematchinf_read:
- * @self: a #LwQueryNodeMatchInfo
- * @START_OUT: A #gchar pointer to write the token start
- * @END_OUT: A #gchar pointer to write the token END
- * @is_match_out: A pointer to a #gboolean to write if the token denotes a highlighted match section
- *
- *
- * Returns:  %TRUE until the iterator reaches the END of the tokens
+ * lw_querynodematchinfo_set_column:
+ * @self: A #LwQueryNodeMatchInfo
+ * @column: The column to set the 
+ * @column_match_info: The #LwQueryNodeColumnMatchInfo to set or %NULL to unset it
  */
-gboolean
-lw_querynodematchinfo_read (LwQueryNodeMatchInfo      * self,
-                            LwQueryNodeMatchInfoIter  * iter,
-                            gchar const              ** START_OUT,
-                            gchar const              ** END_OUT,
-                            gboolean                  * is_match_out)
+void
+lw_querynodematchinfo_set_column (LwQueryNodeMatchInfo       * self,
+                                  gint                         column,
+                                  LwQueryNodeColumnMatchInfo * column_match_info)
 {
-    //Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-    g_return_val_if_fail (iter != NULL, FALSE);
-    if (self->markers == NULL) return FALSE;
-    if (iter->marker == NULL) return FALSE;
-
-    //Declarations
-    gint match_level = 0;
-    gchar const * START = NULL;
-    gchar const * END = NULL;
-    LwQueryNodeMatchMarker * marker = NULL;
-
     //Initializations
-    match_level = iter->match_level;
+    g_return_if_fail (self != NULL);
 
-    if (iter->marker == NULL)
+    if (column_match_info != NULL)
     {
-      iter->marker = self->markers;
-      marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
-      iter->END = NULL;
-    }
-    else if (*iter->END == '\0')
-    {
-      iter->marker = iter->marker->next;
-      marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
-      iter->END = NULL;
-    }
-    else
-    {
-      marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
+      lw_querynodecolumnmatchinfo_ref (column_match_info);
     }
 
-    if (iter->END == NULL)
-    {
-      START = (gchar*) lw_querynodematchmarker_get_string (marker); 
-    }
-    else
-    {
-      START = g_utf8_next_char (iter->END);
-    }
-
-    gboolean match_changed = FALSE;
-    while (iter->marker != NULL && !match_changed)
-    {
-      marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
-      switch (marker->type)
-      {
-        case LW_QUERYNODEMATCHMARKERTYPE_OPEN:
-          match_level++;
-          break;
-        case LW_QUERYNODEMATCHMARKERTYPE_CLOSE:
-          match_level--;
-          break;
-        default:
-          g_assert_not_reached ();
-          break;
-      }
-      match_changed = ((iter->match_level > 0 && match_level == 0) || (iter->match_level == 0 && match_level > 0));
-      iter->marker = iter->marker->next;
-    }
-
-    if (iter->marker == NULL)
-    {
-      marker = NULL;
-      END = START + strlen(START);
-    }
-    else
-    {
-      END = lw_querynodematchmarker_get_position (marker, NULL);
-    }
-
-    iter->marker = iter->marker->next;
-    iter->match_level = match_level;
-    iter->END = END;
-
-    if (START_OUT != NULL) *START_OUT = START;
-    if (END_OUT != NULL) *END_OUT = END;
-    if (is_match_out != NULL) *is_match_out =  match_level;
-
-    return (iter->marker->next != NULL || *iter->END != '\0');
+    g_tree_insert (self->tree, GINT_TO_POINTER (column), column_match_info);
 }

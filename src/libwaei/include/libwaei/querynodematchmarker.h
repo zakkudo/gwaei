@@ -19,15 +19,15 @@ typedef enum {
  * @open: The character marking the start of this selection
  * @close: The character marking the end of this selection
  * @type: Denotes if this object marks the start or end of a selection. @position will reflect the type.
- * @match_info: The #GMatchInfo used to calculate this marker selection.  You can use this to get the original search pattern from the #GRegex
  * @refs: The current refcount
  */
 struct _LwQueryNodeMatchMarker {
+  gchar const * TOKEN;
   gchar const * POSITION;
   gchar const * OPEN;
   gchar const * CLOSE;
   LwQueryNodeMatchMarkerType type;
-  GMatchInfo * match_info;
+  GRegex * regex;
   gint refs;
 };
 typedef struct _LwQueryNodeMatchMarker LwQueryNodeMatchMarker;
@@ -41,7 +41,6 @@ LwQueryNodeMatchMarker * lw_querynodematchmarker_ref (LwQueryNodeMatchMarker * s
 
 
 gchar const * lw_querynodematchmarker_get_position (LwQueryNodeMatchMarker * self, LwQueryNodeMatchMarkerType * type);
-GMatchInfo * lw_querynodematchmarker_get_match_info (LwQueryNodeMatchMarker * self);
 GRegex * lw_querynodematchmarker_get_regex (LwQueryNodeMatchMarker * self);
 gchar const * lw_querynodematchmarker_get_string (LwQueryNodeMatchMarker * self);
 
