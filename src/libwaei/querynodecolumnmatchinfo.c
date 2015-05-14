@@ -87,7 +87,6 @@ lw_querynodecolumnmatchinfo_add (LwQueryNodeColumnMatchInfo * self,
     //Declarations
     LwQueryNodeMatchMarker * open_marker = NULL;
     LwQueryNodeMatchMarker * close_marker = NULL;
-    GList * markers = NULL;
 
     open_marker = NULL;
     close_marker = NULL;
@@ -97,8 +96,8 @@ lw_querynodecolumnmatchinfo_add (LwQueryNodeColumnMatchInfo * self,
     close_marker = lw_querynodematchmarker_new (LW_QUERYNODEMATCHMARKERTYPE_CLOSE, match_info);
     if (close_marker == NULL) goto errored;
 
-    markers = g_list_prepend (markers, open_marker);
-    markers = g_list_prepend (markers, close_marker);
+    self->markers = g_list_prepend (self->markers, open_marker);
+    self->markers = g_list_prepend (self->markers, close_marker);
 
     open_marker = NULL;
     close_marker = NULL;
@@ -226,15 +225,14 @@ _read_marked_section (LwQueryNodeColumnMatchInfo      * self,
     gint match_level = 0;
     gchar const * POSITION = NULL;
     LwQueryNodeMatchMarkerType type = 0;
+    gint i = 0;
 
     //Initializations
     marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
     match_level = iter->match_level;
+    i = iter->i;
 
-    if (is_match_out != NULL)
-    {
-      *is_match_out = (iter->match_level > 0);
-    }
+    if (is_match_out != NULL) *is_match_out = FALSE;
 
     if (iter->END == NULL)
     {
@@ -242,22 +240,24 @@ _read_marked_section (LwQueryNodeColumnMatchInfo      * self,
     }
     else
     {
-      START = g_utf8_next_char (iter->END);
+      START = iter->END;
     }
 
-    while (iter->marker != NULL && lw_querynodematchmarker_get_string (marker) == self->strv[iter->i] && !match_changed)
+    while (iter->marker != NULL && lw_querynodematchmarker_get_string (marker) == self->strv[i] && !match_changed)
     {
       POSITION = lw_querynodematchmarker_get_position (marker, &type);
       switch (type)
       {
         case LW_QUERYNODEMATCHMARKERTYPE_OPEN:
-          match_level++;
-          match_changed = (iter->match_level == 0 && match_level > 0 && POSITION > self->strv[iter->i]);
+          if (POSITION > START || POSITION == self->strv[i])  match_level++;
+          if (POSITION == START) iter->match_level = match_level;
+          match_changed = (iter->match_level == 0 && match_level > 0 && POSITION > START);
           break;
         case LW_QUERYNODEMATCHMARKERTYPE_CLOSE:
-          match_level--;
+          if (POSITION > START || POSITION == self->strv[i])  match_level--;
+          if (POSITION == START) iter->match_level = match_level;
           g_assert (match_level >= 0);
-          match_changed = (iter->match_level > 0 && match_level == 0 && POSITION > self->strv[iter->i]);
+          match_changed = (iter->match_level > 0 && match_level == 0 && POSITION > START);
           break;
         default:
           g_assert_not_reached ();
@@ -269,14 +269,18 @@ _read_marked_section (LwQueryNodeColumnMatchInfo      * self,
         iter->marker = iter->marker->next;
         marker = (iter->marker != NULL) ? LW_QUERYNODEMATCHMARKER (iter->marker->data): NULL;
       }
+      else
+      {
+        *is_match_out = !match_level;
+      }
     }
 
-    if (iter->marker == NULL || POSITION == NULL || lw_querynodematchmarker_get_string (marker) != self->strv[iter->i])
+    if (iter->marker == NULL || POSITION == NULL || lw_querynodematchmarker_get_string (marker) != self->strv[i])
     {
       END = START + strlen(START);
       iter->END = NULL;
       iter->match_level = 0;
-      iter->i++;
+      iter->i = i + 1;
     }
     else
     {
@@ -286,9 +290,9 @@ _read_marked_section (LwQueryNodeColumnMatchInfo      * self,
 
     if (START_OUT != NULL) *START_OUT = START;
     if (END_OUT != NULL) *END_OUT = END;
-    if (i_out != NULL) *i_out = iter->i;
+    if (i_out != NULL) *i_out = i;
 
-    return (self->strv[iter->i] != NULL || iter->END == NULL || *iter->END != '\0');
+    return (self->strv[i] != NULL || iter->END == NULL || *iter->END != '\0');
 }
 
 
