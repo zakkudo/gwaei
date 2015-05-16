@@ -83,6 +83,7 @@ lw_querynodecolumnmatchinfo_add (LwQueryNodeColumnMatchInfo * self,
     //Sanity checks
     g_return_if_fail (self != NULL);
     g_return_if_fail (match_info != NULL);
+    if (g_match_info_get_match_count (match_info) == 0) return;
 
     //Declarations
     LwQueryNodeMatchMarker * open_marker = NULL;
@@ -271,11 +272,11 @@ _read_marked_section (LwQueryNodeColumnMatchInfo      * self,
       }
       else
       {
-        *is_match_out = !match_level;
+        if (is_match_out != NULL) *is_match_out = !match_level;
       }
     }
 
-    if (iter->marker == NULL || POSITION == NULL || lw_querynodematchmarker_get_string (marker) != self->strv[i])
+    if (iter->marker == NULL || POSITION == NULL || lw_querynodematchmarker_get_string (marker) != self->strv[i] || *POSITION == '\0')
     {
       END = START + strlen(START);
       iter->END = NULL;
@@ -292,7 +293,7 @@ _read_marked_section (LwQueryNodeColumnMatchInfo      * self,
     if (END_OUT != NULL) *END_OUT = END;
     if (i_out != NULL) *i_out = i;
 
-    return (self->strv[i] != NULL || iter->END == NULL || *iter->END != '\0');
+    return (self->strv[iter->i] != NULL);
 }
 
 
@@ -347,7 +348,6 @@ lw_querynodecolumnmatchinfo_read (LwQueryNodeColumnMatchInfo      * self,
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
     g_return_val_if_fail (iter != NULL, FALSE);
-    if (self->markers == NULL) return FALSE;
     if (self->strv[iter->i] == NULL) return FALSE;
 
     //Declarations
@@ -364,9 +364,9 @@ lw_querynodecolumnmatchinfo_read (LwQueryNodeColumnMatchInfo      * self,
       self->markers = g_list_sort (self->markers, (GCompareFunc) _sort_markers);
       iter->marker = self->markers;
     }
-    marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
+    marker = (iter->marker != NULL) ? LW_QUERYNODEMATCHMARKER (iter->marker->data) : NULL;
     
-    if (self->strv[iter->i] != marker->TOKEN)
+    if (marker == NULL || self->strv[iter->i] != marker->TOKEN)
     {
       is_not_end = _read_unmarked_section (self, iter, i_out, START_OUT, END_OUT, is_match_out);
     }
