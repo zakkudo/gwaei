@@ -38,6 +38,7 @@ LwQueryNodeColumnMatchInfo * lw_querynodecolumnmatchinfo_new (gint column, gchar
 void lw_querynodecolumnmatchinfo_add (LwQueryNodeColumnMatchInfo * self, GMatchInfo * match_info);
 LwQueryNodeColumnMatchInfo* lw_querynodecolumnmatchinfo_ref (LwQueryNodeColumnMatchInfo * self);
 void lw_querynodecolumnmatchinfo_unref (LwQueryNodeColumnMatchInfo *self);
+gint lw_querynodecolumnmatchinfo_get_column (LwQueryNodeColumnMatchInfo * self);
 gboolean lw_querynodecolumnmatchinfo_read (LwQueryNodeColumnMatchInfo * self, LwQueryNodeColumnMatchInfoIter * iter, gint * i_out, gchar const ** START_OUT, gchar const ** END_OUT, gboolean * is_match_out);
 
 G_END_DECLS

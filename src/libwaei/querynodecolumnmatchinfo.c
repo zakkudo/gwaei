@@ -377,3 +377,11 @@ lw_querynodecolumnmatchinfo_read (LwQueryNodeColumnMatchInfo      * self,
 
     return is_not_end;
 }
+
+gint
+lw_querynodecolumnmatchinfo_get_column (LwQueryNodeColumnMatchInfo * self)
+{
+    g_return_val_if_fail (self != NULL, -1);
+    
+    return self->column;
+}

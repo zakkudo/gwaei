@@ -53,27 +53,26 @@
 
 
 static gint
-_compare (gconstpointer a,
-          gconstpointer b,
+_compare (gconstpointer * a,
+          gconstpointer * b,
           gpointer      user_data)
 {
     return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
 }
 
 static void
-_destroy_match_info_list (GList * matches)
+_unref_column (LwQueryNodeColumnMatchInfo * self)
 {
-    g_list_free_full (matches, (GDestroyNotify) g_match_info_unref);
+    if (self == NULL) return;
+    lw_querynodecolumnmatchinfo_unref (self);
 }
-
-
 
 /**
  * lw_querynodematchinfo_new:
  *
  * Returns: A new #LwQueryNodeMatchInfo that can be freed with lw_querynodematchinfo_unref()
  */
-static LwQueryNodeMatchInfo *
+LwQueryNodeMatchInfo *
 lw_querynodematchinfo_new ()
 {
     //Declarations
@@ -81,9 +80,11 @@ lw_querynodematchinfo_new ()
     GTree * tree = NULL;
 
     //Initializations
-    tree = g_tree_new_full (_compare, NULL, NULL, (GDestroyNotify) _destroy_match_info_list);
+    tree = g_tree_new_full ((GCompareDataFunc) _compare, NULL, NULL, (GDestroyNotify) _unref_column);
     if (tree == NULL) goto errored;
     self = g_new0 (LwQueryNodeMatchInfo, 1);
+    if (self == NULL) goto errored;
+    self->refs = 1;
 
     self->tree = tree;
     tree = NULL;

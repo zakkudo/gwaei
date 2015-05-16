@@ -29,6 +29,7 @@ typedef struct _LwQueryNodeMatchInfo LwQueryNodeMatchInfo;
 #define LW_QUERYNODEMATCHINFO(obj) ((LwQueryNodeMatchInfo*)(obj))
 
 
+LwQueryNodeMatchInfo * lw_querynodematchinfo_new (void);
 void lw_querynodematchinfo_unref (LwQueryNodeMatchInfo * self);
 LwQueryNodeMatchInfo * lw_querynodematchinfo_ref (LwQueryNodeMatchInfo * self);
 
