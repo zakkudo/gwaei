@@ -1,6 +1,6 @@
 /******************************************************************************
     AUTHOR:
-    File written and Copyrighted by Pauli Virtanen. All Rights Reserved.
+    File written and Copyrighted by Zachary Dovel. All Rights Reserved.
 
     LICENSE:
     This file is part of gWaei.
@@ -19,9 +19,14 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//! @file mappedfile.c
-//!
+/**
+ * SECTION:mappedfile
+ * @short_description: A wrapper for creating and managing mapped files
+ * @title: LwMappedFile
+ *
+ * This is a wrapper around #GMappedFile with extra convenience methods
+ * and it also stores the path of the mapped file.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -42,7 +47,13 @@
 
 G_DEFINE_TYPE (LwMappedFile, lw_mappedfile, G_TYPE_OBJECT)
 
+static void lw_mappedfile_set_writable (LwMappedFile * self, gboolean writable);
 
+/**
+ * lw_mappedfile_new:
+ * @PATH: The path to write the mapped file to or load from
+ * Returns: A new #LWMappedFile that can be freed with g_object_unref()
+ */
 LwMappedFile*
 lw_mappedfile_new (gchar const * PATH)
 {
@@ -91,10 +102,10 @@ lw_mappedfile_finalize (GObject *object)
 
 
 static void 
-lw_mappedfile_set_property (GObject      *object,
-                            guint         property_id,
-                            const GValue *value,
-                            GParamSpec   *pspec)
+lw_mappedfile_set_property (GObject      * object,
+                            guint          property_id,
+                            const GValue * value,
+                            GParamSpec   * pspec)
 {
     //Declarations
     LwMappedFile *self = NULL;
@@ -208,8 +219,8 @@ lw_mappedfile_class_init (LwMappedFileClass *klass)
       "path",
       gettext("Path"),
       "The path of the mapped file",
-      "",
-      G_PARAM_CONSTRUCT | G_PARAM_READABLE
+      NULL,
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_PATH, klass->priv->pspec[PROP_PATH]);
 
@@ -221,6 +232,15 @@ lw_mappedfile_class_init (LwMappedFileClass *klass)
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_DELETE_ON_FREE, klass->priv->pspec[PROP_DELETE_ON_FREE]);
+
+    klass->priv->pspec[PROP_WRITABLE] = g_param_spec_boolean (
+      "writable",
+      gettext("Writable"),
+      "Sets of the buffer is writable",
+      FALSE,
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_WRITABLE, klass->priv->pspec[PROP_WRITABLE]);
 }
 
 
@@ -288,6 +308,11 @@ _clear_mapped_file (LwMappedFile *self)
 }
 
 
+/**
+ * lw_mappedfile_length:
+ * @self: A #LwMappedFile
+ * Returns: The length of the mapped file on disk in bytes
+ */
 gsize
 lw_mappedfile_length (LwMappedFile *self)
 {
@@ -311,6 +336,11 @@ errored:
 }
 
 
+/**
+ * lw_mappedfile_get_contents:
+ * @self: A #LwMappedFile
+ * Returns: The mapped file's contents as a char array
+ */
 gchar *
 lw_mappedfile_get_contents (LwMappedFile *self)
 {
@@ -334,6 +364,11 @@ errored:
 }
 
 
+/**
+ * lw_mappedfile_set_path:
+ * @self: A #LwMappedFile
+ * @PATH: The path of the file that the mapped file references
+ */
 void
 lw_mappedfile_set_path (LwMappedFile * self,
                         gchar const  * PATH)
@@ -364,6 +399,11 @@ errored:
 }
 
 
+/**
+ * lw_mappedfile_get_path:
+ * @self: A #LwMappedFile
+ * Returns: The path of the file that the mapped file references
+ */
 gchar const *
 lw_mappedfile_get_path (LwMappedFile *self)
 {
@@ -380,9 +420,14 @@ lw_mappedfile_get_path (LwMappedFile *self)
 }
 
 
+/**
+ * lw_mappedfile_set_delete_on_free:
+ * @self: A #LwMappedFile
+ * @delete_on_free: When %TRUE, the file that this object points to will be deleted when the object is finalized
+ */
 void
-lw_mappedfile_set_delete_on_free (LwMappedFile *self,
-                                  gboolean delete_on_free)
+lw_mappedfile_set_delete_on_free (LwMappedFile * self,
+                                  gboolean       delete_on_free)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_MAPPEDFILE (self));
@@ -408,6 +453,11 @@ errored:
 }
 
 
+/**
+ * lw_mappedfile_get_delete_on_free:
+ * @self: A #LwMappedFile
+ * Returns: %TRUE if the fill will be deleted when this object is freed
+ */
 gboolean
 lw_mappedfile_get_delete_on_free (LwMappedFile *self)
 {
@@ -424,6 +474,11 @@ lw_mappedfile_get_delete_on_free (LwMappedFile *self)
 }
 
 
+/**
+ * lw_mappedfile_set_writtable:
+ * @self: A #LwMappedFile
+ * @writable: Sets if this file is writable
+ */
 static void
 lw_mappedfile_set_writable (LwMappedFile *self,
                             gboolean      writable)
@@ -451,6 +506,10 @@ errored:
 }
 
 
+/**
+ * lw_mappedfile_get_writable:
+ * Returns: %TRUE if the mapped file is set to be writable
+ */
 gboolean
 lw_mappedfile_get_writable (LwMappedFile *self)
 {
