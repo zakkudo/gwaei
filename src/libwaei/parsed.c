@@ -19,9 +19,14 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//! @file parsed.c
-//!
+/**
+ * SECTION:parsed
+ * @short_description: A container for parsed lines
+ * @title: LwParsed
+ *
+ * This is an object made for management of a list of
+ * parsedlines representing a document.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -56,6 +61,11 @@ struct _DeserializeData {
 };
 
 
+/**
+ * lw_parsed_new:
+ * @cache_file: The base data to reference
+ * Returns: A new #LwParsed object that can be freed with
+ */
 LwParsed*
 lw_parsed_new (LwCacheFile *cache_file)
 {
@@ -191,6 +201,12 @@ lw_parsed_class_init (LwParsedClass *klass)
 }
 
 
+/**
+ * lw_parsed_foreach:
+ * @self: The #LwParsed
+ * @func: The function to run for each #LwParsedLine
+ * @data: Data to pass to the @func
+ */
 void
 lw_parsed_foreach (LwParsed            *self,
                    LwParsedForeachFunc  func,
@@ -216,9 +232,15 @@ lw_parsed_foreach (LwParsed            *self,
 }
 
 
+/**
+ * lw_parsed_get_line:
+ * @self: A #LwParsed
+ * @line_number: The line number to fetch
+ * Returns: A #LwParsedLine or %NULL if the index is invalid
+ */
 LwParsedLine*
-lw_parsed_get_line (LwParsed *self,
-                    gsize     line_number)
+lw_parsed_get_line (LwParsed * self,
+                    gsize      line_number)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_PARSED (self), NULL);
@@ -239,6 +261,12 @@ errored:
 }
 
 
+/**
+ * lw_parsed_set_lines:
+ * @self: A #LwParsed
+ * @lines: An array of lines to set
+ * @num_lines: The number of lines in @lines
+ */
 void
 lw_parsed_set_lines (LwParsed         *self,
                      LwParsedLine *lines,
@@ -274,6 +302,11 @@ errored:
 }
 
 
+/**
+ * lw_parsed_num_lines:
+ * @self: A #LwParsed
+ * Returns: The number of lines stored in #LwParsed
+ */
 gsize
 lw_parsed_num_lines (LwParsed *self)
 {
@@ -500,6 +533,11 @@ errored:
 }
 
 
+/**
+ * lw_parsed_get_cachefile:
+ * @self: A #LwParsed
+ * Returns: The #LwCacheFile that the #LwParsed was initialized with
+ */
 LwCacheFile*
 lw_parsed_get_cachefile (LwParsed * self)
 {
