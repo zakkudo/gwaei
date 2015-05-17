@@ -1396,6 +1396,7 @@ _value_matches_column (LwQueryNode          * self,
       {
         column_match_info = lw_querynodecolumnmatchinfo_new (column, strv);
         lw_querynodematchinfo_set_column (match_info_out, column, column_match_info);
+        lw_querynodecolumnmatchinfo_unref (column_match_info);
       }
     }
 
@@ -1405,11 +1406,16 @@ _value_matches_column (LwQueryNode          * self,
       {
         if (match_info_out != NULL)
         {
-          matches = g_regex_match (self->regex, strv[j], 0, &match_info);
-          while (g_match_info_matches (match_info))
+          if (g_regex_match (self->regex, strv[j], 0, &match_info)) matches = TRUE;
+          if (match_info != NULL)
           {
-            lw_querynodecolumnmatchinfo_add (column_match_info, match_info);
-            g_match_info_next (match_info, NULL);
+            while (g_match_info_matches (match_info))
+            {
+              lw_querynodecolumnmatchinfo_add (column_match_info, match_info);
+              g_match_info_next (match_info, NULL);
+            }
+            g_match_info_unref (match_info);
+            match_info = NULL;
           }
         }
         else

@@ -1499,8 +1499,8 @@ match_parsedline_matches_first_column (Fixture       * fixture,
     gint columns[] = {1, -1};
     gboolean matches = FALSE;
 
-
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("国語", &operation, &error);
     root->columns = columns;
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
@@ -1509,8 +1509,48 @@ match_parsedline_matches_first_column (Fixture       * fixture,
     //Assert
     g_assert_true (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+
+      g_assert_false (has_more);
+      g_assert_true (is_match);
+      g_assert_cmpstr (START, ==, "国語");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+      g_assert_null (column_match_info);
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+      g_assert_null (column_match_info);
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 
@@ -1529,6 +1569,7 @@ match_parsedline_matches_nothing (Fixture       * fixture,
 
 
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("Non Matching Query", &operation, &error);
     root->columns = columns;
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
@@ -1537,8 +1578,47 @@ match_parsedline_matches_nothing (Fixture       * fixture,
     //Assert
     g_assert_false (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "国語");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+      g_assert_null (column_match_info);
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+      g_assert_null (column_match_info);
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 
@@ -1557,6 +1637,7 @@ match_parsedline_matches_last_in_third_column (Fixture       * fixture,
 
 
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("national", &operation, &error);
     root->columns = columns;
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
@@ -1565,8 +1646,57 @@ match_parsedline_matches_last_in_third_column (Fixture       * fixture,
     //Assert
     g_assert_true (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+      g_assert_null (column_match_info);
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+      g_assert_null (column_match_info);
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "Japanese");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_true (is_match);
+      g_assert_cmpstr (START, ==, "national language");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, " language");
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 
@@ -1585,6 +1715,7 @@ match_parsedline_matches_one_of_multiple_columns (Fixture       * fixture,
 
 
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("national", &operation, &error);
     root->columns = columns;
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
@@ -1593,8 +1724,65 @@ match_parsedline_matches_one_of_multiple_columns (Fixture       * fixture,
     //Assert
     g_assert_true (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "国語");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "こくご");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "Japanese");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_true (is_match);
+      g_assert_cmpstr (START, ==, "national language");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, " language");
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 
@@ -1612,6 +1800,7 @@ match_parsedline_matches_second_in_strv (Fixture       * fixture,
     gboolean matches = FALSE;
 
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("Japanese", &operation, &error);
     root->columns = columns;
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
@@ -1620,8 +1809,52 @@ match_parsedline_matches_second_in_strv (Fixture       * fixture,
     //Assert
     g_assert_true (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+      g_assert_null (column_match_info);
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+      g_assert_null (column_match_info);
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_true (is_match);
+      g_assert_cmpstr (START, ==, "Japanese");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "national language");
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 
@@ -1639,6 +1872,7 @@ match_parsedline_matches_or_where_one_matches (Fixture       * fixture,
     gboolean matches = FALSE;
 
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("English||Japanese", &operation, &error);
     ((LwQueryNode*)root->children->data)->columns = columns;
     ((LwQueryNode*)root->children->next->data)->columns = columns;
@@ -1648,8 +1882,60 @@ match_parsedline_matches_or_where_one_matches (Fixture       * fixture,
     //Assert
     g_assert_true (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "国語");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "こくご");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_true (is_match);
+      g_assert_cmpstr (START, ==, "Japanese");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "national language");
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 
@@ -1667,6 +1953,7 @@ match_parsedline_or_where_neither_matches (Fixture       * fixture,
     gboolean matches = FALSE;
 
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("English||Frensh", &operation, &error);
     ((LwQueryNode*)root->children->data)->columns = columns;
     ((LwQueryNode*)root->children->next->data)->columns = columns;
@@ -1676,8 +1963,60 @@ match_parsedline_or_where_neither_matches (Fixture       * fixture,
     //Assert
     g_assert_false (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "国語");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "こくご");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "Japanese");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "national language");
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 
@@ -1695,6 +2034,7 @@ match_parsedline_and_where_both_match (Fixture       * fixture,
     gboolean matches = FALSE;
 
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("Japanese&&国語", &operation, &error);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     ((LwQueryNode*)root->children->data)->columns = columns;
@@ -1704,8 +2044,60 @@ match_parsedline_and_where_both_match (Fixture       * fixture,
     //Assert
     g_assert_true (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_true (is_match);
+      g_assert_cmpstr (START, ==, "国語");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "こくご");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_true (is_match);
+      g_assert_cmpstr (START, ==, "Japanese");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "national language");
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 
@@ -1723,6 +2115,7 @@ match_parsedline_and_where_one_matches (Fixture       * fixture,
     gboolean matches = FALSE;
 
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("Japanese&&English", &operation, &error);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     ((LwQueryNode*)root->children->data)->columns = columns;
@@ -1732,8 +2125,60 @@ match_parsedline_and_where_one_matches (Fixture       * fixture,
     //Assert
     g_assert_false (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "国語");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "こくご");
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_true (is_match);
+      g_assert_cmpstr (START, ==, "Japanese");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "national language");
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 
@@ -1751,6 +2196,7 @@ match_parsedline_and_or_where_last_matches (Fixture       * fixture,
     gboolean matches = FALSE;
 
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("French&&English||Japanese", &operation, &error);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     ((LwQueryNode*)root->children->data)->columns = columns;
@@ -1761,8 +2207,52 @@ match_parsedline_and_or_where_last_matches (Fixture       * fixture,
     //Assert
     g_assert_true (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+      g_assert_null (column_match_info);
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+      g_assert_null (column_match_info);
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_true (is_match);
+      g_assert_cmpstr (START, ==, "Japanese");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "national language");
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 
@@ -1780,6 +2270,7 @@ match_parsedline_and_or_where_last_doesnt_match (Fixture       * fixture,
     gboolean matches = FALSE;
 
     //Act
+    match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("Japanese&&English||French", &operation, &error);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     ((LwQueryNode*)root->children->data)->columns = columns;
@@ -1790,8 +2281,52 @@ match_parsedline_and_or_where_last_doesnt_match (Fixture       * fixture,
     //Assert
     g_assert_false (matches);
 
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 1);
+      g_assert_null (column_match_info);
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 2);
+      g_assert_null (column_match_info);
+    }
+
+    {
+      LwQueryNodeColumnMatchInfoIter iter = {0};
+      gchar const * START = NULL;
+      gchar const * END = NULL;
+      gboolean is_match = FALSE;
+      gboolean has_more = FALSE;
+      gint i = 0;
+      LwQueryNodeColumnMatchInfo * column_match_info = lw_querynodematchinfo_get_column (match_info, 3);
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_true (has_more);
+      g_assert_true (is_match);
+      g_assert_cmpstr (START, ==, "Japanese");
+
+      has_more = lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &START, &END, &is_match);
+      g_assert_false (has_more);
+      g_assert_false (is_match);
+      g_assert_cmpstr (START, ==, "national language");
+    }
+
     lw_querynode_unref (root);
     root = NULL;
+    lw_querynodematchinfo_unref (match_info);
+    match_info = NULL;
 }
 
 

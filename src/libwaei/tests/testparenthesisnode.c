@@ -322,9 +322,6 @@ parse_string_with_empty_parenthesis (Fixture *fixture, gconstpointer data)
     }};
     _set_children (fixture, &(expected_root.children), children, G_N_ELEMENTS(children));
 
-    //Act
-    root = lw_parenthesisnode_new_tree_from_string (TEXT, &error);
-
     //Assert
     lw_parenthesisnode_assert_equals (root, &expected_root);
     g_assert_no_error (error);
