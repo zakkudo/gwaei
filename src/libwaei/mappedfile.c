@@ -47,8 +47,6 @@
 
 G_DEFINE_TYPE (LwMappedFile, lw_mappedfile, G_TYPE_OBJECT)
 
-static void lw_mappedfile_set_writable (LwMappedFile * self, gboolean writable);
-
 /**
  * lw_mappedfile_new:
  * @PATH: The path to write the mapped file to or load from
@@ -162,7 +160,7 @@ lw_mappedfile_get_property (GObject      *object,
         g_value_set_boolean (value, lw_mappedfile_get_delete_on_free (self));
         break;
       case PROP_WRITABLE:
-        g_value_set_boolean (value, lw_mappedfile_get_writable (self));
+        g_value_set_boolean (value, lw_mappedfile_is_writable (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -238,7 +236,7 @@ lw_mappedfile_class_init (LwMappedFileClass *klass)
       gettext("Writable"),
       "Sets of the buffer is writable",
       FALSE,
-      G_PARAM_READABLE
+      G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_WRITABLE, klass->priv->pspec[PROP_WRITABLE]);
 }
@@ -300,7 +298,7 @@ _clear_mapped_file (LwMappedFile *self)
     //Initializations
     priv = self->priv;
 
-    if (priv->path == NULL && priv->mapped_file != NULL)
+    if (priv->mapped_file != NULL)
     {
       g_mapped_file_unref (priv->mapped_file);
       priv->mapped_file = NULL;
@@ -475,11 +473,16 @@ lw_mappedfile_get_delete_on_free (LwMappedFile *self)
 
 
 /**
- * lw_mappedfile_set_writtable:
+ * lw_mappedfile_set_writable:
  * @self: A #LwMappedFile
  * @writable: Sets if this file is writable
+ *
+ * Changes the writable flag on the underlying #GMappedFile by
+ * unreferencing it and replacing it with a new #GMappedFile.
+ * This any buffer that was loaded with lw_mappedfile_get_contents()
+ * is no longer valid and will have to be refetched.
  */
-static void
+void
 lw_mappedfile_set_writable (LwMappedFile *self,
                             gboolean      writable)
 {
@@ -507,11 +510,12 @@ errored:
 
 
 /**
- * lw_mappedfile_get_writable:
+ * lw_mappedfile_is_writable:
+ * @self: A #LwMappedFile
  * Returns: %TRUE if the mapped file is set to be writable
  */
 gboolean
-lw_mappedfile_get_writable (LwMappedFile *self)
+lw_mappedfile_is_writable (LwMappedFile *self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_MAPPEDFILE (self));

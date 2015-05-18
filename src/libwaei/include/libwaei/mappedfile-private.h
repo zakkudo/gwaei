@@ -34,7 +34,6 @@ struct _LwMappedFileClassPrivate {
 #define LW_MAPPEDFILE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_MAPPEDFILE, LwMappedFilePrivate));
 
 //Properties
-static void lw_mappedfile_set_writable (LwMappedFile *self, gboolean writable);
 
 G_END_DECLS
 

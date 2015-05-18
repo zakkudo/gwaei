@@ -41,7 +41,8 @@ gchar const * lw_mappedfile_get_path (LwMappedFile * self);
 void lw_mappedfile_set_delete_on_free (LwMappedFile * self, gboolean delete_on_free);
 gboolean lw_mappedfile_get_delete_on_free (LwMappedFile * self);
 
-gboolean lw_mappedfile_get_writable (LwMappedFile *self);
+void lw_mappedfile_set_writable (LwMappedFile *self, gboolean writable);
+gboolean lw_mappedfile_is_writable (LwMappedFile *self);
 
 
 #endif

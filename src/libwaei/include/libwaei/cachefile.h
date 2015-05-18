@@ -49,8 +49,6 @@ const gchar* lw_cachefile_get_checksum (LwCacheFile *self);
 gchar* lw_cachefile_get_contents (LwCacheFile *self);
 gsize lw_cachefile_length (LwCacheFile *self);
 
-gchar const * lw_cachefile_get_path (LwCacheFile *self);
-
 
 G_END_DECLS
 

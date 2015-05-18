@@ -19,9 +19,12 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//! @file io.c
-//!
+/**
+ * SECTION:io
+ * @short description: IO Helper methods
+ * @Title: IO Utility Methods
+ * @include: libwaei/io.h
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -70,41 +73,71 @@ lw_io_get_pagesize ()
 }
 
 
+/**
+ * lw_io_fwrite:
+ * @stream: #FILE to write to
+ * @TEXT: Text to write to the @stream
+ * @length: The length of @TEXT in bytes or 0 to have it calculated
+ * @progress: A #LwProgress to track progress or #NULL to ignore it
+ *
+ * A convenience method to write a string to a file while reporting
+ * progress. The chunk size defaults to the page file size of your
+ * system, which can be overridden by setting prefered chunk size on
+ * the #LwProgress object.
+ *
+ * Returns: The number of bytes written
+ */
 gsize
-lw_io_fwrite (FILE        *stream,
-              const gchar *TEXT,
-              gint         length,
-              LwProgress  *progress)
+lw_io_fwrite (FILE        * stream,
+              const gchar * TEXT,
+              gint          length,
+              LwProgress  * progress)
 {
     //Sanity checks
     g_return_val_if_fail (stream != NULL, 0);
     g_return_val_if_fail (TEXT != NULL, 0);
-    g_return_val_if_fail (progress != NULL, 0);
+    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
 
     //Declarations
-    glong chunk_size = 0;
+    gsize chunk_size = 0;
+    gsize bytes_written = 0;
     gsize chunk = 0;
     gsize offset = 0;
     gsize left = 0;
 
     //Initializations
-    chunk_size = lw_progress_get_chunk_size (progress);
-    if (chunk_size < 1) goto errored;
 
-    if (length < 0)
-    {
-      length = strlen(TEXT);
-    }
+    if (length < 1) length = strlen(TEXT);
     if (length < 1) goto errored;
 
-    if (progress != NULL) lw_progress_set_total (progress, length);
+    chunk_size = length;
+    if (progress != NULL) chunk_size = lw_progress_get_chunk_size (progress);
 
-    while (length > 0 && feof(stream) == 0 && ferror(stream) == 0)
+    if (progress != NULL) lw_progress_set_total (progress, length);
+    left = length;
+
+    while (left > 0 && feof(stream) == 0 && ferror(stream) == 0)
     {
-      left = length - offset;
-      chunk = (chunk_size > left) ? left : chunk_size;
-      offset += fwrite(TEXT + offset, 1, chunk, stream);
-      if (progress != NULL) lw_progress_set_current (progress, offset);
+      if (chunk_size > left) chunk_size = left;
+      bytes_written = fwrite(TEXT + offset, 1, chunk_size, stream);
+      chunk += bytes_written;
+      offset += bytes_written;
+      left -= bytes_written;
+      if (chunk >= chunk_size)
+      {
+        if (progress != NULL)
+        {
+          if (lw_progress_should_abort (progress)) goto errored;
+          lw_progress_set_current (progress, offset);
+        }
+        chunk = 0;
+      }
+    }
+
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, length);
+      lw_progress_set_completed (progress, TRUE);
     }
 
 errored:
@@ -113,15 +146,6 @@ errored:
 }
 
 
-//!
-//! @brief Writes a file using the given text and write mode
-//! @param PATH The Path to write the file to
-//! @param mode A constant char representing the write mode to be used (w,a)
-//! @param text A char pointer to some text to write to the file.
-//! @param cb A LwProgressCallback function to give progress feedback or NULL
-//! @param data A generic pointer to data to pass to the callback
-//! @param error A pointer to a GError object to write errors to or NULL
-//!
 gsize
 lw_io_write_file (const gchar *PATH, 
                   const gchar *MODE,
@@ -198,17 +222,6 @@ _convert_encoding (GIConv       conv,
 }
 
 
-//!
-//! @brief Copies a file and creates a new one using the new encoding
-//! @param SOURCE_PATH The source file to change the encoding on.
-//! @param TARGET_PATH The place to save the new file with the new encoding.
-//! @param SOURCE_ENCODING The encoding of the source file.
-//! @param TARGET_ENCODING THe wanted encoding in the new file to be created.
-//! @param cb A LwProgressCallback to use to give progress feedback or NULL
-//! @param data A gpointer to data to pass to the LwProgressCallback
-//! @param error pointer to a GError to write errors to
-//! @return The status of the conversion opertaion
-//!
 gboolean 
 lw_io_copy_with_encoding (const gchar *SOURCE_PATH, 
                           const gchar *TARGET_PATH,

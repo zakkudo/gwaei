@@ -23,7 +23,6 @@ struct _LwCacheFilePrivate {
   gchar const * CHECKSUM;
   gsize content_length;
   gchar * contents;
-  gchar * path;
 };
 
 struct _LwCacheFileClassPrivate {
@@ -35,8 +34,6 @@ struct _LwCacheFileClassPrivate {
 
 static FILE* _ensure_fopen (LwCacheFile *self, GError **error);
 void static _ensure_fclose (LwCacheFile *self, GError **error);
-
-static void lw_cachefile_set_path (LwCacheFile * self, gchar const * PATH);
 
 //Properties
 
