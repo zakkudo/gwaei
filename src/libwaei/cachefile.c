@@ -20,9 +20,12 @@
 *******************************************************************************/
 
 
-//!
-//!  @file condition.c
-//!
+/**
+ * SECTION:cachefile
+ * @short_description: A mapped file that includes a checksum and is writable
+ * @title: LwCacheFile
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -54,6 +57,11 @@ lw_cachefile_error_quark ()
 //Public Methods///////////////////////////////
 
 
+/**
+ * lw_cachefile_new:
+ * @PATH: The path to load the cachefile from or write to
+ * Returns: (transfer full): A new #LwCacheFile that can be freed with g_object_unref()
+ */
 LwCacheFile*
 lw_cachefile_new (gchar const * PATH)
 {
@@ -195,8 +203,12 @@ lw_cachefile_class_init (LwCacheFileClass *klass)
 }
 
 
+/**
+ * lw_cachefile_clear:
+ * @self: A #LwCacheFile
+ */
 void
-lw_cachefile_clear (LwCacheFile *self)
+lw_cachefile_clear (LwCacheFile * self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_CACHEFILE (self));
@@ -216,12 +228,21 @@ lw_cachefile_clear (LwCacheFile *self)
 }
 
 
+/**
+ * lw_cachefile_write:
+ * @self: A #LwCacheFile
+ * @CHECKSUM: The checksum string to write
+ * @CONTENTS: The contents to write
+ * @content_length: The length of the CONTENTS string + \0 or 0 to have it calculated automatically.
+ * @progress: A #LwProgress to track progress or %NULL to ignore it
+ * Returns: The number of bytes written
+ */
 gsize
-lw_cachefile_write (LwCacheFile *self,
-                    const gchar *CHECKSUM,
-                    const gchar *CONTENTS,
-                    gssize       content_length,
-                    LwProgress  *progress)
+lw_cachefile_write (LwCacheFile * self,
+                    const gchar * CHECKSUM,
+                    const gchar * CONTENTS,
+                    gssize        content_length,
+                    LwProgress  * progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_CACHEFILE (self), 0);
@@ -247,7 +268,7 @@ lw_cachefile_write (LwCacheFile *self,
 
     if (content_length < 0)
     {
-      content_length = strlen (CONTENTS);
+      content_length = strlen (CONTENTS) + 1;
     }
 
     bytes_written = lw_io_fwrite (stream, CONTENTS, content_length, progress);
@@ -258,6 +279,14 @@ errored:
 }
 
 
+/**
+ * lw_cachefile_write_cachefile:
+ * @self: A #LwCacheFile
+ * @CHECKSUM: The checksum to write
+ * @cache_file: Another cachefile to copy of the contents of
+ * @progress: A #LwProgress to track progress or %NULL to ignore it
+ * Returns: The number of bytes written
+ */
 gsize
 lw_cachefile_write_cachefile (LwCacheFile  * self,
                               const gchar  * CHECKSUM,
@@ -280,6 +309,13 @@ lw_cachefile_write_cachefile (LwCacheFile  * self,
 }
 
 
+/**
+ * lw_cachefile_validate:
+ * @self: A #LwCacheFile
+ * @EXPECTED_CHECKSUM: The checksum that the cachefile should have
+ * @progress: A #LwProgress to track progress or %NULL to ignore it
+ * Returns: %TRUE if the cachefile is valid with the checksum
+ */
 gboolean
 lw_cachefile_validate (LwCacheFile * self,
                        gchar const * EXPECTED_CHECKSUM,
@@ -377,7 +413,14 @@ errored:
 }
 
 
-gchar *
+/**
+ * lw_cachefile_read:
+ * @self: A #LwCacheFile
+ * @EXPECTED_CHECKSUM: The checksum the read file should contain
+ * @progress: A #LwProgress to track progress or %NULL to ignore it
+ * Returns: The number of bytes read
+ */
+gsize
 lw_cachefile_read (LwCacheFile *self,
                    const gchar *EXPECTED_CHECKSUM,
                    LwProgress  *progress)
@@ -432,7 +475,7 @@ lw_cachefile_read (LwCacheFile *self,
 
 errored:
 
-    return priv->contents;
+    return lw_mappedfile_length (LW_MAPPEDFILE (self));
 }
 
 
@@ -500,6 +543,11 @@ _ensure_fclose (LwCacheFile  *self,
 //Properties
 
 
+/**
+ * lw_cachefile_get_checksum:
+ * @self: A #LwCacheFile
+ * Returns: The checksum of the cachefile
+ */
 gchar const *
 lw_cachefile_get_checksum (LwCacheFile *self)
 {
@@ -516,6 +564,11 @@ lw_cachefile_get_checksum (LwCacheFile *self)
 }
 
 
+/**
+ * lw_cachefile_get_contents:
+ * @self: A #LwCacheFile
+ * Returns: The contents of the cachefile
+ */
 gchar *
 lw_cachefile_get_contents (LwCacheFile *self)
 {
@@ -532,6 +585,11 @@ lw_cachefile_get_contents (LwCacheFile *self)
 }
 
 
+/**
+ * lw_cachefile_length:
+ * @self: A #LwCacheFile
+ * Returns: The number of bytes in the cachefile content body
+ */
 gsize
 lw_cachefile_length (LwCacheFile *self)
 {
