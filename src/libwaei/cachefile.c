@@ -419,7 +419,7 @@ lw_cachefile_read (LwCacheFile *self,
       if (priv->contents[i] == '\0' && i < priv->content_length)
       {
         priv->contents = priv->contents + i + 1;
-        priv->content_length -= priv->contents - priv->CHECKSUM;
+        priv->content_length = priv->content_length - (priv->contents - priv->CHECKSUM);
       }
       else
       {
@@ -487,7 +487,6 @@ _ensure_fclose (LwCacheFile  *self,
 
     if (priv->stream != NULL)
     {
-      fputc('\0', priv->stream);
       fclose (priv->stream);
       priv->stream = NULL;
     }
