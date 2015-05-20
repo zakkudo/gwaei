@@ -139,5 +139,7 @@ testquerynodecolumnmatchinfo
 testquerynodematchinfo
 testquerynodematchmarker
 testutf8
+testparsedline
+testquerynode
 
 *.bak
