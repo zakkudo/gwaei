@@ -25,6 +25,16 @@
  * @short_description: A mapped file that includes a checksum and is writable
  * @title: LwCacheFile
  *
+ * This is a mapped file designed two have two modes, making it ideal for
+ * handling data cached by the application that is read many times,
+ * but only written once. When lw_cachefile_write() or
+ * lw_cachefile_write_cachefile() is called, the #LwCacheFile is set to
+ * writing mode, where the checksum is written first, then any contents
+ * are written after.  Consecutive calls append to this file.  Once you
+ * call lw_cachefile_read(), the #FILE steam is closed if it is open
+ * and the file is verified as matching the supplied checksum in the
+ * header and that the contents are valid utf8.
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -195,7 +205,7 @@ lw_cachefile_class_init (LwCacheFileClass * klass)
       "checksum",
       gettext("Checksum"),
       "Checksum of the file",
-      "",
+      NULL,
       G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_CHECKSUM, klass->priv->pspec[PROP_CHECKSUM]);
@@ -564,7 +574,7 @@ lw_cachefile_get_checksum (LwCacheFile * self)
 /**
  * lw_cachefile_get_contents:
  * @self: A #LwCacheFile
- * Returns: The contents of the cachefile
+ * Returns: (no transfer): The contents of the cachefile.  This string is owned by the #LwCacheFile and should not be freed
  */
 gchar *
 lw_cachefile_get_contents (LwCacheFile * self)
@@ -585,7 +595,7 @@ lw_cachefile_get_contents (LwCacheFile * self)
 /**
  * lw_cachefile_length:
  * @self: A #LwCacheFile
- * Returns: The number of bytes in the cachefile content body
+ * Returns: The number of bytes in the cachefile content body.  Use lw_mappedfile_length() if you want the full size of the mapped file.
  */
 gsize
 lw_cachefile_length (LwCacheFile * self)
