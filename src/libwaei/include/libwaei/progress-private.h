@@ -52,7 +52,7 @@ struct _LwProgressPrivate {
   gchar *secondary_message;
   gchar *units;
 
-  gboolean complete;
+  gboolean completed;
 
   gchar *filename;
   gdouble required_ratio_delta;

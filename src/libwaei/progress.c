@@ -91,7 +91,7 @@ static GCancellable * lw_progress_get_cancellable (LwProgress * self);
  *
  * Creates a new #LwProgress object.
  *
- * Returns: a new #LwProgress object that can be freed with g_object_unref()
+ * Returns: (transfer full): A new #LwProgress object that can be freed with g_object_unref()
  */
 LwProgress* 
 lw_progress_new ()
@@ -124,7 +124,7 @@ lw_progress_init (LwProgress *self)
     priv->current_progress = 0.0;
     priv->total_progress = 0.0;
     priv->ratio_delta = 0.0;
-    priv->complete = FALSE;
+    priv->completed = FALSE;
     priv->start_time = g_get_monotonic_time ();
     priv->chunk_size = lw_io_get_pagesize ();
 
@@ -700,7 +700,9 @@ lw_progress_get_current (LwProgress *self)
  * 
  * Sets the #gdouble representing the current progress.  If the number
  * is less than 0, it will be rounded up to 0.  If it is greater than the
- * total progress, it will be set to be equal to the total progress.
+ * total progress, it will be set to be equal to the total progress. When
+ * this value causes a change larger thant he ratio delta int he progress
+ * fraction, the "progress-changed" signal is emitted.
  */
 void
 lw_progress_set_current (LwProgress *self,
@@ -883,7 +885,7 @@ lw_progress_get_fraction (LwProgress *self)
 
     g_mutex_lock (&priv->mutex);
 
-    if (priv->complete)
+    if (priv->completed)
     {
       fraction = 1.0;
     }
@@ -905,14 +907,17 @@ lw_progress_get_fraction (LwProgress *self)
 /**
  * lw_progress_set_completed:
  * @self: a #LwProgress
- * @complete: The new completed setting as a #gboolean
+ * @completed: The new completed setting as a #gboolean
  *
  * Sets the completed flag which is used to hint a progress dialog should be
- * be closed or a progress item should be marked completed.
+ * be closed or a progress item should be marked completed. Once this is sete
+ * to true, any call to lw_progress_get_fraction() will return 1.0.  Whenever
+ * the value of @completed changes, the "progress-changed" signal is propogated
+ * regardless of if the fraction changed.
  */
 void
 lw_progress_set_completed (LwProgress *self,
-                           gboolean    complete)
+                           gboolean    completed)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_PROGRESS (self));
@@ -932,10 +937,10 @@ lw_progress_set_completed (LwProgress *self,
     g_mutex_lock (&priv->mutex);
     is_locked = TRUE;
 
-    changed = (priv->complete != complete);
+    changed = (priv->completed != completed);
     if (!changed) goto errored;
     
-    priv->complete = complete;
+    priv->completed = completed;
 
 errored:
 
@@ -964,18 +969,18 @@ lw_progress_completed (LwProgress *self)
 
     //Declarations
     LwProgressPrivate *priv = NULL;
-    gboolean complete = FALSE;
+    gboolean completed = FALSE;
 
     //Initializations
     priv = self->priv;
 
     g_mutex_lock (&priv->mutex);
 
-    complete = priv->complete;
+    completed = priv->completed;
 
     g_mutex_unlock (&priv->mutex);
 
-    return complete;
+    return completed;
 }
 
 
@@ -984,7 +989,7 @@ lw_progress_completed (LwProgress *self)
  * @self: a #LwProgress
  * @error: The error to set a copy of
  *
- * Makes a copy of the passed @_error and sets it to the #LwProgress object.
+ * Makes a copy of the passed @error and sets it to the #LwProgress object.
  * Setting an error is roughly equivalent to raising an exception, and thus
  * should cause the task to cancel and return as soon as possible. This can be
  * checked with the lw_progress_should_abort() method.

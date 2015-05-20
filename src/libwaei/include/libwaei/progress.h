@@ -48,7 +48,7 @@ void lw_progress_take_error (LwProgress *self, GError *error);
 GError* lw_progress_get_error (LwProgress  *self);
 gboolean lw_progress_errored (LwProgress *self);
 
-void lw_progress_set_completed (LwProgress *self, gboolean complete);
+void lw_progress_set_completed (LwProgress *self, gboolean completed);
 gboolean lw_progress_completed (LwProgress *self);
 
 gdouble lw_progress_get_current (LwProgress *self);
