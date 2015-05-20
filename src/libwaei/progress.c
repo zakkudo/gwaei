@@ -103,6 +103,7 @@ lw_progress_new ()
     //Initializations
     cancellable = g_cancellable_new ();
     self = LW_PROGRESS (g_object_new (LW_TYPE_PROGRESS, "cancellable", cancellable, NULL));
+    g_object_unref (cancellable);
 
     return self;
 }

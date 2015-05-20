@@ -141,7 +141,7 @@ furiganafold_no_text (Fixture *fixture, gconstpointer data)
     lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = {100};
+    gint expected_steps[] = {};
     g_assert_cmpstr ("", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
@@ -165,14 +165,14 @@ furiganafold_with_mixed_text (Fixture *fixture, gconstpointer data)
     lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 0, 8, 21, 47, 73, 100, 100};
+    gint expected_steps[] = { 0, 0, 8, 21, 47, 73, 100};
     g_assert_cmpstr ("abcDEFGあいうえおかきくけこ日本語", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
-    g_assert_true (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_completed (fixture->progress));
 
     g_free (text);
     text = NULL;
@@ -191,14 +191,14 @@ furiganafold_with_all_katakana (Fixture *fixture, gconstpointer data)
     lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 0, 12, 25, 37, 50, 63, 75, 88, 100, 100};
+    gint expected_steps[] = { 0, 0, 12, 25, 37, 50, 63, 75, 88, 100};
     g_assert_cmpstr ("ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖヷヸヹヺ・ーゝゞゟ", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
-    g_assert_true (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_completed (fixture->progress));
 
     g_free (text);
     text = NULL;
@@ -216,14 +216,14 @@ furiganafold_with_all_halfwidth_katakana (Fixture *fixture, gconstpointer data)
     lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 0, 10, 21, 31, 42, 52, 62, 74, 84, 94, 100, 100};
+    gint expected_steps[] = { 0, 0, 10, 21, 31, 42, 52, 62, 74, 84, 94, 100};
     g_assert_cmpstr ("･ ｦ ｧ ｨ ｩ ｪ ｫ ｬ ｭ ｮ ｯｰ ｱ ｲ ｳ ｴ ｵ ｶ ｷ ｸ ｹ ｺ ｻ ｼ ｽ ｾ ｿﾀ ﾁ ﾂ ﾃ ﾄ ﾅ ﾆ ﾇ ﾈ ﾉ ﾊ ﾋ ﾌ ﾍ ﾎ ﾏﾐ ﾑ ﾒ ﾓ ﾔ ﾕ ﾖ ﾗ ﾘ ﾙ ﾚ ﾛ ﾜ ﾝ ﾞ ﾟ", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
-    g_assert_true (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_completed (fixture->progress));
 
     g_free (text);
     text = NULL;
@@ -241,14 +241,14 @@ furiganafold_with_all_hiragana (Fixture *fixture, gconstpointer data)
     lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 0, 13, 26, 39, 52, 65, 79, 92, 100, 100};
+    gint expected_steps[] = { 0, 0, 13, 26, 39, 52, 65, 79, 92, 100};
     g_assert_cmpstr ("ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖ゛゜ゝゞゟ", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
-    g_assert_true (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_completed (fixture->progress));
 
     g_free (text);
     text = NULL;
@@ -319,7 +319,7 @@ casefold_no_text (Fixture *fixture, gconstpointer data)
     lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = {100};
+    gint expected_steps[] = {};
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     g_assert_cmpstr ("", ==, text);
 
@@ -339,14 +339,14 @@ casefold_with_mixed_text (Fixture *fixture, gconstpointer data)
     lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 0, 8, 21, 47, 73, 100, 100};
+    gint expected_steps[] = { 0, 0, 8, 21, 47, 73, 100};
     g_assert_cmpstr ("abcdefgあいうえおカキクケコ日本語", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
-    g_assert_true (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_completed (fixture->progress));
 
     g_free (text);
     text = NULL;
@@ -364,14 +364,14 @@ casefold_with_uppercase_letters (Fixture *fixture, gconstpointer data)
     lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 0, 15, 30, 46, 61, 76, 92, 100, 100};
+    gint expected_steps[] = { 0, 0, 15, 30, 46, 61, 76, 92, 100};
     g_assert_cmpstr ("abcdefghijklmnopqrstuvwxyz", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
-    g_assert_true (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_completed (fixture->progress));
 
     g_free (text);
     text = NULL;
@@ -389,14 +389,14 @@ casefold_with_lowercase_letters (Fixture *fixture, gconstpointer data)
     lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 0, 15, 30, 46, 61, 76, 92, 100, 100};
+    gint expected_steps[] = { 0, 0, 15, 30, 46, 61, 76, 92, 100};
     g_assert_cmpstr ("abcdefghijklmnopqrstuvwxyz", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
-    g_assert_true (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_completed (fixture->progress));
 
     g_free (text);
     text = NULL;
@@ -831,7 +831,7 @@ validate_valid_string (Fixture *fixture, gconstpointer data)
     is_valid = lw_utf8_validate (TEXT, 0, progress);
 
     //Assert
-    gint expected_steps[] = { 0, 0, 4, 16, 37, 58, 79, 100, 100};
+    gint expected_steps[] = { 0, 0, 4, 16, 37, 58, 79, 100};
     g_assert_true (is_valid);
     g_assert_no_error (lw_progress_get_error (progress));
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
@@ -839,7 +839,7 @@ validate_valid_string (Fixture *fixture, gconstpointer data)
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
-    g_assert_true (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_completed (fixture->progress));
 }
 
 
@@ -880,7 +880,7 @@ validate_last_invalid_character_is_not_validated (Fixture *fixture, gconstpointe
     is_valid = lw_utf8_validate (TEXT, 4, progress);
 
     //Assert
-    gint expected_steps[] = { 0, 0, 50, 100, 100};
+    gint expected_steps[] = { 0, 0, 50, 100};
     g_assert_true (is_valid);
     g_assert_no_error (lw_progress_get_error (progress));
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
@@ -888,7 +888,7 @@ validate_last_invalid_character_is_not_validated (Fixture *fixture, gconstpointe
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
-    g_assert_true (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_completed (fixture->progress));
 }
 
 

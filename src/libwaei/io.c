@@ -137,7 +137,6 @@ lw_io_fwrite (FILE        * stream,
     if (progress != NULL)
     {
       lw_progress_set_current (progress, length);
-      lw_progress_set_completed (progress, TRUE);
     }
 
 errored:
@@ -277,7 +276,6 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
       }
       lw_progress_set_total (progress, length);
       lw_progress_set_current (progress, 0);
-      lw_progress_set_completed (progress, FALSE);
     }
 
 
@@ -324,7 +322,6 @@ errored:
     if (progress != NULL)
     {
       lw_progress_set_current (progress, length);
-      lw_progress_set_completed (progress, TRUE);
     }
 
     //Cleanup
@@ -452,7 +449,6 @@ lw_io_download (const gchar *SOURCE_PATH,
       }
       lw_progress_set_current (progress, 0.0);
       lw_progress_set_total (progress, 0.0);
-      lw_progress_set_completed (progress, FALSE);
     }
 
     if (res != 0 && !lw_progress_is_cancelled (progress))
@@ -471,7 +467,6 @@ errored:
     if (progress != NULL)
     {
       lw_progress_set_current (progress, lw_progress_get_total (progress));
-      lw_progress_set_completed (progress, TRUE);
     }
 
     if (stream != NULL) fclose(stream); stream = NULL;
@@ -541,7 +536,6 @@ lw_io_copy (const gchar *SOURCE_PATH,
       {
         lw_progress_set_secondary_message_printf (progress, "Copying %s\n", SOURCE_PATH);
       }
-      lw_progress_set_completed (progress, FALSE);
       lw_progress_set_total (progress, content_length);
       lw_progress_set_current (progress, offset);
     }
@@ -560,7 +554,6 @@ lw_io_copy (const gchar *SOURCE_PATH,
     if (progress != NULL)
     {
       lw_progress_set_current (progress, content_length);
-      lw_progress_set_completed (progress, TRUE);
     }
 
     if (ferror(stream))
@@ -636,7 +629,6 @@ lw_io_gunzip_file (const gchar *SOURCE_PATH,
       {
         lw_progress_set_secondary_message_printf (progress, "Decompressing %s\n", SOURCE_PATH);
       }
-      lw_progress_set_completed (progress, FALSE);
       lw_progress_set_total (progress, content_length);
       lw_progress_set_current (progress, 0);
     }
@@ -699,7 +691,6 @@ errored:
     if (progress != NULL)
     {
       lw_progress_set_current (progress, content_length);
-      lw_progress_set_completed (progress, TRUE);
     }
 
     if (target != NULL) fclose(target); target = NULL;
@@ -750,7 +741,6 @@ lw_io_remove (const gchar   *URI,
       lw_progress_set_secondary_message (progress, URI);
       lw_progress_set_total (progress, 1.0);
       lw_progress_set_current (progress, 0.0);
-      lw_progress_set_completed (progress, FALSE);
     }
 
     g_remove (URI);
@@ -770,7 +760,6 @@ lw_io_remove (const gchar   *URI,
     if (progress != NULL)
     {
       lw_progress_set_current (progress, 1.0);
-      lw_progress_set_completed (progress, TRUE);
     }
 
     return is_removed;

@@ -47,6 +47,11 @@
 
 G_DEFINE_TYPE (LwCacheFile, lw_cachefile, LW_TYPE_MAPPEDFILE)
 
+/**
+ * lw_cachefile_error_quark:
+ * The cachefile error domain
+ * Returns: The #GQuark representing a #LwCacheFile error
+ */
 GQuark
 lw_cachefile_error_quark ()
 {
@@ -54,15 +59,12 @@ lw_cachefile_error_quark ()
 }
 
 
-//Public Methods///////////////////////////////
-
-
 /**
  * lw_cachefile_new:
  * @PATH: The path to load the cachefile from or write to
  * Returns: (transfer full): A new #LwCacheFile that can be freed with g_object_unref()
  */
-LwCacheFile*
+LwCacheFile *
 lw_cachefile_new (gchar const * PATH)
 {
     //Sanity checks
@@ -84,7 +86,7 @@ lw_cachefile_new (gchar const * PATH)
 
 
 static void 
-lw_cachefile_init (LwCacheFile *self)
+lw_cachefile_init (LwCacheFile * self)
 {
     self->priv = LW_CACHEFILE_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwCacheFilePrivate));
@@ -92,11 +94,11 @@ lw_cachefile_init (LwCacheFile *self)
 
 
 static void 
-lw_cachefile_finalize (GObject *object)
+lw_cachefile_finalize (GObject * object)
 {
     //Declarations
-    LwCacheFile *self = NULL;
-    LwCacheFilePrivate *priv = NULL;
+    LwCacheFile * self = NULL;
+    LwCacheFilePrivate * priv = NULL;
 
     //Initalizations
     self = LW_CACHEFILE (object);
@@ -111,14 +113,14 @@ lw_cachefile_finalize (GObject *object)
 
 
 static void 
-lw_cachefile_set_property (GObject      *object,
-                           guint         property_id,
-                           const GValue *value,
-                           GParamSpec   *pspec)
+lw_cachefile_set_property (GObject      * object,
+                           guint          property_id,
+                           const GValue * value,
+                           GParamSpec   * pspec)
 {
     //Declarations
-    LwCacheFile *self = NULL;
-    LwCacheFilePrivate *priv = NULL;
+    LwCacheFile * self = NULL;
+    LwCacheFilePrivate * priv = NULL;
 
     //Initializations
     self = LW_CACHEFILE (object);
@@ -134,14 +136,14 @@ lw_cachefile_set_property (GObject      *object,
 
 
 static void 
-lw_cachefile_get_property (GObject      *object,
-                           guint         property_id,
-                           GValue       *value,
-                           GParamSpec   *pspec)
+lw_cachefile_get_property (GObject      * object,
+                           guint          property_id,
+                           GValue       * value,
+                           GParamSpec   * pspec)
 {
     //Declarations
-    LwCacheFile *self = NULL;
-    LwCacheFilePrivate *priv = NULL;
+    LwCacheFile * self = NULL;
+    LwCacheFilePrivate * priv = NULL;
 
     //Initializations
     self = LW_CACHEFILE (object);
@@ -175,10 +177,10 @@ lw_cachefile_class_finalize (LwCacheFileClass *klass)
 
 
 static void
-lw_cachefile_class_init (LwCacheFileClass *klass)
+lw_cachefile_class_init (LwCacheFileClass * klass)
 {
     //Declarations
-    GObjectClass *object_class = NULL;
+    GObjectClass * object_class = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
@@ -207,7 +209,7 @@ lw_cachefile_class_init (LwCacheFileClass *klass)
  * lw_cachefile_clear:
  * @self: A #LwCacheFile
  */
-void
+static void
 lw_cachefile_clear (LwCacheFile * self)
 {
     //Sanity checks
@@ -342,7 +344,7 @@ lw_cachefile_validate (LwCacheFile * self,
     contents = priv->contents;
     length = priv->content_length;
 
-    if (CHECKSUM == NULL || !lw_utf8_validate (CHECKSUM, -1, NULL))
+    if (CHECKSUM == NULL)
     {
       if (progress != NULL)
       {
@@ -353,6 +355,12 @@ lw_cachefile_validate (LwCacheFile * self,
           PATH
         ));
       }
+      is_valid = FALSE;
+      goto errored;
+    }
+
+    if (!lw_utf8_validate (CHECKSUM, length, progress))
+    {
       is_valid = FALSE;
       goto errored;
     }
@@ -387,27 +395,7 @@ lw_cachefile_validate (LwCacheFile * self,
       goto errored;
     }
 
-    if (!lw_utf8_validate (priv->contents, -1, progress))
-    {
-      if (progress != NULL)
-      {
-        lw_progress_take_error (progress, g_error_new (
-          LW_CACHEFILE_ERROR,
-          LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS,
-          "The cache file %s is corrupt. It should be valid utf8.",
-          PATH
-        ));
-      }
-      is_valid = FALSE;
-      goto errored;
-    }
-
 errored:
-
-    if (is_valid == FALSE)
-    {
-      lw_cachefile_clear (self);
-    }
 
     return is_valid;
 }
@@ -421,9 +409,9 @@ errored:
  * Returns: The number of bytes read
  */
 gsize
-lw_cachefile_read (LwCacheFile *self,
-                   const gchar *EXPECTED_CHECKSUM,
-                   LwProgress  *progress)
+lw_cachefile_read (LwCacheFile * self,
+                   const gchar * EXPECTED_CHECKSUM,
+                   LwProgress  * progress)
 {
     g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, NULL);
@@ -431,13 +419,13 @@ lw_cachefile_read (LwCacheFile *self,
 
     //Declarations
     LwCacheFilePrivate *priv = NULL;
-    GError *error = NULL;
+    GError * error = NULL;
+    gsize length = 0;
 
     //Initializations
     priv = self->priv;
 
     _ensure_fclose (self, &error);
-
     if (error != NULL)
     {
       if (error != NULL && progress != NULL)
@@ -471,31 +459,37 @@ lw_cachefile_read (LwCacheFile *self,
       }
     }
 
-    lw_cachefile_validate (self, EXPECTED_CHECKSUM, progress);
+    if (!lw_cachefile_validate (self, EXPECTED_CHECKSUM, progress))
+    {
+      lw_cachefile_clear (self);
+      goto errored;
+    }
 
 errored:
 
-    return lw_mappedfile_length (LW_MAPPEDFILE (self));
+    return priv->content_length;
 }
 
 
 
-static FILE*
-_ensure_fopen (LwCacheFile  *self,
-               GError      **error)
+static FILE *
+_ensure_fopen (LwCacheFile  * self,
+               GError      ** error)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
 
     //Declarations
-    LwCacheFilePrivate *priv = NULL;
-    LwMappedFile *mapped_file = NULL;
+    LwCacheFilePrivate * priv = NULL;
+    LwMappedFile * mapped_file = NULL;
     gchar const * PATH = NULL;
 
     //Initializations
     priv = self->priv;
     mapped_file = LW_MAPPEDFILE (self);
     PATH = lw_mappedfile_get_path (mapped_file);
+    priv->contents = NULL;
+    priv->content_length = 0;
 
     if (g_file_test (PATH, G_FILE_TEST_IS_REGULAR))
     {
@@ -512,8 +506,8 @@ _ensure_fopen (LwCacheFile  *self,
 
 
 void static
-_ensure_fclose (LwCacheFile  *self,
-                GError      **error)
+_ensure_fclose (LwCacheFile  * self,
+                GError      ** error)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_CACHEFILE (self));
@@ -533,9 +527,12 @@ _ensure_fclose (LwCacheFile  *self,
       fclose (priv->stream);
       priv->stream = NULL;
     }
-    if (g_file_test (PATH, G_FILE_TEST_IS_REGULAR))
+    if (PATH != NULL)
     {
-      if (!lw_mappedfile_is_writable (mapped_file)) g_chmod (PATH, 0444);
+      if (g_file_test (PATH, G_FILE_TEST_IS_REGULAR))
+      {
+        if (!lw_mappedfile_is_writable (mapped_file)) g_chmod (PATH, 0444);
+      }
     }
 }
 
@@ -549,7 +546,7 @@ _ensure_fclose (LwCacheFile  *self,
  * Returns: The checksum of the cachefile
  */
 gchar const *
-lw_cachefile_get_checksum (LwCacheFile *self)
+lw_cachefile_get_checksum (LwCacheFile * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
@@ -570,7 +567,7 @@ lw_cachefile_get_checksum (LwCacheFile *self)
  * Returns: The contents of the cachefile
  */
 gchar *
-lw_cachefile_get_contents (LwCacheFile *self)
+lw_cachefile_get_contents (LwCacheFile * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
@@ -591,11 +588,10 @@ lw_cachefile_get_contents (LwCacheFile *self)
  * Returns: The number of bytes in the cachefile content body
  */
 gsize
-lw_cachefile_length (LwCacheFile *self)
+lw_cachefile_length (LwCacheFile * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_CACHEFILE (self), 0);
-    g_return_val_if_fail (self->priv->CHECKSUM < self->priv->contents, 0);
 
     //Declarations
     LwCacheFilePrivate *priv = NULL;

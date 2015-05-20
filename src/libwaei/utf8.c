@@ -196,7 +196,6 @@ lw_utf8_validate (const gchar *TEXT,
       lw_progress_set_secondary_message_printf (progress, "%s...", gettext("Validating"));
       lw_progress_set_total (progress, length);
       lw_progress_set_current (progress, 0);
-      lw_progress_set_completed (progress, FALSE);
     }
 
     while (*p != '\0' && i < length)
@@ -240,7 +239,6 @@ errored:
     if (is_valid && progress != NULL)
     {
       lw_progress_set_current (progress, length);
-      lw_progress_set_completed (progress, TRUE);
     }
 
     return is_valid;
@@ -531,7 +529,6 @@ lw_utf8_casefold (gchar      *text,
     {
       lw_progress_set_secondary_message_printf (progress, "%s...", gettext("Folding case"));
       lw_progress_set_total (progress, length);
-      lw_progress_set_completed (progress, FALSE);
       lw_progress_set_current (progress, 0);
     }
 
@@ -556,7 +553,6 @@ lw_utf8_casefold (gchar      *text,
     if (progress != NULL)
     {
       lw_progress_set_current (progress, length);
-      lw_progress_set_completed (progress, TRUE);
     }
 
 errored:
@@ -639,7 +635,6 @@ lw_utf8_furiganafold (gchar      *text,
     {
       lw_progress_set_secondary_message_printf (progress, "%s...", gettext("Folding furigana"));
       lw_progress_set_total (progress, length);
-      lw_progress_set_completed (progress, FALSE);
       lw_progress_set_current (progress, 0);
     }
 
@@ -663,7 +658,6 @@ lw_utf8_furiganafold (gchar      *text,
     if (progress != NULL)
     {
       lw_progress_set_current (progress, length);
-      lw_progress_set_completed (progress, TRUE);
     }
 
 errored:
@@ -779,7 +773,6 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *contents,
       if (lw_progress_get_secondary_message (progress) == NULL)
       {
         lw_progress_set_secondary_message_printf (progress, "Delimiting lines...");
-        lw_progress_set_completed (progress, FALSE);
         lw_progress_set_total (progress, content_length);
         lw_progress_set_current (progress, 0);
       }
@@ -829,7 +822,6 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *contents,
     if (progress != NULL)
     {
       lw_progress_set_current, (progress, content_length);
-      lw_progress_set_completed (progress, TRUE);
     }
 
     return num_lines;
