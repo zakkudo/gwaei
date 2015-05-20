@@ -841,7 +841,7 @@ lw_progress_set_total (LwProgress *self,
     {
       lw_progress_set_current (self, priv->total_progress);
     }
-    else if (!truncate_current_progress && changed)
+    else if (!truncate_current_progress && changed && priv->current_progress > 0.0)
     {
       g_signal_emit (
         G_OBJECT (self),
