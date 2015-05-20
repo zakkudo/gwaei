@@ -4,8 +4,6 @@
 #include <libwaei/libwaei.h>
 
 struct _Fixture {
-  gchar const * TMPL;
-  gchar const * TMP_DIR;
   gchar * path;
   LwProgress * progress;
   GArray * steps;
@@ -32,9 +30,7 @@ cancel_progress (LwProgress *self, Fixture * fixture)
 
 void setup (Fixture *fixture, gconstpointer data)
 {
-  fixture->TMPL = g_strdup("testfile.XXXXXX");
-  fixture->TMP_DIR = g_get_tmp_dir ();
-  fixture->path = g_build_filename (fixture->TMP_DIR, fixture->TMPL, NULL);
+  fixture->path = g_build_filename (g_get_tmp_dir (), "testfile.XXXXXX", NULL);
 
   fixture->progress = lw_progress_new ();
   g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (append_progress), fixture);
@@ -46,7 +42,7 @@ void setup (Fixture *fixture, gconstpointer data)
 
 void teardown (Fixture *fixture, gconstpointer data)
 {
-  g_remove (fixture->path);
+  if (fixture->path != NULL) g_remove (fixture->path);
   g_free (fixture->path);
   g_object_unref (fixture->progress);
   fixture->progress = NULL;
