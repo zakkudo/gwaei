@@ -47,7 +47,7 @@ G_DEFINE_ABSTRACT_TYPE (LwSerializable, lw_serializable, G_TYPE_OBJECT);
 
 
 static void 
-lw_serializable_init (LwSerializable *self)
+lw_serializable_init (LwSerializable * self)
 {
     self->priv = LW_SERIALIZABLE_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwSerializablePrivate));
@@ -55,7 +55,7 @@ lw_serializable_init (LwSerializable *self)
 
 
 static void 
-lw_serializable_finalize (GObject *object)
+lw_serializable_finalize (GObject * object)
 {
     //Declarations
     LwSerializable *self = NULL;
@@ -78,7 +78,7 @@ lw_serializable_finalize (GObject *object)
 
 
 static void
-lw_serializable_class_init (LwSerializableClass *klass)
+lw_serializable_class_init (LwSerializableClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
@@ -92,8 +92,8 @@ lw_serializable_class_init (LwSerializableClass *klass)
 
 
 gsize
-lw_serializable_get_serialized_length (LwSerializable *self,
-                                       LwProgress     *progress)
+lw_serializable_get_serialized_length (LwSerializable * self,
+                                       LwProgress     * progress)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
@@ -105,9 +105,9 @@ lw_serializable_get_serialized_length (LwSerializable *self,
 
 
 gsize
-lw_serializable_serialize (LwSerializable *self,
-                           gchar          *preallocated_buffer,
-                           LwProgress     *progress)
+lw_serializable_serialize (LwSerializable * self,
+                           gchar          * preallocated_buffer,
+                           LwProgress     * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SERIALIZABLE (self));
@@ -127,10 +127,10 @@ lw_serializable_serialize (LwSerializable *self,
 
 
 gsize
-lw_serializable_serialize_to_cachefile (LwSerializable *self,
-                                        gchar const    *CHECKSUM,
-                                        LwCacheFile    *cachefile,
-                                        LwProgress     *progress)
+lw_serializable_serialize_to_cachefile (LwSerializable * self,
+                                        gchar const    * CHECKSUM,
+                                        LwCacheFile    * cachefile,
+                                        LwProgress     * progress)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
@@ -176,10 +176,10 @@ errored:
 
 
 gsize
-lw_serializable_deserialize_from (LwSerializable *self,
-                                  gchar const    *serialized_data,
-                                  gsize           serialized_length,
-                                  LwProgress     *progress)
+lw_serializable_deserialize_from (LwSerializable * self,
+                                  gchar const    * serialized_data,
+                                  gsize            serialized_length,
+                                  LwProgress     * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SERIALIZABLE (self));
@@ -202,10 +202,10 @@ lw_serializable_deserialize_from (LwSerializable *self,
 
 
 gsize
-lw_serializable_deserialize_from_cachefile (LwSerializable *self,
-                                            gchar const    *EXPECTED_CHECKSUM,
-                                            LwCacheFile    *cachefile,
-                                            LwProgress     *progress)
+lw_serializable_deserialize_from_cachefile (LwSerializable * self,
+                                            gchar const    * EXPECTED_CHECKSUM,
+                                            LwCacheFile    * cachefile,
+                                            LwProgress     * progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_SERIALIZABLE (self), 0);

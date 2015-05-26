@@ -7,8 +7,6 @@ typedef enum
 {
   PROP_0,
   PROP_CACHEFILE,
-  PROP_CONTENTS,
-  PROP_CONTENT_LENGTH,
   TOTAL_PROPS
 } Prop;
 
@@ -19,8 +17,6 @@ typedef enum {
 
 struct _LwParsedPrivate {
   gsize num_lines; //! < The number of lines
-  gchar *contents; //! < The reference point of each strv
-  gsize content_length;
   LwParsedLine *lines; //! < A set of categorized strvs
   LwCacheFile *cache_file;
 };

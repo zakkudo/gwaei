@@ -64,7 +64,7 @@ struct _DeserializeData {
 /**
  * lw_parsed_new:
  * @cache_file: The base data to reference
- * Returns: A new #LwParsed object that can be freed with
+ * Returns: (transfer full): A new #LwParsed object that can be freed with g_object_unref()
  */
 LwParsed*
 lw_parsed_new (LwCacheFile *cache_file)
@@ -76,7 +76,7 @@ lw_parsed_new (LwCacheFile *cache_file)
     LwParsed *self = NULL;
 
     //Initializations
-    self = LW_PARSED (g_object_new (LW_TYPE_PARSED, "cache_file", cache_file, NULL));
+    self = LW_PARSED (g_object_new (LW_TYPE_PARSED, "cache-file", cache_file, NULL));
 
     return self;
 }
@@ -170,34 +170,19 @@ lw_parsed_class_init (LwParsedClass *klass)
     object_class = G_OBJECT_CLASS (klass);
     object_class->finalize = lw_parsed_finalize;
 
+    klass->priv = g_new0 (LwParsedClassPrivate, 1);
+    object_class->set_property = lw_parsed_set_property;
+    object_class->get_property = lw_parsed_get_property;
+    object_class->finalize = lw_parsed_finalize;
+
     klass->priv->pspec[PROP_CACHEFILE] = g_param_spec_object (
-      "cache_file",
+      "cache-file",
       gettext("Contents Mapped File"),
       "Contents of the parsed object. This data is not necessarily human readable.",
       LW_TYPE_CACHEFILE,
-      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
+      G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_CACHEFILE, klass->priv->pspec[PROP_CACHEFILE]);
-
-    klass->priv->pspec[PROP_CONTENTS] = g_param_spec_string (
-      "contents",
-      gettext("Contents"),
-      "Contents of the parsed object. This data is not necessarily human readable.",
-      "",
-      G_PARAM_READABLE
-    );
-    g_object_class_install_property (object_class, PROP_CONTENTS, klass->priv->pspec[PROP_CONTENTS]);
-
-    klass->priv->pspec[PROP_CONTENT_LENGTH] = g_param_spec_ulong (
-      "content-length",
-      gettext("Content Length"),
-      "Contents of the parsed object. This data is not necessarily human readable.",
-      0,
-      G_MAXULONG,
-      0,
-      G_PARAM_READABLE
-    );
-    g_object_class_install_property (object_class, PROP_CONTENT_LENGTH, klass->priv->pspec[PROP_CONTENT_LENGTH]);
 }
 
 
@@ -342,7 +327,7 @@ _serialize (LwParsed              *self,
     //Initializations
     priv = self->priv;
     write_pointer = (gchar*) data->write_pointer;
-    contents = priv->contents;
+    contents = lw_cachefile_get_contents (priv->cache_file);
     bytes_written = lw_parsedline_serialize (parsed_line, contents, write_pointer, &data->error);
     if (data->error != NULL)
     {
@@ -407,7 +392,7 @@ _deserialize (LwParsed                *self,
 
     //Initializations
     priv = self->priv;
-    contents = priv->contents;
+    contents = lw_cachefile_get_contents (priv->cache_file);
     read_pointer = data->read_pointer;
     bytes_read = lw_parsedline_deserialize_into (parsed_line, read_pointer, contents, &data->error);
     if (data->error != NULL)
@@ -494,7 +479,6 @@ lw_parsed_set_cachefile (LwParsed    * self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_PARSED (self));
-    g_return_if_fail (LW_IS_CACHEFILE (cache_file));
 
     //Declarations
     LwParsedPrivate *priv = NULL;
@@ -513,17 +497,9 @@ lw_parsed_set_cachefile (LwParsed    * self,
     if (priv->cache_file != NULL)
     {
       g_object_unref (priv->cache_file);
-      priv->contents = NULL;
-      priv->content_length = 0;
     }
 
     priv->cache_file = priv->cache_file;
-
-    if (priv->cache_file != NULL)
-    {
-      priv->contents = lw_cachefile_get_contents (priv->cache_file);
-      priv->content_length = lw_cachefile_length (priv->cache_file);
-    }
 
     g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CACHEFILE]);
 
@@ -536,7 +512,7 @@ errored:
 /**
  * lw_parsed_get_cachefile:
  * @self: A #LwParsed
- * Returns: The #LwCacheFile that the #LwParsed was initialized with
+ * Returns: (transfer none): The #LwCacheFile that the #LwParsed was initialized with
  */
 LwCacheFile*
 lw_parsed_get_cachefile (LwParsed * self)
