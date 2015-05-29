@@ -46,17 +46,16 @@
 
 G_DEFINE_TYPE (LwParsed, lw_parsed, LW_TYPE_SERIALIZABLE)
 
+
 struct _SerializeData {
-  gsize *buffer;
-  gsize *write_pointer;
-  gsize bytes_written;
+  gchar *buffer;
+  gchar *write_pointer;
   GError *error;
 };
 
 struct _DeserializeData {
   gchar const *serialized_data;
   gchar const *read_pointer;
-  gsize bytes_read;
   GError *error;
 };
 
@@ -109,10 +108,10 @@ lw_parsed_finalize (GObject *object)
 
 
 static void 
-lw_parsed_set_property (GObject      *object,
-                        guint         property_id,
-                        const GValue *value,
-                        GParamSpec   *pspec)
+lw_parsed_set_property (GObject      * object,
+                        guint          property_id,
+                        const GValue * value,
+                        GParamSpec   * pspec)
 {
     //Declarations
     LwParsed *self = NULL;
@@ -135,10 +134,10 @@ lw_parsed_set_property (GObject      *object,
 
 
 static void 
-lw_parsed_get_property (GObject      *object,
-                        guint         property_id,
-                        GValue       *value,
-                        GParamSpec   *pspec)
+lw_parsed_get_property (GObject      * object,
+                        guint          property_id,
+                        GValue       * value,
+                        GParamSpec   * pspec)
 {
     //Declarations
     LwParsed *self = NULL;
@@ -165,24 +164,30 @@ lw_parsed_class_init (LwParsedClass *klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
+    LwSerializableClass *serializable_class = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
     object_class->finalize = lw_parsed_finalize;
-
-    klass->priv = g_new0 (LwParsedClassPrivate, 1);
     object_class->set_property = lw_parsed_set_property;
     object_class->get_property = lw_parsed_get_property;
-    object_class->finalize = lw_parsed_finalize;
+
+    serializable_class = LW_SERIALIZABLE_CLASS (klass);
+    serializable_class->serialize = lw_parsed_serialize;
+    serializable_class->deserialize_into = lw_parsed_deserialize_into;
+
+    klass->priv = g_new0 (LwParsedClassPrivate, 1);
 
     klass->priv->pspec[PROP_CACHEFILE] = g_param_spec_object (
       "cache-file",
       gettext("Contents Mapped File"),
       "Contents of the parsed object. This data is not necessarily human readable.",
       LW_TYPE_CACHEFILE,
-      G_PARAM_READWRITE
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_CACHEFILE, klass->priv->pspec[PROP_CACHEFILE]);
+
+    g_type_class_add_private (object_class, sizeof (LwParsedPrivate));
 }
 
 
@@ -221,7 +226,7 @@ lw_parsed_foreach (LwParsed            *self,
  * lw_parsed_get_line:
  * @self: A #LwParsed
  * @line_number: The line number to fetch
- * Returns: A #LwParsedLine or %NULL if the index is invalid
+ * Returns: (no transfer): A #LwParsedLine or %NULL if the index is invalid
  */
 LwParsedLine*
 lw_parsed_get_line (LwParsed * self,
@@ -229,7 +234,8 @@ lw_parsed_get_line (LwParsed * self,
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_PARSED (self), NULL);
-    g_return_val_if_fail (line_number > self->priv->num_lines, NULL);
+    g_return_val_if_fail (line_number < self->priv->num_lines, NULL);
+    g_return_val_if_fail (line_number >= 0, NULL);
 
     //Declarations
     LwParsedPrivate *priv = NULL;
@@ -249,13 +255,13 @@ errored:
 /**
  * lw_parsed_set_lines:
  * @self: A #LwParsed
- * @lines: An array of lines to set
+ * @lines: (full transfere): An array of lines to set
  * @num_lines: The number of lines in @lines
  */
 void
-lw_parsed_set_lines (LwParsed         *self,
-                     LwParsedLine *lines,
-                     gsize             num_lines)
+lw_parsed_set_lines (LwParsed         * self,
+                     LwParsedLine     * lines,
+                     gsize              num_lines)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_PARSED (self), NULL);
@@ -275,7 +281,7 @@ lw_parsed_set_lines (LwParsed         *self,
         lw_parsedline_clear (priv->lines + i);
       }
     } 
-    g_free (priv->lines); priv->lines = 0;
+    g_free (priv->lines); priv->lines = NULL;
     priv->num_lines = 0;
 
     priv->lines = lines;
@@ -309,9 +315,9 @@ lw_parsed_num_lines (LwParsed *self)
 
 
 static gboolean
-_serialize (LwParsed              *self,
-            LwParsedLine      *parsed_line,
-            struct _SerializeData *data)
+_serialize (LwParsed              * self,
+            LwParsedLine          * parsed_line,
+            struct _SerializeData * data)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
@@ -321,21 +327,22 @@ _serialize (LwParsed              *self,
     //Declarations
     LwParsedPrivate *priv = NULL;
     gsize bytes_written = 0;
-    gchar *contents = NULL;
-    gchar *write_pointer = NULL;
+    gchar * contents = NULL;
+    gchar * write_pointer = NULL;
 
     //Initializations
     priv = self->priv;
-    write_pointer = (gchar*) data->write_pointer;
-    contents = lw_cachefile_get_contents (priv->cache_file);
+    if (data->buffer != NULL)
+    {
+      contents = lw_cachefile_get_contents (priv->cache_file);
+      write_pointer = data->write_pointer;
+    }
     bytes_written = lw_parsedline_serialize (parsed_line, contents, write_pointer, &data->error);
+    data->write_pointer += bytes_written;
     if (data->error != NULL)
     {
       goto errored;
     }
-    data->bytes_written += bytes_written;
-    write_pointer += bytes_written;
-    data->write_pointer = (gsize*) write_pointer;
 
 errored:
 
@@ -344,40 +351,39 @@ errored:
 
 
 static gsize
-lw_parsed_serialize (LwParsed   *self,
-                     gchar      *preallocated_buffer,
-                     LwProgress *progress)
+lw_parsed_serialize (LwSerializable * serializable,
+                     gchar          * preallocated_buffer,
+                     LwProgress     * progress)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PARSED (self));
-    g_return_if_fail (preallocated_buffer != NULL);
+    g_return_if_fail (LW_IS_PARSED (serializable));
 
     //Declarations
+    LwParsed * self = LW_PARSED (serializable);
     LwParsedPrivate *priv = NULL;
     struct _SerializeData data = {
-      .buffer = (gsize*) preallocated_buffer,
-      .write_pointer = (gsize*) preallocated_buffer,
-      .bytes_written = 0
+      .buffer = preallocated_buffer,
+      .write_pointer = preallocated_buffer,
     };
 
     //Copy the number of LwParsedLines
     priv = self->priv;
-    *(data.write_pointer++) = priv->num_lines;
-    data.bytes_written += sizeof(gsize);
+    if (data.buffer != NULL) memcpy(data.write_pointer, &priv->num_lines, sizeof(gsize));
+    data.write_pointer += sizeof(gsize);
 
     //Copy the individual seriallized LwParsedLine contents
     lw_parsed_foreach (self, (LwParsedForeachFunc) _serialize, &data);
 
 errored:
 
-    return data.bytes_written;
+    return data.write_pointer - data.buffer;
 }
 
 
 static gboolean
-_deserialize (LwParsed                *self,
-              LwParsedLine        *parsed_line,
-              struct _DeserializeData *data)
+_deserialize (LwParsed                * self,
+              LwParsedLine            * parsed_line,
+              struct _DeserializeData * data)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
@@ -402,7 +408,6 @@ _deserialize (LwParsed                *self,
 
 errored:
 
-    data->bytes_read += bytes_read;
     data->read_pointer += bytes_read;
 
     return (data->error != NULL);
@@ -410,13 +415,13 @@ errored:
 
 
 static gsize
-lw_parsed_deserialize_into (LwParsed    *self,
-                            const gchar *serialized_data,
-                            gsize        serialized_length,
-                            LwProgress  *progress)
+lw_parsed_deserialize_into (LwSerializable * serializable,
+                            gchar const    * serialized_data,
+                            gsize            serialized_length,
+                            LwProgress     * progress)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_PARSED (self), 0);
+    g_return_val_if_fail (LW_IS_PARSED (serializable), 0);
     g_return_val_if_fail (serialized_data != NULL, 0);
 
     /*TODO
@@ -425,22 +430,27 @@ lw_parsed_deserialize_into (LwParsed    *self,
     */
 
     //Declarations
+    LwParsed * self = LW_PARSED (serializable);
     LwParsedPrivate *priv = NULL;
     LwParsedLine *lines = NULL;
     gsize num_lines = 0;
-    gsize bytes_read = 0;
     struct _DeserializeData data = {
       .serialized_data = serialized_data,
       .read_pointer = serialized_data,
-      .bytes_read = 0,
       .error = NULL
     };
 
     //Initializations
     priv = self->priv;
-    num_lines = *((gsize*) data.read_pointer);
+
+    if (priv->lines != NULL || priv->num_lines > 0) goto errored;
+
+    memcpy(&num_lines, data.read_pointer, sizeof(gsize));
     data.read_pointer += sizeof(gsize);
-    lines = g_new0(LwParsedLine, num_lines);
+
+    lines = g_new0 (LwParsedLine, num_lines);
+    lw_parsed_set_lines (self, lines, num_lines);
+    lines = NULL;
 
     lw_parsed_foreach (self, (LwParsedForeachFunc) _deserialize, &data);
     if (data.error != NULL)
@@ -454,9 +464,6 @@ lw_parsed_deserialize_into (LwParsed    *self,
       goto errored;
     }
 
-    lw_parsed_set_lines (self, lines, num_lines);
-    lines = NULL;
-
 errored:
 
     if (lines != NULL)
@@ -469,7 +476,7 @@ errored:
       g_free (lines); lines = NULL;
     }
 
-    return bytes_read;
+    return data.read_pointer - data.serialized_data;
 }
 
 
@@ -499,7 +506,7 @@ lw_parsed_set_cachefile (LwParsed    * self,
       g_object_unref (priv->cache_file);
     }
 
-    priv->cache_file = priv->cache_file;
+    priv->cache_file = cache_file;
 
     g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CACHEFILE]);
 

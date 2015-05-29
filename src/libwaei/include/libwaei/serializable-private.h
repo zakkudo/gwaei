@@ -15,9 +15,7 @@ typedef enum {
 } ClassSignalId;
 
 struct _LwSerializablePrivate {
-  LwCacheFile *cachefile;
-  gchar *contents;
-  gsize content_length;
+  LwCacheFile *cache_file;
 };
 
 #define LW_SERIALIZABLE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SERIALIZABLE, LwSerializablePrivate));

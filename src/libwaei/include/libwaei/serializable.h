@@ -37,7 +37,7 @@ gsize lw_serializable_serialize (LwSerializable *self, gchar *preallocated_buffe
 gsize lw_serializable_serialize_to_cachefile (LwSerializable *self, gchar const *CHECKSUM, LwCacheFile *cachefile, LwProgress *progress);
 
 gsize lw_serializable_deserialize_into (LwSerializable *self, gchar const *serialized_data, gsize serialized_length, LwProgress *progress);
-gsize lw_serializable_deserialize_from_cachefile (LwSerializable *self, gchar const *EXPECTED_CHECKSUM, LwCacheFile *cachefile, LwProgress *progress);
+gsize lw_serializable_deserialize_from_cachefile_into (LwSerializable *self, gchar const *EXPECTED_CHECKSUM, LwCacheFile *cachefile, LwProgress *progress);
 
 
 G_END_DECLS

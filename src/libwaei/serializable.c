@@ -65,10 +65,10 @@ lw_serializable_finalize (GObject * object)
     self = LW_SERIALIZABLE (object);
     priv = self->priv;
 
-    if (priv->cachefile != NULL)
+    if (priv->cache_file != NULL)
     {
-      g_object_unref (priv->cachefile);
-      priv->cachefile = NULL;
+      g_object_unref (priv->cache_file);
+      priv->cache_file = NULL;
     }
 
     memset(self->priv, 0, sizeof(LwSerializablePrivate));
@@ -97,8 +97,7 @@ lw_serializable_get_serialized_length (LwSerializable * self,
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
-    g_return_val_if_fail (LW_IS_PROGRESS (progress), 0);
-    if (lw_progress_should_abort (progress)) return 0;
+    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
  
     return lw_serializable_serialize (self, NULL, progress);
 }
@@ -111,8 +110,7 @@ lw_serializable_serialize (LwSerializable * self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SERIALIZABLE (self));
-    g_return_val_if_fail (LW_IS_PROGRESS (progress), 0);
-    if (lw_progress_should_abort (progress)) return 0;
+    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
 
     //Declarations
     LwSerializablePrivate *priv = NULL;
@@ -120,7 +118,7 @@ lw_serializable_serialize (LwSerializable * self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_SERIALIZABLE_CLASS (self);
+    klass = LW_SERIALIZABLE_GET_CLASS (self);
 
     return klass->serialize (self, preallocated_buffer, progress);
 }
@@ -129,15 +127,14 @@ lw_serializable_serialize (LwSerializable * self,
 gsize
 lw_serializable_serialize_to_cachefile (LwSerializable * self,
                                         gchar const    * CHECKSUM,
-                                        LwCacheFile    * cachefile,
+                                        LwCacheFile    * cache_file,
                                         LwProgress     * progress)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
     g_return_val_if_fail (CHECKSUM != NULL, 0);
-    g_return_val_if_fail (cachefile != NULL, 0);
-    g_return_val_if_fail (LW_IS_PROGRESS (progress), 0);
-    if (lw_progress_should_abort (progress)) return 0;
+    g_return_val_if_fail (cache_file != NULL, 0);
+    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
 
     //Declarations
     LwSerializablePrivate *priv = NULL;
@@ -163,7 +160,7 @@ lw_serializable_serialize_to_cachefile (LwSerializable * self,
     contents = g_mapped_file_get_contents (mapped_file);
 
     lw_serializable_serialize (self, contents, progress);
-    lw_cachefile_write (cachefile, CHECKSUM, contents, length, progress);
+    lw_cachefile_write (cache_file, CHECKSUM, contents, length, progress);
 
 errored:
 
@@ -176,59 +173,63 @@ errored:
 
 
 gsize
-lw_serializable_deserialize_from (LwSerializable * self,
+lw_serializable_deserialize_into (LwSerializable * self,
                                   gchar const    * serialized_data,
                                   gsize            serialized_length,
                                   LwProgress     * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SERIALIZABLE (self));
-    g_return_val_if_fail (LW_IS_PROGRESS (progress), 0);
-    if (lw_progress_should_abort (progress)) return 0;
+    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
 
     //Declarations
     LwSerializablePrivate *priv = NULL;
     LwSerializableClass *klass = NULL;
+    gsize bytes_read = 0;
 
     //Initializations
     priv = self->priv;
-    klass = LW_SERIALIZABLE_CLASS (self);
+    klass = LW_SERIALIZABLE_GET_CLASS (self);
 
-    klass->deserialize_into (self, serialized_data, serialized_length, progress);
+    bytes_read = klass->deserialize_into (self, serialized_data, serialized_length, progress);
 
-    g_object_unref (priv->cachefile);
-    priv->cachefile = NULL;
+    if (priv->cache_file != NULL) g_object_unref (priv->cache_file);
+    priv->cache_file = NULL;
+
+    return bytes_read;
 }
 
 
 gsize
-lw_serializable_deserialize_from_cachefile (LwSerializable * self,
-                                            gchar const    * EXPECTED_CHECKSUM,
-                                            LwCacheFile    * cachefile,
-                                            LwProgress     * progress)
+lw_serializable_deserialize_from_cachefile_into (LwSerializable * self,
+                                                 gchar const    * EXPECTED_CHECKSUM,
+                                                 LwCacheFile    * cache_file,
+                                                 LwProgress     * progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_SERIALIZABLE (self), 0);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, 0);
-    g_return_val_if_fail (cachefile != NULL, 0);
-    g_return_val_if_fail (LW_IS_PROGRESS (progress), 0);
-    if (lw_progress_should_abort (progress)) return 0;
+    g_return_val_if_fail (cache_file != NULL, 0);
+    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
 
     //Declarations
     LwSerializablePrivate *priv = NULL;
-    gchar *content = NULL;
+    gsize bytes_read = 0;
     gsize length = 0;
+    gchar * contents = NULL;
 
     //Initializations
     priv = self->priv;
-    content = lw_cachefile_read (cachefile, EXPECTED_CHECKSUM, progress);
-    if (content == NULL) goto errored;
-    length = lw_cachefile_length (cachefile);
+    bytes_read = lw_cachefile_read (cache_file, EXPECTED_CHECKSUM, progress);
+    if (bytes_read == 0) goto errored;
+    contents = lw_cachefile_get_contents (cache_file);
+    if (contents == NULL) goto errored;
+    length = lw_cachefile_length (cache_file);
     if (length == 0) goto errored;
 
-    lw_serializable_deserialize_from (self, content, length, progress);
+    priv->cache_file = g_object_ref (cache_file);
 
-    priv->cachefile = g_object_ref (cachefile);
+    lw_serializable_deserialize_into (self, contents, length, progress);
 
 errored:
 

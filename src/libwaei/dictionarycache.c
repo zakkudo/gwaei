@@ -531,7 +531,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     if (parsed_cachefile == NULL) goto errored;
     parsed = lw_parsed_new (normalized_cachefile); 
     if (parsed == NULL) goto errored;
-    lw_serializable_deserialize_from_cachefile (LW_SERIALIZABLE (parsed), EXPECTED_CHECKSUM, parsed_cachefile, progress);
+    lw_serializable_deserialize_from_cachefile_into (LW_SERIALIZABLE (parsed), EXPECTED_CHECKSUM, parsed_cachefile, progress);
     if (lw_progress_should_abort (progress)) goto errored;
 
     //Load the indexed information
@@ -539,7 +539,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     if (indexed_cachefile == NULL) goto errored;
     indexed = lw_indexed_new (parsed); 
     if (indexed == NULL) goto errored;
-    lw_serializable_deserialize_from_cachefile (LW_SERIALIZABLE (indexed), EXPECTED_CHECKSUM, indexed_cachefile, progress);
+    lw_serializable_deserialize_from_cachefile_into (LW_SERIALIZABLE (indexed), EXPECTED_CHECKSUM, indexed_cachefile, progress);
     if (lw_progress_should_abort (progress)) goto errored;
 
     //Finalize

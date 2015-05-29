@@ -28,9 +28,9 @@ struct _LwParsedClassPrivate {
 
 #define LW_PARSED_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_PARSED, LwParsedPrivate));
 
-static gsize lw_parsed_serialize (LwParsed *self, gchar *preallocated_buffer, LwProgress *progress);
-static gsize lw_parsed_deserialize_into (LwParsed *self, const gchar *serialized_data, gsize serialized_length, LwProgress *progress);
 
+static gsize lw_parsed_serialize (LwSerializable * serializable, gchar * preallocated_buffer, LwProgress * progress);
+static gsize lw_parsed_deserialize_into (LwSerializable * serializable, gchar const * serialized_data, gsize serialized_length, LwProgress * progress);
 static void lw_parsed_set_cachefile (LwParsed * self, LwCacheFile * cache_file);
 
 G_END_DECLS
