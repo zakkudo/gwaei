@@ -447,6 +447,7 @@ serialize_with_no_lines (Fixture * fixture, gconstpointer data)
   bytes_written = lw_serializable_serialize (serializable, preallocated_buffer, progress);
 
   g_assert_cmpint (length, ==, 8);
+  g_assert_cmpint (bytes_written, ==, 8);
   
   gint i = 0;
   gint expected_steps[] = {0, 100};
@@ -487,9 +488,8 @@ deserialize_with_valid_data (Fixture * fixture, gconstpointer data)
 
   g_assert_cmpuint (lw_parsed_num_lines (fixture->parsed), ==, lw_parsed_num_lines (parsed_copy));
 
-
   gint i = 0;
-  gint expected_steps[] = { 0, 5, 100};
+  gint expected_steps[] = { 0, 5, 52, 100};
   g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
   for (i = 0; i < fixture->steps->len; i++)
   {
@@ -538,6 +538,13 @@ deserialize_with_valid_data (Fixture * fixture, gconstpointer data)
     }
   }
 
+  {
+    gsize num_lines = 0;
+    LwParsedLine * lines = lw_parsed_get_lines (parsed_copy, &num_lines);
+    g_assert_nonnull (lines);
+    g_assert_cmpuint (num_lines, >=, 0);
+  }
+
   fixture->lines = NULL;
 
   g_object_unref (parsed_copy);
@@ -564,15 +571,22 @@ deserialize_has_less_lines_than_stated (Fixture * fixture, gconstpointer data)
 
   parsed_copy = lw_parsed_new (fixture->cache_file);
   serializable = LW_SERIALIZABLE (fixture->parsed);
-  length = lw_serializable_get_serialized_length (serializable, progress);
+  length = lw_serializable_get_serialized_length (serializable, NULL);
   preallocated_buffer = g_new0 (gchar, length);
-  bytes_written = lw_serializable_serialize (serializable, preallocated_buffer, progress);
+  bytes_written = lw_serializable_serialize (serializable, preallocated_buffer, NULL);
   memcpy(preallocated_buffer, &num_lines, sizeof(gsize));
   bytes_read = lw_serializable_deserialize_into (LW_SERIALIZABLE(parsed_copy), preallocated_buffer, length, progress);
 
   g_assert_error (lw_progress_get_error (progress), LW_PARSED_ERROR, LW_PARSED_ERRORCODE_DESERIALIZATION_ERROR);
   g_assert_cmpuint (length, ==, bytes_written);
   g_assert_cmpuint (84, ==, bytes_read);
+
+  {
+    gsize num_lines = 0;
+    LwParsedLine * lines = lw_parsed_get_lines (parsed_copy, &num_lines);
+    g_assert_null (lines);
+    g_assert_cmpuint (num_lines, ==, 0);
+  }
 
   fixture->lines = NULL;
 
@@ -582,6 +596,7 @@ deserialize_has_less_lines_than_stated (Fixture * fixture, gconstpointer data)
   g_free (preallocated_buffer);
   preallocated_buffer = NULL;
 }
+
 
 void
 deserialize_has_more_lines_than_stated (Fixture * fixture, gconstpointer data)
@@ -599,15 +614,22 @@ deserialize_has_more_lines_than_stated (Fixture * fixture, gconstpointer data)
 
   parsed_copy = lw_parsed_new (fixture->cache_file);
   serializable = LW_SERIALIZABLE (fixture->parsed);
-  length = lw_serializable_get_serialized_length (serializable, progress);
+  length = lw_serializable_get_serialized_length (serializable, NULL);
   preallocated_buffer = g_new0 (gchar, length);
-  bytes_written = lw_serializable_serialize (serializable, preallocated_buffer, progress);
+  bytes_written = lw_serializable_serialize (serializable, preallocated_buffer, NULL);
   memcpy(preallocated_buffer, &num_lines, sizeof(gsize));
   bytes_read = lw_serializable_deserialize_into (LW_SERIALIZABLE(parsed_copy), preallocated_buffer, length, progress);
 
   g_assert_error (lw_progress_get_error (progress), LW_PARSED_ERROR, LW_PARSED_ERRORCODE_DESERIALIZATION_ERROR);
   g_assert_cmpuint (length, ==, bytes_written);
   g_assert_cmpuint (168, ==, bytes_read);
+
+  {
+    gsize num_lines = 0;
+    LwParsedLine * lines = lw_parsed_get_lines (parsed_copy, &num_lines);
+    g_assert_null (lines);
+    g_assert_cmpuint (num_lines, ==, 0);
+  }
 
   fixture->lines = NULL;
 
@@ -619,12 +641,148 @@ deserialize_has_more_lines_than_stated (Fixture * fixture, gconstpointer data)
 }
 
 
+void
+deserialize_with_no_progress (Fixture * fixture, gconstpointer data)
+{
+  lw_parsed_set_lines (fixture->parsed, fixture->lines, 2);
+
+  gsize length = 0;
+  gsize bytes_written = 0;
+  gsize bytes_read = 0;
+  LwParsed * parsed_copy = NULL;
+  LwProgress * progress = NULL;
+  LwSerializable * serializable = NULL;
+  gchar * preallocated_buffer = NULL;
+
+  parsed_copy = lw_parsed_new (fixture->cache_file);
+  serializable = LW_SERIALIZABLE (fixture->parsed);
+  length = lw_serializable_get_serialized_length (serializable, NULL);
+  preallocated_buffer = g_new0 (gchar, length);
+  bytes_written = lw_serializable_serialize (serializable, preallocated_buffer, NULL);
+  bytes_read = lw_serializable_deserialize_into (LW_SERIALIZABLE(parsed_copy), preallocated_buffer, length, progress);
+
+  g_assert_cmpint (length, ==, 160);
+  g_assert_cmpint (bytes_read, ==, 160);
+  
+  gint i = 0;
+  gint expected_steps[] = {};
+  g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+  for (i = 0; i < fixture->steps->len; i++)
+  {
+    g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+  }
+
+  {
+    gsize num_lines = 0;
+    LwParsedLine * lines = lw_parsed_get_lines (parsed_copy, &num_lines);
+    g_assert_nonnull (lines);
+    g_assert_cmpuint (num_lines, >=, 0);
+  }
+
+  fixture->lines = NULL;
+  g_free (preallocated_buffer);
+
+  g_object_unref (parsed_copy);
+  parsed_copy = NULL;
+}
+
+
+void
+deserialize_where_cancelled_halfway (Fixture * fixture, gconstpointer data)
+{
+  lw_parsed_set_lines (fixture->parsed, fixture->lines, 2);
+
+  gsize length = 0;
+  gsize bytes_written = 0;
+  gsize bytes_read = 0;
+  LwParsed * parsed_copy = NULL;
+  LwProgress * progress = fixture->progress;
+  LwSerializable * serializable = NULL;
+  gchar * preallocated_buffer = NULL;
+
+  lw_progress_set_prefered_chunk_size (fixture->progress, 1);
+  g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
+  parsed_copy = lw_parsed_new (fixture->cache_file);
+  serializable = LW_SERIALIZABLE (fixture->parsed);
+  length = lw_serializable_get_serialized_length (serializable, NULL);
+  preallocated_buffer = g_new0 (gchar, length);
+  bytes_written = lw_serializable_serialize (serializable, preallocated_buffer, NULL);
+  bytes_read = lw_serializable_deserialize_into (LW_SERIALIZABLE(parsed_copy), preallocated_buffer, length, progress);
+
+  g_assert_cmpint (length, ==, 160);
+  g_assert_cmpint (bytes_written, ==, 160);
+  g_assert_cmpint (bytes_read, ==, 84);
+  
+  gint i = 0;
+  gint expected_steps[] = {0, 5, 52};
+  g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+  for (i = 0; i < fixture->steps->len; i++)
+  {
+    g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+  }
+
+  {
+    gsize num_lines = 0;
+    LwParsedLine * lines = lw_parsed_get_lines (parsed_copy, &num_lines);
+    g_assert_null (lines);
+    g_assert_cmpuint (num_lines, ==, 0);
+  }
+
+  fixture->lines = NULL;
+  g_free (preallocated_buffer);
+
+  g_object_unref (parsed_copy);
+  parsed_copy = NULL;
+}
+
+
+void
+deserialize_with_no_lines (Fixture * fixture, gconstpointer data)
+{
+  lw_parsed_set_lines (fixture->parsed, NULL, 0);
+
+  gsize length = 0;
+  gsize bytes_written = 0;
+  gsize bytes_read = 0;
+  LwParsed * parsed_copy = NULL;
+  LwProgress * progress = fixture->progress;
+  LwSerializable * serializable = NULL;
+  gchar * preallocated_buffer = NULL;
+
+  parsed_copy = lw_parsed_new (fixture->cache_file);
+  serializable = LW_SERIALIZABLE (fixture->parsed);
+  length = lw_serializable_get_serialized_length (serializable, NULL);
+  preallocated_buffer = g_new0 (gchar, length);
+  bytes_written = lw_serializable_serialize (serializable, preallocated_buffer, NULL);
+  bytes_read = lw_serializable_deserialize_into (LW_SERIALIZABLE(parsed_copy), preallocated_buffer, length, progress);
+
+  g_assert_cmpint (length, ==, 8);
+  g_assert_cmpint (bytes_read, ==, 8);
+  
+  gint i = 0;
+  gint expected_steps[] = {0, 100};
+  g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+  for (i = 0; i < fixture->steps->len; i++)
+  {
+    g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+  }
+  g_assert_no_error (lw_progress_get_error (progress));
+
+  fixture->lines = NULL;
+  g_free (preallocated_buffer);
+
+  g_object_unref (parsed_copy);
+  parsed_copy = NULL;
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
     g_test_add ("/set_lines", Fixture, NULL, setup, set_lines, teardown);
+
     g_test_add ("/foreach/copy_all_lines", Fixture, NULL, setup, foreach_copy_all_lines, teardown);
     g_test_add ("/foreach/copy_half_lines", Fixture, NULL, setup, foreach_copy_half_lines, teardown);
 
@@ -638,9 +796,12 @@ main (gint argc, gchar *argv[])
     g_test_add ("/serialize_with_no_lines", Fixture, NULL, setup, serialize_with_no_lines, teardown);
     g_test_add ("/serialize_where_cancelled_halfway", Fixture, NULL, setup, serialize_where_cancelled_halfway, teardown);
 
-    g_test_add ("/deserialize", Fixture, NULL, setup, deserialize_with_valid_data, teardown);
+    g_test_add ("/deserialize/with_valid_data", Fixture, NULL, setup, deserialize_with_valid_data, teardown);
     g_test_add ("/deserialize/has_less_lines_than_stated", Fixture, NULL, setup, deserialize_has_less_lines_than_stated, teardown);
     g_test_add ("/deserialize/has_more_lines_than_stated", Fixture, NULL, setup, deserialize_has_more_lines_than_stated, teardown);
+    g_test_add ("/deserialize/with_no_progress", Fixture, NULL, setup, deserialize_with_no_progress, teardown);
+    g_test_add ("/deserialize/with_no_lines", Fixture, NULL, setup, deserialize_with_no_lines, teardown);
+    g_test_add ("/deserialize/where_cancelled_halfway", Fixture, NULL, setup, deserialize_where_cancelled_halfway, teardown);
 
     return g_test_run();
 }

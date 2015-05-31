@@ -268,7 +268,7 @@ errored:
 /**
  * lw_parsed_set_lines:
  * @self: A #LwParsed
- * @lines: (full transfere): An array of lines to set
+ * @lines: (transfer full): An array of lines to set
  * @num_lines: The number of lines in @lines
  */
 void
@@ -277,7 +277,7 @@ lw_parsed_set_lines (LwParsed         * self,
                      gsize              num_lines)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_PARSED (self), NULL);
+    g_return_if_fail (LW_IS_PARSED (self));
 
     //Declarations
     LwParsedPrivate *priv = NULL;
@@ -303,6 +303,31 @@ lw_parsed_set_lines (LwParsed         * self,
 errored:
 
     return;
+}
+
+
+/**
+ * lw_parsed_get_lines:
+ * @self: A #LwParsed
+ * @num_lines_out: (transfer out): A pointer to write the number of lines or %NULL
+ * Returns: an array of #LwParsedLines or %NULL
+ */
+LwParsedLine *
+lw_parsed_get_lines (LwParsed * self,
+                     gsize    * num_lines_out)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_PARSED (self), NULL);
+
+    //Declarations
+    LwParsedPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    if (num_lines_out != NULL) *num_lines_out = priv->num_lines;
+
+    return priv->lines;
 }
 
 
@@ -353,21 +378,15 @@ _serialize (LwParsed              * self,
     }
     bytes_written = lw_parsedline_serialize (parsed_line, contents, write_pointer, &data->error);
     data->write_pointer += bytes_written;
+
     if (data->progress != NULL)
     {
+      data->chunk += bytes_written;
       if (G_UNLIKELY (data->chunk >= data->chunk_size))
       {
-        data->chunk = 0;
         lw_progress_set_current (data->progress, data->write_pointer - data->buffer);
+        data->chunk = 0;
       }
-      else
-      {
-        data->chunk += bytes_written;
-      }
-    }
-    if (data->error != NULL)
-    {
-      goto errored;
     }
 
 errored:
@@ -418,6 +437,7 @@ lw_parsed_serialize (LwSerializable * serializable,
 
       gsize total = data.write_pointer - data.buffer + (priv->num_lines * sizeof(LwParsedLine));
       lw_progress_set_total (progress, total);
+      lw_progress_set_current (progress, 0);
       lw_progress_set_current (progress, data.write_pointer - data.buffer);
     }
 
@@ -461,14 +481,11 @@ _deserialize (LwParsed                * self,
 
     if (data->progress != NULL)
     {
+      data->chunk += bytes_read;
       if (G_UNLIKELY (data->chunk >= data->chunk_size))
       {
         lw_progress_set_current (data->progress, data->read_pointer - data->serialized_data);
         data->chunk = 0;
-      }
-      else
-      {
-        data->chunk += bytes_read;
       }
     }
 
@@ -522,6 +539,7 @@ lw_parsed_deserialize_into (LwSerializable * serializable,
     if (progress != NULL)
     {
       lw_progress_set_total (progress, serialized_length);
+      lw_progress_set_current (progress, 0);
       lw_progress_set_current (progress, data.read_pointer - data.serialized_data);
       lw_progress_set_secondary_message (progress, "Deserializing...");
     }
@@ -531,41 +549,31 @@ lw_parsed_deserialize_into (LwSerializable * serializable,
     lines = NULL;
 
     lw_parsed_foreach (self, (LwParsedForeachFunc) _deserialize, &data);
+    if (data.error != NULL) goto errored;
+
+    if (data.read_pointer - data.serialized_data != serialized_length)
+    {
+      g_set_error (
+        &data.error,
+        LW_PARSED_ERROR,
+        LW_PARSED_ERRORCODE_DESERIALIZATION_ERROR,
+        "Expected %d lines, but file had %d lines", 
+        data.read_pointer - data.serialized_data, serialized_length
+      );
+      goto errored;
+    }
+
+errored:
+
     if (data.error != NULL)
     {
+      lw_parsed_set_lines (self, NULL, 0);
       if (progress != NULL)
       {
         lw_progress_take_error (progress, data.error);
         data.error = NULL;
       }
       g_clear_error (&data.error);
-      goto errored;
-    }
-
-    if (data.read_pointer - data.serialized_data != serialized_length)
-    {
-      GError * error = NULL;
-      g_set_error (
-        &error,
-        LW_PARSED_ERROR,
-        LW_PARSED_ERRORCODE_DESERIALIZATION_ERROR,
-        "Expected %d lines, but file had %d lines", 
-        data.read_pointer - data.serialized_data, serialized_length
-      );
-      lw_progress_take_error (progress, error);
-      error = NULL;
-    }
-
-errored:
-
-    if (lines != NULL)
-    {
-      gint i = 0;
-      for (i = 0; i < num_lines; i++)
-      {
-        lw_parsedline_clear (lines + i);
-      }
-      g_free (lines); lines = NULL;
     }
 
     return data.read_pointer - data.serialized_data;

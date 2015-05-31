@@ -48,6 +48,7 @@ void lw_parsed_foreach (LwParsed *self, LwParsedForeachFunc func, gpointer data)
 LwParsedLine* lw_parsed_get_line (LwParsed *self, gsize line_number);
 
 void lw_parsed_set_lines (LwParsed *self, LwParsedLine *lines, gsize num_lines);
+LwParsedLine * lw_parsed_get_lines (LwParsed * self, gsize * num_lines_out);
 
 gsize lw_parsed_num_lines (LwParsed * self);
 
