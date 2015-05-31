@@ -48,16 +48,29 @@ G_DEFINE_TYPE (LwParsed, lw_parsed, LW_TYPE_SERIALIZABLE)
 
 
 struct _SerializeData {
-  gchar *buffer;
-  gchar *write_pointer;
-  GError *error;
+  gchar * buffer;
+  gchar * write_pointer;
+  LwProgress * progress;
+  GError * error;
+  gsize chunk;
+  gsize chunk_size;
 };
 
 struct _DeserializeData {
-  gchar const *serialized_data;
-  gchar const *read_pointer;
-  GError *error;
+  gchar const * serialized_data;
+  gchar const * read_pointer;
+  LwProgress * progress;
+  GError * error;
+  gsize chunk;
+  gsize chunk_size;
 };
+
+
+GQuark
+lw_parsed_error_quark ()
+{
+    return g_quark_from_static_string ("lw-parsed-error");
+}
 
 
 /**
@@ -160,7 +173,7 @@ lw_parsed_get_property (GObject      * object,
 
 
 static void
-lw_parsed_class_init (LwParsedClass *klass)
+lw_parsed_class_init (LwParsedClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
@@ -198,9 +211,9 @@ lw_parsed_class_init (LwParsedClass *klass)
  * @data: Data to pass to the @func
  */
 void
-lw_parsed_foreach (LwParsed            *self,
-                   LwParsedForeachFunc  func,
-                   gpointer             data)
+lw_parsed_foreach (LwParsed            * self,
+                   LwParsedForeachFunc   func,
+                   gpointer              data)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_PARSED (self));
@@ -216,7 +229,7 @@ lw_parsed_foreach (LwParsed            *self,
 
     while (i < priv->num_lines && !has_error)
     {
-      has_error = func(self, priv->lines + i, data);
+      has_error = func (self, priv->lines + i, data);
       i++;
     }
 }
@@ -299,7 +312,7 @@ errored:
  * Returns: The number of lines stored in #LwParsed
  */
 gsize
-lw_parsed_num_lines (LwParsed *self)
+lw_parsed_num_lines (LwParsed * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_PARSED (self), 0);
@@ -323,6 +336,7 @@ _serialize (LwParsed              * self,
     g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
     g_return_val_if_fail (parsed_line != NULL, TRUE);
     g_return_val_if_fail (data != NULL, TRUE);
+    if (data->progress != NULL && lw_progress_should_abort (data->progress)) return TRUE;
 
     //Declarations
     LwParsedPrivate *priv = NULL;
@@ -339,6 +353,18 @@ _serialize (LwParsed              * self,
     }
     bytes_written = lw_parsedline_serialize (parsed_line, contents, write_pointer, &data->error);
     data->write_pointer += bytes_written;
+    if (data->progress != NULL)
+    {
+      if (G_UNLIKELY (data->chunk >= data->chunk_size))
+      {
+        data->chunk = 0;
+        lw_progress_set_current (data->progress, data->write_pointer - data->buffer);
+      }
+      else
+      {
+        data->chunk += bytes_written;
+      }
+    }
     if (data->error != NULL)
     {
       goto errored;
@@ -364,12 +390,36 @@ lw_parsed_serialize (LwSerializable * serializable,
     struct _SerializeData data = {
       .buffer = preallocated_buffer,
       .write_pointer = preallocated_buffer,
+      .progress = progress,
+      .chunk = 0,
+      .chunk_size = 0,
     };
+    if (progress != NULL)
+    {
+      data.chunk_size = lw_progress_get_chunk_size (progress);
+    }
+
+    priv = self->priv;
 
     //Copy the number of LwParsedLines
-    priv = self->priv;
     if (data.buffer != NULL) memcpy(data.write_pointer, &priv->num_lines, sizeof(gsize));
     data.write_pointer += sizeof(gsize);
+
+    if (progress != NULL)
+    {
+      if (data.buffer == NULL)
+      {
+        lw_progress_set_secondary_message (progress, "Calculating serialized size..");
+      }
+      else
+      {
+        lw_progress_set_secondary_message (progress, "Serializing...");
+      }
+
+      gsize total = data.write_pointer - data.buffer + (priv->num_lines * sizeof(LwParsedLine));
+      lw_progress_set_total (progress, total);
+      lw_progress_set_current (progress, data.write_pointer - data.buffer);
+    }
 
     //Copy the individual seriallized LwParsedLine contents
     lw_parsed_foreach (self, (LwParsedForeachFunc) _serialize, &data);
@@ -389,6 +439,7 @@ _deserialize (LwParsed                * self,
     g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
     g_return_val_if_fail (parsed_line != NULL, TRUE);
     g_return_val_if_fail (data != NULL, TRUE);
+    if (data->progress != NULL && lw_progress_should_abort (data->progress)) return TRUE;
 
     //Declarations
     LwParsedPrivate *priv = NULL;
@@ -406,9 +457,22 @@ _deserialize (LwParsed                * self,
       goto errored;
     }
 
-errored:
-
     data->read_pointer += bytes_read;
+
+    if (data->progress != NULL)
+    {
+      if (G_UNLIKELY (data->chunk >= data->chunk_size))
+      {
+        lw_progress_set_current (data->progress, data->read_pointer - data->serialized_data);
+        data->chunk = 0;
+      }
+      else
+      {
+        data->chunk += bytes_read;
+      }
+    }
+
+errored:
 
     return (data->error != NULL);
 }
@@ -437,8 +501,15 @@ lw_parsed_deserialize_into (LwSerializable * serializable,
     struct _DeserializeData data = {
       .serialized_data = serialized_data,
       .read_pointer = serialized_data,
-      .error = NULL
+      .progress = progress,
+      .error = NULL,
+      .chunk = 0,
+      .chunk_size = 0,
     };
+    if (progress != NULL)
+    {
+      data.chunk_size = lw_progress_get_chunk_size (progress);
+    }
 
     //Initializations
     priv = self->priv;
@@ -447,6 +518,13 @@ lw_parsed_deserialize_into (LwSerializable * serializable,
 
     memcpy(&num_lines, data.read_pointer, sizeof(gsize));
     data.read_pointer += sizeof(gsize);
+
+    if (progress != NULL)
+    {
+      lw_progress_set_total (progress, serialized_length);
+      lw_progress_set_current (progress, data.read_pointer - data.serialized_data);
+      lw_progress_set_secondary_message (progress, "Deserializing...");
+    }
 
     lines = g_new0 (LwParsedLine, num_lines);
     lw_parsed_set_lines (self, lines, num_lines);
@@ -462,6 +540,20 @@ lw_parsed_deserialize_into (LwSerializable * serializable,
       }
       g_clear_error (&data.error);
       goto errored;
+    }
+
+    if (data.read_pointer - data.serialized_data != serialized_length)
+    {
+      GError * error = NULL;
+      g_set_error (
+        &error,
+        LW_PARSED_ERROR,
+        LW_PARSED_ERRORCODE_DESERIALIZATION_ERROR,
+        "Expected %d lines, but file had %d lines", 
+        data.read_pointer - data.serialized_data, serialized_length
+      );
+      lw_progress_take_error (progress, error);
+      error = NULL;
     }
 
 errored:

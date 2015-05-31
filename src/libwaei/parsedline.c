@@ -117,7 +117,8 @@ lw_parsedline_init (LwParsedLine *self)
  * A version of lw_parsedline_init() that allows you to pass a destroy_notify_func to cleanup the strvs.
  */
 void
-lw_parsedline_init_full (LwParsedLine *self, GDestroyNotify destroy_notify_func)
+lw_parsedline_init_full (LwParsedLine   * self,
+                         GDestroyNotify   destroy_notify_func)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
@@ -134,7 +135,7 @@ lw_parsedline_init_full (LwParsedLine *self, GDestroyNotify destroy_notify_func)
  * Clears internal memory of the #LwParsedLine, calling the @destroy_notify_func from lw_parsedliine_init_full on each strv if it was set.
  */
 void
-lw_parsedline_clear (LwParsedLine *self)
+lw_parsedline_clear (LwParsedLine * self)
 {
     //Sanity checks
     if (self == NULL) return;
@@ -158,9 +159,9 @@ lw_parsedline_clear (LwParsedLine *self)
  * @strv: A %NULL terminated array of strings to set to the column id.  It is stored directly and not copied.
  */
 void
-lw_parsedline_set_strv (LwParsedLine  *self,
-                         gint           id,
-                         gchar        **strv)
+lw_parsedline_set_strv (LwParsedLine  *  self,
+                         gint            id,
+                         gchar        ** strv)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
@@ -185,8 +186,8 @@ lw_parsedline_set_strv (LwParsedLine  *self,
  * Returns: The strv stored at @id or %NULL if it doesn't exist
  */
 gchar const * *
-lw_parsedline_get_strv (LwParsedLine *self,
-                        gint          id)
+lw_parsedline_get_strv (LwParsedLine * self,
+                        gint           id)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
@@ -210,7 +211,7 @@ lw_parsedline_get_strv (LwParsedLine *self,
  * Returns: The calculated length of the data it it is serialized.
  */
 gsize
-lw_parsedline_get_serialized_length (LwParsedLine *self)
+lw_parsedline_get_serialized_length (LwParsedLine * self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
@@ -377,10 +378,10 @@ _merge_base_and_validate (gchar       ** strv,
  * Returns: The bytes read from @serialized_data to build the #LwParsedLine
  */
 gsize
-lw_parsedline_deserialize_into (LwParsedLine  *self,
-                                gchar const   *serialized_data,
-                                gchar const   *contents_reference_point,
-                                GError       **error)
+lw_parsedline_deserialize_into (LwParsedLine  * self,
+                                gchar const   * serialized_data,
+                                gchar const   * contents_reference_point,
+                                GError       ** error)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
@@ -497,7 +498,9 @@ _foreach (gpointer key,
  * A foreach helper to run a method against each column id stored in #LwParsedLine.
  */
 void
-lw_parsedline_foreach (LwParsedLine * self, LwParsedLineForeachFunc func, gpointer data)
+lw_parsedline_foreach (LwParsedLine            * self,
+                       LwParsedLineForeachFunc   func,
+                       gpointer                  data)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);

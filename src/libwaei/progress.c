@@ -1027,8 +1027,8 @@ lw_progress_set_error (LwProgress *self,
  * checked with the lw_progress_should_abort() method.
  */
 void
-lw_progress_take_error (LwProgress *self,
-                        GError     *error)
+lw_progress_take_error (LwProgress * self,
+                        GError     * error)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_PROGRESS (self));

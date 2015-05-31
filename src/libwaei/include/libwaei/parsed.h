@@ -7,6 +7,9 @@
 
 G_BEGIN_DECLS
 
+#define LW_PARSED_ERROR lw_parsed_error_quark ()
+GQuark lw_parsed_error_quark (void);
+
 //Boilerplate
 typedef struct _LwParsed LwParsed;
 typedef struct _LwParsedClass LwParsedClass;
@@ -30,6 +33,10 @@ struct _LwParsedClass {
   LwParsedClassPrivate *priv;
 };
 
+typedef enum {
+  LW_PARSED_ERRORCODE_DESERIALIZATION_ERROR,
+  TOTAL_LW_PARSED_ERRORCODES,
+} LwParsedErrorCode;
 
 typedef gboolean (*LwParsedForeachFunc) (LwParsed *self, LwParsedLine *line, gpointer user_data);
 
