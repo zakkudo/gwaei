@@ -213,17 +213,17 @@ lw_application_load_dictionarymodules (LwApplication * self)
     GList *names = NULL;
 
     //Initializations
-    names = lw_dictionarymodule_get_available ();
+    names = lw_dictionarymodule_get_available (NULL);
 
     for (link = names; link != NULL; link = link->next)
     {
       gchar const *NAME = link->data;
-      GTypeModule *m = lw_dictionarymodule_new (NAME);
-      if (m != NULL)
+      GTypeModule *module = lw_dictionarymodule_new (NAME);
+      if (module != NULL)
       {
-        lw_application_add_dictionarymodule (self, LW_DICTIONARYMODULE (m));
-        g_object_unref (m);
-        m = NULL;
+        lw_application_add_dictionarymodule (self, LW_DICTIONARYMODULE (module));
+        g_object_unref (module);
+        module = NULL;
       }
     }
 

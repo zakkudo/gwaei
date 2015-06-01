@@ -7,13 +7,15 @@ G_BEGIN_DECLS
 
 typedef enum {
   PROP_0,
+  PROP_PATH,
   PROP_NAME,
   TOTAL_PROPS
 } Props;
 
 
 struct _LwDictionaryModulePrivate {
-  gchar *name;
+  gchar * path;
+  gchar * name;
   GModule *module;
 };
 
@@ -24,8 +26,6 @@ struct _LwDictionaryModuleClassPrivate {
 #define LW_DICTIONARYMODULE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYMODULE, LwDictionaryModulePrivate));
 
 //Properties
-
-static void lw_dictionarymodule_set_name (LwDictionaryModule * self, gchar const * NAME);
 
 static gboolean lw_dictionarymodule_load (GTypeModule *module);
 static void lw_dictionarymodule_unload (GTypeModule *module);

@@ -32,12 +32,15 @@ struct _LwDictionaryModuleClass {
 
 
 //Methods
-GTypeModule* lw_dictionarymodule_new (const gchar *NAME);
+GTypeModule* lw_dictionarymodule_new (const gchar *PATH);
 GType lw_dictionarymodule_get_type (void) G_GNUC_CONST;
 
-GList * lw_dictionarymodule_get_available (void);
+GList * lw_dictionarymodule_get_available (gchar const * SEARCHPATH);
 
-gchar const * lw_dictionarymodule_get_name (LwDictionaryModule *self);
+void lw_dictionarymodule_set_path (LwDictionaryModule * self, gchar const * PATH);
+gchar const * lw_dictionarymodule_get_path (LwDictionaryModule * self);
+
+gchar const * lw_dictionarymodule_get_name (LwDictionaryModule * self);
 
 G_END_DECLS
 

@@ -41,16 +41,13 @@
 G_DEFINE_TYPE (LwDictionaryModule, lw_dictionarymodule, G_TYPE_TYPE_MODULE)
 
 GTypeModule *
-lw_dictionarymodule_new (gchar const * NAME)
+lw_dictionarymodule_new (gchar const * PATH)
 {
-    //Sanity checks
-    g_return_val_if_fail (NAME != NULL, NULL);
-
     //Declarations
     GTypeModule *self = NULL;
 
     //Initializations
-    self = G_TYPE_MODULE (g_object_new (LW_TYPE_DICTIONARYMODULE, "name", NAME, NULL));
+    self = G_TYPE_MODULE (g_object_new (LW_TYPE_DICTIONARYMODULE, "path", PATH, NULL));
 
     g_type_module_use (self);
     g_type_module_unuse (self);
@@ -60,7 +57,7 @@ lw_dictionarymodule_new (gchar const * NAME)
 
 
 static void
-lw_dictionarymodule_init (LwDictionaryModule *self)
+lw_dictionarymodule_init (LwDictionaryModule * self)
 {
     self->priv = LW_DICTIONARYMODULE_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwDictionaryModulePrivate));
@@ -72,10 +69,10 @@ lw_dictionarymodule_init (LwDictionaryModule *self)
 
 
 static void 
-lw_dictionarymodule_set_property (GObject      *object,
-                                  guint         property_id,
-                                  const GValue *value,
-                                  GParamSpec   *pspec)
+lw_dictionarymodule_set_property (GObject      * object,
+                                  guint          property_id,
+                                  const GValue * value,
+                                  GParamSpec   * pspec)
 {
     //Declarations
     LwDictionaryModule *self = NULL;
@@ -87,8 +84,8 @@ lw_dictionarymodule_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_NAME:
-        lw_dictionarymodule_set_name (self, g_value_get_string (value));
+      case PROP_PATH:
+        lw_dictionarymodule_set_path (self, g_value_get_string (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -98,10 +95,10 @@ lw_dictionarymodule_set_property (GObject      *object,
 
 
 static void 
-lw_dictionarymodule_get_property (GObject    *object,
-                                  guint       property_id,
-                                  GValue     *value,
-                                  GParamSpec *pspec)
+lw_dictionarymodule_get_property (GObject    * object,
+                                  guint        property_id,
+                                  GValue     * value,
+                                  GParamSpec * pspec)
 {
     //Declarations
     LwDictionaryModule *self = NULL;
@@ -113,6 +110,9 @@ lw_dictionarymodule_get_property (GObject    *object,
 
     switch (property_id)
     {
+      case PROP_PATH:
+        g_value_set_string (value, lw_dictionarymodule_get_path (self));
+        break;
       case PROP_NAME:
         g_value_set_string (value, lw_dictionarymodule_get_name (self));
         break;
@@ -124,7 +124,7 @@ lw_dictionarymodule_get_property (GObject    *object,
 
 
 static void 
-lw_dictionarymodule_finalize (GObject *object)
+lw_dictionarymodule_finalize (GObject * object)
 {
     //Declarations
     LwDictionaryModule *self = NULL;
@@ -140,7 +140,7 @@ lw_dictionarymodule_finalize (GObject *object)
 
 
 static void
-lw_dictionarymodule_dispose (GObject *object)
+lw_dictionarymodule_dispose (GObject * object)
 {
     //Declarations
     LwDictionaryModule *self = NULL;
@@ -153,7 +153,7 @@ lw_dictionarymodule_dispose (GObject *object)
 
 
 static void
-lw_dictionarymodule_class_init (LwDictionaryModuleClass *klass)
+lw_dictionarymodule_class_init (LwDictionaryModuleClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
@@ -175,12 +175,33 @@ lw_dictionarymodule_class_init (LwDictionaryModuleClass *klass)
 
     klass->priv->pspec[PROP_NAME] = g_param_spec_string (
         "name",
-        "Dictionary Module Name",
-        "The name of the dictionary module to load.",
+        gettext("Name"),
+        gettext("Type name for the module"),
         NULL,
-        G_PARAM_CONSTRUCT | G_PARAM_READABLE
+        G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_NAME, klass->priv->pspec[PROP_NAME]);
+
+    klass->priv->pspec[PROP_PATH] = g_param_spec_string (
+        "path",
+        gettext("Path"),
+        gettext("File path of the module"),
+        NULL,
+        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_PATH, klass->priv->pspec[PROP_PATH]);
+}
+
+
+gchar **
+lw_dictionarymodule_get_dictionarylib_searchpath (gchar const * SEARCHPATH)
+{
+    if (SEARCHPATH == NULL)
+    {
+      SEARCHPATH = g_getenv ("DICTIONARYLIB_SEARCHPATH");
+    }
+
+    return g_strsplit (SEARCHPATH, G_SEARCHPATH_SEPARATOR_S, 0);
 }
 
 
@@ -189,24 +210,20 @@ lw_dictionarymodule_open (LwDictionaryModule *self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYMODULE (self));
+    if (self->priv->path == NULL) return;
 
     //Declarations
     LwDictionaryModulePrivate *priv = NULL;
-    gchar * path = NULL;
     GModule * module = NULL;
 
     //Initializations
     priv = self->priv;
-    path = g_module_build_path (DICTIONARYLIBDIR, priv->name);
-    if (path == NULL) goto errored;
-    module = g_module_open (path, G_MODULE_BIND_LAZY);
+    module = g_module_open (priv->path, G_MODULE_BIND_LAZY);
 
     priv->module = module;
     module = NULL;
 
 errored:
-
-    g_free (path); path = NULL;
 
     return;
 }
@@ -290,7 +307,7 @@ lw_dictionarymodule_unload (GTypeModule *module)
     g_return_if_fail (LW_IS_DICTIONARYMODULE (module));
 
     //Declarations
-    LwDictionaryModule *self = NULL;
+    LwDictionaryModule * self = NULL;
 
     //Initializations
     self = LW_DICTIONARYMODULE (module);
@@ -299,27 +316,87 @@ lw_dictionarymodule_unload (GTypeModule *module)
 }
 
 
-static void
-lw_dictionarymodule_set_name (LwDictionaryModule * self,
-                              gchar const        * NAME)
+gchar const *
+lw_dictionarymodule_get_name (LwDictionaryModule * self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYMODULE (self));
-    g_return_if_fail (NAME != NULL);
 
     //Declarations
-    LwDictionaryModulePrivate *priv = NULL;
-    LwDictionaryModuleClass *klass = NULL;
+    LwDictionaryModulePrivate * priv = NULL;
 
     //Initializations
     priv = self->priv;
-    if (g_strcmp0 (priv->name, NAME) == 0) goto errored;
+
+    return priv->name;
+}
+
+
+static void
+lw_dictionarymodule_sync_name (LwDictionaryModule * self)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYMODULE (self));
+
+    //Declarations
+    LwDictionaryModulePrivate * priv = NULL;
+    gchar * modulename = NULL;
+    gchar * name = NULL;
+
+    //Initializations
+    modulename = g_path_get_basename (priv->path);
+    if (modulename == NULL) goto errored;
+
+    if (g_str_has_suffix (modulename, ".la"))
+    {
+      modulename[strlen(modulename) - strlen(".la")] = '\0';
+    }
+
+    if (g_str_has_prefix (modulename, "lib"))
+    {
+      name = g_strdup (modulename + strlen("lib"));
+    }
+    if (name == NULL) goto errored;
+
+    g_type_module_set_name (G_TYPE_MODULE (self), modulename);
+
+    priv->name = name;
+    name = NULL;
+
+errored:
+
+    g_free (modulename);
+    modulename = NULL;
+
+    g_free (name);
+    name = NULL;
+}
+
+
+void
+lw_dictionarymodule_set_path (LwDictionaryModule * self,
+                              gchar const        * PATH)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARYMODULE (self));
+    if (self->priv->path != NULL) return;
+    
+    //Declarations
+    LwDictionaryModulePrivate * priv = NULL;
+    LwDictionaryModuleClass * klass = NULL;
+    gboolean changed = FALSE;
+
+    //Initializations
+    priv = self->priv;
     klass = LW_DICTIONARYMODULE_GET_CLASS (self);
     
-    g_free (priv->name);
-    priv->name = g_strdup (NAME);
+    if (g_strcmp0 (priv->path, PATH) == 0) goto errored;
 
-    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_NAME]);
+    g_free (priv->path);
+    priv->path = g_strdup (PATH);
+
+    lw_dictionarymodule_sync_name (self);
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_PATH]);
 
 errored:
 
@@ -328,52 +405,77 @@ errored:
 
 
 gchar const *
-lw_dictionarymodule_get_name (LwDictionaryModule *self)
+lw_dictionarymodule_get_path (LwDictionaryModule * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYMODULE (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYMODULE (self), NULL);
 
     //Declarations
-    LwDictionaryModulePrivate *priv = NULL;
+    LwDictionaryModulePrivate * priv = NULL;
 
     //Initializations
     priv = self->priv;
-    
-    return priv->name;
+
+    return priv->path;
 }
 
 
 GList *
-lw_dictionarymodule_get_available ()
+lw_dictionarymodule_get_available (gchar const * SEARCHPATH)
 {
+    //Sanity checks
+    g_return_val_if_fail (SEARCHPATH != NULL, NULL);
+
     //Declarations
     GList *names = NULL;
     gchar const * NAME = NULL;
     GDir *directory = NULL;
     GError *error = NULL;
     gint length = 0;
+    gchar ** paths = NULL;
+    gint i = 0;
 
     //Initializations
-    directory = g_dir_open (DICTIONARYLIBDIR, 0, &error);
-    if (directory == NULL) goto errored;
+    paths = lw_dictionarymodule_get_dictionarylib_searchpath (SEARCHPATH);
+    if (paths == NULL) goto errored;
 
-    while ((NAME = g_dir_read_name (directory)) != NULL)
+    for (i = 0; paths[i] != NULL; i++)
     {
-      length = strlen(NAME);
+      directory = g_dir_open (paths[i], 0, &error);
+      if (directory == NULL) continue;
 
-      if (!g_str_has_prefix (NAME, "lib")) continue;
-      length -= strlen("lib");
+      while ((NAME = g_dir_read_name (directory)) != NULL)
+      {
+        length = strlen(NAME);
 
-      if (!g_str_has_suffix (NAME, G_MODULE_SUFFIX)) continue;
-      length -= strlen(".") + strlen(G_MODULE_SUFFIX);
+        if (!g_str_has_prefix (NAME, "lib")) continue;
+        length -= strlen("lib");
 
-      if (length < 1) continue;
+        if (!g_str_has_suffix (NAME, G_MODULE_SUFFIX)) continue;
+        length -= strlen(".") + strlen(G_MODULE_SUFFIX);
 
-      gchar *n = g_strndup (NAME + strlen("lib"), length);
-      if (n == NULL) continue;
+        if (length < 1) continue;
 
-      names = g_list_prepend (names, n);
-      n = NULL;
+        gchar * n = g_strndup (NAME + strlen("lib"), length);
+        if (n != NULL)
+        {
+          gchar * path = g_build_filename (paths[i], n, NULL);
+          if (path != NULL && g_file_test (path, G_FILE_TEST_IS_REGULAR))
+          {
+            names = g_list_prepend (names, path);
+            path = NULL;
+          }
+
+          g_free (path);
+          path = NULL;
+
+          g_free (n);
+          n = NULL;
+        }
+      }
+
+      g_dir_close (directory);
+      directory = NULL;
     }
 
 errored:
