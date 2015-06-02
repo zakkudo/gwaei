@@ -19,9 +19,30 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//! @file dictionarymodule.c
-//!
+/**
+ * SECTION:dictionarymodule
+ * @short_description: Methods for dynamically loading libwaei dictionaries
+ * @title: LwDictionaryModule
+ *
+ * #LwDictionaryModule allows dynamic loading and unloading of #LwDictionarys separate
+ * from the libwaei core.  This brings support for third party dictionaries and allows
+ * for smarter memory management, only loading the memory for the dictionaries that 
+ * are actually used.  Below is a very basic example of loading modules:
+ *
+ * |[<!-- langauge="c" -->
+ * LwDictionaryModuleReader * reader = lw_dictionarymodulereader_open (NULL);
+ * if (reader != NULL)
+ * {
+ *   gchar const * path = NULL;
+ *   GList * modules = NULL;
+ *   while ((path = lw_dictionarymodulereader_read_path (reader)) != NULL)
+ *   {
+ *     modules = g_list_prepend (modules, lw_dictionarymodule_new (path));
+ *   }
+ *   lw_dictionarymodulereader_close (reader);
+ * }
+ * ]|
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
