@@ -1,5 +1,5 @@
 
-SUBDIRS = include/libwaei/dictionary tests
+SUBDIRS = include/libwaei/dictionary
 
 LIBRARY_VERSION = 1:0:0
 ACLOCAL_AMFLAGS = -I m4

@@ -31,16 +31,26 @@ struct _LwDictionaryModuleClass {
 };
 
 
+struct _LwDictionaryModuleReader {
+  gchar ** paths;
+  GDir * dir;
+  gint i;
+};
+typedef struct _LwDictionaryModuleReader LwDictionaryModuleReader;
+
+LwDictionaryModuleReader * lw_dictionarymodulereader_open (gchar const * SEARCHPATH_OVERRIDE);
+void lw_dictionarymodulereader_close (LwDictionaryModuleReader * self);
+gchar * lw_dictionarymodulereader_read_path (LwDictionaryModuleReader * self);
+
 //Methods
 GTypeModule* lw_dictionarymodule_new (const gchar *PATH);
 GType lw_dictionarymodule_get_type (void) G_GNUC_CONST;
-
-GList * lw_dictionarymodule_get_available (gchar const * SEARCHPATH);
 
 void lw_dictionarymodule_set_path (LwDictionaryModule * self, gchar const * PATH);
 gchar const * lw_dictionarymodule_get_path (LwDictionaryModule * self);
 
 gchar const * lw_dictionarymodule_get_name (LwDictionaryModule * self);
+gchar ** lw_dictionarymodule_get_dictionarylib_searchpath (gchar const * SEARCHPATH_OVERRIDE);
 
 G_END_DECLS
 

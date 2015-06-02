@@ -213,6 +213,7 @@ lw_application_load_dictionarymodules (LwApplication * self)
     GList *names = NULL;
 
     //Initializations
+/*TODO
     names = lw_dictionarymodule_get_available (NULL);
 
     for (link = names; link != NULL; link = link->next)
@@ -226,6 +227,7 @@ lw_application_load_dictionarymodules (LwApplication * self)
         module = NULL;
       }
     }
+*/
 
 errored:
 
