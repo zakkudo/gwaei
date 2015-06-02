@@ -15,14 +15,14 @@ void setup (Fixture *fixture, gconstpointer data)
 
 void teardown (Fixture *fixture, gconstpointer data)
 {
-  if (fixture->dictionary != NULL) g_object_unref (fixture->dictionary);
+  //if (fixture->dictionary != NULL) g_object_unref (fixture->dictionary);
 }
 
 
 void
 test (Fixture * fixture, gconstpointer data)
 {
-  fixture->dictionary = lw_dictionary_new (LW_TYPE_EDICTIONARY, "test");
+  //fixture->dictionary = lw_dictionary_new (LW_TYPE_EDICTIONARY, "test");
 }
 
 gint
