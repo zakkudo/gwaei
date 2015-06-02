@@ -18,8 +18,6 @@ typedef struct _LwDictionaryModuleClassPrivate LwDictionaryModuleClassPrivate;
 #define LW_IS_DICTIONARYMODULE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARYMODULE))
 #define LW_DICTIONARYMODULE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARYMODULE, LwDictionaryModuleClass))
 
-typedef GType (*LwDictionaryModuleRegisterTypeFunc)(GTypeModule * self);
-
 struct _LwDictionaryModule {
   GTypeModule object;
   LwDictionaryModulePrivate *priv;
@@ -31,11 +29,6 @@ struct _LwDictionaryModuleClass {
 };
 
 
-struct _LwDictionaryModuleReader {
-  gchar ** paths;
-  GDir * dir;
-  gint i;
-};
 typedef struct _LwDictionaryModuleReader LwDictionaryModuleReader;
 
 LwDictionaryModuleReader * lw_dictionarymodulereader_open (gchar const * SEARCHPATH_OVERRIDE);

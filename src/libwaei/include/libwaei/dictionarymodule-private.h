@@ -19,6 +19,14 @@ struct _LwDictionaryModulePrivate {
   GModule *module;
 };
 
+struct _LwDictionaryModuleReader {
+  gchar ** paths;
+  GDir * dir;
+  gint i;
+};
+
+typedef GType (*LwDictionaryModuleRegisterTypeFunc)(GTypeModule * self);
+
 struct _LwDictionaryModuleClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
 };

@@ -24,10 +24,11 @@
  * @short_description: Methods for dynamically loading libwaei dictionaries
  * @title: LwDictionaryModule
  *
- * #LwDictionaryModule allows dynamic loading and unloading of #LwDictionarys separate
- * from the libwaei core.  This brings support for third party dictionaries and allows
- * for smarter memory management, only loading the memory for the dictionaries that 
- * are actually used.  Below is a very basic example of loading modules:
+ * #LwDictionaryModule allows dynamic loading and unloading of #LwDictionary classes
+ * from the type system separate from the libwaei core.  This also brings support for
+ * third party dictionaries and allows for smarter memory management, only loading
+ * the memory for the dictionaries that are actually used.  Below is a very basic
+ * example of loading modules:
  *
  * |[<!-- langauge="c" -->
  * LwDictionaryModuleReader * reader = lw_dictionarymodulereader_open (NULL);
@@ -372,7 +373,7 @@ lw_dictionarymodule_unload (GTypeModule *module)
 /**
  * lw_dictionarymodule_get_name:
  * @self: a #LwDictionaryModule
- * Returns: (transfer none): The name of the module.  Do not modify or free as it is owned by the object.
+ * Returns: (transfer none): The name of the module.  Do not modify or free as it is owned by the instance.  The name is generated automatically by the path of the module.
  */
 gchar const *
 lw_dictionarymodule_get_name (LwDictionaryModule * self)
@@ -398,10 +399,13 @@ lw_dictionarymodule_sync_name (LwDictionaryModule * self)
 
     //Declarations
     LwDictionaryModulePrivate * priv = NULL;
+    LwDictionaryModuleClass * klass = NULL;
     gchar * modulename = NULL;
     gchar * name = NULL;
 
     //Initializations
+    priv = self->priv;
+    klass = LW_DICTIONARYMODULE_GET_CLASS (self);
     modulename = g_path_get_basename (priv->path);
     if (modulename == NULL) goto errored;
 
@@ -421,6 +425,8 @@ lw_dictionarymodule_sync_name (LwDictionaryModule * self)
     priv->name = name;
     name = NULL;
 
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_NAME]);
+
 errored:
 
     g_free (modulename);
@@ -434,7 +440,7 @@ errored:
 /**
  * lw_dictionarymodule_set_path:
  * @self: A #LwDictionaryModule
- * @PATH: (transfer none): The path of the module to load.  This can only be set once on the object.
+ * @PATH: (transfer none): The path of the module to load.  This can only be set once on the object and thus is usually set in the constructor for the object.
  */
 void
 lw_dictionarymodule_set_path (LwDictionaryModule * self,
@@ -471,7 +477,7 @@ errored:
  * lw_dictionarymodule_get_path:
  * @self: A #LwDictionaryModule
  *
- * Returns: The set path of the module.  This doesn't necessarily mean it is loaded
+ * Returns: (transfer none): The set path of the module.  This doesn't necessarily mean it is loaded. This string is owned by the instance and should not be freed or modified.
  */
 gchar const *
 lw_dictionarymodule_get_path (LwDictionaryModule * self)
@@ -499,6 +505,11 @@ _is_valid_modulename (gchar const * MODULENAME)
 /**
  * lw_dictionarymodulereader_open:
  * @SEARCHPATH_OVERRIDE: (transfer none): A path override or %NULL to use the environment or builtins
+ *
+ * Opens a reader that will iterate the search paths given in @SEARCHPATH_OVERRIDE.  If @SEARCHPATH_OVERRIDE
+ * is %NULL, the reader then thecks if the DICTIONARYLIB_SEARCHPATH environmental variable is set.  If that
+ * is not set, it falls back to the paths built in on compile time.
+ * 
  * Returns: (transfer full): A new #LwDictionaryModuleReader that should be closed with lw_dictionarymodulereader_close()
  */
 LwDictionaryModuleReader *
@@ -528,7 +539,7 @@ errored:
  * lw_dictionarymodulereader_close:
  * @self: A #LwDictionaryModuleReader
  *
- * Closes an open dictionary module reader
+ * Closes an open dictionary module reader and frees any related memory.
  */
 void
 lw_dictionarymodulereader_close (LwDictionaryModuleReader * self)
@@ -549,7 +560,12 @@ lw_dictionarymodulereader_close (LwDictionaryModuleReader * self)
  * lw_dictionarymodulereader_read_path:
  * @self: A #LwDictionaryModuleReader
  *
- * Returns: A read path until the reader reaches the end. Once at the end, it will return %NULL
+ * Reads a path iteratively from the dictionary search paths on valid-looking
+ * dictionary modules.  Once the reader has read all paths, it will start
+ * returning %NULL.  When finished with the reader, it should be closed with
+ * lw_dictionarymodulereader_close().
+ *
+ * Returns: The next path from the iterater until it reaches the end. Once all paths have been read this method will return %NULL.
  */
 gchar *
 lw_dictionarymodulereader_read_path (LwDictionaryModuleReader * self)
@@ -564,21 +580,28 @@ lw_dictionarymodulereader_read_path (LwDictionaryModuleReader * self)
     while (path == NULL || (self->paths[self->i] == NULL && self->dir == NULL))
     {
       if (self->dir == NULL) self->dir = g_dir_open (self->paths[self->i], 0, NULL);
-      if (self->dir == NULL) continue;
-      if ((NAME = g_dir_read_name (self->dir)) == NULL)
+
+      if (self->dir != NULL)
+      {
+        if ((NAME = g_dir_read_name (self->dir)) == NULL)
+        {
+          self->i++;
+          g_dir_close (self->dir);
+          self->dir = NULL;
+        }
+        else if (_is_valid_modulename (NAME))
+        {
+          path = g_build_filename (self->paths[self->i], NAME, NULL);
+          if (path != NULL && !g_file_test (path, G_FILE_TEST_IS_REGULAR))
+          {
+            g_free (path);
+            path = NULL;
+          }
+        }
+      }
+      else
       {
         self->i++;
-        g_dir_close (self->dir);
-        self->dir = NULL;
-      }
-      else if (_is_valid_modulename (NAME))
-      {
-        path = g_build_filename (self->paths[self->i], NAME, NULL);
-        if (path != NULL && !g_file_test (path, G_FILE_TEST_IS_REGULAR))
-        {
-          g_free (path);
-          path = NULL;
-        }
       }
     }
 
