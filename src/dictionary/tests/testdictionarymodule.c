@@ -5,16 +5,34 @@
 #include <libwaei/dictionarymodule.h>
 
 
-struct _Fixture { LwDictionary * dictionary;};
+static gchar const * LIBRARY_NAMES[] = {
+  ".." G_DIR_SEPARATOR_S ".libs" G_DIR_SEPARATOR_S "libkanjidictionary." G_MODULE_SUFFIX,
+  ".." G_DIR_SEPARATOR_S ".libs" G_DIR_SEPARATOR_S "libradicalsdictionary." G_MODULE_SUFFIX,
+  ".." G_DIR_SEPARATOR_S ".libs" G_DIR_SEPARATOR_S "libunknowndictionary." G_MODULE_SUFFIX,
+  ".." G_DIR_SEPARATOR_S ".libs" G_DIR_SEPARATOR_S "libexampledictionary." G_MODULE_SUFFIX,
+  ".." G_DIR_SEPARATOR_S ".libs" G_DIR_SEPARATOR_S "libedictionary." G_MODULE_SUFFIX,
+  NULL
+
+};
+
+struct _Fixture { LwDictionary * dictionary; GHashTable * library_names;};
 typedef struct _Fixture Fixture;
 
 
 void setup (Fixture *fixture, gconstpointer data)
 {
+  GHashTable * library_names = g_hash_table_new (g_str_hash, g_str_equal);
+  gint i = 0;
+  for (i = 0; LIBRARY_NAMES[i] != NULL; i++)
+  {
+    g_hash_table_add (library_names, (gpointer) LIBRARY_NAMES[i]);
+  }
+  fixture->library_names = library_names;
 }
 
 void teardown (Fixture *fixture, gconstpointer data)
 {
+  g_hash_table_unref (fixture->library_names);
   //if (fixture->dictionary != NULL) g_object_unref (fixture->dictionary);
 }
 
@@ -22,8 +40,17 @@ void teardown (Fixture *fixture, gconstpointer data)
 void
 dictionarymodulereader (Fixture * fixture, gconstpointer data)
 {
-  //LwDictionaryModuleReader * reader = lw_dictionarymodulereader_open ();
-  //fixture->dictionary = lw_dictionary_new (LW_TYPE_EDICTIONARY, "test");
+  gchar * const OVERRIDE = ".." G_DIR_SEPARATOR_S ".libs";
+  gchar * path = NULL;
+  LwDictionaryModuleReader * reader = lw_dictionarymodulereader_open (OVERRIDE);
+
+  while ((path = lw_dictionarymodulereader_read_path (reader)) != NULL)
+  {
+    g_assert_cmpstr (g_hash_table_lookup (fixture->library_names, path), ==, path);
+  
+    g_free (path);
+    path = NULL;
+  }
 }
 
 
@@ -88,7 +115,7 @@ main (gint argc, gchar *argv[])
     g_test_add ("/getdictionarylib_searchpath/with_env", Fixture, NULL, setup, get_dictionarylib_searchpath_with_env, teardown);
     g_test_add ("/getdictionarylib_searchpath/with_override", Fixture, NULL, setup, get_dictionarylib_searchpath_with_override, teardown);
 
-    g_test_add ("/test", Fixture, NULL, setup, dictionarymodulereader, teardown);
+    g_test_add ("/dictionarymodulereader", Fixture, NULL, setup, dictionarymodulereader, teardown);
 
 
     return g_test_run ();

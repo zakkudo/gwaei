@@ -577,7 +577,7 @@ lw_dictionarymodulereader_read_path (LwDictionaryModuleReader * self)
     gchar const * NAME = NULL;
     gchar * path = NULL;
 
-    while (path == NULL || (self->paths[self->i] == NULL && self->dir == NULL))
+    while (path == NULL && (self->paths[self->i] != NULL || self->dir != NULL))
     {
       if (self->dir == NULL) self->dir = g_dir_open (self->paths[self->i], 0, NULL);
 

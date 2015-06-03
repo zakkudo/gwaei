@@ -141,5 +141,6 @@ testquerynodematchmarker
 testutf8
 testparsedline
 testquerynode
+testdictionarymodule
 
 *.bak
