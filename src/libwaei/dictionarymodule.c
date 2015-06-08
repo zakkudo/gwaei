@@ -273,7 +273,12 @@ lw_dictionarymodule_open (LwDictionaryModule *self)
     //Initializations
     priv = self->priv;
     module = g_module_open (priv->path, G_MODULE_BIND_LAZY);
+    if (module == NULL)
+    {
+      g_error (g_module_error());
+    }
 
+    if (priv->module != NULL) g_object_unref (priv->module);
     priv->module = module;
     module = NULL;
 
@@ -320,7 +325,10 @@ lw_dictionarymodule_register_type (LwDictionaryModule *self)
     if (priv->name == NULL) goto errored;
     symbol_name = g_strdup_printf ("lw_%s_register_type", priv->name);
     if (priv->module == NULL) goto errored;
-    g_module_symbol (priv->module, symbol_name, (gpointer*)(&register_type));
+    if (!g_module_symbol (priv->module, symbol_name, (gpointer*)(&register_type)))
+    {
+      g_error (g_module_error());
+    }
     if (register_type == NULL) goto errored;
 
     register_type (G_TYPE_MODULE (self));
@@ -345,6 +353,8 @@ lw_dictionarymodule_load (GTypeModule *module)
 
     //Initializations
     self = LW_DICTIONARYMODULE (module);
+
+    g_assert_true (g_module_supported ());
 
     lw_dictionarymodule_open (self);
 
@@ -411,7 +421,7 @@ lw_dictionarymodule_sync_name (LwDictionaryModule * self)
 
     if (g_str_has_suffix (modulename, G_MODULE_SUFFIX))
     {
-      modulename[strlen(modulename) - strlen(G_MODULE_SUFFIX)] = '\0';
+      modulename[strlen(modulename) - strlen("." G_MODULE_SUFFIX)] = '\0';
     }
 
     if (g_str_has_prefix (modulename, "lib"))

@@ -21,7 +21,7 @@ libwaei_la_SOURCES +=parsed.c parsedline.c
 libwaei_la_SOURCES +=indexed.c
 libwaei_la_SOURCES +=vocabulary.c word.c 
 libwaei_la_SOURCES +=range.c cachefile.c mappedfile.c io.c search.c preferences.c progress.c 
-libwaei_la_LDFLAGS =-version-info $(LIBRARY_VERSION)  $(LIBWAEI_LIBS)
+libwaei_la_LDFLAGS =-version-info $(LIBRARY_VERSION)  $(LIBWAEI_LIBS) -no-undefined -avoid-version
 libwaei_la_CPPFLAGS =-I$(top_srcdir)/src/libwaei/include $(LIBWAEI_CFLAGS) $(DEFINITIONS) 
 libwaei_la_LIBADD =
 
