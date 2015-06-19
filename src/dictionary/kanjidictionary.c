@@ -40,8 +40,8 @@
 #include <glib-object.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
-#include <libwaei/dictionary-private.h>
+
+#include <libwaei/dictionary.h>
 
 #include <libwaei/dictionary/kanjidictionary.h>
 
@@ -84,17 +84,16 @@ lw_kanjidictionary_constructed (GObject *object)
     }
 
     LwDictionary *dictionary;
-    LwDictionaryPrivate *priv;
+    gchar const * FILENAME = NULL;
 
     dictionary = LW_DICTIONARY (object);
-    priv = dictionary->priv;
+    FILENAME = lw_dictionary_get_filename (dictionary);
 
-    if (strcmp(priv->filename, "Kanji") == 0)
-    {
-      if (priv->name != NULL) g_free (priv->name); priv->name = NULL;
-      priv->name = g_strdup (gettext("Kanji"));
-    }
+    gchar const * BUILT_IN_NAMES[] = {
+      gettext("Kanji"),
+    };
 
+    lw_dictionary_set_name (dictionary, gettext(FILENAME));
 }
 
 
@@ -124,13 +123,13 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
     object_class->constructed = lw_kanjidictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->get_column_handling = lw_kanjidictionary_get_column_handling;
-    dictionary_class->priv->get_total_columns = lw_kanjidictionary_get_total_columns;
-    dictionary_class->priv->get_column_language = lw_kanjidictionary_get_column_language;
-    dictionary_class->priv->columnize = lw_kanjidictionary_columnize;
-    dictionary_class->priv->load_columns = lw_kanjidictionary_load_columns;
-    dictionary_class->priv->calculate_applicable_columns_for_text = lw_kanjidictionary_calculate_applicable_columns_for_text;
-    dictionary_class->priv->columnid_get_type = lw_kanjidictionary_columnid_get_type;
+    dictionary_class->get_column_handling = lw_kanjidictionary_get_column_handling;
+    dictionary_class->get_total_columns = lw_kanjidictionary_get_total_columns;
+    dictionary_class->get_column_language = lw_kanjidictionary_get_column_language;
+    dictionary_class->columnize = lw_kanjidictionary_columnize;
+    dictionary_class->load_columns = lw_kanjidictionary_load_columns;
+    dictionary_class->calculate_applicable_columns_for_text = lw_kanjidictionary_calculate_applicable_columns_for_text;
+    dictionary_class->columnid_get_type = lw_kanjidictionary_columnid_get_type;
 }
 
 
@@ -229,6 +228,13 @@ lw_kanjidictionary_columnid_get_type ()
     }
 
     return type;
+}
+
+
+G_MODULE_EXPORT void
+register_dictionary_module_type (GTypeModule * module)
+{
+  lw_kanjidictionary_register_type (module);
 }
 
 

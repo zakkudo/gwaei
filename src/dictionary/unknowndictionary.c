@@ -39,9 +39,9 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include <libwaei/libwaei.h>
-#include <libwaei/dictionary-private.h>
 #include <libwaei/gettext.h>
+
+#include <libwaei/dictionary.h>
 
 #include <libwaei/dictionary/unknowndictionary.h>
 
@@ -83,13 +83,17 @@ lw_unknowndictionary_constructed (GObject *object)
       G_OBJECT_CLASS (lw_unknowndictionary_parent_class)->constructed (object);
     }
 
-/*
     LwDictionary *dictionary;
-    LwDictionaryPrivate *priv;
+    gchar const * FILENAME = NULL;
 
     dictionary = LW_DICTIONARY (object);
-    priv = dictionary->priv;
-*/
+    FILENAME = lw_dictionary_get_filename (dictionary);
+
+    gchar const * BUILT_IN_NAMES[] = {
+      gettext("Examples"),
+    };
+
+    lw_dictionary_set_name (dictionary, gettext(FILENAME));
 }
 
 
@@ -119,13 +123,13 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
     object_class->constructed = lw_unknowndictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->get_column_handling = lw_unknowndictionary_get_column_handling;
-    dictionary_class->priv->get_total_columns = lw_unknowndictionary_get_total_columns;
-    dictionary_class->priv->get_column_language = lw_unknowndictionary_get_column_language;
-    dictionary_class->priv->columnize = lw_unknowndictionary_columnize;
-    dictionary_class->priv->load_columns = lw_unknowndictionary_load_columns;
-    dictionary_class->priv->calculate_applicable_columns_for_text = lw_unknowndictionary_calculate_applicable_columns_for_text;
-    dictionary_class->priv->columnid_get_type = lw_unknowndictionary_columnid_get_type;
+    dictionary_class->get_column_handling = lw_unknowndictionary_get_column_handling;
+    dictionary_class->get_total_columns = lw_unknowndictionary_get_total_columns;
+    dictionary_class->get_column_language = lw_unknowndictionary_get_column_language;
+    dictionary_class->columnize = lw_unknowndictionary_columnize;
+    dictionary_class->load_columns = lw_unknowndictionary_load_columns;
+    dictionary_class->calculate_applicable_columns_for_text = lw_unknowndictionary_calculate_applicable_columns_for_text;
+    dictionary_class->columnid_get_type = lw_unknowndictionary_columnid_get_type;
 }
 
 
@@ -199,6 +203,13 @@ lw_unknowndictionary_columnid_get_type ()
     }
 
     return type;
+}
+
+
+G_MODULE_EXPORT void
+register_dictionary_module_type (GTypeModule * module)
+{
+  lw_unknowndictionary_register_type (module);
 }
 
 

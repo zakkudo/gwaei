@@ -24,6 +24,15 @@ typedef struct _LwDictionaryClassPrivate LwDictionaryClassPrivate;
 #define LW_DICTIONARY_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARY, LwDictionaryClass))
 #define LW_DICTIONARY_CHECKSUM G_CHECKSUM_SHA512 
 
+typedef enum {
+  LW_DICTIONARYCOLUMNHANDLING_UNUSED, //!< An unused field
+  LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, //!< Key is indexed and is included by default for all searches
+  LW_DICTIONARYCOLUMNHANDLING_FILTER_ONLY, //!< Key is indexed, but is only included when queried explicitly
+  TOTAL_DICTIONARYCOLUMNHANDLING
+} LwDictionaryColumnHandling;
+GType lw_dictionarycolumnhandling_get_type (void);
+#define LW_TYPE_DICTIONARYCOLUMNHANDLING (lw_dictionarycolumnhandling_get_type ())
+
 struct _LwDictionary {
   GObject object;
   LwDictionaryPrivate *priv;
@@ -33,16 +42,16 @@ struct _LwDictionary {
 struct _LwDictionaryClass {
   GObjectClass parent_class;
   LwDictionaryClassPrivate *priv;
-};
 
-typedef enum {
-  LW_DICTIONARYCOLUMNHANDLING_UNUSED, //!< An unused field
-  LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, //!< Key is indexed and is included by default for all searches
-  LW_DICTIONARYCOLUMNHANDLING_FILTER_ONLY, //!< Key is indexed, but is only included when queried explicitly
-  TOTAL_DICTIONARYCOLUMNHANDLING
-} LwDictionaryColumnHandling;
-GType lw_dictionarycolumnhandling_get_type (void);
-#define LW_TYPE_DICTIONARYCOLUMNHANDLING (lw_dictionarycolumnhandling_get_type ())
+  //Virtual methods
+  gint (* get_total_columns) (LwDictionary * self);
+  gchar const * (* get_column_language) (LwDictionary * self, gint column_num);
+  LwDictionaryColumnHandling (* get_column_handling) (LwDictionary * self, gint column_num);
+  gchar** (* columnize) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
+  void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
+  gint* (* calculate_applicable_columns_for_text) (LwDictionary * self, char const * TEXT);
+  GType (* columnid_get_type) ();
+};
 
 
 #define LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED "Unused"
@@ -60,42 +69,43 @@ GType lw_dictionary_get_type (void) G_GNUC_CONST;
 
 //Properties
 
-gchar const* lw_dictionary_get_path (LwDictionary *self);
-void lw_dictionary_set_filename (LwDictionary *self, gchar const *FILENAME);
-gchar const* lw_dictionary_get_filename (LwDictionary *self);
+gchar const* lw_dictionary_get_path (LwDictionary * self);
+void lw_dictionary_set_filename (LwDictionary * self, gchar const * FILENAME);
+gchar const* lw_dictionary_get_filename (LwDictionary * self);
 
-gchar const* lw_dictionary_get_name (LwDictionary *self);
+void lw_dictionary_set_name (LwDictionary * self, gchar const * NAME);
+gchar const* lw_dictionary_get_name (LwDictionary * self);
 
-LwProgress* lw_dictionary_get_progress (LwDictionary *self);
-void lw_dictionary_set_progress (LwDictionary *self, LwProgress *progress);
+LwProgress* lw_dictionary_get_progress (LwDictionary * self);
+void lw_dictionary_set_progress (LwDictionary * self, LwProgress * progress);
 
-size_t lw_dictionary_length (LwDictionary *self);
+size_t lw_dictionary_length (LwDictionary * self);
 
-gchar const* lw_dictionary_get_checksum (LwDictionary *self);
-gchar const* lw_dictionary_get_contents (LwDictionary *self);
+gchar const* lw_dictionary_get_checksum (LwDictionary * self);
+gchar const* lw_dictionary_get_contents (LwDictionary * self);
 
-gint lw_dictionary_total_columns (LwDictionary *self);
-gchar const * lw_dictionary_get_column_language (LwDictionary *self, gint column_num);
-LwDictionaryColumnHandling lw_dictionary_get_column_handling (LwDictionary *self, gint column_num);
+gint lw_dictionary_total_columns (LwDictionary * self);
+gchar const * lw_dictionary_get_column_language (LwDictionary * self, gint column_num);
+LwDictionaryColumnHandling lw_dictionary_get_column_handling (LwDictionary * self, gint column_num);
 
 gboolean lw_dictionary_equals (LwDictionary *dictionary1, LwDictionary *dictionary2);
 
 gchar** lw_dictionary_get_installed_idlist (GType type_filter);
 gchar* lw_dictionary_build_id_from_type (GType type, gchar const *FILENAME);
-gchar const* lw_dictionary_get_id (LwDictionary *self);
+gchar const* lw_dictionary_get_id (LwDictionary * self);
 
 gchar* lw_dictionary_build_directory (GType type);
 
-void lw_dictionary_set_cachetree (LwDictionary *self, GTree *tree);
-GTree* lw_dictionary_get_cachetree (LwDictionary *self);
+void lw_dictionary_set_cachetree (LwDictionary * self, GTree *tree);
+GTree* lw_dictionary_get_cachetree (LwDictionary * self);
 
-LwDictionaryCache* lw_dictionary_get_cache (LwDictionary *self, LwProgress *progress, LwUtf8Flag flags);
-void lw_dictionary_set_cache (LwDictionary *self, LwDictionaryCache *cache);
+LwDictionaryCache* lw_dictionary_get_cache (LwDictionary * self, LwProgress * progress, LwUtf8Flag flags);
+void lw_dictionary_set_cache (LwDictionary * self, LwDictionaryCache * cache);
 
-gchar * const * lw_dictionary_lines (LwDictionary *self);
-gint lw_dictionary_num_lines (LwDictionary *self);
+gchar * const * lw_dictionary_lines (LwDictionary * self);
+gint lw_dictionary_num_lines (LwDictionary * self);
 
-gboolean  lw_dictionary_uninstall (LwDictionary *self);
+gboolean  lw_dictionary_uninstall (LwDictionary * self);
 
 LwParsed* lw_dictionary_parse (LwDictionary * self, LwCacheFile * cache_file, LwProgress * progress);
 

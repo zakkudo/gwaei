@@ -1,13 +1,12 @@
 
 SUBDIRS = include/libwaei/dictionary
 
-LIBRARY_VERSION = 1:0:0
 ACLOCAL_AMFLAGS = -I m4
 datadir = @datadir@
 dictionarylibdir = @dictionarylibdir@
 DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" -DPKGLIBDIR=\"$(pkglibdir)\" -DDICTIONARYLIBDIR=\"$(dictionarylibdir)\"
 
-ALL_LDFLAGS=-version-info $(LIBRARY_VERSION) -no-undefined
+ALL_LDFLAGS=-no-undefined -module -shared -avoid-version -export-dynamic 
 ALL_CPPFLAGS=-I$(top_srcdir)/src/libwaei/include -I$(top_srcdir)/src/dictionary/include $(LIBWAEI_CFLAGS) $(LIBWAEI_DEFS) $(DEFINITIONS)
 ALL_LIBADD=$(LIBWAEI_LIBS) ../libwaei/libwaei.la
 

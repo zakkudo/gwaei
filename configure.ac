@@ -6,8 +6,11 @@ AM_INIT_AUTOMAKE
 RELEASE=1
 AC_SUBST(RELEASE)
 
-LT_INIT
+LT_INIT([dlopen])
 AC_SUBST([LIBTOOL_DEPS])
+LT_CONFIG_LTDL_DIR([libltdl])
+
+LTDL_INIT([recursive])
 
 ##General Dependencies
 GLIB_REQUIRED_VERSION=2.44.0
@@ -81,6 +84,7 @@ PKG_CHECK_MODULES(LIBWAEI, glib-2.0           >= $GLIB_REQUIRED_VERSION
                            gobject-2.0        >= $GLIB_REQUIRED_VERSION
                            gio-2.0            >= $GIO_REQUIRED_VERSION
                            gmodule-2.0        >= $GMODULE_EXPORT_REQUIRED_VERSION 
+                           gmodule-export-2.0 >= $GMODULE_EXPORT_REQUIRED_VERSION 
                            gthread-2.0        >= $GTHREAD_REQUIRED_VERSION       
                            libcurl            >= $LIBCURL_REQUIRED_VERSION      
                            zlib               >= $ZLIB_REQUIRED_VERSION       )
@@ -107,6 +111,11 @@ if test x$gnome = xtrue; then
   AC_SUBST(GWAEI_LIBS)
   #GNOME_DOC_INIT
 fi
+
+AC_CHECK_HEADER([ltdl.h],
+    [AC_CHECK_LIB([ltdl], [lt_dladvise_init],
+        [LIBLTDL=-lltdl], [LIBLTDL=])],
+    [LIBLTDL=])
 
 if test x$hunspell = xtrue; then
   PKG_CHECK_MODULES(HUNSPELL, hunspell           >= $HUNSPELL_REQUIRED_VERSION)
@@ -156,7 +165,7 @@ AC_SUBST(dictionarylibdir)
 
 AC_CONFIG_MACRO_DIR([m4])
 
-AC_CONFIG_FILES([Makefile src/Makefile src/libwaei/Makefile src/libwaei/include/libwaei/Makefile src/libwaei/tests/Makefile src/dictionary/Makefile src/dictionary/include/libwaei/dictionary/Makefile src/dictionary/tests/Makefile src/waei/Makefile src/waei/include/waei/Makefile src/libgwaei/Makefile src/libgwaei/include/libgwaei/Makefile src/gwaei/Makefile src/gwaei/mingw/Makefile src/gwaei/include/gwaei/Makefile mandir/Makefile src/desktop/Makefile src/images/Makefile src/schemas/Makefile rpm/gwaei.spec rpm/fedora/SPECS/gwaei.spec po/Makefile.in src/kpengine/Makefile docs/reference/libwaei/Makefile docs/reference/dictionary/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/libwaei/Makefile src/libwaei/include/libwaei/Makefile src/libwaei/tests/Makefile src/dictionary/Makefile src/dictionary/include/libwaei/dictionary/Makefile src/dictionary/tests/Makefile src/waei/Makefile src/waei/include/waei/Makefile src/libgwaei/Makefile src/libgwaei/include/libgwaei/Makefile src/gwaei/Makefile src/gwaei/mingw/Makefile src/gwaei/include/gwaei/Makefile mandir/Makefile src/desktop/Makefile src/images/Makefile src/schemas/Makefile rpm/gwaei.spec rpm/fedora/SPECS/gwaei.spec po/Makefile.in src/kpengine/Makefile docs/reference/libwaei/Makefile docs/reference/dictionary/Makefile libltdl/Makefile])
 
 AC_OUTPUT
 

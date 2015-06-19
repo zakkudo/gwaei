@@ -316,16 +316,14 @@ lw_dictionarymodule_register_type (LwDictionaryModule *self)
 
     //Declarations
     LwDictionaryModulePrivate *priv = NULL;
-    gchar * symbol_name = NULL;
     LwDictionaryModuleRegisterTypeFunc register_type = NULL;
     gboolean success = FALSE;
 
     //Initializations
     priv = self->priv;
     if (priv->name == NULL) goto errored;
-    symbol_name = g_strdup_printf ("lw_%s_register_type", priv->name);
     if (priv->module == NULL) goto errored;
-    if (!g_module_symbol (priv->module, symbol_name, (gpointer*)(&register_type)))
+    if (!g_module_symbol (priv->module, "register_dictionary_module_type", (gpointer*)(&register_type)))
     {
       g_error (g_module_error());
     }
@@ -335,8 +333,6 @@ lw_dictionarymodule_register_type (LwDictionaryModule *self)
     success = TRUE;
 
 errored:
-
-    g_free (symbol_name); symbol_name = NULL;
 
     return success;
 }

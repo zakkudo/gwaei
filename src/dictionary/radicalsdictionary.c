@@ -39,9 +39,9 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include <libwaei/libwaei.h>
-#include <libwaei/dictionary-private.h>
 #include <libwaei/gettext.h>
+
+#include <libwaei/dictionary.h>
 
 #include <libwaei/dictionary/radicalsdictionary.h>
 
@@ -84,13 +84,17 @@ lw_radicalsdictionary_constructed (GObject *object)
       G_OBJECT_CLASS (lw_radicalsdictionary_parent_class)->constructed (object);
     }
 
-/*
     LwDictionary *dictionary;
-    LwDictionaryPrivate *priv;
+    gchar const * FILENAME = NULL;
 
     dictionary = LW_DICTIONARY (object);
-    priv = dictionary->priv;
-*/
+    FILENAME = lw_dictionary_get_filename (dictionary);
+
+    gchar const * BUILT_IN_NAMES[] = {
+      gettext("Radicals"),
+    };
+
+    lw_dictionary_set_name (dictionary, gettext(FILENAME));
 }
 
 
@@ -120,13 +124,13 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
     object_class->constructed = lw_radicalsdictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
-    dictionary_class->priv->get_column_handling = lw_radicalsdictionary_get_column_handling;
-    dictionary_class->priv->get_total_columns = lw_radicalsdictionary_get_total_columns;
-    dictionary_class->priv->get_column_language = lw_radicalsdictionary_get_column_language;
-    dictionary_class->priv->columnize = lw_radicalsdictionary_columnize;
-    dictionary_class->priv->load_columns = lw_radicalsdictionary_load_columns;
-    dictionary_class->priv->calculate_applicable_columns_for_text = lw_radicalsdictionary_calculate_applicable_columns_for_text;
-    dictionary_class->priv->columnid_get_type = lw_radicalsdictionary_columnid_get_type;
+    dictionary_class->get_column_handling = lw_radicalsdictionary_get_column_handling;
+    dictionary_class->get_total_columns = lw_radicalsdictionary_get_total_columns;
+    dictionary_class->get_column_language = lw_radicalsdictionary_get_column_language;
+    dictionary_class->columnize = lw_radicalsdictionary_columnize;
+    dictionary_class->load_columns = lw_radicalsdictionary_load_columns;
+    dictionary_class->calculate_applicable_columns_for_text = lw_radicalsdictionary_calculate_applicable_columns_for_text;
+    dictionary_class->columnid_get_type = lw_radicalsdictionary_columnid_get_type;
 }
 
 
@@ -204,6 +208,13 @@ lw_radicalsdictionary_columnid_get_type ()
     }
 
     return type;
+}
+
+
+G_MODULE_EXPORT void
+register_dictionary_module_type (GTypeModule * module)
+{
+  lw_radicalsdictionary_register_type (module);
 }
 
 

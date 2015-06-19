@@ -12,8 +12,8 @@ typedef struct _Fixture Fixture;
 
 void setup (Fixture *fixture, gconstpointer data)
 {
-  //fixture->module = lw_dictionarymodule_new (".." G_DIR_SEPARATOR_S ".libs" G_DIR_SEPARATOR_S "libedictionary." G_MODULE_SUFFIX);
-  fixture->module = lw_dictionarymodule_new (G_DIR_SEPARATOR_S "usr" G_DIR_SEPARATOR_S "local" G_DIR_SEPARATOR_S "lib" G_DIR_SEPARATOR_S "gwaei" G_DIR_SEPARATOR_S "dictionary" G_DIR_SEPARATOR_S "libedictionary." G_MODULE_SUFFIX);
+  fixture->module = lw_dictionarymodule_new (".." G_DIR_SEPARATOR_S ".libs" G_DIR_SEPARATOR_S "libedictionary." G_MODULE_SUFFIX);
+  //fixture->module = lw_dictionarymodule_new (G_DIR_SEPARATOR_S "usr" G_DIR_SEPARATOR_S "local" G_DIR_SEPARATOR_S "lib" G_DIR_SEPARATOR_S "gwaei" G_DIR_SEPARATOR_S "dictionary" G_DIR_SEPARATOR_S "libedictionary." G_MODULE_SUFFIX);
   GType type = g_type_from_name ("LwEDictionary");
   //fixture->dictionary = lw_dictionary_new (type, "fish.txt");
 }

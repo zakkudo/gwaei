@@ -3,7 +3,7 @@
 set -e
 
 touch ChangeLog
-libtoolize --force
+libtoolize --ltdl --force
 glib-gettextize --copy --force
 intltoolize --copy --force --automake
 gnome-doc-prepare --copy --force

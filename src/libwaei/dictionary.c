@@ -46,9 +46,16 @@
 #include <libwaei/dictionary-private.h>
 
 
-G_DEFINE_DYNAMIC_TYPE_EXTENDED (LwDictionary, lw_dictionary, G_TYPE_OBJECT, G_TYPE_FLAG_ABSTRACT, {})
+G_DEFINE_TYPE_EXTENDED (LwDictionary, lw_dictionary, G_TYPE_OBJECT, G_TYPE_FLAG_ABSTRACT, {})
 
 
+
+/**
+ * lw_dictionary_new:
+ * @type: A #GType that is a subclass of #LwDictionary
+ * @FILENAME: (transfer none): A filename to load using the program searchpaths
+ * Returns: (transfer full): A new #LwDictionary that should be freed with g_object_unref()
+ */
 LwDictionary *
 lw_dictionary_new (GType         type,
                    gchar const * FILENAME)
@@ -58,7 +65,7 @@ lw_dictionary_new (GType         type,
 
 
 static void 
-lw_dictionary_init (LwDictionary *self)
+lw_dictionary_init (LwDictionary * self)
 {
     self->priv = LW_DICTIONARY_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwDictionaryPrivate));
@@ -69,7 +76,7 @@ static void
 lw_dictionary_finalize (GObject *object)
 {
     //Declarations
-    LwDictionary *self = NULL;
+    LwDictionary * self = NULL;
     LwDictionaryPrivate *priv = NULL;
 
     //Initalizations
@@ -88,14 +95,14 @@ lw_dictionary_finalize (GObject *object)
 
 
 static void 
-lw_dictionary_set_property (GObject      *object,
-                            guint         property_id,
-                            const GValue *value,
-                            GParamSpec   *pspec)
+lw_dictionary_set_property (GObject      * object,
+                            guint          property_id,
+                            const GValue * value,
+                            GParamSpec   * pspec)
 {
     //Declarations
-    LwDictionary *self;
-    LwDictionaryPrivate *priv;
+    LwDictionary * self;
+    LwDictionaryPrivate * priv;
 
     //Initializations
     self = LW_DICTIONARY (object);
@@ -123,7 +130,7 @@ lw_dictionary_get_property (GObject      *object,
                             GParamSpec   *pspec)
 {
     //Declarations
-    LwDictionary *self = NULL;
+    LwDictionary * self = NULL;
     LwDictionaryPrivate *priv = NULL;
 
     //Initializations
@@ -173,7 +180,7 @@ lw_dictionary_class_finalize (LwDictionaryClass *klass)
 
 
 static void
-lw_dictionary_class_init (LwDictionaryClass *klass)
+lw_dictionary_class_init (LwDictionaryClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
@@ -283,8 +290,13 @@ GType lw_dictionarycolumnhandling_get_type ()
 }
 
 
+/**
+ * lw_dictionary_get_total_columns:
+ * @self: A #LwDictionary
+ * Returns: The total number of columns as a %gint
+ */
 gint
-lw_dictionary_get_total_columns (LwDictionary *self)
+lw_dictionary_get_total_columns (LwDictionary * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
@@ -295,15 +307,21 @@ lw_dictionary_get_total_columns (LwDictionary *self)
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
-    total_columns = klass->priv->get_total_columns (self);
+    total_columns = klass->get_total_columns (self);
   
     return total_columns;
 }
                                  
 
+/**
+ * lw_dictionary_get_column_language:
+ * @self: A #LwDictionary
+ * @column_num: The column to query it's langauge
+ * Returns: (transfer none): The language of the column as a string.  This string is owned by the dictionary, so it should not be modified or freed.
+ */
 gchar const *
-lw_dictionary_get_column_language (LwDictionary *self,
-                                   gint          column_num)
+lw_dictionary_get_column_language (LwDictionary * self,
+                                   gint           column_num)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -318,7 +336,7 @@ lw_dictionary_get_column_language (LwDictionary *self,
     klass = LW_DICTIONARY_GET_CLASS (self);
     total_columns = lw_dictionary_get_total_columns (self);
     if (total_columns < 1 || column_num >= total_columns) goto errored;
-    language = klass->priv->get_column_language (self, column_num);
+    language = klass->get_column_language (self, column_num);
 
 errored:
 
@@ -326,9 +344,15 @@ errored:
 }
 
 
+/**
+ * lw_dictionary_get_column_handling:
+ * @self: A #LwDictionary
+ * @column_num: The column to get the handling of
+ * Returns: A %LwDictionaryColumnHandling denoting the type of processing that should be handled on this column
+ */
 LwDictionaryColumnHandling
-lw_dictionary_get_column_handling (LwDictionary *self,
-                                   gint          column_num)
+lw_dictionary_get_column_handling (LwDictionary * self,
+                                   gint           column_num)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), LW_DICTIONARYCOLUMNHANDLING_UNUSED);
@@ -343,7 +367,7 @@ lw_dictionary_get_column_handling (LwDictionary *self,
     klass = LW_DICTIONARY_GET_CLASS (self);
     total_columns = lw_dictionary_get_total_columns (self);
     if (total_columns < 1 || column_num >= total_columns) goto errored;
-    handling = klass->priv->get_column_handling (self, column_num);
+    handling = klass->get_column_handling (self, column_num);
 
 errored:
 
@@ -351,16 +375,13 @@ errored:
 }
 
 
-//!
-//! @brief Deletes a LwDictionary from the harddrive.  LwDictInst objects are used
-//!        for installing dictionaries that do not exist yet.  You still need to free
-//!        the object after.
-//! @param self An LwDictionary object to get the paths for the self file.
-//! @param cb A LwIoProgresSCallback to show self uninstall progress or NULL.
-//! @param error A pointer to a GError object to pass errors to or NULL.
-//!
+/**
+ * lw_dictionary_uninstall:
+ * @self: A #LwDictionary
+ * Returns: %TRUE if deletion was sucessful.
+ */
 gboolean 
-lw_dictionary_uninstall (LwDictionary *self)
+lw_dictionary_uninstall (LwDictionary * self)
 {
   printf("BREAK1 lw_dictionary_uninstall \n");
     //Sanity check
@@ -368,7 +389,7 @@ lw_dictionary_uninstall (LwDictionary *self)
 
     //Declarations
     LwDictionaryPrivate *priv = NULL;
-    LwProgress *progress = NULL;
+    LwProgress * progress = NULL;
     gchar const *PATH = NULL;
     gchar const *MESSAGE = NULL;
     gchar const *name = lw_dictionary_get_name (self);
@@ -397,8 +418,13 @@ errored:
 }
  
 
+/**
+ * lw_dictionary_open:
+ * @self: A #LwDictionary
+ * Returns: (transfer full): A C #FILE that can be used to read the file.  It should be closed with fclose()
+ */
 FILE *
-lw_dictionary_open (LwDictionary *self)
+lw_dictionary_open (LwDictionary * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -418,6 +444,11 @@ errored:
     return file;
 }
 
+
+/**
+ * lw_dictionary_get_install_directory:
+ * Returns: (transfer none): Returns the install path of dictionaries which is usually in the user's data directory.  This string is owned by the dictionary class and should not be edited or freed.
+ */
 gchar const *
 lw_dictionary_get_install_directory ()
 {
@@ -443,6 +474,11 @@ errored:
 }
 
 
+/**
+ * lw_dictionary_get_path:
+ * @self: A #LwDictionary
+ * Returns: (transfer none): A string denoting the install path of the raw dictionary data.  This string is owned by the dictionary and should not be modified or freed.
+ */
 gchar const * 
 lw_dictionary_get_path (LwDictionary * self)
 {
@@ -458,6 +494,13 @@ lw_dictionary_get_path (LwDictionary * self)
     return priv->path;
 }
 
+
+/**
+ * lw_dictionary_build_path_by_type_and_name:
+ * @type: A #GType that is a subtype of #LwDictionary
+ * @FILENAME: (transfer none): The filename of the dictionary
+ * Returns: (transfer full): The path of a theoretical dictioanry with this type and filename.  This string should be freed with g_free() when finished
+ */
 gchar *
 lw_dictionary_build_path_by_type_and_name (GType         type,
                                            gchar const * FILENAME)
@@ -545,6 +588,43 @@ errored:
 }
 
 
+/**
+ * lw_dictionary_set_name:
+ * @self: A #LwDictionary
+ * @NAME: The new name of the dictionary
+ */
+void
+lw_dictionary_set_name (LwDictionary * self,
+                        gchar const *  NAME)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARY (self));
+
+    //Declarations
+    LwDictionaryPrivate * priv = NULL;
+    LwDictionaryClass * klass = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_DICTIONARY_GET_CLASS (self);
+    if (g_strcmp0 (priv->name, NAME) == 0) goto errored;
+
+    g_free (priv->name);
+    priv->name = g_strdup (NAME);
+
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_NAME]);
+
+errored:
+
+    return;
+}
+
+
+/**
+ * lw_dictionary_get_name:
+ * @self: A #LwDictionary
+ * Returns: (transfer none): The name of the dictionary or %NULL.  This string is owned by the dictionary and should not be freed or modified.
+ */
 gchar const *
 lw_dictionary_get_name (LwDictionary * self)
 {
@@ -561,6 +641,11 @@ lw_dictionary_get_name (LwDictionary * self)
 }
 
 
+/**
+ * lw_dictionary_get_filename:
+ * @self: A #LwDictionary
+ * Returns: (transfer none): The filename of the dictionary or %NULL.  This string is owned by the dictionary and should not be freed or modified.
+ */
 gchar const *
 lw_dictionary_get_filename (LwDictionary * self)
 {
@@ -577,6 +662,11 @@ lw_dictionary_get_filename (LwDictionary * self)
 }
 
 
+/**
+ * lw_dictionary_set_filename:
+ * @self: A #LwDictionary
+ * @FILENAME: The new filename for the dictionary
+ */
 void
 lw_dictionary_set_filename (LwDictionary * self,
                             gchar const  * FILENAME)
@@ -659,7 +749,7 @@ _flag_compare_function (gconstpointer a,
 
 struct _DictionaryCacheData {
   LwDictionary *dictionary;
-  LwProgress *progress;
+  LwProgress * progress;
 };
 
 
@@ -670,7 +760,7 @@ LwParsed * _dictionarycache_parse (LwCacheFile                 * cache_file,
     g_return_val_if_fail (data != NULL, NULL);
 
     LwDictionary *dictionary = NULL;
-    LwProgress *progress = NULL;
+    LwProgress * progress = NULL;
 
     dictionary = data->dictionary;
     g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
@@ -682,16 +772,16 @@ LwParsed * _dictionarycache_parse (LwCacheFile                 * cache_file,
 
 
 void
-lw_dictionary_ensure_cache (LwDictionary      *self,
-                            LwDictionaryCache *cache,
-                            LwProgress        *progress)
+lw_dictionary_ensure_cache (LwDictionary      * self,
+                            LwDictionaryCache * cache,
+                            LwProgress        * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
     g_return_if_fail (cache != NULL);
 
     //Declarations
-    LwCacheFile *cache_file = NULL;
+    LwCacheFile * cache_file = NULL;
     struct _DictionaryCacheData data = {
       .dictionary = self,
       .progress = progress
@@ -710,8 +800,8 @@ errored:
 
 
 LwDictionaryCache*
-lw_dictionary_get_cache (LwDictionary *self,
-                         LwProgress   *progress,
+lw_dictionary_get_cache (LwDictionary * self,
+                         LwProgress   * progress,
                          LwUtf8Flag    flags)
 {
     //Sanity checks
@@ -720,8 +810,8 @@ lw_dictionary_get_cache (LwDictionary *self,
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    GTree *caches = NULL;
-    LwDictionaryCache *cache = NULL;
+    GTree * caches = NULL;
+    LwDictionaryCache * cache = NULL;
     gchar const *FILENAME = NULL;
 
     //Initializations
@@ -780,7 +870,7 @@ lw_dictionary_equals (LwDictionary * dictionary1,
 
 
 gchar const*
-lw_dictionary_get_id (LwDictionary *self)
+lw_dictionary_get_id (LwDictionary * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -796,8 +886,8 @@ lw_dictionary_get_id (LwDictionary *self)
 
 
 static void
-lw_dictionary_set_id (LwDictionary *self,
-                      gchar const  *ID)
+lw_dictionary_set_id (LwDictionary * self,
+                      gchar const  * ID)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -824,7 +914,7 @@ errored:
 
 
 static void
-lw_dictionary_sync_id (LwDictionary *self)
+lw_dictionary_sync_id (LwDictionary * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -852,7 +942,7 @@ errored:
 
 
 static gint
-_count_max_columns (LwDictionary *self, gchar **lines, gint num_lines)
+_count_max_columns (LwDictionary * self, gchar ** lines, gint num_lines)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), -1);
@@ -940,7 +1030,7 @@ lw_dictionary_sync_cachefile (LwDictionary * self)
 
     //Declarations
     LwDictionaryPrivate *priv = NULL;
-    LwCacheFile *cachefile = NULL;
+    LwCacheFile * cachefile = NULL;
 
     //Initializations
     priv = self->priv;
@@ -955,13 +1045,13 @@ lw_dictionary_sync_cachefile (LwDictionary * self)
 
 
 gsize
-lw_dictionary_length (LwDictionary *self)
+lw_dictionary_length (LwDictionary * self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, -1);
 
     //Declarations
-    LwCacheFile *cachefile = NULL;
+    LwCacheFile * cachefile = NULL;
     gsize length = 0;
 
     //Initializations
@@ -983,7 +1073,7 @@ lw_dictionary_get_contents (LwDictionary * self)
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
-    LwCacheFile *cachefile = NULL;
+    LwCacheFile * cachefile = NULL;
     gchar const * CONTENTS = NULL;
 
     //Initializations
@@ -1073,7 +1163,7 @@ lw_dictionary_get_cachetree (LwDictionary * self)
 
 
 static gchar**
-lw_dictionary_columnize (LwDictionary *self,
+lw_dictionary_columnize (LwDictionary * self,
                          gchar         *buffer,
                          gchar        **tokens,
                          gsize         *num_tokens)
@@ -1086,19 +1176,19 @@ lw_dictionary_columnize (LwDictionary *self,
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
-    g_return_val_if_fail (klass->priv->columnize != NULL, NULL);
+    g_return_val_if_fail (klass->columnize != NULL, NULL);
 
-    return klass->priv->columnize(self, buffer, tokens, num_tokens);
+    return klass->columnize(self, buffer, tokens, num_tokens);
 }
 
 
 
 static void
-lw_dictionary_load_columns (LwDictionary  *self,
-                            gchar         *buffer,
-                            gchar        **tokens,
-                            gint           num_tokens,
-                            LwParsedLine  *line) 
+lw_dictionary_load_columns (LwDictionary  * self,
+                            gchar         * buffer,
+                            gchar        ** tokens,
+                            gint            num_tokens,
+                            LwParsedLine  * line) 
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
@@ -1108,16 +1198,16 @@ lw_dictionary_load_columns (LwDictionary  *self,
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
-    g_return_if_fail (klass->priv->load_columns != NULL);
+    g_return_if_fail (klass->load_columns != NULL);
 
-    klass->priv->load_columns(self, buffer, tokens, num_tokens, line);
+    klass->load_columns(self, buffer, tokens, num_tokens, line);
 }
 
 
 LwParsed*
-lw_dictionary_parse (LwDictionary *self,
-                     LwCacheFile *cache_file,
-                     LwProgress   *progress)
+lw_dictionary_parse (LwDictionary * self,
+                     LwCacheFile  * cache_file,
+                     LwProgress   * progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -1207,7 +1297,7 @@ lw_dictionary_calculate_applicable_columns_for_text (LwDictionary * self,
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
-    columns = klass->priv->calculate_applicable_columns_for_text (self, TEXT);
+    columns = klass->calculate_applicable_columns_for_text (self, TEXT);
 
 errored:
 
@@ -1233,7 +1323,7 @@ lw_dictionary_columnid_get_type (LwDictionary * self)
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
-    type = klass->priv->columnid_get_type ();
+    type = klass->columnid_get_type ();
 
 errored:
 
