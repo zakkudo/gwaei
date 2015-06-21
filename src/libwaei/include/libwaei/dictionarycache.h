@@ -43,8 +43,6 @@ struct _LwDictionaryCacheClass {
 LwDictionaryCache* lw_dictionarycache_new (gchar const *NAME, LwUtf8Flag flags);
 GType lw_dictionarycache_get_type (void) G_GNUC_CONST;
 
-void lw_dictionarycache_set_contents (LwDictionaryCache *self, LwCacheFile *cache_file, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress *progress);
-
 void lw_dictionarycache_write (LwDictionaryCache *self, gchar const *CHECKSUM, gchar const *CONTENTS, gsize content_length, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress *progress);
 void lw_dictionarycache_read (LwDictionaryCache *self, gchar const *EXPECTED_CHECKSUM, LwProgress *progress);
 

@@ -4,7 +4,7 @@ SUBDIRS =
 
 ALL_LDFLAGS=-no-undefined
 ALL_LDADD=$(LIBWAEI_LIBS) $(top_srcdir)/src/libwaei/libwaei.la
-ALL_CPPFLAGS=-I$(top_srcdir)/src/libwaei/include -I$(top_srcdir)/src/dictionary/include $(LIBWAEI_CFLAGS) $(LIBWAEI_DEFS) $(DEFINITIONS) -DDICTIONARYLIBDIR=\"$(dictionarylibdir)\" -DTESTDATADIR=\"$(top_srcdir)/dictionary/tests/data/\"
+ALL_CPPFLAGS=-I$(top_srcdir)/src/libwaei/include -I$(top_srcdir)/src/dictionary/include $(LIBWAEI_CFLAGS) $(LIBWAEI_DEFS) $(DEFINITIONS) -DDICTIONARYLIBDIR=\"$(dictionarylibdir)\" -DTESTDATADIR=\"$(top_srcdir)/src/dictionary/tests/data/\"
 
 
 noinst_PROGRAMS =$(TEST_PROGS)

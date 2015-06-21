@@ -12,7 +12,6 @@ typedef enum
   PROP_CONTENTS_PATH,
   PROP_CONTENTS_FILENAME,
   PROP_CONTENTS_CHECKSUM,
-  PROP_CONTENTS_CACHEFILE,
   PROP_CONTENTS,
   PROP_CONTENT_LENGTH,
   TOTAL_PROPS
@@ -33,7 +32,8 @@ struct _LwDictionaryPrivate {
 
   gchar * contents_path;
   gchar * contents_filename;
-  LwCacheFile * contents_cachefile;
+  LwMappedFile * contents_mappedfile;
+  gchar * contents_checksum;
 };
 
 struct _LwDictionaryClassPrivate {
@@ -47,13 +47,13 @@ struct _LwDictionaryClassPrivate {
 
 //Properties
 
-static LwCacheFile* lw_dictionary_get_contents_cachefile (LwDictionary * self);
-static void lw_dictionary_set_contents_cachefile (LwDictionary * self, LwCacheFile * cachefile);
+static LwMappedFile* lw_dictionary_get_contents_mappedfile (LwDictionary * self);
+static void lw_dictionary_set_contents_mappedfile (LwDictionary * self, LwMappedFile * mapped_file);
 
-static void lw_dictionary_sync_contents_cachefile (LwDictionary * self);
+static void lw_dictionary_sync_contents (LwDictionary * self);
 
 static void lw_dictionary_sync_contents_path (LwDictionary * self);
-static gchar * lw_dictionary_build_contents_path (LwDictionary * self);
+static gchar * lw_dictionary_build_contents_path (LwDictionary * self, gchar const * FILENAME);
 
 static void lw_dictionary_sync_id (LwDictionary * self);
 

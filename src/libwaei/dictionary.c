@@ -119,7 +119,7 @@ lw_dictionary_finalize (GObject *object)
 
     g_mutex_clear (&self->priv->mutex);
 
-    if (priv->contents_cachefile) g_object_unref (priv->contents_cachefile);
+    if (priv->contents_mappedfile) g_object_unref (priv->contents_mappedfile);
     lw_dictionary_set_parsed_cachetree (self, NULL);
 
     memset(self->priv, 0, sizeof(LwDictionaryPrivate));
@@ -259,15 +259,6 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
       G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_CONTENT_LENGTH, klass->priv->pspec[PROP_CONTENT_LENGTH]);
-
-    klass->priv->pspec[PROP_CONTENTS_CACHEFILE] = g_param_spec_object (
-      "contents-cachefile",
-      gettext("Contents Cachefile"),
-      gettext("Cachefile containing the raw dictionary contents"),
-      LW_TYPE_MAPPEDFILE,
-      G_PARAM_READABLE
-    );
-    g_object_class_install_property (object_class, PROP_CONTENTS_CACHEFILE, klass->priv->pspec[PROP_CONTENTS_CACHEFILE]);
 
     klass->priv->pspec[PROP_CONTENTS_FILENAME] = g_param_spec_string (
       "contents-filename",
@@ -485,6 +476,11 @@ errored:
 /**
  * lw_dictionary_get_install_directory:
  *
+ * Returns the install path of where dictionaries are installed.  The directory base is determined by the
+ * user's data directory.  This can be overwridden in the environmental variables with 
+ * %XDG_CACHE_HOME on unix platforms or %CSIDL_INTERNET_CACHE on Windows. Please refer to
+ * g_get_user_cache_dir() for more information.
+ *
  * Returns: (transfer none): Returns the install path of dictionaries which is usually in the user's data directory.  This string is owned by the dictionary class and should not be edited or freed.
  */
 gchar const *
@@ -499,7 +495,7 @@ lw_dictionary_get_install_directory ()
 
       DATA_DIR = g_get_user_data_dir ();
       if (DATA_DIR == NULL) goto errored;
-      path = g_build_filename (DATA_DIR, "libwaei", "dictionary");
+      path = g_build_filename (DATA_DIR, "libwaei", "dictionary", NULL);
       if (path == NULL) goto errored;
     }
     if (path == NULL) goto errored;
@@ -567,15 +563,16 @@ errored:
 
 
 static gchar *
-lw_dictionary_build_contents_path (LwDictionary * self)
+lw_dictionary_build_contents_path (LwDictionary * self,
+                                   gchar const  * FILENAME)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    if (FILENAME == NULL) return NULL;
 
     //Declarations
     gchar const * INSTALL_DIRECTORY = NULL;
     GType type = G_TYPE_INVALID;
-    gchar const *FILENAME = NULL;
     gchar *path = NULL;
 
     //Initializations
@@ -583,8 +580,6 @@ lw_dictionary_build_contents_path (LwDictionary * self)
     if (INSTALL_DIRECTORY == NULL) goto errored;
     type = G_OBJECT_TYPE (self);
     if (type == G_TYPE_INVALID) goto errored;
-    FILENAME = lw_dictionary_get_contents_filename (self);
-    if (FILENAME == NULL) goto errored;
     path = lw_dictionary_build_contents_path_by_type_and_name (type, FILENAME);
     if (path == NULL) goto errored;
 
@@ -613,8 +608,7 @@ lw_dictionary_set_contents_path (LwDictionary * self,
     g_free(priv->contents_path);
     priv->contents_path = g_strdup (PATH);
 
-    lw_dictionary_set_parsed_cachetree (self, NULL);
-    lw_dictionary_sync_contents_cachefile (self);
+    lw_dictionary_sync_contents (self);
 
     g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CONTENTS_PATH]);
 
@@ -701,12 +695,14 @@ lw_dictionary_get_contents_filename (LwDictionary * self)
 static gboolean
 _is_anchored_path (gchar const * PATH)
 {
+    if (PATH == NULL) return FALSE;
+
     gboolean is_relative_anchored = FALSE;
     gboolean is_absolute_anchored = FALSE;
 
     is_absolute_anchored = g_path_is_absolute (PATH);
-    is_relative_anchored = (strncmp(PATH, "./", strlen("./")) == 0 ||
-                            strncmp(PATH, "../", strlen("../")) == 0);
+    is_relative_anchored = (strncmp(PATH, "." G_DIR_SEPARATOR_S, strlen("." G_DIR_SEPARATOR_S)) == 0 ||
+                            strncmp(PATH, ".." G_DIR_SEPARATOR_S, strlen(".." G_DIR_SEPARATOR_S)) == 0);
 
     return (is_absolute_anchored || is_relative_anchored);
 }
@@ -749,7 +745,7 @@ lw_dictionary_set_contents_filename (LwDictionary * self,
     else
     {
       filename = g_strdup (FILENAME);
-      path = lw_dictionary_build_contents_path (self);
+      path = lw_dictionary_build_contents_path (self, filename);
     }
 
     filename_changed = (g_strcmp0 (filename, priv->contents_filename) != 0);
@@ -772,8 +768,7 @@ lw_dictionary_set_contents_filename (LwDictionary * self,
       priv->contents_path = path;
       path = NULL;
 
-      lw_dictionary_set_parsed_cachetree (self, NULL);
-      lw_dictionary_sync_contents_cachefile (self);
+      lw_dictionary_sync_contents (self);
 
       g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CONTENTS_PATH]);
     }
@@ -885,11 +880,15 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
     GTree * parsed_cachetree;
     gchar const * FILENAME = NULL;
     LwDictionaryCache * cache = NULL;
-    LwCacheFile * contents_cache_file = NULL;
+    LwMappedFile * contents_mapped_file = NULL;
     struct _DictionaryCacheData data = {
       .dictionary = self,
       .progress = progress
     };
+    gchar const * CHECKSUM = NULL;
+    gchar const * CONTENTS = NULL;
+    gsize content_length = 0;
+
 
     //Initializations
     parsed_cachetree = lw_dictionary_get_parsed_cachetree (self);
@@ -899,15 +898,31 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
     FILENAME = lw_dictionary_get_contents_filename (self);
     if (FILENAME == NULL) goto errored;
 
-    contents_cache_file = lw_dictionary_get_contents_cachefile (self);
-    if (contents_cache_file == NULL) goto errored;
+    contents_mapped_file = lw_dictionary_get_contents_mappedfile (self);
+    if (contents_mapped_file == NULL) goto errored;
+
+    CHECKSUM = lw_dictionary_get_contents_checksum (self);
+    if (CHECKSUM == NULL) goto errored;
+
+    CONTENTS = lw_dictionary_get_contents (self);
+    if (CONTENTS == NULL) goto errored;
+
+    content_length = lw_dictionary_contents_length (self);
+    if (content_length == 0) goto errored;
 
     cache = lw_dictionarycache_new (FILENAME, flags);
     if (cache == NULL) goto errored;
     
     lw_dictionary_set_parsed_cache (self, cache);
 
-    lw_dictionarycache_set_contents (cache, contents_cache_file, (LwDictionaryCacheParseFunc) _dictionarycache_parse, &data, progress);
+    lw_dictionarycache_read (cache, CHECKSUM, progress);
+    if (lw_progress_should_abort (progress))
+    {
+      lw_progress_set_error (progress, NULL);
+      lw_dictionarycache_write (cache, CHECKSUM, CONTENTS, content_length, (LwDictionaryCacheParseFunc) _dictionarycache_parse, &data, progress);
+      lw_dictionarycache_read (cache, CHECKSUM, progress);
+    }
+
 
 errored:
 
@@ -1064,12 +1079,11 @@ _count_max_columns (LwDictionary * self, gchar ** lines, gint num_lines)
 
 
 static void
-lw_dictionary_set_contents_cachefile (LwDictionary * self,
-                                      LwCacheFile  * contents_cachefile)
+lw_dictionary_set_contents_mappedfile (LwDictionary * self,
+                                      LwMappedFile  * contents_mappedfile)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
-    g_return_if_fail (LW_IS_CACHEFILE (contents_cachefile));
 
     //Declarations
     LwDictionaryPrivate *priv = NULL;
@@ -1079,19 +1093,17 @@ lw_dictionary_set_contents_cachefile (LwDictionary * self,
     priv = self->priv;
     klass = LW_DICTIONARY_GET_CLASS (self);
 
-    if (contents_cachefile != NULL)
+    if (contents_mappedfile != NULL)
     {
-      g_object_ref (contents_cachefile);
+      g_object_ref (contents_mappedfile);
     }
 
-    if (priv->contents_cachefile != NULL)
+    if (priv->contents_mappedfile != NULL)
     {
-      g_object_unref (priv->contents_cachefile);
+      g_object_unref (priv->contents_mappedfile);
     }
 
-    priv->contents_cachefile = contents_cachefile;
-
-    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CONTENTS_CACHEFILE]);
+    priv->contents_mappedfile = contents_mappedfile;
 
 errored:
 
@@ -1099,8 +1111,8 @@ errored:
 }
 
 
-static LwCacheFile*
-lw_dictionary_get_contents_cachefile (LwDictionary * self)
+static LwMappedFile*
+lw_dictionary_get_contents_mappedfile (LwDictionary * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -1111,34 +1123,46 @@ lw_dictionary_get_contents_cachefile (LwDictionary * self)
     //Initializations
     priv = self->priv;
 
-    return priv->contents_cachefile;
+    return priv->contents_mappedfile;
 }
 
 
 static void
-lw_dictionary_sync_contents_cachefile (LwDictionary * self)
+lw_dictionary_sync_contents (LwDictionary * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
     LwDictionaryPrivate *priv = NULL;
-    LwCacheFile * cachefile = NULL;
+    LwMappedFile * mapped_file = NULL;
+    gchar * contents = NULL;
+    gsize length = NULL;
 
     //Initializations
     priv = self->priv;
 
     if (priv->contents_path != NULL)
     {
-      cachefile = lw_cachefile_new (priv->contents_path);
+      mapped_file = lw_mappedfile_new (priv->contents_path);
+      contents = lw_mappedfile_get_contents (mapped_file);
+      length = lw_mappedfile_length (mapped_file);
     }
 
-    lw_dictionary_set_contents_cachefile (self, cachefile);
+    lw_dictionary_set_contents_mappedfile (self, mapped_file);
 
     if (priv->contents_path != NULL)
     {
-      g_object_unref (cachefile);
+      g_object_unref (mapped_file);
     }
+
+    g_free (priv->contents_checksum); priv->contents_checksum = NULL;
+    if (contents != NULL)
+    {
+      priv->contents_checksum = g_compute_checksum_for_data (LW_DICTIONARY_CHECKSUM, contents, length);
+    }
+
+    lw_dictionary_set_parsed_cachetree (self, NULL);
 }
 
 
@@ -1154,13 +1178,13 @@ lw_dictionary_contents_length (LwDictionary * self)
     g_return_val_if_fail (self != NULL, -1);
 
     //Declarations
-    LwCacheFile * cachefile = NULL;
+    LwMappedFile * mapped_file = NULL;
     gsize length = 0;
 
     //Initializations
-    cachefile = lw_dictionary_get_contents_cachefile (self);
-    if (cachefile == NULL) goto errored;
-    length = lw_cachefile_length (cachefile);
+    mapped_file = lw_dictionary_get_contents_mappedfile (self);
+    if (mapped_file == NULL) goto errored;
+    length = lw_mappedfile_length (mapped_file);
     if (length == 0) goto errored;
 
 errored:
@@ -1181,13 +1205,13 @@ lw_dictionary_get_contents (LwDictionary * self)
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
-    LwCacheFile * cachefile = NULL;
+    LwMappedFile * mapped_file = NULL;
     gchar const * CONTENTS = NULL;
 
     //Initializations
-    cachefile = lw_dictionary_get_contents_cachefile (self);
-    if (cachefile == NULL) goto errored;
-    CONTENTS = lw_cachefile_get_contents (cachefile);
+    mapped_file = lw_dictionary_get_contents_mappedfile (self);
+    if (mapped_file == NULL) goto errored;
+    CONTENTS = lw_mappedfile_get_contents (mapped_file);
     if (CONTENTS == NULL) goto errored;
 
 errored:
@@ -1208,18 +1232,12 @@ lw_dictionary_get_contents_checksum (LwDictionary * self)
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
-    LwCacheFile * cachefile = NULL;
-    gchar const * CHECKSUM = NULL;
+    LwDictionaryPrivate * priv = NULL;
 
     //Initializations
-    cachefile = lw_dictionary_get_contents_cachefile (self);
-    if (cachefile == NULL) goto errored;
-    CHECKSUM = lw_cachefile_get_checksum (cachefile);
-    if (CHECKSUM == NULL) goto errored;
+    priv = self->priv;
 
-errored:
-
-    return CHECKSUM;
+    return priv->contents_checksum;
 }
 
 
@@ -1327,7 +1345,7 @@ lw_dictionary_load_columns (LwDictionary  * self,
  * @progress: (transfer none): A #LwProgress to track progress or %NULL to ignore it
  *
  * Parses a #LwCacheFile containing raw dictionary data as returned from
- * lw_dictionary_get_contents_cachefile().
+ * lw_dictionary_get_contents_mappedfile().
  *
  * @Returns: (transfer full): A #LwParsed that should be freed with g_object_unref()
  */

@@ -557,43 +557,6 @@ errored:
 }
 
 
-void
-lw_dictionarycache_set_contents (LwDictionaryCache          * self, 
-                                 LwCacheFile                * cache_file,
-                                 LwDictionaryCacheParseFunc   parse,
-                                 gpointer                     data,
-                                 LwProgress                 * progress)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
-    g_return_if_fail (LW_IS_CACHEFILE (cache_file));
-    g_return_if_fail (parse == NULL);
-    g_return_if_fail (LW_IS_PROGRESS (progress));
-    if (lw_progress_should_abort (progress)) return;
-
-    //Declarations
-    LwDictionaryCachePrivate *priv = NULL;
-    LwParsed *parsed = NULL;
-    gchar const * CHECKSUM = NULL;
-    gchar const * CONTENTS = NULL;
-    gsize content_length = 0;
-
-    //Initializations
-    CHECKSUM = lw_cachefile_get_checksum (cache_file);
-    CONTENTS = lw_cachefile_get_contents (cache_file);
-    content_length = lw_cachefile_length (cache_file);
-    priv = self->priv;
-
-    lw_dictionarycache_read (self, CHECKSUM, progress);
-    if (lw_progress_should_abort (progress))
-    {
-      lw_progress_set_error (progress, NULL);
-      lw_dictionarycache_write (self, CHECKSUM, CONTENTS, content_length, parse, data, progress);
-      lw_dictionarycache_read (self, CHECKSUM, progress);
-    }
-}
-
-
 static void
 lw_dictionarycache_set_flags (LwDictionaryCache * self,
                               LwUtf8Flag          flags)
