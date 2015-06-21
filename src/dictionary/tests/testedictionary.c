@@ -10,6 +10,7 @@ static GTypeModule * module = NULL;
 
 struct _Fixture {
   LwDictionary * dictionary;
+  gchar const * FILENAME;
   gchar * cachetmpl;
   gchar * cachedir;
   gchar * datatmpl;
@@ -40,6 +41,10 @@ void setup (Fixture *fixture, gconstpointer data)
   {
     module = lw_dictionarymodule_new (".." G_DIR_SEPARATOR_S ".libs" G_DIR_SEPARATOR_S "libedictionary." G_MODULE_SUFFIX);
   }
+
+  GType type = g_type_from_name ("LwEDictionary");
+  fixture->FILENAME = TESTDATADIR "edictionary.data";
+  fixture->dictionary = lw_dictionary_new (type, fixture->FILENAME);
 }
 
 
@@ -57,13 +62,9 @@ void teardown (Fixture *fixture, gconstpointer data)
 void
 get_contents (Fixture * fixture, gconstpointer data)
 {
-  GType type = g_type_from_name ("LwEDictionary");
-  gchar const * FILENAME = TESTDATADIR "edictionary.data";
-  fixture->dictionary = lw_dictionary_new (type, FILENAME);
-
   gchar * contents = NULL;
 
-  g_file_get_contents (FILENAME, &contents, NULL, NULL);
+  g_file_get_contents (fixture->FILENAME, &contents, NULL, NULL);
 
   g_assert_cmpstr (contents, ==, lw_dictionary_get_contents (fixture->dictionary));
   g_assert_nonnull (contents);
@@ -73,26 +74,33 @@ get_contents (Fixture * fixture, gconstpointer data)
 void
 get_contents_length (Fixture * fixture, gconstpointer data)
 {
-  GType type = g_type_from_name ("LwEDictionary");
-  gchar const * FILENAME = TESTDATADIR "edictionary.data";
-  fixture->dictionary = lw_dictionary_new (type, FILENAME);
-
   gsize length = 0;
   gchar * contents = NULL;
 
-  g_file_get_contents (FILENAME, &contents, &length, NULL);
+  g_file_get_contents (fixture->FILENAME, &contents, &length, NULL);
 
   g_assert_cmpuint (length, ==, lw_dictionary_contents_length (fixture->dictionary));
 }
 
 
 void
+get_contents_checksum (Fixture * fixture, gconstpointer data)
+{
+
+  gsize length = 0;
+  gchar * contents = NULL;
+  gchar * checksum = NULL;
+
+  g_file_get_contents (fixture->FILENAME, &contents, &length, NULL);
+  checksum = g_compute_checksum_for_data (LW_DICTIONARY_CHECKSUM, contents, length);
+
+  g_assert_cmpstr (checksum, ==, lw_dictionary_get_contents_checksum (fixture->dictionary));
+}
+
+
+void
 get_contents_path (Fixture * fixture, gconstpointer data)
 {
-  GType type = g_type_from_name ("LwEDictionary");
-  gchar const * FILENAME = TESTDATADIR "edictionary.data";
-  fixture->dictionary = lw_dictionary_new (type, FILENAME);
-
   gsize length = 0;
   gchar * contents = NULL;
 
@@ -103,48 +111,38 @@ get_contents_path (Fixture * fixture, gconstpointer data)
 void
 get_name_when_unset (Fixture * fixture, gconstpointer data)
 {
-  GType type = g_type_from_name ("LwEDictionary");
-  gchar const * FILENAME = TESTDATADIR "edictionary.data";
-  fixture->dictionary = lw_dictionary_new (type, FILENAME);
-
   g_assert_cmpstr ("edictionary.data", ==, lw_dictionary_get_name (fixture->dictionary));
 }
 
 void
 set_name_to_null (Fixture * fixture, gconstpointer data)
 {
-  GType type = g_type_from_name ("LwEDictionary");
-  gchar const * FILENAME = TESTDATADIR "edictionary.data";
-  fixture->dictionary = lw_dictionary_new (type, FILENAME);
-
   lw_dictionary_set_name (fixture->dictionary, NULL);
 
   g_assert_cmpstr (NULL, ==, lw_dictionary_get_name (fixture->dictionary));
+  g_assert_cmpstr ("edictionary.data", ==, lw_dictionary_get_contents_filename (fixture->dictionary));
+  g_assert_nonnull (lw_dictionary_get_contents (fixture->dictionary));
+  g_assert_cmpuint (0, <, lw_dictionary_contents_length (fixture->dictionary));
+  g_assert_nonnull (lw_dictionary_get_contents_checksum (fixture->dictionary));
 }
 
 
 void
 set_name_to_something_else (Fixture * fixture, gconstpointer data)
 {
-  GType type = g_type_from_name ("LwEDictionary");
-  gchar const * FILENAME = TESTDATADIR "edictionary.data";
-  fixture->dictionary = lw_dictionary_new (type, FILENAME);
-
   lw_dictionary_set_name (fixture->dictionary, "new test name");
 
   g_assert_cmpstr ("new test name", ==, lw_dictionary_get_name (fixture->dictionary));
+  g_assert_cmpstr ("edictionary.data", ==, lw_dictionary_get_contents_filename (fixture->dictionary));
   g_assert_nonnull (lw_dictionary_get_contents (fixture->dictionary));
   g_assert_cmpuint (0, <, lw_dictionary_contents_length (fixture->dictionary));
+  g_assert_nonnull (lw_dictionary_get_contents_checksum (fixture->dictionary));
 }
 
 
 void
 set_contents_filename_to_null (Fixture * fixture, gconstpointer data)
 {
-  GType type = g_type_from_name ("LwEDictionary");
-  gchar const * FILENAME = TESTDATADIR "edictionary.data";
-  fixture->dictionary = lw_dictionary_new (type, FILENAME);
-
   lw_dictionary_set_contents_filename (fixture->dictionary, NULL);
 
   g_assert_cmpstr ("edictionary.data", ==, lw_dictionary_get_name (fixture->dictionary));
@@ -152,15 +150,13 @@ set_contents_filename_to_null (Fixture * fixture, gconstpointer data)
   g_assert_cmpstr (NULL, ==, lw_dictionary_get_contents_path (fixture->dictionary));
   g_assert_cmpstr (NULL, ==, lw_dictionary_get_contents (fixture->dictionary));
   g_assert_cmpuint (0, ==, lw_dictionary_contents_length (fixture->dictionary));
+  g_assert_null (lw_dictionary_get_contents_checksum (fixture->dictionary));
 }
 
 
 void
 set_contents_filename_to_something_else (Fixture * fixture, gconstpointer data)
 {
-  GType type = g_type_from_name ("LwEDictionary");
-  gchar const * FILENAME = TESTDATADIR "edictionary.data";
-  fixture->dictionary = lw_dictionary_new (type, FILENAME);
   gchar * contents_path = g_build_filename (fixture->datadir, "libwaei", "dictionary", "LwEDictionary", "test new filename", NULL);
 
   lw_dictionary_set_contents_filename (fixture->dictionary, "test new filename");
@@ -170,6 +166,7 @@ set_contents_filename_to_something_else (Fixture * fixture, gconstpointer data)
   g_assert_cmpstr (contents_path, ==, lw_dictionary_get_contents_path (fixture->dictionary));
   g_assert_cmpstr (NULL, ==, lw_dictionary_get_contents (fixture->dictionary));
   g_assert_cmpuint (0, ==, lw_dictionary_contents_length (fixture->dictionary));
+  g_assert_null (lw_dictionary_get_contents_checksum (fixture->dictionary));
 
   g_free (contents_path);
 }
