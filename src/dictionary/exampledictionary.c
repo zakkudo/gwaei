@@ -86,7 +86,7 @@ lw_exampledictionary_constructed (GObject *object)
     gchar const * FILENAME = NULL;
 
     dictionary = LW_DICTIONARY (object);
-    FILENAME = lw_dictionary_get_filename (dictionary);
+    FILENAME = lw_dictionary_get_contents_filename (dictionary);
 
     gchar const * BUILT_IN_NAMES[] = {
       gettext("Examples"),

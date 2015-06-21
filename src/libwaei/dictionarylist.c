@@ -355,7 +355,7 @@ printf("BREAK1 _add_to_index\n");
     priv = self->priv;
     id = g_utf8_casefold (lw_dictionary_get_id (dictionary), -1);
     typename = g_utf8_casefold (G_OBJECT_TYPE_NAME (dictionary), -1);
-    filename = g_utf8_casefold (lw_dictionary_get_filename (dictionary), -1);
+    filename = g_utf8_casefold (lw_dictionary_get_contents_filename (dictionary), -1);
 printf("BREAK2 _add_to_index filename: %s\n", filename);
    
     if (typename != NULL && !g_hash_table_contains (priv->data.index.typename, typename))
@@ -407,7 +407,7 @@ _remove_from_index (LwDictionaryList *self,
     priv = self->priv;
     id = g_utf8_casefold (lw_dictionary_get_id (dictionary), -1);
     typename = g_utf8_casefold (G_OBJECT_TYPE_NAME (dictionary), -1);
-    filename = g_utf8_casefold (lw_dictionary_get_filename (dictionary), -1);
+    filename = g_utf8_casefold (lw_dictionary_get_contents_filename (dictionary), -1);
    
     if (g_hash_table_lookup (priv->data.index.typename, typename) == dictionary)
     {
@@ -1136,7 +1136,8 @@ lw_dictionarylist_dictionary_exists (LwDictionaryList *self,
     //Return true if the dictionary exists
     while (link != NULL && exists == FALSE)
     {
-      exists = lw_dictionary_equals (dictionary, LW_DICTIONARY (link->data));
+      //exists = lw_dictionary_equals (dictionary, LW_DICTIONARY (link->data));
+      //TODO
       link = link->next;
     }
 

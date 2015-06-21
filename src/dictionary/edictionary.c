@@ -94,7 +94,7 @@ lw_edictionary_constructed (GObject *object)
     };
 
     dictionary = LW_DICTIONARY (object);
-    FILENAME = lw_dictionary_get_filename (dictionary);
+    FILENAME = lw_dictionary_get_contents_filename (dictionary);
 
     lw_dictionary_set_name (dictionary, gettext(FILENAME));
 }

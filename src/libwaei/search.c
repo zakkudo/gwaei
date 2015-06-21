@@ -1184,7 +1184,7 @@ lw_search_get_parsed (LwSearch *  self,
     if (progress == NULL) goto errored;
     dictionary = lw_search_get_dictionary (self);
     if (dictionary == NULL) goto errored;
-    cache = lw_dictionary_get_cache (dictionary, progress, flags);
+    cache = lw_dictionary_ensure_parsed_cache_by_utf8flags (dictionary, flags, progress);
     if (cache == NULL) goto errored;
     parsed = lw_dictionarycache_get_parsed (cache);
     if (parsed == NULL) goto errored;

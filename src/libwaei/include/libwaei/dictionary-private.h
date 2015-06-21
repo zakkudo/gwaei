@@ -6,16 +6,15 @@ G_BEGIN_DECLS
 typedef enum
 {
   PROP_0,
-  PROP_FILENAME,
   PROP_NAME,
   PROP_PROGRESS,
   PROP_ID,
-  PROP_PATH,
-  PROP_CACHETREE,
-  PROP_CHECKSUM,
+  PROP_CONTENTS_PATH,
+  PROP_CONTENTS_FILENAME,
+  PROP_CONTENTS_CHECKSUM,
+  PROP_CONTENTS_CACHEFILE,
   PROP_CONTENTS,
   PROP_CONTENT_LENGTH,
-  PROP_CACHEFILE,
   TOTAL_PROPS
 } LwDictionaryProps;
 
@@ -25,17 +24,16 @@ typedef enum {
 } ClassSignalId;
 
 struct _LwDictionaryPrivate {
-  gchar *path;
-  GTree *caches;
-
+  gchar * name;
+  gchar * id;
   GMutex mutex;
-  gchar *name;
-  LwProgress *progress;
+  LwProgress * progress;
 
-  gchar *filename;
-  gchar *id;
+  GTree * parsed_cachetree;
 
-  LwCacheFile *cachefile;
+  gchar * contents_path;
+  gchar * contents_filename;
+  LwCacheFile * contents_cachefile;
 };
 
 struct _LwDictionaryClassPrivate {
@@ -49,15 +47,20 @@ struct _LwDictionaryClassPrivate {
 
 //Properties
 
-static LwCacheFile* lw_dictionary_get_cachefile (LwDictionary * self);
-static void lw_dictionary_set_cachefile (LwDictionary * self, LwCacheFile * cachefile);
+static LwCacheFile* lw_dictionary_get_contents_cachefile (LwDictionary * self);
+static void lw_dictionary_set_contents_cachefile (LwDictionary * self, LwCacheFile * cachefile);
 
-static void lw_dictionary_sync_cachefile (LwDictionary * self);
+static void lw_dictionary_sync_contents_cachefile (LwDictionary * self);
 
-static void lw_dictionary_sync_path (LwDictionary * self);
-static gchar * lw_dictionary_build_path (LwDictionary * self);
+static void lw_dictionary_sync_contents_path (LwDictionary * self);
+static gchar * lw_dictionary_build_contents_path (LwDictionary * self);
 
 static void lw_dictionary_sync_id (LwDictionary * self);
+
+static LwParsed* lw_dictionary_parse (LwDictionary * self, LwCacheFile * cache_file, LwProgress * progress);
+
+static GTree * lw_dictionary_get_parsed_cachetree (LwDictionary * self);
+static void lw_dictionary_set_parsed_cachetree (LwDictionary * self, GTree * tree);
 
 G_END_DECLS
 
