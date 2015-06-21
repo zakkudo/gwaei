@@ -88,7 +88,6 @@ gint lw_dictionary_total_columns (LwDictionary * self);
 gchar const * lw_dictionary_get_column_language (LwDictionary * self, gint column_num);
 LwDictionaryColumnHandling lw_dictionary_get_column_handling (LwDictionary * self, gint column_num);
 
-gchar ** lw_dictionary_get_installed_idlist (GType type_filter);
 gchar const* lw_dictionary_get_id (LwDictionary * self);
 
 gboolean  lw_dictionary_uninstall (LwDictionary * self);

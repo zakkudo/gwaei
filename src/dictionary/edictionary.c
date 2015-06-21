@@ -55,20 +55,6 @@ static void lw_edictionary_load_columns (LwDictionary *self, gchar *buffer, gcha
 static gint * lw_edictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
 
-LwDictionary* lw_edictionary_new (const gchar *FILENAME)
-{
-    //Declarations
-    LwDictionary *dictionary;
-
-    //Initializations
-    dictionary = LW_DICTIONARY (g_object_new (LW_TYPE_EDICTIONARY,
-                                "filename", FILENAME,
-                                NULL));
-
-    return dictionary;
-}
-
-
 static void 
 lw_edictionary_init (LwEDictionary *edictionary)
 {

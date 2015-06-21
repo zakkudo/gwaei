@@ -42,7 +42,7 @@
  *     object_class->finalize = lw_edictionary_finalize;
  *     object_class->constructed = lw_edictionary_constructed;
  *
- *     dictionary_class = LW_DICTIONARY_CLASS (klass);
+ *     dictionary_class = LW_DICTIONARY_GET_CLASS (klass);
  *     dictionary_class->get_column_handling = lw_edictionary_get_column_handling;
  *     dictionary_class->get_total_columns = lw_edictionary_get_total_columns;
  *     dictionary_class->get_column_language = lw_edictionary_get_column_language;
@@ -86,7 +86,7 @@ LwDictionary *
 lw_dictionary_new (GType         type,
                    gchar const * FILENAME)
 {
-    return LW_DICTIONARY (g_object_new (type, "filename", FILENAME, NULL));
+    return LW_DICTIONARY (g_object_new (type, "contents-filename", FILENAME, NULL));
 }
 
 
@@ -95,6 +95,8 @@ lw_dictionary_init (LwDictionary * self)
 {
     self->priv = LW_DICTIONARY_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwDictionaryPrivate));
+
+    g_mutex_init (&self->priv->mutex);
 }
 
 
@@ -109,9 +111,15 @@ lw_dictionary_finalize (GObject *object)
     self = LW_DICTIONARY (object);
     priv = self->priv;
 
-    g_free (priv->contents_filename); priv->contents_filename = NULL;
-    g_free (priv->name); priv->name = NULL;
+    g_free (priv->id);
+    g_free (priv->name);
 
+    g_free (priv->contents_filename);
+    g_free (priv->contents_path);
+
+    g_mutex_clear (&self->priv->mutex);
+
+    if (priv->contents_cachefile) g_object_unref (priv->contents_cachefile);
     lw_dictionary_set_parsed_cachetree (self, NULL);
 
     memset(self->priv, 0, sizeof(LwDictionaryPrivate));
@@ -214,24 +222,6 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
 
     g_type_class_add_private (object_class, sizeof (LwDictionaryPrivate));
 
-    klass->priv->pspec[PROP_CONTENTS_FILENAME] = g_param_spec_string (
-      "filename",
-      gettext("Filename"),
-      gettext("Filename of the dictionary"),
-      NULL,
-      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
-    );
-    g_object_class_install_property (object_class, PROP_CONTENTS_FILENAME, klass->priv->pspec[PROP_CONTENTS_FILENAME]);
-
-    klass->priv->pspec[PROP_CONTENTS_PATH] = g_param_spec_string (
-      "path",
-      gettext("Path"),
-      gettext("Full path of the dictionary"),
-      NULL,
-      G_PARAM_READABLE
-    );
-    g_object_class_install_property (object_class, PROP_CONTENTS_PATH, klass->priv->pspec[PROP_CONTENTS_PATH]);
-
     klass->priv->pspec[PROP_ID] = g_param_spec_string (
       "id",
       gettext("Id"),
@@ -241,14 +231,14 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
     );
     g_object_class_install_property (object_class, PROP_ID, klass->priv->pspec[PROP_ID]);
 
-    klass->priv->pspec[PROP_CONTENTS_CHECKSUM] = g_param_spec_string (
-      "contents-checksum",
-      gettext("Contents Checksum"),
-      gettext("Checksum of the raw dictionary file"),
+    klass->priv->pspec[PROP_NAME] = g_param_spec_string (
+      "name",
+      gettext("Name"),
+      gettext("Human readable (and localized) name for the dictionary"),
       NULL,
-      G_PARAM_READABLE
+      G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_CONTENTS_CHECKSUM, klass->priv->pspec[PROP_CONTENTS_CHECKSUM]);
+    g_object_class_install_property (object_class, PROP_NAME, klass->priv->pspec[PROP_NAME]);
 
     klass->priv->pspec[PROP_CONTENTS] = g_param_spec_string (
       "contents",
@@ -260,7 +250,7 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
     g_object_class_install_property (object_class, PROP_CONTENTS, klass->priv->pspec[PROP_CONTENTS]);
 
     klass->priv->pspec[PROP_CONTENT_LENGTH] = g_param_spec_ulong (
-      "content-length",
+      "contents-length",
       gettext("Content Length"),
       gettext("Byte length of the raw contents of the dictionary"),
       0,
@@ -278,6 +268,34 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
       G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_CONTENTS_CACHEFILE, klass->priv->pspec[PROP_CONTENTS_CACHEFILE]);
+
+    klass->priv->pspec[PROP_CONTENTS_FILENAME] = g_param_spec_string (
+      "contents-filename",
+      gettext("Filename"),
+      gettext("Filename of the dictionary"),
+      NULL,
+      G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_CONTENTS_FILENAME, klass->priv->pspec[PROP_CONTENTS_FILENAME]);
+
+    klass->priv->pspec[PROP_CONTENTS_PATH] = g_param_spec_string (
+      "contents-path",
+      gettext("Path"),
+      gettext("Full path of the dictionary"),
+      NULL,
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_CONTENTS_PATH, klass->priv->pspec[PROP_CONTENTS_PATH]);
+
+
+    klass->priv->pspec[PROP_CONTENTS_CHECKSUM] = g_param_spec_string (
+      "contents-checksum",
+      gettext("Contents Checksum"),
+      gettext("Checksum of the raw dictionary file"),
+      NULL,
+      G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_CONTENTS_CHECKSUM, klass->priv->pspec[PROP_CONTENTS_CHECKSUM]);
 }
 
 
@@ -364,7 +382,7 @@ errored:
  * lw_dictionary_get_column_handling:
  * @self: A #LwDictionary
  * @column_num: The column to get the handling of
- * Returns: A #LwDictionaryColumnHandling denoting the type of processing that should be handled on this column
+ * Returns: A %LwDictionaryColumnHandling denoting the type of processing that should be handled on this column
  */
 LwDictionaryColumnHandling
 lw_dictionary_get_column_handling (LwDictionary * self,
@@ -523,7 +541,7 @@ lw_dictionary_get_contents_path (LwDictionary * self)
  */
 gchar *
 lw_dictionary_build_contents_path_by_type_and_name (GType         type,
-                                           gchar const * FILENAME)
+                                                    gchar const * FILENAME)
 {
     //Sanity checks
     g_return_val_if_fail (g_type_is_a (type, LW_TYPE_DICTIONARY), NULL);
@@ -577,7 +595,8 @@ errored:
 
 
 static void
-lw_dictionary_sync_contents_path (LwDictionary * self)
+lw_dictionary_set_contents_path (LwDictionary * self,
+                                 gchar const  * PATH)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -585,17 +604,14 @@ lw_dictionary_sync_contents_path (LwDictionary * self)
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    gchar *path = NULL;
 
     //Initializations
     priv = self->priv;
-    klass = LW_DICTIONARY_CLASS (self);
-    path = lw_dictionary_build_contents_path (self);
-    if (g_strcmp0 (path, priv->contents_path) == 0) goto errored;
+    klass = LW_DICTIONARY_GET_CLASS (self);
+    if (g_strcmp0 (PATH, priv->contents_path) == 0) goto errored;
 
     g_free(priv->contents_path);
-    priv->contents_path = path;
-    path = NULL;
+    priv->contents_path = g_strdup (PATH);
 
     lw_dictionary_set_parsed_cachetree (self, NULL);
     lw_dictionary_sync_contents_cachefile (self);
@@ -604,7 +620,7 @@ lw_dictionary_sync_contents_path (LwDictionary * self)
 
 errored:
 
-    g_free (path); path = NULL;
+    return;
 }
 
 
@@ -682,41 +698,90 @@ lw_dictionary_get_contents_filename (LwDictionary * self)
 }
 
 
+static gboolean
+_is_anchored_path (gchar const * PATH)
+{
+    gboolean is_relative_anchored = FALSE;
+    gboolean is_absolute_anchored = FALSE;
+
+    is_absolute_anchored = g_path_is_absolute (PATH);
+    is_relative_anchored = (strncmp(PATH, "./", strlen("./")) == 0 ||
+                            strncmp(PATH, "../", strlen("../")) == 0);
+
+    return (is_absolute_anchored || is_relative_anchored);
+}
+
+
 /**
  * lw_dictionary_set_contents_filename:
  * @self: A #LwDictionary
- * @FILENAME: The new filename for the dictionary
+ * @FILENAME: The new filename for the dictionary.  It can be absolute, or relative if you want to use the dictionary search paths
+ *
+ * This method should generally only be used internally.  It sets the file that
+ * the dictionary is referencing for its base data.  Once set, it should generally
+ * not be changed.
  */
 void
 lw_dictionary_set_contents_filename (LwDictionary * self,
-                            gchar const  * FILENAME)
+                                     gchar const  * FILENAME)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
 
     //Declarations
-    LwDictionaryPrivate *priv = NULL;
-    LwDictionaryClass *klass = NULL;
+    LwDictionaryPrivate * priv = NULL;
+    LwDictionaryClass * klass = NULL;
+    gchar * path = NULL;
+    gchar * filename = NULL;
+    gboolean path_changed = FALSE;
+    gboolean filename_changed = FALSE;
     
     //Initializations
     priv = self->priv;
-    klass = LW_DICTIONARY_CLASS (self);
+    klass = LW_DICTIONARY_GET_CLASS (self);
     if (g_strcmp0 (FILENAME, priv->contents_filename) == 0) goto errored;
 
-    g_free (priv->contents_filename);
-    priv->contents_filename = g_strdup (FILENAME);
+    if (_is_anchored_path (FILENAME))
+    {
+      filename = g_path_get_basename (FILENAME);
+      path = g_strdup (FILENAME);
+    }
+    else
+    {
+      filename = g_strdup (FILENAME);
+      path = lw_dictionary_build_contents_path (self);
+    }
 
-    g_free (priv->name);
-    priv->name = g_strdup (gettext(priv->contents_filename));
+    filename_changed = (g_strcmp0 (filename, priv->contents_filename) != 0);
+    path_changed = (g_strcmp0 (path, priv->contents_path) != 0);
 
-    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CONTENTS_FILENAME]);
+    if (filename_changed)
+    {
+      g_free (priv->contents_filename);
+      priv->contents_filename = filename;
+      filename = NULL;
 
-    lw_dictionary_sync_id (self);
-    lw_dictionary_sync_contents_path (self);
+      lw_dictionary_sync_id (self);
+
+      g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CONTENTS_FILENAME]);
+    }
+
+    if (path_changed)
+    {
+      g_free (priv->contents_path);
+      priv->contents_path = path;
+      path = NULL;
+
+      lw_dictionary_set_parsed_cachetree (self, NULL);
+      lw_dictionary_sync_contents_cachefile (self);
+
+      g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_CONTENTS_PATH]);
+    }
 
 errored:
 
-    return;
+    g_free (filename); filename = NULL;
+    g_free (path); path = NULL;
 }
 
 
@@ -743,7 +808,7 @@ lw_dictionary_set_parsed_cache (LwDictionary      * self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_DICTIONARY_CLASS (self);
+    klass = LW_DICTIONARY_GET_CLASS (self);
     flags = lw_dictionarycache_get_flags (cache);
     key = GINT_TO_POINTER (flags);
     if (priv->parsed_cachetree == NULL) goto errored;
@@ -805,7 +870,7 @@ _dictionarycache_parse (LwCacheFile                 * cache_file,
  * @self: A #LwDictionary
  * @flags: The flags of the dictionary cache to search for, otherwise one will be built with these flags
  * @progress: A #LwProgress to track parsing progress or %NULL to ignore it
- * Returns: (transfer none): A #LwDictionaryCache that matches the #LwUtfFlags. This method will never return %NULL
+ * Returns: (transfer none): A #LwDictionaryCache that matches the #LwUtf8Flags. This method will never return %NULL
  */
 LwDictionaryCache *
 lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
@@ -851,10 +916,10 @@ errored:
 
 
 /**
- * lw_dictinary_lookup_parsed_cache_by_utf8flags:
+ * lw_dictionary_lookup_parsed_cache_by_utf8flags:
  * @self: A #LwDictionary
  * @flags: Flags of the #LwDictionaryCache to lookup
- * Returns: A #LwDictionaryCache matching the flags or %NULL if none were found
+ * Returns: (transfer none): A #LwDictionaryCache matching the flags or %NULL if none were found
  */
 LwDictionaryCache *
 lw_dictionary_lookup_parsed_cache_by_utf8flags (LwDictionary * self,
@@ -872,7 +937,7 @@ lw_dictionary_lookup_parsed_cache_by_utf8flags (LwDictionary * self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_DICTIONARY_CLASS (G_OBJECT_GET_CLASS (self));
+    klass = LW_DICTIONARY_GET_CLASS (self);
     FILENAME = lw_dictionary_get_contents_filename (self);
 
     caches = lw_dictionary_get_parsed_cachetree (self);
@@ -1069,6 +1134,11 @@ lw_dictionary_sync_contents_cachefile (LwDictionary * self)
     }
 
     lw_dictionary_set_contents_cachefile (self, cachefile);
+
+    if (priv->contents_path != NULL)
+    {
+      g_object_unref (cachefile);
+    }
 }
 
 
@@ -1167,7 +1237,7 @@ lw_dictionary_set_parsed_cachetree (LwDictionary * self,
     //Initializations
     priv = self->priv;
     if (priv->parsed_cachetree == tree) goto errored;
-    klass = LW_DICTIONARY_CLASS (self);
+    klass = LW_DICTIONARY_GET_CLASS (self);
 
     if (tree != NULL)
     {
@@ -1348,7 +1418,7 @@ errored:
  * This method is primarily made to parse search queries to
  * aid in reduce comparisons againt unrelated columns.
  *
- * @Returns: (transfer full): An array of column ids that shold be freed with g_free()
+ * Returns: (transfer full): An array of column ids that shold be freed with g_free()
  */
 gint *
 lw_dictionary_calculate_applicable_columns_for_text (LwDictionary * self,

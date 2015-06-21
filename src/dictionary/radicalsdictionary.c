@@ -56,20 +56,6 @@ static gint * lw_radicalsdictionary_calculate_applicable_columns_for_text (LwDic
 G_DEFINE_DYNAMIC_TYPE (LwRadicalsDictionary, lw_radicalsdictionary, LW_TYPE_DICTIONARY)
 
 
-LwDictionary* lw_radicalsdictionary_new (const gchar * FILENAME)
-{
-    //Declarations
-    LwDictionary *dictionary;
-
-    //Initializations
-    dictionary = LW_DICTIONARY (g_object_new (LW_TYPE_RADICALSDICTIONARY,
-                                "filename", FILENAME,
-                                 NULL));
-
-    return dictionary;
-}
-
-
 static void 
 lw_radicalsdictionary_init (LwRadicalsDictionary *radicalsdictionary)
 {
