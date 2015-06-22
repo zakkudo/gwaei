@@ -278,7 +278,7 @@ lw_cachefile_write (LwCacheFile * self,
       fwrite(CHECKSUM, 1, strlen(CHECKSUM) + 1, stream);
     }
 
-    if (content_length < 0)
+    if (content_length < 1)
     {
       content_length = strlen (CONTENTS) + 1;
     }

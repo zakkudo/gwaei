@@ -314,14 +314,12 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
     const gchar *p = NULL;
     gint bytes_read = 0;
 
-    while (*e != '\0' && bytes_read <= max_length)
+    while (*e != '\0' && bytes_read < max_length)
     {
       p = e;
       e = g_utf8_next_char (e);
       bytes_read = e - TEXT;
     }
-    if (p != NULL) e = p;
-
 
     *output_chunk = lw_utf8_normalize (TEXT, bytes_read, flags);
 
@@ -766,7 +764,10 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *contents,
 
     //Initializations
     if (content_length < 1) content_length = strlen(contents);
-    chunk_size = lw_progress_get_chunk_size (progress);
+    if (progress != NULL)
+    {
+      chunk_size = lw_progress_get_chunk_size (progress);
+    }
 
     if (progress != NULL)
     {
@@ -810,7 +811,7 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *contents,
         }
         if (progress != NULL)
         {
-          if (chunk++ >= chunk_size)
+          if (chunk_size != 0 && chunk++ >= chunk_size)
           {
             lw_progress_set_current (progress, c - contents);
             chunk = 0;

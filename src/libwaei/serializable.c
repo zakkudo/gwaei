@@ -139,7 +139,7 @@ lw_serializable_serialize_to_cachefile (LwSerializable * self,
     //Declarations
     LwSerializablePrivate *priv = NULL;
     gsize length = 0;
-    gchar *tmp_path = NULL;
+    gchar * tmp_path = NULL;
     GMappedFile *mapped_file = NULL;
     gchar *contents = NULL;
     GError *error = NULL;
@@ -152,8 +152,12 @@ lw_serializable_serialize_to_cachefile (LwSerializable * self,
     mapped_file = g_mapped_file_new (tmp_path, TRUE, &error);
     if (error != NULL)
     {
-      lw_progress_take_error (progress, error);
-      error = NULL;
+      if (progress != NULL)
+      {
+        lw_progress_take_error (progress, error);
+        error = NULL;
+      }
+      g_clear_error (&error);
       has_error = TRUE;
       goto errored;
     }

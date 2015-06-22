@@ -262,8 +262,7 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
     if (length < 1) goto errored;
     stream = g_fopen (TARGET_PATH, "wb");
     if (stream == NULL) goto errored;
-    chunk_size = lw_progress_get_chunk_size (progress);
-    if (chunk_size < 1) goto errored;
+    if (progress != NULL) chunk_size = lw_progress_get_chunk_size (progress);
     buffer = g_new (gchar, chunk_size);
     if (buffer == NULL) goto errored;
     conv = g_iconv_open (TARGET_ENCODING, SOURCE_ENCODING);
@@ -294,7 +293,7 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
           bytes_written = fwrite(buffer, sizeof(gchar), buffer_size, stream);
           if (bytes_written == 0) goto errored;
         }
-        if (progress != NULL)
+        if (progress != NULL && chunk_size > 0)
         {
           lw_progress_set_current (progress, offset);
         }
@@ -379,19 +378,22 @@ static int _libcurl_update_progress (LwProgress *progress,
     //Sanity checks
     g_return_val_if_fail (LW_IS_PROGRESS (progress), 1);
     
-    if (dltotal > 0.0 && dlnow > 0.0)
+    if (progress != NULL)
     {
-      lw_progress_set_total (progress, dltotal);
-      lw_progress_set_current (progress, dlnow);
-    }
-    else
-    {
-      lw_progress_set_total (progress, dltotal);
-      lw_progress_set_current (progress, 0.0);
-    }
+      if (dltotal > 0.0 && dlnow > 0.0)
+      {
+        lw_progress_set_total (progress, dltotal);
+        lw_progress_set_current (progress, dlnow);
+      }
+      else
+      {
+        lw_progress_set_total (progress, dltotal);
+        lw_progress_set_current (progress, 0.0);
+      }
 
-    //Update the interface
-    if (lw_progress_should_abort (progress)) return 1;
+      //Update the interface
+      if (lw_progress_should_abort (progress)) return 1;
+    }
 
     return 0;
 }
@@ -528,7 +530,7 @@ lw_io_copy (const gchar *SOURCE_PATH,
     if (content_length < 1) goto errored;
     stream = g_fopen (TARGET_PATH, "wb");
     if (stream == NULL) goto errored;
-    chunk_size = lw_progress_get_chunk_size (progress);
+    if (progress != NULL) chunk_size = lw_progress_get_chunk_size (progress);
 
     if (progress != NULL)
     {
@@ -610,7 +612,7 @@ lw_io_gunzip_file (const gchar *SOURCE_PATH,
     gzFile source = NULL;
     FILE *target = NULL;
     gint read = 0;
-    gint chunk_size = lw_progress_get_chunk_size (progress);
+    gsize chunk_size = 0;
     gchar *buffer = NULL;
     gsize content_length = 0;
     gboolean has_error = FALSE;
@@ -622,6 +624,7 @@ lw_io_gunzip_file (const gchar *SOURCE_PATH,
     if (source == NULL) goto errored;
     target = g_fopen (TARGET_PATH, "wb");
     if (target == NULL) goto errored;
+    if (progress != NULL) chunk_size = lw_progress_get_chunk_size (progress);
 
     if (progress != NULL)
     {
@@ -792,15 +795,14 @@ errored:
 }
 
 
-gchar*
+gchar *
 lw_io_allocate_temporary_file (gsize        bytes_length,
-                               LwProgress  *progress)
+                               LwProgress * progress)
 {
     //Sanity checks
     g_return_val_if_fail (bytes_length > 0, NULL);
 
     //Initializations
-    gchar *tmpl = NULL;
     gchar *path = NULL;
     gsize chunk_size = 0;
     gint fd = -1;
@@ -809,25 +811,26 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
     FILE *stream = NULL;
 
     //Declarations
-    tmpl = g_strdup ("gwaei.XXXXXX");
-    chunk_size = lw_progress_get_chunk_size (progress);
-    if (chunk_size == 0) goto errored;
-    path = g_build_path (g_get_tmp_dir (), tmpl, NULL);
+    if (progress != NULL) chunk_size = lw_progress_get_chunk_size (progress);
+    if (chunk_size == 0) chunk_size = lw_io_get_pagesize ();
+    if (chunk_size == 0) chunk_size = 1024;
+    path = g_build_filename (g_get_tmp_dir (), "gwaei.XXXXXX", NULL);
     if (path == NULL) goto errored;
-    fd = g_mkstemp (tmpl);
+    fd = g_mkstemp (path);
     if (fd < 0) goto errored;
     stream = fdopen (fd, "w+");
     if (stream == NULL) goto errored;
     fd = -1;
     buffer = g_new0 (gchar, chunk_size);
     if (buffer == NULL) goto errored;
-
+    
     {
       gsize bytes_written = 0;
       gsize bytes_to_write = 0;
       while (bytes_length > 0)
       {
         bytes_to_write = (bytes_length > chunk_size) ? chunk_size : bytes_length;
+        bytes_written = fwrite(buffer, sizeof(gchar), bytes_to_write, stream);
         if (bytes_written != chunk_size && ferror(stream) != 0)
         {
           if (progress != NULL)
@@ -841,7 +844,7 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
           has_error = TRUE;
           goto errored;
         }
-        bytes_length -= bytes_to_write;
+        bytes_length -= bytes_written;
       }
     }
 
@@ -853,8 +856,6 @@ errored:
       g_free (path);
       path = NULL;
     }
-
-    g_free (tmpl); tmpl = NULL;
 
     fclose(stream); stream = NULL;
 

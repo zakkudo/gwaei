@@ -36,6 +36,12 @@ static void lw_dictionarycache_clear (LwDictionaryCache *self);
 
 static void lw_dictionarycache_set_name (LwDictionaryCache *self, gchar const *NAME);
 
+static void lw_dictionarycache_set_parsed (LwDictionaryCache *self, LwParsed *parsed);
+static void lw_dictionarycache_set_indexed (LwDictionaryCache *self, LwIndexed *indexed);
+
+static gchar* lw_dictionarycache_build_filename (LwDictionaryCache *self, gchar const *TYPE);
+static gchar* lw_dictionarycache_build_path (LwDictionaryCache *self, gchar const *TYPE);
+
 G_END_DECLS
 
 #endif

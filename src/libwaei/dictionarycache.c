@@ -60,6 +60,12 @@ lw_dictionarycache_error_quark ()
 }
 
 
+/**
+ * lw_dictionarycache_new:
+ * @NAME: (transfer none): Base name of the cache on the filesystem
+ * @flags: Normalization flags for the dictionary cache that will be applied to written data
+ * Returns: (transfer full): A new #LwDictionaryCache that must be freed with g_object_unref()
+ */
 LwDictionaryCache *
 lw_dictionarycache_new (gchar const * NAME,
                         LwUtf8Flag    flags)
@@ -114,12 +120,6 @@ lw_dictionarycache_set_property (GObject      * object,
       case PROP_FLAGS:
         lw_dictionarycache_set_flags (self, g_value_get_flags (value));
         break;
-      case PROP_PARSED:
-        lw_dictionarycache_set_parsed (self, g_value_get_boxed (value));
-        break;
-      case PROP_INDEXED:
-        lw_dictionarycache_set_indexed (self, g_value_get_boxed (value));
-        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -173,6 +173,13 @@ lw_dictionarycache_finalize (GObject * object)
     self = LW_DICTIONARYCACHE (object);
     priv = self->priv;
 
+    g_free (priv->name);
+
+    if (priv->parsed) g_object_unref (priv->parsed);
+    if (priv->indexed) g_object_unref (priv->indexed);
+
+    memset(priv, 0, sizeof(LwDictionaryCachePrivate));
+
     G_OBJECT_CLASS (lw_dictionarycache_parent_class)->finalize (object);
 }
 
@@ -214,8 +221,8 @@ lw_dictionarycache_class_init (LwDictionaryCacheClass * klass)
         "name",
         gettext("Name"),
         gettext("The base name of the data cache.  This is used to build the filename."),
-        "unnamed",
-        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
+        NULL,
+        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_NAME, klasspriv->pspec[PROP_NAME]);
 
@@ -225,9 +232,27 @@ lw_dictionarycache_class_init (LwDictionaryCacheClass * klass)
         gettext("The flags that are set on normalizations"),
         LW_TYPE_UTF8FLAG, 
         0,
-        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
+        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
+
+    klasspriv->pspec[PROP_INDEXED] = g_param_spec_object (
+        "indexed",
+        gettext("Indexed"),
+        gettext("Indexed information for the dictionary"),
+        LW_TYPE_INDEXED, 
+        G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_INDEXED, klasspriv->pspec[PROP_INDEXED]);
+
+    klasspriv->pspec[PROP_PARSED] = g_param_spec_object (
+        "parsed",
+        gettext("Parsed"),
+        gettext("Parsed information for the dictionary"),
+        LW_TYPE_PARSED, 
+        G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_PARSED, klasspriv->pspec[PROP_PARSED]);
 }
 
 
@@ -290,7 +315,7 @@ _write_serializable (LwDictionaryCache * self,
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     g_return_val_if_fail (CHECKSUM != NULL, NULL);
-    if (lw_progress_should_abort (progress)) return NULL;
+    if (progress && lw_progress_should_abort (progress)) return NULL;
 
     //Declarations
     gchar *path = NULL;
@@ -321,8 +346,7 @@ _map_contents (LwDictionaryCache * self,
     g_return_val_if_fail (CHECKSUM != NULL, NULL);
 		g_return_val_if_fail (CONTENTS != NULL, NULL);
 		g_return_val_if_fail (content_length > 0, NULL);
-    g_return_val_if_fail (LW_IS_PROGRESS (progress), NULL);
-    if (lw_progress_should_abort (progress)) return NULL;
+    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
 
 		//Declarations
 		gchar * path = NULL;
@@ -336,6 +360,7 @@ _map_contents (LwDictionaryCache * self,
     if (cache_file == NULL) goto errored;
 
     lw_mappedfile_set_delete_on_free (LW_MAPPEDFILE (cache_file), TRUE);
+    lw_cachefile_read (cache_file, CHECKSUM, progress);
 
 errored:
   
@@ -374,6 +399,7 @@ _index (LwDictionaryCache * self,
 {
     //Sanity checks
     g_return_val_if_fail (parsed != NULL, NULL);
+    return NULL;
 
     //Declarations
     LwIndexed *indexed = NULL;
@@ -387,6 +413,16 @@ _index (LwDictionaryCache * self,
 }
 
 
+/**
+ * lw_dictionarycache_write:
+ * @self: A #LwDictionaryCache
+ * @CHECKSUM: (transfer none): A checksum to write to disk
+ * @CONTENTS: (transfer none): The contents to write to disk
+ * @content_length: The byte length of @CONTENTS
+ * @parse: A function pointer for parsing the data before it is written
+ * @data: Data to pass to @parse when it is called
+ * @progress: A #LwProgress to track parsing progress or %NULL to ignore it
+ */
 void
 lw_dictionarycache_write (LwDictionaryCache          * self,
                           gchar const                * CHECKSUM,
@@ -400,6 +436,7 @@ lw_dictionarycache_write (LwDictionaryCache          * self,
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
     g_return_if_fail (CHECKSUM != NULL);
     g_return_if_fail (CONTENTS != NULL);
+    if (progress != NULL && lw_progress_should_abort (progress)) return;
 
     //Declarations
     LwCacheFile *mapped_contents = NULL;
@@ -419,15 +456,22 @@ lw_dictionarycache_write (LwDictionaryCache          * self,
 
     //Create an index from the parsed data
     indexed = _index (self, parsed, progress);
-    if (indexed == NULL) goto errored;
 
     //Write the files perminently if we made it this far
     normalized_cachefile = _write_mapped (self, "normalized", CHECKSUM, mapped_contents, progress);
     if (normalized_cachefile == NULL) goto errored;
-    parsed_cachefile = _write_serializable (self, "parsed", CHECKSUM, LW_SERIALIZABLE (parsed), progress);
-    if (parsed_cachefile == NULL) goto errored;
-    indexed_cachefile = _write_serializable (self, "indexed", CHECKSUM, LW_SERIALIZABLE (indexed), progress);
-    if (indexed_cachefile == NULL) goto errored;
+
+    if (parsed != NULL)
+    {
+      parsed_cachefile = _write_serializable (self, "parsed", CHECKSUM, LW_SERIALIZABLE (parsed), progress);
+      if (parsed_cachefile == NULL) goto errored;
+    }
+
+    if (indexed != NULL)
+    {
+      indexed_cachefile = _write_serializable (self, "indexed", CHECKSUM, LW_SERIALIZABLE (indexed), progress);
+      if (indexed_cachefile == NULL) goto errored;
+    }
 
 errored:
 
@@ -492,7 +536,7 @@ _read_cachefile (LwDictionaryCache * self,
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, NULL);
-    if (lw_progress_should_abort (progress)) return NULL;
+    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
 
     //Declarations
     gchar *path = NULL;
@@ -511,6 +555,12 @@ errored:
 }
 
 
+/**
+ * lw_dictionarycache_read:
+ * @self: A #LwDictionaryCache
+ * @EXPECTED_CHECKSUM: (transfer none): The expected checksum of the data that will be read
+ * @progress: A #LwProgress to track read and validation progress or %NULL to ignore it
+ */
 void
 lw_dictionarycache_read (LwDictionaryCache * self,
                          gchar const       * EXPECTED_CHECKSUM,
@@ -519,8 +569,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
     g_return_if_fail (EXPECTED_CHECKSUM != NULL);
-    g_return_if_fail (LW_IS_PROGRESS (progress));
-    if (lw_progress_should_abort (progress)) return;
+    if (progress != NULL && lw_progress_should_abort (progress)) return;
 
     //Declarations
     LwCacheFile *normalized_cachefile = NULL;
@@ -542,7 +591,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     parsed = lw_parsed_new (normalized_cachefile); 
     if (parsed == NULL) goto errored;
     lw_serializable_deserialize_from_cachefile_into (LW_SERIALIZABLE (parsed), EXPECTED_CHECKSUM, parsed_cachefile, progress);
-    if (lw_progress_should_abort (progress)) goto errored;
+    if (progress != NULL && lw_progress_should_abort (progress)) goto errored;
 
     //Load the indexed information
     indexed_cachefile = _read_cachefile (self, "indexed", EXPECTED_CHECKSUM, progress);
@@ -550,7 +599,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     indexed = lw_indexed_new (parsed); 
     if (indexed == NULL) goto errored;
     lw_serializable_deserialize_from_cachefile_into (LW_SERIALIZABLE (indexed), EXPECTED_CHECKSUM, indexed_cachefile, progress);
-    if (lw_progress_should_abort (progress)) goto errored;
+    if (progress != NULL && lw_progress_should_abort (progress)) goto errored;
 
     //Finalize
     lw_dictionarycache_set_parsed (self, parsed);
@@ -581,7 +630,7 @@ lw_dictionarycache_set_flags (LwDictionaryCache * self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_DICTIONARYCACHE_CLASS (self);
+    klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     klasspriv = klass->priv;
     flags = lw_utf8flag_clean (flags);
     if (flags == priv->flags) goto errored;
@@ -595,6 +644,11 @@ errored:
 }
 
 
+/**
+ * lw_dictionarycache_get_flags:
+ * @self: A #LwDictionaryCache
+ * Returns: The #LwUtf8Flags that were set on construction
+ */
 LwUtf8Flag
 lw_dictionarycache_get_flags (LwDictionaryCache * self)
 {
@@ -625,7 +679,7 @@ lw_dictionarycache_set_name (LwDictionaryCache * self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_DICTIONARYCACHE_CLASS (self);
+    klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     klasspriv = klass->priv;
     if (g_strcmp0 (NAME, priv->name) == 0) goto errored;
 
@@ -640,6 +694,11 @@ errored:
 }
 
 
+/**
+ * lw_dictionarycache_get_name:
+ * @self: A #LwDictionaryCache
+ * Returns: (transfer none): The name of the dictionary cache set on consruction. This string is owned by the dictionary cache and so it should not be modified or freed.
+ */
 gchar const *
 lw_dictionarycache_get_name (LwDictionaryCache * self)
 {
@@ -689,7 +748,7 @@ lw_dictionarycache_build_filename (LwDictionaryCache * self,
     //Collect the names for the enabled flags
     {
       LwUtf8Flag flag = 0;
-      for (flag = 0x1; flag != 0; flag >> 1)
+      for (flag = 0x1; flag != 0; flag <<= 1)
       {
         GFlagsValue *value = g_flags_get_first_value (flags_class, flag);
         if (value != NULL)
@@ -757,7 +816,7 @@ lw_dictionarycache_build_path (LwDictionaryCache * self,
     if (directory == NULL) goto errored;
     filename = lw_dictionarycache_build_filename (self, CACHETYPE);
     if (filename == NULL) goto errored;
-    path = g_build_filename (directory, filename);
+    path = g_build_filename (directory, filename, NULL);
     if (path == NULL) goto errored;
 
 errored:
@@ -769,7 +828,7 @@ errored:
 }
 
 
-void
+static void
 lw_dictionarycache_set_parsed (LwDictionaryCache * self,
                                LwParsed          * parsed)
 {
@@ -783,7 +842,7 @@ lw_dictionarycache_set_parsed (LwDictionaryCache * self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_DICTIONARYCACHE_CLASS (self);
+    klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     klasspriv = klass->priv;
     if (parsed == priv->parsed) goto errored;
 
@@ -808,6 +867,11 @@ errored:
 }
 
 
+/**
+ * lw_dictionarycache_get_parsed:
+ * @self: A #LwDictionaryCache
+ * Returns: (transfer none): The parsed data for the dictionary
+ */
 LwParsed *
 lw_dictionarycache_get_parsed (LwDictionaryCache * self)
 {
@@ -824,7 +888,7 @@ lw_dictionarycache_get_parsed (LwDictionaryCache * self)
 }
 
 
-void
+static void
 lw_dictionarycache_set_indexed (LwDictionaryCache * self,
                                 LwIndexed         * indexed)
 {
@@ -838,7 +902,7 @@ lw_dictionarycache_set_indexed (LwDictionaryCache * self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_DICTIONARYCACHE_CLASS (self);
+    klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     klasspriv = klass->priv;
     if (indexed == priv->indexed) goto errored;
 
@@ -863,6 +927,11 @@ errored:
 }
 
 
+/**
+ * lw_dictionarycache_get_indexed:
+ * @self: A #LwDictionaryCache
+ * Returns: (transfer none): The indexed information for the dictionary
+ */
 LwIndexed *
 lw_dictionarycache_get_indexed (LwDictionaryCache * self)
 {
@@ -900,12 +969,12 @@ _create_normalized_temporary_file (LwDictionaryCache  * self,
     //Initializations
     NAME = lw_dictionarycache_get_name (self);
     if (NAME == NULL) goto errored;
-    tmpl = g_strdup_printf ("%s.normalized.XXXX", NAME);
+    tmpl = g_strdup_printf ("%s.normalized.XXXXXX", NAME);
     if (tmpl == NULL) goto errored;
     TMPDIR = g_get_tmp_dir ();
     if (TMPDIR == NULL) goto errored;
     fd = g_file_open_tmp (tmpl, &filename, error);
-    if (error != NULL)
+    if (error != NULL && *error != NULL)
     {
       has_error = TRUE;
       goto errored;
@@ -966,8 +1035,7 @@ lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
     g_return_if_fail (CHECKSUM != NULL);
     g_return_if_fail (CONTENTS != NULL);
-    g_return_if_fail (LW_IS_PROGRESS (progress));
-    if (lw_progress_should_abort (progress)) return NULL;
+    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
 
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
@@ -985,17 +1053,21 @@ lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
     path = _create_normalized_temporary_file (self, &error);
     if (error != NULL)
     {
-      lw_progress_take_error (progress, error);
-      error = NULL;
+      if (progress != NULL)
+      {
+        lw_progress_take_error (progress, error);
+        error = NULL;
+      }
+      g_clear_error (&error);
       has_error = TRUE;
       goto errored;
     }
 
     //Write to it
     data.stream = g_fopen (path, "w+");
-    fwrite(CHECKSUM, sizeof(gchar), strlen(CHECKSUM), data.stream);
+    fwrite(CHECKSUM, sizeof(gchar), strlen(CHECKSUM) + 1, data.stream);
     lw_utf8_normalize_chunked (CONTENTS, content_length, flags, (LwUtf8ChunkHandler) lw_io_write_chunk_with_data, &data, progress);
-    if (lw_progress_should_abort (progress)) goto errored;
+    if (progress != NULL && lw_progress_should_abort (progress)) goto errored;
 
 errored:
 
