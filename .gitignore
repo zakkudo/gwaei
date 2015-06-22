@@ -144,5 +144,6 @@ testquerynode
 testdictionarymodule
 testdictionary
 testdictionarycache
+testedictionary
 
 *.bak
