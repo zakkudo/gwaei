@@ -477,9 +477,16 @@ errored:
  * lw_dictionary_get_install_directory:
  *
  * Returns the install path of where dictionaries are installed.  The directory base is determined by the
- * user's data directory.  This can be overwridden in the environmental variables with 
- * %XDG_CACHE_HOME on unix platforms or %CSIDL_INTERNET_CACHE on Windows. Please refer to
+ * user's data directory.  This can be overwridden with the environmental variable %DICTIONARYDATADIR or more
+ * globally with %XDG_DATA_HOME on unix platforms or %CSIDL_LOCAL_APPDATA on Windows. Please refer to
  * g_get_user_cache_dir() for more information.
+ *
+ * An example of how you could could waei with a different dictionary data folder:
+ *
+ * |[<!-- langauge="Bash" -->
+ * > DICTIONARYDATADIR="/media/external" waei
+ * ]|
+ *
  *
  * Returns: (transfer none): Returns the install path of dictionaries which is usually in the user's data directory.  This string is owned by the dictionary class and should not be edited or freed.
  */
@@ -488,16 +495,16 @@ lw_dictionary_get_install_directory ()
 {
     //Declarations
     static gchar * path = NULL;
+    static gchar const * PREVIOUS_DATA_DIR = NULL;
 
-    if (path == NULL)
-    {
-      gchar const * DATA_DIR = NULL;
+    gchar const * DATA_DIR = g_getenv ("DICTIONARYDATADIR");
 
-      DATA_DIR = g_get_user_data_dir ();
-      if (DATA_DIR == NULL) goto errored;
-      path = g_build_filename (DATA_DIR, "libwaei", "dictionary", NULL);
-      if (path == NULL) goto errored;
-    }
+    if (DATA_DIR == NULL || *DATA_DIR == '\0') DATA_DIR = g_get_user_data_dir ();
+    if (DATA_DIR == NULL || *DATA_DIR == '\0') goto errored;
+    if (g_strcmp0(DATA_DIR, PREVIOUS_DATA_DIR) == 0) goto errored;
+
+    g_free (path);
+    path = g_build_filename (DATA_DIR, "libwaei", "dictionary", NULL);
     if (path == NULL) goto errored;
 
      g_mkdir_with_parents (path, 0700);

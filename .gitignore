@@ -142,5 +142,6 @@ testutf8
 testparsedline
 testquerynode
 testdictionarymodule
+testdictionary
 
 *.bak
