@@ -143,5 +143,6 @@ testparsedline
 testquerynode
 testdictionarymodule
 testdictionary
+testdictionarycache
 
 *.bak

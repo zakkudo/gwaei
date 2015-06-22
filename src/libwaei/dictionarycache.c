@@ -19,9 +19,19 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//! @file dictionarycache.c
-//!
+/**
+ * SECTION: dictionarycache
+ * @short_description: Searchable normalized parsed dictionary information
+ * @title: LwDictionaryCache
+ * @include: libwaei/dictionarycache.h
+ *
+ * Used for storing and loading parsed dictionary information
+ * from cachefiles.  This is done by serializing/deserializing
+ * each of the internal #LwParsed and #LwIndexed objects. Usually
+ * a different #LwDictionaryCache will be created for each normalized
+ * dictionary form used, and are indexed into a tree indexed by its
+ * #LwUtf8Flags.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -716,7 +726,8 @@ lw_dictionarycache_build_directory (LwDictionaryCache * self)
     //Initializations
     NAME = lw_dictionarycache_get_name (self);
     if (NAME == NULL) goto errored;
-    CACHE_DIR = g_get_user_cache_dir ();
+    CACHE_DIR = g_getenv("DICTIONARYCACHEDIR");
+    if (CACHE_DIR == NULL) CACHE_DIR = g_get_user_cache_dir ();
     if (CACHE_DIR == NULL) goto errored;
     path = g_build_filename (CACHE_DIR, "libwaei", "dictionary", NAME, NULL);
     if (path == NULL) goto errored;
