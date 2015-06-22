@@ -884,7 +884,6 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
     if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
 
     //Declarations
-    GTree * parsed_cachetree;
     gchar const * FILENAME = NULL;
     LwDictionaryCache * cache = NULL;
     LwMappedFile * contents_mapped_file = NULL;
@@ -898,8 +897,7 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
 
 
     //Initializations
-    parsed_cachetree = lw_dictionary_get_parsed_cachetree (self);
-    cache = LW_DICTIONARYCACHE (g_tree_lookup (parsed_cachetree, GINT_TO_POINTER (flags)));
+    cache = lw_dictionary_lookup_parsed_cache_by_utf8flags (self, flags);
     if (cache != NULL) goto errored;
 
     FILENAME = lw_dictionary_get_contents_filename (self);
@@ -953,7 +951,7 @@ lw_dictionary_lookup_parsed_cache_by_utf8flags (LwDictionary * self,
     //Declarations
     LwDictionaryPrivate *priv = NULL;
     LwDictionaryClass *klass = NULL;
-    GTree * caches = NULL;
+    GTree * cachetree = NULL;
     LwDictionaryCache * cache = NULL;
     gchar const *FILENAME = NULL;
 
@@ -962,15 +960,15 @@ lw_dictionary_lookup_parsed_cache_by_utf8flags (LwDictionary * self,
     klass = LW_DICTIONARY_GET_CLASS (self);
     FILENAME = lw_dictionary_get_contents_filename (self);
 
-    caches = lw_dictionary_get_parsed_cachetree (self);
-    if (caches == NULL)
+    cachetree = lw_dictionary_get_parsed_cachetree (self);
+    if (cachetree == NULL)
     {
-      caches = g_tree_new (_flag_compare_function);
-      lw_dictionary_set_parsed_cachetree (self, caches);
+      cachetree = g_tree_new (_flag_compare_function);
+      lw_dictionary_set_parsed_cachetree (self, cachetree);
     }
-    if (caches == NULL) goto errored;
+    if (cachetree == NULL) goto errored;
 
-    cache = g_tree_lookup (caches, GINT_TO_POINTER (flags));
+    cache = g_tree_lookup (cachetree, GINT_TO_POINTER (flags));
     if (cache == NULL) goto errored;
 
 errored:
@@ -1047,9 +1045,9 @@ lw_dictionary_sync_id (LwDictionary * self)
     id = g_strdup_printf ("%s/%s", DIRECTORYNAME, FILENAME);
     if (id == NULL) goto errored;
 
-    lw_dictionary_set_id (self, id);
-
 errored:
+
+    lw_dictionary_set_id (self, id);
 
     g_free (id);
     id = NULL;
@@ -1269,7 +1267,7 @@ lw_dictionary_set_parsed_cachetree (LwDictionary * self,
       g_tree_ref (tree);
     }
 
-    if (priv->parsed_cachetree == NULL)
+    if (priv->parsed_cachetree != NULL)
     {
       g_tree_unref (priv->parsed_cachetree);
     }

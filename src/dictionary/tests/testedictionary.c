@@ -23,19 +23,11 @@ void setup (Fixture *fixture, gconstpointer data)
 {
   fixture->cachetmpl = g_build_filename (g_get_tmp_dir (), "testcachedir-XXXXXX", NULL);
   fixture->cachedir = g_mkdtemp_full (fixture->cachetmpl, 0700);
-#ifdef OS_MINGW
-  g_setenv("CSIDL_INTERNET_CACHE", fixture->cachedir, TRUE);
-#else
-  g_setenv("XDG_CACHE_HOME", fixture->cachedir, TRUE);
-#endif
+  g_setenv("DICTIONARYCACHEDIR", fixture->cachedir, TRUE);
 
   fixture->datatmpl = g_build_filename (g_get_tmp_dir (), "testdatadir-XXXXXX", NULL);
   fixture->datadir = g_mkdtemp_full (fixture->datatmpl, 0700);
-#ifdef OS_MINGW
-  g_setenv("CSIDL_LOCAL_APPDATA", fixture->datadir, TRUE);
-#else
-  g_setenv("XDG_DATA_HOME", fixture->datadir, TRUE);
-#endif
+  g_setenv("DICTIONARYDATADIR", fixture->datadir, TRUE);
 
   if (module == NULL)
   {
@@ -115,6 +107,12 @@ get_name_when_unset (Fixture * fixture, gconstpointer data)
 }
 
 void
+get_id (Fixture * fixture, gconstpointer data)
+{
+  g_assert_cmpstr ("LwEDictionary/edictionary.data", ==, lw_dictionary_get_id (fixture->dictionary));
+}
+
+void
 set_name_to_null (Fixture * fixture, gconstpointer data)
 {
   lw_dictionary_set_name (fixture->dictionary, NULL);
@@ -124,6 +122,7 @@ set_name_to_null (Fixture * fixture, gconstpointer data)
   g_assert_nonnull (lw_dictionary_get_contents (fixture->dictionary));
   g_assert_cmpuint (0, <, lw_dictionary_contents_length (fixture->dictionary));
   g_assert_nonnull (lw_dictionary_get_contents_checksum (fixture->dictionary));
+  g_assert_cmpstr ("LwEDictionary/edictionary.data", ==, lw_dictionary_get_id (fixture->dictionary));
 }
 
 
@@ -137,6 +136,7 @@ set_name_to_something_else (Fixture * fixture, gconstpointer data)
   g_assert_nonnull (lw_dictionary_get_contents (fixture->dictionary));
   g_assert_cmpuint (0, <, lw_dictionary_contents_length (fixture->dictionary));
   g_assert_nonnull (lw_dictionary_get_contents_checksum (fixture->dictionary));
+  g_assert_cmpstr ("LwEDictionary/edictionary.data", ==, lw_dictionary_get_id (fixture->dictionary));
 }
 
 
@@ -151,6 +151,7 @@ set_contents_filename_to_null (Fixture * fixture, gconstpointer data)
   g_assert_cmpstr (NULL, ==, lw_dictionary_get_contents (fixture->dictionary));
   g_assert_cmpuint (0, ==, lw_dictionary_contents_length (fixture->dictionary));
   g_assert_null (lw_dictionary_get_contents_checksum (fixture->dictionary));
+  g_assert_cmpstr (NULL, ==, lw_dictionary_get_id (fixture->dictionary));
 }
 
 
@@ -167,8 +168,127 @@ set_contents_filename_to_something_else (Fixture * fixture, gconstpointer data)
   g_assert_cmpstr (NULL, ==, lw_dictionary_get_contents (fixture->dictionary));
   g_assert_cmpuint (0, ==, lw_dictionary_contents_length (fixture->dictionary));
   g_assert_null (lw_dictionary_get_contents_checksum (fixture->dictionary));
+  g_assert_cmpstr ("LwEDictionary/test new filename", ==, lw_dictionary_get_id (fixture->dictionary));
 
   g_free (contents_path);
+}
+
+
+void
+get_total_columns (Fixture * fixture, gconstpointer data)
+{
+  g_assert_cmpint (TOTAL_LW_EDICTIONARYCOLUMNIDS, ==, lw_dictionary_total_columns (fixture->dictionary));
+}
+
+
+void
+get_column_language_matches_known_values (Fixture * fixture, gconstpointer data)
+{
+    g_assert_cmpstr ("ja", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_EDICTIONARYCOLUMNID_WORD));
+    g_assert_cmpstr ("ja", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_EDICTIONARYCOLUMNID_READING));
+    g_assert_cmpstr ("en", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_EDICTIONARYCOLUMNID_DEFINITION));
+}
+
+
+void
+get_column_handling_matches_known_values (Fixture * fixture, gconstpointer data)
+{
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_EDICTIONARYCOLUMNID_WORD));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_EDICTIONARYCOLUMNID_READING));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_EDICTIONARYCOLUMNID_DEFINITION));
+}
+
+
+void
+calculate_applicable_columns_for_text_when_english (Fixture * fixture, gconstpointer data)
+{
+  gint * columns = NULL;
+
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "English");
+
+  g_assert_cmpint (LW_EDICTIONARYCOLUMNID_DEFINITION, ==, columns[0]);
+  g_assert_cmpint (-1, ==, columns[1]);
+}
+
+
+void
+calculate_applicable_columns_for_text_when_kanji (Fixture * fixture, gconstpointer data)
+{
+  gint * columns = NULL;
+
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "日本語");
+
+  g_assert_cmpint (LW_EDICTIONARYCOLUMNID_WORD, ==, columns[0]);
+  g_assert_cmpint (-1, ==, columns[1]);
+}
+
+
+void
+calculate_applicable_columns_for_text_when_hiragana (Fixture * fixture, gconstpointer data)
+{
+  gint * columns = NULL;
+
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "にほんご");
+
+  g_assert_cmpint (LW_EDICTIONARYCOLUMNID_READING, ==, columns[0]);
+  g_assert_cmpint (-1, ==, columns[1]);
+}
+
+
+void
+calculate_applicable_columns_for_text_when_kanjihiragana (Fixture * fixture, gconstpointer data)
+{
+  gint * columns = NULL;
+
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "生きます");
+
+  g_assert_cmpint (LW_EDICTIONARYCOLUMNID_WORD, ==, columns[0]);
+  g_assert_cmpint (-1, ==, columns[1]);
+}
+
+
+void
+calculate_applicable_columns_for_text_when_mix (Fixture * fixture, gconstpointer data)
+{
+  gint * columns = NULL;
+
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "日本語にほんごJapanese");
+
+  g_assert_cmpint (LW_EDICTIONARYCOLUMNID_WORD, ==, columns[0]);
+  g_assert_cmpint (LW_EDICTIONARYCOLUMNID_DEFINITION, ==, columns[1]);
+  g_assert_cmpint (-1, ==, columns[2]);
+}
+
+
+void
+calculate_applicable_columns_for_text_when_number (Fixture * fixture, gconstpointer data)
+{
+  gint * columns = NULL;
+
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "1");
+
+  g_assert_cmpint (LW_EDICTIONARYCOLUMNID_DEFINITION, ==, columns[0]);
+  g_assert_cmpint (-1, ==, columns[1]);
+}
+
+
+void
+calculate_applicable_columns_for_text_when_blank (Fixture * fixture, gconstpointer data)
+{
+  gint * columns = NULL;
+
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "");
+
+  g_assert_null (columns);
+}
+
+
+void
+ensure_parsed_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
+{
+  LwDictionaryCache * cache = NULL;
+
+  cache = lw_dictionary_ensure_parsed_cache_by_utf8flags (fixture->dictionary, LW_UTF8FLAG_NONE, NULL);
 }
 
 
@@ -178,6 +298,8 @@ main (gint argc, gchar *argv[])
     g_test_init (&argc, &argv, NULL);
 
     g_test_add ("/get_contents_path", Fixture, NULL, setup, get_contents_path, teardown);
+
+    g_test_add ("/get_id", Fixture, NULL, setup, get_id, teardown);
 
     g_test_add ("/get_name/when_unset", Fixture, NULL, setup, get_name_when_unset, teardown);
 
@@ -189,6 +311,22 @@ main (gint argc, gchar *argv[])
 
     g_test_add ("/set_contents_filename/to_null", Fixture, NULL, setup, set_contents_filename_to_null, teardown);
     g_test_add ("/set_contents_filename/to_something_else", Fixture, NULL, setup, set_contents_filename_to_something_else, teardown);
+
+    g_test_add ("/get_total_columns", Fixture, NULL, setup, get_total_columns, teardown);
+
+    g_test_add ("/get_column_language/matches_known_values", Fixture, NULL, setup, get_column_language_matches_known_values, teardown);
+
+    g_test_add ("/get_column_handling/matches_known_values", Fixture, NULL, setup, get_column_handling_matches_known_values, teardown);
+
+    g_test_add ("/calculate_applicable_columns_for_text/when_english", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_english, teardown);
+    g_test_add ("/calculate_applicable_columns_for_text/when_kanji", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_kanji, teardown);
+    g_test_add ("/calculate_applicable_columns_for_text/when_hiragana", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_hiragana, teardown);
+    g_test_add ("/calculate_applicable_columns_for_text/when_kanjihiragana", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_kanjihiragana, teardown);
+    g_test_add ("/calculate_applicable_columns_for_text/when_mix", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_mix, teardown);
+    g_test_add ("/calculate_applicable_columns_for_text/when_number", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_number, teardown);
+    g_test_add ("/calculate_applicable_columns_for_text/when_blank", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_blank, teardown);
+
+    g_test_add ("/ensure_parsed_cache_by_utf8flags", Fixture, NULL, setup, ensure_parsed_cache_by_utf8flags, teardown);
 
 
     return g_test_run ();
