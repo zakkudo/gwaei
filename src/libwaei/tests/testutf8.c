@@ -961,6 +961,7 @@ replace_linebreaks_with_nullcharacter_when_blank_string (Fixture *fixture, gcons
     lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
 
     //Assert
+    g_assert_true (memcmp("", text, strlen("")) == 0);
     gint expected_steps[] = {};
     g_assert_no_error (lw_progress_get_error (progress));
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
@@ -969,6 +970,7 @@ replace_linebreaks_with_nullcharacter_when_blank_string (Fixture *fixture, gcons
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
     g_assert_false (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_is_cancelled (progress));
 
     g_free (text);
 }
@@ -987,6 +989,7 @@ replace_linebreaks_with_nullcharacter_when_multiple_lines (Fixture *fixture, gco
     lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
 
     //Assert
+    g_assert_true (memcmp("one\0two\0three", text, strlen("one\ntwo\nthree")) == 0);
     gint expected_steps[] = {0, 15, 38, 53, 69, 84, 100};
     g_assert_no_error (lw_progress_get_error (progress));
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
@@ -995,6 +998,7 @@ replace_linebreaks_with_nullcharacter_when_multiple_lines (Fixture *fixture, gco
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
     g_assert_false (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_is_cancelled (progress));
 
     g_free (text);
 }
@@ -1013,6 +1017,7 @@ replace_linebreaks_with_nullcharacter_when_only_one_line (Fixture *fixture, gcon
     lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
 
     //Assert
+    g_assert_true (memcmp("one two three", text, strlen("one two three")) == 0);
     gint expected_steps[] = {0, 15, 30, 46, 61, 76, 92, 100};
     g_assert_no_error (lw_progress_get_error (progress));
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
@@ -1021,6 +1026,59 @@ replace_linebreaks_with_nullcharacter_when_only_one_line (Fixture *fixture, gcon
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
     g_assert_false (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_is_cancelled (progress));
+
+    g_free (text);
+}
+
+
+void
+replace_linebreaks_with_nullcharacter_when_no_progress (Fixture *fixture, gconstpointer data)
+{
+    //Arrange
+    gchar * text = g_strdup ("one\ntwo\nthree");
+    gsize max_line_length = 0;
+    gint i = 0;
+    LwProgress * progress = NULL;
+
+    //Act
+    lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
+
+    //Assert
+    g_assert_true (memcmp("one\0two\0three", text, strlen("one\ntwo\nthree")) == 0);
+    gint expected_steps[] = {};
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+
+    g_free (text);
+}
+
+
+void
+replace_linebreaks_with_nullcharacter_when_cancelled (Fixture *fixture, gconstpointer data)
+{
+    //Arrange
+    gchar * text = g_strdup ("one\ntwo\nthree");
+    gsize max_line_length = 0;
+    gint i = 0;
+    LwProgress * progress = fixture->progress;
+    g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
+
+    //Act
+    lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
+
+    //Assert
+    g_assert_true (memcmp("one\0two\0three", text, strlen("one\ntwo\nthree")) == 0);
+    gint expected_steps[] = {0, 15, 38, 53};
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_true (lw_progress_is_cancelled (progress));
 
     g_free (text);
 }
@@ -1091,6 +1149,8 @@ main (gint argc, gchar *argv[])
     g_test_add ("/replace_linebreaks_with_nullcharacter/when_blank_string", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_blank_string, teardown);
     g_test_add ("/replace_linebreaks_with_nullcharacter/when_multiple_lines", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_multiple_lines, teardown);
     g_test_add ("/replace_linebreaks_with_nullcharacter/when_only_one_line", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_only_one_line, teardown);
+    g_test_add ("/replace_linebreaks_with_nullcharacter/when_no_progress", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_no_progress, teardown);
+    g_test_add ("/replace_linebreaks_with_nullcharacter/when_cancelled", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_cancelled, teardown);
 /*
 lw_utf8_replace_linebreaks_with_nullcharacter
 lw_utf8_sanitize
