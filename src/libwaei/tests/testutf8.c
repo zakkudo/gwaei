@@ -1084,6 +1084,94 @@ replace_linebreaks_with_nullcharacter_when_cancelled (Fixture *fixture, gconstpo
 }
 
 
+void
+set_null_next_char_with_english_string (Fixture *fixture, gconstpointer data)
+{
+    //Arrange
+    gchar * text = g_strdup ("one\ntwo\nthree");
+    gsize max_line_length = 0;
+    gint i = 0;
+    LwProgress * progress = fixture->progress;
+    g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
+
+    //Act
+    gchar * c = text + 3;
+    c = lw_utf8_set_null_next_char (c);
+
+    //Assert
+    g_assert_cmpstr ("one", ==, text);
+    g_assert_cmpstr ("two\nthree", ==, c);
+
+    g_free (text);
+}
+
+
+void
+set_null_next_char_with_japanese_string (Fixture *fixture, gconstpointer data)
+{
+    //Arrange
+    gchar * text = g_strdup ("いち\nに\nさん");
+    gsize max_line_length = 0;
+    gint i = 0;
+    LwProgress * progress = fixture->progress;
+    g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
+
+    //Act
+    gchar * c = text + strlen("い");
+    c = lw_utf8_set_null_next_char (c);
+
+    //Assert
+    g_assert_cmpstr ("い", ==, text);
+    g_assert_cmpstr ("\nに\nさん", ==, c);
+
+    g_free (text);
+}
+
+
+void
+set_null_next_char_with_empty_string (Fixture *fixture, gconstpointer data)
+{
+    //Arrange
+    gchar * text = g_strdup ("");
+    gsize max_line_length = 0;
+    gint i = 0;
+    LwProgress * progress = fixture->progress;
+    g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
+
+    //Act
+    gchar * c = text;
+    c = lw_utf8_set_null_next_char (c);
+
+    //Assert
+    g_assert_cmpstr ("", ==, c);
+    g_assert_true (text == c);
+
+    g_free (text);
+}
+
+
+void
+set_null_next_char_with_null_string (Fixture *fixture, gconstpointer data)
+{
+    //Arrange
+    gchar * text = NULL;
+    gsize max_line_length = 0;
+    gint i = 0;
+    LwProgress * progress = fixture->progress;
+    g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
+
+    //Act
+    gchar * c = text;
+    c = lw_utf8_set_null_next_char (c);
+
+    //Assert
+    g_assert_null (c);
+
+    g_free (text);
+}
+
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -1151,8 +1239,12 @@ main (gint argc, gchar *argv[])
     g_test_add ("/replace_linebreaks_with_nullcharacter/when_only_one_line", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_only_one_line, teardown);
     g_test_add ("/replace_linebreaks_with_nullcharacter/when_no_progress", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_no_progress, teardown);
     g_test_add ("/replace_linebreaks_with_nullcharacter/when_cancelled", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_cancelled, teardown);
+
+    g_test_add ("/set_null_next_char/with_english_string", Fixture, NULL, setup, set_null_next_char_with_english_string, teardown);
+    g_test_add ("/set_null_next_char/with_japanese_string", Fixture, NULL, setup, set_null_next_char_with_japanese_string, teardown);
+    g_test_add ("/set_null_next_char/with_empty_string", Fixture, NULL, setup, set_null_next_char_with_empty_string, teardown);
+    g_test_add ("/set_null_next_char/with_null_string", Fixture, NULL, setup, set_null_next_char_with_null_string, teardown);
 /*
-lw_utf8_replace_linebreaks_with_nullcharacter
 lw_utf8_sanitize
 lw_utf8_normalize_chunked
 lw_utf8flag_clean
