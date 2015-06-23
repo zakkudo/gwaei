@@ -406,7 +406,7 @@ lw_edictionary_load_columns (LwDictionary  *self,
       //      HERE
 
       {
-        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        GUnicodeScript script = g_unichar_get_script (g_utf8_get_char (tokens[i]));
         if (tokens[i] != NULL && i < num_tokens && script == G_UNICODE_SCRIPT_HIRAGANA || script == G_UNICODE_SCRIPT_KATAKANA)
         {
           g_array_append_val (reading, tokens[i]);

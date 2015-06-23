@@ -439,7 +439,7 @@ lw_kanjidictionary_load_columns (LwDictionary  *self,
 
       do
       {
-        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        GUnicodeScript script = g_unichar_get_script (g_utf8_get_char (tokens[i]));
         if (script == G_UNICODE_SCRIPT_KATAKANA || script == G_UNICODE_SCRIPT_HIRAGANA) break;
 
         if (tokens[i] != NULL) g_array_append_val (meanings, tokens[i]);
@@ -460,7 +460,7 @@ lw_kanjidictionary_load_columns (LwDictionary  *self,
 
       if (tokens[i] != NULL && i < num_tokens) 
       {
-        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        GUnicodeScript script = g_unichar_get_script (g_utf8_get_char (tokens[i]));
         if (script == G_UNICODE_SCRIPT_HAN)
         {
           g_array_append_val (kanji, tokens[i]);
@@ -475,7 +475,7 @@ lw_kanjidictionary_load_columns (LwDictionary  *self,
 
       while (tokens[i] != NULL && i < num_tokens) 
       {
-        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        GUnicodeScript script = g_unichar_get_script (g_utf8_get_char (tokens[i]));
         if (script == G_UNICODE_SCRIPT_KATAKANA || script == G_UNICODE_SCRIPT_HIRAGANA) break;
 
         if (_is_unicode_symbol (tokens[i]))
@@ -509,7 +509,7 @@ lw_kanjidictionary_load_columns (LwDictionary  *self,
 
       while (tokens[i] != NULL && i < num_tokens) 
       {
-        GUnicodeScript script = lw_utf8_get_script (tokens[i]);
+        GUnicodeScript script = g_unichar_get_script (g_utf8_get_char (tokens[i]));
         if (script != G_UNICODE_SCRIPT_KATAKANA && script != G_UNICODE_SCRIPT_HIRAGANA) break;
 
         if (_is_kun_reading (tokens[i]))

@@ -71,7 +71,7 @@ lw_cachefile_error_quark ()
 
 /**
  * lw_cachefile_new:
- * @PATH: The path to load the cachefile from or write to
+ * @PATH: (type filename) (transfer none): The path to load the cachefile from or write to
  * Returns: (transfer full): A new #LwCacheFile that can be freed with g_object_unref()
  */
 LwCacheFile *
@@ -243,10 +243,10 @@ lw_cachefile_clear (LwCacheFile * self)
 /**
  * lw_cachefile_write:
  * @self: A #LwCacheFile
- * @CHECKSUM: The checksum string to write
- * @CONTENTS: The contents to write
+ * @CHECKSUM: (transfer none): The checksum string to write
+ * @CONTENTS: (transfer none): The contents to write
  * @content_length: The length of the CONTENTS string + \0 or 0 to have it calculated automatically.
- * @progress: A #LwProgress to track progress or %NULL to ignore it
+ * @progress: (allow-none) (transfer none): A #LwProgress to track progress or %NULL to ignore it
  * Returns: The number of bytes written
  */
 gsize
@@ -294,9 +294,9 @@ errored:
 /**
  * lw_cachefile_write_cachefile:
  * @self: A #LwCacheFile
- * @CHECKSUM: The checksum to write
- * @cache_file: Another cachefile to copy of the contents of
- * @progress: A #LwProgress to track progress or %NULL to ignore it
+ * @CHECKSUM: (transfer none): The checksum to write
+ * @cache_file: (transfer none): Another cachefile to copy of the contents of
+ * @progress: (transfer none) (allow-none):A #LwProgress to track progress or %NULL to ignore it
  * Returns: The number of bytes written
  */
 gsize
@@ -324,8 +324,8 @@ lw_cachefile_write_cachefile (LwCacheFile  * self,
 /**
  * lw_cachefile_validate:
  * @self: A #LwCacheFile
- * @EXPECTED_CHECKSUM: The checksum that the cachefile should have
- * @progress: A #LwProgress to track progress or %NULL to ignore it
+ * @EXPECTED_CHECKSUM: (transfer none): The checksum that the cachefile should have
+ * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL to ignore it
  * Returns: %TRUE if the cachefile is valid with the checksum
  */
 gboolean
@@ -414,8 +414,8 @@ errored:
 /**
  * lw_cachefile_read:
  * @self: A #LwCacheFile
- * @EXPECTED_CHECKSUM: The checksum the read file should contain
- * @progress: A #LwProgress to track progress or %NULL to ignore it
+ * @EXPECTED_CHECKSUM: (transfer none): The checksum the read file should contain
+ * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL to ignore it
  * Returns: The number of bytes read
  */
 gsize
@@ -553,7 +553,7 @@ _ensure_fclose (LwCacheFile  * self,
 /**
  * lw_cachefile_get_checksum:
  * @self: A #LwCacheFile
- * Returns: The checksum of the cachefile
+ * Returns: (transfer none): The checksum of the cachefile.  This string is owned by the cachefile and it should not be modified or freed.
  */
 gchar const *
 lw_cachefile_get_checksum (LwCacheFile * self)
@@ -574,7 +574,7 @@ lw_cachefile_get_checksum (LwCacheFile * self)
 /**
  * lw_cachefile_get_contents:
  * @self: A #LwCacheFile
- * Returns: (no transfer): The contents of the cachefile.  This string is owned by the #LwCacheFile and should not be freed
+ * Returns: (transfer none): The contents of the #LwCacheFile.
  */
 gchar *
 lw_cachefile_get_contents (LwCacheFile * self)

@@ -72,13 +72,10 @@ gchar* lw_utf8_set_null_next_char (gchar *TEXT);
 gint* lw_utf8_get_numbers (const gchar *TEXT);
 gsize lw_utf8_replace_linebreaks_with_nullcharacter (gchar *CONTENTS, gsize content_length, gsize *max_line_length, LwProgress *progress);
 gchar* lw_utf8_sanitize (gchar const * TEXT);
-GUnicodeScript lw_utf8_get_script (gchar *TEXT);
 gchar* lw_utf8_convert_printf_pattern_to_regex_pattern (const gchar *PATTERN);
 
 void lw_utf8_furiganafold (gchar *text, gsize length, LwProgress *progress);
 void lw_utf8_casefold (gchar *text, gsize length, LwProgress *progress);
-
-gint lw_utf8_count_lines (gchar const * TEXT);
 
 gboolean lw_utf8_validate (const gchar *TEXT, gsize length, LwProgress *progress);
 

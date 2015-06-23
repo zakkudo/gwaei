@@ -948,6 +948,84 @@ validate_where_progress_is_cancelled (Fixture *fixture, gconstpointer data)
 }
 
 
+void
+replace_linebreaks_with_nullcharacter_when_blank_string (Fixture *fixture, gconstpointer data)
+{
+    //Arrange
+    gchar * text = g_strdup ("");
+    gsize max_line_length = 0;
+    gint i = 0;
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
+
+    //Assert
+    gint expected_steps[] = {};
+    g_assert_no_error (lw_progress_get_error (progress));
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+
+    g_free (text);
+}
+
+
+void
+replace_linebreaks_with_nullcharacter_when_multiple_lines (Fixture *fixture, gconstpointer data)
+{
+    //Arrange
+    gchar * text = g_strdup ("one\ntwo\nthree");
+    gsize max_line_length = 0;
+    gint i = 0;
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
+
+    //Assert
+    gint expected_steps[] = {0, 15, 38, 53, 69, 84, 100};
+    g_assert_no_error (lw_progress_get_error (progress));
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+
+    g_free (text);
+}
+
+
+void
+replace_linebreaks_with_nullcharacter_when_only_one_line (Fixture *fixture, gconstpointer data)
+{
+    //Arrange
+    gchar * text = g_strdup ("one two three");
+    gsize max_line_length = 0;
+    gint i = 0;
+    LwProgress * progress = fixture->progress;
+
+    //Act
+    lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
+
+    //Assert
+    gint expected_steps[] = {0, 15, 30, 46, 61, 76, 92, 100};
+    g_assert_no_error (lw_progress_get_error (progress));
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+
+    g_free (text);
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -1009,6 +1087,18 @@ main (gint argc, gchar *argv[])
     g_test_add ("/validate/where_progress_is_null", Fixture, NULL, setup, validate_where_progress_is_null, teardown);
     g_test_add ("/validate/where_progress_is_null_with_invalid_string", Fixture, NULL, setup, validate_where_progress_is_null_with_invalid_string, teardown);
     g_test_add ("/validate/where_progress_is_cancelled", Fixture, NULL, setup, validate_where_progress_is_cancelled, teardown);
+
+    g_test_add ("/replace_linebreaks_with_nullcharacter/when_blank_string", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_blank_string, teardown);
+    g_test_add ("/replace_linebreaks_with_nullcharacter/when_multiple_lines", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_multiple_lines, teardown);
+    g_test_add ("/replace_linebreaks_with_nullcharacter/when_only_one_line", Fixture, NULL, setup, replace_linebreaks_with_nullcharacter_when_only_one_line, teardown);
+/*
+lw_utf8_replace_linebreaks_with_nullcharacter
+lw_utf8_sanitize
+lw_utf8_normalize_chunked
+lw_utf8flag_clean
+lw_utf8_set_null_next_char
+*/
+
 
     return g_test_run ();
 }

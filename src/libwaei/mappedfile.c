@@ -49,7 +49,7 @@ G_DEFINE_TYPE (LwMappedFile, lw_mappedfile, G_TYPE_OBJECT)
 
 /**
  * lw_mappedfile_new:
- * @PATH: The path to write the mapped file to or load from
+ * @PATH: (transfer none) (type filename): The path to write the mapped file to or load from
  * Returns: A new #LWMappedFile that can be freed with g_object_unref()
  */
 LwMappedFile*
@@ -132,10 +132,10 @@ lw_mappedfile_set_property (GObject      * object,
 
 
 static void 
-lw_mappedfile_get_property (GObject      *object,
-                            guint         property_id,
-                            GValue       *value,
-                            GParamSpec   *pspec)
+lw_mappedfile_get_property (GObject    * object,
+                            guint        property_id,
+                            GValue     * value,
+                            GParamSpec * pspec)
 {
     //Declarations
     LwMappedFile *self = NULL;
@@ -170,7 +170,7 @@ lw_mappedfile_get_property (GObject      *object,
 
 
 static void
-lw_mappedfile_class_finalize (LwMappedFileClass *klass)
+lw_mappedfile_class_finalize (LwMappedFileClass * klass)
 {
     memset(klass->priv, 0, sizeof(LwMappedFileClassPrivate));
     g_free (klass->priv);
@@ -179,7 +179,7 @@ lw_mappedfile_class_finalize (LwMappedFileClass *klass)
 
 
 static void
-lw_mappedfile_class_init (LwMappedFileClass *klass)
+lw_mappedfile_class_init (LwMappedFileClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
@@ -196,7 +196,7 @@ lw_mappedfile_class_init (LwMappedFileClass *klass)
     klass->priv->pspec[PROP_CONTENTS] = g_param_spec_string (
       "contents",
       gettext("Contents"),
-      "The content string for the mapped file",
+      gettext("The content string for the mapped file"),
       "",
       G_PARAM_READABLE
     );
@@ -205,7 +205,7 @@ lw_mappedfile_class_init (LwMappedFileClass *klass)
     klass->priv->pspec[PROP_CONTENT_LENGTH] = g_param_spec_ulong (
       "content-length",
       gettext("Content Length"),
-      "The length of the contents",
+      gettext("The length of the contents"),
       0,
       G_MAXULONG,
       0,
@@ -216,7 +216,7 @@ lw_mappedfile_class_init (LwMappedFileClass *klass)
     klass->priv->pspec[PROP_PATH] = g_param_spec_string (
       "path",
       gettext("Path"),
-      "The path of the mapped file",
+      gettext("The path of the mapped file"),
       NULL,
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
@@ -225,7 +225,7 @@ lw_mappedfile_class_init (LwMappedFileClass *klass)
     klass->priv->pspec[PROP_DELETE_ON_FREE] = g_param_spec_boolean (
       "delete-on-free",
       gettext("Delete on Free"),
-      "Delete the mapped file when the object is freed",
+      gettext("Delete the mapped file when the object is freed"),
       FALSE,
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
@@ -234,7 +234,7 @@ lw_mappedfile_class_init (LwMappedFileClass *klass)
     klass->priv->pspec[PROP_WRITABLE] = g_param_spec_boolean (
       "writable",
       gettext("Writable"),
-      "Sets of the buffer is writable",
+      gettext("Sets of the buffer is writable"),
       FALSE,
       G_PARAM_READWRITE
     );
@@ -312,7 +312,7 @@ _clear_mapped_file (LwMappedFile *self)
  * Returns: The length of the mapped file on disk in bytes
  */
 gsize
-lw_mappedfile_length (LwMappedFile *self)
+lw_mappedfile_length (LwMappedFile * self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_MAPPEDFILE (self));
@@ -400,10 +400,10 @@ errored:
 /**
  * lw_mappedfile_get_path:
  * @self: A #LwMappedFile
- * Returns: The path of the file that the mapped file references
+ * Returns: (transfer none) (type filename): The path of the file that the mapped file references. The string is owned by the mapped file and should not be modified or freed.
  */
 gchar const *
-lw_mappedfile_get_path (LwMappedFile *self)
+lw_mappedfile_get_path (LwMappedFile * self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_MAPPEDFILE (self));

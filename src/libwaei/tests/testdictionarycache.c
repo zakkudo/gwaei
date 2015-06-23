@@ -16,16 +16,16 @@ void setup (Fixture *fixture, gconstpointer data)
     fixture->cachedir = g_mkdtemp_full (fixture->cachetmpl, 0700);
     g_setenv("DICTIONARYCACHEDIR", fixture->cachedir, TRUE);
     
-    fixture->cache = lw_dictionarycache_new ("testcache", LW_UTF8FLAG_NONE);
+    fixture->cache = lw_dictionarycache_new ("TestDictionary", LW_UTF8FLAG_NONE);
 }
 
 
 void teardown (Fixture *fixture, gconstpointer data)
 {
+    g_object_unref (fixture->cache);
+
     g_remove (fixture->cachedir);
     g_free (fixture->cachedir);
-
-    g_object_unref (fixture->cache);
 }
 
 
@@ -67,11 +67,23 @@ parse (LwCacheFile * cache_file,
 }
 
 void
-test (Fixture       * fixture,
-      gconstpointer   data)
+test_write (Fixture       * fixture,
+            gconstpointer   data)
 {
     gchar const * body = "one\ntwo\nthree";
     lw_dictionarycache_write (fixture->cache, "Test Checksum", body, strlen(body) + 1, parse, NULL, NULL);
+
+    LwParsed * parsed = lw_dictionarycache_get_parsed (fixture->cache);
+    LwCacheFile * cachefile = lw_parsed_get_cachefile (parsed);
+/*TODO
+    gchar * contents = lw_cachefile_get_contents (cache_file);
+    gsize * length = lw_cachefile_length (cache_file);
+
+    gchar * normalized = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "TestDictionary", "testcache.normalized")
+    gchar * parsed = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "TestDictionary", "testcache.parsed")
+*/
+
+    
 }
 
 
@@ -80,7 +92,7 @@ main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
-    g_test_add ("/test", Fixture, NULL, setup, test, teardown);
+    g_test_add ("/test_write", Fixture, NULL, setup, test_write, teardown);
 
     return g_test_run();
 }

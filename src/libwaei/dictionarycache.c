@@ -750,10 +750,13 @@ lw_dictionarycache_build_filename (LwDictionaryCache * self,
       LwUtf8Flag flag = 0;
       for (flag = 0x1; flag != 0; flag <<= 1)
       {
-        GFlagsValue *value = g_flags_get_first_value (flags_class, flag);
-        if (value != NULL)
+        if (flag & priv->flags)
         {
-          flag_names[i++] = value->value_nick;
+          GFlagsValue *value = g_flags_get_first_value (flags_class, flag);
+          if (value != NULL)
+          {
+            flag_names[i++] = value->value_nick;
+          }
         }
       }
       flag_names[i++] = NULL;

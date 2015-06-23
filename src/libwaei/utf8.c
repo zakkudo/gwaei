@@ -50,18 +50,15 @@ lw_utf8_error_quark ()
 }
 
 
-gchar*
-lw_utf8_set_null_next_char (gchar *TEXT)
+gchar *
+lw_utf8_set_null_next_char (gchar * text)
 {
     //Declarations
-    gchar *c = NULL;
-
-    //Initializations
-    c = TEXT;
+    gchar * c = text;
 
     if (c != NULL && *c != '\0')
     {
-      gchar *next = g_utf8_next_char (c);
+      gchar * next = g_utf8_next_char (c);
       *c = '\0';
       c = next;
     }
@@ -70,7 +67,7 @@ lw_utf8_set_null_next_char (gchar *TEXT)
 }
 
 
-gint*
+gint *
 lw_utf8_get_numbers (const gchar *TEXT)
 {
     if (TEXT == NULL) return NULL;
@@ -158,7 +155,7 @@ lw_utf8flag_clean (LwUtf8Flag flags)
  * lw_utf8_validate:
  * @TEXT: A string to validate as well-formed utf-8
  * @length: The length of the string or 0 to calculate it
- * @progress: A #LwProgress to track progress or %NULL
+ * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL
  *
  * Returns: %TRUE if @TEXT is valid utf-8
  */
@@ -334,7 +331,7 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
  * @flags: Mask of #LwUtf8Flags to determine the normalization mode
  * @chunk_handler: A method to be called on each chunk, such as a file writer
  * @chunk_handler_data: Data to be passed to the handler
- * @progress: An #LwProgress to track progress or %NULL
+ * @progress: (transfer none) (allow-none): An #LwProgress to track progress or %NULL
  *
  * Normalizes a long string of text in a series of chunks
  * such that it is file-writing and progress-tracking fiendly.  The chunk size
@@ -491,7 +488,7 @@ _casefold_character (gchar *character)
  * lw_utf8_casefold:
  * @text: A string to casefold inline. The string is modified in place.
  * @length: Length of the string in bytes or 0 to have it calculated
- * @progress: An #LwProgress to track progress or %NULL
+ * @progress: (transfer none) (allow-none): An #LwProgress to track progress or %NULL
  *
  * Folds the case to lower case so that case insensitive searches can be
  * accomplished.
@@ -594,15 +591,15 @@ _furiganafold_character (gchar *c, GHashTable *conversions)
  * lw_utf8_furiganafold:
  * @text: A string to furiganafold inline.  The string is modified in place.
  * @length: Length of the string in bytes or -1 to have it calculated
- * @progress: An #LwProgress to track progress or %NULL
+ * @progress: (transfer none) (allow-none): An #LwProgress to track progress or %NULL
  *
  * Folds katakana to hiragana characters so furigana insensitive comparisons
  * can be made.
  */
 void
-lw_utf8_furiganafold (gchar      *text,
-                      gsize       length,
-                      LwProgress *progress)
+lw_utf8_furiganafold (gchar      * text,
+                      gsize        length,
+                      LwProgress * progress)
 {
     //Sanity checks
     if (text == NULL) return;
@@ -717,33 +714,11 @@ errored:
 
 
 /**
- * lw_utf8_get_script:
- * 
- * document me
- */
-GUnicodeScript
-lw_utf8_get_script (gchar *TEXT)
-{
-    if (TEXT == NULL) return G_UNICODE_SCRIPT_INVALID_CODE;
-
-    //Declarations
-    GUnicodeScript script = G_UNICODE_SCRIPT_INVALID_CODE;
-    gunichar c = 0;
-    
-    //Initializations
-    c = g_utf8_get_char (TEXT);
-    script = g_unichar_get_script (c);
-
-    return script;
-}
-
-
-/**
  * lw_utf8_replace_linebreaks_with_nullcharacter:
  * @contents: The content string to modify inline
  * @content_length: THe length of @contents, or 0 for it to be calculated
- * @max_line_length: Sets the length of the longest line encountered
- * @progress: A #LwProgress to track progress or %NULL
+ * @max_line_length: (allow-none): Sets the length of the longest line encountered
+ * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL
  *
  * This is a helper method primarily meant for #LwDictionary to parse a 
  * raw dictionary file and use the contents in place.
@@ -751,32 +726,28 @@ lw_utf8_get_script (gchar *TEXT)
  * Returns: The total bytes read
  */
 gsize
-lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *contents,
-                                               gsize       content_length,
-                                               gsize      *max_line_length,
-                                               LwProgress *progress)
+lw_utf8_replace_linebreaks_with_nullcharacter (gchar      * contents,
+                                               gsize        content_length,
+                                               gsize      * max_line_length,
+                                               LwProgress * progress)
 {
-    g_return_if_fail (contents != NULL);
+    g_return_val_if_fail (contents != NULL, 0);
+    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
 
     //Declarations    
     gint num_lines = 0;
     gsize chunk_size = 0;
 
-    //Initializations
     if (content_length < 1) content_length = strlen(contents);
+    if (max_line_length != NULL) *max_line_length = 0;
+
+    //Initializations
     if (progress != NULL)
     {
       chunk_size = lw_progress_get_chunk_size (progress);
-    }
-
-    if (progress != NULL)
-    {
-      if (lw_progress_get_secondary_message (progress) == NULL)
-      {
-        lw_progress_set_secondary_message_printf (progress, "Delimiting lines...");
-        lw_progress_set_total (progress, content_length);
-        lw_progress_set_current (progress, 0);
-      }
+      lw_progress_set_secondary_message_printf (progress, "Delimiting lines...");
+      lw_progress_set_total (progress, content_length);
+      lw_progress_set_current (progress, 0);
     }
 
     {
@@ -795,8 +766,8 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *contents,
         {
           if (max_line_length != NULL)
           {
-            gsize content_length = c - p;
-            if (content_length > *max_line_length) *max_line_length = content_length;
+            gsize length = c - p;
+            if (length > *max_line_length) *max_line_length = length;
           }
           n = lw_utf8_set_null_next_char (c);
           chunk += n - c;
@@ -808,13 +779,15 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *contents,
           n = g_utf8_next_char (c);
           chunk += n - c;
           c = n;
-        }
-        if (progress != NULL)
-        {
-          if (chunk_size != 0 && chunk++ >= chunk_size)
+
+          if (progress != NULL)
           {
-            lw_progress_set_current (progress, c - contents);
-            chunk = 0;
+            if (chunk_size != 0 && chunk >= chunk_size)
+            {
+              if (lw_progress_should_abort (progress)) goto errored;
+              lw_progress_set_current (progress, c - contents);
+              chunk = 0;
+            }
           }
         }
       }
@@ -822,8 +795,10 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      *contents,
 
     if (progress != NULL)
     {
-      lw_progress_set_current, (progress, content_length);
+      lw_progress_set_current (progress, content_length);
     }
+
+errored:
 
     return num_lines;
 }
@@ -888,28 +863,6 @@ errored:
     if (string_pattern != NULL) g_regex_unref (string_pattern); string_pattern = NULL;
 
     return pattern;
-}
-
-
-gint
-lw_utf8_count_lines (gchar const * TEXT)
-{
-    if (TEXT == NULL) return 0;
-
-    //Declarations
-    gchar const * c = NULL;
-    gint count = 0;
-
-    //Initializations
-    c = TEXT;
-
-    while (*c != '\0')
-    {
-      if (*c == '\n') count++;
-      c = g_utf8_next_char (c);
-    }
-
-    return count;
 }
 
 
