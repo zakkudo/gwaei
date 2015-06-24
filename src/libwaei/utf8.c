@@ -392,21 +392,25 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
 		    g_free (normalized); normalized = NULL;
 				if (error != NULL)
 				{
-          lw_progress_take_error (progress, error);
-          error = NULL;
+          if (progress != NULL)
+          {
+            lw_progress_take_error (progress, error);
+            error = NULL;
+          }
+          g_clear_error (&error);
 					has_error = TRUE;
 					goto errored;
 				}
         if (bytes_normalized != handled_bytes)
         {
-          g_set_error (
-            &error,
-            LW_UTF8_ERROR,
-            LW_UTF8_ERRORCODE_NORMALIZATION_ERROR,
-            "Wasn't able to fully handle chunk of normalized text."
-          );
-          lw_progress_take_error (progress, error);
-          error = NULL;
+          if (progress != NULL)
+          {
+            lw_progress_take_error (progress, g_error_new (
+              LW_UTF8_ERROR,
+              LW_UTF8_ERRORCODE_NORMALIZATION_ERROR,
+              "Wasn't able to fully handle chunk of normalized text."
+            ));
+          }
 					has_error = TRUE;
           goto errored;
         }
@@ -428,7 +432,10 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
 			left -= bytes_read;
 		}
 
-    lw_progress_set_current (progress, C - CONTENTS);
+    if (progress != NULL)
+    {
+      lw_progress_set_current (progress, C - CONTENTS);
+    }
 
 errored:
 

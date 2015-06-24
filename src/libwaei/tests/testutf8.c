@@ -1290,6 +1290,139 @@ normalize_chunked_all_flags (Fixture *fixture, gconstpointer data)
 }
 
 
+void
+normalize_chunked_with_no_progress (Fixture *fixture, gconstpointer data)
+{
+    // Arrange
+    gchar const * TEXT = "one TWO three FOUR";
+    gchar * normalized = g_new0 (gchar, strlen(TEXT) + 1);
+    LwProgress * progress = NULL;
+
+    // Act
+    lw_utf8_normalize_chunked (TEXT, strlen(TEXT), LW_UTF8FLAG_ALL, (LwUtf8ChunkHandler) _normalize, normalized, progress);
+
+    // Assert
+    g_assert_cmpstr ("one two three four", ==, normalized);
+
+    g_free (normalized);
+}
+
+
+
+gsize
+_normalize_with_wrong_chunk_length (gchar * chunk,
+                                   gsize chunk_length,
+                                   gchar * normalized,
+                                   GError ** error)
+{
+    strcat(normalized, chunk);
+
+    return chunk_length + 1;
+}
+
+
+void
+normalize_chunked_when_wrong_byte_count_returned_from_chunk_handler (Fixture *fixture, gconstpointer data)
+{
+    // Arrange
+    gchar const * TEXT = "one TWO three FOUR";
+    gchar * normalized = g_new0 (gchar, strlen(TEXT) + 1);
+    LwProgress * progress = fixture->progress;
+    gint i = 0;
+
+    // Act
+    lw_utf8_normalize_chunked (TEXT, strlen(TEXT), LW_UTF8FLAG_ALL, (LwUtf8ChunkHandler) _normalize_with_wrong_chunk_length, normalized, progress);
+
+    // Assert
+    g_assert_cmpstr ("on", ==, normalized);
+    gint expected_steps[] = {0};
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_is_cancelled (progress));
+    g_assert_true (lw_progress_errored (progress));
+    g_assert_error (lw_progress_get_error (progress), LW_UTF8_ERROR, LW_UTF8_ERRORCODE_NORMALIZATION_ERROR);
+    
+
+    g_free (normalized);
+}
+
+
+gsize
+_normalize_setting_error (gchar * chunk,
+                                   gsize chunk_length,
+                                   gchar * normalized,
+                                   GError ** error)
+{
+    strcat(normalized, chunk);
+
+    *error = g_error_new (g_quark_from_string ("test-error"), 1, "text");
+
+    return chunk_length + 1;
+}
+
+
+void
+normalize_chunked_when_chunk_handler_sets_error (Fixture *fixture, gconstpointer data)
+{
+    // Arrange
+    gchar const * TEXT = "one TWO three FOUR";
+    gchar * normalized = g_new0 (gchar, strlen(TEXT) + 1);
+    LwProgress * progress = fixture->progress;
+    gint i = 0;
+
+    // Act
+    lw_utf8_normalize_chunked (TEXT, strlen(TEXT), LW_UTF8FLAG_ALL, (LwUtf8ChunkHandler) _normalize_setting_error, normalized, progress);
+
+    // Assert
+    g_assert_cmpstr ("on", ==, normalized);
+    gint expected_steps[] = {0};
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_is_cancelled (progress));
+    g_assert_true (lw_progress_errored (progress));
+    g_assert_error (lw_progress_get_error (progress), g_quark_from_string ("test-error"), 1);
+    
+
+    g_free (normalized);
+}
+
+
+void
+normalize_chunked_when_cancelled (Fixture *fixture, gconstpointer data)
+{
+    // Arrange
+    gchar const * TEXT = "one TWO three FOUR";
+    gchar * normalized = g_new0 (gchar, strlen(TEXT) + 1);
+    LwProgress * progress = fixture->progress;
+    g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
+    gint i = 0;
+
+    // Act
+    lw_utf8_normalize_chunked (TEXT, strlen(TEXT), LW_UTF8FLAG_ALL, (LwUtf8ChunkHandler) _normalize, normalized, progress);
+
+    // Assert
+    g_assert_cmpstr ("one two three ", ==, normalized);
+    gint expected_steps[] = {0, 11, 22, 33, 44, 55};
+    g_assert_no_error (lw_progress_get_error (progress));
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+    g_assert_true (lw_progress_is_cancelled (progress));
+    g_assert_false (lw_progress_errored (progress));
+
+    g_free (normalized);
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -1374,6 +1507,11 @@ main (gint argc, gchar *argv[])
     g_test_add ("/sanitize/whitespace", Fixture, NULL, setup, sanitize_whitespace, teardown);
 
     g_test_add ("/normalize_chunked/all", Fixture, NULL, setup, normalize_chunked_all_flags, teardown);
+    g_test_add ("/normalize_chunked/with_no_progress", Fixture, NULL, setup, normalize_chunked_with_no_progress, teardown);
+    g_test_add ("/normalize_chunked/when_wrong_byte_count_returned_from_chunk_handler", Fixture, NULL, setup, normalize_chunked_when_wrong_byte_count_returned_from_chunk_handler, teardown);
+    g_test_add ("/normalize_chunked/when_chunk_handler_sets_error", Fixture, NULL, setup, normalize_chunked_when_chunk_handler_sets_error, teardown);
+    g_test_add ("/normalize_chunked/when_cancelled", Fixture, NULL, setup, normalize_chunked_when_cancelled, teardown);
+
 /*
 lw_utf8_normalize_chunked
 */
