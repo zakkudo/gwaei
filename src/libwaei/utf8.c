@@ -447,37 +447,45 @@ static GHashTable*
 _get_furiganafold_hashtable ()
 {
     //Declarations
-    GHashTable * table = NULL;
+    static GHashTable * table = NULL;
+    static const gchar * KATAKANA = "ァアィイゥウェエォオカガキギクグケゲコゴ"
+                                    "サザシジスズセゼソゾタダチヂッツヅテデト"
+                                    "ドナニヌネノハバパヒビピフブプヘベペホボ"
+                                    "ポマミムメモャヤュユョヨラリルレロヮワヰ"
+                                    "ヱヲンヴヵヶヽヾヿ";
+    static const gchar * HIRAGANA = "ぁあぃいぅうぇえぉおかがきぎくぐけげこご"
+                                    "さざしじすずせぜそぞただちぢっつづてでと"
+                                    "どなにぬねのはばぱひびぴふぶぷへべぺほぼ"
+                                    "ぽまみむめもゃやゅゆょよらりるれろゎわゐ"
+                                    "ゑをんゔゕゖゝゞゟ";
     GHashTable * table_out = NULL;
-    static const gchar * KATAKANA = "ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶヽヾヿ";
-    static const gchar * HIRAGANA = "ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖゝゞゟ";
-    gchar const * K = NULL;
-    gchar const * H = NULL;
 
-    //Initializations
-    table = g_hash_table_new (g_direct_hash, g_direct_equal);
-    if (table == NULL) goto errored;
-    K = KATAKANA;
-    H = HIRAGANA;
-
-    while (*H != '\0' && *K != '\0')
+    if (table == NULL)
     {
-      gpointer key = GUINT_TO_POINTER (g_utf8_get_char (K));
-      gpointer value = GUINT_TO_POINTER (g_utf8_get_char (H));
+      gchar const * K = NULL;
+      gchar const * H = NULL;
 
-      g_hash_table_insert (table, key, value);
+      //Initializations
+      table = g_hash_table_new (g_direct_hash, g_direct_equal);
+      if (table == NULL) goto errored;
+      K = KATAKANA;
+      H = HIRAGANA;
 
-      H = g_utf8_next_char (H);
-      K = g_utf8_next_char (K);
+      while (*H != '\0' && *K != '\0')
+      {
+        gpointer key = GUINT_TO_POINTER (g_utf8_get_char (K));
+        gpointer value = GUINT_TO_POINTER (g_utf8_get_char (H));
+
+        g_hash_table_insert (table, key, value);
+
+        H = g_utf8_next_char (H);
+        K = g_utf8_next_char (K);
+      }
     }
 
     table_out = table;
-    table = NULL;
 
 errored:
-
-    if (table != NULL) g_hash_table_unref (table);
-    table = NULL;
 
     return table_out;    
 }
@@ -686,7 +694,7 @@ lw_utf8_furiganafold (gchar      * text,
 
 errored:
 
-    if (conversions != NULL) g_hash_table_unref (conversions); conversions = NULL;
+    return;
 }
 
 
