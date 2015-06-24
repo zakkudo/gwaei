@@ -1199,6 +1199,58 @@ flag_clean_when_only_comparable_set (Fixture *fixture, gconstpointer data)
 }
 
 
+void
+sanitize_english (Fixture *fixture, gconstpointer data)
+{
+    gchar const * TEXT = "test sentence";
+
+    gchar * sanitized = lw_utf8_sanitize (TEXT);
+
+    g_assert_cmpstr (sanitized, ==, "test sentence");
+
+    g_free (sanitized);
+}
+
+
+void
+sanitize_japanese (Fixture *fixture, gconstpointer data)
+{
+    gchar const * TEXT = "日本語";
+
+    gchar * sanitized = lw_utf8_sanitize (TEXT);
+
+    g_assert_cmpstr (sanitized, ==, "日本語");
+
+    g_free (sanitized);
+}
+
+
+void
+sanitize_unprintable (Fixture *fixture, gconstpointer data)
+{
+    gchar const * TEXT = "\b日本語\bEnglish";
+
+    gchar * sanitized = lw_utf8_sanitize (TEXT);
+
+    g_assert_cmpstr (sanitized, ==, "日本語 English");
+
+    g_free (sanitized);
+}
+
+
+void
+sanitize_whitespace (Fixture *fixture, gconstpointer data)
+{
+    gchar const * TEXT = "  \b  日本語\bEnglish  \t\n";
+
+    gchar * sanitized = lw_utf8_sanitize (TEXT);
+
+    g_assert_cmpstr (sanitized, ==, "日本語 English");
+
+    g_free (sanitized);
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -1276,10 +1328,13 @@ main (gint argc, gchar *argv[])
     g_test_add ("/flag_clean/when_none_set", Fixture, NULL, setup, flag_clean_when_none_set, teardown);
     g_test_add ("/flag_clean/when_only_printable_set", Fixture, NULL, setup, flag_clean_when_only_printable_set, teardown);
     g_test_add ("/flag_clean/when_only_comparable_set", Fixture, NULL, setup, flag_clean_when_only_comparable_set, teardown);
+
+    g_test_add ("/sanitize/english", Fixture, NULL, setup, sanitize_english, teardown);
+    g_test_add ("/sanitize/japanese", Fixture, NULL, setup, sanitize_japanese, teardown);
+    g_test_add ("/sanitize/unprintable", Fixture, NULL, setup, sanitize_unprintable, teardown);
+    g_test_add ("/sanitize/whitespace", Fixture, NULL, setup, sanitize_whitespace, teardown);
 /*
-lw_utf8_sanitize
 lw_utf8_normalize_chunked
-lw_utf8flag_clean
 */
 
 
