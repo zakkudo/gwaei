@@ -1171,6 +1171,33 @@ set_null_next_char_with_null_string (Fixture *fixture, gconstpointer data)
 }
 
 
+void
+flag_clean_when_all_set (Fixture *fixture, gconstpointer data)
+{
+    g_assert_cmpuint (lw_utf8flag_clean (~0x0), ==, LW_UTF8FLAG_COMPARABLE | LW_UTF8FLAG_CASEFOLD | LW_UTF8FLAG_FURIGANAFOLD);
+}
+
+
+void
+flag_clean_when_none_set (Fixture *fixture, gconstpointer data)
+{
+    g_assert_cmpuint (lw_utf8flag_clean (0x0), ==, 0);
+}
+
+
+void
+flag_clean_when_only_printable_set (Fixture *fixture, gconstpointer data)
+{
+    g_assert_cmpuint (lw_utf8flag_clean (LW_UTF8FLAG_PRINTABLE), ==, LW_UTF8FLAG_PRINTABLE);
+}
+
+
+void
+flag_clean_when_only_comparable_set (Fixture *fixture, gconstpointer data)
+{
+    g_assert_cmpuint (lw_utf8flag_clean (LW_UTF8FLAG_COMPARABLE), ==, LW_UTF8FLAG_COMPARABLE);
+}
+
 
 gint
 main (gint argc, gchar *argv[])
@@ -1244,11 +1271,15 @@ main (gint argc, gchar *argv[])
     g_test_add ("/set_null_next_char/with_japanese_string", Fixture, NULL, setup, set_null_next_char_with_japanese_string, teardown);
     g_test_add ("/set_null_next_char/with_empty_string", Fixture, NULL, setup, set_null_next_char_with_empty_string, teardown);
     g_test_add ("/set_null_next_char/with_null_string", Fixture, NULL, setup, set_null_next_char_with_null_string, teardown);
+
+    g_test_add ("/flag_clean/when_all_set", Fixture, NULL, setup, flag_clean_when_all_set, teardown);
+    g_test_add ("/flag_clean/when_none_set", Fixture, NULL, setup, flag_clean_when_none_set, teardown);
+    g_test_add ("/flag_clean/when_only_printable_set", Fixture, NULL, setup, flag_clean_when_only_printable_set, teardown);
+    g_test_add ("/flag_clean/when_only_comparable_set", Fixture, NULL, setup, flag_clean_when_only_comparable_set, teardown);
 /*
 lw_utf8_sanitize
 lw_utf8_normalize_chunked
 lw_utf8flag_clean
-lw_utf8_set_null_next_char
 */
 
 
