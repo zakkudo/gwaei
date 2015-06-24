@@ -266,15 +266,16 @@ lw_utf8_normalize (const gchar * TEXT,
     //Declarations
     gchar *buffer = NULL;
     gchar *temp = NULL;
+    if (length < 1) length = -1;
     
     //Initializations
     if (flags & LW_UTF8FLAG_COMPARABLE)
     {
-      buffer = g_utf8_normalize (TEXT, -1, G_NORMALIZE_ALL);
+      buffer = g_utf8_normalize (TEXT, length, G_NORMALIZE_ALL);
     }
     else if (flags & LW_UTF8FLAG_PRINTABLE)
     {
-      buffer = g_utf8_normalize (TEXT, -1, G_NORMALIZE_DEFAULT);
+      buffer = g_utf8_normalize (TEXT, length, G_NORMALIZE_DEFAULT);
     }
     else
     {
@@ -298,10 +299,10 @@ errored:
 
 
 static gint
-lw_utf8_normalize_chunk (gchar       **output_chunk,
-                         const gchar  *TEXT,
-                         LwUtf8Flag    flags,
-                         gsize         max_length)
+lw_utf8_normalize_chunk (gchar       ** output_chunk,
+                         const gchar  * TEXT,
+                         LwUtf8Flag     flags,
+                         gsize          max_length)
 {
     //Sanity checks
     if (TEXT == NULL) return 0;
@@ -317,8 +318,11 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
       e = g_utf8_next_char (e);
       bytes_read = e - TEXT;
     }
+    if (p != TEXT && bytes_read > max_length) e = p;
 
-    *output_chunk = lw_utf8_normalize (TEXT, bytes_read, flags);
+    if (max_length == 0) bytes_read = strlen(TEXT);
+
+    if (output_chunk != NULL) *output_chunk = lw_utf8_normalize (TEXT, bytes_read, flags);
 
     return e - TEXT;
 }
@@ -329,8 +333,8 @@ lw_utf8_normalize_chunk (gchar       **output_chunk,
  * @CONTENTS: Text to be normalized
  * @content_length: The length of the text to be normalized or 0 for it to be calculated
  * @flags: Mask of #LwUtf8Flags to determine the normalization mode
- * @chunk_handler: A method to be called on each chunk, such as a file writer
- * @chunk_handler_data: Data to be passed to the handler
+ * @chunk_handler (allow-none): A method to be called on each chunk, such as a file writer
+ * @chunk_handler_data: (allow-none): Data to be passed to the handler
  * @progress: (transfer none) (allow-none): An #LwProgress to track progress or %NULL
  *
  * Normalizes a long string of text in a series of chunks
@@ -354,6 +358,8 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
     g_return_if_fail (chunk_handler != NULL);
     if (progress != NULL && lw_progress_should_abort (progress)) return;
 
+    if (content_length < 1) content_length = strlen(CONTENTS);
+
 		//Declarations
 		gsize bytes_read = 0;
 		gsize handled_bytes = 0;
@@ -362,23 +368,24 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
 		gsize left = content_length;
 		gchar *normalized = NULL;
     gsize chunk_size = 0;
+    gsize chunk = 0;
     GError *error = NULL;
     gboolean has_error = FALSE;
 
     if (progress != NULL)
     {
       chunk_size = lw_progress_get_chunk_size (progress);
+      lw_progress_set_current (progress, 0);
+      lw_progress_set_total (progress, content_length);
     }
-    else
-    {
-      chunk_size = lw_io_get_pagesize ();
-    }
+    if (chunk_size == 0) chunk_size = lw_io_get_pagesize ();
 
 		if (left < 1) goto errored;
 		while (*C != '\0' && C - CONTENTS < content_length)
 		{
 			bytes_read = lw_utf8_normalize_chunk (&normalized, C, flags, chunk_size);
-			bytes_normalized = strlen(normalized);
+      chunk += bytes_read;
+      bytes_normalized = strlen(normalized);
 			if (normalized != NULL)
 			{
 				handled_bytes = chunk_handler (normalized, bytes_normalized, chunk_handler_data, &error);
@@ -404,9 +411,24 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
           goto errored;
         }
 			}
+
+      if (progress != NULL)
+      {
+        if (G_UNLIKELY (chunk >= chunk_size))
+        {
+          if (lw_progress_should_abort (progress))
+          {
+            goto errored;
+          }
+          lw_progress_set_current (progress, C - CONTENTS);
+          chunk = 0;
+        }
+      }
 			C += bytes_read;
 			left -= bytes_read;
 		}
+
+    lw_progress_set_current (progress, C - CONTENTS);
 
 errored:
 

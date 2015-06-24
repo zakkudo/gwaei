@@ -1250,6 +1250,45 @@ sanitize_whitespace (Fixture *fixture, gconstpointer data)
     g_free (sanitized);
 }
 
+gsize
+_normalize (gchar * chunk,
+            gsize chunk_length,
+            gchar * normalized,
+            GError ** error)
+{
+    strcat(normalized, chunk);
+
+    return chunk_length;
+}
+
+
+void
+normalize_chunked_all_flags (Fixture *fixture, gconstpointer data)
+{
+    // Arrange
+    gchar const * TEXT = "one TWO three FOUR";
+    gchar * normalized = g_new0 (gchar, strlen(TEXT) + 1);
+    LwProgress * progress = fixture->progress;
+    gint i = 0;
+
+    // Act
+    lw_utf8_normalize_chunked (TEXT, strlen(TEXT), LW_UTF8FLAG_ALL, (LwUtf8ChunkHandler) _normalize, normalized, progress);
+
+    // Assert
+    g_assert_cmpstr ("one two three four", ==, normalized);
+    gint expected_steps[] = {0, 11, 22, 33, 44, 55, 66, 77, 88, 100};
+    g_assert_no_error (lw_progress_get_error (progress));
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+    g_assert_false (lw_progress_is_cancelled (progress));
+
+    g_free (normalized);
+}
+
 
 gint
 main (gint argc, gchar *argv[])
@@ -1333,6 +1372,8 @@ main (gint argc, gchar *argv[])
     g_test_add ("/sanitize/japanese", Fixture, NULL, setup, sanitize_japanese, teardown);
     g_test_add ("/sanitize/unprintable", Fixture, NULL, setup, sanitize_unprintable, teardown);
     g_test_add ("/sanitize/whitespace", Fixture, NULL, setup, sanitize_whitespace, teardown);
+
+    g_test_add ("/normalize_chunked/all", Fixture, NULL, setup, normalize_chunked_all_flags, teardown);
 /*
 lw_utf8_normalize_chunked
 */
