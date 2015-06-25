@@ -43,6 +43,12 @@
 #include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
 
+
+/**
+ * lw_utf8_error_quark:
+ *
+ * Returns: a #GQuark representing a standard lw utf8 domain error
+ */
 GQuark
 lw_utf8_error_quark ()
 {
@@ -50,6 +56,11 @@ lw_utf8_error_quark ()
 }
 
 
+/**
+ * lw_utf8_set_null_next_char:
+ * @text: (transfer none): A pointer to a character in a string to nullify
+ * Returns: (transfer none): The next character in the string
+ */
 gchar *
 lw_utf8_set_null_next_char (gchar * text)
 {
@@ -105,6 +116,10 @@ lw_utf8_get_numbers (const gchar *TEXT)
 }
 
 
+/**
+ * lw_utf8flag_get_type:
+ * Returns: The #GType of a libwaei utf8 flags
+ */
 GType
 lw_utf8flag_get_type ()
 {
@@ -700,11 +715,11 @@ errored:
 
 /**
  * lw_utf8_sanitize:
- * @TEXT: A string to sanitize
+ * @TEXT: (transfer none): A string to sanitize
  *
  * Sanitizes a string as utf8, replacing invalid characters with spaces.
  * 
- * Returns: A sanitized string that needs to be freed with g_free()
+ * Returns: (transfer full): A sanitized string that needs to be freed with g_free()
  */
 gchar *
 lw_utf8_sanitize (gchar const * TEXT)
@@ -753,7 +768,7 @@ errored:
 /**
  * lw_utf8_replace_linebreaks_with_nullcharacter:
  * @contents: The content string to modify inline
- * @content_length: THe length of @contents, or 0 for it to be calculated
+ * @content_length: The length of @contents, or 0 for it to be calculated
  * @max_line_length: (allow-none): Sets the length of the longest line encountered
  * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL
  *
