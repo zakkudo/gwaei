@@ -120,7 +120,7 @@ get_strv_with_nonexisting_column (Fixture *fixture, gconstpointer data)
     //Initializations
 
     //Assert
-    g_assert_cmpstr (lw_parsedline_get_strv(parsed_line, 1)[4], ==, NULL);
+    g_assert_null (lw_parsedline_get_strv(parsed_line, 4));
 }
 
 
