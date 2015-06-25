@@ -48,6 +48,11 @@
 #include <libwaei/libwaei.h>
 
 
+/**
+ * lw_io_error_quark:
+ *
+ * Returns: a #GQuark representing a standard lw io domain error
+ */
 GQuark
 lw_io_error_quark ()
 {
@@ -55,6 +60,10 @@ lw_io_error_quark ()
 }
 
 
+/**
+ * lw_io_get_pagesize:
+ * Returns: The page size of the system
+ */
 gsize
 lw_io_get_pagesize ()
 {
@@ -145,6 +154,14 @@ errored:
 }
 
 
+/**
+ * lw_io_write_file:
+ * @PATH: (transfer none): The file path to write to
+ * @MODE: (transfer none): The mode of the file
+ * @TEXT: (transfer none): The content to write
+ * length: The byte length of TEXT
+ * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL to ignore it
+ */
 gsize
 lw_io_write_file (const gchar *PATH, 
                   const gchar *MODE,
@@ -769,10 +786,11 @@ lw_io_remove (const gchar   *URI,
 }
 
 
-//!
-//! @brief A quick way to get the number of lines in a file for use in progress functions
-//! @param FILENAME The path to the file to see how many lines it has
-//!
+/**
+ * lw_io_get_file_size:
+ * @PATH: (transfer none) (type filename): The path of the file to calculate the size of
+ * Returns: The size of the file or 0 if there was an error
+ */
 gsize
 lw_io_get_file_size (char const * PATH)
 {
@@ -795,6 +813,12 @@ errored:
 }
 
 
+/**
+ * lw_io_allocate_temporary_file:
+ * @bytes_length: The number of bytes to allocate
+ * @progress: (transfer none) (allow-none): A #LwProgress to track allocation progress or %NULL to ignore it
+ * Returns: (transfer full): Returns the file path of the allocated temporary file.  The string should be freed with g_free() when finished.
+ */
 gchar *
 lw_io_allocate_temporary_file (gsize        bytes_length,
                                LwProgress * progress)
