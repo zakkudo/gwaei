@@ -1,0 +1,408 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwDictionaryList: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="libwaei-dictionaryinstallstatehistory.html" title="dictionaryinstallstatehistory">
+<link rel="next" href="libwaei-dictionarylist-callbacks.html" title="dictionarylist-callbacks">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#LwDictionaryList.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#LwDictionaryList.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#LwDictionaryList.properties" class="shortcut">Properties</a></span><span id="nav_signals">  <span class="dim">|</span> 
+                  <a href="#LwDictionaryList.signals" class="shortcut">Signals</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="libwaei-dictionaryinstallstatehistory.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="libwaei-dictionarylist-callbacks.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="LwDictionaryList"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="LwDictionaryList.top_of_page"></a>LwDictionaryList</span></h2>
+<p>LwDictionaryList</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="LwDictionaryList.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="returnvalue">LwDictionaryList</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-new" title="lw_dictionarylist_new ()">lw_dictionarylist_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-load-order" title="lw_dictionarylist_load_order ()">lw_dictionarylist_load_order</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-dictionaries" title="lw_dictionarylist_dictionaries ()">lw_dictionarylist_dictionaries</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-find" title="lw_dictionarylist_find ()">lw_dictionarylist_find</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-fuzzy-find" title="lw_dictionarylist_fuzzy_find ()">lw_dictionarylist_fuzzy_find</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-find-by-filename" title="lw_dictionarylist_find_by_filename ()">lw_dictionarylist_find_by_filename</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-find-by-id" title="lw_dictionarylist_find_by_id ()">lw_dictionarylist_find_by_id</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-load-installed" title="lw_dictionarylist_load_installed ()">lw_dictionarylist_load_installed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/gio/GMenuModel.html"><span class="returnvalue">GMenuModel</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-get-menumodel" title="lw_dictionarylist_get_menumodel ()">lw_dictionarylist_get_menumodel</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-dictionary-exists" title="lw_dictionarylist_dictionary_exists ()">lw_dictionarylist_dictionary_exists</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-nth" title="lw_dictionarylist_nth ()">lw_dictionarylist_nth</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-remove" title="lw_dictionarylist_remove ()">lw_dictionarylist_remove</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-clear" title="lw_dictionarylist_clear ()">lw_dictionarylist_clear</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-length" title="lw_dictionarylist_length ()">lw_dictionarylist_length</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryList.html#lw-dictionarylist-get-indices" title="lw_dictionarylist_get_indices ()">lw_dictionarylist_get_indices</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryList.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody><tr>
+<td class="property_type">
+<a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionaryList.html#LwDictionaryList--preferences" title="The “preferences” property">preferences</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryList.signals"></a><h2>Signals</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="signals_return">
+<col width="300px" class="signals_name">
+<col width="200px" class="signals_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwDictionaryList.html#LwDictionaryList-internal-row-changed" title="The “internal-row-changed” signal">internal-row-changed</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwDictionaryList.html#LwDictionaryList-internal-row-deleted" title="The “internal-row-deleted” signal">internal-row-deleted</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwDictionaryList.html#LwDictionaryList-internal-row-inserted" title="The “internal-row-inserted” signal">internal-row-inserted</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwDictionaryList.html#LwDictionaryList-internal-rows-reordered" title="The “internal-rows-reordered” signal">internal-rows-reordered</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryList.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwDictionaryInstallList.html#LW-SCHEMA-DICTIONARY:CAPS" title="LW_SCHEMA_DICTIONARY">LW_SCHEMA_DICTIONARY</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="LwDictionaryList.html#LwDictionaryListClassPrivate" title="LwDictionaryListClassPrivate">LwDictionaryListClassPrivate</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryList.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> LwDictionaryList
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryList.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryList.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-dictionarylist-new"></a><h3>lw_dictionarylist_new ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="returnvalue">LwDictionaryList</span></a> *
+lw_dictionarylist_new (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *preferences</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-load-order"></a><h3>lw_dictionarylist_load_order ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarylist_load_order (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-dictionaries"></a><h3>lw_dictionarylist_dictionaries ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *
+lw_dictionarylist_dictionaries (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-find"></a><h3>lw_dictionarylist_find ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+lw_dictionarylist_find (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>,
+                        <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/gobject/gobject-Type-Information.html#GType"><span class="type">GType</span></a> TYPE</code></em>,
+                        <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *FILENAME</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-fuzzy-find"></a><h3>lw_dictionarylist_fuzzy_find ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+lw_dictionarylist_fuzzy_find (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>,
+                              <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *FUZZY_DESCRIPTION</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-find-by-filename"></a><h3>lw_dictionarylist_find_by_filename ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+lw_dictionarylist_find_by_filename (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>,
+                                    <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *FILENAME</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-find-by-id"></a><h3>lw_dictionarylist_find_by_id ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+lw_dictionarylist_find_by_id (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>,
+                              <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *ID</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-load-installed"></a><h3>lw_dictionarylist_load_installed ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarylist_load_installed (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-get-menumodel"></a><h3>lw_dictionarylist_get_menumodel ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gio/GMenuModel.html"><span class="returnvalue">GMenuModel</span></a> *
+lw_dictionarylist_get_menumodel (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-dictionary-exists"></a><h3>lw_dictionarylist_dictionary_exists ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_dictionarylist_dictionary_exists (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>,
+                                     <em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *dictionary</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-nth"></a><h3>lw_dictionarylist_nth ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+lw_dictionarylist_nth (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>,
+                       <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> index</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-remove"></a><h3>lw_dictionarylist_remove ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *
+lw_dictionarylist_remove (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>,
+                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> *indices</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-clear"></a><h3>lw_dictionarylist_clear ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarylist_clear (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-length"></a><h3>lw_dictionarylist_length ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+lw_dictionarylist_length (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-get-indices"></a><h3>lw_dictionarylist_get_indices ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a> *
+lw_dictionarylist_get_indices (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *self</code></em>,
+                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="type">GList</span></a> *dictionaries</code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryList.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LW-SCHEMA-DICTIONARY:CAPS"></a><h3>LW_SCHEMA_DICTIONARY</h3>
+<pre class="programlisting">#define             LW_SCHEMA_DICTIONARY</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryListClassPrivate"></a><h3>LwDictionaryListClassPrivate</h3>
+<pre class="programlisting">typedef struct _LwDictionaryListClassPrivate LwDictionaryListClassPrivate;</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryList.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="LwDictionaryList--preferences"></a><h3>The <code class="literal">“preferences”</code> property</h3>
+<pre class="programlisting">  “preferences”              <a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *</pre>
+<p>Set the preferences object.</p>
+<p>Flags: Read / Write / Construct</p>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryList.signal-details"></a><h2>Signal Details</h2>
+<div class="refsect2">
+<a name="LwDictionaryList-internal-row-changed"></a><h3>The <code class="literal">“internal-row-changed”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *lwdictionarylist,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>              arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>          user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryList-internal-row-deleted"></a><h3>The <code class="literal">“internal-row-deleted”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *lwdictionarylist,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>              arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>          user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryList-internal-row-inserted"></a><h3>The <code class="literal">“internal-row-inserted”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *lwdictionarylist,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>              arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>          user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryList-internal-rows-reordered"></a><h3>The <code class="literal">“internal-rows-reordered”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *lwdictionarylist,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>          arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>          user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

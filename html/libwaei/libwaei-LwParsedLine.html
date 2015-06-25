@@ -1,0 +1,670 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwParsedLine: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="LwParsed.html" title="LwParsed">
+<link rel="next" href="LwPreferences.html" title="LwPreferences">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#libwaei-LwParsedLine.description" class="shortcut">Description</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="LwParsed.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="LwPreferences.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="libwaei-LwParsedLine"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="libwaei-LwParsedLine.top_of_page"></a>LwParsedLine</span></h2>
+<p>LwParsedLine — A simple object to hold a definition line in a parsed form</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="libwaei-LwParsedLine.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"><span class="returnvalue">GQuark</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-error-quark" title="lw_parsedline_error_quark ()">lw_parsedline_error_quark</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#LW-PARSEDLINE:CAPS" title="LW_PARSEDLINE()">LW_PARSEDLINE</a><span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<span class="c_punctuation">(</span><a class="link" href="libwaei-LwParsedLine.html#LwParsedLineForeachFunc" title="LwParsedLineForeachFunc ()">*LwParsedLineForeachFunc</a><span class="c_punctuation">)</span> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-init" title="lw_parsedline_init ()">lw_parsedline_init</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-init-full" title="lw_parsedline_init_full ()">lw_parsedline_init_full</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-clear" title="lw_parsedline_clear ()">lw_parsedline_clear</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-set-strv" title="lw_parsedline_set_strv ()">lw_parsedline_set_strv</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const **
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-get-strv" title="lw_parsedline_get_strv ()">lw_parsedline_get_strv</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-num-columns" title="lw_parsedline_num_columns ()">lw_parsedline_num_columns</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-get-serialized-length" title="lw_parsedline_get_serialized_length ()">lw_parsedline_get_serialized_length</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-serialize" title="lw_parsedline_serialize ()">lw_parsedline_serialize</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-deserialize-into" title="lw_parsedline_deserialize_into ()">lw_parsedline_deserialize_into</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-foreach" title="lw_parsedline_foreach ()">lw_parsedline_foreach</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-assert-equals" title="lw_parsedline_assert_equals ()">lw_parsedline_assert_equals</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="libwaei-LwParsedLine.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-LwParsedLine.html#LW-PARSEDLINE-ERROR:CAPS" title="LW_PARSEDLINE_ERROR">LW_PARSEDLINE_ERROR</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="libwaei-LwParsedLine.html#LwParsedLineErrorCode" title="enum LwParsedLineErrorCode">LwParsedLineErrorCode</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine">LwParsedLine</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="libwaei-LwParsedLine.description"></a><h2>Description</h2>
+<p>This class forms a smaller part of <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a>, which represents a whole parsed
+file. You will not usually be creating/destroying <a href="libwaei-LwParsedLine.html#LwParsedLine"><span class="type">LwParsedLines</span></a> directly.</p>
+<p><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> is designed to minimize memory allocations by being able to be
+declared on the stack, use the binary data it was deserialized from to hold
+it's strv pointer array, and having the strvs reference strings in a
+separate chunk.  This means there are a lot of gotchas if you try to use
+this class outside of the <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> context.</p>
+<p>Usage example:</p>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1
+2
+3
+4
+5
+6
+7</pre></td>
+        <td class="listing_code"><pre class="programlisting"><span class="usertype">LwParsedLine</span><span class="normal"> parsed_line </span><span class="symbol">=</span><span class="normal"> </span><span class="cbracket">{</span><span class="number">0</span><span class="cbracket">}</span><span class="symbol">;</span>
+<span class="function"><a href="libwaei-LwParsedLine.html#lw-parsedline-init-full">lw_parsedline_init_full</a></span><span class="normal"> </span><span class="symbol">(&amp;</span><span class="normal">parsed_line</span><span class="symbol">,</span><span class="normal"> </span><span class="symbol">(</span><span class="normal"><a href="/usr/share/gtk-doc/html/glib/glib-Datasets.html#GDestroyNotify">GDestroyNotify</a></span><span class="symbol">)</span><span class="normal"> <a href="/usr/share/gtk-doc/html/glib/glib-String-Utility-Functions.html#g-strfreev">g_strfreev</a></span><span class="symbol">);</span>
+
+<span class="function"><a href="libwaei-LwParsedLine.html#lw-parsedline-set-strv">lw_parsedline_set_strv</a></span><span class="normal"> </span><span class="symbol">(&amp;</span><span class="normal">parsed_line</span><span class="symbol">,</span><span class="normal"> </span><span class="number">0</span><span class="symbol">,</span><span class="normal"> </span><span class="function"><a href="/usr/share/gtk-doc/html/glib/glib-String-Utility-Functions.html#g-strsplit">g_strsplit</a></span><span class="normal"> </span><span class="symbol">(</span><span class="string">":"</span><span class="symbol">,</span><span class="normal"> </span><span class="string">"one:two"</span><span class="symbol">));</span>
+<span class="function">printf</span><span class="symbol">(</span><span class="string">"%s</span><span class="specialchar">\n</span><span class="string">"</span><span class="symbol">,</span><span class="normal"> </span><span class="function"><a href="libwaei-LwParsedLine.html#lw-parsedline-get-strv">lw_parsedline_get_strv</a></span><span class="normal"> </span><span class="symbol">(&amp;</span><span class="normal">parsed_line</span><span class="symbol">,</span><span class="normal"> </span><span class="number">0</span><span class="symbol">)[</span><span class="number">0</span><span class="symbol">]);</span>
+
+<span class="function"><a href="libwaei-LwParsedLine.html#lw-parsedline-clear">lw_parsedline_clear</a></span><span class="normal"> </span><span class="symbol">(&amp;</span><span class="normal">parsed_line</span><span class="symbol">);</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p></p>
+</div>
+<div class="refsect1">
+<a name="libwaei-LwParsedLine.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-parsedline-error-quark"></a><h3>lw_parsedline_error_quark ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"><span class="returnvalue">GQuark</span></a>
+lw_parsedline_error_quark (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-PARSEDLINE:CAPS"></a><h3>LW_PARSEDLINE()</h3>
+<pre class="programlisting">#define LW_PARSEDLINE(obj) (LwParsedLine*)obj
+</pre>
+<div class="refsect3">
+<a name="id-1.2.28.6.3.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>obj</p></td>
+<td class="parameter_description"><p>An object to cast to a <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwParsedLineForeachFunc"></a><h3>LwParsedLineForeachFunc ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<span class="c_punctuation">(</span>*LwParsedLineForeachFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>,
+                            <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> column</code></em>,
+                            <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **strv</code></em>,
+                            <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-init"></a><h3>lw_parsedline_init ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_parsedline_init (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>);</pre>
+<p>Initializes an <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> so that you can start adding strvs to it. 
+Call <a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-clear" title="lw_parsedline_clear ()"><code class="function">lw_parsedline_clear()</code></a> when done to free the memory.</p>
+<div class="refsect3">
+<a name="id-1.2.28.6.5.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-init-full"></a><h3>lw_parsedline_init_full ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_parsedline_init_full (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>,
+                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> destroy_notify_func</code></em>);</pre>
+<p>A version of <a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-init" title="lw_parsedline_init ()"><code class="function">lw_parsedline_init()</code></a> that allows you to pass a destroy_notify_func to cleanup the strvs.</p>
+<div class="refsect3">
+<a name="id-1.2.28.6.6.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>destroy_notify_func</p></td>
+<td class="parameter_description"><p>A callback to free memory set with <a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-set-strv" title="lw_parsedline_set_strv ()"><code class="function">lw_parsedline_set_strv()</code></a> when <a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-clear" title="lw_parsedline_clear ()"><code class="function">lw_parsedline_clear()</code></a> is called</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-clear"></a><h3>lw_parsedline_clear ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_parsedline_clear (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>);</pre>
+<p>Clears internal memory of the <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a>, calling the <em class="parameter"><code>destroy_notify_func</code></em>
+ from lw_parsedliine_init_full on each strv if it was set.</p>
+<div class="refsect3">
+<a name="id-1.2.28.6.7.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-set-strv"></a><h3>lw_parsedline_set_strv ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_parsedline_set_strv (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>,
+                        <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> id</code></em>,
+                        <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **strv</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.28.6.8.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>id</p></td>
+<td class="parameter_description"><p>A column id to store the strv.  It will replace the current strv at that column if it was previously set.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>strv</p></td>
+<td class="parameter_description"><p>A <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> terminated array of strings to set to the column id.  It is stored directly and not copied.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-get-strv"></a><h3>lw_parsedline_get_strv ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const **
+lw_parsedline_get_strv (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>,
+                        <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> id</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.28.6.9.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>id</p></td>
+<td class="parameter_description"><p>The id to fetch the strv from</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.28.6.9.5"></a><h4>Returns</h4>
+<p> The strv stored at <em class="parameter"><code>id</code></em>
+or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if it doesn't exist</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-num-columns"></a><h3>lw_parsedline_num_columns ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+lw_parsedline_num_columns (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.28.6.10.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.28.6.10.5"></a><h4>Returns</h4>
+<p> The number of columns that are set</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-get-serialized-length"></a><h3>lw_parsedline_get_serialized_length ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+lw_parsedline_get_serialized_length (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>);</pre>
+<p>Calculates the the space required to serialize  this <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> by
+doing a serialization dry-run.</p>
+<div class="refsect3">
+<a name="id-1.2.28.6.11.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.28.6.11.6"></a><h4>Returns</h4>
+<p> The calculated length of the data it it is serialized.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-serialize"></a><h3>lw_parsedline_serialize ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+lw_parsedline_serialize (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>,
+                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *contents_reference_point</code></em>,
+                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *preallocated_buffer</code></em>,
+                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+<p>Serializes a <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> such that it may be written to a file and read
+at a later date. The Strings are converted from pointers to relative byte
+offsets, making <em class="parameter"><code>contents_reference_pointer</code></em>
+ required to preform the
+calculations. Alls strvs recorded in the <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> must be pointing
+to the same chunk of memory as their base for serialization and
+deserialization to work.</p>
+<div class="refsect3">
+<a name="id-1.2.28.6.12.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>contents_reference_pointer</p></td>
+<td class="parameter_description"><p>The raw data that the strvs reference and will use at their address base</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>preallocated_buffer</p></td>
+<td class="parameter_description"><p>Location to write the serialized data to. It must be at least the size as calculated by <a class="link" href="libwaei-LwParsedLine.html#lw-parsedline-get-serialized-length" title="lw_parsedline_get_serialized_length ()"><code class="function">lw_parsedline_get_serialized_length()</code></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>An <a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> to record errors or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.28.6.12.6"></a><h4>Returns</h4>
+<p> The bytes written to the <em class="parameter"><code>preallocated_buffer</code></em>
+</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-deserialize-into"></a><h3>lw_parsedline_deserialize_into ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+lw_parsedline_deserialize_into (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *serialized_data</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *contents_reference_point</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+<p>Deserializes the data from <em class="parameter"><code>serialized_data</code></em>
+ into the <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> object.
+It does this by taking the string offsets and converting them back into
+pointers with <em class="parameter"><code>contents_reference_point</code></em>
+ as the base. As a sanity check
+the strings all are validated as utf-8 and if they fail, an error is set
+and returned.  Because <em class="parameter"><code>serialized_data</code></em>
+ is used to hold the
+string array data, it is and error deserialize <em class="parameter"><code>serialized_data</code></em>
+ twice
+and it will return an error. For the same reason, is also an error to
+free <em class="parameter"><code>serialized_data</code></em>
+ after deserialization.</p>
+<div class="refsect3">
+<a name="id-1.2.28.6.13.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> that should be initialized to {0}</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>serialized_data</p></td>
+<td class="parameter_description"><p>The data to build the <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> from</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>contents_reference_point</p></td>
+<td class="parameter_description"><p>File used as the base offset to restore the strvs</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>An <a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> to record errors or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.28.6.13.6"></a><h4>Returns</h4>
+<p> The bytes read from <em class="parameter"><code>serialized_data</code></em>
+to build the <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-foreach"></a><h3>lw_parsedline_foreach ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_parsedline_foreach (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>,
+                       <em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLineForeachFunc" title="LwParsedLineForeachFunc ()"><span class="type">LwParsedLineForeachFunc</span></a> func</code></em>,
+                       <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
+<p>A foreach helper to run a method against each column id stored in <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a>.</p>
+<div class="refsect3">
+<a name="id-1.2.28.6.14.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>func</p></td>
+<td class="parameter_description"><p>A function to call on each column id</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>data</p></td>
+<td class="parameter_description"><p>Data to be passed to <em class="parameter"><code>func</code></em>
+</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsedline-assert-equals"></a><h3>lw_parsedline_assert_equals ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_parsedline_assert_equals (<em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *self</code></em>,
+                             <em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *other</code></em>);</pre>
+<p>A method used to facilitate unit testing</p>
+<div class="refsect3">
+<a name="id-1.2.28.6.15.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>other</p></td>
+<td class="parameter_description"><p>Another <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="libwaei-LwParsedLine.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LW-PARSEDLINE-ERROR:CAPS"></a><h3>LW_PARSEDLINE_ERROR</h3>
+<pre class="programlisting">#define LW_PARSEDLINE_ERROR lw_parsedline_error_quark ()
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwParsedLineErrorCode"></a><h3>enum LwParsedLineErrorCode</h3>
+<p>Error Codes for <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> operations</p>
+<div class="refsect3">
+<a name="id-1.2.28.7.3.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody><tr>
+<td class="enum_member_name"><p><a name="LW-PARSEDLINE-ERRORCODE-DESERIALIZATION-ERROR:CAPS"></a>LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR</p></td>
+<td class="enum_member_description">
+<p>There was a fatal error during deserialization</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwParsedLine"></a><h3>LwParsedLine</h3>
+<pre class="programlisting">typedef struct {
+} LwParsedLine;
+</pre>
+<p>An object for holding parsed line data.  It's contents are private
+and should only be accessed through public methods.</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

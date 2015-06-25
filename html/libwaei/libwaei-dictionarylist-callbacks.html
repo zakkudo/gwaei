@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>dictionarylist-callbacks: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="LwDictionaryList.html" title="LwDictionaryList">
+<link rel="next" href="LwDictionaryModule.html" title="LwDictionaryModule">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#libwaei-dictionarylist-callbacks.description" class="shortcut">Description</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="LwDictionaryList.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="LwDictionaryModule.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="libwaei-dictionarylist-callbacks"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="libwaei-dictionarylist-callbacks.top_of_page"></a>dictionarylist-callbacks</span></h2>
+<p>dictionarylist-callbacks</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="libwaei-dictionarylist-callbacks.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-dictionarylist-callbacks.html#lw-dictionarylist-connect-signals" title="lw_dictionarylist_connect_signals ()">lw_dictionarylist_connect_signals</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-dictionarylist-callbacks.html#lw-dictionarylist-disconnect-signals" title="lw_dictionarylist_disconnect_signals ()">lw_dictionarylist_disconnect_signals</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-dictionarylist-callbacks.html#lw-dictionarylist-inserted-cb" title="lw_dictionarylist_inserted_cb ()">lw_dictionarylist_inserted_cb</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-dictionarylist-callbacks.html#lw-dictionarylist-deleted-cb" title="lw_dictionarylist_deleted_cb ()">lw_dictionarylist_deleted_cb</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-dictionarylist-callbacks.html#lw-dictionarylist-reordered-cb" title="lw_dictionarylist_reordered_cb ()">lw_dictionarylist_reordered_cb</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="libwaei-dictionarylist-callbacks.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="libwaei-dictionarylist-callbacks.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-dictionarylist-connect-signals"></a><h3>lw_dictionarylist_connect_signals ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarylist_connect_signals (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *dictionarylist</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-disconnect-signals"></a><h3>lw_dictionarylist_disconnect_signals ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarylist_disconnect_signals (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *dictionarylist</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-inserted-cb"></a><h3>lw_dictionarylist_inserted_cb ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarylist_inserted_cb (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *dictionary_list</code></em>,
+                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> position</code></em>,
+                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-deleted-cb"></a><h3>lw_dictionarylist_deleted_cb ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarylist_deleted_cb (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *dictionary_list</code></em>,
+                              <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> position</code></em>,
+                              <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarylist-reordered-cb"></a><h3>lw_dictionarylist_reordered_cb ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarylist_reordered_cb (<em class="parameter"><code><a class="link" href="LwDictionaryList.html" title="LwDictionaryList"><span class="type">LwDictionaryList</span></a> *dictionary_list</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> *new_order</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="libwaei-dictionarylist-callbacks.other_details"></a><h2>Types and Values</h2>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

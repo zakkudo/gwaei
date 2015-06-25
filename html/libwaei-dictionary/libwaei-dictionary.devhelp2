@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<book xmlns="http://www.devhelp.net/book" title="libwaei-dictionary Reference Manual" link="index.html" author="" name="libwaei-dictionary" version="2" language="c">
+  <chapters>
+    <sub name="[Insert title here]" link="ch01.html">
+      <sub name="LwEDictionary" link="libwaei-dictionary-LwEDictionary.html"/>
+      <sub name="LwExampleDictionary" link="libwaei-dictionary-LwExampleDictionary.html"/>
+      <sub name="LwKanjiDictionary" link="libwaei-dictionary-LwKanjiDictionary.html"/>
+      <sub name="LwRadicalsDictionary" link="libwaei-dictionary-LwRadicalsDictionary.html"/>
+      <sub name="LwUnknownDictionary" link="libwaei-dictionary-LwUnknownDictionary.html"/>
+    </sub>
+    <sub name="Object Hierarchy" link="object-tree.html"/>
+    <sub name="API Index" link="api-index-full.html"/>
+    <sub name="Index of deprecated API" link="deprecated-api-index.html"/>
+  </chapters>
+  <functions>
+    <keyword type="macro" name="LW_TYPE_EDICTIONARYCOLUMNID" link="libwaei-dictionary-LwEDictionary.html#LW-TYPE-EDICTIONARYCOLUMNID:CAPS"/>
+    <keyword type="function" name="lw_edictionary_new ()" link="libwaei-dictionary-LwEDictionary.html#lw-edictionary-new"/>
+    <keyword type="macro" name="LW_EDICTIONARYCOLUMNNAME_WORD" link="libwaei-dictionary-LwEDictionary.html#LW-EDICTIONARYCOLUMNNAME-WORD:CAPS"/>
+    <keyword type="macro" name="LW_EDICTIONARYCOLUMNNAME_READING" link="libwaei-dictionary-LwEDictionary.html#LW-EDICTIONARYCOLUMNNAME-READING:CAPS"/>
+    <keyword type="macro" name="LW_EDICTIONARYCOLUMNNAME_DEFINITION" link="libwaei-dictionary-LwEDictionary.html#LW-EDICTIONARYCOLUMNNAME-DEFINITION:CAPS"/>
+    <keyword type="macro" name="LW_EDICTIONARYCOLUMNNAME_CLASSIFICATION" link="libwaei-dictionary-LwEDictionary.html#LW-EDICTIONARYCOLUMNNAME-CLASSIFICATION:CAPS"/>
+    <keyword type="macro" name="LW_EDICTIONARYCOLUMNNAME_POPULAR" link="libwaei-dictionary-LwEDictionary.html#LW-EDICTIONARYCOLUMNNAME-POPULAR:CAPS"/>
+    <keyword type="macro" name="LW_EDICTIONARYCOLUMNNICK_WORD" link="libwaei-dictionary-LwEDictionary.html#LW-EDICTIONARYCOLUMNNICK-WORD:CAPS"/>
+    <keyword type="macro" name="LW_EDICTIONARYCOLUMNNICK_READING" link="libwaei-dictionary-LwEDictionary.html#LW-EDICTIONARYCOLUMNNICK-READING:CAPS"/>
+    <keyword type="macro" name="LW_EDICTIONARYCOLUMNNICK_DEFINITION" link="libwaei-dictionary-LwEDictionary.html#LW-EDICTIONARYCOLUMNNICK-DEFINITION:CAPS"/>
+    <keyword type="macro" name="LW_EDICTIONARYCOLUMNNICK_CLASSIFICATION" link="libwaei-dictionary-LwEDictionary.html#LW-EDICTIONARYCOLUMNNICK-CLASSIFICATION:CAPS"/>
+    <keyword type="macro" name="LW_EDICTIONARYCOLUMNNICK_POPULAR" link="libwaei-dictionary-LwEDictionary.html#LW-EDICTIONARYCOLUMNNICK-POPULAR:CAPS"/>
+    <keyword type="function" name="lw_exampledictionary_new ()" link="libwaei-dictionary-LwExampleDictionary.html#lw-exampledictionary-new"/>
+    <keyword type="macro" name="LW_TYPE_EXAMPLEDICTIONARYCOLUMNID" link="libwaei-dictionary-LwExampleDictionary.html#LW-TYPE-EXAMPLEDICTIONARYCOLUMNID:CAPS"/>
+    <keyword type="macro" name="LW_EXAMPLEDICTIONARYCOLUMNNAME_PHRASE" link="libwaei-dictionary-LwExampleDictionary.html#LW-EXAMPLEDICTIONARYCOLUMNNAME-PHRASE:CAPS"/>
+    <keyword type="macro" name="LW_EXAMPLEDICTIONARYCOLUMNNAME_MEANING" link="libwaei-dictionary-LwExampleDictionary.html#LW-EXAMPLEDICTIONARYCOLUMNNAME-MEANING:CAPS"/>
+    <keyword type="macro" name="LW_EXAMPLEDICTIONARYCOLUMNNAME_ID" link="libwaei-dictionary-LwExampleDictionary.html#LW-EXAMPLEDICTIONARYCOLUMNNAME-ID:CAPS"/>
+    <keyword type="macro" name="LW_EXAMPLEDICTIONARYCOLUMNNICK_PHRASE" link="libwaei-dictionary-LwExampleDictionary.html#LW-EXAMPLEDICTIONARYCOLUMNNICK-PHRASE:CAPS"/>
+    <keyword type="macro" name="LW_EXAMPLEDICTIONARYCOLUMNNICK_MEANING" link="libwaei-dictionary-LwExampleDictionary.html#LW-EXAMPLEDICTIONARYCOLUMNNICK-MEANING:CAPS"/>
+    <keyword type="macro" name="LW_EXAMPLEDICTIONARYCOLUMNNICK_ID" link="libwaei-dictionary-LwExampleDictionary.html#LW-EXAMPLEDICTIONARYCOLUMNNICK-ID:CAPS"/>
+    <keyword type="function" name="lw_kanjidictionary_new ()" link="libwaei-dictionary-LwKanjiDictionary.html#lw-kanjidictionary-new"/>
+    <keyword type="macro" name="LW_TYPE_KANJIDICTIONARYCOLUMNID" link="libwaei-dictionary-LwKanjiDictionary.html#LW-TYPE-KANJIDICTIONARYCOLUMNID:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNAME_KANJI" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNAME-KANJI:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNAME_UNICODE_SYMBOL" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNAME-UNICODE-SYMBOL:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNAME_USAGE_FREQUENCY" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNAME-USAGE-FREQUENCY:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNAME_STROKE_COUNT" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNAME-STROKE-COUNT:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNAME_GRADE_LEVEL" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNAME-GRADE-LEVEL:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNAME_JLPT_LEVEL" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNAME-JLPT-LEVEL:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNAME_KUN_READINGS" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNAME-KUN-READINGS:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNAME_ON_READINGS" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNAME-ON-READINGS:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNAME_MEANINGS" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNAME-MEANINGS:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNICK_KANJI" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNICK-KANJI:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNICK_UNICODE_SYMBOL" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNICK-UNICODE-SYMBOL:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNICK_USAGE_FREQUENCY" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNICK-USAGE-FREQUENCY:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNICK_STROKE_COUNT" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNICK-STROKE-COUNT:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNICK_GRADE_LEVEL" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNICK-GRADE-LEVEL:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNICK_JLPT_LEVEL" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNICK-JLPT-LEVEL:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNICK_KUN_READINGS" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNICK-KUN-READINGS:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNICK_ON_READINGS" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNICK-ON-READINGS:CAPS"/>
+    <keyword type="macro" name="LW_KANJIDICTIONARYCOLUMNNICK_MEANINGS" link="libwaei-dictionary-LwKanjiDictionary.html#LW-KANJIDICTIONARYCOLUMNNICK-MEANINGS:CAPS"/>
+    <keyword type="function" name="lw_radicalsdictionary_new ()" link="libwaei-dictionary-LwRadicalsDictionary.html#lw-radicalsdictionary-new"/>
+    <keyword type="macro" name="LW_TYPE_RADICALSDICTIONARYCOLUMNID" link="libwaei-dictionary-LwRadicalsDictionary.html#LW-TYPE-RADICALSDICTIONARYCOLUMNID:CAPS"/>
+    <keyword type="macro" name="LW_RADICALSDICTIONARYCOLUMNNAME_KANJI" link="libwaei-dictionary-LwRadicalsDictionary.html#LW-RADICALSDICTIONARYCOLUMNNAME-KANJI:CAPS"/>
+    <keyword type="macro" name="LW_RADICALSDICTIONARYCOLUMNNAME_RADICALS" link="libwaei-dictionary-LwRadicalsDictionary.html#LW-RADICALSDICTIONARYCOLUMNNAME-RADICALS:CAPS"/>
+    <keyword type="macro" name="LW_RADICALSDICTIONARYCOLUMNNICK_KANJI" link="libwaei-dictionary-LwRadicalsDictionary.html#LW-RADICALSDICTIONARYCOLUMNNICK-KANJI:CAPS"/>
+    <keyword type="macro" name="LW_RADICALSDICTIONARYCOLUMNNICK_RADICALS" link="libwaei-dictionary-LwRadicalsDictionary.html#LW-RADICALSDICTIONARYCOLUMNNICK-RADICALS:CAPS"/>
+    <keyword type="function" name="lw_unknowndictionary_new ()" link="libwaei-dictionary-LwUnknownDictionary.html#lw-unknowndictionary-new"/>
+    <keyword type="macro" name="LW_TYPE_UNKNOWNDICTIONARYCOLUMNID" link="libwaei-dictionary-LwUnknownDictionary.html#LW-TYPE-UNKNOWNDICTIONARYCOLUMNID:CAPS"/>
+    <keyword type="macro" name="LW_UNKNOWNDICTIONARYCOLUMNNAME_UNKNOWN" link="libwaei-dictionary-LwUnknownDictionary.html#LW-UNKNOWNDICTIONARYCOLUMNNAME-UNKNOWN:CAPS"/>
+    <keyword type="macro" name="LW_UNKNOWNDICTIONARYCOLUMNNICK_UNKNOWN" link="libwaei-dictionary-LwUnknownDictionary.html#LW-UNKNOWNDICTIONARYCOLUMNNICK-UNKNOWN:CAPS"/>
+    <keyword type="macro" name="LW_UNKNOWNDICTIONARY_KEY_TEXT" link="libwaei-dictionary-LwUnknownDictionary.html#LW-UNKNOWNDICTIONARY-KEY-TEXT:CAPS"/>
+  </functions>
+</book>

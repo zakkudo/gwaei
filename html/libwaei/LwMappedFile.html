@@ -1,0 +1,479 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwMappedFile: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="libwaei-IO-Utility-Methods.html" title="IO Utility Methods">
+<link rel="next" href="libwaei-LwParenthesisNode.html" title="LwParenthesisNode">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#LwMappedFile.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#LwMappedFile.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#LwMappedFile.properties" class="shortcut">Properties</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="libwaei-IO-Utility-Methods.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="libwaei-LwParenthesisNode.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="LwMappedFile"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="LwMappedFile.top_of_page"></a>LwMappedFile</span></h2>
+<p>LwMappedFile — A wrapper for creating and managing mapped files</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="LwMappedFile.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="returnvalue">LwMappedFile</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwMappedFile.html#lw-mappedfile-new" title="lw_mappedfile_new ()">lw_mappedfile_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwMappedFile.html#lw-mappedfile-length" title="lw_mappedfile_length ()">lw_mappedfile_length</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwMappedFile.html#lw-mappedfile-get-contents" title="lw_mappedfile_get_contents ()">lw_mappedfile_get_contents</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwMappedFile.html#lw-mappedfile-set-path" title="lw_mappedfile_set_path ()">lw_mappedfile_set_path</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwMappedFile.html#lw-mappedfile-get-path" title="lw_mappedfile_get_path ()">lw_mappedfile_get_path</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwMappedFile.html#lw-mappedfile-set-delete-on-free" title="lw_mappedfile_set_delete_on_free ()">lw_mappedfile_set_delete_on_free</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwMappedFile.html#lw-mappedfile-get-delete-on-free" title="lw_mappedfile_get_delete_on_free ()">lw_mappedfile_get_delete_on_free</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwMappedFile.html#lw-mappedfile-set-writable" title="lw_mappedfile_set_writable ()">lw_mappedfile_set_writable</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwMappedFile.html#lw-mappedfile-is-writable" title="lw_mappedfile_is_writable ()">lw_mappedfile_is_writable</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwMappedFile.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gulong"><span class="type">gulong</span></a></td>
+<td class="property_name"><a class="link" href="LwMappedFile.html#LwMappedFile--content-length" title="The “content-length” property">content-length</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwMappedFile.html#LwMappedFile--contents" title="The “contents” property">contents</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="LwMappedFile.html#LwMappedFile--delete-on-free" title="The “delete-on-free” property">delete-on-free</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwMappedFile.html#LwMappedFile--path" title="The “path” property">path</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="LwMappedFile.html#LwMappedFile--writable" title="The “writable” property">writable</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwMappedFile.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody><tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="LwMappedFile.html#LwMappedFileClassPrivate" title="LwMappedFileClassPrivate">LwMappedFileClassPrivate</a></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwMappedFile.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> LwMappedFile
+        <span class="lineart">╰──</span> <a class="link" href="LwCacheFile.html" title="LwCacheFile">LwCacheFile</a>
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwMappedFile.description"></a><h2>Description</h2>
+<p>This is a wrapper around <a href="/usr/share/gtk-doc/html/glib/glib-File-Utilities.html#GMappedFile"><span class="type">GMappedFile</span></a> with extra convenience methods
+and it also stores the path of the mapped file.</p>
+</div>
+<div class="refsect1">
+<a name="LwMappedFile.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-mappedfile-new"></a><h3>lw_mappedfile_new ()</h3>
+<pre class="programlisting"><a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="returnvalue">LwMappedFile</span></a> *
+lw_mappedfile_new (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *PATH</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.25.8.2.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>PATH</p></td>
+<td class="parameter_description"><p> The path to write the mapped file to or load from. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="Override the parsed C type with given type."><span class="acronym">type</span></acronym> filename]</span></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.25.8.2.5"></a><h4>Returns</h4>
+<p> A new <span class="type">LWMappedFile</span> that can be freed with <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-mappedfile-length"></a><h3>lw_mappedfile_length ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+lw_mappedfile_length (<em class="parameter"><code><a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.25.8.3.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.25.8.3.5"></a><h4>Returns</h4>
+<p> The length of the mapped file on disk in bytes</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-mappedfile-get-contents"></a><h3>lw_mappedfile_get_contents ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_mappedfile_get_contents (<em class="parameter"><code><a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.25.8.4.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.25.8.4.5"></a><h4>Returns</h4>
+<p> The mapped file's contents as a char array</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-mappedfile-set-path"></a><h3>lw_mappedfile_set_path ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_mappedfile_set_path (<em class="parameter"><code><a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a> *self</code></em>,
+                        <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *PATH</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.25.8.5.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>PATH</p></td>
+<td class="parameter_description"><p>The path of the file that the mapped file references</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-mappedfile-get-path"></a><h3>lw_mappedfile_get_path ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_mappedfile_get_path (<em class="parameter"><code><a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.25.8.6.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.25.8.6.5"></a><h4>Returns</h4>
+<p> The path of the file that the mapped file references. The string is owned by the mapped file and should not be modified or freed. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="Override the parsed C type with given type."><span class="acronym">type</span></acronym> filename]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-mappedfile-set-delete-on-free"></a><h3>lw_mappedfile_set_delete_on_free ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_mappedfile_set_delete_on_free (<em class="parameter"><code><a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a> *self</code></em>,
+                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> delete_on_free</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.25.8.7.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>delete_on_free</p></td>
+<td class="parameter_description"><p>When <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a>, the file that this object points to will be deleted when the object is finalized</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-mappedfile-get-delete-on-free"></a><h3>lw_mappedfile_get_delete_on_free ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_mappedfile_get_delete_on_free (<em class="parameter"><code><a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.25.8.8.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.25.8.8.5"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the fill will be deleted when this object is freed</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-mappedfile-set-writable"></a><h3>lw_mappedfile_set_writable ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_mappedfile_set_writable (<em class="parameter"><code><a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a> *self</code></em>,
+                            <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> writable</code></em>);</pre>
+<p>Changes the writable flag on the underlying <a href="/usr/share/gtk-doc/html/glib/glib-File-Utilities.html#GMappedFile"><span class="type">GMappedFile</span></a> by
+unreferencing it and replacing it with a new <a href="/usr/share/gtk-doc/html/glib/glib-File-Utilities.html#GMappedFile"><span class="type">GMappedFile</span></a>.
+This any buffer that was loaded with <a class="link" href="LwMappedFile.html#lw-mappedfile-get-contents" title="lw_mappedfile_get_contents ()"><code class="function">lw_mappedfile_get_contents()</code></a>
+is no longer valid and will have to be refetched.</p>
+<div class="refsect3">
+<a name="id-1.2.25.8.9.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>writable</p></td>
+<td class="parameter_description"><p>Sets if this file is writable</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-mappedfile-is-writable"></a><h3>lw_mappedfile_is_writable ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_mappedfile_is_writable (<em class="parameter"><code><a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.25.8.10.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwMappedFile.html" title="LwMappedFile"><span class="type">LwMappedFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.25.8.10.5"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the mapped file is set to be writable</p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwMappedFile.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LwMappedFileClassPrivate"></a><h3>LwMappedFileClassPrivate</h3>
+<pre class="programlisting">typedef struct _LwMappedFileClassPrivate LwMappedFileClassPrivate;</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwMappedFile.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="LwMappedFile--content-length"></a><h3>The <code class="literal">“content-length”</code> property</h3>
+<pre class="programlisting">  “content-length”           <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gulong"><span class="type">gulong</span></a></pre>
+<p>The length of the contents.</p>
+<p>Flags: Read</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwMappedFile--contents"></a><h3>The <code class="literal">“contents”</code> property</h3>
+<pre class="programlisting">  “contents”                 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>The content string for the mapped file.</p>
+<p>Flags: Read</p>
+<p>Default value: ""</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwMappedFile--delete-on-free"></a><h3>The <code class="literal">“delete-on-free”</code> property</h3>
+<pre class="programlisting">  “delete-on-free”           <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Delete the mapped file when the object is freed.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwMappedFile--path"></a><h3>The <code class="literal">“path”</code> property</h3>
+<pre class="programlisting">  “path”                     <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>The path of the mapped file.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwMappedFile--writable"></a><h3>The <code class="literal">“writable”</code> property</h3>
+<pre class="programlisting">  “writable”                 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Sets of the buffer is writable.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: FALSE</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

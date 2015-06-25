@@ -1,0 +1,612 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwQueryNode: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="LwProgress.html" title="LwProgress">
+<link rel="next" href="libwaei-LwQueryNodeColumnMatchInfo.html" title="LwQueryNodeColumnMatchInfo">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#libwaei-LwQueryNode.description" class="shortcut">Description</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="LwProgress.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="libwaei-LwQueryNodeColumnMatchInfo.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="libwaei-LwQueryNode"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="libwaei-LwQueryNode.top_of_page"></a>LwQueryNode</span></h2>
+<p>LwQueryNode — A query tree structure for searches</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="libwaei-LwQueryNode.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<span class="c_punctuation">(</span><a class="link" href="libwaei-LwQueryNode.html#LwQueryNodeWalkFunc" title="LwQueryNodeWalkFunc ()">*LwQueryNodeWalkFunc</a><span class="c_punctuation">)</span> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"><span class="returnvalue">GQuark</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwQueryNode.html#lw-querynode-error-quark" title="lw_querynode_error_quark ()">lw_querynode_error_quark</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwQueryNode.html#LW-QUERYNODE:CAPS" title="LW_QUERYNODE()">LW_QUERYNODE</a><span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="returnvalue">LwQueryNode</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwQueryNode.html#lw-querynode-new-tree-from-string" title="lw_querynode_new_tree_from_string ()">lw_querynode_new_tree_from_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="returnvalue">LwQueryNode</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwQueryNode.html#lw-querynode-ref" title="lw_querynode_ref ()">lw_querynode_ref</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwQueryNode.html#lw-querynode-unref" title="lw_querynode_unref ()">lw_querynode_unref</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwQueryNode.html#lw-querynode-assert-equals" title="lw_querynode_assert_equals ()">lw_querynode_assert_equals</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwQueryNode.html#lw-querynode-walk" title="lw_querynode_walk ()">lw_querynode_walk</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwQueryNode.html#lw-querynode-nnodes" title="lw_querynode_nnodes ()">lw_querynode_nnodes</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwQueryNode.html#lw-querynode-compile" title="lw_querynode_compile ()">lw_querynode_compile</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-LwQueryNode.html#lw-querynode-match-parsedline" title="lw_querynode_match_parsedline ()">lw_querynode_match_parsedline</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="libwaei-LwQueryNode.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="libwaei-LwQueryNode.html#LwQueryNodeOperation" title="enum LwQueryNodeOperation">LwQueryNodeOperation</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode">LwQueryNode</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-LwQueryNode.html#LW-QUERYNODE-ERROR:CAPS" title="LW_QUERYNODE_ERROR">LW_QUERYNODE_ERROR</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="libwaei-LwQueryNode.html#LwQueryNodeErrorCode" title="enum LwQueryNodeErrorCode">LwQueryNodeErrorCode</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="libwaei-LwQueryNode.description"></a><h2>Description</h2>
+<p>Creates a node structure than can easily be iterated to carry out a 
+seach against a list of results.</p>
+</div>
+<div class="refsect1">
+<a name="libwaei-LwQueryNode.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="LwQueryNodeWalkFunc"></a><h3>LwQueryNodeWalkFunc ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<span class="c_punctuation">(</span>*LwQueryNodeWalkFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> *self</code></em>,
+                        <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-querynode-error-quark"></a><h3>lw_querynode_error_quark ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"><span class="returnvalue">GQuark</span></a>
+lw_querynode_error_quark (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-QUERYNODE:CAPS"></a><h3>LW_QUERYNODE()</h3>
+<pre class="programlisting">#define LW_QUERYNODE(obj) ((LwQueryNode*)(obj))
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-querynode-new-tree-from-string"></a><h3>lw_querynode_new_tree_from_string ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="returnvalue">LwQueryNode</span></a> *
+lw_querynode_new_tree_from_string (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *TEXT</code></em>,
+                                   <em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNodeOperation" title="enum LwQueryNodeOperation"><span class="type">LwQueryNodeOperation</span></a> *operation_out</code></em>,
+                                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+<p>Generates a <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> tree from a string.  This method is recursive, thus requiring a pointer to a <a class="link" href="libwaei-LwQueryNode.html#LwQueryNodeOperation" title="enum LwQueryNodeOperation"><span class="type">LwQueryNodeOperation</span></a> for context.  This method uses <a class="link" href="libwaei-LwParenthesisNode.html#LwParenthesisNode" title="LwParenthesisNode"><span class="type">LwParenthesisNode</span></a> as an intermediary compilation, so if there are any parentheiss errors, they will return through <a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> with that domain.</p>
+<div class="refsect3">
+<a name="id-1.2.31.6.5.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>TEXT</p></td>
+<td class="parameter_description"><p>The text to generate the <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> tree from</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>operation_out</p></td>
+<td class="parameter_description"><p>Returns any hanging operations that should be passed to the next sibling.  This should generally be set to <a class="link" href="libwaei-LwQueryNode.html#LW-QUERYNODE-OPERATION-NONE:CAPS"><code class="literal">LW_QUERYNODE_OPERATION_NONE</code></a> by outside consumers of this api.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>Pointer to a <a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> or <code class="literal">NONE</code></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.31.6.5.6"></a><h4>Returns</h4>
+<p> A new <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> tree that can be freed with <a class="link" href="libwaei-LwQueryNode.html#lw-querynode-unref" title="lw_querynode_unref ()"><code class="function">lw_querynode_unref()</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-querynode-ref"></a><h3>lw_querynode_ref ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="returnvalue">LwQueryNode</span></a> *
+lw_querynode_ref (<em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.31.6.6.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.31.6.6.5"></a><h4>Returns</h4>
+<p> Increases the reference count of the <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> and returns it</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-querynode-unref"></a><h3>lw_querynode_unref ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_querynode_unref (<em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> *self</code></em>);</pre>
+<p>Decreases the references on the <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> and frees it if it reaches 0</p>
+<div class="refsect3">
+<a name="id-1.2.31.6.7.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-querynode-assert-equals"></a><h3>lw_querynode_assert_equals ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_querynode_assert_equals (<em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> *self</code></em>,
+                            <em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> *other</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.31.6.8.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>other</p></td>
+<td class="parameter_description"><p>Another <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.31.6.8.5"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the internal fields and children match</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-querynode-walk"></a><h3>lw_querynode_walk ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_querynode_walk (<em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> *self</code></em>,
+                   <em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNodeWalkFunc" title="LwQueryNodeWalkFunc ()"><span class="type">LwQueryNodeWalkFunc</span></a> func</code></em>,
+                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.31.6.9.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>func</p></td>
+<td class="parameter_description"><p>A method to run on each <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>data</p></td>
+<td class="parameter_description"><p>A <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> to pass to each <em class="parameter"><code>func</code></em>
+</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.31.6.9.5"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the walk was cancelled early</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-querynode-nnodes"></a><h3>lw_querynode_nnodes ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+lw_querynode_nnodes (<em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.31.6.10.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.31.6.10.5"></a><h4>Returns</h4>
+<p> the total number of nodes</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-querynode-compile"></a><h3>lw_querynode_compile ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_querynode_compile (<em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> *self</code></em>,
+                      <em class="parameter"><code><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="type">LwUtf8Flag</span></a> flags</code></em>,
+                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+<p>Compiles the <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> into a more compact form that is more ideal
+for comparisons.  Once compiled, the <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> structure will not be in
+the same form as the original query and all regexes will be filled.
+You should run this before any uses of <a class="link" href="libwaei-LwQueryNode.html#lw-querynode-match-parsedline" title="lw_querynode_match_parsedline ()"><code class="function">lw_querynode_match_parsedline()</code></a>.</p>
+<div class="refsect3">
+<a name="id-1.2.31.6.11.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>flags</p></td>
+<td class="parameter_description"><p>The flags for the prefered normalization of the query data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>An <a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> to track errors or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> to ignore them</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-querynode-match-parsedline"></a><h3>lw_querynode_match_parsedline ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_querynode_match_parsedline (<em class="parameter"><code><a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a> *self</code></em>,
+                               <em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *parsed_line</code></em>,
+                               <em class="parameter"><code><a class="link" href="libwaei-LwQueryNodeMatchInfo.html#LwQueryNodeMatchInfo" title="LwQueryNodeMatchInfo"><span class="type">LwQueryNodeMatchInfo</span></a> *match_info_out</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.31.6.12.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwQueryNode.html#LwQueryNode" title="LwQueryNode"><span class="type">LwQueryNode</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>parsed_line</p></td>
+<td class="parameter_description"><p>A <em class="parameter"><code>parsed_line</code></em>
+to search</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>match_info_out</p></td>
+<td class="parameter_description"><p>A <a class="link" href="libwaei-LwQueryNodeMatchInfo.html#LwQueryNodeMatchInfo" title="LwQueryNodeMatchInfo"><span class="type">LwQueryNodeMatchInfo</span></a> to record match information or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> to ignore it</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.31.6.12.5"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if <em class="parameter"><code>self</code></em>
+matches against the <em class="parameter"><code>parsed_line</code></em>
+</p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="libwaei-LwQueryNode.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LwQueryNodeOperation"></a><h3>enum LwQueryNodeOperation</h3>
+<div class="refsect3">
+<a name="id-1.2.31.7.2.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="LW-QUERYNODE-OPERATION-NONE:CAPS"></a>LW_QUERYNODE_OPERATION_NONE</p></td>
+<td class="enum_member_description">
+<p>There is no specific logical relation with the previous node.  This can also mean that this is the first node in a set of children.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-QUERYNODE-OPERATION-OR:CAPS"></a>LW_QUERYNODE_OPERATION_OR</p></td>
+<td class="enum_member_description">
+<p>The result of comparisons on this node should be logically ored with the previous node.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-QUERYNODE-OPERATION-AND:CAPS"></a>LW_QUERYNODE_OPERATION_AND</p></td>
+<td class="enum_member_description">
+<p>The result of comparisons on this node should be logically anded with the previous node.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="TOTAL-LW-QUERYNODE-OPERATIONS:CAPS"></a>TOTAL_LW_QUERYNODE_OPERATIONS</p></td>
+<td class="enum_member_description">
+<p>Total number of possible query node operations</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwQueryNode"></a><h3>LwQueryNode</h3>
+<pre class="programlisting">typedef struct {
+  LwQueryNodeOperation operation;
+  gchar * key;
+  gchar * data;
+  GList * children;
+  gint refs;
+
+  gint * columns;
+  GRegex * regex;
+} LwQueryNode;
+</pre>
+<div class="refsect3">
+<a name="id-1.2.31.7.3.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="libwaei-LwQueryNode.html#LwQueryNodeOperation" title="enum LwQueryNodeOperation"><span class="type">LwQueryNodeOperation</span></a> <em class="structfield"><code><a name="LwQueryNode.operation"></a>operation</code></em>;</p></td>
+<td class="struct_member_description"><p>a <a class="link" href="libwaei-LwQueryNode.html#LwQueryNodeOperation" title="enum LwQueryNodeOperation"><span class="type">LwQueryNodeOperation</span></a> representing how the sibling nodes are linked</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="LwQueryNode.key"></a>key</code></em>;</p></td>
+<td class="struct_member_description"><p>a <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> instructing the node that the value should only be applied against a specific dictionary column</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="LwQueryNode.data"></a>data</code></em>;</p></td>
+<td class="struct_member_description"><p>a <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> representing the search data.  If it is null, this is not a leaf node and there should be children.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="type">GList</span></a> *<em class="structfield"><code><a name="LwQueryNode.children"></a>children</code></em>;</p></td>
+<td class="struct_member_description"><p>A <a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="type">GList</span></a> of <a href="libwaei-LwQueryNode.html#LwQueryNode"><span class="type">LwQueryNodes</span></a> which should be filled when this is not a leaf node.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="LwQueryNode.refs"></a>refs</code></em>;</p></td>
+<td class="struct_member_description"><p>The number of references on this node.  When the references drop to 0, the node is freed.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> *<em class="structfield"><code><a name="LwQueryNode.columns"></a>columns</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glib/glib-Perl-compatible-regular-expressions.html#GRegex"><span class="type">GRegex</span></a> *<em class="structfield"><code><a name="LwQueryNode.regex"></a>regex</code></em>;</p></td>
+<td class="struct_member_description"><p>A <a href="/usr/share/gtk-doc/html/glib/glib-Perl-compatible-regular-expressions.html#GRegex"><span class="type">GRegex</span></a> that gets filled when <a class="link" href="libwaei-LwQueryNode.html#lw-querynode-compile" title="lw_querynode_compile ()"><code class="function">lw_querynode_compile()</code></a> is called</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-QUERYNODE-ERROR:CAPS"></a><h3>LW_QUERYNODE_ERROR</h3>
+<pre class="programlisting">#define LW_QUERYNODE_ERROR lw_querynode_error_quark ()
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwQueryNodeErrorCode"></a><h3>enum LwQueryNodeErrorCode</h3>
+<div class="refsect3">
+<a name="id-1.2.31.7.5.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="LW-QUERYNODE-HANGING-START-LOGICAL-CONNECTOR:CAPS"></a>LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR</p></td>
+<td class="enum_member_description">
+<p>This will usually mean the first node in a set of children has an <a class="link" href="libwaei-LwQueryNode.html#LwQueryNodeOperation" title="enum LwQueryNodeOperation"><span class="type">LwQueryNodeOperation</span></a></p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-QUERYNODE-HANGING-END-LOGICAL-CONNECTOR:CAPS"></a>LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR</p></td>
+<td class="enum_member_description">
+<p>Compiling finished on a set of nodes with <a class="link" href="libwaei-LwQueryNode.html#LwQueryNodeOperation" title="enum LwQueryNodeOperation"><span class="type">LwQueryNodeOperation</span></a> not set to <a class="link" href="libwaei-LwQueryNode.html#LW-QUERYNODE-OPERATION-NONE:CAPS"><code class="literal">LW_QUERYNODE_OPERATION_NONE</code></a></p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-QUERYNODE-ERROR-MISSING-VALUE-FOR-KEYED-QUERYNODE:CAPS"></a>LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE</p></td>
+<td class="enum_member_description">
+<p>There is a node with only it's key set, but on compilation it wasn't able to be paired with any sibling nodes for it to have a value</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-QUERYNODE-ERROR-MISSING-KEY-AND-VALUE-FOR-KEYED-QUERYNODE:CAPS"></a>LW_QUERYNODE_ERROR_MISSING_KEY_AND_VALUE_FOR_KEYED_QUERYNODE</p></td>
+<td class="enum_member_description">
+<p>Equivialent to an empy search of ":"</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

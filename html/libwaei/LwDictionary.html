@@ -1,0 +1,1076 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwDictionary: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="libwaei-dependancy.html" title="dependancy">
+<link rel="next" href="libwaei-dictionary-callbacks.html" title="dictionary-callbacks">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#LwDictionary.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#LwDictionary.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#LwDictionary.properties" class="shortcut">Properties</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="libwaei-dependancy.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="libwaei-dictionary-callbacks.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="LwDictionary"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="LwDictionary.top_of_page"></a>LwDictionary</span></h2>
+<p>LwDictionary — Parse, normalize, and uninstall Dictionaries</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="LwDictionary.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-new" title="lw_dictionary_new ()">lw_dictionary_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-set-name" title="lw_dictionary_set_name ()">lw_dictionary_set_name</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-get-name" title="lw_dictionary_get_name ()">lw_dictionary_get_name</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwProgress.html" title="LwProgress"><span class="returnvalue">LwProgress</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-get-progress" title="lw_dictionary_get_progress ()">lw_dictionary_get_progress</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-set-progress" title="lw_dictionary_set_progress ()">lw_dictionary_set_progress</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-get-contents-path" title="lw_dictionary_get_contents_path ()">lw_dictionary_get_contents_path</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-set-contents-filename" title="lw_dictionary_set_contents_filename ()">lw_dictionary_set_contents_filename</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-get-contents-filename" title="lw_dictionary_get_contents_filename ()">lw_dictionary_get_contents_filename</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">size_t</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-contents-length" title="lw_dictionary_contents_length ()">lw_dictionary_contents_length</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-get-contents-checksum" title="lw_dictionary_get_contents_checksum ()">lw_dictionary_get_contents_checksum</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-get-contents" title="lw_dictionary_get_contents ()">lw_dictionary_get_contents</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-total-columns" title="lw_dictionary_total_columns ()">lw_dictionary_total_columns</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-get-column-language" title="lw_dictionary_get_column_language ()">lw_dictionary_get_column_language</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">LwDictionaryColumnHandling</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-get-column-handling" title="lw_dictionary_get_column_handling ()">lw_dictionary_get_column_handling</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const*
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-get-id" title="lw_dictionary_get_id ()">lw_dictionary_get_id</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-uninstall" title="lw_dictionary_uninstall ()">lw_dictionary_uninstall</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-get-install-directory" title="lw_dictionary_get_install_directory ()">lw_dictionary_get_install_directory</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-build-contents-path-by-type-and-name" title="lw_dictionary_build_contents_path_by_type_and_name ()">lw_dictionary_build_contents_path_by_type_and_name</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-calculate-applicable-columns-for-text" title="lw_dictionary_calculate_applicable_columns_for_text ()">lw_dictionary_calculate_applicable_columns_for_text</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="returnvalue">LwDictionaryCache</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-ensure-parsed-cache-by-utf8flags" title="lw_dictionary_ensure_parsed_cache_by_utf8flags ()">lw_dictionary_ensure_parsed_cache_by_utf8flags</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="returnvalue">LwDictionaryCache</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionary.html#lw-dictionary-lookup-parsed-cache-by-utf8flags" title="lw_dictionary_lookup_parsed_cache_by_utf8flags ()">lw_dictionary_lookup_parsed_cache_by_utf8flags</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionary.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionary.html#LwDictionary--contents" title="The “contents” property">contents</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionary.html#LwDictionary--contents-checksum" title="The “contents-checksum” property">contents-checksum</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionary.html#LwDictionary--contents-filename" title="The “contents-filename” property">contents-filename</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gulong"><span class="type">gulong</span></a></td>
+<td class="property_name"><a class="link" href="LwDictionary.html#LwDictionary--contents-length" title="The “contents-length” property">contents-length</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionary.html#LwDictionary--contents-path" title="The “contents-path” property">contents-path</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionary.html#LwDictionary--id" title="The “id” property">id</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionary.html#LwDictionary--name" title="The “name” property">name</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionary.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwDictionary.html#LW-DICTIONARY-CHECKSUM:CAPS" title="LW_DICTIONARY_CHECKSUM">LW_DICTIONARY_CHECKSUM</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNAME-UNUSED:CAPS" title="LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED">LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNAME-INDEX-AND-SEARCH:CAPS" title="LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH">LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNAME-FILTER-ONLY:CAPS" title="LW_DICTIONARYCOLUMNHANDLINGNAME_FILTER_ONLY">LW_DICTIONARYCOLUMNHANDLINGNAME_FILTER_ONLY</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNICK-UNUSED:CAPS" title="LW_DICTIONARYCOLUMNHANDLINGNICK_UNUSED">LW_DICTIONARYCOLUMNHANDLINGNICK_UNUSED</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNICK-INDEX-AND-SEARCH:CAPS" title="LW_DICTIONARYCOLUMNHANDLINGNICK_INDEX_AND_SEARCH">LW_DICTIONARYCOLUMNHANDLINGNICK_INDEX_AND_SEARCH</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNICK-FILTER-ONLY:CAPS" title="LW_DICTIONARYCOLUMNHANDLINGNICK_FILTER_ONLY">LW_DICTIONARYCOLUMNHANDLINGNICK_FILTER_ONLY</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="LwDictionary.html#LwDictionaryClassPrivate" title="LwDictionaryClassPrivate">LwDictionaryClassPrivate</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionary.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-Enumeration-and-Flag-Types.html">GEnum</a>
+    <span class="lineart">╰──</span> LwDictionaryColumnHandling
+    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> LwDictionary
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwDictionary.includes"></a><h2>Includes</h2>
+<pre class="synopsis">#include &lt;libwaei/dictionary.h&gt;
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwDictionary.description"></a><h2>Description</h2>
+<p>Handles dictionary parsing, installing, uninstall, and normalization caching.
+<a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> is an abstract object with a number of virtual methods that must
+be implemented before it can be used. The *_class_init() will usually have a form similar to below:</p>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21</pre></td>
+        <td class="listing_code"><pre class="programlisting"><span class="keyword">static</span><span class="normal"> </span><span class="type">void</span>
+<span class="function">lw_edictionary_class_init</span><span class="normal"> </span><span class="symbol">(</span><span class="usertype">LwEDictionaryClass</span><span class="normal"> </span><span class="symbol">*</span><span class="normal">klass</span><span class="symbol">)</span>
+<span class="cbracket">{</span>
+<span class="normal">    </span><span class="comment">//Declarations</span>
+<span class="normal">    </span><span class="usertype">GObjectClass</span><span class="normal"> </span><span class="symbol">*</span><span class="normal">object_class</span><span class="symbol">;</span>
+<span class="normal">    </span><span class="usertype">LwDictionaryClass</span><span class="normal"> </span><span class="symbol">*</span><span class="normal">dictionary_class</span><span class="symbol">;</span>
+
+<span class="normal">    </span><span class="comment">//Initializations</span>
+<span class="normal">    object_class </span><span class="symbol">=</span><span class="normal"> </span><span class="function"><a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#G-OBJECT-CLASS:CAPS">G_OBJECT_CLASS</a></span><span class="normal"> </span><span class="symbol">(</span><span class="normal">klass</span><span class="symbol">);</span>
+<span class="normal">    object_class</span><span class="symbol">-&gt;</span><span class="normal">finalize </span><span class="symbol">=</span><span class="normal"> lw_edictionary_finalize</span><span class="symbol">;</span>
+<span class="normal">    object_class</span><span class="symbol">-&gt;</span><span class="normal">constructed </span><span class="symbol">=</span><span class="normal"> lw_edictionary_constructed</span><span class="symbol">;</span>
+
+<span class="normal">    dictionary_class </span><span class="symbol">=</span><span class="normal"> </span><span class="function">LW_DICTIONARY_GET_CLASS</span><span class="normal"> </span><span class="symbol">(</span><span class="normal">klass</span><span class="symbol">);</span>
+<span class="normal">    dictionary_class</span><span class="symbol">-&gt;</span><span class="normal">get_column_handling </span><span class="symbol">=</span><span class="normal"> lw_edictionary_get_column_handling</span><span class="symbol">;</span>
+<span class="normal">    dictionary_class</span><span class="symbol">-&gt;</span><span class="normal">get_total_columns </span><span class="symbol">=</span><span class="normal"> lw_edictionary_get_total_columns</span><span class="symbol">;</span>
+<span class="normal">    dictionary_class</span><span class="symbol">-&gt;</span><span class="normal">get_column_language </span><span class="symbol">=</span><span class="normal"> lw_edictionary_get_column_language</span><span class="symbol">;</span>
+<span class="normal">    dictionary_class</span><span class="symbol">-&gt;</span><span class="normal">columnize </span><span class="symbol">=</span><span class="normal"> lw_edictionary_columnize</span><span class="symbol">;</span>
+<span class="normal">    dictionary_class</span><span class="symbol">-&gt;</span><span class="normal">load_columns </span><span class="symbol">=</span><span class="normal"> lw_edictionary_load_columns</span><span class="symbol">;</span>
+<span class="normal">    dictionary_class</span><span class="symbol">-&gt;</span><span class="normal">calculate_applicable_columns_for_text </span><span class="symbol">=</span><span class="normal"> lw_edictionary_calculate_applicable_columns_for_text</span><span class="symbol">;</span>
+<span class="normal">    dictionary_class</span><span class="symbol">-&gt;</span><span class="normal">columnid_get_type </span><span class="symbol">=</span><span class="normal"> lw_edictionary_columnid_get_type</span><span class="symbol">;</span>
+<span class="cbracket">}</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p></p>
+</div>
+<div class="refsect1">
+<a name="LwDictionary.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-dictionary-new"></a><h3>lw_dictionary_new ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+lw_dictionary_new (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gobject/gobject-Type-Information.html#GType"><span class="type">GType</span></a> type</code></em>,
+                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *FILENAME</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.2.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>type</p></td>
+<td class="parameter_description"><p>A <a href="/usr/share/gtk-doc/html/gobject/gobject-Type-Information.html#GType"><span class="type">GType</span></a> that is a subclass of <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>FILENAME</p></td>
+<td class="parameter_description"><p> A filename to load using the program searchpaths. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.2.5"></a><h4>Returns</h4>
+<p> A new <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> that should be freed with <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-set-name"></a><h3>lw_dictionary_set_name ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionary_set_name (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>,
+                        <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *NAME</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.3.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>NAME</p></td>
+<td class="parameter_description"><p>The new name of the dictionary. This name is independant of the filename and is made to be human readable.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-get-name"></a><h3>lw_dictionary_get_name ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_dictionary_get_name (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.4.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.4.5"></a><h4>Returns</h4>
+<p> The name of the dictionary or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>.  This string is owned by the dictionary and should not be freed or modified. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-get-progress"></a><h3>lw_dictionary_get_progress ()</h3>
+<pre class="programlisting"><a class="link" href="LwProgress.html" title="LwProgress"><span class="returnvalue">LwProgress</span></a> *
+lw_dictionary_get_progress (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-set-progress"></a><h3>lw_dictionary_set_progress ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionary_set_progress (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>,
+                            <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-get-contents-path"></a><h3>lw_dictionary_get_contents_path ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_dictionary_get_contents_path (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.7.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.7.5"></a><h4>Returns</h4>
+<p> A string denoting the install path of the raw dictionary data.  This string is owned by the dictionary and should not be modified or freed. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-set-contents-filename"></a><h3>lw_dictionary_set_contents_filename ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionary_set_contents_filename (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>,
+                                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *FILENAME</code></em>);</pre>
+<p>This method should generally only be used internally.  It sets the file that
+the dictionary is referencing for its base data.  Once set, it should generally
+not be changed.</p>
+<div class="refsect3">
+<a name="id-1.2.7.9.8.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>FILENAME</p></td>
+<td class="parameter_description"><p>The new filename for the dictionary.  It can be absolute, or relative if you want to use the dictionary search paths</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-get-contents-filename"></a><h3>lw_dictionary_get_contents_filename ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_dictionary_get_contents_filename (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.9.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.9.5"></a><h4>Returns</h4>
+<p> The filename of the dictionary or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>.  This string is owned by the dictionary and should not be freed or modified. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-contents-length"></a><h3>lw_dictionary_contents_length ()</h3>
+<pre class="programlisting"><span class="returnvalue">size_t</span>
+lw_dictionary_contents_length (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.10.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.10.5"></a><h4>Returns</h4>
+<p> The byte length of the raw dictionary contents as returned by <a class="link" href="LwDictionary.html#lw-dictionary-get-contents" title="lw_dictionary_get_contents ()"><code class="function">lw_dictionary_get_contents()</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-get-contents-checksum"></a><h3>lw_dictionary_get_contents_checksum ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_dictionary_get_contents_checksum (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.11.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.11.5"></a><h4>Returns</h4>
+<p> The checksum of the the string as returned by <a class="link" href="LwDictionary.html#lw-dictionary-get-contents" title="lw_dictionary_get_contents ()"><code class="function">lw_dictionary_get_contents()</code></a> method.  This string is owned by the dictionary and thus should not be modified or freed. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-get-contents"></a><h3>lw_dictionary_get_contents ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_dictionary_get_contents (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.12.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.12.5"></a><h4>Returns</h4>
+<p> The raw dictionary contents as a byte array.  This byte array is owned by the dictionary and thus should not be freed or modified. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-total-columns"></a><h3>lw_dictionary_total_columns ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+lw_dictionary_total_columns (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.13.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.13.5"></a><h4>Returns</h4>
+<p> The total number of columns as a <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><code class="literal">gint</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-get-column-language"></a><h3>lw_dictionary_get_column_language ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_dictionary_get_column_language (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>,
+                                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> column_num</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.14.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>column_num</p></td>
+<td class="parameter_description"><p>The column to query it's langauge</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.14.5"></a><h4>Returns</h4>
+<p> The language of the column as a string.  This string is owned by the dictionary, so it should not be modified or freed. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-get-column-handling"></a><h3>lw_dictionary_get_column_handling ()</h3>
+<pre class="programlisting"><span class="returnvalue">LwDictionaryColumnHandling</span>
+lw_dictionary_get_column_handling (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>,
+                                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> column_num</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.15.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>column_num</p></td>
+<td class="parameter_description"><p>The column to get the handling of</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.15.5"></a><h4>Returns</h4>
+<p> A <code class="literal">LwDictionaryColumnHandling</code> denoting the type of processing that should be handled on this column</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-get-id"></a><h3>lw_dictionary_get_id ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const*
+lw_dictionary_get_id (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.16.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.16.5"></a><h4>Returns</h4>
+<p> A human-readable string uniquely identifying this dictionary. This string is owned by the dictionary and thus should not be modified or freed. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-uninstall"></a><h3>lw_dictionary_uninstall ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_dictionary_uninstall (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.17.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.17.5"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if deletion was sucessful.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-get-install-directory"></a><h3>lw_dictionary_get_install_directory ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_dictionary_get_install_directory ();</pre>
+<p>Returns the install path of where dictionaries are installed.  The directory base is determined by the
+user's data directory.  This can be overwridden with the environmental variable <code class="literal">DICTIONARYDATADIR</code> or more
+globally with <code class="literal">XDG_DATA_HOME</code> on unix platforms or <code class="literal">CSIDL_LOCAL_APPDATA</code> on Windows. Please refer to
+<a href="/usr/share/gtk-doc/html/glib/glib-Miscellaneous-Utility-Functions.html#g-get-user-cache-dir"><code class="function">g_get_user_cache_dir()</code></a> for more information.</p>
+<p>An example of how you could could waei with a different dictionary data folder:</p>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1</pre></td>
+        <td class="listing_code"><pre class="programlisting"><span class="symbol">&gt;</span><span class="normal"> DICTIONARYDATADIR</span><span class="symbol">=</span><span class="string">"/media/external"</span><span class="normal"> waei</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p></p>
+<div class="refsect3">
+<a name="id-1.2.7.9.18.8"></a><h4>Returns</h4>
+<p> Returns the install path of dictionaries which is usually in the user's data directory.  This string is owned by the dictionary class and should not be edited or freed. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-build-contents-path-by-type-and-name"></a><h3>lw_dictionary_build_contents_path_by_type_and_name ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_dictionary_build_contents_path_by_type_and_name
+                               (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gobject/gobject-Type-Information.html#GType"><span class="type">GType</span></a> type</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *FILENAME</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.19.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>type</p></td>
+<td class="parameter_description"><p>A <a href="/usr/share/gtk-doc/html/gobject/gobject-Type-Information.html#GType"><span class="type">GType</span></a> that is a subtype of <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>FILENAME</p></td>
+<td class="parameter_description"><p> The filename of the dictionary. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.19.5"></a><h4>Returns</h4>
+<p> The path of a theoretical dictioanry with this type and filename.  This string should be freed with <a href="/usr/share/gtk-doc/html/glib/glib-Memory-Allocation.html#g-free"><code class="function">g_free()</code></a> when finished. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-calculate-applicable-columns-for-text"></a><h3>lw_dictionary_calculate_applicable_columns_for_text ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a> *
+lw_dictionary_calculate_applicable_columns_for_text
+                               (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *TEXT</code></em>);</pre>
+<p>This method is primarily made to parse search queries to
+aid in reduce comparisons againt unrelated columns.</p>
+<div class="refsect3">
+<a name="id-1.2.7.9.20.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>TEXT</p></td>
+<td class="parameter_description"><p> Text to examine. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.20.6"></a><h4>Returns</h4>
+<p> An array of column ids that shold be freed with <a href="/usr/share/gtk-doc/html/glib/glib-Memory-Allocation.html#g-free"><code class="function">g_free()</code></a>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-ensure-parsed-cache-by-utf8flags"></a><h3>lw_dictionary_ensure_parsed_cache_by_utf8flags ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="returnvalue">LwDictionaryCache</span></a> *
+lw_dictionary_ensure_parsed_cache_by_utf8flags
+                               (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>,
+                                <em class="parameter"><code><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="type">LwUtf8Flag</span></a> flags</code></em>,
+                                <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.21.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>flags</p></td>
+<td class="parameter_description"><p>The flags of the dictionary cache to search for, otherwise one will be built with these flags</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track parsing progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> to ignore it</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.21.5"></a><h4>Returns</h4>
+<p> A <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> that matches the <a href="libwaei-UTF-8.html#LwUtf8Flag"><span class="type">LwUtf8Flags</span></a>. This method will never return <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionary-lookup-parsed-cache-by-utf8flags"></a><h3>lw_dictionary_lookup_parsed_cache_by_utf8flags ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="returnvalue">LwDictionaryCache</span></a> *
+lw_dictionary_lookup_parsed_cache_by_utf8flags
+                               (<em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *self</code></em>,
+                                <em class="parameter"><code><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="type">LwUtf8Flag</span></a> flags</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.7.9.22.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>flags</p></td>
+<td class="parameter_description"><p>Flags of the <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> to lookup</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.7.9.22.5"></a><h4>Returns</h4>
+<p> A <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> matching the flags or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if none were found. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwDictionary.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LW-DICTIONARY-CHECKSUM:CAPS"></a><h3>LW_DICTIONARY_CHECKSUM</h3>
+<pre class="programlisting">#define LW_DICTIONARY_CHECKSUM G_CHECKSUM_SHA512 
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-DICTIONARYCOLUMNHANDLINGNAME-UNUSED:CAPS"></a><h3>LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED</h3>
+<pre class="programlisting">#define LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED "Unused"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-DICTIONARYCOLUMNHANDLINGNAME-INDEX-AND-SEARCH:CAPS"></a><h3>LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH</h3>
+<pre class="programlisting">#define LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH "Index and Search"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-DICTIONARYCOLUMNHANDLINGNAME-FILTER-ONLY:CAPS"></a><h3>LW_DICTIONARYCOLUMNHANDLINGNAME_FILTER_ONLY</h3>
+<pre class="programlisting">#define LW_DICTIONARYCOLUMNHANDLINGNAME_FILTER_ONLY "Filter Only"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-DICTIONARYCOLUMNHANDLINGNICK-UNUSED:CAPS"></a><h3>LW_DICTIONARYCOLUMNHANDLINGNICK_UNUSED</h3>
+<pre class="programlisting">#define LW_DICTIONARYCOLUMNHANDLINGNICK_UNUSED "unused"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-DICTIONARYCOLUMNHANDLINGNICK-INDEX-AND-SEARCH:CAPS"></a><h3>LW_DICTIONARYCOLUMNHANDLINGNICK_INDEX_AND_SEARCH</h3>
+<pre class="programlisting">#define LW_DICTIONARYCOLUMNHANDLINGNICK_INDEX_AND_SEARCH "index-and-search"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-DICTIONARYCOLUMNHANDLINGNICK-FILTER-ONLY:CAPS"></a><h3>LW_DICTIONARYCOLUMNHANDLINGNICK_FILTER_ONLY</h3>
+<pre class="programlisting">#define LW_DICTIONARYCOLUMNHANDLINGNICK_FILTER_ONLY "filter-only"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryClassPrivate"></a><h3>LwDictionaryClassPrivate</h3>
+<pre class="programlisting">typedef struct _LwDictionaryClassPrivate LwDictionaryClassPrivate;</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwDictionary.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="LwDictionary--contents"></a><h3>The <code class="literal">“contents”</code> property</h3>
+<pre class="programlisting">  “contents”                 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Raw contents of the dictionary.</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionary--contents-checksum"></a><h3>The <code class="literal">“contents-checksum”</code> property</h3>
+<pre class="programlisting">  “contents-checksum”        <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Checksum of the raw dictionary file.</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionary--contents-filename"></a><h3>The <code class="literal">“contents-filename”</code> property</h3>
+<pre class="programlisting">  “contents-filename”        <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Filename of the dictionary.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionary--contents-length"></a><h3>The <code class="literal">“contents-length”</code> property</h3>
+<pre class="programlisting">  “contents-length”          <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gulong"><span class="type">gulong</span></a></pre>
+<p>Byte length of the raw contents of the dictionary.</p>
+<p>Flags: Read</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionary--contents-path"></a><h3>The <code class="literal">“contents-path”</code> property</h3>
+<pre class="programlisting">  “contents-path”            <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Full path of the dictionary.</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionary--id"></a><h3>The <code class="literal">“id”</code> property</h3>
+<pre class="programlisting">  “id”                       <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Unique identifier for the dictionary.</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionary--name"></a><h3>The <code class="literal">“name”</code> property</h3>
+<pre class="programlisting">  “name”                     <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Human readable (and localized) name for the dictionary.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: NULL</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

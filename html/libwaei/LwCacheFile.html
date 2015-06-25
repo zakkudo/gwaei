@@ -1,0 +1,453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwCacheFile: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="LwApplication.html" title="LwApplication">
+<link rel="next" href="LwCommand.html" title="LwCommand">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#LwCacheFile.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#LwCacheFile.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#LwCacheFile.properties" class="shortcut">Properties</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="LwApplication.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="LwCommand.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="LwCacheFile"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="LwCacheFile.top_of_page"></a>LwCacheFile</span></h2>
+<p>LwCacheFile — A mapped file that includes a checksum and is writable</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="LwCacheFile.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="returnvalue">LwCacheFile</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwCacheFile.html#lw-cachefile-new" title="lw_cachefile_new ()">lw_cachefile_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwCacheFile.html#lw-cachefile-write" title="lw_cachefile_write ()">lw_cachefile_write</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwCacheFile.html#lw-cachefile-write-cachefile" title="lw_cachefile_write_cachefile ()">lw_cachefile_write_cachefile</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwCacheFile.html#lw-cachefile-read" title="lw_cachefile_read ()">lw_cachefile_read</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwCacheFile.html#lw-cachefile-get-checksum" title="lw_cachefile_get_checksum ()">lw_cachefile_get_checksum</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwCacheFile.html#lw-cachefile-get-contents" title="lw_cachefile_get_contents ()">lw_cachefile_get_contents</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwCacheFile.html#lw-cachefile-length" title="lw_cachefile_length ()">lw_cachefile_length</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwCacheFile.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody><tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwCacheFile.html#LwCacheFile--checksum" title="The “checksum” property">checksum</a></td>
+<td class="property_flags">Read</td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwCacheFile.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwCacheFile.html#LW-CACHEFILE-ERROR:CAPS" title="LW_CACHEFILE_ERROR">LW_CACHEFILE_ERROR</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="LwCacheFile.html#LwCacheFileErrorCode" title="enum LwCacheFileErrorCode">LwCacheFileErrorCode</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="LwCacheFile.html#LwCacheFileClassPrivate" title="LwCacheFileClassPrivate">LwCacheFileClassPrivate</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwCacheFile.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a class="link" href="LwMappedFile.html" title="LwMappedFile">LwMappedFile</a>
+        <span class="lineart">╰──</span> LwCacheFile
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwCacheFile.description"></a><h2>Description</h2>
+<p>This is a mapped file designed two have two modes, making it ideal for
+handling data cached by the application that is read many times,
+but only written once. When <a class="link" href="LwCacheFile.html#lw-cachefile-write" title="lw_cachefile_write ()"><code class="function">lw_cachefile_write()</code></a> or
+<a class="link" href="LwCacheFile.html#lw-cachefile-write-cachefile" title="lw_cachefile_write_cachefile ()"><code class="function">lw_cachefile_write_cachefile()</code></a> is called, the <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> is set to
+writing mode, where the checksum is written first, then any contents
+are written after.  Consecutive calls append to this file.  Once you
+call <a class="link" href="LwCacheFile.html#lw-cachefile-read" title="lw_cachefile_read ()"><code class="function">lw_cachefile_read()</code></a>, the <span class="type">FILE</span> steam is closed if it is open
+and the file is verified as matching the supplied checksum in the
+header and that the contents are valid utf8.</p>
+</div>
+<div class="refsect1">
+<a name="LwCacheFile.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-cachefile-new"></a><h3>lw_cachefile_new ()</h3>
+<pre class="programlisting"><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="returnvalue">LwCacheFile</span></a> *
+lw_cachefile_new (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *PATH</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.3.8.2.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>PATH</p></td>
+<td class="parameter_description"><p> The path to load the cachefile from or write to. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Override the parsed C type with given type."><span class="acronym">type</span></acronym> filename][<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.3.8.2.5"></a><h4>Returns</h4>
+<p> A new <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> that can be freed with <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-cachefile-write"></a><h3>lw_cachefile_write ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+lw_cachefile_write (<em class="parameter"><code><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *self</code></em>,
+                    <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *CHECKSUM</code></em>,
+                    <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *CONTENTS</code></em>,
+                    <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gssize"><span class="type">gssize</span></a> content_length</code></em>,
+                    <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.3.8.3.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>CHECKSUM</p></td>
+<td class="parameter_description"><p> The checksum string to write. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>CONTENTS</p></td>
+<td class="parameter_description"><p> The contents to write. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>content_length</p></td>
+<td class="parameter_description"><p>The length of the CONTENTS string + \0 or 0 to have it calculated automatically.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p> A <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> to ignore it. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>][<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.3.8.3.5"></a><h4>Returns</h4>
+<p> The number of bytes written</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-cachefile-write-cachefile"></a><h3>lw_cachefile_write_cachefile ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+lw_cachefile_write_cachefile (<em class="parameter"><code><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *self</code></em>,
+                              <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *CHECKSUM</code></em>,
+                              <em class="parameter"><code><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *cache_file</code></em>,
+                              <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.3.8.4.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>CHECKSUM</p></td>
+<td class="parameter_description"><p> The checksum to write. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>cache_file</p></td>
+<td class="parameter_description"><p> Another cachefile to copy of the contents of. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> to ignore it. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.3.8.4.5"></a><h4>Returns</h4>
+<p> The number of bytes written</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-cachefile-read"></a><h3>lw_cachefile_read ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+lw_cachefile_read (<em class="parameter"><code><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *self</code></em>,
+                   <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *EXPECTED_CHECKSUM</code></em>,
+                   <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.3.8.5.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>EXPECTED_CHECKSUM</p></td>
+<td class="parameter_description"><p> The checksum the read file should contain. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p> A <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> to ignore it. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.3.8.5.5"></a><h4>Returns</h4>
+<p> The number of bytes read</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-cachefile-get-checksum"></a><h3>lw_cachefile_get_checksum ()</h3>
+<pre class="programlisting">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_cachefile_get_checksum (<em class="parameter"><code><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.3.8.6.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.3.8.6.5"></a><h4>Returns</h4>
+<p> The checksum of the cachefile.  This string is owned by the cachefile and it should not be modified or freed. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-cachefile-get-contents"></a><h3>lw_cachefile_get_contents ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_cachefile_get_contents (<em class="parameter"><code><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.3.8.7.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.3.8.7.5"></a><h4>Returns</h4>
+<p> The contents of the <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a>. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-cachefile-length"></a><h3>lw_cachefile_length ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+lw_cachefile_length (<em class="parameter"><code><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.3.8.8.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.3.8.8.5"></a><h4>Returns</h4>
+<p> The number of bytes in the cachefile content body.  Use <a class="link" href="LwMappedFile.html#lw-mappedfile-length" title="lw_mappedfile_length ()"><code class="function">lw_mappedfile_length()</code></a> if you want the full size of the mapped file.</p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwCacheFile.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LW-CACHEFILE-ERROR:CAPS"></a><h3>LW_CACHEFILE_ERROR</h3>
+<pre class="programlisting">#define LW_CACHEFILE_ERROR lw_cachefile_error_quark ()
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwCacheFileErrorCode"></a><h3>enum LwCacheFileErrorCode</h3>
+<div class="refsect3">
+<a name="id-1.2.3.9.3.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="LW-CACHEFILE-ERRORCODE-INVALID-CHECKSUM:CAPS"></a>LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-CACHEFILE-ERRORCODE-CORRUPT-CONTENTS:CAPS"></a>LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS</p></td>
+<td> </td>
+<td> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwCacheFileClassPrivate"></a><h3>LwCacheFileClassPrivate</h3>
+<pre class="programlisting">typedef struct _LwCacheFileClassPrivate LwCacheFileClassPrivate;</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwCacheFile.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="LwCacheFile--checksum"></a><h3>The <code class="literal">“checksum”</code> property</h3>
+<pre class="programlisting">  “checksum”                 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Checksum of the file.</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

@@ -1,0 +1,795 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<book xmlns="http://www.devhelp.net/book" title="libwaei Reference Manual" link="index.html" author="" name="libwaei" version="2" language="c">
+  <chapters>
+    <sub name="[Insert title here]" link="ch01.html">
+      <sub name="LwApplication" link="LwApplication.html"/>
+      <sub name="LwCacheFile" link="LwCacheFile.html"/>
+      <sub name="LwCommand" link="LwCommand.html"/>
+      <sub name="condition" link="libwaei-condition.html"/>
+      <sub name="dependancy" link="libwaei-dependancy.html"/>
+      <sub name="LwDictionary" link="LwDictionary.html"/>
+      <sub name="dictionary-callbacks" link="libwaei-dictionary-callbacks.html"/>
+      <sub name="dictionary-index" link="libwaei-dictionary-index.html"/>
+      <sub name="LwDictionaryCache" link="LwDictionaryCache.html"/>
+      <sub name="LwDictionaryInstall" link="LwDictionaryInstall.html"/>
+      <sub name="LwDictionaryInstallList" link="LwDictionaryInstallList.html"/>
+      <sub name="dictionaryinstalllist-callbacks" link="libwaei-dictionaryinstalllist-callbacks.html"/>
+      <sub name="dictionaryinstallstate" link="libwaei-dictionaryinstallstate.html"/>
+      <sub name="dictionaryinstallstatehistory" link="libwaei-dictionaryinstallstatehistory.html"/>
+      <sub name="LwDictionaryList" link="LwDictionaryList.html"/>
+      <sub name="dictionarylist-callbacks" link="libwaei-dictionarylist-callbacks.html"/>
+      <sub name="LwDictionaryModule" link="LwDictionaryModule.html"/>
+      <sub name="filepath" link="libwaei-filepath.html"/>
+      <sub name="gettext" link="libwaei-gettext.html"/>
+      <sub name="index" link="libwaei-index.html"/>
+      <sub name="LwIndexed" link="LwIndexed.html"/>
+      <sub name="LwInstallSubCommand" link="LwInstallSubCommand.html"/>
+      <sub name="IO Utility Methods" link="libwaei-IO-Utility-Methods.html"/>
+      <sub name="LwMappedFile" link="LwMappedFile.html"/>
+      <sub name="LwParenthesisNode" link="libwaei-LwParenthesisNode.html"/>
+      <sub name="LwParsed" link="LwParsed.html"/>
+      <sub name="LwParsedLine" link="libwaei-LwParsedLine.html"/>
+      <sub name="LwPreferences" link="LwPreferences.html"/>
+      <sub name="LwProgress" link="LwProgress.html"/>
+      <sub name="LwQueryNode" link="libwaei-LwQueryNode.html"/>
+      <sub name="LwQueryNodeColumnMatchInfo" link="libwaei-LwQueryNodeColumnMatchInfo.html"/>
+      <sub name="LwQueryNodeMatchInfo" link="libwaei-LwQueryNodeMatchInfo.html"/>
+      <sub name="LwQueryNodeMatchMarker" link="libwaei-LwQueryNodeMatchMarker.html"/>
+      <sub name="range" link="libwaei-range.html"/>
+      <sub name="row" link="libwaei-row.html"/>
+      <sub name="LwSearch" link="LwSearch.html"/>
+      <sub name="LwSearchSubCommand" link="LwSearchSubCommand.html"/>
+      <sub name="LwSerializable" link="LwSerializable.html"/>
+      <sub name="LwSubCommand" link="LwSubCommand.html"/>
+      <sub name="LwUninstallSubCommand" link="LwUninstallSubCommand.html"/>
+      <sub name="UTF-8" link="libwaei-UTF-8.html"/>
+      <sub name="LwVocabulary" link="LwVocabulary.html"/>
+      <sub name="word" link="libwaei-word.html"/>
+    </sub>
+    <sub name="Object Hierarchy" link="object-tree.html"/>
+    <sub name="API Index" link="api-index-full.html"/>
+    <sub name="Index of deprecated API" link="deprecated-api-index.html"/>
+    <sub name="Annotation Glossary" link="annotation-glossary.html"/>
+  </chapters>
+  <functions>
+    <keyword type="function" name="lw_application_new ()" link="LwApplication.html#lw-application-new"/>
+    <keyword type="function" name="lw_application_get_program_name ()" link="LwApplication.html#lw-application-get-program-name"/>
+    <keyword type="struct" name="LwApplicationClassPrivate" link="LwApplication.html#LwApplicationClassPrivate"/>
+    <keyword type="function" name="lw_cachefile_new ()" link="LwCacheFile.html#lw-cachefile-new"/>
+    <keyword type="function" name="lw_cachefile_write ()" link="LwCacheFile.html#lw-cachefile-write"/>
+    <keyword type="function" name="lw_cachefile_write_cachefile ()" link="LwCacheFile.html#lw-cachefile-write-cachefile"/>
+    <keyword type="function" name="lw_cachefile_read ()" link="LwCacheFile.html#lw-cachefile-read"/>
+    <keyword type="function" name="lw_cachefile_get_checksum ()" link="LwCacheFile.html#lw-cachefile-get-checksum"/>
+    <keyword type="function" name="lw_cachefile_get_contents ()" link="LwCacheFile.html#lw-cachefile-get-contents"/>
+    <keyword type="function" name="lw_cachefile_length ()" link="LwCacheFile.html#lw-cachefile-length"/>
+    <keyword type="macro" name="LW_CACHEFILE_ERROR" link="LwCacheFile.html#LW-CACHEFILE-ERROR:CAPS"/>
+    <keyword type="enum" name="enum LwCacheFileErrorCode" link="LwCacheFile.html#LwCacheFileErrorCode"/>
+    <keyword type="struct" name="LwCacheFileClassPrivate" link="LwCacheFile.html#LwCacheFileClassPrivate"/>
+    <keyword type="property" name="The “checksum” property" link="LwCacheFile.html#LwCacheFile--checksum"/>
+    <keyword type="function" name="lw_command_new ()" link="LwCommand.html#lw-command-new"/>
+    <keyword type="function" name="lw_command_print ()" link="LwCommand.html#lw-command-print"/>
+    <keyword type="function" name="lw_command_printerr ()" link="LwCommand.html#lw-command-printerr"/>
+    <keyword type="function" name="lw_command_get_locale ()" link="LwCommand.html#lw-command-get-locale"/>
+    <keyword type="function" name="lw_command_is_japanese_locale ()" link="LwCommand.html#lw-command-is-japanese-locale"/>
+    <keyword type="function" name="lw_command_get_application ()" link="LwCommand.html#lw-command-get-application"/>
+    <keyword type="function" name="lw_command_get_command_line ()" link="LwCommand.html#lw-command-get-command-line"/>
+    <keyword type="function" name="lw_command_set_parameter_string ()" link="LwCommand.html#lw-command-set-parameter-string"/>
+    <keyword type="function" name="lw_command_get_parameter_string ()" link="LwCommand.html#lw-command-get-parameter-string"/>
+    <keyword type="function" name="lw_command_set_description ()" link="LwCommand.html#lw-command-set-description"/>
+    <keyword type="function" name="lw_command_get_description ()" link="LwCommand.html#lw-command-get-description"/>
+    <keyword type="function" name="lw_command_set_summary ()" link="LwCommand.html#lw-command-set-summary"/>
+    <keyword type="function" name="lw_command_get_summary ()" link="LwCommand.html#lw-command-get-summary"/>
+    <keyword type="function" name="lw_command_add_subcommand ()" link="LwCommand.html#lw-command-add-subcommand"/>
+    <keyword type="function" name="lw_command_lookup_subcommand ()" link="LwCommand.html#lw-command-lookup-subcommand"/>
+    <keyword type="function" name="lw_command_run ()" link="LwCommand.html#lw-command-run"/>
+    <keyword type="struct" name="LwCommandClassPrivate" link="LwCommand.html#LwCommandClassPrivate"/>
+    <keyword type="signal" name="The “run” signal" link="LwCommand.html#LwCommand-run"/>
+    <keyword type="function" name="lw_condition_new_boolean ()" link="libwaei-condition.html#lw-condition-new-boolean"/>
+    <keyword type="function" name="lw_condition_copy ()" link="libwaei-condition.html#lw-condition-copy"/>
+    <keyword type="function" name="lw_condition_free ()" link="libwaei-condition.html#lw-condition-free"/>
+    <keyword type="function" name="lw_condition_matches ()" link="libwaei-condition.html#lw-condition-matches"/>
+    <keyword type="function" name="lw_condition_list_matches ()" link="libwaei-condition.html#lw-condition-list-matches"/>
+    <keyword type="function" name="lw_dependancy_new ()" link="libwaei-dependancy.html#lw-dependancy-new"/>
+    <keyword type="function" name="lw_dependancy_copy ()" link="libwaei-dependancy.html#lw-dependancy-copy"/>
+    <keyword type="function" name="lw_dependancy_free ()" link="libwaei-dependancy.html#lw-dependancy-free"/>
+    <keyword type="function" name="lw_dependancy_get_name ()" link="libwaei-dependancy.html#lw-dependancy-get-name"/>
+    <keyword type="function" name="lw_dependancy_set_conditions ()" link="libwaei-dependancy.html#lw-dependancy-set-conditions"/>
+    <keyword type="function" name="lw_dependancy_is_required_for ()" link="libwaei-dependancy.html#lw-dependancy-is-required-for"/>
+    <keyword type="function" name="lw_dependancy_satisfy ()" link="libwaei-dependancy.html#lw-dependancy-satisfy"/>
+    <keyword type="function" name="lw_dependancy_is_satisfied_for ()" link="libwaei-dependancy.html#lw-dependancy-is-satisfied-for"/>
+    <keyword type="function" name="lw_dependancy_get_satisfaction ()" link="libwaei-dependancy.html#lw-dependancy-get-satisfaction"/>
+    <keyword type="function" name="lw_dictionary_new ()" link="LwDictionary.html#lw-dictionary-new"/>
+    <keyword type="function" name="lw_dictionary_set_name ()" link="LwDictionary.html#lw-dictionary-set-name"/>
+    <keyword type="function" name="lw_dictionary_get_name ()" link="LwDictionary.html#lw-dictionary-get-name"/>
+    <keyword type="function" name="lw_dictionary_get_progress ()" link="LwDictionary.html#lw-dictionary-get-progress"/>
+    <keyword type="function" name="lw_dictionary_set_progress ()" link="LwDictionary.html#lw-dictionary-set-progress"/>
+    <keyword type="function" name="lw_dictionary_get_contents_path ()" link="LwDictionary.html#lw-dictionary-get-contents-path"/>
+    <keyword type="function" name="lw_dictionary_set_contents_filename ()" link="LwDictionary.html#lw-dictionary-set-contents-filename"/>
+    <keyword type="function" name="lw_dictionary_get_contents_filename ()" link="LwDictionary.html#lw-dictionary-get-contents-filename"/>
+    <keyword type="function" name="lw_dictionary_contents_length ()" link="LwDictionary.html#lw-dictionary-contents-length"/>
+    <keyword type="function" name="lw_dictionary_get_contents_checksum ()" link="LwDictionary.html#lw-dictionary-get-contents-checksum"/>
+    <keyword type="function" name="lw_dictionary_get_contents ()" link="LwDictionary.html#lw-dictionary-get-contents"/>
+    <keyword type="function" name="lw_dictionary_total_columns ()" link="LwDictionary.html#lw-dictionary-total-columns"/>
+    <keyword type="function" name="lw_dictionary_get_column_language ()" link="LwDictionary.html#lw-dictionary-get-column-language"/>
+    <keyword type="function" name="lw_dictionary_get_column_handling ()" link="LwDictionary.html#lw-dictionary-get-column-handling"/>
+    <keyword type="function" name="lw_dictionary_get_id ()" link="LwDictionary.html#lw-dictionary-get-id"/>
+    <keyword type="function" name="lw_dictionary_uninstall ()" link="LwDictionary.html#lw-dictionary-uninstall"/>
+    <keyword type="function" name="lw_dictionary_get_install_directory ()" link="LwDictionary.html#lw-dictionary-get-install-directory"/>
+    <keyword type="function" name="lw_dictionary_build_contents_path_by_type_and_name ()" link="LwDictionary.html#lw-dictionary-build-contents-path-by-type-and-name"/>
+    <keyword type="function" name="lw_dictionary_calculate_applicable_columns_for_text ()" link="LwDictionary.html#lw-dictionary-calculate-applicable-columns-for-text"/>
+    <keyword type="function" name="lw_dictionary_ensure_parsed_cache_by_utf8flags ()" link="LwDictionary.html#lw-dictionary-ensure-parsed-cache-by-utf8flags"/>
+    <keyword type="function" name="lw_dictionary_lookup_parsed_cache_by_utf8flags ()" link="LwDictionary.html#lw-dictionary-lookup-parsed-cache-by-utf8flags"/>
+    <keyword type="macro" name="LW_DICTIONARY_CHECKSUM" link="LwDictionary.html#LW-DICTIONARY-CHECKSUM:CAPS"/>
+    <keyword type="macro" name="LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED" link="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNAME-UNUSED:CAPS"/>
+    <keyword type="macro" name="LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH" link="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNAME-INDEX-AND-SEARCH:CAPS"/>
+    <keyword type="macro" name="LW_DICTIONARYCOLUMNHANDLINGNAME_FILTER_ONLY" link="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNAME-FILTER-ONLY:CAPS"/>
+    <keyword type="macro" name="LW_DICTIONARYCOLUMNHANDLINGNICK_UNUSED" link="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNICK-UNUSED:CAPS"/>
+    <keyword type="macro" name="LW_DICTIONARYCOLUMNHANDLINGNICK_INDEX_AND_SEARCH" link="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNICK-INDEX-AND-SEARCH:CAPS"/>
+    <keyword type="macro" name="LW_DICTIONARYCOLUMNHANDLINGNICK_FILTER_ONLY" link="LwDictionary.html#LW-DICTIONARYCOLUMNHANDLINGNICK-FILTER-ONLY:CAPS"/>
+    <keyword type="struct" name="LwDictionaryClassPrivate" link="LwDictionary.html#LwDictionaryClassPrivate"/>
+    <keyword type="property" name="The “contents” property" link="LwDictionary.html#LwDictionary--contents"/>
+    <keyword type="property" name="The “contents-checksum” property" link="LwDictionary.html#LwDictionary--contents-checksum"/>
+    <keyword type="property" name="The “contents-filename” property" link="LwDictionary.html#LwDictionary--contents-filename"/>
+    <keyword type="property" name="The “contents-length” property" link="LwDictionary.html#LwDictionary--contents-length"/>
+    <keyword type="property" name="The “contents-path” property" link="LwDictionary.html#LwDictionary--contents-path"/>
+    <keyword type="property" name="The “id” property" link="LwDictionary.html#LwDictionary--id"/>
+    <keyword type="property" name="The “name” property" link="LwDictionary.html#LwDictionary--name"/>
+    <keyword type="function" name="lw_dictionary_sync_downloadlist_cb ()" link="libwaei-dictionary-callbacks.html#lw-dictionary-sync-downloadlist-cb"/>
+    <keyword type="function" name="lw_dictionary_sync_progress_cb ()" link="libwaei-dictionary-callbacks.html#lw-dictionary-sync-progress-cb"/>
+    <keyword type="function" name="lw_dictionary_index_search ()" link="libwaei-dictionary-index.html#lw-dictionary-index-search"/>
+    <keyword type="function" name="lw_dictionary_index_create ()" link="libwaei-dictionary-index.html#lw-dictionary-index-create"/>
+    <keyword type="function" name="lw_dictionary_index_load ()" link="libwaei-dictionary-index.html#lw-dictionary-index-load"/>
+    <keyword type="function" name="lw_dictionary_index_is_valid ()" link="libwaei-dictionary-index.html#lw-dictionary-index-is-valid"/>
+    <keyword type="function" name="lw_dictionary_index_is_loaded ()" link="libwaei-dictionary-index.html#lw-dictionary-index-is-loaded"/>
+    <keyword type="function" name="lw_dictionary_index_exists ()" link="libwaei-dictionary-index.html#lw-dictionary-index-exists"/>
+    <keyword type="function" name="lw_dictionary_index_get_path ()" link="libwaei-dictionary-index.html#lw-dictionary-index-get-path"/>
+    <keyword type="function" name="LwDictionaryCacheParseFunc ()" link="LwDictionaryCache.html#LwDictionaryCacheParseFunc"/>
+    <keyword type="function" name="lw_dictionarycache_new ()" link="LwDictionaryCache.html#lw-dictionarycache-new"/>
+    <keyword type="function" name="lw_dictionarycache_write ()" link="LwDictionaryCache.html#lw-dictionarycache-write"/>
+    <keyword type="function" name="lw_dictionarycache_read ()" link="LwDictionaryCache.html#lw-dictionarycache-read"/>
+    <keyword type="function" name="lw_dictionarycache_get_flags ()" link="LwDictionaryCache.html#lw-dictionarycache-get-flags"/>
+    <keyword type="function" name="lw_dictionarycache_get_name ()" link="LwDictionaryCache.html#lw-dictionarycache-get-name"/>
+    <keyword type="function" name="lw_dictionarycache_get_parsed ()" link="LwDictionaryCache.html#lw-dictionarycache-get-parsed"/>
+    <keyword type="function" name="lw_dictionarycache_get_indexed ()" link="LwDictionaryCache.html#lw-dictionarycache-get-indexed"/>
+    <keyword type="macro" name="LW_DICTIONARYCACHE_ERROR" link="LwDictionaryCache.html#LW-DICTIONARYCACHE-ERROR:CAPS"/>
+    <keyword type="enum" name="enum LwDictionaryCacheErrorCode" link="LwDictionaryCache.html#LwDictionaryCacheErrorCode"/>
+    <keyword type="struct" name="LwDictionaryCacheClassPrivate" link="LwDictionaryCache.html#LwDictionaryCacheClassPrivate"/>
+    <keyword type="property" name="The “indexed” property" link="LwDictionaryCache.html#LwDictionaryCache--indexed"/>
+    <keyword type="property" name="The “name” property" link="LwDictionaryCache.html#LwDictionaryCache--name"/>
+    <keyword type="property" name="The “normalization-flags” property" link="LwDictionaryCache.html#LwDictionaryCache--normalization-flags"/>
+    <keyword type="property" name="The “parsed” property" link="LwDictionaryCache.html#LwDictionaryCache--parsed"/>
+    <keyword type="function" name="lw_dictionaryinstall_new ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-new"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_name ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-name"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_name ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-name"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_description ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-description"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_description ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-description"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_text_encoding ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-text-encoding"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_text_encoding ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-text-encoding"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_gtype ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-gtype"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_gtype ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-gtype"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_download_key ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-download-key"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_download_key ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-download-key"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_download_uri ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-download-uri"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_download_uri ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-download-uri"/>
+    <keyword type="function" name="lw_dictionaryinstall_sync_download_uri ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-sync-download-uri"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_preferences ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-preferences"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_preferences ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-preferences"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_merge_radicals_into_kanji ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-merge-radicals-into-kanji"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_merge_radicals_into_kanji ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-merge-radicals-into-kanji"/>
+    <keyword type="function" name="lw_dictionaryinstall_merge_radicals_into_kanji ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-merge-radicals-into-kanji"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_progress ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-progress"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_progress ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-progress"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_split_places_from_names ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-split-places-from-names"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_split_places_from_names ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-split-places-from-names"/>
+    <keyword type="function" name="lw_dictionaryinstall_split_places_from_names ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-split-places-from-names"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_dependancies ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-dependancies"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_dependancies ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-dependancies"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_simple_boolean_dependancy ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-simple-boolean-dependancy"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_id ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-id"/>
+    <keyword type="function" name="lw_dictionaryinstall_set_id ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-set-id"/>
+    <keyword type="function" name="lw_dictionaryinstall_sync_id ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-sync-id"/>
+    <keyword type="function" name="lw_dictionaryinstall_get_install_path ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-get-install-path"/>
+    <keyword type="function" name="lw_dictionaryinstall_sync_install_path ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-sync-install-path"/>
+    <keyword type="function" name="lw_dictionaryinstall_install ()" link="LwDictionaryInstall.html#lw-dictionaryinstall-install"/>
+    <keyword type="struct" name="LwDictionaryInstallClassPrivate" link="LwDictionaryInstall.html#LwDictionaryInstallClassPrivate"/>
+    <keyword type="property" name="The “dependencies” property" link="LwDictionaryInstall.html#LwDictionaryInstall--dependencies"/>
+    <keyword type="property" name="The “description” property" link="LwDictionaryInstall.html#LwDictionaryInstall--description"/>
+    <keyword type="property" name="The “dictionary-gtype” property" link="LwDictionaryInstall.html#LwDictionaryInstall--dictionary-gtype"/>
+    <keyword type="property" name="The “download-preference-key” property" link="LwDictionaryInstall.html#LwDictionaryInstall--download-preference-key"/>
+    <keyword type="property" name="The “download-uri” property" link="LwDictionaryInstall.html#LwDictionaryInstall--download-uri"/>
+    <keyword type="property" name="The “id” property" link="LwDictionaryInstall.html#LwDictionaryInstall--id"/>
+    <keyword type="property" name="The “install-path” property" link="LwDictionaryInstall.html#LwDictionaryInstall--install-path"/>
+    <keyword type="property" name="The “name” property" link="LwDictionaryInstall.html#LwDictionaryInstall--name"/>
+    <keyword type="property" name="The “preferences” property" link="LwDictionaryInstall.html#LwDictionaryInstall--preferences"/>
+    <keyword type="property" name="The “progress” property" link="LwDictionaryInstall.html#LwDictionaryInstall--progress"/>
+    <keyword type="property" name="The “text-encoding” property" link="LwDictionaryInstall.html#LwDictionaryInstall--text-encoding"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_new ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-new"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_length ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-length"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_nth ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-nth"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_get_indices ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-get-indices"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_insert ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-insert"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_remove ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-remove"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_clear ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-clear"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_dictionaryinstalls ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-dictionaryinstalls"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_load_default ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-load-default"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_fuzzy_find ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-fuzzy-find"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_build_transaction ()" link="LwDictionaryInstallList.html#lw-dictionaryinstalllist-build-transaction"/>
+    <keyword type="macro" name="LW_SCHEMA_DICTIONARY" link="LwDictionaryInstallList.html#LW-SCHEMA-DICTIONARY:CAPS"/>
+    <keyword type="macro" name="LW_KEY_ENGLISH_SOURCE" link="LwDictionaryInstallList.html#LW-KEY-ENGLISH-SOURCE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_KANJI_SOURCE" link="LwDictionaryInstallList.html#LW-KEY-KANJI-SOURCE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_NAMES_PLACES_SOURCE" link="LwDictionaryInstallList.html#LW-KEY-NAMES-PLACES-SOURCE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_EXAMPLES_SOURCE" link="LwDictionaryInstallList.html#LW-KEY-EXAMPLES-SOURCE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_ORDER" link="LwDictionaryInstallList.html#LW-KEY-ORDER:CAPS"/>
+    <keyword type="struct" name="LwDictionaryInstallListClassPrivate" link="LwDictionaryInstallList.html#LwDictionaryInstallListClassPrivate"/>
+    <keyword type="property" name="The “preferences” property" link="LwDictionaryInstallList.html#LwDictionaryInstallList--preferences"/>
+    <keyword type="signal" name="The “internal-row-changed” signal" link="LwDictionaryInstallList.html#LwDictionaryInstallList-internal-row-changed"/>
+    <keyword type="signal" name="The “internal-row-deleted” signal" link="LwDictionaryInstallList.html#LwDictionaryInstallList-internal-row-deleted"/>
+    <keyword type="signal" name="The “internal-row-inserted” signal" link="LwDictionaryInstallList.html#LwDictionaryInstallList-internal-row-inserted"/>
+    <keyword type="signal" name="The “internal-rows-reordered” signal" link="LwDictionaryInstallList.html#LwDictionaryInstallList-internal-rows-reordered"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_connect_signals ()" link="libwaei-dictionaryinstalllist-callbacks.html#lw-dictionaryinstalllist-connect-signals"/>
+    <keyword type="function" name="lw_dictionaryinstalllist_disconnect_signals ()" link="libwaei-dictionaryinstalllist-callbacks.html#lw-dictionaryinstalllist-disconnect-signals"/>
+    <keyword type="macro" name="LW_DICTIONARYINSTALLSTATE()" link="libwaei-dictionaryinstallstate.html#LW-DICTIONARYINSTALLSTATE:CAPS"/>
+    <keyword type="function" name="LwDictionaryInstallStateForeachFunc ()" link="libwaei-dictionaryinstallstate.html#LwDictionaryInstallStateForeachFunc"/>
+    <keyword type="function" name="lw_dictionaryinstallstate_new_glist ()" link="libwaei-dictionaryinstallstate.html#lw-dictionaryinstallstate-new-glist"/>
+    <keyword type="function" name="lw_dictionaryinstallstate_free ()" link="libwaei-dictionaryinstallstate.html#lw-dictionaryinstallstate-free"/>
+    <keyword type="function" name="lw_dictionaryinstallstate_foreach ()" link="libwaei-dictionaryinstallstate.html#lw-dictionaryinstallstate-foreach"/>
+    <keyword type="function" name="lw_dictionaryinstallstate_remove_files ()" link="libwaei-dictionaryinstallstate.html#lw-dictionaryinstallstate-remove-files"/>
+    <keyword type="function" name="lw_dictionaryinstallstate_get_filepaths ()" link="libwaei-dictionaryinstallstate.html#lw-dictionaryinstallstate-get-filepaths"/>
+    <keyword type="function" name="lw_dictionaryinstallstate_length ()" link="libwaei-dictionaryinstallstate.html#lw-dictionaryinstallstate-length"/>
+    <keyword type="function" name="lw_dictionaryinstallstate_is_temporary ()" link="libwaei-dictionaryinstallstate.html#lw-dictionaryinstallstate-is-temporary"/>
+    <keyword type="struct" name="LwDictionaryInstallState" link="libwaei-dictionaryinstallstate.html#LwDictionaryInstallState"/>
+    <keyword type="macro" name="LW_DICTIONARYINSTALLSTATEHISTORY()" link="libwaei-dictionaryinstallstatehistory.html#LW-DICTIONARYINSTALLSTATEHISTORY:CAPS"/>
+    <keyword type="function" name="LwDictionaryInstallStateHistoryForeachFunc ()" link="libwaei-dictionaryinstallstatehistory.html#LwDictionaryInstallStateHistoryForeachFunc"/>
+    <keyword type="function" name="lw_dictionaryinstallstatehistory_new ()" link="libwaei-dictionaryinstallstatehistory.html#lw-dictionaryinstallstatehistory-new"/>
+    <keyword type="function" name="lw_dictionaryinstallstatehistory_free ()" link="libwaei-dictionaryinstallstatehistory.html#lw-dictionaryinstallstatehistory-free"/>
+    <keyword type="function" name="lw_dictionaryinstallstatehistory_add ()" link="libwaei-dictionaryinstallstatehistory.html#lw-dictionaryinstallstatehistory-add"/>
+    <keyword type="function" name="lw_dictionaryinstallstatehistory_add_named_paths ()" link="libwaei-dictionaryinstallstatehistory.html#lw-dictionaryinstallstatehistory-add-named-paths"/>
+    <keyword type="function" name="lw_dictionaryinstallstatehistory_current ()" link="libwaei-dictionaryinstallstatehistory.html#lw-dictionaryinstallstatehistory-current"/>
+    <keyword type="function" name="lw_dictionaryinstallstatehistory_clear ()" link="libwaei-dictionaryinstallstatehistory.html#lw-dictionaryinstallstatehistory-clear"/>
+    <keyword type="function" name="lw_dictionaryinstallstatehistory_foreach ()" link="libwaei-dictionaryinstallstatehistory.html#lw-dictionaryinstallstatehistory-foreach"/>
+    <keyword type="struct" name="LwDictionaryInstallStateHistory" link="libwaei-dictionaryinstallstatehistory.html#LwDictionaryInstallStateHistory"/>
+    <keyword type="function" name="lw_dictionarylist_new ()" link="LwDictionaryList.html#lw-dictionarylist-new"/>
+    <keyword type="function" name="lw_dictionarylist_load_order ()" link="LwDictionaryList.html#lw-dictionarylist-load-order"/>
+    <keyword type="function" name="lw_dictionarylist_dictionaries ()" link="LwDictionaryList.html#lw-dictionarylist-dictionaries"/>
+    <keyword type="function" name="lw_dictionarylist_find ()" link="LwDictionaryList.html#lw-dictionarylist-find"/>
+    <keyword type="function" name="lw_dictionarylist_fuzzy_find ()" link="LwDictionaryList.html#lw-dictionarylist-fuzzy-find"/>
+    <keyword type="function" name="lw_dictionarylist_find_by_filename ()" link="LwDictionaryList.html#lw-dictionarylist-find-by-filename"/>
+    <keyword type="function" name="lw_dictionarylist_find_by_id ()" link="LwDictionaryList.html#lw-dictionarylist-find-by-id"/>
+    <keyword type="function" name="lw_dictionarylist_load_installed ()" link="LwDictionaryList.html#lw-dictionarylist-load-installed"/>
+    <keyword type="function" name="lw_dictionarylist_get_menumodel ()" link="LwDictionaryList.html#lw-dictionarylist-get-menumodel"/>
+    <keyword type="function" name="lw_dictionarylist_dictionary_exists ()" link="LwDictionaryList.html#lw-dictionarylist-dictionary-exists"/>
+    <keyword type="function" name="lw_dictionarylist_nth ()" link="LwDictionaryList.html#lw-dictionarylist-nth"/>
+    <keyword type="function" name="lw_dictionarylist_remove ()" link="LwDictionaryList.html#lw-dictionarylist-remove"/>
+    <keyword type="function" name="lw_dictionarylist_clear ()" link="LwDictionaryList.html#lw-dictionarylist-clear"/>
+    <keyword type="function" name="lw_dictionarylist_length ()" link="LwDictionaryList.html#lw-dictionarylist-length"/>
+    <keyword type="function" name="lw_dictionarylist_get_indices ()" link="LwDictionaryList.html#lw-dictionarylist-get-indices"/>
+    <keyword type="macro" name="LW_SCHEMA_DICTIONARY" link="LwDictionaryList.html#LW-SCHEMA-DICTIONARY:CAPS"/>
+    <keyword type="struct" name="LwDictionaryListClassPrivate" link="LwDictionaryList.html#LwDictionaryListClassPrivate"/>
+    <keyword type="property" name="The “preferences” property" link="LwDictionaryList.html#LwDictionaryList--preferences"/>
+    <keyword type="signal" name="The “internal-row-changed” signal" link="LwDictionaryList.html#LwDictionaryList-internal-row-changed"/>
+    <keyword type="signal" name="The “internal-row-deleted” signal" link="LwDictionaryList.html#LwDictionaryList-internal-row-deleted"/>
+    <keyword type="signal" name="The “internal-row-inserted” signal" link="LwDictionaryList.html#LwDictionaryList-internal-row-inserted"/>
+    <keyword type="signal" name="The “internal-rows-reordered” signal" link="LwDictionaryList.html#LwDictionaryList-internal-rows-reordered"/>
+    <keyword type="function" name="lw_dictionarylist_connect_signals ()" link="libwaei-dictionarylist-callbacks.html#lw-dictionarylist-connect-signals"/>
+    <keyword type="function" name="lw_dictionarylist_disconnect_signals ()" link="libwaei-dictionarylist-callbacks.html#lw-dictionarylist-disconnect-signals"/>
+    <keyword type="function" name="lw_dictionarylist_inserted_cb ()" link="libwaei-dictionarylist-callbacks.html#lw-dictionarylist-inserted-cb"/>
+    <keyword type="function" name="lw_dictionarylist_deleted_cb ()" link="libwaei-dictionarylist-callbacks.html#lw-dictionarylist-deleted-cb"/>
+    <keyword type="function" name="lw_dictionarylist_reordered_cb ()" link="libwaei-dictionarylist-callbacks.html#lw-dictionarylist-reordered-cb"/>
+    <keyword type="function" name="lw_dictionarymodulereader_open ()" link="LwDictionaryModule.html#lw-dictionarymodulereader-open"/>
+    <keyword type="function" name="lw_dictionarymodulereader_close ()" link="LwDictionaryModule.html#lw-dictionarymodulereader-close"/>
+    <keyword type="function" name="lw_dictionarymodulereader_read_path ()" link="LwDictionaryModule.html#lw-dictionarymodulereader-read-path"/>
+    <keyword type="function" name="lw_dictionarymodule_new ()" link="LwDictionaryModule.html#lw-dictionarymodule-new"/>
+    <keyword type="function" name="lw_dictionarymodule_set_path ()" link="LwDictionaryModule.html#lw-dictionarymodule-set-path"/>
+    <keyword type="function" name="lw_dictionarymodule_get_path ()" link="LwDictionaryModule.html#lw-dictionarymodule-get-path"/>
+    <keyword type="function" name="lw_dictionarymodule_get_name ()" link="LwDictionaryModule.html#lw-dictionarymodule-get-name"/>
+    <keyword type="function" name="lw_dictionarymodule_get_dictionarylib_searchpath ()" link="LwDictionaryModule.html#lw-dictionarymodule-get-dictionarylib-searchpath"/>
+    <keyword type="struct" name="LwDictionaryModuleClassPrivate" link="LwDictionaryModule.html#LwDictionaryModuleClassPrivate"/>
+    <keyword type="struct" name="LwDictionaryModuleReader" link="LwDictionaryModule.html#LwDictionaryModuleReader"/>
+    <keyword type="property" name="The “name” property" link="LwDictionaryModule.html#LwDictionaryModule--name"/>
+    <keyword type="property" name="The “path” property" link="LwDictionaryModule.html#LwDictionaryModule--path"/>
+    <keyword type="macro" name="LW_FILEPATH()" link="libwaei-filepath.html#LW-FILEPATH:CAPS"/>
+    <keyword type="function" name="lw_filepath_new ()" link="libwaei-filepath.html#lw-filepath-new"/>
+    <keyword type="function" name="lw_filepath_free ()" link="libwaei-filepath.html#lw-filepath-free"/>
+    <keyword type="function" name="lw_filepath_get_path ()" link="libwaei-filepath.html#lw-filepath-get-path"/>
+    <keyword type="function" name="lw_filepath_get_basename ()" link="libwaei-filepath.html#lw-filepath-get-basename"/>
+    <keyword type="function" name="lw_filepath_get_suffixless ()" link="libwaei-filepath.html#lw-filepath-get-suffixless"/>
+    <keyword type="function" name="lw_filepath_get_suffix ()" link="libwaei-filepath.html#lw-filepath-get-suffix"/>
+    <keyword type="struct" name="LwFilePath" link="libwaei-filepath.html#LwFilePath"/>
+    <keyword type="macro" name="gettext()" link="libwaei-gettext.html#gettext"/>
+    <keyword type="macro" name="ngettext()" link="libwaei-gettext.html#ngettext"/>
+    <keyword type="macro" name="dgettext()" link="libwaei-gettext.html#dgettext"/>
+    <keyword type="macro" name="dcgettext()" link="libwaei-gettext.html#dcgettext"/>
+    <keyword type="macro" name="dngettext()" link="libwaei-gettext.html#dngettext"/>
+    <keyword type="macro" name="dcngettext()" link="libwaei-gettext.html#dcngettext"/>
+    <keyword type="macro" name="textdomain()" link="libwaei-gettext.html#textdomain"/>
+    <keyword type="macro" name="bindtextdomain()" link="libwaei-gettext.html#bindtextdomain"/>
+    <keyword type="macro" name="bind_textdomain_codeset()" link="libwaei-gettext.html#bind-textdomain-codeset"/>
+    <keyword type="macro" name="gettext_noop()" link="libwaei-gettext.html#gettext-noop"/>
+    <keyword type="macro" name="pgettext()" link="libwaei-gettext.html#pgettext"/>
+    <keyword type="macro" name="dpgettext()" link="libwaei-gettext.html#dpgettext"/>
+    <keyword type="macro" name="dcpgettext()" link="libwaei-gettext.html#dcpgettext"/>
+    <keyword type="macro" name="npgettext()" link="libwaei-gettext.html#npgettext"/>
+    <keyword type="macro" name="dnpgettext()" link="libwaei-gettext.html#dnpgettext"/>
+    <keyword type="macro" name="dcnpgettext()" link="libwaei-gettext.html#dcnpgettext"/>
+    <keyword type="function" name="pgettext_aux ()" link="libwaei-gettext.html#pgettext-aux"/>
+    <keyword type="function" name="npgettext_aux ()" link="libwaei-gettext.html#npgettext-aux"/>
+    <keyword type="macro" name="pgettext_expr()" link="libwaei-gettext.html#pgettext-expr"/>
+    <keyword type="macro" name="dpgettext_expr()" link="libwaei-gettext.html#dpgettext-expr"/>
+    <keyword type="function" name="dcpgettext_expr ()" link="libwaei-gettext.html#dcpgettext-expr"/>
+    <keyword type="macro" name="npgettext_expr()" link="libwaei-gettext.html#npgettext-expr"/>
+    <keyword type="macro" name="dnpgettext_expr()" link="libwaei-gettext.html#dnpgettext-expr"/>
+    <keyword type="function" name="dcnpgettext_expr ()" link="libwaei-gettext.html#dcnpgettext-expr"/>
+    <keyword type="macro" name="GETTEXT_CONTEXT_GLUE" link="libwaei-gettext.html#GETTEXT-CONTEXT-GLUE:CAPS"/>
+    <keyword type="function" name="lw_index_new ()" link="libwaei-index.html#lw-index-new"/>
+    <keyword type="function" name="lw_index_free ()" link="libwaei-index.html#lw-index-free"/>
+    <keyword type="function" name="lw_index_search ()" link="libwaei-index.html#lw-index-search"/>
+    <keyword type="function" name="lw_index_data_is_valid ()" link="libwaei-index.html#lw-index-data-is-valid"/>
+    <keyword type="function" name="lw_index_append_data_offset ()" link="libwaei-index.html#lw-index-append-data-offset"/>
+    <keyword type="function" name="lw_index_get_data_offsets ()" link="libwaei-index.html#lw-index-get-data-offsets"/>
+    <keyword type="function" name="lw_index_get_data_offsets_length ()" link="libwaei-index.html#lw-index-get-data-offsets-length"/>
+    <keyword type="function" name="lw_index_add_string ()" link="libwaei-index.html#lw-index-add-string"/>
+    <keyword type="function" name="lw_index_are_equal ()" link="libwaei-index.html#lw-index-are-equal"/>
+    <keyword type="function" name="lw_index_write ()" link="libwaei-index.html#lw-index-write"/>
+    <keyword type="function" name="lw_index_read ()" link="libwaei-index.html#lw-index-read"/>
+    <keyword type="function" name="lw_index_create ()" link="libwaei-index.html#lw-index-create"/>
+    <keyword type="function" name="lw_index_exists ()" link="libwaei-index.html#lw-index-exists"/>
+    <keyword type="function" name="lw_index_get_matches_for_morphologylist ()" link="libwaei-index.html#lw-index-get-matches-for-morphologylist"/>
+    <keyword type="function" name="lw_index_table_type_to_string ()" link="libwaei-index.html#lw-index-table-type-to-string"/>
+    <keyword type="macro" name="LW_INDEX_CHECKSUM_TYPE" link="libwaei-index.html#LW-INDEX-CHECKSUM-TYPE:CAPS"/>
+    <keyword type="enum" name="enum LwIndexTableType" link="libwaei-index.html#LwIndexTableType"/>
+    <keyword type="enum" name="enum LwIndexFlag" link="libwaei-index.html#LwIndexFlag"/>
+    <keyword type="struct" name="LwIndex" link="libwaei-index.html#LwIndex"/>
+    <keyword type="function" name="lw_indexed_new ()" link="LwIndexed.html#lw-indexed-new"/>
+    <keyword type="function" name="lw_indexed_serialize ()" link="LwIndexed.html#lw-indexed-serialize"/>
+    <keyword type="function" name="lw_indexed_deserialize_into ()" link="LwIndexed.html#lw-indexed-deserialize-into"/>
+    <keyword type="function" name="lw_installsubcommand_new ()" link="LwInstallSubCommand.html#lw-installsubcommand-new"/>
+    <keyword type="struct" name="LwInstallSubCommandClassPrivate" link="LwInstallSubCommand.html#LwInstallSubCommandClassPrivate"/>
+    <keyword type="function" name="lw_io_fwrite ()" link="libwaei-IO-Utility-Methods.html#lw-io-fwrite"/>
+    <keyword type="function" name="lw_io_write_file ()" link="libwaei-IO-Utility-Methods.html#lw-io-write-file"/>
+    <keyword type="function" name="lw_io_write_chunk_with_data ()" link="libwaei-IO-Utility-Methods.html#lw-io-write-chunk-with-data"/>
+    <keyword type="function" name="lw_io_remove ()" link="libwaei-IO-Utility-Methods.html#lw-io-remove"/>
+    <keyword type="function" name="lw_io_copy ()" link="libwaei-IO-Utility-Methods.html#lw-io-copy"/>
+    <keyword type="function" name="lw_io_copy_with_encoding ()" link="libwaei-IO-Utility-Methods.html#lw-io-copy-with-encoding"/>
+    <keyword type="function" name="lw_io_download ()" link="libwaei-IO-Utility-Methods.html#lw-io-download"/>
+    <keyword type="function" name="lw_io_gunzip_file ()" link="libwaei-IO-Utility-Methods.html#lw-io-gunzip-file"/>
+    <keyword type="function" name="lw_io_get_pagesize ()" link="libwaei-IO-Utility-Methods.html#lw-io-get-pagesize"/>
+    <keyword type="function" name="lw_io_allocate_temporary_file ()" link="libwaei-IO-Utility-Methods.html#lw-io-allocate-temporary-file"/>
+    <keyword type="function" name="lw_io_get_file_size ()" link="libwaei-IO-Utility-Methods.html#lw-io-get-file-size"/>
+    <keyword type="macro" name="LW_IO_ERROR" link="libwaei-IO-Utility-Methods.html#LW-IO-ERROR:CAPS"/>
+    <keyword type="enum" name="enum LwIoErrorCode" link="libwaei-IO-Utility-Methods.html#LwIoErrorCode"/>
+    <keyword type="struct" name="LwIoWriteChunkData" link="libwaei-IO-Utility-Methods.html#LwIoWriteChunkData"/>
+    <keyword type="function" name="lw_mappedfile_new ()" link="LwMappedFile.html#lw-mappedfile-new"/>
+    <keyword type="function" name="lw_mappedfile_length ()" link="LwMappedFile.html#lw-mappedfile-length"/>
+    <keyword type="function" name="lw_mappedfile_get_contents ()" link="LwMappedFile.html#lw-mappedfile-get-contents"/>
+    <keyword type="function" name="lw_mappedfile_set_path ()" link="LwMappedFile.html#lw-mappedfile-set-path"/>
+    <keyword type="function" name="lw_mappedfile_get_path ()" link="LwMappedFile.html#lw-mappedfile-get-path"/>
+    <keyword type="function" name="lw_mappedfile_set_delete_on_free ()" link="LwMappedFile.html#lw-mappedfile-set-delete-on-free"/>
+    <keyword type="function" name="lw_mappedfile_get_delete_on_free ()" link="LwMappedFile.html#lw-mappedfile-get-delete-on-free"/>
+    <keyword type="function" name="lw_mappedfile_set_writable ()" link="LwMappedFile.html#lw-mappedfile-set-writable"/>
+    <keyword type="function" name="lw_mappedfile_is_writable ()" link="LwMappedFile.html#lw-mappedfile-is-writable"/>
+    <keyword type="struct" name="LwMappedFileClassPrivate" link="LwMappedFile.html#LwMappedFileClassPrivate"/>
+    <keyword type="property" name="The “content-length” property" link="LwMappedFile.html#LwMappedFile--content-length"/>
+    <keyword type="property" name="The “contents” property" link="LwMappedFile.html#LwMappedFile--contents"/>
+    <keyword type="property" name="The “delete-on-free” property" link="LwMappedFile.html#LwMappedFile--delete-on-free"/>
+    <keyword type="property" name="The “path” property" link="LwMappedFile.html#LwMappedFile--path"/>
+    <keyword type="property" name="The “writable” property" link="LwMappedFile.html#LwMappedFile--writable"/>
+    <keyword type="macro" name="LW_PARENTHESISNODE()" link="libwaei-LwParenthesisNode.html#LW-PARENTHESISNODE:CAPS"/>
+    <keyword type="function" name="lw_parenthesisnode_error_quark ()" link="libwaei-LwParenthesisNode.html#lw-parenthesisnode-error-quark"/>
+    <keyword type="function" name="lw_parenthesisnode_new_tree_from_string ()" link="libwaei-LwParenthesisNode.html#lw-parenthesisnode-new-tree-from-string"/>
+    <keyword type="function" name="lw_parenthesisnode_contains ()" link="libwaei-LwParenthesisNode.html#lw-parenthesisnode-contains"/>
+    <keyword type="function" name="lw_parenthesisnode_unref ()" link="libwaei-LwParenthesisNode.html#lw-parenthesisnode-unref"/>
+    <keyword type="function" name="lw_parenthesisnode_ref ()" link="libwaei-LwParenthesisNode.html#lw-parenthesisnode-ref"/>
+    <keyword type="function" name="lw_parenthesisnode_assert_equals ()" link="libwaei-LwParenthesisNode.html#lw-parenthesisnode-assert-equals"/>
+    <keyword type="struct" name="LwParenthesisNode" link="libwaei-LwParenthesisNode.html#LwParenthesisNode"/>
+    <keyword type="macro" name="LW_PARENTHESISNODE_ERROR" link="libwaei-LwParenthesisNode.html#LW-PARENTHESISNODE-ERROR:CAPS"/>
+    <keyword type="enum" name="enum LwParenthesisNodeErrorCode" link="libwaei-LwParenthesisNode.html#LwParenthesisNodeErrorCode"/>
+    <keyword type="function" name="lw_parsed_error_quark ()" link="LwParsed.html#lw-parsed-error-quark"/>
+    <keyword type="function" name="LwParsedForeachFunc ()" link="LwParsed.html#LwParsedForeachFunc"/>
+    <keyword type="function" name="lw_parsed_new ()" link="LwParsed.html#lw-parsed-new"/>
+    <keyword type="function" name="lw_parsed_foreach ()" link="LwParsed.html#lw-parsed-foreach"/>
+    <keyword type="function" name="lw_parsed_get_line ()" link="LwParsed.html#lw-parsed-get-line"/>
+    <keyword type="function" name="lw_parsed_set_lines ()" link="LwParsed.html#lw-parsed-set-lines"/>
+    <keyword type="function" name="lw_parsed_get_lines ()" link="LwParsed.html#lw-parsed-get-lines"/>
+    <keyword type="function" name="lw_parsed_num_lines ()" link="LwParsed.html#lw-parsed-num-lines"/>
+    <keyword type="function" name="lw_parsed_get_cachefile ()" link="LwParsed.html#lw-parsed-get-cachefile"/>
+    <keyword type="macro" name="LW_PARSED_ERROR" link="LwParsed.html#LW-PARSED-ERROR:CAPS"/>
+    <keyword type="enum" name="enum LwParsedErrorCode" link="LwParsed.html#LwParsedErrorCode"/>
+    <keyword type="struct" name="LwParsedClassPrivate" link="LwParsed.html#LwParsedClassPrivate"/>
+    <keyword type="property" name="The “cache-file” property" link="LwParsed.html#LwParsed--cache-file"/>
+    <keyword type="function" name="lw_parsedline_error_quark ()" link="libwaei-LwParsedLine.html#lw-parsedline-error-quark"/>
+    <keyword type="macro" name="LW_PARSEDLINE()" link="libwaei-LwParsedLine.html#LW-PARSEDLINE:CAPS"/>
+    <keyword type="function" name="LwParsedLineForeachFunc ()" link="libwaei-LwParsedLine.html#LwParsedLineForeachFunc"/>
+    <keyword type="function" name="lw_parsedline_init ()" link="libwaei-LwParsedLine.html#lw-parsedline-init"/>
+    <keyword type="function" name="lw_parsedline_init_full ()" link="libwaei-LwParsedLine.html#lw-parsedline-init-full"/>
+    <keyword type="function" name="lw_parsedline_clear ()" link="libwaei-LwParsedLine.html#lw-parsedline-clear"/>
+    <keyword type="function" name="lw_parsedline_set_strv ()" link="libwaei-LwParsedLine.html#lw-parsedline-set-strv"/>
+    <keyword type="function" name="lw_parsedline_get_strv ()" link="libwaei-LwParsedLine.html#lw-parsedline-get-strv"/>
+    <keyword type="function" name="lw_parsedline_num_columns ()" link="libwaei-LwParsedLine.html#lw-parsedline-num-columns"/>
+    <keyword type="function" name="lw_parsedline_get_serialized_length ()" link="libwaei-LwParsedLine.html#lw-parsedline-get-serialized-length"/>
+    <keyword type="function" name="lw_parsedline_serialize ()" link="libwaei-LwParsedLine.html#lw-parsedline-serialize"/>
+    <keyword type="function" name="lw_parsedline_deserialize_into ()" link="libwaei-LwParsedLine.html#lw-parsedline-deserialize-into"/>
+    <keyword type="function" name="lw_parsedline_foreach ()" link="libwaei-LwParsedLine.html#lw-parsedline-foreach"/>
+    <keyword type="function" name="lw_parsedline_assert_equals ()" link="libwaei-LwParsedLine.html#lw-parsedline-assert-equals"/>
+    <keyword type="macro" name="LW_PARSEDLINE_ERROR" link="libwaei-LwParsedLine.html#LW-PARSEDLINE-ERROR:CAPS"/>
+    <keyword type="enum" name="enum LwParsedLineErrorCode" link="libwaei-LwParsedLine.html#LwParsedLineErrorCode"/>
+    <keyword type="struct" name="LwParsedLine" link="libwaei-LwParsedLine.html#LwParsedLine"/>
+    <keyword type="function" name="lw_preferences_new ()" link="LwPreferences.html#lw-preferences-new"/>
+    <keyword type="function" name="lw_preferences_get_default ()" link="LwPreferences.html#lw-preferences-get-default"/>
+    <keyword type="function" name="lw_preferences_schema_is_installed ()" link="LwPreferences.html#lw-preferences-schema-is-installed"/>
+    <keyword type="function" name="lw_preferences_get_settings_object ()" link="LwPreferences.html#lw-preferences-get-settings-object"/>
+    <keyword type="function" name="lw_preferences_reset_value ()" link="LwPreferences.html#lw-preferences-reset-value"/>
+    <keyword type="function" name="lw_preferences_reset_value_by_schema ()" link="LwPreferences.html#lw-preferences-reset-value-by-schema"/>
+    <keyword type="function" name="lw_preferences_get_int ()" link="LwPreferences.html#lw-preferences-get-int"/>
+    <keyword type="function" name="lw_preferences_get_int_by_schema ()" link="LwPreferences.html#lw-preferences-get-int-by-schema"/>
+    <keyword type="function" name="lw_preferences_set_int ()" link="LwPreferences.html#lw-preferences-set-int"/>
+    <keyword type="function" name="lw_preferences_set_int_by_schema ()" link="LwPreferences.html#lw-preferences-set-int-by-schema"/>
+    <keyword type="function" name="lw_preferences_get_boolean ()" link="LwPreferences.html#lw-preferences-get-boolean"/>
+    <keyword type="function" name="lw_preferences_get_boolean_by_schema ()" link="LwPreferences.html#lw-preferences-get-boolean-by-schema"/>
+    <keyword type="function" name="lw_preferences_set_boolean ()" link="LwPreferences.html#lw-preferences-set-boolean"/>
+    <keyword type="function" name="lw_preferences_set_boolean_by_schema ()" link="LwPreferences.html#lw-preferences-set-boolean-by-schema"/>
+    <keyword type="function" name="lw_preferences_get_string ()" link="LwPreferences.html#lw-preferences-get-string"/>
+    <keyword type="function" name="lw_preferences_get_string_by_schema ()" link="LwPreferences.html#lw-preferences-get-string-by-schema"/>
+    <keyword type="function" name="lw_preferences_set_string ()" link="LwPreferences.html#lw-preferences-set-string"/>
+    <keyword type="function" name="lw_preferences_set_string_by_schema ()" link="LwPreferences.html#lw-preferences-set-string-by-schema"/>
+    <keyword type="function" name="lw_preferences_get_strv ()" link="LwPreferences.html#lw-preferences-get-strv"/>
+    <keyword type="function" name="lw_preferences_get_strv_by_schema ()" link="LwPreferences.html#lw-preferences-get-strv-by-schema"/>
+    <keyword type="function" name="lw_preferences_set_strv ()" link="LwPreferences.html#lw-preferences-set-strv"/>
+    <keyword type="function" name="lw_preferences_set_strv_by_schema ()" link="LwPreferences.html#lw-preferences-set-strv-by-schema"/>
+    <keyword type="function" name="lw_preferences_add_change_listener ()" link="LwPreferences.html#lw-preferences-add-change-listener"/>
+    <keyword type="function" name="lw_preferences_add_change_listener_by_schema ()" link="LwPreferences.html#lw-preferences-add-change-listener-by-schema"/>
+    <keyword type="function" name="lw_preferences_remove_change_listener ()" link="LwPreferences.html#lw-preferences-remove-change-listener"/>
+    <keyword type="function" name="lw_preferences_remove_change_listener_by_schema ()" link="LwPreferences.html#lw-preferences-remove-change-listener-by-schema"/>
+    <keyword type="macro" name="G_SETTINGS_ENABLE_BACKEND" link="LwPreferences.html#G-SETTINGS-ENABLE-BACKEND:CAPS"/>
+    <keyword type="macro" name="LW_SCHEMA_GNOME_INTERFACE" link="LwPreferences.html#LW-SCHEMA-GNOME-INTERFACE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_TOOLBAR_STYLE" link="LwPreferences.html#LW-KEY-TOOLBAR-STYLE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_DOCUMENT_FONT_NAME" link="LwPreferences.html#LW-KEY-DOCUMENT-FONT-NAME:CAPS"/>
+    <keyword type="macro" name="LW_KEY_PROGRAM_VERSION" link="LwPreferences.html#LW-KEY-PROGRAM-VERSION:CAPS"/>
+    <keyword type="macro" name="LW_SCHEMA_BASE" link="LwPreferences.html#LW-SCHEMA-BASE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_WINDOW_SIZE" link="LwPreferences.html#LW-KEY-WINDOW-SIZE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_TABBAR_SHOW" link="LwPreferences.html#LW-KEY-TABBAR-SHOW:CAPS"/>
+    <keyword type="macro" name="LW_KEY_MENUBAR_SHOW" link="LwPreferences.html#LW-KEY-MENUBAR-SHOW:CAPS"/>
+    <keyword type="macro" name="LW_KEY_TOOLBAR_SHOW" link="LwPreferences.html#LW-KEY-TOOLBAR-SHOW:CAPS"/>
+    <keyword type="macro" name="LW_KEY_STATUSBAR_SHOW" link="LwPreferences.html#LW-KEY-STATUSBAR-SHOW:CAPS"/>
+    <keyword type="macro" name="LW_KEY_SPELLCHECK_DICTIONARY" link="LwPreferences.html#LW-KEY-SPELLCHECK-DICTIONARY:CAPS"/>
+    <keyword type="macro" name="LW_KEY_SEARCH_AS_YOU_TYPE" link="LwPreferences.html#LW-KEY-SEARCH-AS-YOU-TYPE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_SPELLCHECK" link="LwPreferences.html#LW-KEY-SPELLCHECK:CAPS"/>
+    <keyword type="macro" name="LW_KEY_FURIGANA_INSENSITIVE" link="LwPreferences.html#LW-KEY-FURIGANA-INSENSITIVE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_CASE_INSENSITIVE" link="LwPreferences.html#LW-KEY-CASE-INSENSITIVE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_STEM_INSENSITIVE" link="LwPreferences.html#LW-KEY-STEM-INSENSITIVE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_ROMAJI_TO_FURIGANA" link="LwPreferences.html#LW-KEY-ROMAJI-TO-FURIGANA:CAPS"/>
+    <keyword type="macro" name="LW_KEY_INDEX_RESULTS" link="LwPreferences.html#LW-KEY-INDEX-RESULTS:CAPS"/>
+    <keyword type="macro" name="LW_KEY_ONTLY_EXACT_MATCHES" link="LwPreferences.html#LW-KEY-ONTLY-EXACT-MATCHES:CAPS"/>
+    <keyword type="macro" name="LW_SCHEMA_FONT" link="LwPreferences.html#LW-SCHEMA-FONT:CAPS"/>
+    <keyword type="macro" name="LW_KEY_FONT_USE_GLOBAL_FONT" link="LwPreferences.html#LW-KEY-FONT-USE-GLOBAL-FONT:CAPS"/>
+    <keyword type="macro" name="LW_KEY_FONT_CUSTOM_FONT" link="LwPreferences.html#LW-KEY-FONT-CUSTOM-FONT:CAPS"/>
+    <keyword type="macro" name="LW_KEY_FONT_MAGNIFICATION" link="LwPreferences.html#LW-KEY-FONT-MAGNIFICATION:CAPS"/>
+    <keyword type="macro" name="LW_SCHEMA_HIGHLIGHT" link="LwPreferences.html#LW-SCHEMA-HIGHLIGHT:CAPS"/>
+    <keyword type="macro" name="LW_KEY_MATCH_FG" link="LwPreferences.html#LW-KEY-MATCH-FG:CAPS"/>
+    <keyword type="macro" name="LW_KEY_MATCH_BG" link="LwPreferences.html#LW-KEY-MATCH-BG:CAPS"/>
+    <keyword type="macro" name="LW_KEY_HEADER_FG" link="LwPreferences.html#LW-KEY-HEADER-FG:CAPS"/>
+    <keyword type="macro" name="LW_KEY_HEADER_BG" link="LwPreferences.html#LW-KEY-HEADER-BG:CAPS"/>
+    <keyword type="macro" name="LW_KEY_COMMENT_FG" link="LwPreferences.html#LW-KEY-COMMENT-FG:CAPS"/>
+    <keyword type="macro" name="LW_MATCH_FG_DEFAULT" link="LwPreferences.html#LW-MATCH-FG-DEFAULT:CAPS"/>
+    <keyword type="macro" name="LW_MATCH_BG_DEFAULT" link="LwPreferences.html#LW-MATCH-BG-DEFAULT:CAPS"/>
+    <keyword type="macro" name="LW_HEADER_FG_DEFAULT" link="LwPreferences.html#LW-HEADER-FG-DEFAULT:CAPS"/>
+    <keyword type="macro" name="LW_HEADER_BG_DEFAULT" link="LwPreferences.html#LW-HEADER-BG-DEFAULT:CAPS"/>
+    <keyword type="macro" name="LW_COMMENT_FG_DEFAULT" link="LwPreferences.html#LW-COMMENT-FG-DEFAULT:CAPS"/>
+    <keyword type="property" name="The “backend” property" link="LwPreferences.html#LwPreferences--backend"/>
+    <keyword type="function" name="lw_progress_new ()" link="LwProgress.html#lw-progress-new"/>
+    <keyword type="function" name="lw_progress_should_abort ()" link="LwProgress.html#lw-progress-should-abort"/>
+    <keyword type="function" name="lw_progress_cancel ()" link="LwProgress.html#lw-progress-cancel"/>
+    <keyword type="function" name="lw_progress_is_cancelled ()" link="LwProgress.html#lw-progress-is-cancelled"/>
+    <keyword type="function" name="lw_progress_set_error ()" link="LwProgress.html#lw-progress-set-error"/>
+    <keyword type="function" name="lw_progress_take_error ()" link="LwProgress.html#lw-progress-take-error"/>
+    <keyword type="function" name="lw_progress_get_error ()" link="LwProgress.html#lw-progress-get-error"/>
+    <keyword type="function" name="lw_progress_errored ()" link="LwProgress.html#lw-progress-errored"/>
+    <keyword type="function" name="lw_progress_set_completed ()" link="LwProgress.html#lw-progress-set-completed"/>
+    <keyword type="function" name="lw_progress_completed ()" link="LwProgress.html#lw-progress-completed"/>
+    <keyword type="function" name="lw_progress_get_current ()" link="LwProgress.html#lw-progress-get-current"/>
+    <keyword type="function" name="lw_progress_set_current ()" link="LwProgress.html#lw-progress-set-current"/>
+    <keyword type="function" name="lw_progress_get_total ()" link="LwProgress.html#lw-progress-get-total"/>
+    <keyword type="function" name="lw_progress_set_total ()" link="LwProgress.html#lw-progress-set-total"/>
+    <keyword type="function" name="lw_progress_get_fraction ()" link="LwProgress.html#lw-progress-get-fraction"/>
+    <keyword type="function" name="lw_progress_set_primary_message ()" link="LwProgress.html#lw-progress-set-primary-message"/>
+    <keyword type="function" name="lw_progress_set_primary_message_printf ()" link="LwProgress.html#lw-progress-set-primary-message-printf"/>
+    <keyword type="function" name="lw_progress_get_primary_message ()" link="LwProgress.html#lw-progress-get-primary-message"/>
+    <keyword type="function" name="lw_progress_set_secondary_message ()" link="LwProgress.html#lw-progress-set-secondary-message"/>
+    <keyword type="function" name="lw_progress_set_secondary_message_printf ()" link="LwProgress.html#lw-progress-set-secondary-message-printf"/>
+    <keyword type="function" name="lw_progress_get_secondary_message ()" link="LwProgress.html#lw-progress-get-secondary-message"/>
+    <keyword type="function" name="lw_progress_set_step_message ()" link="LwProgress.html#lw-progress-set-step-message"/>
+    <keyword type="function" name="lw_progress_set_step_message_printf ()" link="LwProgress.html#lw-progress-set-step-message-printf"/>
+    <keyword type="function" name="lw_progress_get_step_message ()" link="LwProgress.html#lw-progress-get-step-message"/>
+    <keyword type="function" name="lw_progress_get_prefered_chunk_size ()" link="LwProgress.html#lw-progress-get-prefered-chunk-size"/>
+    <keyword type="function" name="lw_progress_set_prefered_chunk_size ()" link="LwProgress.html#lw-progress-set-prefered-chunk-size"/>
+    <keyword type="function" name="lw_progress_get_chunk_size ()" link="LwProgress.html#lw-progress-get-chunk-size"/>
+    <keyword type="function" name="lw_progress_set_chunk_size ()" link="LwProgress.html#lw-progress-set-chunk-size"/>
+    <keyword type="struct" name="LwProgressClassPrivate" link="LwProgress.html#LwProgressClassPrivate"/>
+    <keyword type="property" name="The “cancellable” property" link="LwProgress.html#LwProgress--cancellable"/>
+    <keyword type="property" name="The “cancelled” property" link="LwProgress.html#LwProgress--cancelled"/>
+    <keyword type="property" name="The “chunk-size” property" link="LwProgress.html#LwProgress--chunk-size"/>
+    <keyword type="property" name="The “completed” property" link="LwProgress.html#LwProgress--completed"/>
+    <keyword type="property" name="The “current-progress” property" link="LwProgress.html#LwProgress--current-progress"/>
+    <keyword type="property" name="The “error” property" link="LwProgress.html#LwProgress--error"/>
+    <keyword type="property" name="The “errored” property" link="LwProgress.html#LwProgress--errored"/>
+    <keyword type="property" name="The “prefered-chunk-size” property" link="LwProgress.html#LwProgress--prefered-chunk-size"/>
+    <keyword type="property" name="The “primary-message” property" link="LwProgress.html#LwProgress--primary-message"/>
+    <keyword type="property" name="The “progress-fraction” property" link="LwProgress.html#LwProgress--progress-fraction"/>
+    <keyword type="property" name="The “secondary-message” property" link="LwProgress.html#LwProgress--secondary-message"/>
+    <keyword type="property" name="The “step-message” property" link="LwProgress.html#LwProgress--step-message"/>
+    <keyword type="property" name="The “total-progress” property" link="LwProgress.html#LwProgress--total-progress"/>
+    <keyword type="signal" name="The “progress-changed” signal" link="LwProgress.html#LwProgress-progress-changed"/>
+    <keyword type="function" name="LwQueryNodeWalkFunc ()" link="libwaei-LwQueryNode.html#LwQueryNodeWalkFunc"/>
+    <keyword type="function" name="lw_querynode_error_quark ()" link="libwaei-LwQueryNode.html#lw-querynode-error-quark"/>
+    <keyword type="macro" name="LW_QUERYNODE()" link="libwaei-LwQueryNode.html#LW-QUERYNODE:CAPS"/>
+    <keyword type="function" name="lw_querynode_new_tree_from_string ()" link="libwaei-LwQueryNode.html#lw-querynode-new-tree-from-string"/>
+    <keyword type="function" name="lw_querynode_ref ()" link="libwaei-LwQueryNode.html#lw-querynode-ref"/>
+    <keyword type="function" name="lw_querynode_unref ()" link="libwaei-LwQueryNode.html#lw-querynode-unref"/>
+    <keyword type="function" name="lw_querynode_assert_equals ()" link="libwaei-LwQueryNode.html#lw-querynode-assert-equals"/>
+    <keyword type="function" name="lw_querynode_walk ()" link="libwaei-LwQueryNode.html#lw-querynode-walk"/>
+    <keyword type="function" name="lw_querynode_nnodes ()" link="libwaei-LwQueryNode.html#lw-querynode-nnodes"/>
+    <keyword type="function" name="lw_querynode_compile ()" link="libwaei-LwQueryNode.html#lw-querynode-compile"/>
+    <keyword type="function" name="lw_querynode_match_parsedline ()" link="libwaei-LwQueryNode.html#lw-querynode-match-parsedline"/>
+    <keyword type="enum" name="enum LwQueryNodeOperation" link="libwaei-LwQueryNode.html#LwQueryNodeOperation"/>
+    <keyword type="struct" name="LwQueryNode" link="libwaei-LwQueryNode.html#LwQueryNode"/>
+    <keyword type="macro" name="LW_QUERYNODE_ERROR" link="libwaei-LwQueryNode.html#LW-QUERYNODE-ERROR:CAPS"/>
+    <keyword type="enum" name="enum LwQueryNodeErrorCode" link="libwaei-LwQueryNode.html#LwQueryNodeErrorCode"/>
+    <keyword type="function" name="lw_querynodecolumnmatchinfo_new ()" link="libwaei-LwQueryNodeColumnMatchInfo.html#lw-querynodecolumnmatchinfo-new"/>
+    <keyword type="function" name="lw_querynodecolumnmatchinfo_add ()" link="libwaei-LwQueryNodeColumnMatchInfo.html#lw-querynodecolumnmatchinfo-add"/>
+    <keyword type="function" name="lw_querynodecolumnmatchinfo_ref ()" link="libwaei-LwQueryNodeColumnMatchInfo.html#lw-querynodecolumnmatchinfo-ref"/>
+    <keyword type="function" name="lw_querynodecolumnmatchinfo_unref ()" link="libwaei-LwQueryNodeColumnMatchInfo.html#lw-querynodecolumnmatchinfo-unref"/>
+    <keyword type="function" name="lw_querynodecolumnmatchinfo_get_column ()" link="libwaei-LwQueryNodeColumnMatchInfo.html#lw-querynodecolumnmatchinfo-get-column"/>
+    <keyword type="function" name="lw_querynodecolumnmatchinfo_read ()" link="libwaei-LwQueryNodeColumnMatchInfo.html#lw-querynodecolumnmatchinfo-read"/>
+    <keyword type="struct" name="LwQueryNodeColumnMatchInfoIter" link="libwaei-LwQueryNodeColumnMatchInfo.html#LwQueryNodeColumnMatchInfoIter"/>
+    <keyword type="struct" name="LwQueryNodeColumnMatchInfo" link="libwaei-LwQueryNodeColumnMatchInfo.html#LwQueryNodeColumnMatchInfo"/>
+    <keyword type="macro" name="LW_QUERYNODEMATCHINFO()" link="libwaei-LwQueryNodeMatchInfo.html#LW-QUERYNODEMATCHINFO:CAPS"/>
+    <keyword type="function" name="lw_querynodematchinfo_new ()" link="libwaei-LwQueryNodeMatchInfo.html#lw-querynodematchinfo-new"/>
+    <keyword type="function" name="lw_querynodematchinfo_unref ()" link="libwaei-LwQueryNodeMatchInfo.html#lw-querynodematchinfo-unref"/>
+    <keyword type="function" name="lw_querynodematchinfo_ref ()" link="libwaei-LwQueryNodeMatchInfo.html#lw-querynodematchinfo-ref"/>
+    <keyword type="function" name="lw_querynodematchinfo_set_column ()" link="libwaei-LwQueryNodeMatchInfo.html#lw-querynodematchinfo-set-column"/>
+    <keyword type="function" name="lw_querynodematchinfo_get_column ()" link="libwaei-LwQueryNodeMatchInfo.html#lw-querynodematchinfo-get-column"/>
+    <keyword type="struct" name="LwQueryNodeMatchInfo" link="libwaei-LwQueryNodeMatchInfo.html#LwQueryNodeMatchInfo"/>
+    <keyword type="macro" name="LW_QUERYNODEMATCHMARKER()" link="libwaei-LwQueryNodeMatchMarker.html#LW-QUERYNODEMATCHMARKER:CAPS"/>
+    <keyword type="function" name="lw_querynodematchmarker_new ()" link="libwaei-LwQueryNodeMatchMarker.html#lw-querynodematchmarker-new"/>
+    <keyword type="function" name="lw_querynodematchmarker_unref ()" link="libwaei-LwQueryNodeMatchMarker.html#lw-querynodematchmarker-unref"/>
+    <keyword type="function" name="lw_querynodematchmarker_ref ()" link="libwaei-LwQueryNodeMatchMarker.html#lw-querynodematchmarker-ref"/>
+    <keyword type="function" name="lw_querynodematchmarker_get_position ()" link="libwaei-LwQueryNodeMatchMarker.html#lw-querynodematchmarker-get-position"/>
+    <keyword type="function" name="lw_querynodematchmarker_get_regex ()" link="libwaei-LwQueryNodeMatchMarker.html#lw-querynodematchmarker-get-regex"/>
+    <keyword type="function" name="lw_querynodematchmarker_get_string ()" link="libwaei-LwQueryNodeMatchMarker.html#lw-querynodematchmarker-get-string"/>
+    <keyword type="enum" name="enum LwQueryNodeMatchMarkerType" link="libwaei-LwQueryNodeMatchMarker.html#LwQueryNodeMatchMarkerType"/>
+    <keyword type="struct" name="LwQueryNodeMatchMarker" link="libwaei-LwQueryNodeMatchMarker.html#LwQueryNodeMatchMarker"/>
+    <keyword type="function" name="lw_range_new_from_pattern ()" link="libwaei-range.html#lw-range-new-from-pattern"/>
+    <keyword type="function" name="lw_range_free ()" link="libwaei-range.html#lw-range-free"/>
+    <keyword type="function" name="lw_range_pattern_is_valid ()" link="libwaei-range.html#lw-range-pattern-is-valid"/>
+    <keyword type="function" name="lw_range_string_is_in_range ()" link="libwaei-range.html#lw-range-string-is-in-range"/>
+    <keyword type="function" name="lw_range_int_is_in_range ()" link="libwaei-range.html#lw-range-int-is-in-range"/>
+    <keyword type="struct" name="LwRange" link="libwaei-range.html#LwRange"/>
+    <keyword type="struct" name="Row" link="libwaei-row.html#Row"/>
+    <keyword type="function" name="lw_search_new ()" link="LwSearch.html#lw-search-new"/>
+    <keyword type="function" name="lw_search_new_by_preferences ()" link="LwSearch.html#lw-search-new-by-preferences"/>
+    <keyword type="function" name="lw_search_start ()" link="LwSearch.html#lw-search-start"/>
+    <keyword type="function" name="lw_search_start_async ()" link="LwSearch.html#lw-search-start-async"/>
+    <keyword type="function" name="lw_search_set_dictionary ()" link="LwSearch.html#lw-search-set-dictionary"/>
+    <keyword type="function" name="lw_search_get_dictionary ()" link="LwSearch.html#lw-search-get-dictionary"/>
+    <keyword type="function" name="lw_search_set_query ()" link="LwSearch.html#lw-search-set-query"/>
+    <keyword type="function" name="lw_search_get_query ()" link="LwSearch.html#lw-search-get-query"/>
+    <keyword type="function" name="lw_search_set_max_results ()" link="LwSearch.html#lw-search-set-max-results"/>
+    <keyword type="function" name="lw_search_get_max_results ()" link="LwSearch.html#lw-search-get-max-results"/>
+    <keyword type="function" name="lw_search_set_status ()" link="LwSearch.html#lw-search-set-status"/>
+    <keyword type="function" name="lw_search_get_status ()" link="LwSearch.html#lw-search-get-status"/>
+    <keyword type="function" name="lw_search_set_progress ()" link="LwSearch.html#lw-search-set-progress"/>
+    <keyword type="function" name="lw_search_get_progress ()" link="LwSearch.html#lw-search-get-progress"/>
+    <keyword type="function" name="lw_search_get_flags ()" link="LwSearch.html#lw-search-get-flags"/>
+    <keyword type="function" name="lw_search_set_flags ()" link="LwSearch.html#lw-search-set-flags"/>
+    <keyword type="function" name="lw_search_build_flags_from_preferences ()" link="LwSearch.html#lw-search-build-flags-from-preferences"/>
+    <keyword type="function" name="lw_search_build_utf8flags ()" link="LwSearch.html#lw-search-build-utf8flags"/>
+    <keyword type="function" name="lw_search_get_parsed ()" link="LwSearch.html#lw-search-get-parsed"/>
+    <keyword type="macro" name="LW_SEARCH_DEFAULT_MAX_CHUNK" link="LwSearch.html#LW-SEARCH-DEFAULT-MAX-CHUNK:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHSTATUSNAME_UNSTARTED" link="LwSearch.html#LW-SEARCHSTATUSNAME-UNSTARTED:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHSTATUSNAME_SEARCHING" link="LwSearch.html#LW-SEARCHSTATUSNAME-SEARCHING:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHSTATUSNAME_CANCELING" link="LwSearch.html#LW-SEARCHSTATUSNAME-CANCELING:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHSTATUSNAME_FINISHED" link="LwSearch.html#LW-SEARCHSTATUSNAME-FINISHED:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHSTATUSNICK_UNSTARTED" link="LwSearch.html#LW-SEARCHSTATUSNICK-UNSTARTED:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHSTATUSNICK_SEARCHING" link="LwSearch.html#LW-SEARCHSTATUSNICK-SEARCHING:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHSTATUSNICK_CANCELING" link="LwSearch.html#LW-SEARCHSTATUSNICK-CANCELING:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHSTATUSNICK_FINISHED" link="LwSearch.html#LW-SEARCHSTATUSNICK-FINISHED:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNAME_RAW" link="LwSearch.html#LW-SEARCHFLAGNAME-RAW:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE" link="LwSearch.html#LW-SEARCHFLAGNAME-FURIGANA-INSENSITIVE:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNAME_CASE_INSENSITIVE" link="LwSearch.html#LW-SEARCHFLAGNAME-CASE-INSENSITIVE:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNAME_STEM_INSENSITIVE" link="LwSearch.html#LW-SEARCHFLAGNAME-STEM-INSENSITIVE:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA" link="LwSearch.html#LW-SEARCHFLAGNAME-ROMAJI-TO-FURIGANA:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNAME_USE_INDEX" link="LwSearch.html#LW-SEARCHFLAGNAME-USE-INDEX:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNAME_INSENSITIVE" link="LwSearch.html#LW-SEARCHFLAGNAME-INSENSITIVE:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNICK_RAW" link="LwSearch.html#LW-SEARCHFLAGNICK-RAW:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNICK_FURIGANA_INSENSITIVE" link="LwSearch.html#LW-SEARCHFLAGNICK-FURIGANA-INSENSITIVE:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNICK_CASE_INSENSITIVE" link="LwSearch.html#LW-SEARCHFLAGNICK-CASE-INSENSITIVE:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNICK_STEM_INSENSITIVE" link="LwSearch.html#LW-SEARCHFLAGNICK-STEM-INSENSITIVE:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNICK_ROMAJI_TO_FURIGANA" link="LwSearch.html#LW-SEARCHFLAGNICK-ROMAJI-TO-FURIGANA:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNICK_USE_INDEX" link="LwSearch.html#LW-SEARCHFLAGNICK-USE-INDEX:CAPS"/>
+    <keyword type="macro" name="LW_SEARCHFLAGNICK_INSENSITIVE" link="LwSearch.html#LW-SEARCHFLAGNICK-INSENSITIVE:CAPS"/>
+    <keyword type="struct" name="LwSearchClassPrivate" link="LwSearch.html#LwSearchClassPrivate"/>
+    <keyword type="property" name="The “Flags” property" link="LwSearch.html#LwSearch--Flags"/>
+    <keyword type="property" name="The “dictionary” property" link="LwSearch.html#LwSearch--dictionary"/>
+    <keyword type="property" name="The “max-results” property" link="LwSearch.html#LwSearch--max-results"/>
+    <keyword type="property" name="The “progress” property" link="LwSearch.html#LwSearch--progress"/>
+    <keyword type="property" name="The “query” property" link="LwSearch.html#LwSearch--query"/>
+    <keyword type="signal" name="The “internal-row-changed” signal" link="LwSearch.html#LwSearch-internal-row-changed"/>
+    <keyword type="signal" name="The “internal-row-deleted” signal" link="LwSearch.html#LwSearch-internal-row-deleted"/>
+    <keyword type="signal" name="The “internal-row-inserted” signal" link="LwSearch.html#LwSearch-internal-row-inserted"/>
+    <keyword type="signal" name="The “internal-rows-reordered” signal" link="LwSearch.html#LwSearch-internal-rows-reordered"/>
+    <keyword type="function" name="lw_searchsubcommand_new ()" link="LwSearchSubCommand.html#lw-searchsubcommand-new"/>
+    <keyword type="struct" name="LwSearchSubCommandClassPrivate" link="LwSearchSubCommand.html#LwSearchSubCommandClassPrivate"/>
+    <keyword type="function" name="lw_serializable_get_serialized_length ()" link="LwSerializable.html#lw-serializable-get-serialized-length"/>
+    <keyword type="function" name="lw_serializable_serialize ()" link="LwSerializable.html#lw-serializable-serialize"/>
+    <keyword type="function" name="lw_serializable_serialize_to_cachefile ()" link="LwSerializable.html#lw-serializable-serialize-to-cachefile"/>
+    <keyword type="function" name="lw_serializable_deserialize_into ()" link="LwSerializable.html#lw-serializable-deserialize-into"/>
+    <keyword type="function" name="lw_serializable_deserialize_from_cachefile_into ()" link="LwSerializable.html#lw-serializable-deserialize-from-cachefile-into"/>
+    <keyword type="function" name="LwSubCommandRunFunc ()" link="LwSubCommand.html#LwSubCommandRunFunc"/>
+    <keyword type="function" name="lw_subcommand_run ()" link="LwSubCommand.html#lw-subcommand-run"/>
+    <keyword type="function" name="lw_subcommand_build_option_group ()" link="LwSubCommand.html#lw-subcommand-build-option-group"/>
+    <keyword type="function" name="lw_subcommand_get_option_entries ()" link="LwSubCommand.html#lw-subcommand-get-option-entries"/>
+    <keyword type="function" name="lw_subcommand_set_option_entries ()" link="LwSubCommand.html#lw-subcommand-set-option-entries"/>
+    <keyword type="function" name="lw_subcommand_get_name ()" link="LwSubCommand.html#lw-subcommand-get-name"/>
+    <keyword type="struct" name="LwSubCommandClassPrivate" link="LwSubCommand.html#LwSubCommandClassPrivate"/>
+    <keyword type="function" name="lw_uninstallsubcommand_new ()" link="LwUninstallSubCommand.html#lw-uninstallsubcommand-new"/>
+    <keyword type="struct" name="LwUninstallSubCommandClassPrivate" link="LwUninstallSubCommand.html#LwUninstallSubCommandClassPrivate"/>
+    <keyword type="function" name="lw_utf8_error_quark ()" link="libwaei-UTF-8.html#lw-utf8-error-quark"/>
+    <keyword type="function" name="LwUtf8ChunkHandler ()" link="libwaei-UTF-8.html#LwUtf8ChunkHandler"/>
+    <keyword type="function" name="lw_utf8flag_clean ()" link="libwaei-UTF-8.html#lw-utf8flag-clean"/>
+    <keyword type="function" name="lw_utf8_set_null_next_char ()" link="libwaei-UTF-8.html#lw-utf8-set-null-next-char"/>
+    <keyword type="function" name="lw_utf8_get_numbers ()" link="libwaei-UTF-8.html#lw-utf8-get-numbers"/>
+    <keyword type="function" name="lw_utf8_replace_linebreaks_with_nullcharacter ()" link="libwaei-UTF-8.html#lw-utf8-replace-linebreaks-with-nullcharacter"/>
+    <keyword type="function" name="lw_utf8_sanitize ()" link="libwaei-UTF-8.html#lw-utf8-sanitize"/>
+    <keyword type="function" name="lw_utf8_convert_printf_pattern_to_regex_pattern ()" link="libwaei-UTF-8.html#lw-utf8-convert-printf-pattern-to-regex-pattern"/>
+    <keyword type="function" name="lw_utf8_furiganafold ()" link="libwaei-UTF-8.html#lw-utf8-furiganafold"/>
+    <keyword type="function" name="lw_utf8_casefold ()" link="libwaei-UTF-8.html#lw-utf8-casefold"/>
+    <keyword type="function" name="lw_utf8_validate ()" link="libwaei-UTF-8.html#lw-utf8-validate"/>
+    <keyword type="function" name="lw_utf8_normalize ()" link="libwaei-UTF-8.html#lw-utf8-normalize"/>
+    <keyword type="function" name="lw_utf8_normalize_chunked ()" link="libwaei-UTF-8.html#lw-utf8-normalize-chunked"/>
+    <keyword type="function" name="lw_utf8_isescaped ()" link="libwaei-UTF-8.html#lw-utf8-isescaped"/>
+    <keyword type="function" name="lw_utf8_contains_kanji ()" link="libwaei-UTF-8.html#lw-utf8-contains-kanji"/>
+    <keyword type="function" name="lw_utf8_contains_furigana ()" link="libwaei-UTF-8.html#lw-utf8-contains-furigana"/>
+    <keyword type="function" name="lw_utf8_contains_romaji ()" link="libwaei-UTF-8.html#lw-utf8-contains-romaji"/>
+    <keyword type="function" name="lw_utf8_contains_number ()" link="libwaei-UTF-8.html#lw-utf8-contains-number"/>
+    <keyword type="macro" name="LW_UTF8_ERROR" link="libwaei-UTF-8.html#LW-UTF8-ERROR:CAPS"/>
+    <keyword type="enum" name="enum LwUtf8ErrorCode" link="libwaei-UTF-8.html#LwUtf8ErrorCode"/>
+    <keyword type="macro" name="LW_UTF8FLAGNAME_NONE" link="libwaei-UTF-8.html#LW-UTF8FLAGNAME-NONE:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNAME_PRINTABLE" link="libwaei-UTF-8.html#LW-UTF8FLAGNAME-PRINTABLE:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNAME_COMPARABLE" link="libwaei-UTF-8.html#LW-UTF8FLAGNAME-COMPARABLE:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNAME_CASEFOLD" link="libwaei-UTF-8.html#LW-UTF8FLAGNAME-CASEFOLD:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNAME_FURIGANAFOLD" link="libwaei-UTF-8.html#LW-UTF8FLAGNAME-FURIGANAFOLD:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNAME_ALL" link="libwaei-UTF-8.html#LW-UTF8FLAGNAME-ALL:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNICK_NONE" link="libwaei-UTF-8.html#LW-UTF8FLAGNICK-NONE:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNICK_PRINTABLE" link="libwaei-UTF-8.html#LW-UTF8FLAGNICK-PRINTABLE:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNICK_COMPARABLE" link="libwaei-UTF-8.html#LW-UTF8FLAGNICK-COMPARABLE:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNICK_CASEFOLD" link="libwaei-UTF-8.html#LW-UTF8FLAGNICK-CASEFOLD:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNICK_FURIGANAFOLD" link="libwaei-UTF-8.html#LW-UTF8FLAGNICK-FURIGANAFOLD:CAPS"/>
+    <keyword type="macro" name="LW_UTF8FLAGNICK_ALL" link="libwaei-UTF-8.html#LW-UTF8FLAGNICK-ALL:CAPS"/>
+    <keyword type="enum" name="enum LwUtf8Flag" link="libwaei-UTF-8.html#LwUtf8Flag"/>
+    <keyword type="function" name="lw_vocabulary_new ()" link="LwVocabulary.html#lw-vocabulary-new"/>
+    <keyword type="function" name="lw_vocabulary_get_filenames ()" link="LwVocabulary.html#lw-vocabulary-get-filenames"/>
+    <keyword type="function" name="lw_vocabulary_set_changed ()" link="LwVocabulary.html#lw-vocabulary-set-changed"/>
+    <keyword type="function" name="lw_vocabulary_has_changes ()" link="LwVocabulary.html#lw-vocabulary-has-changes"/>
+    <keyword type="function" name="lw_vocabulary_set_filename ()" link="LwVocabulary.html#lw-vocabulary-set-filename"/>
+    <keyword type="function" name="lw_vocabulary_get_filename ()" link="LwVocabulary.html#lw-vocabulary-get-filename"/>
+    <keyword type="function" name="lw_vocabulary_set_loaded ()" link="LwVocabulary.html#lw-vocabulary-set-loaded"/>
+    <keyword type="function" name="lw_vocabulary_is_loaded ()" link="LwVocabulary.html#lw-vocabulary-is-loaded"/>
+    <keyword type="function" name="lw_vocabulary_get_word_by_index ()" link="LwVocabulary.html#lw-vocabulary-get-word-by-index"/>
+    <keyword type="function" name="lw_vocabulary_get_indices ()" link="LwVocabulary.html#lw-vocabulary-get-indices"/>
+    <keyword type="function" name="lw_vocabulary_load ()" link="LwVocabulary.html#lw-vocabulary-load"/>
+    <keyword type="function" name="lw_vocabulary_save ()" link="LwVocabulary.html#lw-vocabulary-save"/>
+    <keyword type="function" name="lw_vocabulary_length ()" link="LwVocabulary.html#lw-vocabulary-length"/>
+    <keyword type="function" name="lw_vocabulary_generate_new_filename ()" link="LwVocabulary.html#lw-vocabulary-generate-new-filename"/>
+    <keyword type="function" name="lw_vocabulary_generate_copied_filename ()" link="LwVocabulary.html#lw-vocabulary-generate-copied-filename"/>
+    <keyword type="function" name="lw_vocabulary_has_file ()" link="LwVocabulary.html#lw-vocabulary-has-file"/>
+    <keyword type="function" name="lw_vocabulary_filename_exists ()" link="LwVocabulary.html#lw-vocabulary-filename-exists"/>
+    <keyword type="function" name="lw_vocabulary_build_uri ()" link="LwVocabulary.html#lw-vocabulary-build-uri"/>
+    <keyword type="function" name="lw_vocabulary_insert ()" link="LwVocabulary.html#lw-vocabulary-insert"/>
+    <keyword type="function" name="lw_vocabulary_remove ()" link="LwVocabulary.html#lw-vocabulary-remove"/>
+    <keyword type="function" name="lw_vocabulary_remove_words ()" link="LwVocabulary.html#lw-vocabulary-remove-words"/>
+    <keyword type="function" name="lw_vocabulary_nth ()" link="LwVocabulary.html#lw-vocabulary-nth"/>
+    <keyword type="function" name="lw_vocabulary_to_string ()" link="LwVocabulary.html#lw-vocabulary-to-string"/>
+    <keyword type="function" name="lw_vocabulary_load_from_string ()" link="LwVocabulary.html#lw-vocabulary-load-from-string"/>
+    <keyword type="function" name="lw_vocabulary_set ()" link="LwVocabulary.html#lw-vocabulary-set"/>
+    <keyword type="function" name="lw_vocabulary_set_valist ()" link="LwVocabulary.html#lw-vocabulary-set-valist"/>
+    <keyword type="function" name="lw_vocabulary_sort ()" link="LwVocabulary.html#lw-vocabulary-sort"/>
+    <keyword type="macro" name="LW_KEY_TRIM_FLASHCARDS" link="LwVocabulary.html#LW-KEY-TRIM-FLASHCARDS:CAPS"/>
+    <keyword type="macro" name="LW_KEY_SHUFFLE_FLASHCARDS" link="LwVocabulary.html#LW-KEY-SHUFFLE-FLASHCARDS:CAPS"/>
+    <keyword type="macro" name="LW_KEY_FLASHCARD_DECK_SIZE" link="LwVocabulary.html#LW-KEY-FLASHCARD-DECK-SIZE:CAPS"/>
+    <keyword type="macro" name="LW_KEY_TRACK_RESULTS" link="LwVocabulary.html#LW-KEY-TRACK-RESULTS:CAPS"/>
+    <keyword type="macro" name="LW_KEY_ORDER" link="LwVocabulary.html#LW-KEY-ORDER:CAPS"/>
+    <keyword type="macro" name="LW_KEY_POSITION_COLUMN_SHOW" link="LwVocabulary.html#LW-KEY-POSITION-COLUMN-SHOW:CAPS"/>
+    <keyword type="macro" name="LW_KEY_SCORE_COLUMN_SHOW" link="LwVocabulary.html#LW-KEY-SCORE-COLUMN-SHOW:CAPS"/>
+    <keyword type="macro" name="LW_KEY_TIMESTAMP_COLUMN_SHOW" link="LwVocabulary.html#LW-KEY-TIMESTAMP-COLUMN-SHOW:CAPS"/>
+    <keyword type="struct" name="LwVocabularyClassPrivate" link="LwVocabulary.html#LwVocabularyClassPrivate"/>
+    <keyword type="property" name="The “changed” property" link="LwVocabulary.html#LwVocabulary--changed"/>
+    <keyword type="property" name="The “filename” property" link="LwVocabulary.html#LwVocabulary--filename"/>
+    <keyword type="property" name="The “loaded” property" link="LwVocabulary.html#LwVocabulary--loaded"/>
+    <keyword type="signal" name="The “filename-changed” signal" link="LwVocabulary.html#LwVocabulary-filename-changed"/>
+    <keyword type="signal" name="The “internal-row-changed” signal" link="LwVocabulary.html#LwVocabulary-internal-row-changed"/>
+    <keyword type="signal" name="The “internal-row-deleted” signal" link="LwVocabulary.html#LwVocabulary-internal-row-deleted"/>
+    <keyword type="signal" name="The “internal-row-inserted” signal" link="LwVocabulary.html#LwVocabulary-internal-row-inserted"/>
+    <keyword type="signal" name="The “internal-rows-reordered” signal" link="LwVocabulary.html#LwVocabulary-internal-rows-reordered"/>
+    <keyword type="function" name="lw_word_new ()" link="libwaei-word.html#lw-word-new"/>
+    <keyword type="function" name="lw_word_new_from_string ()" link="libwaei-word.html#lw-word-new-from-string"/>
+    <keyword type="function" name="lw_word_free ()" link="libwaei-word.html#lw-word-free"/>
+    <keyword type="function" name="lw_word_set_kanji ()" link="libwaei-word.html#lw-word-set-kanji"/>
+    <keyword type="function" name="lw_word_get_kanji ()" link="libwaei-word.html#lw-word-get-kanji"/>
+    <keyword type="function" name="lw_word_set_reading ()" link="libwaei-word.html#lw-word-set-reading"/>
+    <keyword type="function" name="lw_word_get_reading ()" link="libwaei-word.html#lw-word-get-reading"/>
+    <keyword type="function" name="lw_word_set_definition ()" link="libwaei-word.html#lw-word-set-definition"/>
+    <keyword type="function" name="lw_word_get_definition ()" link="libwaei-word.html#lw-word-get-definition"/>
+    <keyword type="function" name="lw_word_get_correct_guesses ()" link="libwaei-word.html#lw-word-get-correct-guesses"/>
+    <keyword type="function" name="lw_word_set_correct_guesses ()" link="libwaei-word.html#lw-word-set-correct-guesses"/>
+    <keyword type="function" name="lw_word_get_incorrect_guesses ()" link="libwaei-word.html#lw-word-get-incorrect-guesses"/>
+    <keyword type="function" name="lw_word_set_incorrect_guesses ()" link="libwaei-word.html#lw-word-set-incorrect-guesses"/>
+    <keyword type="function" name="lw_word_get_score ()" link="libwaei-word.html#lw-word-get-score"/>
+    <keyword type="function" name="lw_word_get_score_as_string ()" link="libwaei-word.html#lw-word-get-score-as-string"/>
+    <keyword type="function" name="lw_word_timestamp_to_hours ()" link="libwaei-word.html#lw-word-timestamp-to-hours"/>
+    <keyword type="function" name="lw_word_set_timestamp ()" link="libwaei-word.html#lw-word-set-timestamp"/>
+    <keyword type="function" name="lw_word_update_timestamp ()" link="libwaei-word.html#lw-word-update-timestamp"/>
+    <keyword type="function" name="lw_word_set_last_studied ()" link="libwaei-word.html#lw-word-set-last-studied"/>
+    <keyword type="function" name="lw_word_get_last_studied ()" link="libwaei-word.html#lw-word-get-last-studied"/>
+    <keyword type="function" name="lw_word_get_last_studied_as_string ()" link="libwaei-word.html#lw-word-get-last-studied-as-string"/>
+    <keyword type="function" name="lw_word_to_string ()" link="libwaei-word.html#lw-word-to-string"/>
+    <keyword type="function" name="lw_word_get_timestamp ()" link="libwaei-word.html#lw-word-get-timestamp"/>
+    <keyword type="function" name="lw_word_get_timestamp_as_string ()" link="libwaei-word.html#lw-word-get-timestamp-as-string"/>
+    <keyword type="function" name="lw_word_has_changes ()" link="libwaei-word.html#lw-word-has-changes"/>
+    <keyword type="function" name="lw_word_copy ()" link="libwaei-word.html#lw-word-copy"/>
+    <keyword type="macro" name="LW_WORDFIELDNAME_KANJI" link="libwaei-word.html#LW-WORDFIELDNAME-KANJI:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNAME_READING" link="libwaei-word.html#LW-WORDFIELDNAME-READING:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNAME_DEFINITION" link="libwaei-word.html#LW-WORDFIELDNAME-DEFINITION:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNAME_CORRECT_GUESSES" link="libwaei-word.html#LW-WORDFIELDNAME-CORRECT-GUESSES:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNAME_INCORRECT_GUESSES" link="libwaei-word.html#LW-WORDFIELDNAME-INCORRECT-GUESSES:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNAME_TIMESTAMP" link="libwaei-word.html#LW-WORDFIELDNAME-TIMESTAMP:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNICK_KANJI" link="libwaei-word.html#LW-WORDFIELDNICK-KANJI:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNICK_READING" link="libwaei-word.html#LW-WORDFIELDNICK-READING:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNICK_DEFINITION" link="libwaei-word.html#LW-WORDFIELDNICK-DEFINITION:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNICK_CORRECT_GUESSES" link="libwaei-word.html#LW-WORDFIELDNICK-CORRECT-GUESSES:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNICK_INCORRECT_GUESSES" link="libwaei-word.html#LW-WORDFIELDNICK-INCORRECT-GUESSES:CAPS"/>
+    <keyword type="macro" name="LW_WORDFIELDNICK_TIMESTAMP" link="libwaei-word.html#LW-WORDFIELDNICK-TIMESTAMP:CAPS"/>
+    <keyword type="constant" name="LW_CACHEFILE_ERRORCODE_INVALID_CHECKSUM" link="LwCacheFile.html#LW-CACHEFILE-ERRORCODE-INVALID-CHECKSUM:CAPS"/>
+    <keyword type="constant" name="LW_CACHEFILE_ERRORCODE_CORRUPT_CONTENTS" link="LwCacheFile.html#LW-CACHEFILE-ERRORCODE-CORRUPT-CONTENTS:CAPS"/>
+    <keyword type="constant" name="LW_DICTIONARYCACHE_ERRORCODE_CORRUPT_CONTENTS" link="LwDictionaryCache.html#LW-DICTIONARYCACHE-ERRORCODE-CORRUPT-CONTENTS:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_TABLE_RAW" link="libwaei-index.html#LW-INDEX-TABLE-RAW:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_TABLE_NORMALIZED" link="libwaei-index.html#LW-INDEX-TABLE-NORMALIZED:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_TABLE_STEM" link="libwaei-index.html#LW-INDEX-TABLE-STEM:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_TABLE_CANONICAL" link="libwaei-index.html#LW-INDEX-TABLE-CANONICAL:CAPS"/>
+    <keyword type="constant" name="TOTAL_LW_INDEX_TABLES" link="libwaei-index.html#TOTAL-LW-INDEX-TABLES:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_TABLE_INVALID" link="libwaei-index.html#LW-INDEX-TABLE-INVALID:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_FLAG_RAW" link="libwaei-index.html#LW-INDEX-FLAG-RAW:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_FLAG_CASE_INSENSITIVE" link="libwaei-index.html#LW-INDEX-FLAG-CASE-INSENSITIVE:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_FLAG_FURIGANA_INSENSITIVE" link="libwaei-index.html#LW-INDEX-FLAG-FURIGANA-INSENSITIVE:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_FLAG_STEM_INSENSITIVE" link="libwaei-index.html#LW-INDEX-FLAG-STEM-INSENSITIVE:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_FLAG_POPULAR_ONLY" link="libwaei-index.html#LW-INDEX-FLAG-POPULAR-ONLY:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_FLAG_NORMALIZED" link="libwaei-index.html#LW-INDEX-FLAG-NORMALIZED:CAPS"/>
+    <keyword type="constant" name="LW_INDEX_FLAG_CANONICAL" link="libwaei-index.html#LW-INDEX-FLAG-CANONICAL:CAPS"/>
+    <keyword type="constant" name="LW_IO_ERRORCODE_WRITE_ERROR" link="libwaei-IO-Utility-Methods.html#LW-IO-ERRORCODE-WRITE-ERROR:CAPS"/>
+    <keyword type="constant" name="LW_IO_ERRORCODE_CORRUPT_ARCHIVE" link="libwaei-IO-Utility-Methods.html#LW-IO-ERRORCODE-CORRUPT-ARCHIVE:CAPS"/>
+    <keyword type="constant" name="LW_IO_ERRORCODE_TEXT_ENCODING_CONVERSION_ERROR" link="libwaei-IO-Utility-Methods.html#LW-IO-ERRORCODE-TEXT-ENCODING-CONVERSION-ERROR:CAPS"/>
+    <keyword type="constant" name="LW_IO_ERRORCODE_DOWNLOAD_ERROR" link="libwaei-IO-Utility-Methods.html#LW-IO-ERRORCODE-DOWNLOAD-ERROR:CAPS"/>
+    <keyword type="constant" name="LW_IO_ERRORCODE_FAILED_REMOVING_FILE" link="libwaei-IO-Utility-Methods.html#LW-IO-ERRORCODE-FAILED-REMOVING-FILE:CAPS"/>
+    <keyword type="constant" name="LW_PARENTHESISNODE_UNMATCHED_START_PARENTHESIS_ERROR" link="libwaei-LwParenthesisNode.html#LW-PARENTHESISNODE-UNMATCHED-START-PARENTHESIS-ERROR:CAPS"/>
+    <keyword type="constant" name="LW_PARENTHESISNODE_UNMATCHED_END_PARENTHESIS_ERROR" link="libwaei-LwParenthesisNode.html#LW-PARENTHESISNODE-UNMATCHED-END-PARENTHESIS-ERROR:CAPS"/>
+    <keyword type="constant" name="LW_PARSED_ERRORCODE_DESERIALIZATION_ERROR" link="LwParsed.html#LW-PARSED-ERRORCODE-DESERIALIZATION-ERROR:CAPS"/>
+    <keyword type="constant" name="TOTAL_LW_PARSED_ERRORCODES" link="LwParsed.html#TOTAL-LW-PARSED-ERRORCODES:CAPS"/>
+    <keyword type="constant" name="LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR" link="libwaei-LwParsedLine.html#LW-PARSEDLINE-ERRORCODE-DESERIALIZATION-ERROR:CAPS"/>
+    <keyword type="constant" name="LW_QUERYNODE_OPERATION_NONE" link="libwaei-LwQueryNode.html#LW-QUERYNODE-OPERATION-NONE:CAPS"/>
+    <keyword type="constant" name="LW_QUERYNODE_OPERATION_OR" link="libwaei-LwQueryNode.html#LW-QUERYNODE-OPERATION-OR:CAPS"/>
+    <keyword type="constant" name="LW_QUERYNODE_OPERATION_AND" link="libwaei-LwQueryNode.html#LW-QUERYNODE-OPERATION-AND:CAPS"/>
+    <keyword type="constant" name="TOTAL_LW_QUERYNODE_OPERATIONS" link="libwaei-LwQueryNode.html#TOTAL-LW-QUERYNODE-OPERATIONS:CAPS"/>
+    <keyword type="constant" name="LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR" link="libwaei-LwQueryNode.html#LW-QUERYNODE-HANGING-START-LOGICAL-CONNECTOR:CAPS"/>
+    <keyword type="constant" name="LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR" link="libwaei-LwQueryNode.html#LW-QUERYNODE-HANGING-END-LOGICAL-CONNECTOR:CAPS"/>
+    <keyword type="constant" name="LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE" link="libwaei-LwQueryNode.html#LW-QUERYNODE-ERROR-MISSING-VALUE-FOR-KEYED-QUERYNODE:CAPS"/>
+    <keyword type="constant" name="LW_QUERYNODE_ERROR_MISSING_KEY_AND_VALUE_FOR_KEYED_QUERYNODE" link="libwaei-LwQueryNode.html#LW-QUERYNODE-ERROR-MISSING-KEY-AND-VALUE-FOR-KEYED-QUERYNODE:CAPS"/>
+    <keyword type="constant" name="LW_QUERYNODEMATCHMARKERTYPE_OPEN" link="libwaei-LwQueryNodeMatchMarker.html#LW-QUERYNODEMATCHMARKERTYPE-OPEN:CAPS"/>
+    <keyword type="constant" name="LW_QUERYNODEMATCHMARKERTYPE_CLOSE" link="libwaei-LwQueryNodeMatchMarker.html#LW-QUERYNODEMATCHMARKERTYPE-CLOSE:CAPS"/>
+    <keyword type="constant" name="LW_UTF8_ERRORCODE_VALIDATION_ERROR" link="libwaei-UTF-8.html#LW-UTF8-ERRORCODE-VALIDATION-ERROR:CAPS"/>
+    <keyword type="constant" name="LW_UTF8_ERRORCODE_NORMALIZATION_ERROR" link="libwaei-UTF-8.html#LW-UTF8-ERRORCODE-NORMALIZATION-ERROR:CAPS"/>
+    <keyword type="constant" name="LW_UTF8FLAG_NONE" link="libwaei-UTF-8.html#LW-UTF8FLAG-NONE:CAPS"/>
+    <keyword type="constant" name="LW_UTF8FLAG_PRINTABLE" link="libwaei-UTF-8.html#LW-UTF8FLAG-PRINTABLE:CAPS"/>
+    <keyword type="constant" name="LW_UTF8FLAG_COMPARABLE" link="libwaei-UTF-8.html#LW-UTF8FLAG-COMPARABLE:CAPS"/>
+    <keyword type="constant" name="LW_UTF8FLAG_CASEFOLD" link="libwaei-UTF-8.html#LW-UTF8FLAG-CASEFOLD:CAPS"/>
+    <keyword type="constant" name="LW_UTF8FLAG_FURIGANAFOLD" link="libwaei-UTF-8.html#LW-UTF8FLAG-FURIGANAFOLD:CAPS"/>
+    <keyword type="constant" name="LW_UTF8FLAG_ALL" link="libwaei-UTF-8.html#LW-UTF8FLAG-ALL:CAPS"/>
+  </functions>
+</book>

@@ -1,0 +1,885 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwSearch: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="libwaei-row.html" title="row">
+<link rel="next" href="LwSearchSubCommand.html" title="LwSearchSubCommand">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#LwSearch.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#LwSearch.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#LwSearch.properties" class="shortcut">Properties</a></span><span id="nav_signals">  <span class="dim">|</span> 
+                  <a href="#LwSearch.signals" class="shortcut">Signals</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="libwaei-row.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="LwSearchSubCommand.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="LwSearch"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="LwSearch.top_of_page"></a>LwSearch</span></h2>
+<p>LwSearch — Search and search result management</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="LwSearch.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="LwSearch.html" title="LwSearch"><span class="returnvalue">LwSearch</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-new" title="lw_search_new ()">lw_search_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwSearch.html" title="LwSearch"><span class="returnvalue">LwSearch</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-new-by-preferences" title="lw_search_new_by_preferences ()">lw_search_new_by_preferences</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-start" title="lw_search_start ()">lw_search_start</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-start-async" title="lw_search_start_async ()">lw_search_start_async</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-set-dictionary" title="lw_search_set_dictionary ()">lw_search_set_dictionary</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-get-dictionary" title="lw_search_get_dictionary ()">lw_search_get_dictionary</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-set-query" title="lw_search_set_query ()">lw_search_set_query</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-get-query" title="lw_search_get_query ()">lw_search_get_query</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-set-max-results" title="lw_search_set_max_results ()">lw_search_set_max_results</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-get-max-results" title="lw_search_get_max_results ()">lw_search_get_max_results</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-set-status" title="lw_search_set_status ()">lw_search_set_status</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">LwSearchStatus</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-get-status" title="lw_search_get_status ()">lw_search_get_status</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-set-progress" title="lw_search_set_progress ()">lw_search_set_progress</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwProgress.html" title="LwProgress"><span class="returnvalue">LwProgress</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-get-progress" title="lw_search_get_progress ()">lw_search_get_progress</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">LwSearchFlag</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-get-flags" title="lw_search_get_flags ()">lw_search_get_flags</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-set-flags" title="lw_search_set_flags ()">lw_search_set_flags</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">LwSearchFlag</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-build-flags-from-preferences" title="lw_search_build_flags_from_preferences ()">lw_search_build_flags_from_preferences</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="returnvalue">LwUtf8Flag</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-build-utf8flags" title="lw_search_build_utf8flags ()">lw_search_build_utf8flags</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwParsed.html" title="LwParsed"><span class="returnvalue">LwParsed</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwSearch.html#lw-search-get-parsed" title="lw_search_get_parsed ()">lw_search_get_parsed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwSearch.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type"><span class="type">LwSearchFlag</span></td>
+<td class="property_name"><a class="link" href="LwSearch.html#LwSearch--Flags" title="The “Flags” property">Flags</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type">
+<a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *</td>
+<td class="property_name"><a class="link" href="LwSearch.html#LwSearch--dictionary" title="The “dictionary” property">dictionary</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="LwSearch.html#LwSearch--max-results" title="The “max-results” property">max-results</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type">
+<a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *</td>
+<td class="property_name"><a class="link" href="LwSearch.html#LwSearch--progress" title="The “progress” property">progress</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwSearch.html#LwSearch--query" title="The “query” property">query</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwSearch.signals"></a><h2>Signals</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="signals_return">
+<col width="300px" class="signals_name">
+<col width="200px" class="signals_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwSearch.html#LwSearch-internal-row-changed" title="The “internal-row-changed” signal">internal-row-changed</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwSearch.html#LwSearch-internal-row-deleted" title="The “internal-row-deleted” signal">internal-row-deleted</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwSearch.html#LwSearch-internal-row-inserted" title="The “internal-row-inserted” signal">internal-row-inserted</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwSearch.html#LwSearch-internal-rows-reordered" title="The “internal-rows-reordered” signal">internal-rows-reordered</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwSearch.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCH-DEFAULT-MAX-CHUNK:CAPS" title="LW_SEARCH_DEFAULT_MAX_CHUNK">LW_SEARCH_DEFAULT_MAX_CHUNK</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHSTATUSNAME-UNSTARTED:CAPS" title="LW_SEARCHSTATUSNAME_UNSTARTED">LW_SEARCHSTATUSNAME_UNSTARTED</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHSTATUSNAME-SEARCHING:CAPS" title="LW_SEARCHSTATUSNAME_SEARCHING">LW_SEARCHSTATUSNAME_SEARCHING</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHSTATUSNAME-CANCELING:CAPS" title="LW_SEARCHSTATUSNAME_CANCELING">LW_SEARCHSTATUSNAME_CANCELING</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHSTATUSNAME-FINISHED:CAPS" title="LW_SEARCHSTATUSNAME_FINISHED">LW_SEARCHSTATUSNAME_FINISHED</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHSTATUSNICK-UNSTARTED:CAPS" title="LW_SEARCHSTATUSNICK_UNSTARTED">LW_SEARCHSTATUSNICK_UNSTARTED</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHSTATUSNICK-SEARCHING:CAPS" title="LW_SEARCHSTATUSNICK_SEARCHING">LW_SEARCHSTATUSNICK_SEARCHING</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHSTATUSNICK-CANCELING:CAPS" title="LW_SEARCHSTATUSNICK_CANCELING">LW_SEARCHSTATUSNICK_CANCELING</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHSTATUSNICK-FINISHED:CAPS" title="LW_SEARCHSTATUSNICK_FINISHED">LW_SEARCHSTATUSNICK_FINISHED</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNAME-RAW:CAPS" title="LW_SEARCHFLAGNAME_RAW">LW_SEARCHFLAGNAME_RAW</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNAME-FURIGANA-INSENSITIVE:CAPS" title="LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE">LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNAME-CASE-INSENSITIVE:CAPS" title="LW_SEARCHFLAGNAME_CASE_INSENSITIVE">LW_SEARCHFLAGNAME_CASE_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNAME-STEM-INSENSITIVE:CAPS" title="LW_SEARCHFLAGNAME_STEM_INSENSITIVE">LW_SEARCHFLAGNAME_STEM_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNAME-ROMAJI-TO-FURIGANA:CAPS" title="LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA">LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNAME-USE-INDEX:CAPS" title="LW_SEARCHFLAGNAME_USE_INDEX">LW_SEARCHFLAGNAME_USE_INDEX</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNAME-INSENSITIVE:CAPS" title="LW_SEARCHFLAGNAME_INSENSITIVE">LW_SEARCHFLAGNAME_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNICK-RAW:CAPS" title="LW_SEARCHFLAGNICK_RAW">LW_SEARCHFLAGNICK_RAW</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNICK-FURIGANA-INSENSITIVE:CAPS" title="LW_SEARCHFLAGNICK_FURIGANA_INSENSITIVE">LW_SEARCHFLAGNICK_FURIGANA_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNICK-CASE-INSENSITIVE:CAPS" title="LW_SEARCHFLAGNICK_CASE_INSENSITIVE">LW_SEARCHFLAGNICK_CASE_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNICK-STEM-INSENSITIVE:CAPS" title="LW_SEARCHFLAGNICK_STEM_INSENSITIVE">LW_SEARCHFLAGNICK_STEM_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNICK-ROMAJI-TO-FURIGANA:CAPS" title="LW_SEARCHFLAGNICK_ROMAJI_TO_FURIGANA">LW_SEARCHFLAGNICK_ROMAJI_TO_FURIGANA</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNICK-USE-INDEX:CAPS" title="LW_SEARCHFLAGNICK_USE_INDEX">LW_SEARCHFLAGNICK_USE_INDEX</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwSearch.html#LW-SEARCHFLAGNICK-INSENSITIVE:CAPS" title="LW_SEARCHFLAGNICK_INSENSITIVE">LW_SEARCHFLAGNICK_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="LwSearch.html#LwSearchClassPrivate" title="LwSearchClassPrivate">LwSearchClassPrivate</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwSearch.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-Enumeration-and-Flag-Types.html">GEnum</a>
+    <span class="lineart">╰──</span> LwSearchStatus
+    <a href="/usr/share/gtk-doc/html/gobject/gobject-Enumeration-and-Flag-Types.html">GFlags</a>
+    <span class="lineart">╰──</span> LwSearchFlag
+    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> LwSearch
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwSearch.includes"></a><h2>Includes</h2>
+<pre class="synopsis">#include &lt;libwaei/search.h&gt;
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwSearch.description"></a><h2>Description</h2>
+<p>Methods for easily executing searches.  They pair a <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a>
+against a query string using the prefered normalization configured by
+<a href="libwaei-UTF-8.html#LwUtf8Flag"><span class="type">LwUtf8Flags</span></a>. Searches can easily be started in a new thread or the same
+thread.  The results are stored in a <a href="/usr/share/gtk-doc/html/glib/glib-Sequences.html#GSequence"><span class="type">GSequence</span></a> which should be easy
+to convert to things like <a href="/usr/share/gtk-doc/html/gtk3/GtkTreeModel.html"><span class="type">GtkTreeModels</span></a> or whatever your prefered
+toolkit is for lists.</p>
+</div>
+<div class="refsect1">
+<a name="LwSearch.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-search-new"></a><h3>lw_search_new ()</h3>
+<pre class="programlisting"><a class="link" href="LwSearch.html" title="LwSearch"><span class="returnvalue">LwSearch</span></a> *
+lw_search_new (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *QUERY</code></em>,
+               <em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *dictionary</code></em>,
+               <em class="parameter"><code><span class="type">LwSearchFlag</span> flags</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.37.10.2.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>QUERY</p></td>
+<td class="parameter_description"><p>The query string as taken from seach field</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>dictionary</p></td>
+<td class="parameter_description"><p>An <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> to search against</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>flags</p></td>
+<td class="parameter_description"><p>Options for normaliation of the query and dictionary search such as to make the search case-independant</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.37.10.2.5"></a><h4>Returns</h4>
+<p> A new <a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> that should be freed with <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-new-by-preferences"></a><h3>lw_search_new_by_preferences ()</h3>
+<pre class="programlisting"><a class="link" href="LwSearch.html" title="LwSearch"><span class="returnvalue">LwSearch</span></a> *
+lw_search_new_by_preferences (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *QUERY</code></em>,
+                              <em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *dictionary</code></em>,
+                              <em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *preferences</code></em>);</pre>
+<p>A version of <a class="link" href="LwSearch.html#lw-search-new" title="lw_search_new ()"><code class="function">lw_search_new()</code></a> that automatically calculates the <a href="libwaei-UTF-8.html#LwUtf8Flag"><span class="type">LwUtf8Flags</span></a> using the user's preferences</p>
+<div class="refsect3">
+<a name="id-1.2.37.10.3.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>QUERY</p></td>
+<td class="parameter_description"><p>The query string as taken from seach field</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>dictionary</p></td>
+<td class="parameter_description"><p>An <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> to search against</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>preferences</p></td>
+<td class="parameter_description"><p>An <a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> object to calculate permissions from</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.37.10.3.6"></a><h4>Returns</h4>
+<p> A new <a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> that should be freed with <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-start"></a><h3>lw_search_start ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_search_start (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>,
+                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> dry_run</code></em>,
+                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+<p>Starts a search synchonously, meaning it will lock the UI, making this most appropriate for
+console programs.</p>
+<div class="refsect3">
+<a name="id-1.2.37.10.4.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>dry_run</p></td>
+<td class="parameter_description"><p>Provides a way to check if any errors would occur setting up the search when <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>A <a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-start-async"></a><h3>lw_search_start_async ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_search_start_async (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>,
+                       <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> dry_run</code></em>,
+                       <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+<p>Starts an asynchronous search.  You an monitor it's progress or cancel it by
+fetching the <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> object using <a class="link" href="LwSearch.html#lw-search-get-progress" title="lw_search_get_progress ()"><code class="function">lw_search_get_progress()</code></a>. If a search 
+is running or has already been completed, calling this method is a no-op. This
+method should only be called from the main thread of the application.</p>
+<div class="refsect3">
+<a name="id-1.2.37.10.5.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>dry_run</p></td>
+<td class="parameter_description"><p>Provides a way to check if any errors would occur setting up the search when <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>A <a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-set-dictionary"></a><h3>lw_search_set_dictionary ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_search_set_dictionary (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>,
+                          <em class="parameter"><code><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *dictionary</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-get-dictionary"></a><h3>lw_search_get_dictionary ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionary.html" title="LwDictionary"><span class="returnvalue">LwDictionary</span></a> *
+lw_search_get_dictionary (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-set-query"></a><h3>lw_search_set_query ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_search_set_query (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>,
+                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *QUERY</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-get-query"></a><h3>lw_search_get_query ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_search_get_query (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-set-max-results"></a><h3>lw_search_set_max_results ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_search_set_max_results (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>,
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> max_results</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-get-max-results"></a><h3>lw_search_get_max_results ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+lw_search_get_max_results (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-set-status"></a><h3>lw_search_set_status ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_search_set_status (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>,
+                      <em class="parameter"><code><span class="type">LwSearchStatus</span> status</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-get-status"></a><h3>lw_search_get_status ()</h3>
+<pre class="programlisting"><span class="returnvalue">LwSearchStatus</span>
+lw_search_get_status (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-set-progress"></a><h3>lw_search_set_progress ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_search_set_progress (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>,
+                        <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-get-progress"></a><h3>lw_search_get_progress ()</h3>
+<pre class="programlisting"><a class="link" href="LwProgress.html" title="LwProgress"><span class="returnvalue">LwProgress</span></a> *
+lw_search_get_progress (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-get-flags"></a><h3>lw_search_get_flags ()</h3>
+<pre class="programlisting"><span class="returnvalue">LwSearchFlag</span>
+lw_search_get_flags (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-set-flags"></a><h3>lw_search_set_flags ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_search_set_flags (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>,
+                     <em class="parameter"><code><span class="type">LwSearchFlag</span> flags</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-build-flags-from-preferences"></a><h3>lw_search_build_flags_from_preferences ()</h3>
+<pre class="programlisting"><span class="returnvalue">LwSearchFlag</span>
+lw_search_build_flags_from_preferences
+                               (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *preferences</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-build-utf8flags"></a><h3>lw_search_build_utf8flags ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="returnvalue">LwUtf8Flag</span></a>
+lw_search_build_utf8flags (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-search-get-parsed"></a><h3>lw_search_get_parsed ()</h3>
+<pre class="programlisting"><a class="link" href="LwParsed.html" title="LwParsed"><span class="returnvalue">LwParsed</span></a> *
+lw_search_get_parsed (<em class="parameter"><code><a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *self</code></em>,
+                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwSearch.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LW-SEARCH-DEFAULT-MAX-CHUNK:CAPS"></a><h3>LW_SEARCH_DEFAULT_MAX_CHUNK</h3>
+<pre class="programlisting">#define LW_SEARCH_DEFAULT_MAX_CHUNK 1000
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHSTATUSNAME-UNSTARTED:CAPS"></a><h3>LW_SEARCHSTATUSNAME_UNSTARTED</h3>
+<pre class="programlisting">#define LW_SEARCHSTATUSNAME_UNSTARTED "Unstarted"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHSTATUSNAME-SEARCHING:CAPS"></a><h3>LW_SEARCHSTATUSNAME_SEARCHING</h3>
+<pre class="programlisting">#define LW_SEARCHSTATUSNAME_SEARCHING "Searching"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHSTATUSNAME-CANCELING:CAPS"></a><h3>LW_SEARCHSTATUSNAME_CANCELING</h3>
+<pre class="programlisting">#define LW_SEARCHSTATUSNAME_CANCELING "Canceling"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHSTATUSNAME-FINISHED:CAPS"></a><h3>LW_SEARCHSTATUSNAME_FINISHED</h3>
+<pre class="programlisting">#define LW_SEARCHSTATUSNAME_FINISHED "Finished"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHSTATUSNICK-UNSTARTED:CAPS"></a><h3>LW_SEARCHSTATUSNICK_UNSTARTED</h3>
+<pre class="programlisting">#define LW_SEARCHSTATUSNICK_UNSTARTED "unstarted"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHSTATUSNICK-SEARCHING:CAPS"></a><h3>LW_SEARCHSTATUSNICK_SEARCHING</h3>
+<pre class="programlisting">#define LW_SEARCHSTATUSNICK_SEARCHING "searching"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHSTATUSNICK-CANCELING:CAPS"></a><h3>LW_SEARCHSTATUSNICK_CANCELING</h3>
+<pre class="programlisting">#define LW_SEARCHSTATUSNICK_CANCELING "canceling"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHSTATUSNICK-FINISHED:CAPS"></a><h3>LW_SEARCHSTATUSNICK_FINISHED</h3>
+<pre class="programlisting">#define LW_SEARCHSTATUSNICK_FINISHED "finished"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNAME-RAW:CAPS"></a><h3>LW_SEARCHFLAGNAME_RAW</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNAME_RAW "Raw"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNAME-FURIGANA-INSENSITIVE:CAPS"></a><h3>LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNAME_FURIGANA_INSENSITIVE "Furigana Insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNAME-CASE-INSENSITIVE:CAPS"></a><h3>LW_SEARCHFLAGNAME_CASE_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNAME_CASE_INSENSITIVE "Case Insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNAME-STEM-INSENSITIVE:CAPS"></a><h3>LW_SEARCHFLAGNAME_STEM_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNAME_STEM_INSENSITIVE "Stem Insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNAME-ROMAJI-TO-FURIGANA:CAPS"></a><h3>LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNAME_ROMAJI_TO_FURIGANA "Romaji to Furigana"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNAME-USE-INDEX:CAPS"></a><h3>LW_SEARCHFLAGNAME_USE_INDEX</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNAME_USE_INDEX "Use Index"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNAME-INSENSITIVE:CAPS"></a><h3>LW_SEARCHFLAGNAME_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNAME_INSENSITIVE "Insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNICK-RAW:CAPS"></a><h3>LW_SEARCHFLAGNICK_RAW</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNICK_RAW "raw"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNICK-FURIGANA-INSENSITIVE:CAPS"></a><h3>LW_SEARCHFLAGNICK_FURIGANA_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNICK_FURIGANA_INSENSITIVE "furigana-insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNICK-CASE-INSENSITIVE:CAPS"></a><h3>LW_SEARCHFLAGNICK_CASE_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNICK_CASE_INSENSITIVE "case-insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNICK-STEM-INSENSITIVE:CAPS"></a><h3>LW_SEARCHFLAGNICK_STEM_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNICK_STEM_INSENSITIVE "stem-insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNICK-ROMAJI-TO-FURIGANA:CAPS"></a><h3>LW_SEARCHFLAGNICK_ROMAJI_TO_FURIGANA</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNICK_ROMAJI_TO_FURIGANA "romaji-to furigana"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNICK-USE-INDEX:CAPS"></a><h3>LW_SEARCHFLAGNICK_USE_INDEX</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNICK_USE_INDEX "use-index"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SEARCHFLAGNICK-INSENSITIVE:CAPS"></a><h3>LW_SEARCHFLAGNICK_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_SEARCHFLAGNICK_INSENSITIVE "insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwSearchClassPrivate"></a><h3>LwSearchClassPrivate</h3>
+<pre class="programlisting">typedef struct _LwSearchClassPrivate LwSearchClassPrivate;</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwSearch.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="LwSearch--Flags"></a><h3>The <code class="literal">“Flags”</code> property</h3>
+<pre class="programlisting">  “Flags”                    <span class="type">LwSearchFlag</span></pre>
+<p>Flags to configure the search.</p>
+<p>Flags: Read / Write / Construct</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwSearch--dictionary"></a><h3>The <code class="literal">“dictionary”</code> property</h3>
+<pre class="programlisting">  “dictionary”               <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> *</pre>
+<p>Set the filename.</p>
+<p>Flags: Read / Write / Construct</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwSearch--max-results"></a><h3>The <code class="literal">“max-results”</code> property</h3>
+<pre class="programlisting">  “max-results”              <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Set the loaded.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwSearch--progress"></a><h3>The <code class="literal">“progress”</code> property</h3>
+<pre class="programlisting">  “progress”                 <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *</pre>
+<p>Set the loaded.</p>
+<p>Flags: Read / Write / Construct</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwSearch--query"></a><h3>The <code class="literal">“query”</code> property</h3>
+<pre class="programlisting">  “query”                    <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Set the changed.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: NULL</p>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwSearch.signal-details"></a><h2>Signal Details</h2>
+<div class="refsect2">
+<a name="LwSearch-internal-row-changed"></a><h3>The <code class="literal">“internal-row-changed”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *lwsearch,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>      arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwSearch-internal-row-deleted"></a><h3>The <code class="literal">“internal-row-deleted”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *lwsearch,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>      arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwSearch-internal-row-inserted"></a><h3>The <code class="literal">“internal-row-inserted”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *lwsearch,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>      arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwSearch-internal-rows-reordered"></a><h3>The <code class="literal">“internal-rows-reordered”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwSearch.html" title="LwSearch"><span class="type">LwSearch</span></a> *lwsearch,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

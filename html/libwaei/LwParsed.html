@@ -1,0 +1,454 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwParsed: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="libwaei-LwParenthesisNode.html" title="LwParenthesisNode">
+<link rel="next" href="libwaei-LwParsedLine.html" title="LwParsedLine">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#LwParsed.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#LwParsed.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#LwParsed.properties" class="shortcut">Properties</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="libwaei-LwParenthesisNode.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="libwaei-LwParsedLine.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="LwParsed"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="LwParsed.top_of_page"></a>LwParsed</span></h2>
+<p>LwParsed — A container for parsed lines</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="LwParsed.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"><span class="returnvalue">GQuark</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwParsed.html#lw-parsed-error-quark" title="lw_parsed_error_quark ()">lw_parsed_error_quark</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<span class="c_punctuation">(</span><a class="link" href="LwParsed.html#LwParsedForeachFunc" title="LwParsedForeachFunc ()">*LwParsedForeachFunc</a><span class="c_punctuation">)</span> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwParsed.html" title="LwParsed"><span class="returnvalue">LwParsed</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwParsed.html#lw-parsed-new" title="lw_parsed_new ()">lw_parsed_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwParsed.html#lw-parsed-foreach" title="lw_parsed_foreach ()">lw_parsed_foreach</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="returnvalue">LwParsedLine</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwParsed.html#lw-parsed-get-line" title="lw_parsed_get_line ()">lw_parsed_get_line</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwParsed.html#lw-parsed-set-lines" title="lw_parsed_set_lines ()">lw_parsed_set_lines</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="returnvalue">LwParsedLine</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwParsed.html#lw-parsed-get-lines" title="lw_parsed_get_lines ()">lw_parsed_get_lines</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwParsed.html#lw-parsed-num-lines" title="lw_parsed_num_lines ()">lw_parsed_num_lines</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="returnvalue">LwCacheFile</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwParsed.html#lw-parsed-get-cachefile" title="lw_parsed_get_cachefile ()">lw_parsed_get_cachefile</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwParsed.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody><tr>
+<td class="property_type">
+<a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *</td>
+<td class="property_name"><a class="link" href="LwParsed.html#LwParsed--cache-file" title="The “cache-file” property">cache-file</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwParsed.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwParsed.html#LW-PARSED-ERROR:CAPS" title="LW_PARSED_ERROR">LW_PARSED_ERROR</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="LwParsed.html#LwParsedErrorCode" title="enum LwParsedErrorCode">LwParsedErrorCode</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="LwParsed.html#LwParsedClassPrivate" title="LwParsedClassPrivate">LwParsedClassPrivate</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwParsed.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a class="link" href="LwSerializable.html" title="LwSerializable">LwSerializable</a>
+        <span class="lineart">╰──</span> LwParsed
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwParsed.description"></a><h2>Description</h2>
+<p>This is an object made for management of a list of
+parsedlines representing a document.</p>
+</div>
+<div class="refsect1">
+<a name="LwParsed.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-parsed-error-quark"></a><h3>lw_parsed_error_quark ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"><span class="returnvalue">GQuark</span></a>
+lw_parsed_error_quark (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwParsedForeachFunc"></a><h3>LwParsedForeachFunc ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<span class="c_punctuation">(</span>*LwParsedForeachFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> *self</code></em>,
+                        <em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *line</code></em>,
+                        <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsed-new"></a><h3>lw_parsed_new ()</h3>
+<pre class="programlisting"><a class="link" href="LwParsed.html" title="LwParsed"><span class="returnvalue">LwParsed</span></a> *
+lw_parsed_new (<em class="parameter"><code><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *cache_file</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.27.8.4.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>cache_file</p></td>
+<td class="parameter_description"><p>The base data to reference</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.27.8.4.5"></a><h4>Returns</h4>
+<p> A new <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> object that can be freed with <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsed-foreach"></a><h3>lw_parsed_foreach ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_parsed_foreach (<em class="parameter"><code><a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> *self</code></em>,
+                   <em class="parameter"><code><a class="link" href="LwParsed.html#LwParsedForeachFunc" title="LwParsedForeachFunc ()"><span class="type">LwParsedForeachFunc</span></a> func</code></em>,
+                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.27.8.5.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>The <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>func</p></td>
+<td class="parameter_description"><p>The function to run for each <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>data</p></td>
+<td class="parameter_description"><p>Data to pass to the <em class="parameter"><code>func</code></em>
+</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsed-get-line"></a><h3>lw_parsed_get_line ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="returnvalue">LwParsedLine</span></a> *
+lw_parsed_get_line (<em class="parameter"><code><a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> *self</code></em>,
+                    <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> line_number</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.27.8.6.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>line_number</p></td>
+<td class="parameter_description"><p>The line number to fetch</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.27.8.6.5"></a><h4>Returns</h4>
+<p> A <a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if the index is invalid. </p>
+<p><span class="annotation">[no transfer]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsed-set-lines"></a><h3>lw_parsed_set_lines ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_parsed_set_lines (<em class="parameter"><code><a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> *self</code></em>,
+                     <em class="parameter"><code><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="type">LwParsedLine</span></a> *lines</code></em>,
+                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> num_lines</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.27.8.7.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>lines</p></td>
+<td class="parameter_description"><p> An array of lines to set. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>num_lines</p></td>
+<td class="parameter_description"><p>The number of lines in <em class="parameter"><code>lines</code></em>
+</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsed-get-lines"></a><h3>lw_parsed_get_lines ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-LwParsedLine.html#LwParsedLine" title="LwParsedLine"><span class="returnvalue">LwParsedLine</span></a> *
+lw_parsed_get_lines (<em class="parameter"><code><a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> *self</code></em>,
+                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> *num_lines_out</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.27.8.8.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>num_lines_out</p></td>
+<td class="parameter_description"><p> A pointer to write the number of lines or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[transfer out]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.27.8.8.5"></a><h4>Returns</h4>
+<p> an array of <a href="libwaei-LwParsedLine.html#LwParsedLine"><span class="type">LwParsedLines</span></a> or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsed-num-lines"></a><h3>lw_parsed_num_lines ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+lw_parsed_num_lines (<em class="parameter"><code><a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.27.8.9.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.27.8.9.5"></a><h4>Returns</h4>
+<p> The number of lines stored in <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-parsed-get-cachefile"></a><h3>lw_parsed_get_cachefile ()</h3>
+<pre class="programlisting"><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="returnvalue">LwCacheFile</span></a> *
+lw_parsed_get_cachefile (<em class="parameter"><code><a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.27.8.10.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.27.8.10.5"></a><h4>Returns</h4>
+<p> The <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> that the <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> was initialized with. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwParsed.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LW-PARSED-ERROR:CAPS"></a><h3>LW_PARSED_ERROR</h3>
+<pre class="programlisting">#define LW_PARSED_ERROR lw_parsed_error_quark ()
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwParsedErrorCode"></a><h3>enum LwParsedErrorCode</h3>
+<div class="refsect3">
+<a name="id-1.2.27.9.3.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="LW-PARSED-ERRORCODE-DESERIALIZATION-ERROR:CAPS"></a>LW_PARSED_ERRORCODE_DESERIALIZATION_ERROR</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="TOTAL-LW-PARSED-ERRORCODES:CAPS"></a>TOTAL_LW_PARSED_ERRORCODES</p></td>
+<td> </td>
+<td> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwParsedClassPrivate"></a><h3>LwParsedClassPrivate</h3>
+<pre class="programlisting">typedef struct _LwParsedClassPrivate LwParsedClassPrivate;</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwParsed.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="LwParsed--cache-file"></a><h3>The <code class="literal">“cache-file”</code> property</h3>
+<pre class="programlisting">  “cache-file”               <a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *</pre>
+<p>Contents of the parsed object. This data is not necessarily human readable.</p>
+<p>Flags: Read / Write / Construct</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwDictionaryModule: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="libwaei-dictionarylist-callbacks.html" title="dictionarylist-callbacks">
+<link rel="next" href="libwaei-filepath.html" title="filepath">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#LwDictionaryModule.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#LwDictionaryModule.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#LwDictionaryModule.properties" class="shortcut">Properties</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="libwaei-dictionarylist-callbacks.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="libwaei-filepath.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="LwDictionaryModule"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="LwDictionaryModule.top_of_page"></a>LwDictionaryModule</span></h2>
+<p>LwDictionaryModule — Methods for dynamically loading libwaei dictionaries</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="LwDictionaryModule.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionaryModule.html#LwDictionaryModuleReader" title="LwDictionaryModuleReader"><span class="returnvalue">LwDictionaryModuleReader</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryModule.html#lw-dictionarymodulereader-open" title="lw_dictionarymodulereader_open ()">lw_dictionarymodulereader_open</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryModule.html#lw-dictionarymodulereader-close" title="lw_dictionarymodulereader_close ()">lw_dictionarymodulereader_close</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryModule.html#lw-dictionarymodulereader-read-path" title="lw_dictionarymodulereader_read_path ()">lw_dictionarymodulereader_read_path</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/gobject/GTypeModule.html"><span class="returnvalue">GTypeModule</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryModule.html#lw-dictionarymodule-new" title="lw_dictionarymodule_new ()">lw_dictionarymodule_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryModule.html#lw-dictionarymodule-set-path" title="lw_dictionarymodule_set_path ()">lw_dictionarymodule_set_path</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryModule.html#lw-dictionarymodule-get-path" title="lw_dictionarymodule_get_path ()">lw_dictionarymodule_get_path</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryModule.html#lw-dictionarymodule-get-name" title="lw_dictionarymodule_get_name ()">lw_dictionarymodule_get_name</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryModule.html#lw-dictionarymodule-get-dictionarylib-searchpath" title="lw_dictionarymodule_get_dictionarylib_searchpath ()">lw_dictionarymodule_get_dictionarylib_searchpath</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryModule.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionaryModule.html#LwDictionaryModule--name" title="The “name” property">name</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionaryModule.html#LwDictionaryModule--path" title="The “path” property">path</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryModule.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="LwDictionaryModule.html#LwDictionaryModuleClassPrivate" title="LwDictionaryModuleClassPrivate">LwDictionaryModuleClassPrivate</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="LwDictionaryModule.html#LwDictionaryModuleReader" title="LwDictionaryModuleReader">LwDictionaryModuleReader</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryModule.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobject/GTypeModule.html">GTypeModule</a>
+        <span class="lineart">╰──</span> LwDictionaryModule
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryModule.description"></a><h2>Description</h2>
+<p><a class="link" href="LwDictionaryModule.html" title="LwDictionaryModule"><span class="type">LwDictionaryModule</span></a> allows dynamic loading and unloading of <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> classes
+from the type system separate from the libwaei core.  This also brings support for
+third party dictionaries and allows for smarter memory management, only loading
+the memory for the dictionaries that are actually used.  Below is a very basic
+example of loading modules:</p>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11</pre></td>
+        <td class="listing_code"><pre class="programlisting"><span class="normal"><a href="LwDictionaryModule.html#LwDictionaryModuleReader">LwDictionaryModuleReader</a> </span><span class="symbol">*</span><span class="normal"> reader </span><span class="symbol">=</span><span class="normal"> </span><span class="function"><a href="LwDictionaryModule.html#lw-dictionarymodulereader-open">lw_dictionarymodulereader_open</a></span><span class="normal"> </span><span class="symbol">(</span><span class="normal"><a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS">NULL</a></span><span class="symbol">);</span>
+<span class="keyword">if</span><span class="normal"> </span><span class="symbol">(</span><span class="normal">reader </span><span class="symbol">!=</span><span class="normal"> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS">NULL</a></span><span class="symbol">)</span>
+<span class="cbracket">{</span>
+<span class="normal">  </span><span class="usertype">gchar</span><span class="normal"> </span><span class="keyword">const</span><span class="normal"> </span><span class="symbol">*</span><span class="normal"> path </span><span class="symbol">=</span><span class="normal"> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS">NULL</a></span><span class="symbol">;</span>
+<span class="normal">  <a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList">GList</a> </span><span class="symbol">*</span><span class="normal"> modules </span><span class="symbol">=</span><span class="normal"> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS">NULL</a></span><span class="symbol">;</span>
+<span class="normal">  </span><span class="keyword">while</span><span class="normal"> </span><span class="symbol">((</span><span class="normal">path </span><span class="symbol">=</span><span class="normal"> </span><span class="function"><a href="LwDictionaryModule.html#lw-dictionarymodulereader-read-path">lw_dictionarymodulereader_read_path</a></span><span class="normal"> </span><span class="symbol">(</span><span class="normal">reader</span><span class="symbol">))</span><span class="normal"> </span><span class="symbol">!=</span><span class="normal"> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS">NULL</a></span><span class="symbol">)</span>
+<span class="normal">  </span><span class="cbracket">{</span>
+<span class="normal">    modules </span><span class="symbol">=</span><span class="normal"> </span><span class="function"><a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#g-list-prepend">g_list_prepend</a></span><span class="normal"> </span><span class="symbol">(</span><span class="normal">modules</span><span class="symbol">,</span><span class="normal"> </span><span class="function"><a href="LwDictionaryModule.html#lw-dictionarymodule-new">lw_dictionarymodule_new</a></span><span class="normal"> </span><span class="symbol">(</span><span class="normal">path</span><span class="symbol">));</span>
+<span class="normal">  </span><span class="cbracket">}</span>
+<span class="normal">  </span><span class="function"><a href="LwDictionaryModule.html#lw-dictionarymodulereader-close">lw_dictionarymodulereader_close</a></span><span class="normal"> </span><span class="symbol">(</span><span class="normal">reader</span><span class="symbol">);</span>
+<span class="cbracket">}</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p></p>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryModule.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-dictionarymodulereader-open"></a><h3>lw_dictionarymodulereader_open ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionaryModule.html#LwDictionaryModuleReader" title="LwDictionaryModuleReader"><span class="returnvalue">LwDictionaryModuleReader</span></a> *
+lw_dictionarymodulereader_open (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *SEARCHPATH_OVERRIDE</code></em>);</pre>
+<p>Opens a reader that will iterate the search paths given in <em class="parameter"><code>SEARCHPATH_OVERRIDE</code></em>
+.  If <em class="parameter"><code>SEARCHPATH_OVERRIDE</code></em>
+
+is <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>, the reader then thecks if the DICTIONARYLIB_SEARCHPATH environmental variable is set.  If that
+is not set, it falls back to the paths built in on compile time.</p>
+<div class="refsect3">
+<a name="id-1.2.18.8.2.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>SEARCHPATH_OVERRIDE</p></td>
+<td class="parameter_description"><p> A path override or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> to use the environment or builtins. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.18.8.2.6"></a><h4>Returns</h4>
+<p> A new <a class="link" href="LwDictionaryModule.html#LwDictionaryModuleReader" title="LwDictionaryModuleReader"><span class="type">LwDictionaryModuleReader</span></a> that should be closed with <a class="link" href="LwDictionaryModule.html#lw-dictionarymodulereader-close" title="lw_dictionarymodulereader_close ()"><code class="function">lw_dictionarymodulereader_close()</code></a>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarymodulereader-close"></a><h3>lw_dictionarymodulereader_close ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarymodulereader_close (<em class="parameter"><code><a class="link" href="LwDictionaryModule.html#LwDictionaryModuleReader" title="LwDictionaryModuleReader"><span class="type">LwDictionaryModuleReader</span></a> *self</code></em>);</pre>
+<p>Closes an open dictionary module reader and frees any related memory.</p>
+<div class="refsect3">
+<a name="id-1.2.18.8.3.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionaryModule.html#LwDictionaryModuleReader" title="LwDictionaryModuleReader"><span class="type">LwDictionaryModuleReader</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarymodulereader-read-path"></a><h3>lw_dictionarymodulereader_read_path ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_dictionarymodulereader_read_path (<em class="parameter"><code><a class="link" href="LwDictionaryModule.html#LwDictionaryModuleReader" title="LwDictionaryModuleReader"><span class="type">LwDictionaryModuleReader</span></a> *self</code></em>);</pre>
+<p>Reads a path iteratively from the dictionary search paths on valid-looking
+dictionary modules.  Once the reader has read all paths, it will start
+returning <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>.  When finished with the reader, it should be closed with
+<a class="link" href="LwDictionaryModule.html#lw-dictionarymodulereader-close" title="lw_dictionarymodulereader_close ()"><code class="function">lw_dictionarymodulereader_close()</code></a>.</p>
+<div class="refsect3">
+<a name="id-1.2.18.8.4.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionaryModule.html#LwDictionaryModuleReader" title="LwDictionaryModuleReader"><span class="type">LwDictionaryModuleReader</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.18.8.4.6"></a><h4>Returns</h4>
+<p> The next path from the iterater until it reaches the end. Once all paths have been read this method will return <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarymodule-new"></a><h3>lw_dictionarymodule_new ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gobject/GTypeModule.html"><span class="returnvalue">GTypeModule</span></a> *
+lw_dictionarymodule_new (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *PATH</code></em>);</pre>
+<p>This method was made to be used with the paths generated by <a class="link" href="LwDictionaryModule.html#LwDictionaryModuleReader" title="LwDictionaryModuleReader"><span class="type">LwDictionaryModuleReader</span></a>.
+Loading a dictionary with this method registers the type, making it available to make
+instances.  The module will stay loaded as long as there are any dictionaries remaining
+with refcounts.</p>
+<div class="refsect3">
+<a name="id-1.2.18.8.5.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>PATH</p></td>
+<td class="parameter_description"><p> A path to load the module from. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.18.8.5.6"></a><h4>Returns</h4>
+<p> A new <a href="/usr/share/gtk-doc/html/gobject/GTypeModule.html"><span class="type">GTypeModule</span></a> that can be free with <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarymodule-set-path"></a><h3>lw_dictionarymodule_set_path ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarymodule_set_path (<em class="parameter"><code><a class="link" href="LwDictionaryModule.html" title="LwDictionaryModule"><span class="type">LwDictionaryModule</span></a> *self</code></em>,
+                              <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *PATH</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.18.8.6.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionaryModule.html" title="LwDictionaryModule"><span class="type">LwDictionaryModule</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>PATH</p></td>
+<td class="parameter_description"><p> The path of the module to load.  This can only be set once on the object and thus is usually set in the constructor for the object. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarymodule-get-path"></a><h3>lw_dictionarymodule_get_path ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_dictionarymodule_get_path (<em class="parameter"><code><a class="link" href="LwDictionaryModule.html" title="LwDictionaryModule"><span class="type">LwDictionaryModule</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.18.8.7.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionaryModule.html" title="LwDictionaryModule"><span class="type">LwDictionaryModule</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.18.8.7.5"></a><h4>Returns</h4>
+<p> The set path of the module.  This doesn't necessarily mean it is loaded. This string is owned by the instance and should not be freed or modified. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarymodule-get-name"></a><h3>lw_dictionarymodule_get_name ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_dictionarymodule_get_name (<em class="parameter"><code><a class="link" href="LwDictionaryModule.html" title="LwDictionaryModule"><span class="type">LwDictionaryModule</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.18.8.8.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>a <a class="link" href="LwDictionaryModule.html" title="LwDictionaryModule"><span class="type">LwDictionaryModule</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.18.8.8.5"></a><h4>Returns</h4>
+<p> The name of the module.  Do not modify or free as it is owned by the instance.  The name is generated automatically by the path of the module. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarymodule-get-dictionarylib-searchpath"></a><h3>lw_dictionarymodule_get_dictionarylib_searchpath ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **
+lw_dictionarymodule_get_dictionarylib_searchpath
+                               (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *SEARCHPATH_OVERRIDE</code></em>);</pre>
+<p>Returns the searchpath as an array of paths.  If the <em class="parameter"><code>SEARCHPATH_OVERRIDE</code></em>
+
+is <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>, the program checks if <code class="literal">DICTIONARYLIB_SEARCHPATH</code> has been
+set in the environment.  If it hasn't been set, the compiled in search
+paths are used. Paths should be separated with semicolons on windows
+and colons on unixes.</p>
+<div class="refsect3">
+<a name="id-1.2.18.8.9.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>SEARCHPATH_OVERRIDE</p></td>
+<td class="parameter_description"><p> Search path to loadable dictionary modules or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> to use the defaults. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.18.8.9.6"></a><h4>Returns</h4>
+<p> A <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> terminated array of strings that should be freed with <a href="/usr/share/gtk-doc/html/glib/glib-String-Utility-Functions.html#g-strfreev"><code class="function">g_strfreev()</code></a>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryModule.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LwDictionaryModuleClassPrivate"></a><h3>LwDictionaryModuleClassPrivate</h3>
+<pre class="programlisting">typedef struct _LwDictionaryModuleClassPrivate LwDictionaryModuleClassPrivate;</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryModuleReader"></a><h3>LwDictionaryModuleReader</h3>
+<pre class="programlisting">typedef struct _LwDictionaryModuleReader LwDictionaryModuleReader;</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryModule.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="LwDictionaryModule--name"></a><h3>The <code class="literal">“name”</code> property</h3>
+<pre class="programlisting">  “name”                     <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Type name for the module.</p>
+<p>Flags: Read</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryModule--path"></a><h3>The <code class="literal">“path”</code> property</h3>
+<pre class="programlisting">  “path”                     <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>File path of the module.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: NULL</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

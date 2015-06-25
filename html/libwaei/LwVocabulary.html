@@ -1,0 +1,697 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwVocabulary: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="libwaei-UTF-8.html" title="UTF-8">
+<link rel="next" href="libwaei-word.html" title="word">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#LwVocabulary.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#LwVocabulary.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#LwVocabulary.properties" class="shortcut">Properties</a></span><span id="nav_signals">  <span class="dim">|</span> 
+                  <a href="#LwVocabulary.signals" class="shortcut">Signals</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="libwaei-UTF-8.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="libwaei-word.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="LwVocabulary"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="LwVocabulary.top_of_page"></a>LwVocabulary</span></h2>
+<p>LwVocabulary</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="LwVocabulary.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="returnvalue">LwVocabulary</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-new" title="lw_vocabulary_new ()">lw_vocabulary_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-get-filenames" title="lw_vocabulary_get_filenames ()">lw_vocabulary_get_filenames</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-set-changed" title="lw_vocabulary_set_changed ()">lw_vocabulary_set_changed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-has-changes" title="lw_vocabulary_has_changes ()">lw_vocabulary_has_changes</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-set-filename" title="lw_vocabulary_set_filename ()">lw_vocabulary_set_filename</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-get-filename" title="lw_vocabulary_get_filename ()">lw_vocabulary_get_filename</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-set-loaded" title="lw_vocabulary_set_loaded ()">lw_vocabulary_set_loaded</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-is-loaded" title="lw_vocabulary_is_loaded ()">lw_vocabulary_is_loaded</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-word.html#LwWord"><span class="returnvalue">LwWord</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-get-word-by-index" title="lw_vocabulary_get_word_by_index ()">lw_vocabulary_get_word_by_index</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-get-indices" title="lw_vocabulary_get_indices ()">lw_vocabulary_get_indices</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-load" title="lw_vocabulary_load ()">lw_vocabulary_load</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-save" title="lw_vocabulary_save ()">lw_vocabulary_save</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-length" title="lw_vocabulary_length ()">lw_vocabulary_length</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-generate-new-filename" title="lw_vocabulary_generate_new_filename ()">lw_vocabulary_generate_new_filename</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-generate-copied-filename" title="lw_vocabulary_generate_copied_filename ()">lw_vocabulary_generate_copied_filename</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-has-file" title="lw_vocabulary_has_file ()">lw_vocabulary_has_file</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-filename-exists" title="lw_vocabulary_filename_exists ()">lw_vocabulary_filename_exists</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-build-uri" title="lw_vocabulary_build_uri ()">lw_vocabulary_build_uri</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-insert" title="lw_vocabulary_insert ()">lw_vocabulary_insert</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-remove" title="lw_vocabulary_remove ()">lw_vocabulary_remove</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-remove-words" title="lw_vocabulary_remove_words ()">lw_vocabulary_remove_words</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-word.html#LwWord"><span class="returnvalue">LwWord</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-nth" title="lw_vocabulary_nth ()">lw_vocabulary_nth</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-to-string" title="lw_vocabulary_to_string ()">lw_vocabulary_to_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-load-from-string" title="lw_vocabulary_load_from_string ()">lw_vocabulary_load_from_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-set" title="lw_vocabulary_set ()">lw_vocabulary_set</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-set-valist" title="lw_vocabulary_set_valist ()">lw_vocabulary_set_valist</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwVocabulary.html#lw-vocabulary-sort" title="lw_vocabulary_sort ()">lw_vocabulary_sort</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwVocabulary.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="LwVocabulary.html#LwVocabulary--changed" title="The “changed” property">changed</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwVocabulary.html#LwVocabulary--filename" title="The “filename” property">filename</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="LwVocabulary.html#LwVocabulary--loaded" title="The “loaded” property">loaded</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwVocabulary.signals"></a><h2>Signals</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="signals_return">
+<col width="300px" class="signals_name">
+<col width="200px" class="signals_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwVocabulary.html#LwVocabulary-filename-changed" title="The “filename-changed” signal">filename-changed</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwVocabulary.html#LwVocabulary-internal-row-changed" title="The “internal-row-changed” signal">internal-row-changed</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwVocabulary.html#LwVocabulary-internal-row-deleted" title="The “internal-row-deleted” signal">internal-row-deleted</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwVocabulary.html#LwVocabulary-internal-row-inserted" title="The “internal-row-inserted” signal">internal-row-inserted</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="LwVocabulary.html#LwVocabulary-internal-rows-reordered" title="The “internal-rows-reordered” signal">internal-rows-reordered</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwVocabulary.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwVocabulary.html#LW-KEY-TRIM-FLASHCARDS:CAPS" title="LW_KEY_TRIM_FLASHCARDS">LW_KEY_TRIM_FLASHCARDS</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwVocabulary.html#LW-KEY-SHUFFLE-FLASHCARDS:CAPS" title="LW_KEY_SHUFFLE_FLASHCARDS">LW_KEY_SHUFFLE_FLASHCARDS</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwVocabulary.html#LW-KEY-FLASHCARD-DECK-SIZE:CAPS" title="LW_KEY_FLASHCARD_DECK_SIZE">LW_KEY_FLASHCARD_DECK_SIZE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwVocabulary.html#LW-KEY-TRACK-RESULTS:CAPS" title="LW_KEY_TRACK_RESULTS">LW_KEY_TRACK_RESULTS</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwDictionaryInstallList.html#LW-KEY-ORDER:CAPS" title="LW_KEY_ORDER">LW_KEY_ORDER</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwVocabulary.html#LW-KEY-POSITION-COLUMN-SHOW:CAPS" title="LW_KEY_POSITION_COLUMN_SHOW">LW_KEY_POSITION_COLUMN_SHOW</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwVocabulary.html#LW-KEY-SCORE-COLUMN-SHOW:CAPS" title="LW_KEY_SCORE_COLUMN_SHOW">LW_KEY_SCORE_COLUMN_SHOW</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwVocabulary.html#LW-KEY-TIMESTAMP-COLUMN-SHOW:CAPS" title="LW_KEY_TIMESTAMP_COLUMN_SHOW">LW_KEY_TIMESTAMP_COLUMN_SHOW</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="LwVocabulary.html#LwVocabularyClassPrivate" title="LwVocabularyClassPrivate">LwVocabularyClassPrivate</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwVocabulary.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> LwVocabulary
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwVocabulary.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="LwVocabulary.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-vocabulary-new"></a><h3>lw_vocabulary_new ()</h3>
+<pre class="programlisting"><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="returnvalue">LwVocabulary</span></a> *
+lw_vocabulary_new (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *NAME</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-get-filenames"></a><h3>lw_vocabulary_get_filenames ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **
+lw_vocabulary_get_filenames (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-set-changed"></a><h3>lw_vocabulary_set_changed ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_vocabulary_set_changed (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> changed</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-has-changes"></a><h3>lw_vocabulary_has_changes ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_vocabulary_has_changes (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-set-filename"></a><h3>lw_vocabulary_set_filename ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_vocabulary_set_filename (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                            <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *FILENAME</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-get-filename"></a><h3>lw_vocabulary_get_filename ()</h3>
+<pre class="programlisting">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_vocabulary_get_filename (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-set-loaded"></a><h3>lw_vocabulary_set_loaded ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_vocabulary_set_loaded (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> loaded</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-is-loaded"></a><h3>lw_vocabulary_is_loaded ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_vocabulary_is_loaded (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-get-word-by-index"></a><h3>lw_vocabulary_get_word_by_index ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-word.html#LwWord"><span class="returnvalue">LwWord</span></a> *
+lw_vocabulary_get_word_by_index (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> index</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-get-indices"></a><h3>lw_vocabulary_get_indices ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a> *
+lw_vocabulary_get_indices (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="type">GList</span></a> *words</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-load"></a><h3>lw_vocabulary_load ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_vocabulary_load (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-save"></a><h3>lw_vocabulary_save ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_vocabulary_save (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-length"></a><h3>lw_vocabulary_length ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+lw_vocabulary_length (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-generate-new-filename"></a><h3>lw_vocabulary_generate_new_filename ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_vocabulary_generate_new_filename (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-generate-copied-filename"></a><h3>lw_vocabulary_generate_copied_filename ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_vocabulary_generate_copied_filename
+                               (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *FILENAME</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-has-file"></a><h3>lw_vocabulary_has_file ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_vocabulary_has_file (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-filename-exists"></a><h3>lw_vocabulary_filename_exists ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_vocabulary_filename_exists (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *FILENAME</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-build-uri"></a><h3>lw_vocabulary_build_uri ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_vocabulary_build_uri (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *FILENAME</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-insert"></a><h3>lw_vocabulary_insert ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a> *
+lw_vocabulary_insert (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> position</code></em>,
+                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="type">GList</span></a> *wordlist</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-remove"></a><h3>lw_vocabulary_remove ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *
+lw_vocabulary_remove (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> *indices</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-remove-words"></a><h3>lw_vocabulary_remove_words ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_vocabulary_remove_words (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                            <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GList"><span class="type">GList</span></a> *words</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-nth"></a><h3>lw_vocabulary_nth ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-word.html#LwWord"><span class="returnvalue">LwWord</span></a> *
+lw_vocabulary_nth (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> index</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-to-string"></a><h3>lw_vocabulary_to_string ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_vocabulary_to_string (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-load-from-string"></a><h3>lw_vocabulary_load_from_string ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_vocabulary_load_from_string (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *TEXT</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> take_filename_from_text</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-set"></a><h3>lw_vocabulary_set ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_vocabulary_set (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> position</code></em>,
+                   <em class="parameter"><code>...</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-set-valist"></a><h3>lw_vocabulary_set_valist ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_vocabulary_set_valist (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> position</code></em>,
+                          <em class="parameter"><code><span class="type">va_list</span> va</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-vocabulary-sort"></a><h3>lw_vocabulary_sort ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_vocabulary_sort (<em class="parameter"><code><a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *self</code></em>,
+                    <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Doubly-Linked-Lists.html#GCompareDataFunc"><span class="type">GCompareDataFunc</span></a> compare_func</code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwVocabulary.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LW-KEY-TRIM-FLASHCARDS:CAPS"></a><h3>LW_KEY_TRIM_FLASHCARDS</h3>
+<pre class="programlisting">#define LW_KEY_TRIM_FLASHCARDS       "trim-flashcards"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-SHUFFLE-FLASHCARDS:CAPS"></a><h3>LW_KEY_SHUFFLE_FLASHCARDS</h3>
+<pre class="programlisting">#define LW_KEY_SHUFFLE_FLASHCARDS    "shuffle-flashcards"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-FLASHCARD-DECK-SIZE:CAPS"></a><h3>LW_KEY_FLASHCARD_DECK_SIZE</h3>
+<pre class="programlisting">#define LW_KEY_FLASHCARD_DECK_SIZE   "flashcard-deck-size"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-TRACK-RESULTS:CAPS"></a><h3>LW_KEY_TRACK_RESULTS</h3>
+<pre class="programlisting">#define LW_KEY_TRACK_RESULTS         "track-results"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-ORDER:CAPS"></a><h3>LW_KEY_ORDER</h3>
+<pre class="programlisting">#define             LW_KEY_ORDER</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-POSITION-COLUMN-SHOW:CAPS"></a><h3>LW_KEY_POSITION_COLUMN_SHOW</h3>
+<pre class="programlisting">#define LW_KEY_POSITION_COLUMN_SHOW  "position-column-show"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-SCORE-COLUMN-SHOW:CAPS"></a><h3>LW_KEY_SCORE_COLUMN_SHOW</h3>
+<pre class="programlisting">#define LW_KEY_SCORE_COLUMN_SHOW     "score-column-show"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-TIMESTAMP-COLUMN-SHOW:CAPS"></a><h3>LW_KEY_TIMESTAMP_COLUMN_SHOW</h3>
+<pre class="programlisting">#define LW_KEY_TIMESTAMP_COLUMN_SHOW "timestamp-column-show"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwVocabularyClassPrivate"></a><h3>LwVocabularyClassPrivate</h3>
+<pre class="programlisting">typedef struct _LwVocabularyClassPrivate LwVocabularyClassPrivate;</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwVocabulary.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="LwVocabulary--changed"></a><h3>The <code class="literal">“changed”</code> property</h3>
+<pre class="programlisting">  “changed”                  <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Set the changed.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwVocabulary--filename"></a><h3>The <code class="literal">“filename”</code> property</h3>
+<pre class="programlisting">  “filename”                 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Set the filename.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: "New Vocabulary List"</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwVocabulary--loaded"></a><h3>The <code class="literal">“loaded”</code> property</h3>
+<pre class="programlisting">  “loaded”                   <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Set the loaded.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: FALSE</p>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwVocabulary.signal-details"></a><h2>Signal Details</h2>
+<div class="refsect2">
+<a name="LwVocabulary-filename-changed"></a><h3>The <code class="literal">“filename-changed”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *lwvocabulary,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>        *arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwVocabulary-internal-row-changed"></a><h3>The <code class="literal">“internal-row-changed”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *lwvocabulary,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>          arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwVocabulary-internal-row-deleted"></a><h3>The <code class="literal">“internal-row-deleted”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *lwvocabulary,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>          arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwVocabulary-internal-row-inserted"></a><h3>The <code class="literal">“internal-row-inserted”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *lwvocabulary,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>          arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwVocabulary-internal-rows-reordered"></a><h3>The <code class="literal">“internal-rows-reordered”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="LwVocabulary.html" title="LwVocabulary"><span class="type">LwVocabulary</span></a> *lwvocabulary,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      arg1,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>[Insert title here]: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="index.html" title="libwaei Reference Manual">
+<link rel="prev" href="index.html" title="libwaei Reference Manual">
+<link rel="next" href="LwApplication.html" title="LwApplication">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts"></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><img src="up-insensitive.png" width="16" height="16" border="0"></td>
+<td><a accesskey="p" href="index.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="LwApplication.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="id-1.2"></a>[Insert title here]</h1></div></div></div>
+<div class="toc"><dl class="toc">
+<dt>
+<span class="refentrytitle"><a href="LwApplication.html">LwApplication</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwCacheFile.html">LwCacheFile</a></span><span class="refpurpose"> — A mapped file that includes a checksum and is writable</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwCommand.html">LwCommand</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-condition.html">condition</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-dependancy.html">dependancy</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwDictionary.html">LwDictionary</a></span><span class="refpurpose"> — Parse, normalize, and uninstall Dictionaries</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-dictionary-callbacks.html">dictionary-callbacks</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-dictionary-index.html">dictionary-index</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwDictionaryCache.html">LwDictionaryCache</a></span><span class="refpurpose"> — Searchable normalized parsed dictionary information</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwDictionaryInstall.html">LwDictionaryInstall</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwDictionaryInstallList.html">LwDictionaryInstallList</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-dictionaryinstalllist-callbacks.html">dictionaryinstalllist-callbacks</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-dictionaryinstallstate.html">dictionaryinstallstate</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-dictionaryinstallstatehistory.html">dictionaryinstallstatehistory</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwDictionaryList.html">LwDictionaryList</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-dictionarylist-callbacks.html">dictionarylist-callbacks</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwDictionaryModule.html">LwDictionaryModule</a></span><span class="refpurpose"> — Methods for dynamically loading libwaei dictionaries</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-filepath.html">filepath</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-gettext.html">gettext</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-index.html">index</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwIndexed.html">LwIndexed</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwInstallSubCommand.html">LwInstallSubCommand</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-IO-Utility-Methods.html">IO Utility Methods</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwMappedFile.html">LwMappedFile</a></span><span class="refpurpose"> — A wrapper for creating and managing mapped files</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-LwParenthesisNode.html">LwParenthesisNode</a></span><span class="refpurpose"> — A node structure describing text with parenthesis</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwParsed.html">LwParsed</a></span><span class="refpurpose"> — A container for parsed lines</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-LwParsedLine.html">LwParsedLine</a></span><span class="refpurpose"> — A simple object to hold a definition line in a parsed form</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwPreferences.html">LwPreferences</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwProgress.html">LwProgress</a></span><span class="refpurpose"> — An object to track task progress and errors</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-LwQueryNode.html">LwQueryNode</a></span><span class="refpurpose"> — A query tree structure for searches</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-LwQueryNodeColumnMatchInfo.html">LwQueryNodeColumnMatchInfo</a></span><span class="refpurpose"> — Match information for a specific dictionary column</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-LwQueryNodeMatchInfo.html">LwQueryNodeMatchInfo</a></span><span class="refpurpose"> — A way to inspect deeper information on matches</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-LwQueryNodeMatchMarker.html">LwQueryNodeMatchMarker</a></span><span class="refpurpose"> — Mark the start and end of <span class="type">GMatchInfo</span> matches</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-range.html">range</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-row.html">row</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwSearch.html">LwSearch</a></span><span class="refpurpose"> — Search and search result management</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwSearchSubCommand.html">LwSearchSubCommand</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwSerializable.html">LwSerializable</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwSubCommand.html">LwSubCommand</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwUninstallSubCommand.html">LwUninstallSubCommand</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-UTF-8.html">UTF-8</a></span><span class="refpurpose"> — UTF-8 utility methods</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="LwVocabulary.html">LwVocabulary</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="libwaei-word.html">word</a></span><span class="refpurpose"></span>
+</dt>
+</dl></div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

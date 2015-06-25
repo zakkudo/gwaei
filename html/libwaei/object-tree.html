@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Object Hierarchy: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="index.html" title="libwaei Reference Manual">
+<link rel="prev" href="libwaei-word.html" title="word">
+<link rel="next" href="api-index-full.html" title="API Index">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts"></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><img src="up-insensitive.png" width="16" height="16" border="0"></td>
+<td><a accesskey="p" href="libwaei-word.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="api-index-full.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="object-tree"></a>Object Hierarchy</h1></div></div></div>
+<pre class="screen">
+    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">├──</span> <a href="/usr/share/gtk-doc/html/gio/GApplication.html">GApplication</a>
+    <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="LwApplication.html" title="LwApplication">LwApplication</a>
+    <span class="lineart">├──</span> <a class="link" href="LwMappedFile.html" title="LwMappedFile">LwMappedFile</a>
+    <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="LwCacheFile.html" title="LwCacheFile">LwCacheFile</a>
+    <span class="lineart">├──</span> <a class="link" href="LwCommand.html" title="LwCommand">LwCommand</a>
+    <span class="lineart">├──</span> <a class="link" href="LwDictionary.html" title="LwDictionary">LwDictionary</a>
+    <span class="lineart">├──</span> <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache">LwDictionaryCache</a>
+    <span class="lineart">├──</span> <a class="link" href="LwDictionaryInstall.html" title="LwDictionaryInstall">LwDictionaryInstall</a>
+    <span class="lineart">├──</span> <a class="link" href="LwDictionaryInstallList.html" title="LwDictionaryInstallList">LwDictionaryInstallList</a>
+    <span class="lineart">├──</span> <a class="link" href="LwDictionaryList.html" title="LwDictionaryList">LwDictionaryList</a>
+    <span class="lineart">├──</span> <a href="/usr/share/gtk-doc/html/gobject/GTypeModule.html">GTypeModule</a>
+    <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="LwDictionaryModule.html" title="LwDictionaryModule">LwDictionaryModule</a>
+    <span class="lineart">├──</span> <a class="link" href="LwSerializable.html" title="LwSerializable">LwSerializable</a>
+    <span class="lineart">│</span>   <span class="lineart">├──</span> <a class="link" href="LwIndexed.html" title="LwIndexed">LwIndexed</a>
+    <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="LwParsed.html" title="LwParsed">LwParsed</a>
+    <span class="lineart">├──</span> <a class="link" href="LwSubCommand.html" title="LwSubCommand">LwSubCommand</a>
+    <span class="lineart">│</span>   <span class="lineart">├──</span> <a class="link" href="LwInstallSubCommand.html" title="LwInstallSubCommand">LwInstallSubCommand</a>
+    <span class="lineart">│</span>   <span class="lineart">├──</span> <a class="link" href="LwSearchSubCommand.html" title="LwSearchSubCommand">LwSearchSubCommand</a>
+    <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="LwUninstallSubCommand.html" title="LwUninstallSubCommand">LwUninstallSubCommand</a>
+    <span class="lineart">├──</span> <a class="link" href="LwPreferences.html" title="LwPreferences">LwPreferences</a>
+    <span class="lineart">├──</span> <a class="link" href="LwProgress.html" title="LwProgress">LwProgress</a>
+    <span class="lineart">├──</span> <a class="link" href="LwSearch.html" title="LwSearch">LwSearch</a>
+    <span class="lineart">╰──</span> <a class="link" href="LwVocabulary.html" title="LwVocabulary">LwVocabulary</a>
+    <a href="/usr/share/gtk-doc/html/gobject/gobject-Boxed-Types.html">GBoxed</a>
+    <span class="lineart">├──</span> <a class="link" href="libwaei-condition.html#LwCondition">LwCondition</a>
+    <span class="lineart">├──</span> <a class="link" href="libwaei-dependancy.html#LwDependancy">LwDependancy</a>
+    <span class="lineart">╰──</span> <a class="link" href="libwaei-word.html#LwWord">LwWord</a>
+    <a href="/usr/share/gtk-doc/html/gobject/gobject-Enumeration-and-Flag-Types.html">GEnum</a>
+    <span class="lineart">├──</span> LwDictionaryColumnHandling
+    <span class="lineart">├──</span> LwSearchStatus
+    <span class="lineart">╰──</span> LwWordField
+    <a href="/usr/share/gtk-doc/html/gobject/gobject-Enumeration-and-Flag-Types.html">GFlags</a>
+    <span class="lineart">├──</span> LwSearchFlag
+    <span class="lineart">╰──</span> <a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag">LwUtf8Flag</a>
+</pre>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

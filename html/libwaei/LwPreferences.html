@@ -1,0 +1,862 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwPreferences: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="libwaei-LwParsedLine.html" title="LwParsedLine">
+<link rel="next" href="LwProgress.html" title="LwProgress">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#LwPreferences.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#LwPreferences.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#LwPreferences.properties" class="shortcut">Properties</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="libwaei-LwParsedLine.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="LwProgress.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="LwPreferences"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="LwPreferences.top_of_page"></a>LwPreferences</span></h2>
+<p>LwPreferences</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="LwPreferences.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="LwPreferences.html" title="LwPreferences"><span class="returnvalue">LwPreferences</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-new" title="lw_preferences_new ()">lw_preferences_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwPreferences.html" title="LwPreferences"><span class="returnvalue">LwPreferences</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-get-default" title="lw_preferences_get_default ()">lw_preferences_get_default</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-schema-is-installed" title="lw_preferences_schema_is_installed ()">lw_preferences_schema_is_installed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="returnvalue">GSettings</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-get-settings-object" title="lw_preferences_get_settings_object ()">lw_preferences_get_settings_object</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-reset-value" title="lw_preferences_reset_value ()">lw_preferences_reset_value</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-reset-value-by-schema" title="lw_preferences_reset_value_by_schema ()">lw_preferences_reset_value_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">int</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-get-int" title="lw_preferences_get_int ()">lw_preferences_get_int</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">int</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-get-int-by-schema" title="lw_preferences_get_int_by_schema ()">lw_preferences_get_int_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-set-int" title="lw_preferences_set_int ()">lw_preferences_set_int</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-set-int-by-schema" title="lw_preferences_set_int_by_schema ()">lw_preferences_set_int_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-get-boolean" title="lw_preferences_get_boolean ()">lw_preferences_get_boolean</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-get-boolean-by-schema" title="lw_preferences_get_boolean_by_schema ()">lw_preferences_get_boolean_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-set-boolean" title="lw_preferences_set_boolean ()">lw_preferences_set_boolean</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-set-boolean-by-schema" title="lw_preferences_set_boolean_by_schema ()">lw_preferences_set_boolean_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-get-string" title="lw_preferences_get_string ()">lw_preferences_get_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-get-string-by-schema" title="lw_preferences_get_string_by_schema ()">lw_preferences_get_string_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-set-string" title="lw_preferences_set_string ()">lw_preferences_set_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-set-string-by-schema" title="lw_preferences_set_string_by_schema ()">lw_preferences_set_string_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-get-strv" title="lw_preferences_get_strv ()">lw_preferences_get_strv</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-get-strv-by-schema" title="lw_preferences_get_strv_by_schema ()">lw_preferences_get_strv_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-set-strv" title="lw_preferences_set_strv ()">lw_preferences_set_strv</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-set-strv-by-schema" title="lw_preferences_set_strv_by_schema ()">lw_preferences_set_strv_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gulong"><span class="returnvalue">gulong</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-add-change-listener" title="lw_preferences_add_change_listener ()">lw_preferences_add_change_listener</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gulong"><span class="returnvalue">gulong</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-add-change-listener-by-schema" title="lw_preferences_add_change_listener_by_schema ()">lw_preferences_add_change_listener_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-remove-change-listener" title="lw_preferences_remove_change_listener ()">lw_preferences_remove_change_listener</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwPreferences.html#lw-preferences-remove-change-listener-by-schema" title="lw_preferences_remove_change_listener_by_schema ()">lw_preferences_remove_change_listener_by_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwPreferences.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody><tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/gio/GSettingsBackend.html"><span class="type">GSettingsBackend</span></a> *</td>
+<td class="property_name"><a class="link" href="LwPreferences.html#LwPreferences--backend" title="The “backend” property">backend</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwPreferences.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#G-SETTINGS-ENABLE-BACKEND:CAPS" title="G_SETTINGS_ENABLE_BACKEND">G_SETTINGS_ENABLE_BACKEND</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-SCHEMA-GNOME-INTERFACE:CAPS" title="LW_SCHEMA_GNOME_INTERFACE">LW_SCHEMA_GNOME_INTERFACE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-TOOLBAR-STYLE:CAPS" title="LW_KEY_TOOLBAR_STYLE">LW_KEY_TOOLBAR_STYLE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-DOCUMENT-FONT-NAME:CAPS" title="LW_KEY_DOCUMENT_FONT_NAME">LW_KEY_DOCUMENT_FONT_NAME</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-PROGRAM-VERSION:CAPS" title="LW_KEY_PROGRAM_VERSION">LW_KEY_PROGRAM_VERSION</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-SCHEMA-BASE:CAPS" title="LW_SCHEMA_BASE">LW_SCHEMA_BASE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-WINDOW-SIZE:CAPS" title="LW_KEY_WINDOW_SIZE">LW_KEY_WINDOW_SIZE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-TABBAR-SHOW:CAPS" title="LW_KEY_TABBAR_SHOW">LW_KEY_TABBAR_SHOW</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-MENUBAR-SHOW:CAPS" title="LW_KEY_MENUBAR_SHOW">LW_KEY_MENUBAR_SHOW</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-TOOLBAR-SHOW:CAPS" title="LW_KEY_TOOLBAR_SHOW">LW_KEY_TOOLBAR_SHOW</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-STATUSBAR-SHOW:CAPS" title="LW_KEY_STATUSBAR_SHOW">LW_KEY_STATUSBAR_SHOW</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-SPELLCHECK-DICTIONARY:CAPS" title="LW_KEY_SPELLCHECK_DICTIONARY">LW_KEY_SPELLCHECK_DICTIONARY</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-SEARCH-AS-YOU-TYPE:CAPS" title="LW_KEY_SEARCH_AS_YOU_TYPE">LW_KEY_SEARCH_AS_YOU_TYPE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-SPELLCHECK:CAPS" title="LW_KEY_SPELLCHECK">LW_KEY_SPELLCHECK</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-FURIGANA-INSENSITIVE:CAPS" title="LW_KEY_FURIGANA_INSENSITIVE">LW_KEY_FURIGANA_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-CASE-INSENSITIVE:CAPS" title="LW_KEY_CASE_INSENSITIVE">LW_KEY_CASE_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-STEM-INSENSITIVE:CAPS" title="LW_KEY_STEM_INSENSITIVE">LW_KEY_STEM_INSENSITIVE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-ROMAJI-TO-FURIGANA:CAPS" title="LW_KEY_ROMAJI_TO_FURIGANA">LW_KEY_ROMAJI_TO_FURIGANA</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-INDEX-RESULTS:CAPS" title="LW_KEY_INDEX_RESULTS">LW_KEY_INDEX_RESULTS</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-ONTLY-EXACT-MATCHES:CAPS" title="LW_KEY_ONTLY_EXACT_MATCHES">LW_KEY_ONTLY_EXACT_MATCHES</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-SCHEMA-FONT:CAPS" title="LW_SCHEMA_FONT">LW_SCHEMA_FONT</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-FONT-USE-GLOBAL-FONT:CAPS" title="LW_KEY_FONT_USE_GLOBAL_FONT">LW_KEY_FONT_USE_GLOBAL_FONT</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-FONT-CUSTOM-FONT:CAPS" title="LW_KEY_FONT_CUSTOM_FONT">LW_KEY_FONT_CUSTOM_FONT</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-FONT-MAGNIFICATION:CAPS" title="LW_KEY_FONT_MAGNIFICATION">LW_KEY_FONT_MAGNIFICATION</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-SCHEMA-HIGHLIGHT:CAPS" title="LW_SCHEMA_HIGHLIGHT">LW_SCHEMA_HIGHLIGHT</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-MATCH-FG:CAPS" title="LW_KEY_MATCH_FG">LW_KEY_MATCH_FG</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-MATCH-BG:CAPS" title="LW_KEY_MATCH_BG">LW_KEY_MATCH_BG</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-HEADER-FG:CAPS" title="LW_KEY_HEADER_FG">LW_KEY_HEADER_FG</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-HEADER-BG:CAPS" title="LW_KEY_HEADER_BG">LW_KEY_HEADER_BG</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-KEY-COMMENT-FG:CAPS" title="LW_KEY_COMMENT_FG">LW_KEY_COMMENT_FG</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-MATCH-FG-DEFAULT:CAPS" title="LW_MATCH_FG_DEFAULT">LW_MATCH_FG_DEFAULT</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-MATCH-BG-DEFAULT:CAPS" title="LW_MATCH_BG_DEFAULT">LW_MATCH_BG_DEFAULT</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-HEADER-FG-DEFAULT:CAPS" title="LW_HEADER_FG_DEFAULT">LW_HEADER_FG_DEFAULT</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-HEADER-BG-DEFAULT:CAPS" title="LW_HEADER_BG_DEFAULT">LW_HEADER_BG_DEFAULT</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwPreferences.html#LW-COMMENT-FG-DEFAULT:CAPS" title="LW_COMMENT_FG_DEFAULT">LW_COMMENT_FG_DEFAULT</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwPreferences.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> LwPreferences
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwPreferences.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="LwPreferences.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-preferences-new"></a><h3>lw_preferences_new ()</h3>
+<pre class="programlisting"><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="returnvalue">LwPreferences</span></a> *
+lw_preferences_new (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettingsBackend.html"><span class="type">GSettingsBackend</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-get-default"></a><h3>lw_preferences_get_default ()</h3>
+<pre class="programlisting"><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="returnvalue">LwPreferences</span></a> *
+lw_preferences_get_default (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-schema-is-installed"></a><h3>lw_preferences_schema_is_installed ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_preferences_schema_is_installed (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-get-settings-object"></a><h3>lw_preferences_get_settings_object ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="returnvalue">GSettings</span></a> *
+lw_preferences_get_settings_object (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *Param1</code></em>,
+                                    <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-reset-value"></a><h3>lw_preferences_reset_value ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_reset_value (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *Param1</code></em>,
+                            <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-reset-value-by-schema"></a><h3>lw_preferences_reset_value_by_schema ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_reset_value_by_schema (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *Param1</code></em>,
+                                      <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                                      <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param3</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-get-int"></a><h3>lw_preferences_get_int ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>
+lw_preferences_get_int (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *Param1</code></em>,
+                        <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-get-int-by-schema"></a><h3>lw_preferences_get_int_by_schema ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>
+lw_preferences_get_int_by_schema (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *Param1</code></em>,
+                                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param3</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-set-int"></a><h3>lw_preferences_set_int ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_set_int (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *Param1</code></em>,
+                        <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                        <em class="parameter"><code>const <span class="type">int</span> Param3</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-set-int-by-schema"></a><h3>lw_preferences_set_int_by_schema ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_set_int_by_schema (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *Param1</code></em>,
+                                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param3</code></em>,
+                                  <em class="parameter"><code>const <span class="type">int</span> Param4</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-get-boolean"></a><h3>lw_preferences_get_boolean ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_preferences_get_boolean (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *Param1</code></em>,
+                            <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-get-boolean-by-schema"></a><h3>lw_preferences_get_boolean_by_schema ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_preferences_get_boolean_by_schema (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *Param1</code></em>,
+                                      <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                                      <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param3</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-set-boolean"></a><h3>lw_preferences_set_boolean ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_set_boolean (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *Param1</code></em>,
+                            <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                            <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> Param3</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-set-boolean-by-schema"></a><h3>lw_preferences_set_boolean_by_schema ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_set_boolean_by_schema (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *Param1</code></em>,
+                                      <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                                      <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param3</code></em>,
+                                      <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> Param4</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-get-string"></a><h3>lw_preferences_get_string ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_preferences_get_string (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *Param1</code></em>,
+                           <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-get-string-by-schema"></a><h3>lw_preferences_get_string_by_schema ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_preferences_get_string_by_schema (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *Param1</code></em>,
+                                     <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                                     <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param3</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-set-string"></a><h3>lw_preferences_set_string ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_set_string (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *Param1</code></em>,
+                           <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                           <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param3</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-set-string-by-schema"></a><h3>lw_preferences_set_string_by_schema ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_set_string_by_schema (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *Param1</code></em>,
+                                     <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                                     <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param3</code></em>,
+                                     <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param4</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-get-strv"></a><h3>lw_preferences_get_strv ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **
+lw_preferences_get_strv (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *settings</code></em>,
+                         <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *KEY</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-get-strv-by-schema"></a><h3>lw_preferences_get_strv_by_schema ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> **
+lw_preferences_get_strv_by_schema (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *preferences</code></em>,
+                                   <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *SCHEMA</code></em>,
+                                   <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *KEY</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-set-strv"></a><h3>lw_preferences_set_strv ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_set_strv (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *settings</code></em>,
+                         <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *KEY</code></em>,
+                         <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *const *REQUEST</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-set-strv-by-schema"></a><h3>lw_preferences_set_strv_by_schema ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_set_strv_by_schema (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *preferences</code></em>,
+                                   <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *SCHEMA</code></em>,
+                                   <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *KEY</code></em>,
+                                   <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *const *REQUEST</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-add-change-listener"></a><h3>lw_preferences_add_change_listener ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gulong"><span class="returnvalue">gulong</span></a>
+lw_preferences_add_change_listener (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *Param1</code></em>,
+                                    <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                                    <em class="parameter"><code><span class="type">void</span> (*callback_function) (GSettings*, gchar*, gpointer)</code></em>,
+                                    <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> Param4</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-add-change-listener-by-schema"></a><h3>lw_preferences_add_change_listener_by_schema ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gulong"><span class="returnvalue">gulong</span></a>
+lw_preferences_add_change_listener_by_schema
+                               (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *Param1</code></em>,
+                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param3</code></em>,
+                                <em class="parameter"><code><span class="type">void</span> (*callback_function) (GSettings*, gchar*, gpointer)</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> Param5</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-remove-change-listener"></a><h3>lw_preferences_remove_change_listener ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_remove_change_listener (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gio/GSettings.html"><span class="type">GSettings</span></a> *Param1</code></em>,
+                                       <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gulong"><span class="type">gulong</span></a> Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-preferences-remove-change-listener-by-schema"></a><h3>lw_preferences_remove_change_listener_by_schema ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_preferences_remove_change_listener_by_schema
+                               (<em class="parameter"><code><a class="link" href="LwPreferences.html" title="LwPreferences"><span class="type">LwPreferences</span></a> *Param1</code></em>,
+                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gulong"><span class="type">gulong</span></a> Param3</code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwPreferences.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="G-SETTINGS-ENABLE-BACKEND:CAPS"></a><h3>G_SETTINGS_ENABLE_BACKEND</h3>
+<pre class="programlisting">#define G_SETTINGS_ENABLE_BACKEND
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SCHEMA-GNOME-INTERFACE:CAPS"></a><h3>LW_SCHEMA_GNOME_INTERFACE</h3>
+<pre class="programlisting">#define LW_SCHEMA_GNOME_INTERFACE   "org.gnome.desktop.interface"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-TOOLBAR-STYLE:CAPS"></a><h3>LW_KEY_TOOLBAR_STYLE</h3>
+<pre class="programlisting">#define LW_KEY_TOOLBAR_STYLE        "toolbar-style"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-DOCUMENT-FONT-NAME:CAPS"></a><h3>LW_KEY_DOCUMENT_FONT_NAME</h3>
+<pre class="programlisting">#define LW_KEY_DOCUMENT_FONT_NAME   "font-name"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-PROGRAM-VERSION:CAPS"></a><h3>LW_KEY_PROGRAM_VERSION</h3>
+<pre class="programlisting">#define LW_KEY_PROGRAM_VERSION      "version"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SCHEMA-BASE:CAPS"></a><h3>LW_SCHEMA_BASE</h3>
+<pre class="programlisting">#define LW_SCHEMA_BASE               "org.gnome.gwaei"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-WINDOW-SIZE:CAPS"></a><h3>LW_KEY_WINDOW_SIZE</h3>
+<pre class="programlisting">#define LW_KEY_WINDOW_SIZE           "window-size"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-TABBAR-SHOW:CAPS"></a><h3>LW_KEY_TABBAR_SHOW</h3>
+<pre class="programlisting">#define LW_KEY_TABBAR_SHOW           "tabbar-show"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-MENUBAR-SHOW:CAPS"></a><h3>LW_KEY_MENUBAR_SHOW</h3>
+<pre class="programlisting">#define LW_KEY_MENUBAR_SHOW          "menubar-show"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-TOOLBAR-SHOW:CAPS"></a><h3>LW_KEY_TOOLBAR_SHOW</h3>
+<pre class="programlisting">#define LW_KEY_TOOLBAR_SHOW          "toolbar-show"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-STATUSBAR-SHOW:CAPS"></a><h3>LW_KEY_STATUSBAR_SHOW</h3>
+<pre class="programlisting">#define LW_KEY_STATUSBAR_SHOW        "statusbar-show"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-SPELLCHECK-DICTIONARY:CAPS"></a><h3>LW_KEY_SPELLCHECK_DICTIONARY</h3>
+<pre class="programlisting">#define LW_KEY_SPELLCHECK_DICTIONARY "spellcheck-dictionary"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-SEARCH-AS-YOU-TYPE:CAPS"></a><h3>LW_KEY_SEARCH_AS_YOU_TYPE</h3>
+<pre class="programlisting">#define LW_KEY_SEARCH_AS_YOU_TYPE    "search-as-you-type"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-SPELLCHECK:CAPS"></a><h3>LW_KEY_SPELLCHECK</h3>
+<pre class="programlisting">#define LW_KEY_SPELLCHECK           "query-spellcheck"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-FURIGANA-INSENSITIVE:CAPS"></a><h3>LW_KEY_FURIGANA_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_KEY_FURIGANA_INSENSITIVE "query-furigana-insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-CASE-INSENSITIVE:CAPS"></a><h3>LW_KEY_CASE_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_KEY_CASE_INSENSITIVE     "query-case-insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-STEM-INSENSITIVE:CAPS"></a><h3>LW_KEY_STEM_INSENSITIVE</h3>
+<pre class="programlisting">#define LW_KEY_STEM_INSENSITIVE     "query-stem-insensitive"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-ROMAJI-TO-FURIGANA:CAPS"></a><h3>LW_KEY_ROMAJI_TO_FURIGANA</h3>
+<pre class="programlisting">#define LW_KEY_ROMAJI_TO_FURIGANA   "query-romaji-to-furigana"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-INDEX-RESULTS:CAPS"></a><h3>LW_KEY_INDEX_RESULTS</h3>
+<pre class="programlisting">#define LW_KEY_INDEX_RESULTS        "index-results"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-ONTLY-EXACT-MATCHES:CAPS"></a><h3>LW_KEY_ONTLY_EXACT_MATCHES</h3>
+<pre class="programlisting">#define LW_KEY_ONTLY_EXACT_MATCHES  "only-exact-matches"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SCHEMA-FONT:CAPS"></a><h3>LW_SCHEMA_FONT</h3>
+<pre class="programlisting">#define LW_SCHEMA_FONT               "org.gnome.gwaei.fonts"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-FONT-USE-GLOBAL-FONT:CAPS"></a><h3>LW_KEY_FONT_USE_GLOBAL_FONT</h3>
+<pre class="programlisting">#define LW_KEY_FONT_USE_GLOBAL_FONT  "use-global-document-font"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-FONT-CUSTOM-FONT:CAPS"></a><h3>LW_KEY_FONT_CUSTOM_FONT</h3>
+<pre class="programlisting">#define LW_KEY_FONT_CUSTOM_FONT      "custom-document-font"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-FONT-MAGNIFICATION:CAPS"></a><h3>LW_KEY_FONT_MAGNIFICATION</h3>
+<pre class="programlisting">#define LW_KEY_FONT_MAGNIFICATION    "magnification"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-SCHEMA-HIGHLIGHT:CAPS"></a><h3>LW_SCHEMA_HIGHLIGHT</h3>
+<pre class="programlisting">#define LW_SCHEMA_HIGHLIGHT     "org.gnome.gwaei.highlighting"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-MATCH-FG:CAPS"></a><h3>LW_KEY_MATCH_FG</h3>
+<pre class="programlisting">#define LW_KEY_MATCH_FG         "match-foreground"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-MATCH-BG:CAPS"></a><h3>LW_KEY_MATCH_BG</h3>
+<pre class="programlisting">#define LW_KEY_MATCH_BG         "match-background"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-HEADER-FG:CAPS"></a><h3>LW_KEY_HEADER_FG</h3>
+<pre class="programlisting">#define LW_KEY_HEADER_FG        "header-foreground"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-HEADER-BG:CAPS"></a><h3>LW_KEY_HEADER_BG</h3>
+<pre class="programlisting">#define LW_KEY_HEADER_BG        "header-background"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-KEY-COMMENT-FG:CAPS"></a><h3>LW_KEY_COMMENT_FG</h3>
+<pre class="programlisting">#define LW_KEY_COMMENT_FG       "comment-foreground"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-MATCH-FG-DEFAULT:CAPS"></a><h3>LW_MATCH_FG_DEFAULT</h3>
+<pre class="programlisting">#define LW_MATCH_FG_DEFAULT       "#000000"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-MATCH-BG-DEFAULT:CAPS"></a><h3>LW_MATCH_BG_DEFAULT</h3>
+<pre class="programlisting">#define LW_MATCH_BG_DEFAULT       "#CCEECC"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-HEADER-FG-DEFAULT:CAPS"></a><h3>LW_HEADER_FG_DEFAULT</h3>
+<pre class="programlisting">#define LW_HEADER_FG_DEFAULT      "#EE1111"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-HEADER-BG-DEFAULT:CAPS"></a><h3>LW_HEADER_BG_DEFAULT</h3>
+<pre class="programlisting">#define LW_HEADER_BG_DEFAULT      "#FFDEDE"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-COMMENT-FG-DEFAULT:CAPS"></a><h3>LW_COMMENT_FG_DEFAULT</h3>
+<pre class="programlisting">#define LW_COMMENT_FG_DEFAULT     "#2222DD"
+</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwPreferences.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="LwPreferences--backend"></a><h3>The <code class="literal">“backend”</code> property</h3>
+<pre class="programlisting">  “backend”                  <a href="/usr/share/gtk-doc/html/gio/GSettingsBackend.html"><span class="type">GSettingsBackend</span></a> *</pre>
+<p>Set the preferences's backend.</p>
+<p>Flags: Read / Write / Construct</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

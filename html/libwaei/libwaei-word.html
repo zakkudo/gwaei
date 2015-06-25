@@ -1,0 +1,561 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>word: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="LwVocabulary.html" title="LwVocabulary">
+<link rel="next" href="object-tree.html" title="Object Hierarchy">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#libwaei-word.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#libwaei-word.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="LwVocabulary.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="object-tree.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="libwaei-word"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="libwaei-word.top_of_page"></a>word</span></h2>
+<p>word</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="libwaei-word.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-word.html#LwWord"><span class="returnvalue">LwWord</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-new" title="lw_word_new ()">lw_word_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-word.html#LwWord"><span class="returnvalue">LwWord</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-new-from-string" title="lw_word_new_from_string ()">lw_word_new_from_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-free" title="lw_word_free ()">lw_word_free</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-set-kanji" title="lw_word_set_kanji ()">lw_word_set_kanji</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-kanji" title="lw_word_get_kanji ()">lw_word_get_kanji</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-set-reading" title="lw_word_set_reading ()">lw_word_set_reading</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-reading" title="lw_word_get_reading ()">lw_word_get_reading</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-set-definition" title="lw_word_set_definition ()">lw_word_set_definition</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-definition" title="lw_word_get_definition ()">lw_word_get_definition</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-correct-guesses" title="lw_word_get_correct_guesses ()">lw_word_get_correct_guesses</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-set-correct-guesses" title="lw_word_set_correct_guesses ()">lw_word_set_correct_guesses</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-incorrect-guesses" title="lw_word_get_incorrect_guesses ()">lw_word_get_incorrect_guesses</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-set-incorrect-guesses" title="lw_word_set_incorrect_guesses ()">lw_word_set_incorrect_guesses</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-score" title="lw_word_get_score ()">lw_word_get_score</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-score-as-string" title="lw_word_get_score_as_string ()">lw_word_get_score_as_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-timestamp-to-hours" title="lw_word_timestamp_to_hours ()">lw_word_timestamp_to_hours</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-set-timestamp" title="lw_word_set_timestamp ()">lw_word_set_timestamp</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-update-timestamp" title="lw_word_update_timestamp ()">lw_word_update_timestamp</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-set-last-studied" title="lw_word_set_last_studied ()">lw_word_set_last_studied</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-last-studied" title="lw_word_get_last_studied ()">lw_word_get_last_studied</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-last-studied-as-string" title="lw_word_get_last_studied_as_string ()">lw_word_get_last_studied_as_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-to-string" title="lw_word_to_string ()">lw_word_to_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint64"><span class="returnvalue">gint64</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-timestamp" title="lw_word_get_timestamp ()">lw_word_get_timestamp</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-get-timestamp-as-string" title="lw_word_get_timestamp_as_string ()">lw_word_get_timestamp_as_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-has-changes" title="lw_word_has_changes ()">lw_word_has_changes</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-word.html#LwWord"><span class="returnvalue">LwWord</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-word.html#lw-word-copy" title="lw_word_copy ()">lw_word_copy</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<a name="LwWord"></a><div class="refsect1">
+<a name="libwaei-word.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNAME-KANJI:CAPS" title="LW_WORDFIELDNAME_KANJI">LW_WORDFIELDNAME_KANJI</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNAME-READING:CAPS" title="LW_WORDFIELDNAME_READING">LW_WORDFIELDNAME_READING</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNAME-DEFINITION:CAPS" title="LW_WORDFIELDNAME_DEFINITION">LW_WORDFIELDNAME_DEFINITION</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNAME-CORRECT-GUESSES:CAPS" title="LW_WORDFIELDNAME_CORRECT_GUESSES">LW_WORDFIELDNAME_CORRECT_GUESSES</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNAME-INCORRECT-GUESSES:CAPS" title="LW_WORDFIELDNAME_INCORRECT_GUESSES">LW_WORDFIELDNAME_INCORRECT_GUESSES</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNAME-TIMESTAMP:CAPS" title="LW_WORDFIELDNAME_TIMESTAMP">LW_WORDFIELDNAME_TIMESTAMP</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNICK-KANJI:CAPS" title="LW_WORDFIELDNICK_KANJI">LW_WORDFIELDNICK_KANJI</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNICK-READING:CAPS" title="LW_WORDFIELDNICK_READING">LW_WORDFIELDNICK_READING</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNICK-DEFINITION:CAPS" title="LW_WORDFIELDNICK_DEFINITION">LW_WORDFIELDNICK_DEFINITION</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNICK-CORRECT-GUESSES:CAPS" title="LW_WORDFIELDNICK_CORRECT_GUESSES">LW_WORDFIELDNICK_CORRECT_GUESSES</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNICK-INCORRECT-GUESSES:CAPS" title="LW_WORDFIELDNICK_INCORRECT_GUESSES">LW_WORDFIELDNICK_INCORRECT_GUESSES</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-word.html#LW-WORDFIELDNICK-TIMESTAMP:CAPS" title="LW_WORDFIELDNICK_TIMESTAMP">LW_WORDFIELDNICK_TIMESTAMP</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="libwaei-word.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-Boxed-Types.html">GBoxed</a>
+    <span class="lineart">╰──</span> LwWord
+    <a href="/usr/share/gtk-doc/html/gobject/gobject-Enumeration-and-Flag-Types.html">GEnum</a>
+    <span class="lineart">╰──</span> LwWordField
+</pre>
+</div>
+<div class="refsect1">
+<a name="libwaei-word.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="libwaei-word.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-word-new"></a><h3>lw_word_new ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-word.html#LwWord"><span class="returnvalue">LwWord</span></a> *
+lw_word_new (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-new-from-string"></a><h3>lw_word_new_from_string ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-word.html#LwWord"><span class="returnvalue">LwWord</span></a> *
+lw_word_new_from_string (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-free"></a><h3>lw_word_free ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_word_free (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-set-kanji"></a><h3>lw_word_set_kanji ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_word_set_kanji (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>,
+                   <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-kanji"></a><h3>lw_word_get_kanji ()</h3>
+<pre class="programlisting">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_word_get_kanji (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-set-reading"></a><h3>lw_word_set_reading ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_word_set_reading (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>,
+                     <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-reading"></a><h3>lw_word_get_reading ()</h3>
+<pre class="programlisting">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_word_get_reading (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-set-definition"></a><h3>lw_word_set_definition ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_word_set_definition (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>,
+                        <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-definition"></a><h3>lw_word_get_definition ()</h3>
+<pre class="programlisting">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_word_get_definition (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-correct-guesses"></a><h3>lw_word_get_correct_guesses ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+lw_word_get_correct_guesses (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-set-correct-guesses"></a><h3>lw_word_set_correct_guesses ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_word_set_correct_guesses (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>,
+                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-incorrect-guesses"></a><h3>lw_word_get_incorrect_guesses ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+lw_word_get_incorrect_guesses (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-set-incorrect-guesses"></a><h3>lw_word_set_incorrect_guesses ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_word_set_incorrect_guesses (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>,
+                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-score"></a><h3>lw_word_get_score ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+lw_word_get_score (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-score-as-string"></a><h3>lw_word_get_score_as_string ()</h3>
+<pre class="programlisting">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_word_get_score_as_string (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-timestamp-to-hours"></a><h3>lw_word_timestamp_to_hours ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>
+lw_word_timestamp_to_hours (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a> Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-set-timestamp"></a><h3>lw_word_set_timestamp ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_word_set_timestamp (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>,
+                       <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a> Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-update-timestamp"></a><h3>lw_word_update_timestamp ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_word_update_timestamp (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-set-last-studied"></a><h3>lw_word_set_last_studied ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_word_set_last_studied (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>,
+                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> Param2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-last-studied"></a><h3>lw_word_get_last_studied ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>
+lw_word_get_last_studied (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-last-studied-as-string"></a><h3>lw_word_get_last_studied_as_string ()</h3>
+<pre class="programlisting">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_word_get_last_studied_as_string (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-to-string"></a><h3>lw_word_to_string ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_word_to_string (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-timestamp"></a><h3>lw_word_get_timestamp ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint64"><span class="returnvalue">gint64</span></a>
+lw_word_get_timestamp (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-get-timestamp-as-string"></a><h3>lw_word_get_timestamp_as_string ()</h3>
+<pre class="programlisting">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_word_get_timestamp_as_string (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *Param1</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-has-changes"></a><h3>lw_word_has_changes ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_word_has_changes (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *word</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-word-copy"></a><h3>lw_word_copy ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-word.html#LwWord"><span class="returnvalue">LwWord</span></a> *
+lw_word_copy (<em class="parameter"><code><a class="link" href="libwaei-word.html#LwWord"><span class="type">LwWord</span></a> *word</code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="libwaei-word.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LW-WORDFIELDNAME-KANJI:CAPS"></a><h3>LW_WORDFIELDNAME_KANJI</h3>
+<pre class="programlisting">#define LW_WORDFIELDNAME_KANJI "Kanji"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNAME-READING:CAPS"></a><h3>LW_WORDFIELDNAME_READING</h3>
+<pre class="programlisting">#define LW_WORDFIELDNAME_READING "Reading"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNAME-DEFINITION:CAPS"></a><h3>LW_WORDFIELDNAME_DEFINITION</h3>
+<pre class="programlisting">#define LW_WORDFIELDNAME_DEFINITION "Definition"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNAME-CORRECT-GUESSES:CAPS"></a><h3>LW_WORDFIELDNAME_CORRECT_GUESSES</h3>
+<pre class="programlisting">#define LW_WORDFIELDNAME_CORRECT_GUESSES "Correct Guesses"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNAME-INCORRECT-GUESSES:CAPS"></a><h3>LW_WORDFIELDNAME_INCORRECT_GUESSES</h3>
+<pre class="programlisting">#define LW_WORDFIELDNAME_INCORRECT_GUESSES "Incorrect Guesses"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNAME-TIMESTAMP:CAPS"></a><h3>LW_WORDFIELDNAME_TIMESTAMP</h3>
+<pre class="programlisting">#define LW_WORDFIELDNAME_TIMESTAMP "Timestamp"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNICK-KANJI:CAPS"></a><h3>LW_WORDFIELDNICK_KANJI</h3>
+<pre class="programlisting">#define LW_WORDFIELDNICK_KANJI "kanji"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNICK-READING:CAPS"></a><h3>LW_WORDFIELDNICK_READING</h3>
+<pre class="programlisting">#define LW_WORDFIELDNICK_READING "reading"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNICK-DEFINITION:CAPS"></a><h3>LW_WORDFIELDNICK_DEFINITION</h3>
+<pre class="programlisting">#define LW_WORDFIELDNICK_DEFINITION "definition"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNICK-CORRECT-GUESSES:CAPS"></a><h3>LW_WORDFIELDNICK_CORRECT_GUESSES</h3>
+<pre class="programlisting">#define LW_WORDFIELDNICK_CORRECT_GUESSES "correct-guesses"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNICK-INCORRECT-GUESSES:CAPS"></a><h3>LW_WORDFIELDNICK_INCORRECT_GUESSES</h3>
+<pre class="programlisting">#define LW_WORDFIELDNICK_INCORRECT_GUESSES "incorrect-guesses"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-WORDFIELDNICK-TIMESTAMP:CAPS"></a><h3>LW_WORDFIELDNICK_TIMESTAMP</h3>
+<pre class="programlisting">#define LW_WORDFIELDNICK_TIMESTAMP "timestamp"
+</pre>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

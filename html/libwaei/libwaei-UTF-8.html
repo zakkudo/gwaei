@@ -1,0 +1,970 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>UTF-8: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="LwUninstallSubCommand.html" title="LwUninstallSubCommand">
+<link rel="next" href="LwVocabulary.html" title="LwVocabulary">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#libwaei-UTF-8.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#libwaei-UTF-8.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="LwUninstallSubCommand.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="LwVocabulary.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="libwaei-UTF-8"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="libwaei-UTF-8.top_of_page"></a>UTF-8</span></h2>
+<p>UTF-8 — UTF-8 utility methods</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="libwaei-UTF-8.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"><span class="returnvalue">GQuark</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-error-quark" title="lw_utf8_error_quark ()">lw_utf8_error_quark</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<span class="c_punctuation">(</span><a class="link" href="libwaei-UTF-8.html#LwUtf8ChunkHandler" title="LwUtf8ChunkHandler ()">*LwUtf8ChunkHandler</a><span class="c_punctuation">)</span> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="returnvalue">LwUtf8Flag</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8flag-clean" title="lw_utf8flag_clean ()">lw_utf8flag_clean</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-set-null-next-char" title="lw_utf8_set_null_next_char ()">lw_utf8_set_null_next_char</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-get-numbers" title="lw_utf8_get_numbers ()">lw_utf8_get_numbers</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-replace-linebreaks-with-nullcharacter" title="lw_utf8_replace_linebreaks_with_nullcharacter ()">lw_utf8_replace_linebreaks_with_nullcharacter</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-sanitize" title="lw_utf8_sanitize ()">lw_utf8_sanitize</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-convert-printf-pattern-to-regex-pattern" title="lw_utf8_convert_printf_pattern_to_regex_pattern ()">lw_utf8_convert_printf_pattern_to_regex_pattern</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-furiganafold" title="lw_utf8_furiganafold ()">lw_utf8_furiganafold</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-casefold" title="lw_utf8_casefold ()">lw_utf8_casefold</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-validate" title="lw_utf8_validate ()">lw_utf8_validate</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-normalize" title="lw_utf8_normalize ()">lw_utf8_normalize</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-normalize-chunked" title="lw_utf8_normalize_chunked ()">lw_utf8_normalize_chunked</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-isescaped" title="lw_utf8_isescaped ()">lw_utf8_isescaped</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-contains-kanji" title="lw_utf8_contains_kanji ()">lw_utf8_contains_kanji</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-contains-furigana" title="lw_utf8_contains_furigana ()">lw_utf8_contains_furigana</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-contains-romaji" title="lw_utf8_contains_romaji ()">lw_utf8_contains_romaji</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="libwaei-UTF-8.html#lw-utf8-contains-number" title="lw_utf8_contains_number ()">lw_utf8_contains_number</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="libwaei-UTF-8.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8-ERROR:CAPS" title="LW_UTF8_ERROR">LW_UTF8_ERROR</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LwUtf8ErrorCode" title="enum LwUtf8ErrorCode">LwUtf8ErrorCode</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNAME-NONE:CAPS" title="LW_UTF8FLAGNAME_NONE">LW_UTF8FLAGNAME_NONE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNAME-PRINTABLE:CAPS" title="LW_UTF8FLAGNAME_PRINTABLE">LW_UTF8FLAGNAME_PRINTABLE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNAME-COMPARABLE:CAPS" title="LW_UTF8FLAGNAME_COMPARABLE">LW_UTF8FLAGNAME_COMPARABLE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNAME-CASEFOLD:CAPS" title="LW_UTF8FLAGNAME_CASEFOLD">LW_UTF8FLAGNAME_CASEFOLD</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNAME-FURIGANAFOLD:CAPS" title="LW_UTF8FLAGNAME_FURIGANAFOLD">LW_UTF8FLAGNAME_FURIGANAFOLD</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNAME-ALL:CAPS" title="LW_UTF8FLAGNAME_ALL">LW_UTF8FLAGNAME_ALL</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNICK-NONE:CAPS" title="LW_UTF8FLAGNICK_NONE">LW_UTF8FLAGNICK_NONE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNICK-PRINTABLE:CAPS" title="LW_UTF8FLAGNICK_PRINTABLE">LW_UTF8FLAGNICK_PRINTABLE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNICK-COMPARABLE:CAPS" title="LW_UTF8FLAGNICK_COMPARABLE">LW_UTF8FLAGNICK_COMPARABLE</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNICK-CASEFOLD:CAPS" title="LW_UTF8FLAGNICK_CASEFOLD">LW_UTF8FLAGNICK_CASEFOLD</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNICK-FURIGANAFOLD:CAPS" title="LW_UTF8FLAGNICK_FURIGANAFOLD">LW_UTF8FLAGNICK_FURIGANAFOLD</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LW-UTF8FLAGNICK-ALL:CAPS" title="LW_UTF8FLAGNICK_ALL">LW_UTF8FLAGNICK_ALL</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag">LwUtf8Flag</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="libwaei-UTF-8.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-Enumeration-and-Flag-Types.html">GFlags</a>
+    <span class="lineart">╰──</span> LwUtf8Flag
+</pre>
+</div>
+<div class="refsect1">
+<a name="libwaei-UTF-8.description"></a><h2>Description</h2>
+<p>Utility methods for interacting with utf8 strings and converting encoding.</p>
+</div>
+<div class="refsect1">
+<a name="libwaei-UTF-8.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="lw-utf8-error-quark"></a><h3>lw_utf8_error_quark ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Quarks.html#GQuark"><span class="returnvalue">GQuark</span></a>
+lw_utf8_error_quark (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwUtf8ChunkHandler"></a><h3>LwUtf8ChunkHandler ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+<span class="c_punctuation">(</span>*LwUtf8ChunkHandler<span class="c_punctuation">)</span> (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *chunk</code></em>,
+                       <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> chunk_length</code></em>,
+                       <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>,
+                       <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.42.7.3.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>chunk</p></td>
+<td class="parameter_description"><p>Chunk of text to operate on from a larger file</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>chunk_length</p></td>
+<td class="parameter_description"><p>The length of this chunk of text</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>data</p></td>
+<td class="parameter_description"><p>User data passed to the handler</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>A pointer to set <a href="/usr/share/gtk-doc/html/glib/glib-Error-Reporting.html#GError"><span class="type">GErrors</span></a> which will stop chunk handling</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.3.5"></a><h4>Returns</h4>
+<p> The number of bytes used from the <em class="parameter"><code>chunk</code></em>
+.  If it doesn't equal chunk_length, chunk parsing will be halted.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8flag-clean"></a><h3>lw_utf8flag_clean ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="returnvalue">LwUtf8Flag</span></a>
+lw_utf8flag_clean (<em class="parameter"><code><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="type">LwUtf8Flag</span></a> flags</code></em>);</pre>
+<p>Removes invalid options from the flag mask.</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.4.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>flags</p></td>
+<td class="parameter_description"><p>A set of <a href="libwaei-UTF-8.html#LwUtf8Flag"><span class="type">LwUtf8Flags</span></a> to clean</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.4.6"></a><h4>Returns</h4>
+<p> Cleaned <a href="libwaei-UTF-8.html#LwUtf8Flag"><span class="type">LwUtf8Flags</span></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-set-null-next-char"></a><h3>lw_utf8_set_null_next_char ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_utf8_set_null_next_char (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *TEXT</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-get-numbers"></a><h3>lw_utf8_get_numbers ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a> *
+lw_utf8_get_numbers (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *TEXT</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-replace-linebreaks-with-nullcharacter"></a><h3>lw_utf8_replace_linebreaks_with_nullcharacter ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="returnvalue">gsize</span></a>
+lw_utf8_replace_linebreaks_with_nullcharacter
+                               (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *CONTENTS</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> content_length</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> *max_line_length</code></em>,
+                                <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<p>This is a helper method primarily meant for <a class="link" href="LwDictionary.html" title="LwDictionary"><span class="type">LwDictionary</span></a> to parse a 
+raw dictionary file and use the contents in place.</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.7.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>contents</p></td>
+<td class="parameter_description"><p>The content string to modify inline</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>content_length</p></td>
+<td class="parameter_description"><p>THe length of <em class="parameter"><code>contents</code></em>
+, or 0 for it to be calculated</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>max_line_length</p></td>
+<td class="parameter_description"><p> Sets the length of the longest line encountered. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p> A <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.7.6"></a><h4>Returns</h4>
+<p> The total bytes read</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-sanitize"></a><h3>lw_utf8_sanitize ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_utf8_sanitize (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *TEXT</code></em>);</pre>
+<p>Sanitizes a string as utf8, replacing invalid characters with spaces.</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.8.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>TEXT</p></td>
+<td class="parameter_description"><p>A string to sanitize</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.8.6"></a><h4>Returns</h4>
+<p> A sanitized string that needs to be freed with <a href="/usr/share/gtk-doc/html/glib/glib-Memory-Allocation.html#g-free"><code class="function">g_free()</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-convert-printf-pattern-to-regex-pattern"></a><h3>lw_utf8_convert_printf_pattern_to_regex_pattern ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_utf8_convert_printf_pattern_to_regex_pattern
+                               (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *PATTERN</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-furiganafold"></a><h3>lw_utf8_furiganafold ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_utf8_furiganafold (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *text</code></em>,
+                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> length</code></em>,
+                      <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<p>Folds katakana to hiragana characters so furigana insensitive comparisons
+can be made.</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.10.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>text</p></td>
+<td class="parameter_description"><p>A string to furiganafold inline.  The string is modified in place.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>length</p></td>
+<td class="parameter_description"><p>Length of the string in bytes or -1 to have it calculated</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p> An <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-casefold"></a><h3>lw_utf8_casefold ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_utf8_casefold (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *text</code></em>,
+                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> length</code></em>,
+                  <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<p>Folds the case to lower case so that case insensitive searches can be
+accomplished.</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.11.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>text</p></td>
+<td class="parameter_description"><p>A string to casefold inline. The string is modified in place.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>length</p></td>
+<td class="parameter_description"><p>Length of the string in bytes or 0 to have it calculated</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p> An <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-validate"></a><h3>lw_utf8_validate ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_utf8_validate (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *TEXT</code></em>,
+                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> length</code></em>,
+                  <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.42.7.12.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>TEXT</p></td>
+<td class="parameter_description"><p>A string to validate as well-formed utf-8</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>length</p></td>
+<td class="parameter_description"><p>The length of the string or 0 to calculate it</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p> A <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.12.5"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if <em class="parameter"><code>TEXT</code></em>
+is valid utf-8</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-normalize"></a><h3>lw_utf8_normalize ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+lw_utf8_normalize (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *TEXT</code></em>,
+                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> length</code></em>,
+                   <em class="parameter"><code><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="type">LwUtf8Flag</span></a> flags</code></em>);</pre>
+<p>Normalizes a string and returns a copy.  This method should be used before
+doing comparisons.  It also features normalizing katakana to hiragana
+(through the furiganafold option) and normalizing latin characters to
+lowercase (through  the casefold option.)</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.13.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>TEXT</p></td>
+<td class="parameter_description"><p>A string to normalize.  A copy will be made</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>length</p></td>
+<td class="parameter_description"><p>Length of the string in bytes or 0 to have it calculated</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>flags</p></td>
+<td class="parameter_description"><p>Flags for the type of requested normalization</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.13.6"></a><h4>Returns</h4>
+<p> A newly allocated normalized string that should be freed with <a href="/usr/share/gtk-doc/html/glib/glib-Memory-Allocation.html#g-free"><code class="function">g_free()</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-normalize-chunked"></a><h3>lw_utf8_normalize_chunked ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_utf8_normalize_chunked (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *contents</code></em>,
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> content_length</code></em>,
+                           <em class="parameter"><code><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="type">LwUtf8Flag</span></a> flags</code></em>,
+                           <em class="parameter"><code><a class="link" href="libwaei-UTF-8.html#LwUtf8ChunkHandler" title="LwUtf8ChunkHandler ()"><span class="type">LwUtf8ChunkHandler</span></a> chunk_handler</code></em>,
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> chunk_handler_data</code></em>,
+                           <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<p>Normalizes a long string of text in a series of chunks
+such that it is file-writing and progress-tracking fiendly.  The chunk size
+can be set by using <a class="link" href="LwProgress.html#lw-progress-set-prefered-chunk-size" title="lw_progress_set_prefered_chunk_size ()"><code class="function">lw_progress_set_prefered_chunk_size()</code></a>,
+otherwise it default to the page size of your operating system.
+Unless your string is document sized (aka MiB in size), you
+should probably just use <a class="link" href="libwaei-UTF-8.html#lw-utf8-normalize" title="lw_utf8_normalize ()"><code class="function">lw_utf8_normalize()</code></a> with its simpler interface.</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.14.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>CONTENTS</p></td>
+<td class="parameter_description"><p>Text to be normalized</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>content_length</p></td>
+<td class="parameter_description"><p>The length of the text to be normalized or 0 for it to be calculated</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>flags</p></td>
+<td class="parameter_description"><p>Mask of <a href="libwaei-UTF-8.html#LwUtf8Flag"><span class="type">LwUtf8Flags</span></a> to determine the normalization mode
+<em class="parameter"><code>chunk_handler</code></em>
+(allow-none): A method to be called on each chunk, such as a file writer</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>chunk_handler_data</p></td>
+<td class="parameter_description"><p> Data to be passed to the handler. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p> An <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-isescaped"></a><h3>lw_utf8_isescaped ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_utf8_isescaped (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *TEXT</code></em>,
+                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *CHAR_PTR</code></em>);</pre>
+<p>Checks to see if a character is escaped by backstepping until there are no
+backslashes or the iterator hits the beginning of the string.</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.15.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>TEXT</p></td>
+<td class="parameter_description"><p>The start of the text that contains the possibly escaped character</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>CHAR_PTR</p></td>
+<td class="parameter_description"><p>The character to check if it's escaped. It must be within <em class="parameter"><code>TEXT</code></em>
+</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.15.6"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the character is escaped</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-contains-kanji"></a><h3>lw_utf8_contains_kanji ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_utf8_contains_kanji (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *TEXT</code></em>);</pre>
+<p>Searches a string for any characters that have the han unicode script.
+(Also known as Kanji)</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.16.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>TEXT</p></td>
+<td class="parameter_description"><p>The text to search for kanji</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.16.6"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if any of the characters match <a href="/usr/share/gtk-doc/html/glib/glib-Unicode-Manipulation.html#G-UNICODE-SCRIPT-HAN:CAPS"><code class="literal">G_UNICODE_SCRIPT_HAN</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-contains-furigana"></a><h3>lw_utf8_contains_furigana ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_utf8_contains_furigana (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *TEXT</code></em>);</pre>
+<p>Searches a string for any characters that have a katakana or hiragana
+script.</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.17.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>TEXT</p></td>
+<td class="parameter_description"><p>The text to search for furigana</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.17.6"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if any of the characters match <a href="/usr/share/gtk-doc/html/glib/glib-Unicode-Manipulation.html#G-UNICODE-SCRIPT-HIRAGANA:CAPS"><code class="literal">G_UNICODE_SCRIPT_HIRAGANA</code></a> or <a href="/usr/share/gtk-doc/html/glib/glib-Unicode-Manipulation.html#G-UNICODE-SCRIPT-KATAKANA:CAPS"><code class="literal">G_UNICODE_SCRIPT_KATAKANA</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-contains-romaji"></a><h3>lw_utf8_contains_romaji ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_utf8_contains_romaji (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *TEXT</code></em>);</pre>
+<p>Searches a string for any characters that are English-looking.</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.18.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>TEXT</p></td>
+<td class="parameter_description"><p>The text to search for romaji</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.18.6"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if any of the characters match <a href="/usr/share/gtk-doc/html/glib/glib-Unicode-Manipulation.html#G-UNICODE-SCRIPT-LATIN:CAPS"><code class="literal">G_UNICODE_SCRIPT_LATIN</code></a></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-utf8-contains-number"></a><h3>lw_utf8_contains_number ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+lw_utf8_contains_number (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *TEXT</code></em>);</pre>
+<p>Searches a string for any characters that are ascii numbers.</p>
+<div class="refsect3">
+<a name="id-1.2.42.7.19.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>TEXT</p></td>
+<td class="parameter_description"><p>The text to search for numbers</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.42.7.19.6"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if any of the characters match 0-9</p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="libwaei-UTF-8.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LW-UTF8-ERROR:CAPS"></a><h3>LW_UTF8_ERROR</h3>
+<pre class="programlisting">#define LW_UTF8_ERROR lw_utf8_error_quark ()
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwUtf8ErrorCode"></a><h3>enum LwUtf8ErrorCode</h3>
+<div class="refsect3">
+<a name="id-1.2.42.8.3.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="LW-UTF8-ERRORCODE-VALIDATION-ERROR:CAPS"></a>LW_UTF8_ERRORCODE_VALIDATION_ERROR</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-UTF8-ERRORCODE-NORMALIZATION-ERROR:CAPS"></a>LW_UTF8_ERRORCODE_NORMALIZATION_ERROR</p></td>
+<td> </td>
+<td> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNAME-NONE:CAPS"></a><h3>LW_UTF8FLAGNAME_NONE</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNAME_NONE "None"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNAME-PRINTABLE:CAPS"></a><h3>LW_UTF8FLAGNAME_PRINTABLE</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNAME_PRINTABLE "Printable"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNAME-COMPARABLE:CAPS"></a><h3>LW_UTF8FLAGNAME_COMPARABLE</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNAME_COMPARABLE "Comparable"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNAME-CASEFOLD:CAPS"></a><h3>LW_UTF8FLAGNAME_CASEFOLD</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNAME_CASEFOLD "Case Fold"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNAME-FURIGANAFOLD:CAPS"></a><h3>LW_UTF8FLAGNAME_FURIGANAFOLD</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNAME_FURIGANAFOLD "Furigana Fold"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNAME-ALL:CAPS"></a><h3>LW_UTF8FLAGNAME_ALL</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNAME_ALL "All"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNICK-NONE:CAPS"></a><h3>LW_UTF8FLAGNICK_NONE</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNICK_NONE "none"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNICK-PRINTABLE:CAPS"></a><h3>LW_UTF8FLAGNICK_PRINTABLE</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNICK_PRINTABLE "printable"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNICK-COMPARABLE:CAPS"></a><h3>LW_UTF8FLAGNICK_COMPARABLE</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNICK_COMPARABLE "comparable"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNICK-CASEFOLD:CAPS"></a><h3>LW_UTF8FLAGNICK_CASEFOLD</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNICK_CASEFOLD "case-fold"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNICK-FURIGANAFOLD:CAPS"></a><h3>LW_UTF8FLAGNICK_FURIGANAFOLD</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNICK_FURIGANAFOLD "furigana-fold"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LW-UTF8FLAGNICK-ALL:CAPS"></a><h3>LW_UTF8FLAGNICK_ALL</h3>
+<pre class="programlisting">#define LW_UTF8FLAGNICK_ALL "all"
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwUtf8Flag"></a><h3>enum LwUtf8Flag</h3>
+<p>Enum values for deciding how a string will be normalized.  You can logically
+or them together for different combinations.</p>
+<div class="refsect3">
+<a name="id-1.2.42.8.16.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="LW-UTF8FLAG-NONE:CAPS"></a>LW_UTF8FLAG_NONE</p></td>
+<td class="enum_member_description">
+<p>Don't do any normalization</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-UTF8FLAG-PRINTABLE:CAPS"></a>LW_UTF8FLAG_PRINTABLE</p></td>
+<td class="enum_member_description">
+<p>Normalize only things that print the same</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-UTF8FLAG-COMPARABLE:CAPS"></a>LW_UTF8FLAG_COMPARABLE</p></td>
+<td class="enum_member_description">
+<p>Normalize for comparison, but the printing may change</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-UTF8FLAG-CASEFOLD:CAPS"></a>LW_UTF8FLAG_CASEFOLD</p></td>
+<td class="enum_member_description">
+<p>Convert capital letters to lowercase letters</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-UTF8FLAG-FURIGANAFOLD:CAPS"></a>LW_UTF8FLAG_FURIGANAFOLD</p></td>
+<td class="enum_member_description">
+<p>Convert katakana to hiragana</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="LW-UTF8FLAG-ALL:CAPS"></a>LW_UTF8FLAG_ALL</p></td>
+<td class="enum_member_description">
+<p>All options from above are applied</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>

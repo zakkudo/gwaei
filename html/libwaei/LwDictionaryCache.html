@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LwDictionaryCache: libwaei Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="libwaei Reference Manual">
+<link rel="up" href="ch01.html" title="[Insert title here]">
+<link rel="prev" href="libwaei-dictionary-index.html" title="dictionary-index">
+<link rel="next" href="LwDictionaryInstall.html" title="LwDictionaryInstall">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#LwDictionaryCache.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#LwDictionaryCache.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#LwDictionaryCache.properties" class="shortcut">Properties</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="libwaei-dictionary-index.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="LwDictionaryInstall.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="LwDictionaryCache"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="LwDictionaryCache.top_of_page"></a>LwDictionaryCache</span></h2>
+<p>LwDictionaryCache — Searchable normalized parsed dictionary information</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="LwDictionaryCache.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="LwParsed.html" title="LwParsed"><span class="returnvalue">LwParsed</span></a> *
+</td>
+<td class="function_name">
+<span class="c_punctuation">(</span><a class="link" href="LwDictionaryCache.html#LwDictionaryCacheParseFunc" title="LwDictionaryCacheParseFunc ()">*LwDictionaryCacheParseFunc</a><span class="c_punctuation">)</span> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="returnvalue">LwDictionaryCache</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryCache.html#lw-dictionarycache-new" title="lw_dictionarycache_new ()">lw_dictionarycache_new</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryCache.html#lw-dictionarycache-write" title="lw_dictionarycache_write ()">lw_dictionarycache_write</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryCache.html#lw-dictionarycache-read" title="lw_dictionarycache_read ()">lw_dictionarycache_read</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="returnvalue">LwUtf8Flag</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryCache.html#lw-dictionarycache-get-flags" title="lw_dictionarycache_get_flags ()">lw_dictionarycache_get_flags</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryCache.html#lw-dictionarycache-get-name" title="lw_dictionarycache_get_name ()">lw_dictionarycache_get_name</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwParsed.html" title="LwParsed"><span class="returnvalue">LwParsed</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryCache.html#lw-dictionarycache-get-parsed" title="lw_dictionarycache_get_parsed ()">lw_dictionarycache_get_parsed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="LwIndexed.html" title="LwIndexed"><span class="returnvalue">LwIndexed</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="LwDictionaryCache.html#lw-dictionarycache-get-indexed" title="lw_dictionarycache_get_indexed ()">lw_dictionarycache_get_indexed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryCache.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type">
+<a class="link" href="LwIndexed.html" title="LwIndexed"><span class="type">LwIndexed</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionaryCache.html#LwDictionaryCache--indexed" title="The “indexed” property">indexed</a></td>
+<td class="property_flags">Read</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionaryCache.html#LwDictionaryCache--name" title="The “name” property">name</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+<tr>
+<td class="property_type"><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="type">LwUtf8Flag</span></a></td>
+<td class="property_name"><a class="link" href="LwDictionaryCache.html#LwDictionaryCache--normalization-flags" title="The “normalization-flags” property">normalization-flags</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+<tr>
+<td class="property_type">
+<a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> *</td>
+<td class="property_name"><a class="link" href="LwDictionaryCache.html#LwDictionaryCache--parsed" title="The “parsed” property">parsed</a></td>
+<td class="property_flags">Read</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryCache.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="LwDictionaryCache.html#LW-DICTIONARYCACHE-ERROR:CAPS" title="LW_DICTIONARYCACHE_ERROR">LW_DICTIONARYCACHE_ERROR</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="LwDictionaryCache.html#LwDictionaryCacheErrorCode" title="enum LwDictionaryCacheErrorCode">LwDictionaryCacheErrorCode</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="LwDictionaryCache.html#LwDictionaryCacheClassPrivate" title="LwDictionaryCacheClassPrivate">LwDictionaryCacheClassPrivate</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryCache.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> LwDictionaryCache
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryCache.includes"></a><h2>Includes</h2>
+<pre class="synopsis">#include &lt;libwaei/dictionarycache.h&gt;
+</pre>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryCache.description"></a><h2>Description</h2>
+<p>Used for storing and loading parsed dictionary information
+from cachefiles.  This is done by serializing/deserializing
+each of the internal <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> and <a class="link" href="LwIndexed.html" title="LwIndexed"><span class="type">LwIndexed</span></a> objects. Usually
+a different <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> will be created for each normalized
+dictionary form used, and are indexed into a tree indexed by its
+<a href="libwaei-UTF-8.html#LwUtf8Flag"><span class="type">LwUtf8Flags</span></a>.</p>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryCache.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="LwDictionaryCacheParseFunc"></a><h3>LwDictionaryCacheParseFunc ()</h3>
+<pre class="programlisting"><a class="link" href="LwParsed.html" title="LwParsed"><span class="returnvalue">LwParsed</span></a> *
+<span class="c_punctuation">(</span>*LwDictionaryCacheParseFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="LwCacheFile.html" title="LwCacheFile"><span class="type">LwCacheFile</span></a> *cache_file</code></em>,
+                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarycache-new"></a><h3>lw_dictionarycache_new ()</h3>
+<pre class="programlisting"><a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="returnvalue">LwDictionaryCache</span></a> *
+lw_dictionarycache_new (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *NAME</code></em>,
+                        <em class="parameter"><code><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="type">LwUtf8Flag</span></a> flags</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.10.9.3.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>NAME</p></td>
+<td class="parameter_description"><p> Base name of the cache on the filesystem. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>flags</p></td>
+<td class="parameter_description"><p>Normalization flags for the dictionary cache that will be applied to written data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.10.9.3.5"></a><h4>Returns</h4>
+<p> A new <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> that must be freed with <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarycache-write"></a><h3>lw_dictionarycache_write ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarycache_write (<em class="parameter"><code><a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> *self</code></em>,
+                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *CHECKSUM</code></em>,
+                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *CONTENTS</code></em>,
+                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> content_length</code></em>,
+                          <em class="parameter"><code><a class="link" href="LwDictionaryCache.html#LwDictionaryCacheParseFunc" title="LwDictionaryCacheParseFunc ()"><span class="type">LwDictionaryCacheParseFunc</span></a> parse</code></em>,
+                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>,
+                          <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.10.9.4.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>CHECKSUM</p></td>
+<td class="parameter_description"><p> A checksum to write to disk. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>CONTENTS</p></td>
+<td class="parameter_description"><p> The contents to write to disk. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>content_length</p></td>
+<td class="parameter_description"><p>The byte length of <em class="parameter"><code>CONTENTS</code></em>
+</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>parse</p></td>
+<td class="parameter_description"><p>A function pointer for parsing the data before it is written</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>data</p></td>
+<td class="parameter_description"><p>Data to pass to <em class="parameter"><code>parse</code></em>
+when it is called</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track parsing progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> to ignore it</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarycache-read"></a><h3>lw_dictionarycache_read ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+lw_dictionarycache_read (<em class="parameter"><code><a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> *self</code></em>,
+                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> const *EXPECTED_CHECKSUM</code></em>,
+                         <em class="parameter"><code><a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> *progress</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.10.9.5.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>EXPECTED_CHECKSUM</p></td>
+<td class="parameter_description"><p> The expected checksum of the data that will be read. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>progress</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwProgress.html" title="LwProgress"><span class="type">LwProgress</span></a> to track read and validation progress or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> to ignore it</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarycache-get-flags"></a><h3>lw_dictionarycache_get_flags ()</h3>
+<pre class="programlisting"><a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="returnvalue">LwUtf8Flag</span></a>
+lw_dictionarycache_get_flags (<em class="parameter"><code><a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.10.9.6.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.10.9.6.5"></a><h4>Returns</h4>
+<p> The <a href="libwaei-UTF-8.html#LwUtf8Flag"><span class="type">LwUtf8Flags</span></a> that were set on construction</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarycache-get-name"></a><h3>lw_dictionarycache_get_name ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> const *
+lw_dictionarycache_get_name (<em class="parameter"><code><a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.10.9.7.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.10.9.7.5"></a><h4>Returns</h4>
+<p> The name of the dictionary cache set on consruction. This string is owned by the dictionary cache and so it should not be modified or freed. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarycache-get-parsed"></a><h3>lw_dictionarycache_get_parsed ()</h3>
+<pre class="programlisting"><a class="link" href="LwParsed.html" title="LwParsed"><span class="returnvalue">LwParsed</span></a> *
+lw_dictionarycache_get_parsed (<em class="parameter"><code><a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.10.9.8.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.10.9.8.5"></a><h4>Returns</h4>
+<p> The parsed data for the dictionary. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="lw-dictionarycache-get-indexed"></a><h3>lw_dictionarycache_get_indexed ()</h3>
+<pre class="programlisting"><a class="link" href="LwIndexed.html" title="LwIndexed"><span class="returnvalue">LwIndexed</span></a> *
+lw_dictionarycache_get_indexed (<em class="parameter"><code><a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.10.9.9.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>A <a class="link" href="LwDictionaryCache.html" title="LwDictionaryCache"><span class="type">LwDictionaryCache</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.10.9.9.5"></a><h4>Returns</h4>
+<p> The indexed information for the dictionary. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryCache.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="LW-DICTIONARYCACHE-ERROR:CAPS"></a><h3>LW_DICTIONARYCACHE_ERROR</h3>
+<pre class="programlisting">#define LW_DICTIONARYCACHE_ERROR lw_dictionarycache_error_quark ()
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryCacheErrorCode"></a><h3>enum LwDictionaryCacheErrorCode</h3>
+<div class="refsect3">
+<a name="id-1.2.10.10.3.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody><tr>
+<td class="enum_member_name"><p><a name="LW-DICTIONARYCACHE-ERRORCODE-CORRUPT-CONTENTS:CAPS"></a>LW_DICTIONARYCACHE_ERRORCODE_CORRUPT_CONTENTS</p></td>
+<td> </td>
+<td> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryCacheClassPrivate"></a><h3>LwDictionaryCacheClassPrivate</h3>
+<pre class="programlisting">typedef struct _LwDictionaryCacheClassPrivate LwDictionaryCacheClassPrivate;</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="LwDictionaryCache.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="LwDictionaryCache--indexed"></a><h3>The <code class="literal">“indexed”</code> property</h3>
+<pre class="programlisting">  “indexed”                  <a class="link" href="LwIndexed.html" title="LwIndexed"><span class="type">LwIndexed</span></a> *</pre>
+<p>Indexed information for the dictionary.</p>
+<p>Flags: Read</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryCache--name"></a><h3>The <code class="literal">“name”</code> property</h3>
+<pre class="programlisting">  “name”                     <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>The base name of the data cache.  This is used to build the filename.</p>
+<p>Flags: Read / Write / Construct Only</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryCache--normalization-flags"></a><h3>The <code class="literal">“normalization-flags”</code> property</h3>
+<pre class="programlisting">  “normalization-flags”      <a class="link" href="libwaei-UTF-8.html#LwUtf8Flag" title="enum LwUtf8Flag"><span class="type">LwUtf8Flag</span></a></pre>
+<p>The flags that are set on normalizations.</p>
+<p>Flags: Read / Write / Construct Only</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="LwDictionaryCache--parsed"></a><h3>The <code class="literal">“parsed”</code> property</h3>
+<pre class="programlisting">  “parsed”                   <a class="link" href="LwParsed.html" title="LwParsed"><span class="type">LwParsed</span></a> *</pre>
+<p>Parsed information for the dictionary.</p>
+<p>Flags: Read</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>Generated by GTK-Doc V1.24</div>
+</body>
+</html>
