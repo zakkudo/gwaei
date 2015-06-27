@@ -71,7 +71,7 @@ new_with_existing_file (Fixture *fixture, gconstpointer data)
     lw_cachefile_read (cache_file, "test checksum", progress);
 
     //Assert
-    gint expected_steps[] = { 0, 15, 38, 61, 84, 100};
+    gint expected_steps[] = { 0, 15, 30, 46, 61, 76, 92, 100};
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
@@ -109,7 +109,7 @@ read_with_invalid_checksum (Fixture *fixture, gconstpointer data)
     lw_cachefile_read (cache_file, "test invalid checksum", progress);
 
     //Assert
-    gint expected_steps[] = { 0, 15, 38, 61, 84, 100};
+    gint expected_steps[] = { 0, 15, 30, 46, 61, 76, 92, 100};
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
@@ -146,7 +146,7 @@ read_where_cancels_halfway (Fixture *fixture, gconstpointer data)
     lw_cachefile_read (cache_file, "test invalid checksum", progress);
 
     //Assert
-    gint expected_steps[] = { 0, 15, 38, 61};
+    gint expected_steps[] = { 0, 15, 30, 46, 61};
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
@@ -216,7 +216,7 @@ write_with_string (Fixture *fixture, gconstpointer data)
     lw_cachefile_read (cache_file, "test checksum", progress);
 
     //Assert
-    gint expected_steps[] = { 0, 15, 30, 46, 61, 76, 92, 100, 0, 15, 38, 61, 84, 100};
+    gint expected_steps[] = { 0, 15, 30, 46, 61, 76, 92, 100, 0, 15, 30, 46, 61, 76, 92, 100};
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
