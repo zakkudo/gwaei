@@ -175,83 +175,70 @@ lw_utf8flag_clean (LwUtf8Flag flags)
  * Returns: %TRUE if @TEXT is valid utf-8
  */
 gboolean
-lw_utf8_validate (const gchar *TEXT,
-                  gsize        length,
-                  LwProgress  *progress)
+lw_utf8_validate (const gchar * TEXT,
+                  gsize         length,
+                  LwProgress  * progress)
 {
     //Sanity checks
     if (TEXT == NULL) return FALSE;
-    if (progress != NULL && lw_progress_should_abort (progress)) return FALSE;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, FALSE);
 
     //Declarations
-    gsize chunk_size = 0;
-    gint chunk = 0;
-    gint i = 0;
+    gsize max_chunk = 0;
     gunichar c = 0;
-    const gchar *p = 0;
+    const gchar * p = NULL;
+    const gchar * n = NULL;
     gboolean is_valid = FALSE;
     gsize offset = 0;
+    GError * error = NULL;
 
     //Initializations
-    if (progress != NULL) {
-      chunk_size = lw_progress_get_chunk_size (progress);
-      if (chunk_size < 1) goto errored;
-    }
+    
+    if (length < 1) length = strlen(TEXT);
+    max_chunk = LW_PROGRESS_START (progress, length);
     p = TEXT;
     if (p == NULL) goto errored;
-    is_valid = TRUE;
-
-    if (length < 1) length = strlen(TEXT);
 
     if (progress != NULL)
     {
       lw_progress_set_secondary_message_printf (progress, "%s...", gettext("Validating"));
-      lw_progress_set_total (progress, length);
-      lw_progress_set_current (progress, 0);
     }
 
-    while (*p != '\0' && i < length)
     {
-      offset = p - TEXT;
-      c = g_utf8_get_char_validated (p, length - offset);
-      if (G_UNLIKELY (c == (gunichar) -1 || c == (gunichar) -2))
+      gsize chunk = 0;
+      gsize current = 0;
+      gsize bytes_read = 0;
+
+      while (*p != '\0' && current < length)
       {
-        if (progress != NULL)
+        c = g_utf8_get_char_validated (p, length - offset);
+        if (G_UNLIKELY (c == (gunichar) -1 || c == (gunichar) -2))
         {
-          lw_progress_take_error (progress, g_error_new (
+          error = g_error_new (
             LW_UTF8_ERROR,
             LW_UTF8_ERRORCODE_VALIDATION_ERROR,
             "Invalid utf8 character at offset %d",
             offset
-          ));
+          );
+          LW_PROGRESS_TAKE_ERROR (progress, error);
         }
-        is_valid = FALSE;
-        goto errored;
+
+        n = g_utf8_next_char (p);
+        bytes_read = n - p;
+        current += bytes_read;
+        chunk += bytes_read;
+
+        LW_PROGRESS_UPDATE (progress, current, length, chunk, max_chunk, error);
+
+        p = n;
       }
 
-      if (progress != NULL)
-      {
-        if (G_UNLIKELY (chunk++ >= chunk_size))
-        {
-          if (lw_progress_should_abort (progress))
-          {
-            is_valid = FALSE;
-            goto errored;
-          }
-          lw_progress_set_current (progress, offset);
-          chunk = 0;
-        }
-      }
-      p = g_utf8_next_char (p);
-      i = p - TEXT;
+      LW_PROGRESS_FINISH (progress, current);
     }
+
+    is_valid = TRUE;
 
 errored:
-
-    if (is_valid && progress != NULL)
-    {
-      lw_progress_set_current (progress, length);
-    }
 
     return is_valid;
 }
@@ -371,86 +358,57 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
     g_return_if_fail (CONTENTS != NULL);
     g_return_if_fail (content_length > 0);
     g_return_if_fail (chunk_handler != NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return;
+    LW_PROGRESS_RETURN_IF_SHOULD_ABORT (progress);
 
     if (content_length < 1) content_length = strlen(CONTENTS);
 
-		//Declarations
-		gsize bytes_read = 0;
-		gsize handled_bytes = 0;
-		gsize bytes_normalized = 0;
-		const char *C = CONTENTS;
-		gsize left = content_length;
-		gchar *normalized = NULL;
-    gsize chunk_size = 0;
-    gsize chunk = 0;
+    //Declarations
+    gsize bytes_read = 0;
+    gsize handled_bytes = 0;
+    gsize bytes_normalized = 0;
+    const char *C = CONTENTS;
+    gchar *normalized = NULL;
+    gsize max_chunk = 0;
     GError *error = NULL;
     gboolean has_error = FALSE;
+    gsize current = 0;
 
-    if (progress != NULL)
+    max_chunk = LW_PROGRESS_START (progress, content_length);
+
     {
-      chunk_size = lw_progress_get_chunk_size (progress);
-      lw_progress_set_current (progress, 0);
-      lw_progress_set_total (progress, content_length);
-    }
-    if (chunk_size == 0) chunk_size = lw_io_get_pagesize ();
+      gsize left = 0;
+      gsize chunk = 0;
 
-		if (left < 1) goto errored;
-		while (*C != '\0' && C - CONTENTS < content_length)
-		{
-			bytes_read = lw_utf8_normalize_chunk (&normalized, C, flags, chunk_size);
-      chunk += bytes_read;
-      bytes_normalized = strlen(normalized);
-			if (normalized != NULL)
-			{
-				handled_bytes = chunk_handler (normalized, bytes_normalized, chunk_handler_data, &error);
-		    g_free (normalized); normalized = NULL;
-				if (error != NULL)
-				{
-          if (progress != NULL)
-          {
-            lw_progress_take_error (progress, error);
-            error = NULL;
-          }
-          g_clear_error (&error);
-					has_error = TRUE;
-					goto errored;
-				}
-        if (bytes_normalized != handled_bytes)
+      while (*C != '\0' && current < content_length)
+      {
+        bytes_read = lw_utf8_normalize_chunk (&normalized, C, flags, max_chunk);
+        bytes_normalized = strlen(normalized);
+        if (normalized != NULL)
         {
-          if (progress != NULL)
+          handled_bytes = chunk_handler (C, bytes_read, normalized, bytes_normalized, chunk_handler_data, &error);
+          g_free (normalized); normalized = NULL;
+          LW_PROGRESS_TAKE_ERROR (progress, error);
+          if (bytes_normalized != handled_bytes)
           {
-            lw_progress_take_error (progress, g_error_new (
+            error = g_error_new (
               LW_UTF8_ERROR,
               LW_UTF8_ERRORCODE_NORMALIZATION_ERROR,
               "Wasn't able to fully handle chunk of normalized text."
-            ));
+            );
+            LW_PROGRESS_TAKE_ERROR (progress, error);
           }
-					has_error = TRUE;
-          goto errored;
         }
-			}
 
-      if (progress != NULL)
-      {
-        if (G_UNLIKELY (chunk >= chunk_size))
-        {
-          if (lw_progress_should_abort (progress))
-          {
-            goto errored;
-          }
-          lw_progress_set_current (progress, C - CONTENTS);
-          chunk = 0;
-        }
+        chunk += bytes_read;
+        current += bytes_read;
+        left = content_length - current;
+        C += bytes_read;
+
+        LW_PROGRESS_UPDATE (progress, current, bytes_length, chunk, max_chunk, error);
       }
-			C += bytes_read;
-			left -= bytes_read;
-		}
-
-    if (progress != NULL)
-    {
-      lw_progress_set_current (progress, C - CONTENTS);
     }
+
+    LW_PROGRESS_FINISH (progress, current);
 
 errored:
 
@@ -552,54 +510,43 @@ lw_utf8_casefold (gchar      *text,
 {
     //Sanity checks
     if (text == NULL) return;
-    if (progress != NULL && lw_progress_should_abort (progress)) return;
+    LW_PROGRESS_RETURN_IF_SHOULD_ABORT (progress);
 
     //Declarations
-    gsize chunk_size = 0;
+    gsize max_chunk = 0;
     gint chunk = 0;
     gchar * c = NULL;
+    gchar * n = NULL;
+    GError * error = NULL;
     
     //Initializations
     c = text;
     if (c == NULL) goto errored;
-    if (progress != NULL)
-    {
-      chunk_size = lw_progress_get_chunk_size (progress);
-      if (chunk_size < 1) goto errored;
-    }
-    if (length < 1)
-    {
-      length = strlen(text);
-    }
+
+    if (length < 1) length = strlen(text);
+
+    max_chunk = LW_PROGRESS_START (progress, length);
 
     if (progress != NULL)
     {
       lw_progress_set_secondary_message_printf (progress, "%s...", gettext("Folding case"));
-      lw_progress_set_total (progress, length);
-      lw_progress_set_current (progress, 0);
     }
 
     {
-      gint i = 0;
-      while (*c != '\0' && i < length)
+      gsize current = 0;
+      gsize bytes_read = 0;
+      while (*c != '\0' && current < length)
       {
-        c = _casefold_character (c);
-        i = c - text;
-        if (progress != NULL)
-        {
-          if (G_UNLIKELY(chunk++ > chunk_size))
-          {
-            if (lw_progress_should_abort (progress)) goto errored;
-            lw_progress_set_current (progress, i);
-            chunk = 0;
-          }
-        }
+        n = _casefold_character (c);
+        bytes_read = n - c;
+        current += bytes_read;
+        chunk += bytes_read;
+        c = n;
+        
+        LW_PROGRESS_UPDATE (progress, current, length, chunk, max_chunk, error);
       }
-    }
 
-    if (progress != NULL)
-    {
-      lw_progress_set_current (progress, length);
+      LW_PROGRESS_FINISH (progress, current);
     }
 
 errored:
@@ -655,56 +602,44 @@ lw_utf8_furiganafold (gchar      * text,
 {
     //Sanity checks
     if (text == NULL) return;
-    if (progress != NULL && lw_progress_should_abort (progress)) return;
+    LW_PROGRESS_RETURN_IF_SHOULD_ABORT (progress);
 
     //Declarations
     GHashTable *conversions = NULL;
-    gsize chunk_size = 0;
-    gint chunk = 0;
+    gsize max_chunk = 0;
+    gsize chunk = 0;
     gchar * c = NULL;
+    gchar * n = NULL;
+    GError * error = NULL;
     
     //Initializations
     c = text;
     if (c == NULL) goto errored;
     conversions = _get_furiganafold_hashtable ();
     if (conversions == NULL) goto errored;
-    if (progress != NULL)
-    {
-      chunk_size = lw_progress_get_chunk_size (progress);
-      if (chunk_size < 1) goto errored;
-    }
-    if (length < 1)
-    {
-      length = strlen(text);
-    }
+    length = strlen(text);
+    max_chunk = LW_PROGRESS_START (progress, length);
 
     if (progress != NULL)
     {
       lw_progress_set_secondary_message_printf (progress, "%s...", gettext("Folding furigana"));
-      lw_progress_set_total (progress, length);
-      lw_progress_set_current (progress, 0);
     }
 
     {
-      gint i = 0;
-      while (*c != '\0' && i < length) {
-        c = _furiganafold_character (c, conversions);
-        i = c - text;
-        if (progress != NULL)
-        {
-          if (G_UNLIKELY(chunk++ > chunk_size))
-          {
-            if (lw_progress_should_abort (progress)) goto errored;
-            lw_progress_set_current (progress, i);
-            chunk = 0;
-          }
-        }
+      gsize current = 0;
+      gsize bytes_read = 0;
+      while (*c != '\0' && current < length) {
+        n = _furiganafold_character (c, conversions);
+        bytes_read = n - c;
+        current += bytes_read;
+        chunk += bytes_read;
+
+        LW_PROGRESS_UPDATE (progress, current, length, chunk, max_chunk, error);
+
+        c = n;
       }
-    }
 
-    if (progress != NULL)
-    {
-      lw_progress_set_current (progress, length);
+      LW_PROGRESS_FINISH (progress, current);
     }
 
 errored:
@@ -784,22 +719,21 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      * contents,
                                                LwProgress * progress)
 {
     g_return_val_if_fail (contents != NULL, 0);
-    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
 
     //Declarations    
     gint num_lines = 0;
-    gsize chunk_size = 0;
+    gsize max_chunk = 0;
+    GError * error = NULL;
 
     if (content_length < 1) content_length = strlen(contents);
     if (max_line_length != NULL) *max_line_length = 0;
 
     //Initializations
+    max_chunk = LW_PROGRESS_START (progress, content_length);
     if (progress != NULL)
     {
-      chunk_size = lw_progress_get_chunk_size (progress);
       lw_progress_set_secondary_message_printf (progress, "Delimiting lines...");
-      lw_progress_set_total (progress, content_length);
-      lw_progress_set_current (progress, 0);
     }
 
     {
@@ -807,7 +741,10 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      * contents,
       gchar *p = NULL;
       gchar *e = NULL;
       gchar *n = NULL;
+
+      gsize current = 0;
       gsize chunk = 0;
+      gsize bytes_read = 0;
 
       n = p = c = contents;
       e = c + content_length;
@@ -822,32 +759,29 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      * contents,
             if (length > *max_line_length) *max_line_length = length;
           }
           n = lw_utf8_set_null_next_char (c);
-          chunk += n - c;
+          bytes_read = n - c;
+          chunk += bytes_read;
+          current += bytes_read;
+
+          LW_PROGRESS_UPDATE (progress, current, length, chunk, max_chunk, error);
+
           p = c = n;
           num_lines++;
         }
         while (*c != '\0' && *c != '\n' && c < e)
         {
           n = g_utf8_next_char (c);
-          chunk += n - c;
-          c = n;
+          bytes_read = n - c;
+          current += bytes_read;
+          chunk += bytes_read;
 
-          if (progress != NULL)
-          {
-            if (chunk_size != 0 && chunk >= chunk_size)
-            {
-              if (lw_progress_should_abort (progress)) goto errored;
-              lw_progress_set_current (progress, c - contents);
-              chunk = 0;
-            }
-          }
+          LW_PROGRESS_UPDATE (progress, current, length, chunk, max_chunk, error);
+
+          c = n;
         }
       }
-    }
 
-    if (progress != NULL)
-    {
-      lw_progress_set_current (progress, content_length);
+      LW_PROGRESS_FINISH (progress, current);
     }
 
 errored:

@@ -51,8 +51,8 @@ void teardown (Fixture *fixture, gconstpointer data)
 
 
 void
-fwrite_string_with_length (Fixture       * fixture,
-                           gconstpointer   data)
+fwrite_chunked_string_with_length (Fixture       * fixture,
+                                   gconstpointer   data)
 {
     //Arrange
     gint fd = g_mkstemp(fixture->path);
@@ -68,7 +68,7 @@ fwrite_string_with_length (Fixture       * fixture,
     stream = g_fopen(fixture->path, "wb");
 
     //Act
-    lw_io_fwrite (stream, TEXT, 13, progress);
+    lw_io_fwrite_chunked (stream, TEXT, 13, progress);
     fclose(stream);
 
     //Assert
@@ -88,8 +88,8 @@ fwrite_string_with_length (Fixture       * fixture,
 
 
 void
-fwrite_string_with_no_length (Fixture       * fixture,
-                              gconstpointer   data)
+fwrite_chunked_string_with_no_length (Fixture       * fixture,
+                                      gconstpointer   data)
 {
     //Arrange
     gint fd = g_mkstemp(fixture->path);
@@ -105,11 +105,11 @@ fwrite_string_with_no_length (Fixture       * fixture,
     stream = g_fopen(fixture->path, "wb");
 
     //Act
-    lw_io_fwrite (stream, TEXT, 0, progress);
+    lw_io_fwrite_chunked (stream, TEXT, 0, progress);
     fclose(stream);
 
     //Assert
-    gint expected_steps[] = { 0, 16, 33, 50, 66, 83, 100};
+    gint expected_steps[] = {};
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
@@ -117,16 +117,16 @@ fwrite_string_with_no_length (Fixture       * fixture,
     }
     g_assert_false (lw_progress_completed (fixture->progress));
     g_file_get_contents (fixture->path, &contents, &length, NULL);
-    g_assert_cmpstr (contents, ==, "test content");
-    g_assert_cmpuint (length, ==, 12);
+    g_assert_cmpstr (contents, ==, "");
+    g_assert_cmpuint (length, ==, 0);
 
     g_free (contents);
 }
 
 
 void
-fwrite_string_with_no_progress (Fixture       * fixture,
-                                gconstpointer   data)
+fwrite_chunked_string_with_no_progress (Fixture       * fixture,
+                                        gconstpointer   data)
 {
     //Arrange
     gint fd = g_mkstemp(fixture->path);
@@ -142,7 +142,7 @@ fwrite_string_with_no_progress (Fixture       * fixture,
     stream = g_fopen(fixture->path, "wb");
 
     //Act
-    lw_io_fwrite (stream, TEXT, 13, NULL);
+    lw_io_fwrite_chunked (stream, TEXT, 13, NULL);
     fclose(stream);
 
     //Assert
@@ -155,8 +155,8 @@ fwrite_string_with_no_progress (Fixture       * fixture,
 
 
 void
-fwrite_string_where_is_cancelled (Fixture       * fixture,
-                                  gconstpointer   data)
+fwrite_chunked_string_where_is_cancelled (Fixture       * fixture,
+                                          gconstpointer   data)
 {
     //Arrange
     gint fd = g_mkstemp(fixture->path);
@@ -174,11 +174,11 @@ fwrite_string_where_is_cancelled (Fixture       * fixture,
     stream = g_fopen(fixture->path, "wb");
 
     //Act
-    lw_io_fwrite (stream, TEXT, 13, progress);
+    lw_io_fwrite_chunked (stream, TEXT, 13, progress);
     fclose(stream);
 
     //Assert
-    gint expected_steps[] = { 0, 15, 30, 46, 61 };
+    gint expected_steps[] = { 0, 15, 30, 46, 61};
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
@@ -193,6 +193,44 @@ fwrite_string_where_is_cancelled (Fixture       * fixture,
 }
 
 
+void
+get_pagesize (Fixture       * fixture,
+              gconstpointer   data)
+{
+    g_assert_cmpuint (lw_io_get_pagesize (), >, 0);
+}
+
+
+void
+allocate_temporary_file (Fixture       * fixture,
+                         gconstpointer   data)
+{
+    // Arrange
+    LwProgress * progress = fixture->progress;
+    gint i = 0;
+
+    // Act
+    gchar * filename = lw_io_allocate_temporary_file (15, progress);
+
+    // Assert
+    gint expected_steps[] = { 0, 13, 26, 40, 53, 66, 80, 93, 100 };
+    g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
+    for (i = 0; i < fixture->steps->len; i++)
+    {
+      g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
+    }
+    g_assert_false (lw_progress_completed (fixture->progress));
+
+    g_assert_true (g_file_test (filename, G_FILE_TEST_IS_REGULAR));
+    gchar * buffer = g_new0 (gchar, 15);
+    gsize length = 0;
+    gchar * contents = NULL;
+    g_file_get_contents (filename, &contents, &length, NULL);
+    g_assert_true (memcmp(buffer, contents, sizeof(gchar) * 15));
+
+    g_free (buffer);
+    g_free (contents);
+}
 
 
 gint
@@ -200,10 +238,14 @@ main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
-    g_test_add ("/fwrite/string_with_length", Fixture, NULL, setup, fwrite_string_with_length, teardown);
-    g_test_add ("/fwrite/string_with_no_length", Fixture, NULL, setup, fwrite_string_with_no_length, teardown);
-    g_test_add ("/fwrite/string_with_no_progress", Fixture, NULL, setup, fwrite_string_with_no_progress, teardown);
-    g_test_add ("/fwrite/string_where_is_cancelled", Fixture, NULL, setup, fwrite_string_where_is_cancelled, teardown);
+    g_test_add ("/fwrite_chunked/string_with_length", Fixture, NULL, setup, fwrite_chunked_string_with_length, teardown);
+    g_test_add ("/fwrite_chunked/string_with_no_length", Fixture, NULL, setup, fwrite_chunked_string_with_no_length, teardown);
+    g_test_add ("/fwrite_chunked/string_with_no_progress", Fixture, NULL, setup, fwrite_chunked_string_with_no_progress, teardown);
+    g_test_add ("/fwrite_chunked/string_where_is_cancelled", Fixture, NULL, setup, fwrite_chunked_string_where_is_cancelled, teardown);
+
+    g_test_add ("/get_pagesize", Fixture, NULL, setup, get_pagesize, teardown);
+
+    g_test_add ("/allocate_temporary_file", Fixture, NULL, setup, allocate_temporary_file, teardown);
 
     return g_test_run();
 }

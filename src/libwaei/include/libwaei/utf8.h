@@ -62,7 +62,7 @@ typedef enum {
  * @error: A pointer to set #GErrors which will stop chunk handling
  * Returns: The number of bytes used from the @chunk.  If it doesn't equal chunk_length, chunk parsing will be halted.
  */
-typedef gsize(*LwUtf8ChunkHandler)(gchar * chunk, gsize chunk_length, gpointer data, GError ** error);
+typedef gsize(*LwUtf8ChunkHandler)(gchar const * original_chunk, gsize original_chunk_length, gchar * chunk, gsize chunk_length, gpointer data, GError ** error);
 
 GType lw_utf8flag_get_type (void);
 LwUtf8Flag lw_utf8flag_clean (LwUtf8Flag flags);

@@ -160,12 +160,13 @@ furiganafold_with_mixed_text (Fixture *fixture, gconstpointer data)
     //Declarations
     gchar * text = g_strdup("abcDEFGあいうえおカキクケコ日本語");
     gint i = 0;
+    lw_progress_set_prefered_chunk_size (fixture->progress, 7);
 
     //Initializations
     lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 8, 21, 47, 73, 100};
+    gint expected_steps[] = { 0, 15, 34, 54, 73, 93, 100};
     g_assert_cmpstr ("abcDEFGあいうえおかきくけこ日本語", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
@@ -187,7 +188,7 @@ furiganafold_with_all_katakana (Fixture *fixture, gconstpointer data)
     gint i = 0;
 
     //Initializations
-    lw_progress_set_prefered_chunk_size (fixture->progress, 10);
+    lw_progress_set_prefered_chunk_size (fixture->progress, 35);
     lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
@@ -212,11 +213,11 @@ furiganafold_with_all_halfwidth_katakana (Fixture *fixture, gconstpointer data)
     gint i = 0;
 
     //Initializations
-    lw_progress_set_prefered_chunk_size (fixture->progress, 10);
+    lw_progress_set_prefered_chunk_size (fixture->progress, 35);
     lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 10, 21, 31, 42, 52, 62, 74, 84, 94, 100};
+    gint expected_steps[] = { 0, 15, 30, 45, 60, 75, 91, 100};
     g_assert_cmpstr ("･ ｦ ｧ ｨ ｩ ｪ ｫ ｬ ｭ ｮ ｯｰ ｱ ｲ ｳ ｴ ｵ ｶ ｷ ｸ ｹ ｺ ｻ ｼ ｽ ｾ ｿﾀ ﾁ ﾂ ﾃ ﾄ ﾅ ﾆ ﾇ ﾈ ﾉ ﾊ ﾋ ﾌ ﾍ ﾎ ﾏﾐ ﾑ ﾒ ﾓ ﾔ ﾕ ﾖ ﾗ ﾘ ﾙ ﾚ ﾛ ﾜ ﾝ ﾞ ﾟ", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
@@ -237,7 +238,7 @@ furiganafold_with_all_hiragana (Fixture *fixture, gconstpointer data)
     gint i = 0;
 
     //Initializations
-    lw_progress_set_prefered_chunk_size (fixture->progress, 10);
+    lw_progress_set_prefered_chunk_size (fixture->progress, 35);
     lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
@@ -268,8 +269,8 @@ furiganafold_where_cancels_halfway (Fixture *fixture, gconstpointer data)
     lw_utf8_furiganafold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 30, 60};
-    g_assert_cmpstr ("ぁあぃいぅうぇえぉオ", ==, text);
+    gint expected_steps[] = { 0, 10, 20, 30, 40, 50, 60};
+    g_assert_cmpstr ("ぁあぃいぅうぇエォオ", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
@@ -334,12 +335,13 @@ casefold_with_mixed_text (Fixture *fixture, gconstpointer data)
     //Declarations
     gchar * text = g_strdup("abcDEFGあいうえおカキクケコ日本語");
     gint i = 0;
+    lw_progress_set_prefered_chunk_size (fixture->progress, 7);
 
     //Initializations
     lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 8, 21, 47, 73, 100};
+    gint expected_steps[] = { 0, 15, 34, 54, 73, 93, 100};
     g_assert_cmpstr ("abcdefgあいうえおカキクケコ日本語", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
@@ -359,12 +361,13 @@ casefold_with_uppercase_letters (Fixture *fixture, gconstpointer data)
     //Declarations
     gchar * text = g_strdup("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     gint i = 0;
+    lw_progress_set_prefered_chunk_size (fixture->progress, 7);
 
     //Initializations
     lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 15, 30, 46, 61, 76, 92, 100};
+    gint expected_steps[] = { 0, 26, 53, 80, 100};
     g_assert_cmpstr ("abcdefghijklmnopqrstuvwxyz", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
@@ -384,12 +387,13 @@ casefold_with_lowercase_letters (Fixture *fixture, gconstpointer data)
     //Declarations
     gchar * text = g_strdup("abcdefghijklmnopqrstuvwxyz");
     gint i = 0;
+    lw_progress_set_prefered_chunk_size (fixture->progress, 7);
 
     //Initializations
     lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = { 0, 15, 30, 46, 61, 76, 92, 100};
+    gint expected_steps[] = { 0, 26, 53, 80, 100};
     g_assert_cmpstr ("abcdefghijklmnopqrstuvwxyz", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
@@ -411,13 +415,13 @@ casefold_where_cancels_halfway (Fixture *fixture, gconstpointer data)
     gint i = 0;
 
     //Initializations
-    lw_progress_set_prefered_chunk_size (fixture->progress, 1);
+    lw_progress_set_prefered_chunk_size (fixture->progress, 7);
     g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
     lw_utf8_casefold (text, 0, fixture->progress);
 
     //Assert
-    gint expected_steps[] = {0, 11, 23, 34, 46, 57};
-    g_assert_cmpstr ("abcdefghijklmnopqrSTUVWXYZ", ==, text);
+    gint expected_steps[] = { 0, 26, 53};
+    g_assert_cmpstr ("abcdefghijklmnopqrstuVWXYZ", ==, text);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
@@ -826,12 +830,13 @@ validate_valid_string (Fixture *fixture, gconstpointer data)
     gint i = 0;
     gboolean is_valid = FALSE;
     LwProgress * progress = fixture->progress;
+    lw_progress_set_prefered_chunk_size (fixture->progress, 7);
 
     //Initializations
     is_valid = lw_utf8_validate (TEXT, 0, progress);
 
     //Assert
-    gint expected_steps[] = { 0, 4, 16, 37, 58, 79, 100};
+    gint expected_steps[] = { 0, 16, 37, 58, 79, 100};
     g_assert_true (is_valid);
     g_assert_no_error (lw_progress_get_error (progress));
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
@@ -851,12 +856,13 @@ validate_last_character_is_invalid (Fixture *fixture, gconstpointer data)
     gint i = 0;
     gboolean is_valid = FALSE;
     LwProgress * progress = fixture->progress;
+    lw_progress_set_prefered_chunk_size (fixture->progress, 7);
 
     //Initializations
     is_valid = lw_utf8_validate (TEXT, 0, progress);
 
     //Assert
-    gint expected_steps[] = { 0, 8, 14, 34, 53, 72, 91};
+    gint expected_steps[] = { 0, 14, 34, 53, 72, 91};
     g_assert_false (is_valid);
     g_assert_error (lw_progress_get_error (progress), LW_UTF8_ERROR, LW_UTF8_ERRORCODE_VALIDATION_ERROR);
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
@@ -929,14 +935,14 @@ validate_where_progress_is_cancelled (Fixture *fixture, gconstpointer data)
     gboolean is_valid = FALSE;
     gint i = 0;
     LwProgress * progress = fixture->progress;
-    lw_progress_set_prefered_chunk_size (fixture->progress, 1);
+    lw_progress_set_prefered_chunk_size (fixture->progress, 7);
     g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (cancel_progress), fixture);
 
     //Initializations
     is_valid = lw_utf8_validate (TEXT, 0, progress);
 
     //Assert
-    gint expected_steps[] = { 0, 6, 10, 14, 27, 40, 53};
+    gint expected_steps[] = { 0, 14, 34, 53};
     g_assert_false (is_valid);
     g_assert_no_error (lw_progress_get_error (progress));
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
@@ -990,7 +996,7 @@ replace_linebreaks_with_nullcharacter_when_multiple_lines (Fixture *fixture, gco
 
     //Assert
     g_assert_true (memcmp("one\0two\0three", text, strlen("one\ntwo\nthree")) == 0);
-    gint expected_steps[] = {0, 15, 38, 53, 69, 84, 100};
+    gint expected_steps[] = {0, 15, 30, 46, 61, 76, 92, 100};
     g_assert_no_error (lw_progress_get_error (progress));
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
@@ -1072,7 +1078,7 @@ replace_linebreaks_with_nullcharacter_when_cancelled (Fixture *fixture, gconstpo
 
     //Assert
     g_assert_true (memcmp("one\0two\0three", text, strlen("one\ntwo\nthree")) == 0);
-    gint expected_steps[] = {0, 15, 38, 53};
+    gint expected_steps[] = {0, 15, 30, 46, 61};
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));
     for (i = 0; i < fixture->steps->len; i++)
     {
@@ -1251,9 +1257,11 @@ sanitize_whitespace (Fixture *fixture, gconstpointer data)
 }
 
 gsize
-_normalize (gchar * chunk,
-            gsize chunk_length,
-            gchar * normalized,
+_normalize (gchar   * original_chunk,
+            gsize     original_chunk_length,
+            gchar   * chunk,
+            gsize     chunk_length,
+            gchar   * normalized,
             GError ** error)
 {
     strcat(normalized, chunk);
@@ -1310,10 +1318,12 @@ normalize_chunked_with_no_progress (Fixture *fixture, gconstpointer data)
 
 
 gsize
-_normalize_with_wrong_chunk_length (gchar * chunk,
-                                   gsize chunk_length,
-                                   gchar * normalized,
-                                   GError ** error)
+_normalize_with_wrong_chunk_length (gchar   * original_chunk,
+                                    gsize     original_chunk_length,
+                                    gchar   * chunk,
+                                    gsize     chunk_length,
+                                    gchar   * normalized,
+                                    GError ** error)
 {
     strcat(normalized, chunk);
 
@@ -1351,10 +1361,12 @@ normalize_chunked_when_wrong_byte_count_returned_from_chunk_handler (Fixture *fi
 
 
 gsize
-_normalize_setting_error (gchar * chunk,
-                                   gsize chunk_length,
-                                   gchar * normalized,
-                                   GError ** error)
+_normalize_setting_error (gchar   * original_chunk,
+                          gsize     original_chunk_length,
+                          gchar   * chunk,
+                          gsize     chunk_length,
+                          gchar   * normalized,
+                          GError ** error)
 {
     strcat(normalized, chunk);
 
@@ -1407,7 +1419,7 @@ normalize_chunked_when_cancelled (Fixture *fixture, gconstpointer data)
     lw_utf8_normalize_chunked (TEXT, strlen(TEXT), LW_UTF8FLAG_ALL, (LwUtf8ChunkHandler) _normalize, normalized, progress);
 
     // Assert
-    g_assert_cmpstr ("one two three ", ==, normalized);
+    g_assert_cmpstr ("one two thre", ==, normalized);
     gint expected_steps[] = {0, 11, 22, 33, 44, 55};
     g_assert_no_error (lw_progress_get_error (progress));
     g_assert_cmpint (fixture->steps->len, ==, G_N_ELEMENTS (expected_steps));

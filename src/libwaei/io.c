@@ -43,6 +43,9 @@
 #ifdef G_OS_UNIX
 #include <unistd.h>
 #endif
+#ifdef G_OS_WIN32
+#include <windows.h>
+#endif
 
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
@@ -62,6 +65,10 @@ lw_io_error_quark ()
 
 /**
  * lw_io_get_pagesize:
+ *
+ * Tries to find the the page size of the os.  If it fails,
+ * it defaults to 1024 * 4 bytes.
+ * 
  * Returns: The page size of the system
  */
 gsize
@@ -71,6 +78,11 @@ lw_io_get_pagesize ()
 
 #ifdef G_OS_UNIX
     pagesize = sysconf(_SC_PAGESIZE);
+#endif
+#ifdef G_OS_WIN32
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    pagesize = si.dwPageSize;
 #endif
 
     if (pagesize <= 0)
@@ -83,10 +95,10 @@ lw_io_get_pagesize ()
 
 
 /**
- * lw_io_fwrite:
+ * lw_io_fwrite_chunk:
  * @stream: #FILE to write to
- * @TEXT: Text to write to the @stream
- * @length: The length of @TEXT in bytes or 0 to have it calculated
+ * @CHUNK: Text to write to the @stream
+ * @chunk_length: The length of @TEXT in bytes or 0 to have it calculated
  * @progress: A #LwProgress to track progress or #NULL to ignore it
  *
  * A convenience method to write a string to a file while reporting
@@ -97,60 +109,86 @@ lw_io_get_pagesize ()
  * Returns: The number of bytes written
  */
 gsize
-lw_io_fwrite (FILE        * stream,
-              const gchar * TEXT,
-              gint          length,
-              LwProgress  * progress)
+lw_io_fwrite_chunk (FILE        * stream,
+                    gchar const * CHUNK,
+                    gsize         chunk_length,
+                    GError     ** error)
 {
-    //Sanity checks
+		//Sanity checks
     g_return_val_if_fail (stream != NULL, 0);
-    g_return_val_if_fail (TEXT != NULL, 0);
-    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
+		g_return_val_if_fail (CHUNK != NULL, 0);
+		if (chunk_length < 1) return 0;
+		if (error != NULL && *error != NULL) return 0;
 
     //Declarations
-    gsize chunk_size = 0;
     gsize bytes_written = 0;
-    gsize chunk = 0;
-    gsize offset = 0;
-    gsize left = 0;
 
-    //Initializations
+    //Initialization
+		bytes_written = fwrite(CHUNK, sizeof(gchar), chunk_length, stream);
 
-    if (length < 1) length = strlen(TEXT);
-    if (length < 1) goto errored;
-
-    chunk_size = length;
-    if (progress != NULL) chunk_size = lw_progress_get_chunk_size (progress);
-
-    if (progress != NULL) lw_progress_set_total (progress, length);
-    left = length;
-
-    while (left > 0 && feof(stream) == 0 && ferror(stream) == 0)
-    {
-      if (chunk_size > left) chunk_size = left;
-      bytes_written = fwrite(TEXT + offset, 1, chunk_size, stream);
-      chunk += bytes_written;
-      offset += bytes_written;
-      left -= bytes_written;
-      if (chunk >= chunk_size)
-      {
-        if (progress != NULL)
-        {
-          if (lw_progress_should_abort (progress)) goto errored;
-          lw_progress_set_current (progress, offset);
-        }
-        chunk = 0;
-      }
-    }
-
-    if (progress != NULL)
-    {
-      lw_progress_set_current (progress, length);
-    }
+		if (bytes_written != chunk_length || ferror(stream) != 0)
+		{
+			*error = g_error_new (
+							G_FILE_ERROR,
+							g_file_error_from_errno (ferror(stream)),
+							"Could not write the file\n"
+			);
+      goto errored;
+		}
 
 errored:
 
-    return offset;
+		return bytes_written;
+}
+
+
+/**
+ * lw_io_fwrite_chunked:
+ * @stream: A #FILE stream to write to
+ * @CHUNK: (no transfer): The chunk to write
+ * @progress: (transfer none) (allow-none): A #LwProgress to track write progress or %NULL to ignore it
+ * Returns: The number of bytes written
+ */
+gsize
+lw_io_fwrite_chunked (FILE             * stream,
+                      gchar const      * CONTENTS,
+                      gsize              content_length,
+                      LwProgress       * progress)
+{
+		//Sanity checks
+		g_return_val_if_fail (CONTENTS != NULL, 0);
+    if (content_length == 0) return 0;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
+
+    gsize max_chunk = LW_PROGRESS_START (progress, content_length);
+    gsize chunk = 0;
+    gsize total_bytes_written = 0;
+    gsize bytes_written = 0;
+    gsize bytes_handled = 0;
+    gsize current = 0;
+    gsize bytes_to_write = 0;
+    gsize left = 0;
+    gchar const * C = CONTENTS;
+    GError * error = NULL;
+
+    while (current < content_length)
+    {
+      left = content_length - current;
+      bytes_to_write = (left > max_chunk) ? max_chunk : left;
+      bytes_written = lw_io_fwrite_chunk (stream, C, bytes_to_write, &error);
+      total_bytes_written += bytes_written;
+      chunk += bytes_written;
+      C += bytes_written;
+      current = C - CONTENTS;
+
+      LW_PROGRESS_UPDATE (progress, current, content_length, chunk, max_chunk, error);
+    }
+
+    LW_PROGRESS_FINISH (progress, current);
+
+errored:
+
+    return total_bytes_written;
 }
 
 
@@ -158,21 +196,21 @@ errored:
  * lw_io_write_file:
  * @PATH: (transfer none): The file path to write to
  * @MODE: (transfer none): The mode of the file
- * @TEXT: (transfer none): The content to write
- * length: The byte length of TEXT
+ * @CONTENTS: (transfer none): The content to write
+ * content_length: The byte length of TEXT
  * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL to ignore it
  */
 gsize
-lw_io_write_file (const gchar *PATH, 
-                  const gchar *MODE,
-                  const gchar *TEXT, 
-                  gint         length,
-                  LwProgress  *progress)
+lw_io_write_file (const gchar * PATH, 
+                  const gchar * MODE,
+                  const gchar * CONTENTS, 
+                  gsize         content_length,
+                  LwProgress  * progress)
 {
     //Sanity checks
     g_return_val_if_fail (PATH != NULL, 0);
     g_return_val_if_fail (MODE != NULL, 0);
-    g_return_val_if_fail (TEXT != NULL, 0);
+    g_return_val_if_fail (CONTENTS != NULL, 0);
 
     //Declarations
     FILE *stream = NULL;
@@ -181,22 +219,10 @@ lw_io_write_file (const gchar *PATH,
     //Initializations
     stream = g_fopen (PATH, "wb");
     if (stream == NULL) goto errored;
-    bytes_written = lw_io_fwrite (stream, TEXT, length, progress);
+    bytes_written = lw_io_fwrite_chunked (stream, CONTENTS, content_length, progress);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
 errored:
-
-    if (progress != NULL && ferror(stream))
-    {
-      gint code = g_file_error_from_errno (ferror(stream));
-      lw_progress_take_error (progress, g_error_new (
-          G_FILE_ERROR,
-          code,
-          "There was an error code %d while writing the file:\n'%s'",
-          code,
-          PATH
-        )
-      );
-    }
 
     if (stream != NULL) fclose(stream); stream = NULL;
 
@@ -825,52 +851,49 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
 {
     //Sanity checks
     g_return_val_if_fail (bytes_length > 0, NULL);
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Initializations
     gchar *path = NULL;
-    gsize chunk_size = 0;
+    gsize max_chunk = 0;
     gint fd = -1;
     gchar *buffer = NULL;
     gboolean has_error = FALSE;
     FILE *stream = NULL;
+    gsize current = 0;
+    GError * error = NULL;
 
     //Declarations
-    if (progress != NULL) chunk_size = lw_progress_get_chunk_size (progress);
-    if (chunk_size == 0) chunk_size = lw_io_get_pagesize ();
-    if (chunk_size == 0) chunk_size = 1024;
+    max_chunk = LW_PROGRESS_START (progress, bytes_length);
     path = g_build_filename (g_get_tmp_dir (), "gwaei.XXXXXX", NULL);
     if (path == NULL) goto errored;
     fd = g_mkstemp (path);
     if (fd < 0) goto errored;
-    stream = fdopen (fd, "w+");
+    stream = fdopen (fd, "w");
     if (stream == NULL) goto errored;
     fd = -1;
-    buffer = g_new0 (gchar, chunk_size);
+
+    buffer = g_new0 (gchar, max_chunk);
     if (buffer == NULL) goto errored;
     
     {
       gsize bytes_written = 0;
       gsize bytes_to_write = 0;
+      gsize chunk = 0;
       while (bytes_length > 0)
       {
-        bytes_to_write = (bytes_length > chunk_size) ? chunk_size : bytes_length;
-        bytes_written = fwrite(buffer, sizeof(gchar), bytes_to_write, stream);
-        if (bytes_written != chunk_size && ferror(stream) != 0)
-        {
-          if (progress != NULL)
-          {
-            lw_progress_take_error (progress, g_error_new (
-              G_FILE_ERROR,
-              g_file_error_from_errno (ferror(stream)),
-              "There was an error allocating the temporary file\n"
-            ));
-          }
-          has_error = TRUE;
-          goto errored;
-        }
+        bytes_to_write = (bytes_length > max_chunk) ? max_chunk : bytes_length;
+        bytes_written = lw_io_fwrite_chunk (stream, buffer, bytes_to_write, &error);
+        chunk += bytes_written;
+        current += bytes_written;
+
+        LW_PROGRESS_UPDATE (progress, current, bytes_length, chunk, max_chunk, error);
+
         bytes_length -= bytes_written;
       }
     }
+
+    LW_PROGRESS_FINISH (progress, current);
 
 errored:
 
@@ -881,43 +904,10 @@ errored:
       path = NULL;
     }
 
-    fclose(stream); stream = NULL;
+    close(fd); fd = -1;
+    stream = NULL;
+
+    g_free (buffer);
 
     return path;
-}
-
-
-gsize
-lw_io_write_chunk_with_data (gchar               *chunk,
-                             gsize                chunk_length,
-                             LwIoWriteChunkData  *data,
-                             GError             **error)
-{
-		//Sanity checks
-		g_return_val_if_fail (chunk != NULL, 0);
-		if (chunk_length < 1) return 0;
-		if (error != NULL && *error != NULL) return 0;
-
-    //Declarations
-    gsize bytes_written = 0;
-    FILE *stream = NULL;
-
-    //Initialization
-    stream = data->stream;
-    if (stream == NULL) goto errored;
-		bytes_written = fwrite(chunk, sizeof(gchar), chunk_length, stream);
-
-    data->bytes_written += bytes_written;
-		if (bytes_written != chunk_length && ferror(stream) != 0)
-		{
-			*error = g_error_new (
-							G_FILE_ERROR,
-							g_file_error_from_errno (ferror(stream)),
-							"Could not write the dictionary cache temporary file\n"
-			);
-		}
-
-errored:
-
-		return bytes_written;
 }

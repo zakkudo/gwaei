@@ -18,6 +18,62 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
 #define LW_IS_PROGRESS_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_PROGRESS))
 #define LW_PROGRESS_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_PROGRESS, LwProgressClass))
 
+
+#define LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT(self) if (self != NULL && lw_progress_should_abort (self)) goto errored;
+
+#define LW_PROGRESS_RETURN_IF_SHOULD_ABORT(self) if (self != NULL && lw_progress_should_abort (self))\
+    {\
+      return;\
+    }
+
+#define LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT(self, value) if (self != NULL && lw_progress_should_abort (self))\
+    {\
+      return value;\
+    }
+
+#define LW_PROGRESS_START(self, total) (self != NULL) ? lw_progress_get_chunk_size (self) : total;\
+    if (self != NULL)\
+    {\
+      lw_progress_set_current (self, 0);\
+      lw_progress_set_total (self, total);\
+    }
+
+#define LW_PROGRESS_FINISH(self, current) if (self != NULL)\
+    {\
+      lw_progress_set_current (self, current);\
+    }
+
+#define LW_PROGRESS_TAKE_ERROR(self, error) if (error != NULL)\
+    {\
+      if (self != NULL)\
+      {\
+        lw_progress_take_error (self, error);\
+        error = NULL;\
+      }\
+      g_clear_error (&error);\
+      goto errored;\
+    }
+
+#define LW_PROGRESS_UPDATE(self, current, total, chunk, max_chunk, error) if (error != NULL)\
+    {\
+      if (self != NULL)\
+      {\
+        lw_progress_take_error (self, error);\
+        error = NULL;\
+      }\
+      g_clear_error (&error);\
+      goto errored;\
+    }\
+    if (self != NULL)\
+    {\
+      if (G_UNLIKELY (chunk >= max_chunk) && G_LIKELY (max_chunk > 0))\
+      {\
+        if (G_UNLIKELY (lw_progress_should_abort (self))) goto errored;\
+        lw_progress_set_current (self, current);\
+        chunk = 0;\
+      }\
+    }
+
 struct _LwProgress {
   GObject object;
   LwProgressPrivate *priv;

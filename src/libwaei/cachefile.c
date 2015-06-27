@@ -283,7 +283,7 @@ lw_cachefile_write (LwCacheFile * self,
       content_length = strlen (CONTENTS) + 1;
     }
 
-    bytes_written = lw_io_fwrite (stream, CONTENTS, content_length, progress);
+    bytes_written = lw_io_fwrite_chunked (stream, CONTENTS, content_length, progress);
 
 errored:
 

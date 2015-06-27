@@ -1043,10 +1043,11 @@ lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
     LwUtf8Flag flags = 0;
-    LwIoWriteChunkData data = { 0 };
+    //LwIoWriteChunkData data = { 0 };
     GError *error = NULL;
     gchar *path = NULL;
     gboolean has_error = FALSE;
+/*TODO
 
     //Initializations
     priv = self->priv;
@@ -1069,13 +1070,14 @@ lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
     //Write to it
     data.stream = g_fopen (path, "w+");
     fwrite(CHECKSUM, sizeof(gchar), strlen(CHECKSUM) + 1, data.stream);
-    lw_utf8_normalize_chunked (CONTENTS, content_length, flags, (LwUtf8ChunkHandler) lw_io_write_chunk_with_data, &data, progress);
+    lw_utf8_normalize_chunked (CONTENTS, content_length, flags, (LwUtf8ChunkHandler) lw_io_write_chunk, &data, progress);
     if (progress != NULL && lw_progress_should_abort (progress)) goto errored;
 
 errored:
 
     if (data.stream != NULL) fclose(data.stream);
     data.stream = NULL;
+*/
 
     return path;
 }
