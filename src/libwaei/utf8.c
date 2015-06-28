@@ -781,6 +781,11 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      * contents,
         }
       }
 
+      if (p < c && p < e && *c == '\0')
+      {
+        num_lines++;
+      }
+
       LW_PROGRESS_FINISH (progress, current);
     }
 

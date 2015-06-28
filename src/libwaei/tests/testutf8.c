@@ -961,10 +961,11 @@ replace_linebreaks_with_nullcharacter_when_blank_string (Fixture *fixture, gcons
     gchar * text = g_strdup ("");
     gsize max_line_length = 0;
     gint i = 0;
+    gint num_lines = 0;
     LwProgress * progress = fixture->progress;
 
     //Act
-    lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
+    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
 
     //Assert
     g_assert_true (memcmp("", text, strlen("")) == 0);
@@ -977,6 +978,7 @@ replace_linebreaks_with_nullcharacter_when_blank_string (Fixture *fixture, gcons
     }
     g_assert_false (lw_progress_completed (fixture->progress));
     g_assert_false (lw_progress_is_cancelled (progress));
+    g_assert_cmpint (num_lines, ==, 0);
 
     g_free (text);
 }
@@ -988,11 +990,12 @@ replace_linebreaks_with_nullcharacter_when_multiple_lines (Fixture *fixture, gco
     //Arrange
     gchar * text = g_strdup ("one\ntwo\nthree");
     gsize max_line_length = 0;
+    gint num_lines = 0;
     gint i = 0;
     LwProgress * progress = fixture->progress;
 
     //Act
-    lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
+    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
 
     //Assert
     g_assert_true (memcmp("one\0two\0three", text, strlen("one\ntwo\nthree")) == 0);
@@ -1003,6 +1006,7 @@ replace_linebreaks_with_nullcharacter_when_multiple_lines (Fixture *fixture, gco
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
+    g_assert_cmpint (num_lines, ==, 3);
     g_assert_false (lw_progress_completed (fixture->progress));
     g_assert_false (lw_progress_is_cancelled (progress));
 
@@ -1017,10 +1021,11 @@ replace_linebreaks_with_nullcharacter_when_only_one_line (Fixture *fixture, gcon
     gchar * text = g_strdup ("one two three");
     gsize max_line_length = 0;
     gint i = 0;
+    gint num_lines = 0;
     LwProgress * progress = fixture->progress;
 
     //Act
-    lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
+    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
 
     //Assert
     g_assert_true (memcmp("one two three", text, strlen("one two three")) == 0);
@@ -1033,6 +1038,7 @@ replace_linebreaks_with_nullcharacter_when_only_one_line (Fixture *fixture, gcon
     }
     g_assert_false (lw_progress_completed (fixture->progress));
     g_assert_false (lw_progress_is_cancelled (progress));
+    g_assert_cmpint (num_lines, ==, 1);
 
     g_free (text);
 }
@@ -1045,10 +1051,11 @@ replace_linebreaks_with_nullcharacter_when_no_progress (Fixture *fixture, gconst
     gchar * text = g_strdup ("one\ntwo\nthree");
     gsize max_line_length = 0;
     gint i = 0;
+    gint num_lines = 0;
     LwProgress * progress = NULL;
 
     //Act
-    lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
+    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (text, strlen(text), &max_line_length, progress);
 
     //Assert
     g_assert_true (memcmp("one\0two\0three", text, strlen("one\ntwo\nthree")) == 0);
@@ -1058,6 +1065,7 @@ replace_linebreaks_with_nullcharacter_when_no_progress (Fixture *fixture, gconst
     {
       g_assert_cmpint (g_array_index (fixture->steps, gint, i), ==, expected_steps[i]);
     }
+    g_assert_cmpint (num_lines, ==, 3);
 
     g_free (text);
 }
