@@ -851,7 +851,7 @@ lw_dictionarycache_set_parsed (LwDictionaryCache * self,
 
     if (parsed != NULL)
     {
-      g_object_ref (priv->parsed);
+      g_object_ref (parsed);
     }
 
     if (priv->parsed != NULL)
@@ -911,7 +911,7 @@ lw_dictionarycache_set_indexed (LwDictionaryCache * self,
 
     if (indexed != NULL)
     {
-      g_object_ref (priv->indexed);
+      g_object_ref (indexed);
     }
 
     if (priv->indexed != NULL)

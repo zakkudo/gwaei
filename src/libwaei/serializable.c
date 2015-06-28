@@ -231,7 +231,16 @@ lw_serializable_deserialize_from_cachefile_into (LwSerializable * self,
     length = lw_cachefile_length (cache_file);
     if (length == 0) goto errored;
 
-    priv->cache_file = g_object_ref (cache_file);
+    if (cache_file != NULL)
+    {
+      g_object_ref (cache_file);
+    }
+    if (priv->cache_file != NULL)
+    {
+      g_object_unref (priv->cache_file);
+      priv->cache_file = NULL;
+    }
+    priv->cache_file = cache_file;
 
     lw_serializable_deserialize_into (self, contents, length, progress);
 

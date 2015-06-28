@@ -72,6 +72,7 @@ test_write (Fixture       * fixture,
 {
     gchar const * body = "one\ntwo\nthree";
     lw_dictionarycache_write (fixture->cache, "Test Checksum", body, strlen(body) + 1, parse, NULL, NULL);
+    lw_dictionarycache_read (fixture->cache, "Test Checksum", NULL);
 
     LwParsed * parsed = lw_dictionarycache_get_parsed (fixture->cache);
     LwCacheFile * cachefile = lw_parsed_get_cachefile (parsed);

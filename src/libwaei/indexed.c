@@ -83,6 +83,7 @@ lw_indexed_finalize (GObject *object)
     if (priv->parsed != NULL) 
     {
       g_object_unref (priv->parsed);
+      priv->parsed = NULL;
     }
 
     G_OBJECT_CLASS (lw_indexed_parent_class)->finalize (object);
