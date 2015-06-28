@@ -3,6 +3,8 @@
 #include <glib/gstdio.h>
 #include <libwaei/libwaei.h>
 
+#include "testdictionary.h"
+
 struct _Fixture {
   gchar * cachetmpl;
   gchar * cachedir;
@@ -16,7 +18,7 @@ void setup (Fixture *fixture, gconstpointer data)
     fixture->cachedir = g_mkdtemp_full (fixture->cachetmpl, 0700);
     g_setenv("DICTIONARYCACHEDIR", fixture->cachedir, TRUE);
     
-    fixture->cache = lw_dictionarycache_new ("TestDictionary", LW_UTF8FLAG_NONE);
+    fixture->cache = lw_dictionarycache_new ("test", LW_TYPE_TESTDICTIONARY, LW_UTF8FLAG_NONE);
 }
 
 
@@ -78,13 +80,20 @@ test_write (Fixture       * fixture,
     LwCacheFile * cache_file = lw_parsed_get_cachefile (parsed);
     gchar * contents = lw_cachefile_get_contents (cache_file);
     gsize length = lw_cachefile_length (cache_file);
-/*TODO
 
-    gchar * normalized = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "TestDictionary", "testcache.normalized")
-    gchar * parsed = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "TestDictionary", "testcache.parsed")
-*/
+    g_assert_true (memcmp(contents, "one\0two\0three", sizeof("one\0two\0three")) == 0);
+    g_assert_cmpint (length, ==, 13);
 
-    
+    {
+      gchar * normalized_contents = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "LwTestDictionary", "test.normalized", NULL);
+      gchar * parsed_contents = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "LwTestDictionary", "test.parsed", NULL);
+
+      g_assert_true (g_file_test (normalized_contents, G_FILE_TEST_IS_REGULAR));
+      g_assert_true (g_file_test (parsed_contents, G_FILE_TEST_IS_REGULAR));
+
+      g_free (normalized_contents);
+      g_free (parsed_contents);
+    }
 }
 
 

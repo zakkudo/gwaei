@@ -9,11 +9,13 @@ typedef enum {
     PROP_FLAGS,
     PROP_PARSED,
     PROP_INDEXED,
+    PROP_DICTIONARY_TYPE,
     TOTAL_PROPS
 } Props;
 
 
 struct _LwDictionaryCachePrivate {
+  GType dictionary_type;
   gchar *name;
   LwUtf8Flag flags;
   LwParsed *parsed;

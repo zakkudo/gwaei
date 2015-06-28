@@ -915,7 +915,7 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
     content_length = lw_dictionary_contents_length (self);
     if (content_length == 0) goto errored;
 
-    cache = lw_dictionarycache_new (FILENAME, flags);
+    cache = lw_dictionarycache_new (FILENAME, G_OBJECT_TYPE (self), flags);
     if (cache == NULL) goto errored;
     
     lw_dictionary_set_parsed_cache (self, cache);
