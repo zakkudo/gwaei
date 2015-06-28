@@ -1138,6 +1138,7 @@ lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
     stream = g_fopen (path, "w+");
     fwrite (CHECKSUM, sizeof(gchar), strlen(CHECKSUM) + 1, stream);
     lw_utf8_normalize_chunked (CONTENTS, content_length, flags, (LwUtf8ChunkHandler) _fwrite_chunk, stream, progress);
+    fwrite ("", sizeof(gchar), 1, stream);
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
 errored:

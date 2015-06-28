@@ -82,7 +82,7 @@ test_write (Fixture       * fixture,
     gsize length = lw_cachefile_length (cache_file);
 
     g_assert_true (memcmp(contents, "one\0two\0three", sizeof("one\0two\0three")) == 0);
-    g_assert_cmpint (length, ==, 13);
+    g_assert_cmpint (length, ==, 14);
 
     {
       gchar * normalized_contents = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "LwTestDictionary", "test.normalized", NULL);
