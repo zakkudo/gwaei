@@ -81,6 +81,16 @@ test_write (Fixture       * fixture,
     gchar * contents = lw_cachefile_get_contents (cache_file);
     gsize length = lw_cachefile_length (cache_file);
 
+    {
+      LwParsedLine * line = lw_parsed_get_line (parsed, 0);
+      g_assert_cmpstr (lw_parsedline_get_strv (line, 0)[0], ==, "one");
+      g_assert_cmpstr (lw_parsedline_get_strv (line, 0)[1], ==, NULL);
+
+      line = lw_parsed_get_line (parsed, 1);
+      g_assert_cmpstr (lw_parsedline_get_strv (line, 0)[0], ==, "two");
+      g_assert_cmpstr (lw_parsedline_get_strv (line, 0)[1], ==, NULL);
+    }
+
     g_assert_true (memcmp(contents, "one\0two\0three", sizeof("one\0two\0three")) == 0);
     g_assert_cmpint (length, ==, 14);
 

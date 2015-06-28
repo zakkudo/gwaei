@@ -197,8 +197,11 @@ lw_serializable_deserialize_into (LwSerializable * self,
 
     bytes_read = klass->deserialize_into (self, serialized_data, serialized_length, progress);
 
-    if (priv->cache_file != NULL) g_object_unref (priv->cache_file);
-    priv->cache_file = NULL;
+    if (priv->cache_file != NULL && lw_cachefile_get_contents (priv->cache_file) != serialized_data)
+    {
+      g_object_unref (priv->cache_file);
+      priv->cache_file = NULL;
+    }
 
     return bytes_read;
 }
