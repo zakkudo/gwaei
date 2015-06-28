@@ -170,7 +170,7 @@ lw_utf8flag_clean (LwUtf8Flag flags)
  * lw_utf8_validate:
  * @TEXT: A string to validate as well-formed utf-8
  * @length: The length of the string or 0 to calculate it
- * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL
+ * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL to ignore it
  *
  * Returns: %TRUE if @TEXT is valid utf-8
  */
@@ -335,9 +335,9 @@ lw_utf8_normalize_chunk (gchar       ** output_chunk,
  * @CONTENTS: Text to be normalized
  * @content_length: The length of the text to be normalized or 0 for it to be calculated
  * @flags: Mask of #LwUtf8Flags to determine the normalization mode
- * @chunk_handler (allow-none): A method to be called on each chunk, such as a file writer
+ * @chunk_handler: (allow-none): A method to be called on each chunk, such as a file writer
  * @chunk_handler_data: (allow-none): Data to be passed to the handler
- * @progress: (transfer none) (allow-none): An #LwProgress to track progress or %NULL
+ * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL to ignore it
  *
  * Normalizes a long string of text in a series of chunks
  * such that it is file-writing and progress-tracking fiendly.  The chunk size
@@ -498,7 +498,7 @@ _casefold_character (gchar *character)
  * lw_utf8_casefold:
  * @text: A string to casefold inline. The string is modified in place.
  * @length: Length of the string in bytes or 0 to have it calculated
- * @progress: (transfer none) (allow-none): An #LwProgress to track progress or %NULL
+ * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL to ignore it
  *
  * Folds the case to lower case so that case insensitive searches can be
  * accomplished.
@@ -590,7 +590,7 @@ _furiganafold_character (gchar *c, GHashTable *conversions)
  * lw_utf8_furiganafold:
  * @text: A string to furiganafold inline.  The string is modified in place.
  * @length: Length of the string in bytes or -1 to have it calculated
- * @progress: (transfer none) (allow-none): An #LwProgress to track progress or %NULL
+ * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL to ignore it
  *
  * Folds katakana to hiragana characters so furigana insensitive comparisons
  * can be made.
@@ -705,7 +705,7 @@ errored:
  * @contents: The content string to modify inline
  * @content_length: The length of @contents, or 0 for it to be calculated
  * @max_line_length: (allow-none): Sets the length of the longest line encountered
- * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL
+ * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL to ignore it
  *
  * This is a helper method primarily meant for #LwDictionary to parse a 
  * raw dictionary file and use the contents in place.
