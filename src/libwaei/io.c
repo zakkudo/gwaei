@@ -98,7 +98,7 @@ lw_io_get_pagesize ()
  * lw_io_fwrite_chunk:
  * @stream: #FILE to write to
  * @CHUNK: Text to write to the @stream
- * @chunk_length: The length of @TEXT in bytes or 0 to have it calculated
+ * @chunk_length: The length of @CHUNK in bytes
  * @progress: A #LwProgress to track progress or #NULL to ignore it
  *
  * A convenience method to write a string to a file while reporting
@@ -145,7 +145,8 @@ errored:
 /**
  * lw_io_fwrite_chunked:
  * @stream: A #FILE stream to write to
- * @CHUNK: (no transfer): The chunk to write
+ * @CONTENTS: (no transfer): The chunk to write
+ * @content_length: The number of bytes to write of the @CONTENTS
  * @progress: (transfer none) (allow-none): A #LwProgress to track write progress or %NULL to ignore it
  * Returns: The number of bytes written
  */
@@ -194,11 +195,15 @@ errored:
 
 /**
  * lw_io_write_file:
- * @PATH: (transfer none): The file path to write to
+ * @PATH: (transfer none) (type filename): The file path to write to
  * @MODE: (transfer none): The mode of the file
  * @CONTENTS: (transfer none): The content to write
- * content_length: The byte length of TEXT
+ * @content_length: The byte length of @CONTENTS
  * @progress: (transfer none) (allow-none): A #LwProgress to track progress or %NULL to ignore it
+ *
+ * A convenience method to write to a file path.
+ *
+ * Returns: The number of bytes written
  */
 gsize
 lw_io_write_file (const gchar * PATH, 
