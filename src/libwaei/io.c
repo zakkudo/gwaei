@@ -904,7 +904,8 @@ errored:
       path = NULL;
     }
 
-    close(fd); fd = -1;
+    //close(fd); fd = -1;
+    if (stream != NULL) fclose(stream);
     stream = NULL;
 
     g_free (buffer);

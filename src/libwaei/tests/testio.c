@@ -226,7 +226,7 @@ allocate_temporary_file (Fixture       * fixture,
     gsize length = 0;
     gchar * contents = NULL;
     g_file_get_contents (filename, &contents, &length, NULL);
-    g_assert_true (memcmp(buffer, contents, sizeof(gchar) * 15));
+    g_assert_true (memcmp(buffer, contents, sizeof(gchar) * 15) == 0);
 
     g_free (buffer);
     g_free (contents);

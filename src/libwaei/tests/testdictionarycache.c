@@ -75,10 +75,10 @@ test_write (Fixture       * fixture,
     lw_dictionarycache_read (fixture->cache, "Test Checksum", NULL);
 
     LwParsed * parsed = lw_dictionarycache_get_parsed (fixture->cache);
-    LwCacheFile * cachefile = lw_parsed_get_cachefile (parsed);
-/*TODO
+    LwCacheFile * cache_file = lw_parsed_get_cachefile (parsed);
     gchar * contents = lw_cachefile_get_contents (cache_file);
-    gsize * length = lw_cachefile_length (cache_file);
+    gsize length = lw_cachefile_length (cache_file);
+/*TODO
 
     gchar * normalized = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "TestDictionary", "testcache.normalized")
     gchar * parsed = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "TestDictionary", "testcache.parsed")

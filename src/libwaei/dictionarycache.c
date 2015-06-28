@@ -284,6 +284,7 @@ _write_mapped (LwDictionaryCache * self,
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     g_return_val_if_fail (CHECKSUM != NULL, NULL);
     g_return_val_if_fail (LW_IS_CACHEFILE (mapped), NULL);
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Declarations
     gchar *path = NULL;
@@ -315,7 +316,7 @@ _write_serializable (LwDictionaryCache * self,
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     g_return_val_if_fail (CHECKSUM != NULL, NULL);
-    if (progress && lw_progress_should_abort (progress)) return NULL;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Declarations
     gchar *path = NULL;
@@ -341,16 +342,16 @@ _map_contents (LwDictionaryCache * self,
                gsize               content_length,
                LwProgress        * progress)
 {
-		//Sanity checks
-		g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     g_return_val_if_fail (CHECKSUM != NULL, NULL);
-		g_return_val_if_fail (CONTENTS != NULL, NULL);
-		g_return_val_if_fail (content_length > 0, NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    g_return_val_if_fail (CONTENTS != NULL, NULL);
+    g_return_val_if_fail (content_length > 0, NULL);
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
-		//Declarations
-		gchar * path = NULL;
-		LwCacheFile * cache_file = NULL;
+    //Declarations
+    gchar * path = NULL;
+    LwCacheFile * cache_file = NULL;
 
     //Copy and normalize the dictionary contents
     path = lw_dictionarycache_write_normalized_temporary_file (self, CHECKSUM, CONTENTS, content_length, progress);
@@ -367,7 +368,7 @@ errored:
     g_free (path);
     path = NULL;
 
-		return cache_file;
+    return cache_file;
 }
 
 
@@ -399,6 +400,7 @@ _index (LwDictionaryCache * self,
 {
     //Sanity checks
     g_return_val_if_fail (parsed != NULL, NULL);
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
     return NULL;
 
     //Declarations
@@ -436,7 +438,7 @@ lw_dictionarycache_write (LwDictionaryCache          * self,
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
     g_return_if_fail (CHECKSUM != NULL);
     g_return_if_fail (CONTENTS != NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return;
+    LW_PROGRESS_RETURN_IF_SHOULD_ABORT (progress);
 
     //Declarations
     LwCacheFile *mapped_contents = NULL;
@@ -447,8 +449,8 @@ lw_dictionarycache_write (LwDictionaryCache          * self,
     LwCacheFile *indexed_cachefile = NULL;
 
     //Map the dictionary contents to a normalized file
-		mapped_contents = _map_contents (self, CHECKSUM, CONTENTS, content_length, progress);
-		if (mapped_contents == NULL) goto errored;
+    mapped_contents = _map_contents (self, CHECKSUM, CONTENTS, content_length, progress);
+    if (mapped_contents == NULL) goto errored;
 
     //Parse the dictionary, tokenizing the contents inline in the mapped file
     parsed = _parse (self, mapped_contents, parse, data);
@@ -536,7 +538,7 @@ _read_cachefile (LwDictionaryCache * self,
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Declarations
     gchar *path = NULL;
@@ -569,7 +571,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
     g_return_if_fail (EXPECTED_CHECKSUM != NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return;
+    LW_PROGRESS_RETURN_IF_SHOULD_ABORT (progress);
 
     //Declarations
     LwCacheFile *normalized_cachefile = NULL;
@@ -1027,6 +1029,17 @@ errored:
 }
 
 
+static gsize
+_fwrite_chunk (gchar const  * original_chunk,
+               gsize          original_chunk_length,
+               gchar        * chunk,
+               gsize          chunk_length,
+               FILE         * stream,
+               GError      ** error)
+{
+    return lw_io_fwrite_chunk (stream, chunk, chunk_length, error);
+}
+
 static gchar *
 lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
                                                     gchar const       * CHECKSUM,
@@ -1038,16 +1051,15 @@ lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
     g_return_if_fail (CHECKSUM != NULL);
     g_return_if_fail (CONTENTS != NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Declarations
     LwDictionaryCachePrivate *priv = NULL;
     LwUtf8Flag flags = 0;
-    //LwIoWriteChunkData data = { 0 };
+    FILE * stream = NULL;
     GError *error = NULL;
     gchar *path = NULL;
     gboolean has_error = FALSE;
-/*TODO
 
     //Initializations
     priv = self->priv;
@@ -1055,29 +1067,17 @@ lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
 
     //Create the temporary file
     path = _create_normalized_temporary_file (self, &error);
-    if (error != NULL)
-    {
-      if (progress != NULL)
-      {
-        lw_progress_take_error (progress, error);
-        error = NULL;
-      }
-      g_clear_error (&error);
-      has_error = TRUE;
-      goto errored;
-    }
+    LW_PROGRESS_TAKE_ERROR (progress, error);
 
     //Write to it
-    data.stream = g_fopen (path, "w+");
-    fwrite(CHECKSUM, sizeof(gchar), strlen(CHECKSUM) + 1, data.stream);
-    lw_utf8_normalize_chunked (CONTENTS, content_length, flags, (LwUtf8ChunkHandler) lw_io_write_chunk, &data, progress);
-    if (progress != NULL && lw_progress_should_abort (progress)) goto errored;
+    stream = g_fopen (path, "w+");
+    fwrite (CHECKSUM, sizeof(gchar), strlen(CHECKSUM) + 1, stream);
+    lw_utf8_normalize_chunked (CONTENTS, content_length, flags, (LwUtf8ChunkHandler) _fwrite_chunk, stream, progress);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
 errored:
 
-    if (data.stream != NULL) fclose(data.stream);
-    data.stream = NULL;
-*/
+    if (stream != NULL) fclose(stream);
 
     return path;
 }
