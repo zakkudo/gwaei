@@ -348,6 +348,9 @@ _write_serializable (LwDictionaryCache * self,
 
 errored:
 
+    g_free (path);
+    path = NULL;
+
     return cachefile;
 }
 
@@ -569,6 +572,9 @@ _read_cachefile (LwDictionaryCache * self,
     lw_cachefile_read (cachefile, EXPECTED_CHECKSUM, progress);
 
 errored:
+
+    g_free (path);
+    path = NULL;
 
     return cachefile;
 }
