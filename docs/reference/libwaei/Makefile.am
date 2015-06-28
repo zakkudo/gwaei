@@ -70,7 +70,8 @@ searchsubcommand-private.h\
 serializable-private.h\
 subcommand-private.h\
 uninstallsubcommand-private.h\
-vocabulary-private.h
+vocabulary-private.h\
+testdictionary.h
 
 
 # Images to copy into HTML directory.

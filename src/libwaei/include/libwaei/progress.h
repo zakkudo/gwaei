@@ -19,18 +19,47 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
 #define LW_PROGRESS_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_PROGRESS, LwProgressClass))
 
 
-#define LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT(self) if (self != NULL && lw_progress_should_abort (self)) goto errored;
+/**
+ * LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT:
+ * @self: (allow-none): A #LwProgress
+ * 
+ * Goes to the errored label if @self is not %NULL and lw_progress_should_abort () returns %TRUE
+ */
+#define LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT(self) \
+    if (self != NULL && lw_progress_should_abort (self)) goto errored;
 
+
+/**
+ * LW_PROGRESS_RETURN_IF_SHOULD_ABORT:
+ * @self: (allow-none): A #LwProgress
+ *
+ * Returns if @self is not %NULL and lw_progress_should_abort() returns %TRUE
+ */
 #define LW_PROGRESS_RETURN_IF_SHOULD_ABORT(self) if (self != NULL && lw_progress_should_abort (self))\
     {\
       return;\
     }
 
+/**
+ * LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT:
+ * @self: (allow-none): A #LwProgress
+ * @value: The value that is returned if lw_progress_should_abort() returns %TRUE
+ */
 #define LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT(self, value) if (self != NULL && lw_progress_should_abort (self))\
     {\
       return value;\
     }
 
+/**
+ * LW_PROGRESS_START:
+ * @self: (allow-none): A #LwProgress
+ * @total: The total value to set the #LwProgress to
+ * Returns: The progress chunk size
+ *
+ * Sets up a #LwProgress for starting a task.  This includes setting current to 
+ * progress to zero and setting the total progress. This macro returns the progress
+ * calculated chunk size.
+ */
 #define LW_PROGRESS_START(self, total) (self != NULL) ? lw_progress_get_chunk_size (self) : total;\
     if (self != NULL)\
     {\
@@ -38,11 +67,28 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
       lw_progress_set_total (self, total);\
     }
 
+/**
+ * LW_PROGRESS_FINISH:
+ * @self: A #LwProgress
+ * @current: The last current progress to set
+ *
+ * Does the final current progress set.  This value
+ * should usually equal the total value.
+ */
 #define LW_PROGRESS_FINISH(self, current) if (self != NULL)\
     {\
       lw_progress_set_current (self, current);\
     }
 
+/**
+ * LW_PROGRESS_TAKE_ERROR:
+ * @self: (allow-none): A #LwProgress
+ * @error: (allow-none): A #GError
+ *
+ * Sets any possible errors to the #LwProgress and jumps
+ * to the errored goto label.  If The #LwProgress is %NULL,
+ * the error is simply cleared to prevent a memory leak.
+ */
 #define LW_PROGRESS_TAKE_ERROR(self, error) if (error != NULL)\
     {\
       if (self != NULL)\
@@ -54,7 +100,19 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
       goto errored;\
     }
 
-#define LW_PROGRESS_UPDATE(self, current, total, chunk, max_chunk, error) if (error != NULL)\
+/**
+ * LW_PROGRESS_UPDATE:
+ * @self: (allow-none): A #LwProgress
+ * @current: The current progress to set
+ * @chunk: The current chunk size
+ * @max_chunk: The max chunk size
+ * @error: (allow-none): An #GError pointer to watch for errors
+ *
+ * Updates the current progress once the chunk is equal or greater than
+ * the max_chunk value.  If an error is set, the code jumps to the errored
+ * goto label.
+ */
+#define LW_PROGRESS_UPDATE(self, current, chunk, max_chunk, error) if (error != NULL)\
     {\
       if (self != NULL)\
       {\

@@ -181,7 +181,7 @@ lw_io_fwrite_chunked (FILE             * stream,
       C += bytes_written;
       current = C - CONTENTS;
 
-      LW_PROGRESS_UPDATE (progress, current, content_length, chunk, max_chunk, error);
+      LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk, error);
     }
 
     LW_PROGRESS_FINISH (progress, current);
@@ -887,7 +887,7 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
         chunk += bytes_written;
         current += bytes_written;
 
-        LW_PROGRESS_UPDATE (progress, current, bytes_length, chunk, max_chunk, error);
+        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk, error);
 
         bytes_length -= bytes_written;
       }
