@@ -48,7 +48,7 @@ void lw_dictionarycache_read (LwDictionaryCache * self, gchar const * EXPECTED_C
 
 //Properties
 LwUtf8Flag lw_dictionarycache_get_flags (LwDictionaryCache * self);
-gchar const * lw_dictionarycache_get_name (LwDictionaryCache * self);
+gchar const * lw_dictionarycache_get_dictionary_name (LwDictionaryCache * self);
 LwParsed * lw_dictionarycache_get_parsed (LwDictionaryCache * self);
 LwIndexed * lw_dictionarycache_get_indexed (LwDictionaryCache * self);
 

@@ -76,7 +76,7 @@ lw_dictionarycache_new (gchar const * DICTIONARY_NAME,
 
     //Initializations
     self = LW_DICTIONARYCACHE (g_object_new (LW_TYPE_DICTIONARYCACHE,
-      "name", DICTIONARY_NAME,
+      "dictionary-name", DICTIONARY_NAME,
       "dictionary-type", dictionary_type,
       "normalization-flags", flags,
       NULL
@@ -116,8 +116,8 @@ lw_dictionarycache_set_property (GObject      * object,
 
     switch (property_id)
     {
-      case PROP_NAME:
-        lw_dictionarycache_set_name (self, g_value_get_string (value));
+      case PROP_DICTIONARY_NAME:
+        lw_dictionarycache_set_dictionary_name (self, g_value_get_string (value));
         break;
       case PROP_FLAGS:
         lw_dictionarycache_set_flags (self, g_value_get_flags (value));
@@ -148,8 +148,8 @@ lw_dictionarycache_get_property (GObject     * object,
 
     switch (property_id)
     {
-      case PROP_NAME:
-        g_value_set_string (value, lw_dictionarycache_get_name (self));
+      case PROP_DICTIONARY_NAME:
+        g_value_set_string (value, lw_dictionarycache_get_dictionary_name (self));
         break;
       case PROP_FLAGS:
         g_value_set_flags (value, lw_dictionarycache_get_flags (self));
@@ -181,7 +181,7 @@ lw_dictionarycache_finalize (GObject * object)
     self = LW_DICTIONARYCACHE (object);
     priv = self->priv;
 
-    g_free (priv->name);
+    g_free (priv->dictionary_name);
 
     if (priv->parsed) g_object_unref (priv->parsed);
     if (priv->indexed) g_object_unref (priv->indexed);
@@ -225,14 +225,23 @@ lw_dictionarycache_class_init (LwDictionaryCacheClass * klass)
 
     LwDictionaryCacheClassPrivate *klasspriv = klass->priv;
 
-    klasspriv->pspec[PROP_NAME] = g_param_spec_string (
-        "name",
-        gettext("Name"),
+    klasspriv->pspec[PROP_DICTIONARY_NAME] = g_param_spec_string (
+        "dictionary-name",
+        gettext("Dictionary Name"),
         gettext("The base name of the data cache.  This is used to build the filename."),
         NULL,
         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_NAME, klasspriv->pspec[PROP_NAME]);
+    g_object_class_install_property (object_class, PROP_DICTIONARY_NAME, klasspriv->pspec[PROP_DICTIONARY_NAME]);
+
+    klasspriv->pspec[PROP_DICTIONARY_TYPE] = g_param_spec_gtype (
+        "dictionary-type",
+        gettext("Dictionary Type"),
+        gettext("The GType of the dictionary that his cache is for"),
+        LW_TYPE_DICTIONARY, 
+        G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY
+    );
+    g_object_class_install_property (object_class, PROP_DICTIONARY_TYPE, klasspriv->pspec[PROP_DICTIONARY_TYPE]);
 
     klasspriv->pspec[PROP_FLAGS] = g_param_spec_flags (
         "normalization-flags",
@@ -261,15 +270,6 @@ lw_dictionarycache_class_init (LwDictionaryCacheClass * klass)
         G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_PARSED, klasspriv->pspec[PROP_PARSED]);
-
-    klasspriv->pspec[PROP_DICTIONARY_TYPE] = g_param_spec_gtype (
-        "dictionary-type",
-        gettext("Dictionary Type"),
-        gettext("The GType of the dictionary that his cache is for"),
-        LW_TYPE_DICTIONARY, 
-        G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY
-    );
-    g_object_class_install_property (object_class, PROP_DICTIONARY_TYPE, klasspriv->pspec[PROP_DICTIONARY_TYPE]);
 }
 
 
@@ -735,8 +735,8 @@ lw_dictionarycache_get_flags (LwDictionaryCache * self)
 
 
 static void
-lw_dictionarycache_set_name (LwDictionaryCache * self,
-                             gchar const       * NAME)
+lw_dictionarycache_set_dictionary_name (LwDictionaryCache * self,
+                                       gchar const        * DICTIONARY_NAME)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
@@ -750,12 +750,12 @@ lw_dictionarycache_set_name (LwDictionaryCache * self,
     priv = self->priv;
     klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     klasspriv = klass->priv;
-    if (g_strcmp0 (NAME, priv->name) == 0) goto errored;
+    if (g_strcmp0 (DICTIONARY_NAME, priv->dictionary_name) == 0) goto errored;
 
-    g_free (priv->name);
-    priv->name = g_strdup (NAME);
+    g_free (priv->dictionary_name);
+    priv->dictionary_name = g_strdup (DICTIONARY_NAME);
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_NAME]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DICTIONARY_NAME]);
 
 errored:
 
@@ -764,12 +764,12 @@ errored:
 
 
 /**
- * lw_dictionarycache_get_name:
+ * lw_dictionarycache_get_dictionary_name:
  * @self: A #LwDictionaryCache
  * Returns: (transfer none): The name of the dictionary cache set on consruction. This string is owned by the dictionary cache and so it should not be modified or freed.
  */
 gchar const *
-lw_dictionarycache_get_name (LwDictionaryCache * self)
+lw_dictionarycache_get_dictionary_name (LwDictionaryCache * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
@@ -780,7 +780,7 @@ lw_dictionarycache_get_name (LwDictionaryCache * self)
     //Initializations
     priv = self->priv;
 
-    return priv->name;
+    return priv->dictionary_name;
 }
 
 
@@ -794,7 +794,7 @@ lw_dictionarycache_build_filename (LwDictionaryCache * self,
     //Declarations    
     LwDictionaryCachePrivate *priv = NULL;
     GFlagsClass *flags_class = NULL;
-    gchar const *NAME = NULL;
+    gchar const *DICTIONARY_NAME = NULL;
     gchar const * * flag_names = NULL;
     gchar *filename = NULL;
     gint i = 0;
@@ -803,12 +803,12 @@ lw_dictionarycache_build_filename (LwDictionaryCache * self,
     priv = self->priv;
     flags_class = g_type_class_ref (LW_TYPE_UTF8FLAG);
     if (flags_class == NULL) goto errored;
-    NAME = priv->name;
-    if (NAME == NULL) goto errored;
+    DICTIONARY_NAME = priv->dictionary_name;
+    if (DICTIONARY_NAME == NULL) goto errored;
     flag_names = g_new0 (gchar const*, flags_class->n_values + 2);
     if (flag_names == NULL) goto errored;
 
-    flag_names[i++] = NAME;
+    flag_names[i++] = DICTIONARY_NAME;
     if (CACHETYPE != NULL)
     {
       flag_names[i++] = CACHETYPE;
@@ -850,14 +850,11 @@ lw_dictionarycache_build_directory (LwDictionaryCache * self)
     g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
     
     //Declarations
-    gchar const * NAME = NULL;
     gchar const * CACHE_DIR = NULL;
     gchar * path = NULL;
     GType dictionary_type = G_TYPE_NONE;
 
     //Initializations
-    NAME = lw_dictionarycache_get_name (self);
-    if (NAME == NULL) goto errored;
     dictionary_type = lw_dictionarycache_get_dictionary_type (self);
     if (dictionary_type == G_TYPE_NONE) goto errored;
     if (dictionary_type == G_TYPE_INVALID) goto errored;
@@ -1037,15 +1034,15 @@ lw_dictionarycache_create_normalized_temporary_file (LwDictionaryCache  * self,
     gchar *tmpl = NULL;
     gchar const *TMPDIR = NULL;
     gint fd = -1;
-    gchar const * NAME = NULL;
+    gchar const * DICTIONARY_NAME = NULL;
     gchar *filename = NULL;
     gboolean has_error = FALSE;
     gchar const * CONTENT = "uninitialized";
 
     //Initializations
-    NAME = lw_dictionarycache_get_name (self);
-    if (NAME == NULL) goto errored;
-    tmpl = g_strdup_printf ("%s.normalized.XXXXXX", NAME);
+    DICTIONARY_NAME = lw_dictionarycache_get_dictionary_name (self);
+    if (DICTIONARY_NAME == NULL) goto errored;
+    tmpl = g_strdup_printf ("%s.normalized.XXXXXX", DICTIONARY_NAME);
     if (tmpl == NULL) goto errored;
     TMPDIR = g_get_tmp_dir ();
     if (TMPDIR == NULL) goto errored;

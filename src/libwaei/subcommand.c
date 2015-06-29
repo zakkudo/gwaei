@@ -148,7 +148,7 @@ lw_subcommand_class_init (LwSubCommandClass *klass)
         "Name",
         "The name of the subcommand as will appear in the command-line",
         NULL,
-        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
+        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
     g_object_class_install_property (
         object_class,
@@ -160,7 +160,7 @@ lw_subcommand_class_init (LwSubCommandClass *klass)
         "option-entries",
         "Option Entries",
         "Entries that will by parsed by GOptionContext for this subcommand",
-        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE
+        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
     g_object_class_install_property (
         object_class,

@@ -5,10 +5,10 @@ G_BEGIN_DECLS
 
 typedef enum {
     PROP_0,
-    PROP_NAME,
     PROP_FLAGS,
     PROP_PARSED,
     PROP_INDEXED,
+    PROP_DICTIONARY_NAME,
     PROP_DICTIONARY_TYPE,
     TOTAL_PROPS
 } Props;
@@ -16,7 +16,7 @@ typedef enum {
 
 struct _LwDictionaryCachePrivate {
   GType dictionary_type;
-  gchar *name;
+  gchar *dictionary_name;
   LwUtf8Flag flags;
   LwParsed *parsed;
   LwIndexed *indexed;
@@ -36,7 +36,7 @@ static gchar* lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCa
 
 static void lw_dictionarycache_clear (LwDictionaryCache *self);
 
-static void lw_dictionarycache_set_name (LwDictionaryCache *self, gchar const *NAME);
+static void lw_dictionarycache_set_dictionary_name (LwDictionaryCache *self, gchar const *DICTIONARY_NAME);
 
 static void lw_dictionarycache_set_parsed (LwDictionaryCache *self, LwParsed *parsed);
 static void lw_dictionarycache_set_indexed (LwDictionaryCache *self, LwIndexed *indexed);
