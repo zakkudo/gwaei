@@ -69,6 +69,8 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
  * the total progress. This macro returns the progress calculated chunk size.
  */
 #define LW_PROGRESS_START(self, total) (self != NULL) ? lw_progress_get_chunk_size (self) : total;\
+    GError * error = NULL;\
+    gboolean has_error = FALSE;\
     if (self != NULL)\
     {\
       lw_progress_set_current (self, 0);\
@@ -106,6 +108,7 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
         error = NULL;\
       }\
       g_clear_error (&error);\
+      has_error = TRUE;\
       goto errored;\
     }
 
@@ -115,13 +118,12 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
  * @current: The current progress to set
  * @chunk: The current chunk size
  * @max_chunk: The max chunk size
- * @error: (allow-none): An #GError pointer to watch for errors
  *
  * A convenience macro to update the current progress if the chunk value
  * is equal or larger thant he max_chunk value.  It also watches for errors
  * that may have been set, working the same way as LW_PROGRESS_TAKE_ERROR().
  */
-#define LW_PROGRESS_UPDATE(self, current, chunk, max_chunk, error) if (error != NULL)\
+#define LW_PROGRESS_UPDATE(self, current, chunk, max_chunk) if (error != NULL)\
     {\
       if (self != NULL)\
       {\
@@ -129,6 +131,7 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
         error = NULL;\
       }\
       g_clear_error (&error);\
+      has_error = TRUE;\
       goto errored;\
     }\
     if (self != NULL)\

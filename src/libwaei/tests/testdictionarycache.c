@@ -6,11 +6,30 @@
 #include "testdictionary.h"
 
 struct _Fixture {
+  GArray * steps;
+  LwProgress * progress;
   gchar * cachetmpl;
   gchar * cachedir;
   LwDictionaryCache * cache;
 };
 typedef struct _Fixture Fixture;
+
+static void
+append_progress (LwProgress * self, Fixture * fixture)
+{
+  gint percent = (gint) (lw_progress_get_fraction (self) * 100.0);
+  g_array_append_val (fixture->steps, percent);
+}
+
+
+static void
+cancel_progress (LwProgress *self, Fixture * fixture)
+{
+  if (lw_progress_get_fraction (self) > .5)
+  {
+    lw_progress_cancel (self);
+  }
+}
 
 void setup (Fixture *fixture, gconstpointer data)
 {
@@ -19,6 +38,10 @@ void setup (Fixture *fixture, gconstpointer data)
     g_setenv("DICTIONARYCACHEDIR", fixture->cachedir, TRUE);
     
     fixture->cache = lw_dictionarycache_new ("test", LW_TYPE_TESTDICTIONARY, LW_UTF8FLAG_NONE);
+
+    fixture->progress = lw_progress_new ();
+    g_signal_connect (fixture->progress, "progress-changed", G_CALLBACK (append_progress), fixture);
+    fixture->steps = g_array_sized_new (FALSE, TRUE, sizeof(gint), 20);
 }
 
 
@@ -28,6 +51,11 @@ void teardown (Fixture *fixture, gconstpointer data)
 
     g_remove (fixture->cachedir);
     g_free (fixture->cachedir);
+
+    g_object_unref (fixture->progress);
+    fixture->progress = NULL;
+    g_array_free (fixture->steps, TRUE);
+    fixture->steps = NULL;
 }
 
 
@@ -69,8 +97,55 @@ parse (LwCacheFile * cache_file,
 }
 
 void
-test_write (Fixture       * fixture,
-            gconstpointer   data)
+write_with_progress (Fixture       * fixture,
+       gconstpointer   data)
+{
+    // Arrange
+    LwProgress * progress = fixture->progress;
+    gchar const * body = "one\ntwo\nthree";
+    lw_dictionarycache_write (fixture->cache, "Test Checksum", body, strlen(body) + 1, parse, NULL, progress);
+    lw_dictionarycache_read (fixture->cache, "Test Checksum", progress);
+
+    // Act
+    LwParsed * parsed = lw_dictionarycache_get_parsed (fixture->cache);
+    LwCacheFile * cache_file = lw_parsed_get_cachefile (parsed);
+    gchar * contents = lw_cachefile_get_contents (cache_file);
+    gsize length = lw_cachefile_length (cache_file);
+
+    // Assert
+    {
+      LwParsedLine * line = lw_parsed_get_line (parsed, 0);
+      g_assert_cmpstr (lw_parsedline_get_strv (line, 0)[0], ==, "one");
+      g_assert_cmpstr (lw_parsedline_get_strv (line, 0)[1], ==, NULL);
+
+      line = lw_parsed_get_line (parsed, 1);
+      g_assert_cmpstr (lw_parsedline_get_strv (line, 0)[0], ==, "two");
+      g_assert_cmpstr (lw_parsedline_get_strv (line, 0)[1], ==, NULL);
+
+      line = lw_parsed_get_line (parsed, 2);
+      g_assert_cmpstr (lw_parsedline_get_strv (line, 0)[0], ==, "three");
+      g_assert_cmpstr (lw_parsedline_get_strv (line, 0)[1], ==, NULL);
+    }
+
+    g_assert_true (memcmp(contents, "one\0two\0three", sizeof("one\0two\0three")) == 0);
+    g_assert_cmpint (length, ==, 14);
+
+    {
+      gchar * normalized_contents = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "LwTestDictionary", "test.normalized", NULL);
+      gchar * parsed_contents = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "LwTestDictionary", "test.parsed", NULL);
+
+      g_assert_true (g_file_test (normalized_contents, G_FILE_TEST_IS_REGULAR));
+      g_assert_true (g_file_test (parsed_contents, G_FILE_TEST_IS_REGULAR));
+
+      g_free (normalized_contents);
+      g_free (parsed_contents);
+    }
+}
+
+
+void
+write_no_progress (Fixture       * fixture,
+                   gconstpointer   data)
 {
     gchar const * body = "one\ntwo\nthree";
     lw_dictionarycache_write (fixture->cache, "Test Checksum", body, strlen(body) + 1, parse, NULL, NULL);
@@ -116,7 +191,8 @@ main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
-    g_test_add ("/test_write", Fixture, NULL, setup, test_write, teardown);
+    g_test_add ("/write/with_progress", Fixture, NULL, setup, write_with_progress, teardown);
+    g_test_add ("/write/no_progress", Fixture, NULL, setup, write_no_progress, teardown);
 
     return g_test_run();
 }

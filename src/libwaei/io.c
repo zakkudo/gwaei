@@ -170,7 +170,6 @@ lw_io_fwrite_chunked (FILE             * stream,
     gsize bytes_to_write = 0;
     gsize left = 0;
     gchar const * C = CONTENTS;
-    GError * error = NULL;
 
     while (current < content_length)
     {
@@ -182,7 +181,7 @@ lw_io_fwrite_chunked (FILE             * stream,
       C += bytes_written;
       current = C - CONTENTS;
 
-      LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk, error);
+      LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk);
     }
 
     LW_PROGRESS_FINISH (progress, current);
@@ -863,10 +862,8 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
     gsize max_chunk = 0;
     gint fd = -1;
     gchar *buffer = NULL;
-    gboolean has_error = FALSE;
     FILE *stream = NULL;
     gsize current = 0;
-    GError * error = NULL;
 
     //Declarations
     max_chunk = LW_PROGRESS_START (progress, bytes_length);
@@ -892,7 +889,7 @@ lw_io_allocate_temporary_file (gsize        bytes_length,
         chunk += bytes_written;
         current += bytes_written;
 
-        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk, error);
+        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk);
 
         bytes_length -= bytes_written;
       }

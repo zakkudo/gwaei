@@ -190,10 +190,8 @@ lw_utf8_validate (const gchar * TEXT,
     const gchar * n = NULL;
     gboolean is_valid = FALSE;
     gsize offset = 0;
-    GError * error = NULL;
 
     //Initializations
-    
     if (length < 1) length = strlen(TEXT);
     max_chunk = LW_PROGRESS_START (progress, length);
     p = TEXT;
@@ -228,7 +226,7 @@ lw_utf8_validate (const gchar * TEXT,
         current += bytes_read;
         chunk += bytes_read;
 
-        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk, error);
+        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk);
 
         p = n;
       }
@@ -369,8 +367,6 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
     const char *C = CONTENTS;
     gchar *normalized = NULL;
     gsize max_chunk = 0;
-    GError *error = NULL;
-    gboolean has_error = FALSE;
     gsize current = 0;
 
     max_chunk = LW_PROGRESS_START (progress, content_length);
@@ -404,7 +400,7 @@ lw_utf8_normalize_chunked (gchar const        * CONTENTS,
         left = content_length - current;
         C += bytes_read;
 
-        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk, error);
+        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk);
       }
     }
 
@@ -517,7 +513,6 @@ lw_utf8_casefold (gchar      *text,
     gint chunk = 0;
     gchar * c = NULL;
     gchar * n = NULL;
-    GError * error = NULL;
     
     //Initializations
     c = text;
@@ -543,7 +538,7 @@ lw_utf8_casefold (gchar      *text,
         chunk += bytes_read;
         c = n;
         
-        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk, error);
+        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk);
       }
 
       LW_PROGRESS_FINISH (progress, current);
@@ -610,7 +605,6 @@ lw_utf8_furiganafold (gchar      * text,
     gsize chunk = 0;
     gchar * c = NULL;
     gchar * n = NULL;
-    GError * error = NULL;
     
     //Initializations
     c = text;
@@ -634,7 +628,7 @@ lw_utf8_furiganafold (gchar      * text,
         current += bytes_read;
         chunk += bytes_read;
 
-        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk, error);
+        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk);
 
         c = n;
       }
@@ -724,7 +718,6 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      * contents,
     //Declarations    
     gint num_lines = 0;
     gsize max_chunk = 0;
-    GError * error = NULL;
 
     if (content_length < 1) content_length = strlen(contents);
     if (max_line_length != NULL) *max_line_length = 0;
@@ -763,7 +756,7 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      * contents,
           chunk += bytes_read;
           current += bytes_read;
 
-          LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk, error);
+          LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk);
 
           p = c = n;
           num_lines++;
@@ -775,7 +768,7 @@ lw_utf8_replace_linebreaks_with_nullcharacter (gchar      * contents,
           current += bytes_read;
           chunk += bytes_read;
 
-          LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk, error);
+          LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk);
 
           c = n;
         }
