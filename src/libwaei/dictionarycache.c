@@ -573,6 +573,12 @@ _read_cachefile (LwDictionaryCache * self,
 
 errored:
 
+    if (lw_cachefile_get_contents (cachefile) == NULL)
+    {
+      g_object_unref (cachefile);
+      cachefile = NULL;
+    }
+
     g_free (path);
     path = NULL;
 
@@ -619,12 +625,14 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
     //Load the indexed information
+/*
     indexed_cachefile = _read_cachefile (self, "indexed", EXPECTED_CHECKSUM, progress);
     if (indexed_cachefile == NULL) goto errored;
     indexed = lw_indexed_new (parsed); 
     if (indexed == NULL) goto errored;
     lw_serializable_deserialize_from_cachefile_into (LW_SERIALIZABLE (indexed), EXPECTED_CHECKSUM, indexed_cachefile, progress);
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
+*/
 
     //Finalize
     lw_dictionarycache_set_parsed (self, parsed);

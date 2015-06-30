@@ -97,8 +97,8 @@ parse (LwCacheFile * cache_file,
 }
 
 void
-write_with_progress (Fixture       * fixture,
-       gconstpointer   data)
+read_with_progress (Fixture       * fixture,
+                    gconstpointer   data)
 {
     // Arrange
     LwProgress * progress = fixture->progress;
@@ -144,8 +144,8 @@ write_with_progress (Fixture       * fixture,
 
 
 void
-write_no_progress (Fixture       * fixture,
-                   gconstpointer   data)
+read_no_progress (Fixture       * fixture,
+                  gconstpointer   data)
 {
     gchar const * body = "one\ntwo\nthree";
     lw_dictionarycache_write (fixture->cache, "Test Checksum", body, strlen(body) + 1, parse, NULL, NULL);
@@ -186,13 +186,39 @@ write_no_progress (Fixture       * fixture,
 }
 
 
+void
+read_with_invalid_checksum (Fixture       * fixture,
+                       gconstpointer   data)
+{
+    gchar const * body = "one\ntwo\nthree";
+    lw_dictionarycache_write (fixture->cache, "Test Checksum", body, strlen(body) + 1, parse, NULL, NULL);
+    lw_dictionarycache_read (fixture->cache, "Test Invalid Checksum", NULL);
+
+    LwParsed * parsed = lw_dictionarycache_get_parsed (fixture->cache);
+
+    g_assert_null (parsed);
+
+    {
+      gchar * normalized_contents = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "LwTestDictionary", "test.normalized", NULL);
+      gchar * parsed_contents = g_build_filename (fixture->cachedir, "libwaei", "dictionary", "LwTestDictionary", "test.parsed", NULL);
+
+      g_assert_true (g_file_test (normalized_contents, G_FILE_TEST_IS_REGULAR));
+      g_assert_true (g_file_test (parsed_contents, G_FILE_TEST_IS_REGULAR));
+
+      g_free (normalized_contents);
+      g_free (parsed_contents);
+    }
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
-    g_test_add ("/write/with_progress", Fixture, NULL, setup, write_with_progress, teardown);
-    g_test_add ("/write/no_progress", Fixture, NULL, setup, write_no_progress, teardown);
+    g_test_add ("/read/with_progress", Fixture, NULL, setup, read_with_progress, teardown);
+    g_test_add ("/read/no_progress", Fixture, NULL, setup, read_no_progress, teardown);
+    g_test_add ("/read/with_invalid_checksum", Fixture, NULL, setup, read_with_invalid_checksum, teardown);
 
     return g_test_run();
 }
