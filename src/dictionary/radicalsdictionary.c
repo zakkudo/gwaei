@@ -49,7 +49,7 @@
 static gint lw_radicalsdictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_radicalsdictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_radicalsdictionary_get_column_handling (LwDictionary *self, gint column_num);
-static gchar** lw_radicalsdictionary_columnize (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
+static gchar * lw_radicalsdictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_radicalsdictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
 static gint * lw_radicalsdictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
@@ -113,7 +113,7 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
     dictionary_class->get_column_handling = lw_radicalsdictionary_get_column_handling;
     dictionary_class->get_total_columns = lw_radicalsdictionary_get_total_columns;
     dictionary_class->get_column_language = lw_radicalsdictionary_get_column_language;
-    dictionary_class->columnize = lw_radicalsdictionary_columnize;
+    dictionary_class->columnize_line = lw_radicalsdictionary_columnize_line;
     dictionary_class->load_columns = lw_radicalsdictionary_load_columns;
     dictionary_class->calculate_applicable_columns_for_text = lw_radicalsdictionary_calculate_applicable_columns_for_text;
     dictionary_class->columnid_get_type = lw_radicalsdictionary_columnid_get_type;
@@ -218,11 +218,11 @@ register_dictionary_module_type (GTypeModule * module)
  *
  * Returns: The end of the filled token array
  */
-static gchar**
-lw_radicalsdictionary_columnize (LwDictionary  *self,
-                                 gchar         *buffer,
-                                 gchar        **tokens,
-                                 gsize         *num_tokens)
+static gchar *
+lw_radicalsdictionary_columnize_line (LwDictionary  *self,
+                                      gchar         *buffer,
+                                      gchar        **tokens,
+                                      gsize         *num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (buffer != NULL, NULL);
@@ -282,7 +282,7 @@ errored:
 
     tokens[length] = NULL;
 
-    return tokens + length;
+    return c;
 }
 
 

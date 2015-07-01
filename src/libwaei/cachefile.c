@@ -260,12 +260,14 @@ lw_cachefile_write (LwCacheFile * self,
     g_return_val_if_fail (LW_IS_CACHEFILE (self), 0);
     g_return_val_if_fail (CHECKSUM != NULL, 0);
     g_return_val_if_fail (CONTENTS != NULL, 0);
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
 
     //Declarations
     LwCacheFilePrivate *priv = NULL;
     gboolean is_new_file = FALSE;
     FILE* stream = NULL;
     gsize bytes_written = 0;
+    gboolean has_error = FALSE;
 
     //Initializations
     priv = self->priv;
@@ -276,6 +278,15 @@ lw_cachefile_write (LwCacheFile * self,
     if (is_new_file)
     {
       fwrite(CHECKSUM, 1, strlen(CHECKSUM) + 1, stream);
+      if (ferror(stream))
+      {
+        GError * error = g_error_new (
+          G_FILE_ERROR,
+          g_file_error_from_errno (ferror(stream)),
+          "Could not write cachefile checksum"
+        );
+        LW_PROGRESS_TAKE_ERROR (progress, error);
+      }
     }
 
     if (content_length < 1)
@@ -284,6 +295,7 @@ lw_cachefile_write (LwCacheFile * self,
     }
 
     bytes_written = lw_io_fwrite_chunked (stream, CONTENTS, content_length, progress);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
 errored:
 
@@ -425,27 +437,19 @@ lw_cachefile_read (LwCacheFile * self,
 {
     g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
 
     //Declarations
     LwCacheFilePrivate *priv = NULL;
     GError * error = NULL;
     gsize length = 0;
+    gboolean has_error = FALSE;
 
     //Initializations
     priv = self->priv;
 
     _ensure_fclose (self, &error);
-    if (error != NULL)
-    {
-      if (error != NULL && progress != NULL)
-      {
-        lw_progress_take_error (progress, error);
-        error = NULL;
-      }
-      g_clear_error (&error);
-      goto errored;
-    }
+    LW_PROGRESS_TAKE_ERROR (progress, error);
 
     priv->content_length = lw_mappedfile_length (LW_MAPPEDFILE (self));
     if (priv->content_length == 0) goto errored;

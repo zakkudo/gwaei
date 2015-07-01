@@ -287,8 +287,11 @@ void
 ensure_parsed_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
 {
   LwDictionaryCache * cache = NULL;
+  LwParsed * parsed = NULL;
 
   cache = lw_dictionary_ensure_parsed_cache_by_utf8flags (fixture->dictionary, LW_UTF8FLAG_NONE, NULL);
+  parsed = lw_dictionarycache_get_parsed (cache);
+  g_assert_nonnull (parsed);
 }
 
 

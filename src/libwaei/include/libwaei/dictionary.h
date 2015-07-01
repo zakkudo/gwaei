@@ -47,7 +47,7 @@ struct _LwDictionaryClass {
   gint (* get_total_columns) (LwDictionary * self);
   gchar const * (* get_column_language) (LwDictionary * self, gint column_num);
   LwDictionaryColumnHandling (* get_column_handling) (LwDictionary * self, gint column_num);
-  gchar** (* columnize) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
+  gchar* (* columnize_line) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
   void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
   gint* (* calculate_applicable_columns_for_text) (LwDictionary * self, char const * TEXT);
   GType (* columnid_get_type) ();

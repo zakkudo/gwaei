@@ -50,7 +50,7 @@ G_DEFINE_DYNAMIC_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY
 static gint lw_kanjidictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_kanjidictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_kanjidictionary_get_column_handling (LwDictionary *self, gint column_num);
-static gchar** lw_kanjidictionary_columnize (LwDictionary *self, gchar *buffer, gchar **columns, gsize *num_columns);
+static gchar * lw_kanjidictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **columns, gsize *num_columns);
 static void lw_kanjidictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
 static gint * lw_kanjidictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
@@ -112,7 +112,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
     dictionary_class->get_column_handling = lw_kanjidictionary_get_column_handling;
     dictionary_class->get_total_columns = lw_kanjidictionary_get_total_columns;
     dictionary_class->get_column_language = lw_kanjidictionary_get_column_language;
-    dictionary_class->columnize = lw_kanjidictionary_columnize;
+    dictionary_class->columnize_line = lw_kanjidictionary_columnize_line;
     dictionary_class->load_columns = lw_kanjidictionary_load_columns;
     dictionary_class->calculate_applicable_columns_for_text = lw_kanjidictionary_calculate_applicable_columns_for_text;
     dictionary_class->columnid_get_type = lw_kanjidictionary_columnid_get_type;
@@ -224,11 +224,11 @@ register_dictionary_module_type (GTypeModule * module)
 }
 
 
-static gchar**
-lw_kanjidictionary_columnize (LwDictionary  *self,
-                              gchar         *buffer,
-                              gchar        **columns,
-                              gsize         *num_columns)
+static gchar *
+lw_kanjidictionary_columnize_line (LwDictionary  * self,
+                                   gchar         * buffer,
+                                   gchar        ** columns,
+                                   gsize         * num_columns)
 {
     //Sanity checks
     g_return_val_if_fail (buffer != NULL, NULL);
@@ -287,7 +287,7 @@ errored:
 
     columns[length] = NULL;
 
-    return columns + length;
+    return c;
 }
 
 

@@ -591,8 +591,9 @@ errored:
  * @self: A #LwDictionaryCache
  * @EXPECTED_CHECKSUM: (transfer none): The expected checksum of the data that will be read
  * @progress: A #LwProgress to track read and validation progress or %NULL to ignore it
+ * Returns: %TRUE if the read was sucessful
  */
-void
+gboolean
 lw_dictionarycache_read (LwDictionaryCache * self,
                          gchar const       * EXPECTED_CHECKSUM,
                          LwProgress        * progress)
@@ -600,7 +601,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
     g_return_if_fail (EXPECTED_CHECKSUM != NULL);
-    LW_PROGRESS_RETURN_IF_SHOULD_ABORT (progress);
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, FALSE);
 
     //Declarations
     LwCacheFile *normalized_cachefile = NULL;
@@ -608,6 +609,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     LwCacheFile *indexed_cachefile = NULL;
     LwParsed *parsed = NULL;
     LwIndexed *indexed = NULL;
+    gboolean read_successful = FALSE;
 
     //Initializations
     lw_dictionarycache_clear (self);
@@ -638,6 +640,8 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     lw_dictionarycache_set_parsed (self, parsed);
     lw_dictionarycache_set_indexed (self, indexed);
 
+    read_successful = TRUE;
+
 errored:
 
     if (parsed != NULL) g_object_unref (parsed);
@@ -646,6 +650,8 @@ errored:
     if (normalized_cachefile != NULL) g_object_unref (normalized_cachefile);
     if (parsed_cachefile != NULL) g_object_unref (parsed_cachefile);
     if (indexed_cachefile != NULL) g_object_unref (indexed_cachefile);
+
+    return read_successful;
 }
 
 

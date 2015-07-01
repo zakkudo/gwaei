@@ -46,7 +46,7 @@
  *     dictionary_class->get_column_handling = lw_edictionary_get_column_handling;
  *     dictionary_class->get_total_columns = lw_edictionary_get_total_columns;
  *     dictionary_class->get_column_language = lw_edictionary_get_column_language;
- *     dictionary_class->columnize = lw_edictionary_columnize;
+ *     dictionary_class->columnize_line = lw_edictionary_columnize_line;
  *     dictionary_class->load_columns = lw_edictionary_load_columns;
  *     dictionary_class->calculate_applicable_columns_for_text = lw_edictionary_calculate_applicable_columns_for_text;
  *     dictionary_class->columnid_get_type = lw_edictionary_columnid_get_type;
@@ -861,7 +861,6 @@ _dictionarycache_parse (LwCacheFile                 * cache_file,
     dictionary = data->dictionary;
     g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
     progress = data->progress;
-    g_return_val_if_fail (LW_IS_PROGRESS (progress), NULL);
 
     return lw_dictionary_parse (dictionary, cache_file, progress);
 }
@@ -881,7 +880,7 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
-    if (progress != NULL && lw_progress_should_abort (progress)) return NULL;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Declarations
     gchar const * FILENAME = NULL;
@@ -894,6 +893,7 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
     gchar const * CHECKSUM = NULL;
     gchar const * CONTENTS = NULL;
     gsize content_length = 0;
+    gboolean cache_read_was_successful = FALSE;
 
 
     //Initializations
@@ -920,16 +920,29 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
     
     lw_dictionary_set_parsed_cache (self, cache);
 
-    lw_dictionarycache_read (cache, CHECKSUM, progress);
-    if (lw_progress_should_abort (progress))
+    // First try reading ot see if anything is there
+    cache_read_was_successful = lw_dictionarycache_read (cache, CHECKSUM, progress);
+
+    // If that fails, write the data and then read it
+    if (!cache_read_was_successful)
     {
-      lw_progress_set_error (progress, NULL);
+      if (progress != NULL) lw_progress_set_error (progress, NULL);
       lw_dictionarycache_write (cache, CHECKSUM, CONTENTS, content_length, (LwDictionaryCacheParseFunc) _dictionarycache_parse, &data, progress);
-      lw_dictionarycache_read (cache, CHECKSUM, progress);
+      LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
+      cache_read_was_successful = lw_dictionarycache_read (cache, CHECKSUM, progress);
     }
 
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
+    if (!cache_read_was_successful) goto errored;
+
+    g_object_ref (cache);
 
 errored:
+
+    if (!cache_read_was_successful)
+    {
+      cache = NULL;
+    }
 
     return cache;
 }
@@ -1301,11 +1314,11 @@ lw_dictionary_get_parsed_cachetree (LwDictionary * self)
 }
 
 
-static gchar **
-lw_dictionary_columnize (LwDictionary * self,
-                         gchar         * buffer,
-                         gchar        ** tokens,
-                         gsize         * num_tokens)
+static gchar *
+lw_dictionary_columnize_line (LwDictionary * self,
+                              gchar         * buffer,
+                              gchar        ** tokens,
+                              gsize         * num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -1315,9 +1328,9 @@ lw_dictionary_columnize (LwDictionary * self,
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
-    g_return_val_if_fail (klass->columnize != NULL, NULL);
+    g_return_val_if_fail (klass->columnize_line != NULL, NULL);
 
-    return klass->columnize(self, buffer, tokens, num_tokens);
+    return klass->columnize_line (self, buffer, tokens, num_tokens);
 }
 
 
@@ -1362,17 +1375,21 @@ lw_dictionary_parse (LwDictionary * self,
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
     g_return_val_if_fail (LW_IS_CACHEFILE (cache_file), NULL);
-    g_return_val_if_fail (LW_IS_PROGRESS (progress), NULL);
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Declarations
     gchar *contents = NULL;
     gsize content_length = 0;
     gint num_lines = 0;
-    LwParsed *parsed = NULL; 
+    LwParsed * parsed = NULL; 
+    LwParsed * parsed_out = NULL; 
     LwParsedLine* lines = NULL;
     gchar **tokens = NULL;
     gsize max_line_length = 0;
     gsize num_tokens = 0;
+    gsize max_chunk = 0;
+    gsize chunk = 0;
+    gsize current = 0;
 
     //Initializations
     contents = lw_cachefile_get_contents (cache_file);
@@ -1390,16 +1407,18 @@ lw_dictionary_parse (LwDictionary * self,
     if (progress != NULL)
     {
       lw_progress_set_secondary_message (progress, "Parsing...");
-      lw_progress_set_completed (progress, FALSE);
-      lw_progress_set_total (progress, content_length);
-      lw_progress_set_current (progress, 0);
     }
 
+    max_chunk = LW_PROGRESS_START (progress, content_length);
+
     {
-      gchar *c = contents;
-      gchar *e = contents + content_length;
+      gchar * c = contents;
+      gchar * n = NULL;
+      gsize bytes_read = 0;
+      gchar * e = contents + content_length;
       gint i = 0;
-      LwParsedLine *line = NULL;
+      LwParsedLine * line = NULL;
+
       while (c < e)
       {
         while (c < e && *c == '\0') c = g_utf8_next_char (c);
@@ -1407,29 +1426,48 @@ lw_dictionary_parse (LwDictionary * self,
 
         line = lines + i;
         lw_parsedline_init_full (line, (GDestroyNotify) g_free);
-        lw_dictionary_columnize (self, c, tokens, &num_tokens);
-        lw_dictionary_load_columns (self, contents, tokens, num_tokens, line);
-        if (progress != NULL)
-        {
-          lw_progress_set_current (progress, c - contents);
-        }
+        n = lw_dictionary_columnize_line (self, c, tokens, &num_tokens);
+        lw_dictionary_load_columns (self, c, tokens, num_tokens, line);
+        
+        bytes_read = n - c;
+        chunk += bytes_read;
+        current += bytes_read;
+        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk);
+
         i++;
+        c = n;
         while (c < e && *c != '\0') c = g_utf8_next_char (c);
       }
+
+      current = c - contents;
+      LW_PROGRESS_FINISH (progress, current);
     }
 
-    if (progress != NULL)
-    {
-      lw_progress_set_current (progress, content_length);
-      lw_progress_set_completed (progress, TRUE);
-    }
+    lw_parsed_set_lines (parsed, lines, num_lines);
+    lines = NULL;
+
+    parsed_out = parsed;
+    parsed = NULL;
 
 errored:
 
-    g_free (tokens); tokens = NULL;
-    if (parsed != NULL) g_object_unref (parsed); parsed = NULL;
+    g_free (tokens);
+    tokens = NULL;
 
-    return parsed;
+    if (parsed != NULL) g_object_unref (parsed);
+    parsed = NULL;
+
+    if (lines != NULL)
+    {
+      gint i = 0;
+      for (i = 0; i < num_lines; i++)
+      {
+        lw_parsedline_clear (lines + i);
+        g_free (lines);
+      }
+    }
+
+    return parsed_out;
 }
 
 

@@ -50,7 +50,7 @@ G_DEFINE_DYNAMIC_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 static gint lw_edictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_edictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_edictionary_get_column_handling (LwDictionary *self, gint column_num);
-static gchar** lw_edictionary_columnize (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
+static gchar * lw_edictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_edictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
 static gint * lw_edictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
@@ -115,7 +115,7 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
     dictionary_class->get_column_handling = lw_edictionary_get_column_handling;
     dictionary_class->get_total_columns = lw_edictionary_get_total_columns;
     dictionary_class->get_column_language = lw_edictionary_get_column_language;
-    dictionary_class->columnize = lw_edictionary_columnize;
+    dictionary_class->columnize_line = lw_edictionary_columnize_line;
     dictionary_class->load_columns = lw_edictionary_load_columns;
     dictionary_class->calculate_applicable_columns_for_text = lw_edictionary_calculate_applicable_columns_for_text;
     dictionary_class->columnid_get_type = lw_edictionary_columnid_get_type;
@@ -214,24 +214,24 @@ register_dictionary_module_type (GTypeModule * module)
 
 
 /**
- * lw_edictionary_tokenize
- * @buffer The text to tokenize.  It is tokenized in place and no copy is made.
- * @tokens A pointer to an alloced array to place the tokens.  This array
+ * lw_edictionary_columnize:
+ * @buffer: (transfer none): The text to columnize.  It is columnized in place and no copy is made.
+ * @tokens: (out) (transfer-full):A pointer to an alloced array to place the tokens.  This array
  * should have enough space to hold the tokenized buffer positions which is usually
  * (strlen(@buffer) + 1) * sizeof(gchar*).  The token array is %NULL terminated.
- * @num_tokens The number of tokens that were created in @tokens
+ * @num_tokens: (out): The number of tokens that were created in @tokens
  *
  * Columnizes a string given the standards of edict dictionaries by placing %NULL
  * characters in the buffer, and recording the positions in the @tokens array.
- * This method is made to token one line at a time.
+ * This method is made to tokenize one line at a time.
  *
- * Returns: The end of the filled token array
+ * Returns: The end of the line
  */
-static gchar**
-lw_edictionary_columnize (LwDictionary  *self,
-                          gchar         *buffer,
-                          gchar        **tokens,
-                          gsize         *num_tokens)
+static gchar *
+lw_edictionary_columnize_line (LwDictionary  * self,
+                               gchar         * buffer,
+                               gchar        ** tokens,
+                               gsize         * num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_EDICTIONARY (self), NULL);
@@ -254,7 +254,7 @@ lw_edictionary_columnize (LwDictionary  *self,
 
     tokens[length++] = c;
 
-    while (*c != '\0' && g_ascii_isspace (*c)) c = g_utf8_next_char (c);
+    while (*c != '\0' && !g_ascii_isspace (*c)) c = g_utf8_next_char (c);
     c = lw_utf8_set_null_next_char (c);
     if (*c == '\0') goto errored;
 
@@ -264,6 +264,7 @@ lw_edictionary_columnize (LwDictionary  *self,
 
     if (*c == '[')
     {
+      c = g_utf8_next_char (c);
       gchar* e = c;
       while (*e !='\0' && *e !=']' && *e != '/') e = g_utf8_next_char (e);
       if (*e == '\0') goto errored;
@@ -340,22 +341,22 @@ errored:
       *num_tokens = length;
     }
 
-    return tokens + length;
+    return c;
 }
 
 
 static void
-lw_edictionary_load_columns (LwDictionary  *self,
-                             gchar         *buffer,
-                             gchar        **tokens,
-                             gint           num_tokens,
-                             LwParsedLine  *line) 
+lw_edictionary_load_columns (LwDictionary  * self,
+                             gchar         * buffer,
+                             gchar        ** tokens,
+                             gint            num_tokens,
+                             LwParsedLine  * line) 
 {
     //Sanity checks
     g_return_if_fail (LW_IS_EDICTIONARY (self));
     g_return_if_fail (buffer != NULL);
     g_return_if_fail (tokens != NULL);
-    g_return_if_fail (num_tokens < 1);
+    g_return_if_fail (num_tokens > 0);
     g_return_if_fail (line != NULL);
 
     //Declarations

@@ -44,7 +44,7 @@ LwDictionaryCache * lw_dictionarycache_new (gchar const * DICTIONARY_NAME, GType
 GType lw_dictionarycache_get_type (void) G_GNUC_CONST;
 
 void lw_dictionarycache_write (LwDictionaryCache * self, gchar const * CHECKSUM, gchar const * CONTENTS, gsize content_length, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress * progress);
-void lw_dictionarycache_read (LwDictionaryCache * self, gchar const * EXPECTED_CHECKSUM, LwProgress * progress);
+gboolean lw_dictionarycache_read (LwDictionaryCache * self, gchar const * EXPECTED_CHECKSUM, LwProgress * progress);
 
 //Properties
 LwUtf8Flag lw_dictionarycache_get_flags (LwDictionaryCache * self);

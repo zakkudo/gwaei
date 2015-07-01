@@ -50,7 +50,7 @@ G_DEFINE_DYNAMIC_TYPE (LwExampleDictionary, lw_exampledictionary, LW_TYPE_DICTIO
 static gint lw_exampledictionary_get_total_columns (LwDictionary *self);
 static gchar const * lw_exampledictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_exampledictionary_get_column_handling (LwDictionary *self, gint column_num);
-static gchar** lw_exampledictionary_columnize (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
+static gchar * lw_exampledictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_exampledictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
 static gint * lw_exampledictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 
@@ -112,7 +112,7 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
     dictionary_class->get_column_handling = lw_exampledictionary_get_column_handling;
     dictionary_class->get_total_columns = lw_exampledictionary_get_total_columns;
     dictionary_class->get_column_language = lw_exampledictionary_get_column_language;
-    dictionary_class->columnize = lw_exampledictionary_columnize;
+    dictionary_class->columnize_line = lw_exampledictionary_columnize_line;
     dictionary_class->load_columns = lw_exampledictionary_load_columns;
     dictionary_class->calculate_applicable_columns_for_text = lw_exampledictionary_calculate_applicable_columns_for_text;
     dictionary_class->columnid_get_type = lw_exampledictionary_columnid_get_type;
@@ -220,11 +220,11 @@ register_dictionary_module_type (GTypeModule * module)
  *
  * Returns: The end of the filled token array
  */
-static gchar**
-lw_exampledictionary_columnize (LwDictionary  *self,
-                                gchar         *buffer,
-                                gchar        **tokens,
-                                gsize         *num_tokens)
+static gchar *
+lw_exampledictionary_columnize_line (LwDictionary  * self,
+                                     gchar         * buffer,
+                                     gchar        ** tokens,
+                                     gsize         * num_tokens)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_EXAMPLEDICTIONARY (self));
@@ -298,7 +298,7 @@ errored:
       *num_tokens = length;
     }
 
-    return tokens + length;
+    return c;
 }
 
 

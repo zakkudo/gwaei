@@ -144,27 +144,27 @@ lw_serializable_serialize_to_cachefile (LwSerializable * self,
     gchar *contents = NULL;
     GError *error = NULL;
     gboolean has_error = FALSE;
+    gsize bytes_written = 0;
 
     //Initializations
     priv = self->priv;
+
     length = lw_serializable_get_serialized_length (self, progress);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
+    
     tmp_path = lw_io_allocate_temporary_file (length, progress);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
+
     mapped_file = g_mapped_file_new (tmp_path, TRUE, &error);
-    if (error != NULL)
-    {
-      if (progress != NULL)
-      {
-        lw_progress_take_error (progress, error);
-        error = NULL;
-      }
-      g_clear_error (&error);
-      has_error = TRUE;
-      goto errored;
-    }
+    LW_PROGRESS_TAKE_ERROR (progress, error);
+
     contents = g_mapped_file_get_contents (mapped_file);
 
     lw_serializable_serialize (self, contents, progress);
-    lw_cachefile_write (cache_file, CHECKSUM, contents, length, progress);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
+
+    bytes_written = lw_cachefile_write (cache_file, CHECKSUM, contents, length, progress);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
 errored:
 
@@ -173,6 +173,8 @@ errored:
     g_mapped_file_unref (mapped_file); mapped_file = NULL;
     g_clear_error (&error);
     contents = NULL;
+
+    return bytes_written;
 }
 
 
@@ -190,17 +192,22 @@ lw_serializable_deserialize_into (LwSerializable * self,
     LwSerializablePrivate *priv = NULL;
     LwSerializableClass *klass = NULL;
     gsize bytes_read = 0;
+    gboolean has_error = FALSE;
 
     //Initializations
     priv = self->priv;
     klass = LW_SERIALIZABLE_GET_CLASS (self);
 
     bytes_read = klass->deserialize_into (self, serialized_data, serialized_length, progress);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
+
+errored:
 
     if (priv->cache_file != NULL && lw_cachefile_get_contents (priv->cache_file) != serialized_data)
     {
       g_object_unref (priv->cache_file);
       priv->cache_file = NULL;
+      bytes_read = 0;
     }
 
     return bytes_read;
@@ -217,17 +224,19 @@ lw_serializable_deserialize_from_cachefile_into (LwSerializable * self,
     g_return_val_if_fail (LW_IS_SERIALIZABLE (self), 0);
     g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, 0);
     g_return_val_if_fail (cache_file != NULL, 0);
-    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
 
     //Declarations
     LwSerializablePrivate *priv = NULL;
     gsize bytes_read = 0;
     gsize length = 0;
     gchar * contents = NULL;
+    gboolean has_error = FALSE;
 
     //Initializations
     priv = self->priv;
     bytes_read = lw_cachefile_read (cache_file, EXPECTED_CHECKSUM, progress);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
     if (bytes_read == 0) goto errored;
     contents = lw_cachefile_get_contents (cache_file);
     if (contents == NULL) goto errored;
@@ -246,8 +255,14 @@ lw_serializable_deserialize_from_cachefile_into (LwSerializable * self,
     priv->cache_file = cache_file;
 
     lw_serializable_deserialize_into (self, contents, length, progress);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
 errored:
+
+    if (has_error)
+    {
+      length = 0;
+    }
 
     return length;
 }
