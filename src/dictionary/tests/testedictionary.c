@@ -315,6 +315,30 @@ ensure_parsed_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
   parsed = lw_dictionarycache_get_parsed (cache);
   g_assert_nonnull (parsed);
 
+  g_assert_cmpint (lw_parsed_num_lines (parsed), ==, 13);
+
+  LwParsedLine * line = lw_parsed_get_line (parsed, 0);
+  g_assert_nonnull (line);
+
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_WORD)[0], ==, "１０進");
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_WORD)[1], ==, NULL);
+
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_READING)[0], ==, "じゅっしん");
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_READING)[1], ==, NULL);
+
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[0], ==, "decimal");
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[1], ==, "denary");
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[2], ==, "deciam");
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[3], ==, NULL);
+
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[0], ==, "adj-na");
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[1], ==, "adj-na");
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, NULL);
+
+  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_POPULAR), ==, NULL);
+
+  
+
   g_object_unref (cache);
 }
 

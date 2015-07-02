@@ -819,6 +819,7 @@ lw_dictionary_set_parsed_cache (LwDictionary      * self,
 
     if (cache != NULL)
     {
+      g_object_ref (cache);
       g_tree_insert (priv->parsed_cachetree, key, cache);
     }
     else
@@ -919,8 +920,6 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
     cache = lw_dictionarycache_new (FILENAME, G_OBJECT_TYPE (self), flags);
     if (cache == NULL) goto errored;
     
-    lw_dictionary_set_parsed_cache (self, cache);
-
     // First try reading ot see if anything is there
     cache_read_was_successful = lw_dictionarycache_read (cache, CHECKSUM, progress);
 
@@ -936,12 +935,13 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
     if (!cache_read_was_successful) goto errored;
 
-    g_object_ref (cache);
+    lw_dictionary_set_parsed_cache (self, g_object_ref (cache));
 
 errored:
 
     if (!cache_read_was_successful)
     {
+      if (cache != NULL) g_object_unref (cache);
       cache = NULL;
     }
 
@@ -977,9 +977,9 @@ lw_dictionary_lookup_parsed_cache_by_utf8flags (LwDictionary * self,
     cachetree = lw_dictionary_get_parsed_cachetree (self);
     if (cachetree == NULL)
     {
-      cachetree = g_tree_new (_flag_compare_function);
+      cachetree = g_tree_new_full (_flag_compare_function, NULL, NULL, (GDestroyNotify) g_object_unref);
       lw_dictionary_set_parsed_cachetree (self, cachetree);
-      g_object_unref (cachetree);
+      g_tree_unref (cachetree);
     }
     if (cachetree == NULL) goto errored;
 

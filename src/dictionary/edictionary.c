@@ -446,37 +446,29 @@ lw_edictionary_load_columns (LwDictionary  * self,
 
 errored:
 
-    g_array_set_size (popular, popular->len);
-    g_array_set_size (word, word->len);
-    g_array_set_size (reading, reading->len);
-    g_array_set_size (classification, classification->len);
-    g_array_set_size (definition, definition->len);
+    {
+      GArray * columns[TOTAL_LW_EDICTIONARYCOLUMNIDS] = {0};
+      gint i = 0;
 
-    lw_parsedline_set_strv (
-      line,
-      LW_EDICTIONARYCOLUMNID_POPULAR,
-      (gchar**) g_array_free (popular, FALSE)
-    );
-    lw_parsedline_set_strv (
-      line,
-      LW_EDICTIONARYCOLUMNID_WORD,
-      (gchar**) g_array_free (word, FALSE)
-    );
-    lw_parsedline_set_strv (
-      line,
-      LW_EDICTIONARYCOLUMNID_READING,
-      (gchar**) g_array_free (reading, FALSE)
-    );
-    lw_parsedline_set_strv (
-      line,
-      LW_EDICTIONARYCOLUMNID_CLASSIFICATION,
-      (gchar**) g_array_free (classification, FALSE)
-    );
-    lw_parsedline_set_strv (
-      line,
-      LW_EDICTIONARYCOLUMNID_DEFINITION,
-      (gchar**) g_array_free (definition, FALSE)
-    );
+      columns[LW_EDICTIONARYCOLUMNID_POPULAR] = popular;
+      columns[LW_EDICTIONARYCOLUMNID_WORD] = word;
+      columns[LW_EDICTIONARYCOLUMNID_READING] = reading;
+      columns[LW_EDICTIONARYCOLUMNID_DEFINITION] = definition;
+      columns[LW_EDICTIONARYCOLUMNID_CLASSIFICATION] = classification;
+
+      for (i = 0; i < TOTAL_LW_EDICTIONARYCOLUMNIDS; i++)
+      {
+        if (columns[i] != NULL && columns[i]->len > 0)
+        {
+          g_array_set_size (columns[i], columns[i]->len);
+          lw_parsedline_set_strv (line, i, (gchar**) g_array_free (columns[i], FALSE));
+        }
+        else
+        {
+          g_array_free (columns[i], TRUE);
+        }
+      }
+    }
 }
 
 

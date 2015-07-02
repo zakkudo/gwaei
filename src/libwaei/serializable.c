@@ -97,7 +97,7 @@ lw_serializable_get_serialized_length (LwSerializable * self,
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
-    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
  
     return lw_serializable_serialize (self, NULL, progress);
 }
@@ -110,7 +110,7 @@ lw_serializable_serialize (LwSerializable * self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SERIALIZABLE (self));
-    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
 
     //Declarations
     LwSerializablePrivate *priv = NULL;
@@ -134,7 +134,7 @@ lw_serializable_serialize_to_cachefile (LwSerializable * self,
     g_return_val_if_fail (self != NULL, 0);
     g_return_val_if_fail (CHECKSUM != NULL, 0);
     g_return_val_if_fail (cache_file != NULL, 0);
-    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
 
     //Declarations
     LwSerializablePrivate *priv = NULL;
@@ -186,7 +186,7 @@ lw_serializable_deserialize_into (LwSerializable * self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SERIALIZABLE (self));
-    if (progress != NULL && lw_progress_should_abort (progress)) return 0;
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
 
     //Declarations
     LwSerializablePrivate *priv = NULL;
