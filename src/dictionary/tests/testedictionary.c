@@ -60,6 +60,8 @@ get_contents (Fixture * fixture, gconstpointer data)
 
   g_assert_cmpstr (contents, ==, lw_dictionary_get_contents (fixture->dictionary));
   g_assert_nonnull (contents);
+
+  g_free (contents);
 }
 
 
@@ -72,6 +74,8 @@ get_contents_length (Fixture * fixture, gconstpointer data)
   g_file_get_contents (fixture->FILENAME, &contents, &length, NULL);
 
   g_assert_cmpuint (length, ==, lw_dictionary_contents_length (fixture->dictionary));
+
+  g_free (contents);
 }
 
 
@@ -87,6 +91,8 @@ get_contents_checksum (Fixture * fixture, gconstpointer data)
   checksum = g_compute_checksum_for_data (LW_DICTIONARY_CHECKSUM, contents, length);
 
   g_assert_cmpstr (checksum, ==, lw_dictionary_get_contents_checksum (fixture->dictionary));
+
+  g_free (contents);
 }
 
 
@@ -97,6 +103,8 @@ get_contents_path (Fixture * fixture, gconstpointer data)
   gchar * contents = NULL;
 
   g_assert_cmpstr (TESTDATADIR "edictionary.data", ==, lw_dictionary_get_contents_path (fixture->dictionary));
+
+  g_free (contents);
 }
 
 
@@ -208,6 +216,8 @@ calculate_applicable_columns_for_text_when_english (Fixture * fixture, gconstpoi
 
   g_assert_cmpint (LW_EDICTIONARYCOLUMNID_DEFINITION, ==, columns[0]);
   g_assert_cmpint (-1, ==, columns[1]);
+
+  g_free (columns);
 }
 
 
@@ -220,6 +230,8 @@ calculate_applicable_columns_for_text_when_kanji (Fixture * fixture, gconstpoint
 
   g_assert_cmpint (LW_EDICTIONARYCOLUMNID_WORD, ==, columns[0]);
   g_assert_cmpint (-1, ==, columns[1]);
+
+  g_free (columns);
 }
 
 
@@ -232,6 +244,8 @@ calculate_applicable_columns_for_text_when_hiragana (Fixture * fixture, gconstpo
 
   g_assert_cmpint (LW_EDICTIONARYCOLUMNID_READING, ==, columns[0]);
   g_assert_cmpint (-1, ==, columns[1]);
+
+  g_free (columns);
 }
 
 
@@ -244,6 +258,8 @@ calculate_applicable_columns_for_text_when_kanjihiragana (Fixture * fixture, gco
 
   g_assert_cmpint (LW_EDICTIONARYCOLUMNID_WORD, ==, columns[0]);
   g_assert_cmpint (-1, ==, columns[1]);
+
+  g_free (columns);
 }
 
 
@@ -257,6 +273,8 @@ calculate_applicable_columns_for_text_when_mix (Fixture * fixture, gconstpointer
   g_assert_cmpint (LW_EDICTIONARYCOLUMNID_WORD, ==, columns[0]);
   g_assert_cmpint (LW_EDICTIONARYCOLUMNID_DEFINITION, ==, columns[1]);
   g_assert_cmpint (-1, ==, columns[2]);
+
+  g_free (columns);
 }
 
 
@@ -269,6 +287,8 @@ calculate_applicable_columns_for_text_when_number (Fixture * fixture, gconstpoin
 
   g_assert_cmpint (LW_EDICTIONARYCOLUMNID_DEFINITION, ==, columns[0]);
   g_assert_cmpint (-1, ==, columns[1]);
+
+  g_free (columns);
 }
 
 
@@ -280,6 +300,8 @@ calculate_applicable_columns_for_text_when_blank (Fixture * fixture, gconstpoint
   columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "");
 
   g_assert_null (columns);
+
+  g_free (columns);
 }
 
 
@@ -292,6 +314,8 @@ ensure_parsed_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
   cache = lw_dictionary_ensure_parsed_cache_by_utf8flags (fixture->dictionary, LW_UTF8FLAG_NONE, NULL);
   parsed = lw_dictionarycache_get_parsed (cache);
   g_assert_nonnull (parsed);
+
+  g_object_unref (cache);
 }
 
 

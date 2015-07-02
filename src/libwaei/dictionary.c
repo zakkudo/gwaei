@@ -116,6 +116,7 @@ lw_dictionary_finalize (GObject *object)
 
     g_free (priv->contents_filename);
     g_free (priv->contents_path);
+    g_free (priv->contents_checksum);
 
     g_mutex_clear (&self->priv->mutex);
 
@@ -978,6 +979,7 @@ lw_dictionary_lookup_parsed_cache_by_utf8flags (LwDictionary * self,
     {
       cachetree = g_tree_new (_flag_compare_function);
       lw_dictionary_set_parsed_cachetree (self, cachetree);
+      g_object_unref (cachetree);
     }
     if (cachetree == NULL) goto errored;
 
