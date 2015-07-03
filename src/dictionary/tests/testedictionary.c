@@ -365,7 +365,8 @@ ensure_parsed_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
     g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, "vs");
     g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[3], ==, NULL);
 
-    g_assert_null (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_POPULAR));
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_POPULAR)[0], ==, "(P)");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_POPULAR)[1], ==, NULL);
   }
 
   

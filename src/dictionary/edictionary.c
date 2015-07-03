@@ -378,7 +378,7 @@ lw_edictionary_load_columns (LwDictionary  * self,
 
       if (tokens[i] != NULL && strcmp (tokens[i], "(P)") == 0)
       {
-        g_array_append_val (word, tokens[i]);
+        g_array_append_val (popular, tokens[i]);
         i--;
       }
 
