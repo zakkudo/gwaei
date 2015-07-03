@@ -425,7 +425,7 @@ lw_edictionary_load_columns (LwDictionary  * self,
           gchar *c = tokens[i];
           while (*c != '\0')
           {
-            g_array_append_val (classification, tokens[i]);
+            g_array_append_val (classification, c);
             while (*c != '\0' && *c != ',') c = g_utf8_next_char (c);
             if (*c == ',') c = lw_utf8_set_null_next_char (c);
           }

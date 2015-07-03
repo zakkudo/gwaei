@@ -317,25 +317,56 @@ ensure_parsed_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
 
   g_assert_cmpint (lw_parsed_num_lines (parsed), ==, 13);
 
-  LwParsedLine * line = lw_parsed_get_line (parsed, 0);
-  g_assert_nonnull (line);
+  {
+    LwParsedLine * line = lw_parsed_get_line (parsed, 0);
+    g_assert_nonnull (line);
 
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_WORD)[0], ==, "１０進");
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_WORD)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_WORD)[0], ==, "１０進");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_WORD)[1], ==, NULL);
 
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_READING)[0], ==, "じゅっしん");
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_READING)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_READING)[0], ==, "じゅっしん");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_READING)[1], ==, NULL);
 
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[0], ==, "decimal");
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[1], ==, "denary");
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[2], ==, "deciam");
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[3], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[0], ==, "decimal");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[1], ==, "denary");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[2], ==, "deciam");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[3], ==, NULL);
 
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[0], ==, "adj-na");
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[1], ==, "adj-na");
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[0], ==, "adj-na");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[1], ==, "adj-no");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, NULL);
 
-  g_assert_cmpstr(lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_POPULAR), ==, NULL);
+    g_assert_null (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_POPULAR));
+  }
+
+  {
+    LwParsedLine * line = lw_parsed_get_line (parsed, 1);
+    g_assert_nonnull (line);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_WORD)[0], ==, "うわ気");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_WORD)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_READING)[0], ==, "うわき");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_READING)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[0], ==, "(sens) extramarital sex");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[1], ==, "affair");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[2], ==, "fooling around");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[3], ==, "infidelity");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[4], ==, "wantonness");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[5], ==, "unfaithfulness");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[6], ==, "inconstancy");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[7], ==, "fickleness");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[8], ==, "caprice");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_DEFINITION)[9], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[0], ==, "n");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[1], ==, "adj-na");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, "vs");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_CLASSIFICATION)[3], ==, NULL);
+
+    g_assert_null (lw_parsedline_get_strv (line, LW_EDICTIONARYCOLUMNID_POPULAR));
+  }
 
   
 
