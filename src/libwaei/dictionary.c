@@ -898,7 +898,6 @@ lw_dictionary_ensure_cache_by_utf8flags (LwDictionary * self,
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
     if (!cache_read_was_successful) goto errored;
 
-    g_object_ref (cache); 
     lw_dictionarycachetree_insert (cachetree, cache);
 
 errored:
@@ -1103,7 +1102,10 @@ lw_dictionary_sync_contents (LwDictionary * self)
       priv->contents_checksum = g_compute_checksum_for_data (LW_DICTIONARY_CHECKSUM, contents, length);
     }
 
-    lw_dictionary_set_cachetree (self, lw_dictionarycachetree_new ());
+    LwDictionaryCacheTree * cachetree = lw_dictionarycachetree_new ();
+    lw_dictionary_set_cachetree (self, cachetree);
+    lw_dictionarycachetree_unref (cachetree);
+
 }
 
 
