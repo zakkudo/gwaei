@@ -147,5 +147,7 @@ testdictionarycache
 testdictionarycachetree
 testedictionary
 testkanjidictionary
+testexampledictionary
+testradicalsdictionary
 
 *.bak
