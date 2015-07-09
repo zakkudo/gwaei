@@ -9,7 +9,7 @@ ALL_CPPFLAGS=-I$(top_srcdir)/src/libwaei/include -I$(top_srcdir)/src/dictionary/
 
 noinst_PROGRAMS =$(TEST_PROGS)
 
-TEST_PROGS =testdictionarymodule testedictionary
+TEST_PROGS =testdictionarymodule testedictionary testkanjidictionary
 
 testdictionarymodule_SOURCES =testdictionarymodule.c
 testdictionarymodule_LDFLAGS =$(ALL_LDFLAGS)
@@ -20,6 +20,11 @@ testedictionary_SOURCES =testedictionary.c
 testedictionary_LDFLAGS  =$(ALL_LDFLAGS)
 testedictionary_CPPFLAGS =$(ALL_CPPFLAGS)
 testedictionary_LDADD =$(ALL_LDADD)
+
+testkanjidictionary_SOURCES =testkanjidictionary.c
+testkanjidictionary_LDFLAGS  =$(ALL_LDFLAGS)
+testkanjidictionary_CPPFLAGS =$(ALL_CPPFLAGS)
+testkanjidictionary_LDADD =$(ALL_LDADD)
 
 if !OS_MINGW
 #libwaei_la_LDFLAGS +=-Wl,-subsystem,windows 
