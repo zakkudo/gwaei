@@ -306,12 +306,12 @@ calculate_applicable_columns_for_text_when_blank (Fixture * fixture, gconstpoint
 
 
 void
-ensure_parsed_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
+ensure_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
 {
   LwDictionaryCache * cache = NULL;
   LwParsed * parsed = NULL;
 
-  cache = lw_dictionary_ensure_parsed_cache_by_utf8flags (fixture->dictionary, LW_UTF8FLAG_NONE, NULL);
+  cache = lw_dictionary_ensure_cache_by_utf8flags (fixture->dictionary, LW_UTF8FLAG_NONE, NULL);
   parsed = lw_dictionarycache_get_parsed (cache);
   g_assert_nonnull (parsed);
 
@@ -380,6 +380,7 @@ main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
+/*
     g_test_add ("/get_contents_path", Fixture, NULL, setup, get_contents_path, teardown);
 
     g_test_add ("/get_id", Fixture, NULL, setup, get_id, teardown);
@@ -408,9 +409,9 @@ main (gint argc, gchar *argv[])
     g_test_add ("/calculate_applicable_columns_for_text/when_mix", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_mix, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_number", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_number, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_blank", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_blank, teardown);
+*/
 
-    g_test_add ("/ensure_parsed_cache_by_utf8flags", Fixture, NULL, setup, ensure_parsed_cache_by_utf8flags, teardown);
-
+    g_test_add ("/ensure_cache_by_utf8flags", Fixture, NULL, setup, ensure_cache_by_utf8flags, teardown);
 
     return g_test_run ();
 }

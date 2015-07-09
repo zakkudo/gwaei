@@ -29,7 +29,7 @@
  * #LwDictionary is an abstract object with a number of virtual methods that must
  * be implemented before it can be used. The *_class_init() will usually have a form similar to below:
  *
- * |[<!-- langauge="C" -->
+ * |[<!-- language="C" -->
  * static void
  * lw_edictionary_class_init (LwEDictionaryClass *klass)
  * {
@@ -121,7 +121,7 @@ lw_dictionary_finalize (GObject *object)
     g_mutex_clear (&self->priv->mutex);
 
     if (priv->contents_mappedfile) g_object_unref (priv->contents_mappedfile);
-    lw_dictionary_set_parsed_cachetree (self, NULL);
+    lw_dictionary_set_cachetree (self, NULL);
 
     memset(self->priv, 0, sizeof(LwDictionaryPrivate));
 
@@ -209,6 +209,22 @@ lw_dictionary_class_finalize (LwDictionaryClass *klass)
 
 
 static void
+lw_dictionary_constructed (GObject * object)
+{
+    //Chain the parent class
+    {
+      G_OBJECT_CLASS (lw_dictionary_parent_class)->constructed (object);
+    }
+
+    //Declarations
+    LwDictionary * self = NULL;
+
+    //Initializations
+    self = LW_DICTIONARY (object);
+}
+
+
+static void
 lw_dictionary_class_init (LwDictionaryClass * klass)
 {
     //Declarations
@@ -220,6 +236,7 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
     object_class->set_property = lw_dictionary_set_property;
     object_class->get_property = lw_dictionary_get_property;
     object_class->finalize = lw_dictionary_finalize;
+    object_class->constructed = lw_dictionary_constructed;
 
     g_type_class_add_private (object_class, sizeof (LwDictionaryPrivate));
 
@@ -291,7 +308,6 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
 }
 
 
-
 /**
  * lw_dictionarycolumnhandling_get_type:
  * Returns: The #GType of the enumeration for column handling
@@ -342,7 +358,7 @@ lw_dictionary_total_columns (LwDictionary * self)
 /**
  * lw_dictionary_get_column_language:
  * @self: A #LwDictionary
- * @column_num: The column to query it's langauge
+ * @column_num: The column to query it's language
  * Returns: (transfer none): The language of the column as a string.  This string is owned by the dictionary, so it should not be modified or freed.
  */
 gchar const *
@@ -484,7 +500,7 @@ errored:
  *
  * An example of how you could could waei with a different dictionary data folder:
  *
- * |[<!-- langauge="Bash" -->
+ * |[<!-- language="Bash" -->
  * > DICTIONARYDATADIR="/media/external" waei
  * ]|
  *
@@ -788,62 +804,6 @@ errored:
 }
 
 
-/**
- * lw_dictionary_set_parsed_cache:
- * @self: A #LwDictionary
- * @cache: A #LwDictionaryCache to set to the parsed cache tree or %NULL to unset a cache
- *
- * This method is made for internal use by lw_dictionary_ensure_parsed_cache_by_utf8flags().
- * Most outside methods should have no use for this method.
- */
-static void
-lw_dictionary_set_parsed_cache (LwDictionary      * self,
-                                LwDictionaryCache * cache)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARY (self));
-
-    //Declarations
-    LwDictionaryPrivate *priv = NULL;
-    LwDictionaryClass *klass = NULL;
-    gpointer key = NULL;
-    LwUtf8Flag flags = 0;
-
-    //Initializations
-    priv = self->priv;
-    klass = LW_DICTIONARY_GET_CLASS (self);
-    flags = lw_dictionarycache_get_flags (cache);
-    key = GINT_TO_POINTER (flags);
-    if (priv->parsed_cachetree == NULL) goto errored;
-    if (g_tree_lookup (priv->parsed_cachetree, key) == cache) goto errored;
-
-    if (cache != NULL)
-    {
-      g_object_ref (cache);
-      g_tree_insert (priv->parsed_cachetree, key, cache);
-    }
-    else
-    {
-      g_tree_remove (priv->parsed_cachetree, key);
-    }
-
-errored:
-
-    return;
-}
-
-
-static gint
-_flag_compare_function (gconstpointer a,
-                        gconstpointer b)
-{
-  gint af = GPOINTER_TO_INT (a);
-  gint ab = GPOINTER_TO_INT (b);
-
-  return ab - af;
-}
-
-
 struct _DictionaryCacheData {
   LwDictionary *dictionary;
   LwProgress * progress;
@@ -869,22 +829,23 @@ _dictionarycache_parse (LwCacheFile                 * cache_file,
 
 
 /**
- * lw_dictionary_ensure_parsed_cache_by_utf8flags:
+ * lw_dictionary_ensure_cache_by_utf8flags:
  * @self: A #LwDictionary
  * @flags: The flags of the dictionary cache to search for, otherwise one will be built with these flags
  * @progress: A #LwProgress to track parsing progress or %NULL to ignore it
  * Returns: (transfer none): A #LwDictionaryCache that matches the #LwUtf8Flags. This method will never return %NULL
  */
 LwDictionaryCache *
-lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
-                                                LwUtf8Flag     flags,
-                                                LwProgress   * progress)
+lw_dictionary_ensure_cache_by_utf8flags (LwDictionary * self,
+                                         LwUtf8Flag     flags,
+                                         LwProgress   * progress)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
     LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Declarations
+    LwDictionaryCacheTree * cachetree = NULL;
     gchar const * FILENAME = NULL;
     LwDictionaryCache * cache = NULL;
     LwMappedFile * contents_mapped_file = NULL;
@@ -897,9 +858,11 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
     gsize content_length = 0;
     gboolean cache_read_was_successful = FALSE;
 
-
     //Initializations
-    cache = lw_dictionary_lookup_parsed_cache_by_utf8flags (self, flags);
+    cachetree = lw_dictionary_get_cachetree (self);
+    if (cachetree == NULL) goto errored;
+
+    cache = lw_dictionarycachetree_lookup_by_utf8flags (cachetree, flags);
     if (cache != NULL) goto errored;
 
     FILENAME = lw_dictionary_get_contents_filename (self);
@@ -935,7 +898,8 @@ lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self,
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
     if (!cache_read_was_successful) goto errored;
 
-    lw_dictionary_set_parsed_cache (self, g_object_ref (cache));
+    g_object_ref (cache); 
+    lw_dictionarycachetree_insert (cachetree, cache);
 
 errored:
 
@@ -944,49 +908,6 @@ errored:
       if (cache != NULL) g_object_unref (cache);
       cache = NULL;
     }
-
-    return cache;
-}
-
-
-/**
- * lw_dictionary_lookup_parsed_cache_by_utf8flags:
- * @self: A #LwDictionary
- * @flags: Flags of the #LwDictionaryCache to lookup
- * Returns: (transfer none): A #LwDictionaryCache matching the flags or %NULL if none were found
- */
-LwDictionaryCache *
-lw_dictionary_lookup_parsed_cache_by_utf8flags (LwDictionary * self,
-                                                LwUtf8Flag     flags)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
-
-    //Declarations
-    LwDictionaryPrivate *priv = NULL;
-    LwDictionaryClass *klass = NULL;
-    GTree * cachetree = NULL;
-    LwDictionaryCache * cache = NULL;
-    gchar const *FILENAME = NULL;
-
-    //Initializations
-    priv = self->priv;
-    klass = LW_DICTIONARY_GET_CLASS (self);
-    FILENAME = lw_dictionary_get_contents_filename (self);
-
-    cachetree = lw_dictionary_get_parsed_cachetree (self);
-    if (cachetree == NULL)
-    {
-      cachetree = g_tree_new_full (_flag_compare_function, NULL, NULL, (GDestroyNotify) g_object_unref);
-      lw_dictionary_set_parsed_cachetree (self, cachetree);
-      g_tree_unref (cachetree);
-    }
-    if (cachetree == NULL) goto errored;
-
-    cache = g_tree_lookup (cachetree, GINT_TO_POINTER (flags));
-    if (cache == NULL) goto errored;
-
-errored:
 
     return cache;
 }
@@ -1171,7 +1092,7 @@ lw_dictionary_sync_contents (LwDictionary * self)
 
     lw_dictionary_set_contents_mappedfile (self, mapped_file);
 
-    if (priv->contents_path != NULL)
+    if (mapped_file != NULL)
     {
       g_object_unref (mapped_file);
     }
@@ -1182,7 +1103,7 @@ lw_dictionary_sync_contents (LwDictionary * self)
       priv->contents_checksum = g_compute_checksum_for_data (LW_DICTIONARY_CHECKSUM, contents, length);
     }
 
-    lw_dictionary_set_parsed_cachetree (self, NULL);
+    lw_dictionary_set_cachetree (self, lw_dictionarycachetree_new ());
 }
 
 
@@ -1262,8 +1183,8 @@ lw_dictionary_get_contents_checksum (LwDictionary * self)
 
 
 static void
-lw_dictionary_set_parsed_cachetree (LwDictionary * self,
-                                    GTree        * tree)
+lw_dictionary_set_cachetree (LwDictionary          * self,
+                             LwDictionaryCacheTree * tree)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY (self));
@@ -1274,20 +1195,20 @@ lw_dictionary_set_parsed_cachetree (LwDictionary * self,
 
     //Initializations
     priv = self->priv;
-    if (priv->parsed_cachetree == tree) goto errored;
+    if (priv->cachetree == tree) goto errored;
     klass = LW_DICTIONARY_GET_CLASS (self);
 
     if (tree != NULL)
     {
-      g_tree_ref (tree);
+      lw_dictionarycachetree_ref (tree);
     }
 
-    if (priv->parsed_cachetree != NULL)
+    if (priv->cachetree != NULL)
     {
-      g_tree_unref (priv->parsed_cachetree);
+      lw_dictionarycachetree_unref (priv->cachetree);
     }
 
-    priv->parsed_cachetree = tree;
+    priv->cachetree = tree;
 
 errored:
 
@@ -1296,12 +1217,12 @@ errored:
 
 
 /**
- * lw_dictionary_get_parsed_cachetree:
+ * lw_dictionary_get_cachetree:
  * @self: A #LwDictionary
- * Returns: The internal cachetree holding parsed dictionary information
+ * Returns: (transfer none): The internal cachetree holding parsed dictionary information
  */
-static GTree *
-lw_dictionary_get_parsed_cachetree (LwDictionary * self)
+static LwDictionaryCacheTree *
+lw_dictionary_get_cachetree (LwDictionary * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -1312,7 +1233,7 @@ lw_dictionary_get_parsed_cachetree (LwDictionary * self)
     //Initializations
     priv = self->priv;
 
-    return priv->parsed_cachetree;
+    return priv->cachetree;
 }
 
 

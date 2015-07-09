@@ -99,8 +99,7 @@ gchar * lw_dictionary_build_contents_path_by_type_and_name (GType type, gchar co
 gint * lw_dictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
 GType lw_dictionary_columnid_get_type (LwDictionary * self);
 
-LwDictionaryCache * lw_dictionary_ensure_parsed_cache_by_utf8flags (LwDictionary * self, LwUtf8Flag flags, LwProgress * progress);
-LwDictionaryCache * lw_dictionary_lookup_parsed_cache_by_utf8flags (LwDictionary * self, LwUtf8Flag flags);
+LwDictionaryCache * lw_dictionary_ensure_cache_by_utf8flags (LwDictionary * self, LwUtf8Flag flags, LwProgress * progress);
 
 G_END_DECLS
 

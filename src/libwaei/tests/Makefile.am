@@ -6,7 +6,10 @@ AM_CPPFLAGS =-I$(top_srcdir)/src/libwaei/include $(WAEI_CFLAGS)
 
 noinst_PROGRAMS =$(TEST_PROGS)
 
-TEST_PROGS   = testparenthesisnode testquerynode testutf8 testprogress testparsedline testquerynodematchmarker testquerynodecolumnmatchinfo testquerynodematchinfo testparsed testmappedfile testcachefile testio testdictionary testdictionarycache
+TEST_PROGS   = testparenthesisnode testquerynode testutf8 testprogress testparsedline testquerynodematchmarker testquerynodecolumnmatchinfo testquerynodematchinfo testparsed testmappedfile testcachefile testio testdictionary testdictionarycache testdictionarycachetree
+
+testdictionarycachetree_SOURCES =testdictionarycachetree.c
+testdictionarycachetree_LDADD   =../libwaei.la
 
 testdictionarycache_SOURCES =testdictionarycache.c
 testdictionarycache_LDADD   =../libwaei.la

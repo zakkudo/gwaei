@@ -1,6 +1,8 @@
 #ifndef LW_DICTIONARY_PRIVATE_INCLUDED
 #define LW_DICTIONARY_PRIVATE_INCLUDED
 
+#include "dictionarycachetree.h"
+
 G_BEGIN_DECLS
 
 typedef enum
@@ -28,7 +30,7 @@ struct _LwDictionaryPrivate {
   GMutex mutex;
   LwProgress * progress;
 
-  GTree * parsed_cachetree;
+  LwDictionaryCacheTree * cachetree;
 
   gchar * contents_path;
   gchar * contents_filename;
@@ -59,8 +61,8 @@ static void lw_dictionary_sync_id (LwDictionary * self);
 
 static LwParsed* lw_dictionary_parse (LwDictionary * self, LwCacheFile * cache_file, LwProgress * progress);
 
-static GTree * lw_dictionary_get_parsed_cachetree (LwDictionary * self);
-static void lw_dictionary_set_parsed_cachetree (LwDictionary * self, GTree * tree);
+static LwDictionaryCacheTree * lw_dictionary_get_cachetree (LwDictionary * self);
+static void lw_dictionary_set_cachetree (LwDictionary * self, LwDictionaryCacheTree * tree);
 
 G_END_DECLS
 

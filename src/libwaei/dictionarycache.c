@@ -155,10 +155,10 @@ lw_dictionarycache_get_property (GObject     * object,
         g_value_set_flags (value, lw_dictionarycache_get_flags (self));
         break;
       case PROP_PARSED:
-        g_value_set_boxed (value, lw_dictionarycache_get_parsed (self));
+        g_value_set_object (value, lw_dictionarycache_get_parsed (self));
         break;
       case PROP_INDEXED:
-        g_value_set_boxed (value, lw_dictionarycache_get_indexed (self));
+        g_value_set_object (value, lw_dictionarycache_get_indexed (self));
         break;
       case PROP_DICTIONARY_TYPE:
         g_value_set_gtype (value, lw_dictionarycache_get_dictionary_type (self));
