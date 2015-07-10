@@ -615,7 +615,29 @@ lw_kanjidictionary_calculate_applicable_columns_for_text (LwDictionary * diction
     contains_romaji = lw_utf8_contains_romaji (TEXT);
     contains_number = lw_utf8_contains_number (TEXT);
 
-    g_assert_not_reached ();
+    if (contains_kanji && !contains_furigana && !contains_romaji && !contains_number)
+    {
+      columns[num_columns++] = LW_KANJIDICTIONARYCOLUMNID_KANJI;
+    }
+
+    if (!contains_kanji && !contains_furigana && !contains_romaji && contains_number)
+    {
+      columns[num_columns++] = LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY;
+      columns[num_columns++] = LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT;
+      columns[num_columns++] = LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL;
+      columns[num_columns++] = LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL;
+    }
+
+    if (!contains_kanji && contains_furigana && !contains_romaji && !contains_number)
+    {
+      columns[num_columns++] = LW_KANJIDICTIONARYCOLUMNID_ON_READINGS;
+      columns[num_columns++] = LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS;
+    }
+
+    if (!contains_kanji && !contains_furigana && contains_romaji && !contains_number)
+    {
+      columns[num_columns++] = LW_KANJIDICTIONARYCOLUMNID_MEANINGS;
+    }
 
     columns[num_columns++] = -1;
 
