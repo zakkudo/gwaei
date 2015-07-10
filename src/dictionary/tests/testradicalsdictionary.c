@@ -182,8 +182,6 @@ set_contents_filename_to_something_else (Fixture * fixture, gconstpointer data)
 }
 
 
-/*TODO
-
 void
 get_total_columns (Fixture * fixture, gconstpointer data)
 {
@@ -194,18 +192,16 @@ get_total_columns (Fixture * fixture, gconstpointer data)
 void
 get_column_language_matches_known_values (Fixture * fixture, gconstpointer data)
 {
-    g_assert_cmpstr ("ja", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_RADICALSDICTIONARYCOLUMNID_WORD));
-    g_assert_cmpstr ("ja", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_RADICALSDICTIONARYCOLUMNID_READING));
-    g_assert_cmpstr ("en", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION));
+    g_assert_cmpstr ("ja", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_RADICALSDICTIONARYCOLUMNID_KANJI));
+    g_assert_cmpstr ("ja", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_RADICALSDICTIONARYCOLUMNID_RADICALS));
 }
 
 
 void
 get_column_handling_matches_known_values (Fixture * fixture, gconstpointer data)
 {
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_RADICALSDICTIONARYCOLUMNID_WORD));
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_RADICALSDICTIONARYCOLUMNID_READING));
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_RADICALSDICTIONARYCOLUMNID_KANJI));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_RADICALSDICTIONARYCOLUMNID_RADICALS));
 }
 
 
@@ -216,22 +212,22 @@ calculate_applicable_columns_for_text_when_english (Fixture * fixture, gconstpoi
 
   columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "English");
 
-  g_assert_cmpint (LW_RADICALSDICTIONARYCOLUMNID_DEFINITION, ==, columns[0]);
-  g_assert_cmpint (-1, ==, columns[1]);
+  g_assert_cmpint (-1, ==, columns[0]);
 
   g_free (columns);
 }
 
 
 void
-calculate_applicable_columns_for_text_when_radicals (Fixture * fixture, gconstpointer data)
+calculate_applicable_columns_for_text_when_kanji (Fixture * fixture, gconstpointer data)
 {
   gint * columns = NULL;
 
   columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "日本語");
 
-  g_assert_cmpint (LW_RADICALSDICTIONARYCOLUMNID_WORD, ==, columns[0]);
-  g_assert_cmpint (-1, ==, columns[1]);
+  g_assert_cmpint (LW_RADICALSDICTIONARYCOLUMNID_KANJI, ==, columns[0]);
+  g_assert_cmpint (LW_RADICALSDICTIONARYCOLUMNID_RADICALS, ==, columns[1]);
+  g_assert_cmpint (-1, ==, columns[2]);
 
   g_free (columns);
 }
@@ -244,22 +240,20 @@ calculate_applicable_columns_for_text_when_hiragana (Fixture * fixture, gconstpo
 
   columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "にほんご");
 
-  g_assert_cmpint (LW_RADICALSDICTIONARYCOLUMNID_READING, ==, columns[0]);
-  g_assert_cmpint (-1, ==, columns[1]);
+  g_assert_cmpint (-1, ==, columns[0]);
 
   g_free (columns);
 }
 
 
 void
-calculate_applicable_columns_for_text_when_radicalshiragana (Fixture * fixture, gconstpointer data)
+calculate_applicable_columns_for_text_when_kanjihiragana (Fixture * fixture, gconstpointer data)
 {
   gint * columns = NULL;
 
   columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "生きます");
 
-  g_assert_cmpint (LW_RADICALSDICTIONARYCOLUMNID_WORD, ==, columns[0]);
-  g_assert_cmpint (-1, ==, columns[1]);
+  g_assert_cmpint (-1, ==, columns[0]);
 
   g_free (columns);
 }
@@ -272,9 +266,7 @@ calculate_applicable_columns_for_text_when_mix (Fixture * fixture, gconstpointer
 
   columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "日本語にほんごJapanese");
 
-  g_assert_cmpint (LW_RADICALSDICTIONARYCOLUMNID_WORD, ==, columns[0]);
-  g_assert_cmpint (LW_RADICALSDICTIONARYCOLUMNID_DEFINITION, ==, columns[1]);
-  g_assert_cmpint (-1, ==, columns[2]);
+  g_assert_cmpint (-1, ==, columns[0]);
 
   g_free (columns);
 }
@@ -287,8 +279,7 @@ calculate_applicable_columns_for_text_when_number (Fixture * fixture, gconstpoin
 
   columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "1");
 
-  g_assert_cmpint (LW_RADICALSDICTIONARYCOLUMNID_DEFINITION, ==, columns[0]);
-  g_assert_cmpint (-1, ==, columns[1]);
+  g_assert_cmpint (-1, ==, columns[0]);
 
   g_free (columns);
 }
@@ -317,66 +308,63 @@ ensure_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
   parsed = lw_dictionarycache_get_parsed (cache);
   g_assert_nonnull (parsed);
 
-  g_assert_cmpint (lw_parsed_num_lines (parsed), ==, 13);
+  g_assert_cmpint (lw_parsed_num_lines (parsed), ==, 5);
 
   {
     LwParsedLine * line = lw_parsed_get_line (parsed, 0);
     g_assert_nonnull (line);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_WORD)[0], ==, "１０進");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_WORD)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_KANJI)[0], ==, "亜");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_KANJI)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_READING)[0], ==, "じゅっしん");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_READING)[1], ==, NULL);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[0], ==, "decimal");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[1], ==, "denary");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[2], ==, "deciam");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[3], ==, NULL);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_CLASSIFICATION)[0], ==, "adj-na");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_CLASSIFICATION)[1], ==, "adj-no");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, NULL);
-
-    g_assert_null (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_POPULAR));
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[0], ==, "｜");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[1], ==, "一");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[2], ==, "口");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[3], ==, NULL);
   }
 
   {
     LwParsedLine * line = lw_parsed_get_line (parsed, 1);
     g_assert_nonnull (line);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_WORD)[0], ==, "うわ気");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_WORD)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_KANJI)[0], ==, "唖");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_KANJI)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_READING)[0], ==, "うわき");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_READING)[1], ==, NULL);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[0], ==, "(sens) extramarital sex");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[1], ==, "affair");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[2], ==, "fooling around");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[3], ==, "infidelity");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[4], ==, "wantonness");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[5], ==, "unfaithfulness");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[6], ==, "inconstancy");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[7], ==, "fickleness");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[8], ==, "caprice");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_DEFINITION)[9], ==, NULL);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_CLASSIFICATION)[0], ==, "n");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_CLASSIFICATION)[1], ==, "adj-na");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, "vs");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_CLASSIFICATION)[3], ==, NULL);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_POPULAR)[0], ==, "(P)");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_POPULAR)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[0], ==, "｜");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[1], ==, "一");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[2], ==, "口");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[3], ==, NULL);
   }
 
-  
+  {
+    LwParsedLine * line = lw_parsed_get_line (parsed, 2);
+    g_assert_nonnull (line);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_KANJI)[0], ==, "娃");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_KANJI)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[0], ==, "女");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[1], ==, "土");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[2], ==, NULL);
+  }
+
+  {
+    LwParsedLine * line = lw_parsed_get_line (parsed, 3);
+    g_assert_nonnull (line);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_KANJI)[0], ==, "阿");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_KANJI)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[0], ==, "一");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[1], ==, "口");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[2], ==, "亅");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[3], ==, "阡");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_RADICALSDICTIONARYCOLUMNID_RADICALS)[4], ==, NULL);
+  }
 
   g_object_unref (cache);
 }
 
-*/
 
 gint
 main (gint argc, gchar *argv[])
@@ -395,7 +383,6 @@ main (gint argc, gchar *argv[])
     g_test_add ("/get_contents", Fixture, NULL, setup, get_contents, teardown);
     g_test_add ("/get_contents_length", Fixture, NULL, setup, get_contents_length, teardown);
 
-    /*
     g_test_add ("/set_contents_filename/to_null", Fixture, NULL, setup, set_contents_filename_to_null, teardown);
     g_test_add ("/set_contents_filename/to_something_else", Fixture, NULL, setup, set_contents_filename_to_something_else, teardown);
 
@@ -406,15 +393,14 @@ main (gint argc, gchar *argv[])
     g_test_add ("/get_column_handling/matches_known_values", Fixture, NULL, setup, get_column_handling_matches_known_values, teardown);
 
     g_test_add ("/calculate_applicable_columns_for_text/when_english", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_english, teardown);
-    g_test_add ("/calculate_applicable_columns_for_text/when_radicals", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_radicals, teardown);
+    g_test_add ("/calculate_applicable_columns_for_text/when_kanji", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_kanji, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_hiragana", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_hiragana, teardown);
-    g_test_add ("/calculate_applicable_columns_for_text/when_radicalshiragana", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_radicalshiragana, teardown);
+    g_test_add ("/calculate_applicable_columns_for_text/when_kanjihiragana", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_kanjihiragana, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_mix", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_mix, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_number", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_number, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_blank", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_blank, teardown);
 
     g_test_add ("/ensure_cache_by_utf8flags", Fixture, NULL, setup, ensure_cache_by_utf8flags, teardown);
-    */
 
     return g_test_run ();
 }

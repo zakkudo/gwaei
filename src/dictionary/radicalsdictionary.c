@@ -205,7 +205,7 @@ register_dictionary_module_type (GTypeModule * module)
 
 
 /**
- * lw_edictionary_tokenize
+ * lw_radicalsdictionary_tokenize:
  * @buffer The text to tokenize.  It is tokenized in place and no copy is made.
  * @tokens A pointer to an alloced array to place the tokens.  This array
  * should have enough space to hold the tokenized buffer positions which is usually
@@ -219,10 +219,10 @@ register_dictionary_module_type (GTypeModule * module)
  * Returns: The end of the filled token array
  */
 static gchar *
-lw_radicalsdictionary_columnize_line (LwDictionary  *self,
-                                      gchar         *buffer,
-                                      gchar        **tokens,
-                                      gsize         *num_tokens)
+lw_radicalsdictionary_columnize_line (LwDictionary  * self,
+                                      gchar         * buffer,
+                                      gchar        ** tokens,
+                                      gsize         * num_tokens)
 {
     //Sanity checks
     g_return_val_if_fail (buffer != NULL, NULL);
@@ -234,10 +234,9 @@ lw_radicalsdictionary_columnize_line (LwDictionary  *self,
 
     //Initializations
     c = buffer;
+    if (c == NULL || *c == '\0') goto errored;
 
     {
-      gchar *c = buffer;
-      if (c == NULL || *c == '\0') goto errored;
 
       //An example line
       //鯵 : 魚 大 田 厶 彡 杰
@@ -282,6 +281,11 @@ errored:
 
     tokens[length] = NULL;
 
+    if (num_tokens != NULL)
+    {
+      *num_tokens = length;
+    }
+
     return c;
 }
 
@@ -321,20 +325,26 @@ lw_radicalsdictionary_load_columns (LwDictionary  *self,
 
 errored:
 
-    g_array_set_size (kanji, 1);
-    g_array_set_size (radicals, radicals->len);
+    {
+      GArray * columns[TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS] = {0};
+      gint i = 0;
 
-    lw_parsedline_set_strv (
-      line,
-      LW_RADICALSDICTIONARYCOLUMNID_KANJI,
-      (gchar**) g_array_free (kanji, FALSE)
-    );
+      columns[LW_RADICALSDICTIONARYCOLUMNID_KANJI] = kanji;
+      columns[LW_RADICALSDICTIONARYCOLUMNID_RADICALS] = radicals;
 
-    lw_parsedline_set_strv (
-      line,
-      LW_RADICALSDICTIONARYCOLUMNID_RADICALS,
-      (gchar**) g_array_free (radicals, FALSE)
-    );
+      for (i = 0; i < TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS; i++)
+      {
+        if (columns[i] != NULL && columns[i]->len > 0)
+        {
+          g_array_set_size (columns[i], columns[i]->len);
+          lw_parsedline_set_strv (line, i, (gchar**) g_array_free (columns[i], FALSE));
+        }
+        else
+        {
+          g_array_free (columns[i], TRUE);
+        }
+      }
+    }
 }
 
 
@@ -367,7 +377,11 @@ lw_radicalsdictionary_calculate_applicable_columns_for_text (LwDictionary * dict
     contains_romaji = lw_utf8_contains_romaji (TEXT);
     contains_number = lw_utf8_contains_number (TEXT);
 
-    g_assert_not_reached ();
+    if (!contains_furigana && !contains_romaji && !contains_number && contains_kanji)
+    {
+      columns[num_columns++] = LW_RADICALSDICTIONARYCOLUMNID_KANJI;
+      columns[num_columns++] = LW_RADICALSDICTIONARYCOLUMNID_RADICALS;
+    }
 
     columns[num_columns++] = -1;
 
