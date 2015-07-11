@@ -316,7 +316,6 @@ calculate_applicable_columns_for_text_when_blank (Fixture * fixture, gconstpoint
 
   g_free (columns);
 }
-/*
 
 
 void
@@ -329,66 +328,46 @@ ensure_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
   parsed = lw_dictionarycache_get_parsed (cache);
   g_assert_nonnull (parsed);
 
-  g_assert_cmpint (lw_parsed_num_lines (parsed), ==, 13);
+  g_assert_cmpint (lw_parsed_num_lines (parsed), ==, 9);
 
   {
     LwParsedLine * line = lw_parsed_get_line (parsed, 0);
     g_assert_nonnull (line);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_WORD)[0], ==, "１０進");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_WORD)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_KANJI)[0], ==, "亜");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_KANJI)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_READING)[0], ==, "じゅっしん");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_READING)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL)[0], ==, "U4e9c");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[0], ==, "decimal");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[1], ==, "denary");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[2], ==, "deciam");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[3], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY)[0], ==, "F1509");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_CLASSIFICATION)[0], ==, "adj-na");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_CLASSIFICATION)[1], ==, "adj-no");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT)[0], ==, "S7");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT)[1], ==, NULL);
 
-    g_assert_null (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_POPULAR));
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL)[0], ==, "G8");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL)[0], ==, "J1");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS)[0], ==, "ア");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_ON_READINGS)[0], ==, "つ.ぐ");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_ON_READINGS)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_MEANINGS)[0], ==, "-ous");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_MEANINGS)[1], ==, "come after");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_MEANINGS)[2], ==, "rank next");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_MEANINGS)[3], ==, "Asia");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_MEANINGS)[4], ==, NULL);
   }
-
-  {
-    LwParsedLine * line = lw_parsed_get_line (parsed, 1);
-    g_assert_nonnull (line);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_WORD)[0], ==, "うわ気");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_WORD)[1], ==, NULL);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_READING)[0], ==, "うわき");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_READING)[1], ==, NULL);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[0], ==, "(sens) extramarital sex");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[1], ==, "affair");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[2], ==, "fooling around");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[3], ==, "infidelity");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[4], ==, "wantonness");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[5], ==, "unfaithfulness");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[6], ==, "inconstancy");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[7], ==, "fickleness");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[8], ==, "caprice");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_DEFINITION)[9], ==, NULL);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_CLASSIFICATION)[0], ==, "n");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_CLASSIFICATION)[1], ==, "adj-na");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, "vs");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_CLASSIFICATION)[3], ==, NULL);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_POPULAR)[0], ==, "(P)");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_KANJIDICTIONARYCOLUMNID_POPULAR)[1], ==, NULL);
-  }
-
-  
 
   g_object_unref (cache);
 }
 
-*/
 
 gint
 main (gint argc, gchar *argv[])
@@ -423,10 +402,8 @@ main (gint argc, gchar *argv[])
     g_test_add ("/calculate_applicable_columns_for_text/when_mix", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_mix, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_number", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_number, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_blank", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_blank, teardown);
-    /*
 
     g_test_add ("/ensure_cache_by_utf8flags", Fixture, NULL, setup, ensure_cache_by_utf8flags, teardown);
-    */
 
     return g_test_run ();
 }
