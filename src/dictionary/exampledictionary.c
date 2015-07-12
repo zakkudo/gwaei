@@ -146,7 +146,7 @@ lw_exampledictionary_get_column_language (LwDictionary *self,
     {
       initialized = TRUE;
       column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE] = "ja";
-      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = "ja";
+      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = "en";
       column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_ID] = "number";
     }
 
@@ -418,7 +418,20 @@ lw_exampledictionary_calculate_applicable_columns_for_text (LwDictionary * dicti
     contains_romaji = lw_utf8_contains_romaji (TEXT);
     contains_number = lw_utf8_contains_number (TEXT);
 
-    g_assert_not_reached ();
+    if (!contains_kanji && !contains_furigana && contains_romaji)
+    {
+      columns[num_columns++] = LW_EXAMPLEDICTIONARYCOLUMNID_MEANING;
+    }
+
+    if (contains_kanji || contains_furigana)
+    {
+      columns[num_columns++] = LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE;
+    }
+
+    if (!contains_kanji && !contains_furigana && contains_number)
+    {
+      columns[num_columns++] = LW_EXAMPLEDICTIONARYCOLUMNID_ID;
+    }
 
     columns[num_columns++] = -1;
 
