@@ -19,14 +19,13 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//!  @file unknowndictionary.c
-//!
-//!  @brief LwDictionary objects represent a loaded dictionary that the program
-//!         can use to carry out searches.  You can uninstall dictionaries
-//!         by using the object, but you cannot install them. LwDictInst
-//!         objects exist for that purpose.
-//!
+/**
+ * SECTION: lwunknowndictionary
+ * @short_description: Dictionary type for handling unknown dictionary formats
+ * @title: LwUnknownDictionary
+ *
+ * A dictionary type for handling unknown dictionary formats
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

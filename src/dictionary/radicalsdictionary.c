@@ -19,14 +19,13 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//!  @file radicalsdictionary.c
-//!
-//!  @brief LwDictionary objects represent a loaded dictionary that the program
-//!         can use to carry out searches.  You can uninstall dictionaries
-//!         by using the object, but you cannot install them. LwDictInst
-//!         objects exist for that purpose.
-//!
+/**
+ * SECTION: lwradicalsdictionary
+ * @short_description: Dictionary type for handling kradfile formatted dictionary
+ * @title: LwEDictionary
+ *
+ * A dictionary type for handling kradfile formatted dictionaries.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

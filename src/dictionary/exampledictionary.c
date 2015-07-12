@@ -19,14 +19,13 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//!  @file exampledictionary.c
-//!
-//!  @brief LwExampleDictionary objects represent a loaded dictionary that the program
-//!         can use to carry out searches.  You can uninstall dictionaries
-//!         by using the object, but you cannot install them. LwDictInst
-//!         objects exist for that purpose.
-//!
+/**
+ * SECTION: lwexampledictionary
+ * @short_description: Dictionary type for handling example formatted dictionary
+ * @title: LwExampleDictionary
+ *
+ * A dictionary type for handling example formatted dictionaries.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -302,7 +301,7 @@ register_dictionary_module_type (GTypeModule * module)
 
 
 /**
- * lw_exampledictionary_tokenize
+ * lw_exampledictionary_tokenize:
  * @buffer The text to tokenize.  It is tokenized in place and no copy is made.
  * @tokens A pointer to an alloced array to place the tokens.  This array
  * should have enough space to hold the tokenized buffer positions which is usually

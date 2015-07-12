@@ -59,7 +59,6 @@ struct _LwKanjiDictionaryClass {
 };
 
 //Methods
-LwDictionary* lw_kanjidictionary_new (const gchar*);
 GType lw_kanjidictionary_get_type (void) G_GNUC_CONST;
 
 GType lw_kanjidictionary_columnid_get_type (void);

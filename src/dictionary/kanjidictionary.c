@@ -19,14 +19,13 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//!  @file kanjidictionary.c
-//!
-//!  @brief LwKanjiDictionary objects represent a loaded dictionary that the program
-//!         can use to carry out searches.  You can uninstall dictionaries
-//!         by using the object, but you cannot install them. LwDictInst
-//!         objects exist for that purpose.
-//!
+/**
+ * SECTION: lwkanjidictionary
+ * @short_description: Dictionary type for handling kanjidic formatted dictionary
+ * @title: LwKanjiDictionary
+ *
+ * A dictionary type for handling kanjidic formatted dictionaries.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

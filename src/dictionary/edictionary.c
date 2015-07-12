@@ -19,14 +19,13 @@
     along with gWaei.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//!
-//!  @file edictionary.c
-//!
-//!  @brief LwEDictionary objects represent a loaded dictionary that the program
-//!         can use to carry out searches.  You can uninstall dictionaries
-//!         by using the object, but you cannot install them. LwDictInst
-//!         objects exist for that purpose.
-//!
+/**
+ * SECTION: lwedictionary
+ * @short_description: Dictionary type for handling edict formatted dictionary
+ * @title: LwEDictionary
+ *
+ * A dictionary type for handling edict formatted dictionaries.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

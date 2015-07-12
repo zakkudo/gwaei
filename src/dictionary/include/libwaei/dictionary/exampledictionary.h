@@ -43,7 +43,6 @@ struct _LwExampleDictionaryClass {
 };
 
 //Methods
-LwDictionary* lw_exampledictionary_new (const gchar*);
 GType lw_exampledictionary_get_type (void) G_GNUC_CONST;
 
 GType lw_exampledictionary_columnid_get_type (void);
