@@ -147,6 +147,7 @@ lw_unknowndictionary_get_column_language (LwDictionary *self,
     if (G_UNLIKELY (initialized == FALSE))
     {
       initialized = TRUE;
+      column_languages[LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN] = "unknown";
     }
 
     return column_languages[column_num];
@@ -168,7 +169,7 @@ lw_unknowndictionary_get_column_handling (LwDictionary *self,
     if (G_UNLIKELY (initialized == FALSE))
     {
       initialized = TRUE;
-      column_handlings[LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN] = LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH;
+      column_handlings[LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN] = LW_DICTIONARYCOLUMNHANDLING_SEARCH_ONLY;
     }
 
     return column_handlings[column_num];
@@ -314,8 +315,7 @@ lw_unknowndictionary_calculate_applicable_columns_for_text (LwDictionary * dicti
     contains_romaji = lw_utf8_contains_romaji (TEXT);
     contains_number = lw_utf8_contains_number (TEXT);
 
-    g_assert_not_reached ();
-
+    columns[num_columns++] = LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN;
     columns[num_columns++] = -1;
 
     if (num_columns < max_columns)

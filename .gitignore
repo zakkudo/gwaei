@@ -149,5 +149,6 @@ testedictionary
 testkanjidictionary
 testexampledictionary
 testradicalsdictionary
+testunknowndictionary
 
 *.bak

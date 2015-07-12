@@ -27,6 +27,7 @@ typedef struct _LwDictionaryClassPrivate LwDictionaryClassPrivate;
 
 typedef enum {
   LW_DICTIONARYCOLUMNHANDLING_UNUSED, //!< An unused field
+  LW_DICTIONARYCOLUMNHANDLING_SEARCH_ONLY, //!< Column is not indexed, but it is still searched
   LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, //!< Key is indexed and is included by default for all searches
   LW_DICTIONARYCOLUMNHANDLING_FILTER_ONLY, //!< Key is indexed, but is only included when queried explicitly
   TOTAL_DICTIONARYCOLUMNHANDLING
