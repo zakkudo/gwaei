@@ -96,6 +96,100 @@ lw_exampledictionary_class_finalize (LwExampleDictionaryClass *klass)
 }
 
 
+gsize
+lw_exampledictionary_count_lines (gchar      * contents,
+                                  gsize        content_length,
+                                  gsize      * max_line_length,
+                                  LwProgress * progress)
+{
+    g_return_val_if_fail (contents != NULL, 0);
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
+
+    //Declarations    
+    gint num_lines = 0;
+    gsize max_chunk = 0;
+
+    if (content_length < 1) content_length = strlen(contents);
+    if (max_line_length != NULL) *max_line_length = 0;
+
+    //Initializations
+    max_chunk = LW_PROGRESS_START (progress, content_length);
+    if (progress != NULL)
+    {
+      lw_progress_set_secondary_message_printf (progress, "Delimiting lines...");
+    }
+
+    {
+      gchar *c = NULL;
+      gchar *p = NULL;
+      gchar *e = NULL;
+      gchar *n = NULL;
+
+      gsize current = 0;
+      gsize chunk = 0;
+      gsize bytes_read = 0;
+
+      n = p = c = contents;
+      e = c + content_length;
+
+      if (max_line_length != NULL)
+      {
+        *max_line_length = 0;
+      }
+
+      if (strncmp("A:", c, strlen("A:")) == 0)
+      {
+          num_lines++;
+          c = g_utf8_next_char (c);
+          c = g_utf8_next_char (c);
+      }
+
+      while (*c != '\0' && c < e)
+      {
+        if (strncmp("\nA:", c, strlen("\nA:")) == 0)
+        {
+          num_lines++;
+
+          if (max_line_length != NULL)
+          {
+            gsize length = c - p;
+            if (length > *max_line_length) *max_line_length = length;
+          }
+
+          n = lw_utf8_set_null_next_char (c);
+          p = n;
+          n = g_utf8_next_char (n);
+          n = g_utf8_next_char (n);
+        }
+        else
+        {
+          n = g_utf8_next_char (c);
+        }
+
+        bytes_read = n - c;
+        chunk += bytes_read;
+        current += bytes_read;
+
+        LW_PROGRESS_UPDATE (progress, current, chunk, max_chunk);
+
+        c = n;
+      }
+
+      LW_PROGRESS_FINISH (progress, current);
+
+      if (max_line_length != NULL && *max_line_length == 0)
+      {
+        *max_line_length = c - contents;
+      }
+    }
+
+
+errored:
+
+    return num_lines;
+}
+
+
 static void
 lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
 {
@@ -109,6 +203,7 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
     object_class->constructed = lw_exampledictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
+    dictionary_class->count_lines = lw_exampledictionary_count_lines;
     dictionary_class->get_column_handling = lw_exampledictionary_get_column_handling;
     dictionary_class->get_total_columns = lw_exampledictionary_get_total_columns;
     dictionary_class->get_column_language = lw_exampledictionary_get_column_language;
@@ -244,11 +339,11 @@ lw_exampledictionary_columnize_line (LwDictionary  * self,
     //HERE
     //B: 直ぐに{すぐに} 戻る{戻ります}
     
-    while (*c != '\0' && !g_ascii_isspace (*c)) c = g_utf8_next_char (c);
-    if (*c == '\0') goto errored;
+    if (strncmp("A:", c, strlen("A:")) != 0) goto errored;
 
-    while (*c != '\0' && g_ascii_isspace (*c)) c = g_utf8_next_char (c);
-    if (*c == '\0') goto errored;
+    tokens[length++] = c;
+
+    c += strlen("A:");
 
     //An example line
     //A: すぐに戻ります。 I will be back soon.#ID=1284_4709
@@ -256,15 +351,10 @@ lw_exampledictionary_columnize_line (LwDictionary  * self,
     //   HERE
     //B: 直ぐに{すぐに} 戻る{戻ります}
 
-    tokens[length++] = c;
-
-    while (*c != '\0' && !g_ascii_isspace (*c)) c = g_utf8_next_char (c);
+    while (*c != '\t') c = g_utf8_next_char (c);
     if (*c == '\0') goto errored;
 
     c = lw_utf8_set_null_next_char (c);
-    if (*c == '\0') goto errored;
-
-    while (*c != '\0' && g_ascii_isspace (*c)) c = g_utf8_next_char (c);
     if (*c == '\0') goto errored;
 
     //An example line
@@ -275,19 +365,43 @@ lw_exampledictionary_columnize_line (LwDictionary  * self,
 
     tokens[length++] = c;
 
-    while (*c != '\0' && *c != '#') c = g_utf8_next_char (c);
+    while (*c != '\0' && strncmp(c, "#ID=", strlen("#ID=")) != 0) c = g_utf8_next_char (c);
     if (*c == '\0') goto errored;
 
     c = lw_utf8_set_null_next_char (c);
     if (*c == '\0') goto errored;
 
+    tokens[length++] = c;
+
+    c += strlen("ID=");
+
     //An example line
     //A: すぐに戻ります。 I will be back soon.#ID=1284_4709
-    //                                        ^
-    //                                        HERE
+    //                                            ^
+    //                                            HERE
     //B: 直ぐに{すぐに} 戻る{戻ります}
 
+    while (g_ascii_isdigit (*c) || g_ascii_ispunct (*c)) c = g_utf8_next_char (c);
+    if (*c == '\0') goto errored;
+
+    c = lw_utf8_set_null_next_char (c);
+
+    //An example line
+    //A: すぐに戻ります。 I will be back soon.#ID=1284_4709
+    //                                            ^
+    //                                            HERE
+    //B: 直ぐに{すぐに} 戻る{戻ります}
+    
+    while (*c != '\0' && strncmp(c, "B:", strlen("B:")) != 0) c = g_utf8_next_char (c);
+    if (*c == '\0') goto errored;
+
+    while (g_ascii_isspace (*c)) c = g_utf8_next_char (c);
+    if (*c == '\0') goto errored;
+
     tokens[length++] = c;
+
+    while (*c != '\0' && *c != '\n') c = g_utf8_next_char (c);
+    if (*c == '\n') c = lw_utf8_set_null_next_char (c);
 
 errored:
 
@@ -320,12 +434,14 @@ lw_exampledictionary_load_columns (LwDictionary  *self,
     GArray *phrase = NULL;
     GArray *meaning = NULL;
     GArray *id = NULL;
+    GArray *phrase_with_readings = NULL;
 
 
     //Initializations
     phrase = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), 1);
     meaning = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), 1);
     id = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), 1);
+    phrase_with_readings = g_array_sized_new (TRUE, TRUE, sizeof(gchar*), 1);
 
     {
       gint i = 0;
@@ -335,58 +451,68 @@ lw_exampledictionary_load_columns (LwDictionary  *self,
       //B: 直ぐに{すぐに} 戻る{戻ります}
       //   ^
       //   HERE
-      if (tokens[i] != NULL && i < num_tokens)
-      {
-        g_array_append_val (phrase, tokens[i]);
-        i++;
-      }
+      if (tokens[i] == NULL || i >= num_tokens) goto errored;
+      if (strncmp(tokens[i], "A: ", strlen("A: ")) != 0) goto errored;
+      tokens[i] += strlen("A: ");
+      g_array_append_val (phrase, tokens[i]);
+      i++;
 
       //An example line
       //A: すぐに戻ります。 I will be back soon.#ID=1284_4709
       //B: 直ぐに{すぐに} 戻る{戻ります}
       //                    ^
       //                    HERE
-      if (tokens[i] != NULL && i < num_tokens)
-      {
-        g_array_append_val (meaning, tokens[i]);
-        i++;
-      }
+      if (tokens[i] == NULL || i >= num_tokens) goto errored;
+      g_array_append_val (meaning, tokens[i]);
+      i++;
 
       //An example line
       //A: すぐに戻ります。 I will be back soon.#ID=1284_4709
       //B: 直ぐに{すぐに} 戻る{戻ります}
       //                                         ^
       //                                         HERE
-      if (tokens[i] != NULL && i < num_tokens)
-      {
-        g_array_append_val (id, tokens[i]);
-        i++;
-      }
+      if (tokens[i] == NULL || i >= num_tokens) goto errored;
+      if (strncmp(tokens[i], "ID=", strlen("ID=")) != 0) goto errored;
+      tokens[i] += strlen("ID=");
+      g_array_append_val (id, tokens[i]);
+      i++;
+
+      //An example line
+      //A: すぐに戻ります。 I will be back soon.#ID=1284_4709
+      //B: 直ぐに{すぐに} 戻る{戻ります}
+      //^
+      //HERE
+      if (tokens[i] == NULL || i >= num_tokens)
+      if (strncmp(tokens[i], "B: ", strlen("B: ")) != 0) goto errored;
+      tokens[i] += strlen("B: ");
+      g_array_append_val (phrase_with_readings, tokens[i]);
+      i++;
     }
 
 errored:
 
-    g_array_set_size (phrase, phrase->len);
-    g_array_set_size (meaning, meaning->len);
-    g_array_set_size (id, id->len);
+    {
+      GArray * columns[TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS] = {0};
+      gint i = 0;
 
-    lw_parsedline_set_strv (
-      line,
-      LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE,
-      (gchar**) g_array_free (phrase, FALSE)
-    );
+      columns[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE] = phrase;
+      columns[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = meaning;
+      columns[LW_EXAMPLEDICTIONARYCOLUMNID_ID] = id;
+      columns[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS] = phrase_with_readings;
 
-    lw_parsedline_set_strv (
-      line,
-      LW_EXAMPLEDICTIONARYCOLUMNID_MEANING,
-      (gchar**) g_array_free (meaning, FALSE)
-    );
-
-    lw_parsedline_set_strv (
-      line,
-      LW_EXAMPLEDICTIONARYCOLUMNID_ID,
-      (gchar**) g_array_free (id, FALSE)
-    );
+      for (i = 0; i < TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS; i++)
+      {
+        if (columns[i] != NULL && columns[i]->len > 0)
+        {
+          g_array_set_size (columns[i], columns[i]->len);
+          lw_parsedline_set_strv (line, i, (gchar**) g_array_free (columns[i], FALSE));
+        }
+        else
+        {
+          g_array_free (columns[i], TRUE);
+        }
+      }
+    }
 }
 
 

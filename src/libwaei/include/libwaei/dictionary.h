@@ -7,6 +7,7 @@
 #include "utf8.h"
 #include "parsed.h"
 #include "indexed.h"
+#include "progress.h"
 
 G_BEGIN_DECLS
 
@@ -44,6 +45,7 @@ struct _LwDictionaryClass {
   LwDictionaryClassPrivate *priv;
 
   //Virtual methods
+  gsize (* count_lines) (gchar * buffer, gsize buffer_length, gsize * max_line_length, LwProgress * progress);
   gint (* get_total_columns) (LwDictionary * self);
   gchar const * (* get_column_language) (LwDictionary * self, gint column_num);
   LwDictionaryColumnHandling (* get_column_handling) (LwDictionary * self, gint column_num);

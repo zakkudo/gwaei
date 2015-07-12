@@ -109,6 +109,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
     object_class->constructed = lw_kanjidictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
+    dictionary_class->count_lines = lw_utf8_replace_linebreaks_with_nullcharacter;
     dictionary_class->get_column_handling = lw_kanjidictionary_get_column_handling;
     dictionary_class->get_total_columns = lw_kanjidictionary_get_total_columns;
     dictionary_class->get_column_language = lw_kanjidictionary_get_column_language;

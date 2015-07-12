@@ -303,7 +303,6 @@ calculate_applicable_columns_for_text_when_blank (Fixture * fixture, gconstpoint
 }
 
 
-/*
 void
 ensure_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
 {
@@ -314,66 +313,79 @@ ensure_cache_by_utf8flags (Fixture * fixture, gconstpointer data)
   parsed = lw_dictionarycache_get_parsed (cache);
   g_assert_nonnull (parsed);
 
-  g_assert_cmpint (lw_parsed_num_lines (parsed), ==, 13);
+  g_assert_cmpint (lw_parsed_num_lines (parsed), ==, 4);
 
   {
     LwParsedLine * line = lw_parsed_get_line (parsed, 0);
     g_assert_nonnull (line);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_WORD)[0], ==, "１０進");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_WORD)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE)[0], ==, "ムーリエルは２０歳になりました。");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_READING)[0], ==, "じゅっしん");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_READING)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_MEANING)[0], ==, "Muiriel is 20 now.");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_MEANING)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[0], ==, "decimal");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[1], ==, "denary");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[2], ==, "deciam");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[3], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_ID)[0], ==, "1282_4707");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_ID)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_CLASSIFICATION)[0], ==, "adj-na");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_CLASSIFICATION)[1], ==, "adj-no");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, NULL);
-
-    g_assert_null (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_POPULAR));
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS)[0], ==, "は 二十歳(はたち){２０歳} になる[01]{になりました}");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS)[1], ==, NULL);
   }
 
   {
     LwParsedLine * line = lw_parsed_get_line (parsed, 1);
     g_assert_nonnull (line);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_WORD)[0], ==, "うわ気");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_WORD)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE)[0], ==, "すぐに戻ります。");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_READING)[0], ==, "うわき");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_READING)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_MEANING)[0], ==, "I will be back soon.");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_MEANING)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[0], ==, "(sens) extramarital sex");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[1], ==, "affair");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[2], ==, "fooling around");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[3], ==, "infidelity");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[4], ==, "wantonness");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[5], ==, "unfaithfulness");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[6], ==, "inconstancy");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[7], ==, "fickleness");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[8], ==, "caprice");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_DEFINITION)[9], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_ID)[0], ==, "1284_4709");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_ID)[1], ==, NULL);
 
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_CLASSIFICATION)[0], ==, "n");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_CLASSIFICATION)[1], ==, "adj-na");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_CLASSIFICATION)[2], ==, "vs");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_CLASSIFICATION)[3], ==, NULL);
-
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_POPULAR)[0], ==, "(P)");
-    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_POPULAR)[1], ==, NULL);
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS)[0], ==, "直ぐに{すぐに} 戻る{戻ります}");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS)[1], ==, NULL);
   }
 
-  
+  {
+    LwParsedLine * line = lw_parsed_get_line (parsed, 2);
+    g_assert_nonnull (line);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE)[0], ==, "すぐに諦めて昼寝をするかも知れない。");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_MEANING)[0], ==, "I may give up soon and just nap instead.");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_MEANING)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_ID)[0], ==, "1300_4727");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_ID)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS)[0], ==, "直ぐに{すぐに} 諦める{諦めて} 昼寝 を 為る(する){する} かも知れない");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS)[1], ==, NULL);
+  }
+
+  {
+    LwParsedLine * line = lw_parsed_get_line (parsed, 3);
+    g_assert_nonnull (line);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE)[0], ==, "愛してる。");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_MEANING)[0], ==, "I love you.");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_MEANING)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_ID)[0], ==, "1434_4851");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_ID)[1], ==, NULL);
+
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS)[0], ==, "愛する{愛してる}");
+    g_assert_cmpstr (lw_parsedline_get_strv (line, LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS)[1], ==, NULL);
+  }
 
   g_object_unref (cache);
 }
 
-*/
 
 gint
 main (gint argc, gchar *argv[])
@@ -408,10 +420,8 @@ main (gint argc, gchar *argv[])
     g_test_add ("/calculate_applicable_columns_for_text/when_mix", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_mix, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_number", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_number, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_blank", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_blank, teardown);
-    /*
 
     g_test_add ("/ensure_cache_by_utf8flags", Fixture, NULL, setup, ensure_cache_by_utf8flags, teardown);
-    */
 
     return g_test_run ();
 }

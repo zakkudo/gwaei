@@ -1303,6 +1303,7 @@ lw_dictionary_parse (LwDictionary * self,
     LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Declarations
+    LwDictionaryClass * klass = NULL;
     gchar *contents = NULL;
     gsize content_length = 0;
     gint num_lines = 0;
@@ -1317,10 +1318,11 @@ lw_dictionary_parse (LwDictionary * self,
     gsize current = 0;
 
     //Initializations
+    klass = LW_DICTIONARY_GET_CLASS (self);
     contents = lw_cachefile_get_contents (cache_file);
     if (contents == NULL) goto errored;
     content_length = lw_cachefile_length (cache_file);
-    num_lines = lw_utf8_replace_linebreaks_with_nullcharacter (contents, content_length, &max_line_length, progress);
+    num_lines = klass->count_lines (contents, content_length, &max_line_length, progress);
     if (num_lines == 0) goto errored;
     if (max_line_length < 1) goto errored;
     parsed = lw_parsed_new (cache_file);

@@ -110,6 +110,7 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
     object_class->constructed = lw_unknowndictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
+    dictionary_class->count_lines = lw_utf8_replace_linebreaks_with_nullcharacter;
     dictionary_class->get_column_handling = lw_unknowndictionary_get_column_handling;
     dictionary_class->get_total_columns = lw_unknowndictionary_get_total_columns;
     dictionary_class->get_column_language = lw_unknowndictionary_get_column_language;

@@ -112,6 +112,7 @@ lw_edictionary_class_init (LwEDictionaryClass *klass)
     object_class->constructed = lw_edictionary_constructed;
 
     dictionary_class = LW_DICTIONARY_CLASS (klass);
+    dictionary_class->count_lines = lw_utf8_replace_linebreaks_with_nullcharacter;
     dictionary_class->get_column_handling = lw_edictionary_get_column_handling;
     dictionary_class->get_total_columns = lw_edictionary_get_total_columns;
     dictionary_class->get_column_language = lw_edictionary_get_column_language;
