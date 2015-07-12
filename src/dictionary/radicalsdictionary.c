@@ -22,7 +22,7 @@
 /**
  * SECTION: lwradicalsdictionary
  * @short_description: Dictionary type for handling kradfile formatted dictionary
- * @title: LwEDictionary
+ * @title: LwRadicalsDictionary
  *
  * A dictionary type for handling kradfile formatted dictionaries.
  */

@@ -48,30 +48,7 @@ EXTRA_HFILES=
 
 # Header files or dirs to ignore when scanning. Use base file/dir names
 # e.g. IGNORE_HFILES=gtkdebug.h gtkintl.h private_code
-IGNORE_HFILES=\
-application-private.h\
-cachefile-private.h\
-command-private.h\
-dictionary-private.h\
-dictionarycache-private.h\
-dictionaryinstall-private.h\
-dictionaryinstalllist-private.h\
-dictionarylist-private.h\
-dictionarymodule-private.h\
-indexed-private.h\
-installsubcommand-private.h\
-mappedfile-private.h\
-morphologyengine-private.h\
-parsed-private.h\
-preferences-private.h\
-progress-private.h\
-search-private.h\
-searchsubcommand-private.h\
-serializable-private.h\
-subcommand-private.h\
-uninstallsubcommand-private.h\
-vocabulary-private.h
-
+IGNORE_HFILES=
 
 # Images to copy into HTML directory.
 # e.g. HTML_IMAGES=$(top_srcdir)/gtk/stock-icons/stock_about_24.png
