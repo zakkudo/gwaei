@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 /**
- * SECTION: lwradicalsdictionary
+ * SECTION: radicalsdictionary
  * @short_description: Dictionary type for handling kradfile formatted dictionary
  * @title: LwRadicalsDictionary
  *
@@ -177,6 +177,10 @@ lw_radicalsdictionary_get_column_handling (LwDictionary *self,
 }
 
 
+/**
+ * lw_radicalsdictionary_columnid_get_type:
+ * @Returns: The GType of the column id enumeration
+ */
 GType
 lw_radicalsdictionary_columnid_get_type ()
 {

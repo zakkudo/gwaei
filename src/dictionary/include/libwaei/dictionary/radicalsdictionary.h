@@ -15,6 +15,14 @@ typedef struct _LwRadicalsDictionaryPrivate LwRadicalsDictionaryPrivate;
 #define LW_RADICALSDICTIONARYCOLUMNNICK_KANJI "kanji"
 #define LW_RADICALSDICTIONARYCOLUMNNICK_RADICALS "radicals"
 
+/**
+ * LwRadicalsDictionaryColumnId:
+ * @LW_RADICALSDICTIONARYCOLUMNID_KANJI: The kanji
+ * @LW_RADICALSDICTIONARYCOLUMNID_RADICALS: The radicals of the kanji
+ * @TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS: Total number of columns
+ *
+ * Dictionary columns for the #LwRadicalsDictionary
+ */
 typedef enum {
   LW_RADICALSDICTIONARYCOLUMNID_KANJI,
   LW_RADICALSDICTIONARYCOLUMNID_RADICALS,
@@ -37,7 +45,7 @@ struct _LwRadicalsDictionaryClass {
 };
 
 //Methods
-GType lw_radicalsdictionary_get_type (void) G_GNUC_CONST;
+GType lw_radicalsdictionary_get_type (void);
 
 GType lw_radicalsdictionary_columnid_get_type (void);
 #define LW_TYPE_RADICALSDICTIONARYCOLUMNID (lw_radicalsdictionarycolumnid_get_type ())

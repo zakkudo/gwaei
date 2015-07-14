@@ -19,6 +19,16 @@ typedef struct _LwExampleDictionaryPrivate LwExampleDictionaryPrivate;
 #define LW_EXAMPLEDICTIONARYCOLUMNNICK_MEANING "meaning"
 #define LW_EXAMPLEDICTIONARYCOLUMNNICK_ID "id"
 
+/**
+ * LwExampleDictionaryColumnId:
+ * @LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE: The example japanese phrase
+ * @LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS: The example japanese phrase including readings
+ * @LW_EXAMPLEDICTIONARYCOLUMNID_MEANING: The meaning of the japanese phrase when translated
+ * @LW_EXAMPLEDICTIONARYCOLUMNID_ID: The Id of the phrase
+ * @TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS: Total number of columns
+ *
+ * Dictionary columns for the #LwExampleDictionary
+ */
 typedef enum {
   LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE,
   LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS,
@@ -43,7 +53,7 @@ struct _LwExampleDictionaryClass {
 };
 
 //Methods
-GType lw_exampledictionary_get_type (void) G_GNUC_CONST;
+GType lw_exampledictionary_get_type (void);
 
 GType lw_exampledictionary_columnid_get_type (void);
 #define LW_TYPE_EXAMPLEDICTIONARYCOLUMNID (lw_exampledictionarycolumnid_get_type ())

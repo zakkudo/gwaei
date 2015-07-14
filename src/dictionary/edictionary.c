@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 /**
- * SECTION: lwedictionary
+ * SECTION: edictionary
  * @short_description: Dictionary type for handling edict formatted dictionary
  * @title: LwEDictionary
  *
@@ -183,6 +183,10 @@ lw_edictionary_get_column_handling (LwDictionary *self,
 }
 
 
+/**
+ * lw_edictionary_columnid_get_type:
+ * @Returns: The GType of the column id enumeration
+ */
 GType
 lw_edictionary_columnid_get_type ()
 {

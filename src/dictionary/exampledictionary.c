@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 /**
- * SECTION: lwexampledictionary
+ * SECTION: exampledictionary
  * @short_description: Dictionary type for handling example formatted dictionary
  * @title: LwExampleDictionary
  *
@@ -272,6 +272,10 @@ lw_exampledictionary_get_column_handling (LwDictionary *self,
 }
 
 
+/**
+ * lw_exampledictionary_columnid_get_type:
+ * @Returns: The GType of the column id enumeration
+ */
 GType
 lw_exampledictionary_columnid_get_type ()
 {
@@ -293,6 +297,10 @@ lw_exampledictionary_columnid_get_type ()
 }
 
 
+/**
+ * register_dictionary_module_type:
+ * @module: The module to regester the type using
+ */
 G_MODULE_EXPORT void
 register_dictionary_module_type (GTypeModule * module)
 {

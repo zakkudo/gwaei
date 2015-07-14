@@ -8,6 +8,13 @@ G_BEGIN_DECLS
 
 #define LW_UNKNOWNDICTIONARYCOLUMNNICK_UNKNOWN "unknown"
 
+/**
+ * LwUnknownDictionaryColumnId:
+ * @LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN: The base column
+ * @TOTAL_LW_UNKNOWNDICTIONARYCOLUMNIDS: Total number of columns
+ *
+ * Dictionary columns for the #LwUnknownDictionary
+ */
 typedef enum {
   LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN,
   TOTAL_LW_UNKNOWNDICTIONARYCOLUMNIDS
@@ -18,7 +25,6 @@ typedef struct _LwUnknownDictionary LwUnknownDictionary;
 typedef struct _LwUnknownDictionaryClass LwUnknownDictionaryClass;
 typedef struct _LwUnknownDictionaryPrivate LwUnknownDictionaryPrivate;
 
-#define LW_UNKNOWNDICTIONARY_KEY_TEXT "Text"
 
 #define LW_TYPE_UNKNOWNDICTIONARY              (lw_unknowndictionary_get_type())
 #define LW_UNKNOWNDICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_UNKNOWNDICTIONARY, LwUnknownDictionary))
@@ -36,7 +42,7 @@ struct _LwUnknownDictionaryClass {
 };
 
 //Methods
-GType lw_unknowndictionary_get_type (void) G_GNUC_CONST;
+GType lw_unknowndictionary_get_type (void);
 
 GType lw_unknowndictionary_columnid_get_type (void);
 #define LW_TYPE_UNKNOWNDICTIONARYCOLUMNID (lw_unknowndictionarycolumnid_get_type ())

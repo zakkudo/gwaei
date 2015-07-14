@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 /**
- * SECTION: lwunknowndictionary
+ * SECTION: unknowndictionary
  * @short_description: Dictionary type for handling unknown dictionary formats
  * @title: LwUnknownDictionary
  *
@@ -175,6 +175,10 @@ lw_unknowndictionary_get_column_handling (LwDictionary *self,
 }
 
 
+/**
+ * lw_unknowndictionary_columnid_get_type:
+ * @Returns: The GType of the column id enumeration
+ */
 GType
 lw_unknowndictionary_columnid_get_type ()
 {

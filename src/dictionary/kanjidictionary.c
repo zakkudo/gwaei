@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 /**
- * SECTION: lwkanjidictionary
+ * SECTION: kanjidictionary
  * @short_description: Dictionary type for handling kanjidic formatted dictionary
  * @title: LwKanjiDictionary
  *
@@ -190,6 +190,10 @@ lw_kanjidictionary_get_column_handling (LwDictionary *self,
 }
 
 
+/**
+ * lw_kanjidictionary_columnid_get_type:
+ * @Returns: The GType of the column id enumeration
+ */
 GType
 lw_kanjidictionary_columnid_get_type ()
 {

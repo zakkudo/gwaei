@@ -30,6 +30,21 @@ typedef struct _LwKanjiDictionaryPrivate LwKanjiDictionaryPrivate;
 #define LW_KANJIDICTIONARYCOLUMNNICK_ON_READINGS "on-reading"
 #define LW_KANJIDICTIONARYCOLUMNNICK_MEANINGS "meanings"
 
+/**
+ * LwKanjiDictionaryColumnid:
+ * @LW_KANJIDICTIONARYCOLUMNID_KANJI: The kanji character
+ * @LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL: THe Unicode symbol of the kanji
+ * @LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY: The usage frequency
+ * @LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT: The number of strokes to draw the kanji character
+ * @LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL: The grade level a japanese person learns the character
+ * @LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL: The JLPT level that the character is learned
+ * @LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS: The KUN readings of the character
+ * @LW_KANJIDICTIONARYCOLUMNID_ON_READINGS: The ON readings of the character
+ * @LW_KANJIDICTIONARYCOLUMNID_MEANINGS: The translated meanings of the character
+ * @TOTAL_LW_KANJIDICTIONARYCOLUMNIDS: Total number of columns
+ *
+ * Dictionary columns for the #LwKanjiDictionary
+ */
 typedef enum {
   LW_KANJIDICTIONARYCOLUMNID_KANJI,
   LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL,
@@ -59,7 +74,7 @@ struct _LwKanjiDictionaryClass {
 };
 
 //Methods
-GType lw_kanjidictionary_get_type (void) G_GNUC_CONST;
+GType lw_kanjidictionary_get_type (void);
 
 GType lw_kanjidictionary_columnid_get_type (void);
 #define LW_TYPE_KANJIDICTIONARYCOLUMNID (lw_kanjidictionarycolumnid_get_type ())

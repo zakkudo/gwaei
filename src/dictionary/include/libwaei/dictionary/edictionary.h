@@ -21,6 +21,17 @@ typedef struct _LwEDictionaryPrivate LwEDictionaryPrivate;
 #define LW_EDICTIONARYCOLUMNNICK_CLASSIFICATION "classification"
 #define LW_EDICTIONARYCOLUMNNICK_POPULAR "popular"
 
+/**
+ * LwEdictionaryColumnId:
+ * @LW_EDICTIONARYCOLUMNID_WORD: The vocabular word
+ * @LW_EDICTIONARYCOLUMNID_READING: The furigana reading of the word
+ * @LW_EDICTIONARYCOLUMNID_DEFINITION: The definition of the word
+ * @LW_EDICTIONARYCOLUMNID_CLASSIFICATION: The grammar classification
+ * @LW_EDICTIONARYCOLUMNID_POPULAR: Marks if the word has high usage
+ * @TOTAL_LW_EDICTIONARYCOLUMNIDS: Total number of columns
+ *
+ * Dictionary columns for the #LwEDictionary
+ */
 typedef enum {
   LW_EDICTIONARYCOLUMNID_WORD,
   LW_EDICTIONARYCOLUMNID_READING,
@@ -51,7 +62,11 @@ struct _LwEDictionaryClass {
 
 
 //Methods
-GType lw_edictionary_get_type (void) G_GNUC_CONST;
+/**
+ * lw_edictionary_get_type:
+ * Returns: The GType of the LwEDictionary class
+ */
+GType lw_edictionary_get_type (void);
 
 
 G_END_DECLS
