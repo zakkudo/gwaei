@@ -150,5 +150,6 @@ testkanjidictionary
 testexampledictionary
 testradicalsdictionary
 testunknowndictionary
+testsearch
 
 *.bak

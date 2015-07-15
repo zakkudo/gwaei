@@ -215,6 +215,11 @@ lw_dictionarymodule_class_init (LwDictionaryModuleClass * klass)
         NULL,
         G_PARAM_READABLE
     );
+    /**
+     * LwDictionaryModule:name:
+     *
+     * The name of the dictionary module
+     */
     g_object_class_install_property (object_class, PROP_NAME, klass->priv->pspec[PROP_NAME]);
 
     klass->priv->pspec[PROP_PATH] = g_param_spec_string (
@@ -224,6 +229,11 @@ lw_dictionarymodule_class_init (LwDictionaryModuleClass * klass)
         NULL,
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
+    /**
+     * LwDictionaryModule:path:
+     *
+     * The file path of the dictionary module
+     */
     g_object_class_install_property (object_class, PROP_PATH, klass->priv->pspec[PROP_PATH]);
 }
 

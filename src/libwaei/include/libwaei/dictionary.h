@@ -107,6 +107,5 @@ LwDictionaryCache * lw_dictionary_ensure_cache_by_utf8flags (LwDictionary * self
 G_END_DECLS
 
 #include <libwaei/dictionary-callbacks.h>
-#include "search.h"
 
 #endif

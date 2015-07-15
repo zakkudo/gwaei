@@ -52,10 +52,6 @@
 
 G_DEFINE_TYPE (LwSearch, lw_search, G_TYPE_OBJECT)
 
-static LwSearchData * lw_searchdata_new (LwSearch * search, GError ** error);
-static void lw_searchdata_free (LwSearchData * self);
-static gboolean _apply_search_columns_to_query (LwQueryNode * self, LwSearchData * data);
-static void lw_searchdata_search_parsed (LwSearchData * self, LwParsed * parsed);
 
 /**
  * lw_search_new:
@@ -66,9 +62,10 @@ static void lw_searchdata_search_parsed (LwSearchData * self, LwParsed * parsed)
  * Returns: A new #LwSearch that should be freed with g_object_unref()
  */
 LwSearch* 
-lw_search_new (const gchar  *QUERY,
-               LwDictionary *dictionary,
-               LwSearchFlag  flags)
+lw_search_new (const gchar  *  QUERY,
+               LwDictionary *  dictionary,
+               LwSearchFlag    flags,
+               GError       ** error)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
@@ -95,9 +92,10 @@ lw_search_new (const gchar  *QUERY,
  * Returns: A new #LwSearch that should be freed with g_object_unref()
  */
 LwSearch* 
-lw_search_new_by_preferences (const gchar   *QUERY,
-                              LwDictionary  *dictionary,
-                              LwPreferences *preferences)
+lw_search_new_by_preferences (const gchar   *  QUERY,
+                              LwDictionary  *  dictionary,
+                              LwPreferences *  preferences,
+                              GError        ** error)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
@@ -108,14 +106,14 @@ lw_search_new_by_preferences (const gchar   *QUERY,
 
     //Initializations
     flags = lw_search_build_flags_from_preferences (preferences);
-    self = lw_search_new (QUERY, dictionary, flags);
+    self = lw_search_new (QUERY, dictionary, flags, error);
 
     return self;
 }
 
 
 static void
-lw_search_init (LwSearch *self)
+lw_search_init (LwSearch * self)
 {
     self->priv = LW_SEARCH_GET_PRIVATE (self);
     memset(self->priv, 0, sizeof(LwSearchPrivate));
@@ -131,10 +129,10 @@ lw_search_init (LwSearch *self)
 
 
 static void 
-lw_search_set_property (GObject      *object,
-                        guint         property_id,
-                        const GValue *value,
-                        GParamSpec   *pspec)
+lw_search_set_property (GObject      * object,
+                        guint          property_id,
+                        const GValue * value,
+                        GParamSpec   * pspec)
 {
     //Declarations
     LwSearch *self = NULL;
@@ -164,6 +162,9 @@ lw_search_set_property (GObject      *object,
       case PROP_PROGRESS:
         lw_search_set_progress (self, g_value_get_object (value));
         break;
+      case PROP_RESULTS:
+        lw_search_set_results (self, g_value_get_object (value));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -172,10 +173,10 @@ lw_search_set_property (GObject      *object,
 
 
 static void 
-lw_search_get_property (GObject    *object,
-                        guint       property_id,
-                        GValue     *value,
-                        GParamSpec *pspec)
+lw_search_get_property (GObject    * object,
+                        guint        property_id,
+                        GValue     * value,
+                        GParamSpec * pspec)
 {
     //Declarations
     LwSearch *self = NULL;
@@ -205,6 +206,9 @@ lw_search_get_property (GObject    *object,
       case PROP_PROGRESS:
         g_value_set_object (value, lw_search_get_progress (self));
         break;
+      case PROP_RESULTS:
+        g_value_set_object (value, lw_search_get_results (self));
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -213,7 +217,7 @@ lw_search_get_property (GObject    *object,
 
 
 static void 
-lw_search_finalize (GObject *object)
+lw_search_finalize (GObject * object)
 {
     //Declarations
     LwSearch *self = NULL;
@@ -242,7 +246,7 @@ lw_search_dispose (GObject *object)
 
 
 static void
-lw_search_class_init (LwSearchClass *klass)
+lw_search_class_init (LwSearchClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
@@ -258,50 +262,6 @@ lw_search_class_init (LwSearchClass *klass)
     g_type_class_add_private (object_class, sizeof (LwSearchPrivate));
 
     LwSearchClassPrivate *klasspriv = klass->priv;
-
-    klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
-        "internal-row-changed",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwSearchClass, row_changed),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
-        "internal-row-inserted",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwSearchClass, row_inserted),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
-        "internal-row-deleted",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwSearchClass, row_deleted),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT
-    );
-
-    klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
-        "internal-rows-reordered",
-        G_OBJECT_CLASS_TYPE (object_class),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwSearchClass, rows_reordered),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__POINTER,
-        G_TYPE_NONE, 1,
-        G_TYPE_POINTER
-    );
 
     klasspriv->pspec[PROP_DICTIONARY] = g_param_spec_object (
         "dictionary",
@@ -327,7 +287,7 @@ lw_search_class_init (LwSearchClass *klass)
         "Flags to configure the search",
         LW_TYPE_SEARCHFLAG,
         0,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
+        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
 
@@ -361,12 +321,20 @@ lw_search_class_init (LwSearchClass *klass)
     );
     g_object_class_install_property (object_class, PROP_PROGRESS, klasspriv->pspec[PROP_PROGRESS]);
 
+    klasspriv->pspec[PROP_RESULTS] = g_param_spec_object (
+        "results",
+        gettext("Results"),
+        gettext("The results of a query"),
+        LW_TYPE_RESULTS,
+        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
+    );
+    g_object_class_install_property (object_class, PROP_RESULTS, klasspriv->pspec[PROP_RESULTS]);
 }
 
 
 void
-lw_search_set_query (LwSearch    *self,
-                     const gchar *QUERY)
+lw_search_set_query (LwSearch    * self,
+                     const gchar * QUERY)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -399,8 +367,8 @@ errored:
 }
 
 
-const gchar*
-lw_search_get_query (LwSearch *self)
+const gchar *
+lw_search_get_query (LwSearch * self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -432,8 +400,8 @@ lw_search_get_dictionary (LwSearch *self)
 
 
 void
-lw_search_set_dictionary (LwSearch     *self,
-                          LwDictionary *dictionary)
+lw_search_set_dictionary (LwSearch     * self,
+                          LwDictionary * dictionary)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -464,7 +432,7 @@ lw_search_set_dictionary (LwSearch     *self,
 }
 
 LwProgress*
-lw_search_get_progress (LwSearch *self)
+lw_search_get_progress (LwSearch * self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -487,8 +455,8 @@ lw_search_get_progress (LwSearch *self)
 
 
 void
-lw_search_set_progress (LwSearch   *self,
-                        LwProgress *progress)
+lw_search_set_progress (LwSearch   * self,
+                        LwProgress * progress)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -525,8 +493,8 @@ errored:
 
 
 void
-lw_search_set_max_results (LwSearch *self,
-                           gint      max_results)
+lw_search_set_max_results (LwSearch * self,
+                           gint       max_results)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -552,7 +520,7 @@ errored:
 
 
 gint
-lw_search_get_max_results (LwSearch *self)
+lw_search_get_max_results (LwSearch * self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -568,8 +536,8 @@ lw_search_get_max_results (LwSearch *self)
 
 
 void
-lw_search_set_status (LwSearch       *self, 
-                      LwSearchStatus  status)
+lw_search_set_status (LwSearch       * self, 
+                      LwSearchStatus   status)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -614,7 +582,7 @@ lw_searchstatus_get_type ()
 
 
 LwSearchStatus
-lw_search_get_status (LwSearch *self)
+lw_search_get_status (LwSearch * self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -657,7 +625,7 @@ lw_searchflag_get_type ()
 
 
 LwSearchFlag
-lw_search_get_flags (LwSearch *self)
+lw_search_get_flags (LwSearch * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_SEARCH (self), 0);
@@ -672,9 +640,9 @@ lw_search_get_flags (LwSearch *self)
 }
 
 
-void
-lw_search_set_flags (LwSearch *self,
-                     LwSearchFlag flags)
+static void
+lw_search_set_flags (LwSearch     * self,
+                     LwSearchFlag   flags)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_SEARCH (self), 0);
@@ -701,8 +669,55 @@ errored:
 }
 
 
+/**
+ * lw_search_get_results:
+ * @self: A #LwSearch
+ * Returns: (transfer none): The search's associated results.  This object is owned by the search and thus should not be unreffed or modified.
+ */
+LwResults *
+lw_search_get_results (LwSearch * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
+
+    LwSearchPrivate * priv = NULL;
+
+    priv = self->priv;
+
+    return priv->results;
+}
+
+
+static void
+lw_search_set_results (LwSearch  * self,
+                       LwResults * results)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_SEARCH (self));
+
+    //Declarations
+    LwSearchPrivate * priv = NULL;
+    LwSearchClass * klass = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_SEARCH_GET_CLASS (self);
+    if (priv->results == results) goto errored;
+
+    if (results != NULL) g_object_ref (results);
+    if (priv->results != NULL) g_object_unref (priv->results);
+    priv->results = results;
+
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_RESULTS]);
+
+errored:
+
+    return;
+}
+
+
 LwSearchFlag
-lw_search_build_flags_from_preferences (LwPreferences *preferences)
+lw_search_build_flags_from_preferences (LwPreferences * preferences)
 {
     //Sanity checks
     g_return_val_if_fail (preferences != NULL, 0);
@@ -737,7 +752,7 @@ lw_search_build_flags_from_preferences (LwPreferences *preferences)
 
 
 static gpointer 
-lw_searchdata_stream_results_thread (LwSearchData *data)
+lw_searchdata_stream_results_thread (LwSearchData * data)
 {
     //Sanity checks
     g_return_val_if_fail (data != NULL, NULL);
@@ -771,7 +786,6 @@ errored:
     priv->status = LW_SEARCHSTATUS_FINISHED;
     priv->thread = NULL;
 
-    lw_progress_set_completed (progress, TRUE);
     lw_progress_take_error (progress, error);
     error = NULL;
 
@@ -916,18 +930,17 @@ lw_searchdata_free (LwSearchData * self)
 
 
 /**
- * lw_search_start:
+ * lw_search_query_results:
  * @self: A #LwSearch
- * @dry_run: Provides a way to check if any errors would occur setting up the search when %TRUE
  * @error: A #GError or %NULL
+ * Returns: (transfer full): A #LwResults object that will be filled in with results.  You should unref it with g_object_unref() when finished.
  *
  * Starts a search synchonously, meaning it will lock the UI, making this most appropriate for
  * console programs.
  */
-void 
-lw_search_dictionary (LwSearch *  self,
-                      gboolean    dry_run,
-                      GError   ** error)
+LwResults *
+lw_search_query_results (LwSearch *  self,
+                         GError   ** error)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -960,25 +973,24 @@ errored:
 
     lw_searchdata_free (data);
 
-    return;
+    return lw_search_get_results (self);
 }
 
 
 /**
- * lw_search_start_async:
+ * lw_search_query_results_async:
  * @self: A #LwSearch
- * @dry_run: Provides a way to check if any errors would occur setting up the search when %TRUE
  * @error: A #GError or %NULL
+ * Returns: (transfer full): A #LwResults object that will be filled in with results.  You should unref it with g_object_unref() when finished.
  *
  * Starts an asynchronous search.  You an monitor it's progress or cancel it by
  * fetching the #LwProgress object using lw_search_get_progress(). If a search 
  * is running or has already been completed, calling this method is a no-op. This
  * method should only be called from the main thread of the application.
  */
-void
-lw_search_dictionary_async (LwSearch *  self,
-                            gboolean    dry_run,
-                            GError   ** error)
+LwResults *
+lw_search_query_results_async (LwSearch *  self,
+                               GError   ** error)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
@@ -1025,7 +1037,7 @@ errored:
 
     lw_searchdata_free (data);
 
-    return;
+    return lw_search_get_results (self);
 }
 
 
@@ -1040,7 +1052,7 @@ errored:
  * be called from the main thread of the application.
  */
 void 
-lw_search_cancel (LwSearch *self)
+lw_search_cancel (LwSearch * self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self)) ;
@@ -1066,51 +1078,11 @@ lw_search_cancel (LwSearch *self)
 }
 
 
-
-
-
-//!
-//! @brief comparison function for determining if two LwSearchs are equal
-//! @param item1 The first self
-//! @param item2 The second self
-//! @returns Returns true when both items are either the same self or have similar innards
-//!
-gboolean 
-lw_search_equal (LwSearch *item1,
-                 LwSearch *item2)
-{
-  //Declarations
-  gboolean queries_are_equal = FALSE;
-  gboolean dictionaries_are_equal = FALSE;
-  LwSearchPrivate *priv1 = NULL;
-  LwSearchPrivate *priv2 = NULL;
-
-  //Sanity checks
-  if (item1 == NULL)
-  {
-    return FALSE;
-  }
-  if (item2 == NULL)
-  {
-    return FALSE;
-  }
-
-  if (item1 == item2)
-  {
-    return TRUE;
-  }
-
-  priv1 = item1->priv;
-  priv2 = item2->priv;
-
-  //Initializations
-  queries_are_equal = (g_strcmp0 (priv1->query, priv2->query) == 0);
-  dictionaries_are_equal = (priv1->dictionary == priv2->dictionary);
-
-  return (queries_are_equal && dictionaries_are_equal);
-}
-
-
+/**
+ * lw_search_build_utf8flags:
+ * @self: A #LwSearch
+ * Returns: The utf8 flags the search was constructed with
+ */
 LwUtf8Flag
 lw_search_build_utf8flags (LwSearch * self)
 {
@@ -1150,7 +1122,7 @@ _search_parsed (LwParsed     * parsed,
     if (progress != NULL && lw_progress_should_abort (progress)) return TRUE;
 
     if (lw_querynode_match_parsedline (data->root, line, NULL)) {
-      g_sequence_append (search->priv->results, line);
+      lw_results_append_line (search->priv->results, line);
     }
 
     if (progress != NULL)
@@ -1163,7 +1135,7 @@ _search_parsed (LwParsed     * parsed,
 }
 
 
-LwParsed *
+static LwParsed *
 lw_search_get_parsed (LwSearch *  self,
                       GError   ** error)
 {
@@ -1223,8 +1195,6 @@ lw_searchdata_search_parsed (LwSearchData * self,
     lw_progress_set_current (progress, 0.0);
 
     lw_parsed_foreach (parsed, (LwParsedForeachFunc) _search_parsed, self);
-
-    lw_progress_set_completed (progress, TRUE);
 
 errored:
 

@@ -5,6 +5,7 @@
 #include "dictionary.h"
 #include "utf8.h"
 #include "querynode.h"
+#include "results.h"
 
 G_BEGIN_DECLS
 
@@ -92,13 +93,12 @@ struct _LwSearchClass {
 
 
 //Methods
-LwSearch* lw_search_new (gchar const *QUERY, LwDictionary * dictionary, LwSearchFlag flags);
-LwSearch* lw_search_new_by_preferences (gchar const *QUERY, LwDictionary  * dictionary, LwPreferences * preferences);
+LwSearch* lw_search_new (gchar const *QUERY, LwDictionary * dictionary, LwSearchFlag flags, GError ** error);
+LwSearch* lw_search_new_by_preferences (gchar const *QUERY, LwDictionary  * dictionary, LwPreferences * preferences, GError ** error);
 GType lw_search_get_type (void) G_GNUC_CONST;
 
-
-void lw_search_start (LwSearch * self, gboolean dry_run, GError ** error);
-void lw_search_start_async (LwSearch * self, gboolean dry_run, GError ** error);
+LwResults * lw_search_query_results (LwSearch * self, GError ** error);
+LwResults * lw_search_query_results_async (LwSearch * self, GError ** error);
 
 //Properties
 
@@ -118,11 +118,10 @@ void lw_search_set_progress (LwSearch * self, LwProgress *progress);
 LwProgress* lw_search_get_progress (LwSearch * self);
 
 LwSearchFlag lw_search_get_flags (LwSearch * self);
-void lw_search_set_flags (LwSearch * self, LwSearchFlag flags);
 LwSearchFlag lw_search_build_flags_from_preferences (LwPreferences * preferences);
 LwUtf8Flag lw_search_build_utf8flags (LwSearch * self);
 
-LwParsed * lw_search_get_parsed (LwSearch * self, GError ** error);
+LwResults * lw_search_get_results (LwSearch * self);
 
 G_END_DECLS
 
