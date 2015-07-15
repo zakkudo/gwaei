@@ -44,9 +44,6 @@
 
 G_DEFINE_TYPE (LwResults, lw_results, G_TYPE_OBJECT)
 
-static void lw_results_set_dictionarycache (LwResults * self, LwDictionaryCache * dictionary_cache);
-static void lw_results_set_sequence (LwResults * self, GSequence * sequence);
-
 
 LwResults *
 lw_results_new (LwDictionaryCache * dictionary_cache)
@@ -74,7 +71,7 @@ lw_results_init (LwResults * self)
 
     priv = self->priv;
 
-    priv->sequence = g_sequence_new (NULL);
+    lw_results_set_sequence (self, g_sequence_new (NULL));
 }
 
 
@@ -147,15 +144,8 @@ lw_results_finalize (GObject * object)
     self = LW_RESULTS (object);
     priv = self->priv;
 
-    if (priv->sequence != NULL)
-    {
-      g_sequence_free (priv->sequence);
-    }
-
-    if (priv->dictionary_cache != NULL)
-    {
-      g_object_unref (priv->dictionary_cache);
-    }
+    lw_results_set_sequence (self, NULL);
+    lw_results_set_dictionarycache (self, NULL);
 
     memset(priv, 0, sizeof(LwResultsPrivate));
 
@@ -242,7 +232,7 @@ lw_results_class_init (LwResultsClass * klass)
         "sequence",
         gettext("Sequence"),
         gettext("The iterable sequence of results"),
-        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
+        G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_SEQUENCE, klasspriv->pspec[PROP_SEQUENCE]);
 
@@ -263,7 +253,6 @@ lw_results_set_dictionarycache (LwResults         * self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_RESULTS (self));
-    g_return_if_fail (LW_IS_DICTIONARYCACHE (dictionary_cache));
 
     LwResultsPrivate * priv = NULL;
     LwResultsClass * klass = NULL;
@@ -303,7 +292,6 @@ lw_results_set_sequence (LwResults * self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_RESULTS (self));
-    g_return_if_fail (sequence != NULL);
 
     //Declarations
     LwResultsPrivate * priv = NULL;
