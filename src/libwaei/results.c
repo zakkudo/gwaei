@@ -45,6 +45,11 @@
 G_DEFINE_TYPE (LwResults, lw_results, G_TYPE_OBJECT)
 
 
+/**
+ * lw_results_new:
+ * @dictioanry_cache: (transfer full): A #LwDictionaryCache which the results will be referencing.
+ * Returns: (transfer full): A new #LwResults which should be freed with g_object_unref()
+ */
 LwResults *
 lw_results_new (LwDictionaryCache * dictionary_cache)
 {
@@ -272,6 +277,11 @@ errored:
     return;
 }
 
+/**
+ * lw_results_get_dictionarycache:
+ * @self: A #LwResults
+ * Returns: (transfer none): The dictionary cached associated witht the #LwResults.  The #LwDictionaryCache is owned by the object and should not be freed or modified.
+ */
 LwDictionaryCache *
 lw_results_get_dictionarycache (LwResults * self)
 {
@@ -313,6 +323,11 @@ errored:
 }
 
 
+/**
+ * lw_results_get_sequence:
+ * @self: A #LwResults
+ * Returns: (transfer none): The #GSequence internally used to store the results. The sequence is owned by the object and should not be freed or modified.
+ */
 GSequence *
 lw_results_get_sequence (LwResults * self)
 {
@@ -329,6 +344,12 @@ lw_results_get_sequence (LwResults * self)
 }
 
 
+/**
+ * lw_results_append_line:
+ * @self: A #LwResults
+ * @line: (transfer none): A #LwParsedLine to append
+ * Returns: (transfer none): An iterator representing where the line was inserted
+ */
 LwResultsIter *
 lw_results_append_line (LwResults    * self,
                         LwParsedLine * line)
