@@ -189,6 +189,13 @@ lw_results_class_init (LwResultsClass * klass)
 
     LwResultsClassPrivate *klasspriv = klass->priv;
 
+    /**
+     * LwResults::internal-row-changed:
+     * @self: A #LwResults
+     * @position: The index of the row that changed
+     *
+     * A signal handler for #GtkTreeModel compatibility
+     */
     klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
         "internal-row-changed",
         G_OBJECT_CLASS_TYPE (object_class),
@@ -200,6 +207,13 @@ lw_results_class_init (LwResultsClass * klass)
         G_TYPE_INT
     );
 
+    /**
+     * LwResults::internal-row-inserted:
+     * @self: A #LwResults
+     * @position: The index of the row that changed
+     *
+     * A signal handler for #GtkTreeModel compatibility
+     */
     klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
         "internal-row-inserted",
         G_OBJECT_CLASS_TYPE (object_class),
@@ -211,6 +225,13 @@ lw_results_class_init (LwResultsClass * klass)
         G_TYPE_INT
     );
 
+    /**
+     * LwResults::internal-row-deleted:
+     * @self: A #LwResults
+     * @position: The index of the row that changed
+     *
+     * A signal handler for #GtkTreeModel compatibility
+     */
     klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
         "internal-row-deleted",
         G_OBJECT_CLASS_TYPE (object_class),
@@ -222,6 +243,13 @@ lw_results_class_init (LwResultsClass * klass)
         G_TYPE_INT
     );
 
+    /**
+     * LwResults::internal-rows-reordered:
+     * @self: A #LwResults
+     * @position: The index of the row that changed
+     *
+     * A signal handler for #GtkTreeModel compatibility
+     */
     klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
         "internal-rows-reordered",
         G_OBJECT_CLASS_TYPE (object_class),
@@ -233,6 +261,10 @@ lw_results_class_init (LwResultsClass * klass)
         G_TYPE_POINTER
     );
 
+    /**
+     * LwResults:sequence:
+     * The sequence of results
+     */
     klasspriv->pspec[PROP_SEQUENCE] = g_param_spec_pointer (
         "sequence",
         gettext("Sequence"),
@@ -241,6 +273,10 @@ lw_results_class_init (LwResultsClass * klass)
     );
     g_object_class_install_property (object_class, PROP_SEQUENCE, klasspriv->pspec[PROP_SEQUENCE]);
 
+    /**
+     * LwResults:dictionary-cache:
+     * The dictionarycache storing the #LwParsedLines that the results reference
+     */
     klasspriv->pspec[PROP_DICTIONARYCACHE] = g_param_spec_object (
         "dictionary-cache",
         gettext("Dictionary Cache"),
