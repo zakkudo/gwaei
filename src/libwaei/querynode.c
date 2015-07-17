@@ -886,6 +886,24 @@ lw_querynode_unref (LwQueryNode *self)
 }
 
 
+GType
+lw_querynode_get_type ()
+{
+    static GType type = 0;
+
+    if (type == 0)
+    {
+      type = g_boxed_type_register_static (
+        "LwQueryNode",
+        (GBoxedCopyFunc) lw_querynode_ref,
+        (GBoxedFreeFunc) lw_querynode_unref
+      );
+    }
+
+    return type;
+}
+
+
 /**
  * lw_querynode_assert_equals:
  * @self: A #LwQueryNode

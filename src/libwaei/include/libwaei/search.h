@@ -93,28 +93,24 @@ struct _LwSearchClass {
 
 
 //Methods
-LwSearch* lw_search_new (gchar const *QUERY, LwDictionary * dictionary, LwSearchFlag flags, GError ** error);
-LwSearch* lw_search_new_by_preferences (gchar const *QUERY, LwDictionary  * dictionary, LwPreferences * preferences, GError ** error);
+LwSearch* lw_search_new (gchar const *QUERY, LwDictionary * dictionary, LwSearchFlag flags);
+LwSearch* lw_search_new_by_preferences (gchar const *QUERY, LwDictionary  * dictionary, LwPreferences * preferences);
 GType lw_search_get_type (void) G_GNUC_CONST;
 
-LwResults * lw_search_query_results (LwSearch * self, GError ** error);
+LwResults * lw_search_query_results (LwSearch * self);
 LwResults * lw_search_query_results_async (LwSearch * self, GError ** error);
 
 //Properties
 
-void lw_search_set_dictionary (LwSearch * self, LwDictionary * dictionary);
 LwDictionary* lw_search_get_dictionary (LwSearch * self);
-
-void lw_search_set_query (LwSearch * self, gchar const * QUERY);
 gchar const * lw_search_get_query (LwSearch * self);
+LwQueryNode * lw_search_get_query_tree (LwSearch * self);
 
 void lw_search_set_max_results (LwSearch * self, gint max_results);
 gint lw_search_get_max_results (LwSearch * self);
 
-void lw_search_set_status (LwSearch * self, LwSearchStatus status);
 LwSearchStatus lw_search_get_status (LwSearch * self);
 
-void lw_search_set_progress (LwSearch * self, LwProgress *progress);
 LwProgress* lw_search_get_progress (LwSearch * self);
 
 LwSearchFlag lw_search_get_flags (LwSearch * self);

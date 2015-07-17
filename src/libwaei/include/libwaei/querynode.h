@@ -50,6 +50,7 @@ typedef gboolean(*LwQueryNodeWalkFunc)(LwQueryNode * self, gpointer data);
 GQuark lw_querynode_error_quark (void);
 
 #define LW_QUERYNODE(obj) ((LwQueryNode*)(obj))
+#define LW_TYPE_QUERYNODE (lw_querynode_get_type ())
 
 #define LW_QUERYNODE_IS_DANGLING_KEY(obj) (obj->data == NULL && obj->key != NULL && obj->children == NULL)
 #define LW_QUERYNODE_IS_EMPTY(obj) (obj->key == NULL, obj->data == NULL && obj->children == NULL)
@@ -76,6 +77,8 @@ void lw_querynode_assert_equals (LwQueryNode * self, LwQueryNode *other);
 gboolean lw_querynode_walk (LwQueryNode * self, LwQueryNodeWalkFunc func, gpointer data);
 gint lw_querynode_nnodes (LwQueryNode * self);
 void lw_querynode_compile (LwQueryNode * self, LwUtf8Flag flags, GError ** error);
+
+GType lw_querynode_get_type (void);
 
 gboolean lw_querynode_match_parsedline (LwQueryNode * self, LwParsedLine * parsed_line, LwQueryNodeMatchInfo * match_info_out);
 

@@ -1,3 +1,4 @@
+#include <libwaei/dictionarymodule.h>
 
 //Boilerplate
 typedef struct _LwTestDictionary LwTestDictionary;
@@ -50,4 +51,54 @@ lw_testdictionary_class_init (LwTestDictionaryClass *klass)
     object_class = G_OBJECT_CLASS (klass);
     object_class->finalize = lw_testdictionary_finalize;
     object_class->constructed = lw_testdictionary_constructed;
+}
+
+
+struct _DictionaryConfig {
+  gchar * cachetmpl;
+  gchar * cachedir;
+  gchar * datatmpl;
+  gchar * datadir;
+};
+typedef struct _DictionaryConfig DictionaryConfig;
+
+#define DICTIONARYMODULEDIR ".." G_DIR_SEPARATOR_S ".." G_DIR_SEPARATOR_S "dictionary" G_DIR_SEPARATOR_S ".libs"
+#define TESTDICTIONARYDATADIR ".." G_DIR_SEPARATOR_S ".." G_DIR_SEPARATOR_S "dictionary" G_DIR_SEPARATOR_S "tests" G_DIR_SEPARATOR_S "data"
+
+static DictionaryConfig *
+dictionary_config_new (void)
+{
+    DictionaryConfig * self = g_new0 (DictionaryConfig, 1);
+
+    self->cachetmpl = g_build_filename (g_get_tmp_dir (), "testcachedir-XXXXXX", NULL);
+    self->cachedir = g_mkdtemp_full (self->cachetmpl, 0700);
+
+    self->datatmpl = g_build_filename (g_get_tmp_dir (), "testdatadir-XXXXXX", NULL);
+    self->datadir = g_mkdtemp_full (self->datatmpl, 0700);
+
+    g_setenv("DICTIONARYCACHEDIR", self->cachedir, TRUE);
+    g_setenv("DICTIONARYDATADIR", self->datadir, TRUE);
+    g_setenv ("DICTIONARYLIB_SEARCHPATH", DICTIONARYMODULEDIR, TRUE);
+
+    lw_dictionarymodule_new (DICTIONARYMODULEDIR G_DIR_SEPARATOR_S "libedictionary." G_MODULE_SUFFIX);
+    lw_dictionarymodule_new (DICTIONARYMODULEDIR G_DIR_SEPARATOR_S "libkanjidictionary." G_MODULE_SUFFIX);
+    lw_dictionarymodule_new (DICTIONARYMODULEDIR G_DIR_SEPARATOR_S "libradicalsdictionary." G_MODULE_SUFFIX);
+    lw_dictionarymodule_new (DICTIONARYMODULEDIR G_DIR_SEPARATOR_S "libexampledictionary." G_MODULE_SUFFIX);
+    lw_dictionarymodule_new (DICTIONARYMODULEDIR G_DIR_SEPARATOR_S "libunknowndictionary." G_MODULE_SUFFIX);
+
+    return self;
+}
+
+static void
+dictionary_config_free (DictionaryConfig * self)
+{
+    if (self == NULL) return;
+
+    g_remove (self->cachedir);
+    g_free (self->cachedir);
+
+    g_remove (self->datadir);
+    g_free(self->datadir);
+
+    g_free (self);
 }
