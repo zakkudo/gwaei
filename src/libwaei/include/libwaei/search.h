@@ -28,6 +28,7 @@ typedef enum {
   LW_SEARCHSTATUS_UNSTARTED,
   LW_SEARCHSTATUS_SEARCHING,
   LW_SEARCHSTATUS_CANCELING,
+  LW_SEARCHSTATUS_ERRORED,
   LW_SEARCHSTATUS_FINISHED,
 } LwSearchStatus;
 GType lw_searchstatus_get_type (void);
@@ -83,12 +84,6 @@ struct _LwSearch {
 struct _LwSearchClass {
   GObjectClass parent_class;
   LwSearchClassPrivate *priv;
-
-  //Signals
-  void (*row_changed) (LwSearch* search, gint position, gpointer data);
-  void (*row_inserted) (LwSearch* search, gint position, gpointer data);
-  void (*row_deleted) (LwSearch* search, gint position, gpointer data);
-  void (*rows_reordered) (LwSearch* search, gint *order, gpointer data);
 };
 
 
@@ -118,6 +113,8 @@ LwSearchFlag lw_search_build_flags_from_preferences (LwPreferences * preferences
 LwUtf8Flag lw_search_build_utf8flags (LwSearch * self);
 
 LwResults * lw_search_get_results (LwSearch * self);
+
+void lw_search_cancel (LwSearch * self);
 
 G_END_DECLS
 

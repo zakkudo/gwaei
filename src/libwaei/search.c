@@ -237,9 +237,14 @@ lw_search_dispose (GObject *object)
 {
     //Declarations
     LwSearch *self = NULL;
+    LwSearchPrivate * priv = NULL;
 
     //Initializations
     self = LW_SEARCH (object);
+    priv = self->priv;
+
+    if (priv->watch_id != 0) g_source_remove (priv->watch_id);
+    lw_search_cancel (self);
 
     G_OBJECT_CLASS (lw_search_parent_class)->dispose (object);
 }
@@ -317,6 +322,11 @@ lw_search_class_init (LwSearchClass * klass)
         LW_TYPE_DICTIONARY,
         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
+    /**
+     * LwSearch:dictionary:
+     *
+     * The dictionary this search is using for fetching results.
+     */
     g_object_class_install_property (object_class, PROP_DICTIONARY, klasspriv->pspec[PROP_DICTIONARY]);
 
     klasspriv->pspec[PROP_QUERY] = g_param_spec_string (
@@ -326,6 +336,11 @@ lw_search_class_init (LwSearchClass * klass)
         NULL,
         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
+    /**
+     * LwSearch:query:
+     *
+     * The search query text that the search was initialized with.
+     */
     g_object_class_install_property (object_class, PROP_QUERY, klasspriv->pspec[PROP_QUERY]);
 
     klasspriv->pspec[PROP_QUERY_TREE] = g_param_spec_boxed (
@@ -335,7 +350,12 @@ lw_search_class_init (LwSearchClass * klass)
         LW_TYPE_QUERYNODE,
         G_PARAM_READABLE
     );
-    g_object_class_install_property (object_class, PROP_QUERY, klasspriv->pspec[PROP_QUERY]);
+    /**
+     * LwSearch:query-tree:
+     *
+     * The parsed query tree generated from the query
+     */
+    g_object_class_install_property (object_class, PROP_QUERY_TREE, klasspriv->pspec[PROP_QUERY_TREE]);
 
     klasspriv->pspec[PROP_FLAGS] = g_param_spec_flags (
         "flags",
@@ -345,6 +365,11 @@ lw_search_class_init (LwSearchClass * klass)
         0,
         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
+    /**
+     * LwSearch:flags:
+     *
+     * Search flags to modify the search
+     */
     g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
 
     klasspriv->pspec[PROP_STATUS] = g_param_spec_enum (
@@ -355,6 +380,11 @@ lw_search_class_init (LwSearchClass * klass)
         LW_SEARCHSTATUS_UNSTARTED,
         G_PARAM_READABLE
     );
+    /**
+     * LwSearch:status:
+     *
+     * The current search status.
+     */
     g_object_class_install_property (object_class, PROP_STATUS, klasspriv->pspec[PROP_STATUS]);
 
     klasspriv->pspec[PROP_MAX_RESULTS] = g_param_spec_int (
@@ -366,6 +396,11 @@ lw_search_class_init (LwSearchClass * klass)
         0,
         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
+    /**
+     * LwSearch:max-results:
+     *
+     * The max number of results to return
+     */
     g_object_class_install_property (object_class, PROP_MAX_RESULTS, klasspriv->pspec[PROP_MAX_RESULTS]);
 
     klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
@@ -375,6 +410,12 @@ lw_search_class_init (LwSearchClass * klass)
         LW_TYPE_PROGRESS,
         G_PARAM_READABLE
     );
+
+    /**
+     * LwSearch:progress
+     *
+     * Internal #LwProgress for tracking query progress
+     */
     g_object_class_install_property (object_class, PROP_PROGRESS, klasspriv->pspec[PROP_PROGRESS]);
 }
 
@@ -413,6 +454,11 @@ errored:
 }
 
 
+/**
+ * lw_search_get_query:
+ * @self: A #LwSearch
+ * Returns: The query string that the #LwSearch was inititalized with
+ */
 const gchar *
 lw_search_get_query (LwSearch * self)
 {
@@ -457,6 +503,11 @@ errored:
 }
 
 
+/**
+ * lw_search_get_query_tree:
+ * @self: A #LwSearch
+ * Returns: (transfer none): The query tree generated on initialization
+ */
 LwQueryNode *
 lw_search_get_query_tree (LwSearch * self)
 {
@@ -473,6 +524,11 @@ lw_search_get_query_tree (LwSearch * self)
 }
 
 
+/**
+ * lw_search_get_dictionary:
+ * @self: A #LwSearch
+ * Returns: (transfer none): The dictionary set on initialization
+ */
 LwDictionary*
 lw_search_get_dictionary (LwSearch *self)
 {
@@ -518,6 +574,12 @@ errored:
     return;
 }
 
+
+/**
+ * lw_search_get_progress:
+ * @self: A #LwSearch
+ * Returns: (no transfer): The internal #LwProgress
+ */
 LwProgress*
 lw_search_get_progress (LwSearch * self)
 {
@@ -631,6 +693,10 @@ lw_search_set_status (LwSearch       * self,
 }
 
 
+/**
+ * lw_searchstatus_get_type:
+ * Returns: The #GType of the flags
+ */
 GType
 lw_searchstatus_get_type ()
 {
@@ -653,6 +719,11 @@ lw_searchstatus_get_type ()
 }
 
 
+/**
+ * lw_search_get_status:
+ * @self: A #LwSearch
+ * Returns: The status of the search
+ */
 LwSearchStatus
 lw_search_get_status (LwSearch * self)
 {
@@ -696,6 +767,11 @@ lw_searchflag_get_type ()
 }
 
 
+/**
+ * lw_search_get_flags:
+ * @self: A #LwSearch
+ * Returns: The flags set on initialization
+ */
 LwSearchFlag
 lw_search_get_flags (LwSearch * self)
 {
@@ -741,6 +817,11 @@ errored:
 }
 
 
+/**
+ * lw_search_build_flags_from_preferences:
+ * @self: A #LwPreferences
+ * Returns: Builds the search flags based on the currently set preferences
+ */
 LwSearchFlag
 lw_search_build_flags_from_preferences (LwPreferences * preferences)
 {
@@ -776,6 +857,42 @@ lw_search_build_flags_from_preferences (LwPreferences * preferences)
 }
 
 
+/**
+ * lw_search_watch_timeout:
+ * @self: A #LwSearch
+ *
+ * An idle method made to cleanup the search thread in a thread-safe way
+ * when it completes.
+ */
+static gboolean
+lw_search_watch_timeout (LwSearch * self)
+{
+    //Declarations
+    LwSearchPrivate * priv = NULL;
+    LwProgress * progress = NULL;
+    gboolean is_completed = FALSE;
+
+    //Initializations
+    priv = self->priv;
+    progress = priv->progress;
+    is_completed = lw_progress_completed (progress);
+
+    if (is_completed)
+    {
+      while (priv->results_buffer != NULL)
+      {
+        LwParsedLine * line = priv->results_buffer->data;
+        if (line != NULL) lw_results_append_line (priv->results, line);
+        priv->results_buffer = g_list_delete_link (priv->results_buffer, priv->results_buffer);
+      }
+    }
+
+    priv->watch_id = 0;
+
+    return !is_completed;
+}
+
+
 static gpointer 
 lw_search_stream_results_thread (LwSearch * self)
 {
@@ -797,9 +914,7 @@ lw_search_stream_results_thread (LwSearch * self)
     dictionary = priv->dictionary;
     flags = priv->flags;
 
-    g_mutex_lock (&priv->mutex);
-
-    cache = lw_search_ensure_dictionarycache (self, &error);
+    cache = lw_search_ensure_dictionarycache (self);
     if (cache == NULL) goto errored;
     if (error != NULL) goto errored;
     parsed = lw_dictionarycache_get_parsed (cache);
@@ -807,20 +922,35 @@ lw_search_stream_results_thread (LwSearch * self)
 
     lw_search_query_parsed (self, parsed);
 
-errored:
-
-    if (cache != NULL) g_object_unref (cache);
-
     priv->status = LW_SEARCHSTATUS_FINISHED;
-    priv->thread = NULL;
 
     lw_progress_take_error (progress, error);
     error = NULL;
 
-    g_mutex_unlock (&priv->mutex);
+errored:
+
+    if (lw_progress_errored (progress))
+    {
+      priv->status = LW_SEARCHSTATUS_ERRORED;
+      g_list_free (priv->results_buffer);
+    }
+    else if (LW_SEARCHSTATUS_CANCELING)
+    {
+      priv->status = LW_SEARCHSTATUS_UNSTARTED;
+      g_list_free (priv->results_buffer);
+    }
+    else
+    {
+      priv->status = LW_SEARCHSTATUS_FINISHED;
+    }
+
+    priv->thread = NULL;
+
+    if (cache != NULL) g_object_unref (cache);
 
     return NULL;
 }
+
 
 static gint *
 _calculate_columns_by_name (LwQueryNode  * self,
@@ -954,6 +1084,8 @@ lw_search_query_results_async (LwSearch *  self,
     }
     priv->status = LW_SEARCHSTATUS_SEARCHING;
 
+    priv->watch_id = g_timeout_add (100, (GSourceFunc) lw_search_watch_timeout, self);
+
     priv->thread = g_thread_try_new (
       "libwaei-search-thread",
       (GThreadFunc) lw_search_stream_results_thread, 
@@ -1001,7 +1133,11 @@ lw_search_cancel (LwSearch * self)
       g_thread_join (thread);
     }
 
-    lw_search_set_status (self, LW_SEARCHSTATUS_UNSTARTED);
+    // Double check if the cancel request was too late
+    if (priv->status == LW_SEARCHSTATUS_CANCELING)
+    {
+      lw_search_set_status (self, LW_SEARCHSTATUS_FINISHED);
+    }
 }
 
 
@@ -1039,19 +1175,24 @@ _search_parsed (LwParsed     * parsed,
                 LwSearch     * search)
 {
     //Declarations
+    LwSearchPrivate * priv = NULL;
     LwQueryNode * query_tree = NULL;
     LwProgress * progress = NULL;
     gdouble current = 0.0;
     
     //Initializations
+    priv = search->priv;
     query_tree = lw_search_get_query_tree (search);
     if (query_tree == NULL) goto errored;
 
     progress = lw_search_get_progress (search);
-    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (search);
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
     if (lw_querynode_match_parsedline (query_tree, line, NULL)) {
-      lw_results_append_line (search->priv->results, line);
+      g_mutex_lock (&priv->mutex);
+      priv->results_buffer = g_list_prepend (priv->results_buffer, line);
+      priv->total_results++;
+      g_mutex_unlock (&priv->mutex);
     }
 
     if (progress != NULL)
@@ -1067,12 +1208,10 @@ errored:
 
 
 static LwDictionaryCache *
-lw_search_ensure_dictionarycache (LwSearch *  self,
-                                  GError   ** error)
+lw_search_ensure_dictionarycache (LwSearch * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
-    if (error != NULL && *error != NULL) return NULL;
 
     //Declarations
     LwUtf8Flag flags = 0;
@@ -1084,10 +1223,12 @@ lw_search_ensure_dictionarycache (LwSearch *  self,
     flags = lw_search_build_utf8flags (self);
     progress = lw_search_get_progress (self);
     if (progress == NULL) goto errored;
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
     dictionary = lw_search_get_dictionary (self);
     if (dictionary == NULL) goto errored;
     cache = lw_dictionary_ensure_cache_by_utf8flags (dictionary, flags, progress);
     if (cache == NULL) goto errored;
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
 errored:
 

@@ -34,7 +34,10 @@ struct _LwSearchPrivate {
   GThread * thread;
   LwDictionary * dictionary;
   LwResults * results;
+  GList * results_buffer;
+  gsize total_results;
   LwProgress * progress;
+  guint watch_id;
 
   LwSearchFlag flags;
   gint max_results;
@@ -58,7 +61,7 @@ static void lw_search_set_query (LwSearch * self, const gchar * QUERY);
 static void lw_search_set_status (LwSearch * self, LwSearchStatus status);
 static void lw_search_set_progress (LwSearch * self, LwProgress * progress);
 
-static LwDictionaryCache * lw_search_ensure_dictionarycache (LwSearch * self, GError ** error);
+static LwDictionaryCache * lw_search_ensure_dictionarycache (LwSearch * self);
 static void lw_search_query_parsed (LwSearch * self, LwParsed * parsed);
 
 static void lw_search_set_query_tree (LwSearch * self, LwQueryNode * query_tree);
