@@ -11,6 +11,7 @@ typedef struct _LwDictionaryCacheTree LwDictionaryCacheTree;
 struct _LwDictionaryCacheTree {
   GTree * data;
   GTree * cleanup_data;
+  GMutex mutex;
   gint refs;
 };
 
@@ -26,6 +27,9 @@ LwDictionaryCache * lw_dictionarycachetree_lookup_by_utf8flags (LwDictionaryCach
 
 LwDictionaryCacheTree * lw_dictionarycachetree_ref (LwDictionaryCacheTree * self);
 void lw_dictionarycachetree_unref (LwDictionaryCacheTree * self);
+
+void lw_dictionarycachetree_lock (LwDictionaryCacheTree * self);
+void lw_dictionarycachetree_unlock (LwDictionaryCacheTree * self);
 
 G_END_DECLS
 

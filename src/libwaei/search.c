@@ -226,7 +226,10 @@ lw_search_finalize (GObject * object)
 
     lw_search_set_dictionary (self, NULL);
     lw_search_set_query (self, NULL);
+    lw_search_set_query_tree (self, NULL);
 
+    g_list_free (priv->results_buffer);
+    if (priv->dictionary_cache) g_object_unref (priv->dictionary_cache);
 
     G_OBJECT_CLASS (lw_search_parent_class)->finalize (object);
 }
@@ -243,7 +246,6 @@ lw_search_dispose (GObject *object)
     self = LW_SEARCH (object);
     priv = self->priv;
 
-    if (priv->watch_id != 0) g_source_remove (priv->watch_id);
     lw_search_cancel (self);
 
     G_OBJECT_CLASS (lw_search_parent_class)->dispose (object);
@@ -306,6 +308,7 @@ lw_search_class_init (LwSearchClass * klass)
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
     klass->priv = g_new0 (LwSearchClassPrivate, 1);
+    object_class->constructed = lw_search_constructed;
     object_class->set_property = lw_search_set_property;
     object_class->get_property = lw_search_get_property;
     object_class->dispose = lw_search_dispose;
@@ -708,6 +711,7 @@ lw_searchstatus_get_type ()
         { LW_SEARCHSTATUS_UNSTARTED, LW_SEARCHSTATUSNAME_UNSTARTED, LW_SEARCHSTATUSNICK_UNSTARTED },
         { LW_SEARCHSTATUS_SEARCHING, LW_SEARCHSTATUSNAME_SEARCHING, LW_SEARCHSTATUSNICK_SEARCHING },
         { LW_SEARCHSTATUS_CANCELING, LW_SEARCHSTATUSNAME_CANCELING, LW_SEARCHSTATUSNICK_CANCELING },
+        { LW_SEARCHSTATUS_CANCELLED, LW_SEARCHSTATUSNAME_CANCELLED, LW_SEARCHSTATUSNICK_CANCELLED },
         { LW_SEARCHSTATUS_FINISHED,  LW_SEARCHSTATUSNAME_FINISHED,  LW_SEARCHSTATUSNICK_FINISHED },
         { 0, NULL, NULL },
       };
@@ -867,6 +871,9 @@ lw_search_build_flags_from_preferences (LwPreferences * preferences)
 static gboolean
 lw_search_watch_timeout (LwSearch * self)
 {
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_SEARCH (self), FALSE);
+
     //Declarations
     LwSearchPrivate * priv = NULL;
     LwProgress * progress = NULL;
@@ -879,15 +886,22 @@ lw_search_watch_timeout (LwSearch * self)
 
     if (is_completed)
     {
-      while (priv->results_buffer != NULL)
+      if (priv->status = LW_SEARCHSTATUS_FINISHED)
       {
-        LwParsedLine * line = priv->results_buffer->data;
-        if (line != NULL) lw_results_append_line (priv->results, line);
-        priv->results_buffer = g_list_delete_link (priv->results_buffer, priv->results_buffer);
+        GList * link = priv->results_buffer;
+        LwResults * results = LW_RESULTS (self);
+        while (link != NULL)
+        {
+          LwParsedLine * line = LW_PARSEDLINE (link->data);
+          if (line != NULL) lw_results_append_line (results, line);
+          link = link->next;
+        }
       }
-    }
+      g_list_free (priv->results_buffer);
+      priv->results_buffer = NULL;
 
-    priv->watch_id = 0;
+      priv->watch_id = 0;
+    }
 
     return !is_completed;
 }
@@ -905,7 +919,6 @@ lw_search_stream_results_thread (LwSearch * self)
     LwDictionary *dictionary = NULL;
     LwSearchFlag flags = 0;
     LwParsed * parsed = NULL;
-    GError * error = NULL;
     LwDictionaryCache * cache = NULL;
 
     //Initializations
@@ -914,39 +927,40 @@ lw_search_stream_results_thread (LwSearch * self)
     dictionary = priv->dictionary;
     flags = priv->flags;
 
-    cache = lw_search_ensure_dictionarycache (self);
+    cache = priv->dictionary_cache = lw_search_ensure_dictionarycache (self);
     if (cache == NULL) goto errored;
-    if (error != NULL) goto errored;
+    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
     parsed = lw_dictionarycache_get_parsed (cache);
     if (parsed == NULL) goto errored;
 
     lw_search_query_parsed (self, parsed);
 
-    priv->status = LW_SEARCHSTATUS_FINISHED;
-
-    lw_progress_take_error (progress, error);
-    error = NULL;
-
 errored:
 
     if (lw_progress_errored (progress))
     {
-      priv->status = LW_SEARCHSTATUS_ERRORED;
       g_list_free (priv->results_buffer);
+      g_mutex_lock (&priv->mutex);
+      priv->status = LW_SEARCHSTATUS_ERRORED;
+      g_mutex_unlock (&priv->mutex);
     }
     else if (LW_SEARCHSTATUS_CANCELING)
     {
-      priv->status = LW_SEARCHSTATUS_UNSTARTED;
       g_list_free (priv->results_buffer);
+      g_mutex_lock (&priv->mutex);
+      priv->status = LW_SEARCHSTATUS_CANCELLED;
+      g_mutex_unlock (&priv->mutex);
     }
     else
     {
+      g_mutex_lock (&priv->mutex);
       priv->status = LW_SEARCHSTATUS_FINISHED;
+      g_mutex_unlock (&priv->mutex);
     }
 
     priv->thread = NULL;
 
-    if (cache != NULL) g_object_unref (cache);
+    lw_progress_set_completed (progress, TRUE);
 
     return NULL;
 }
@@ -1038,6 +1052,23 @@ lw_search_query_results (LwSearch * self)
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
 
+    //Declarations
+    LwSearchPrivate *priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    g_mutex_lock (&priv->mutex);
+    if (priv->status != LW_SEARCHSTATUS_UNSTARTED)
+    {
+      g_mutex_unlock (&priv->mutex);
+      goto errored;
+    }
+    priv->status = LW_SEARCHSTATUS_SEARCHING;
+    g_mutex_unlock (&priv->mutex);
+
+    priv->watch_id = g_timeout_add (100, (GSourceFunc) lw_search_watch_timeout, self);
+
     lw_search_stream_results_thread (self);
 
 errored:
@@ -1076,13 +1107,8 @@ lw_search_query_results_async (LwSearch *  self,
       g_mutex_unlock (&priv->mutex);
       goto errored;
     }
-
-    if (priv->thread != NULL)
-    {
-      g_thread_join (priv->thread);
-      priv->thread = NULL;
-    }
     priv->status = LW_SEARCHSTATUS_SEARCHING;
+    g_mutex_unlock (&priv->mutex);
 
     priv->watch_id = g_timeout_add (100, (GSourceFunc) lw_search_watch_timeout, self);
 
@@ -1124,19 +1150,18 @@ lw_search_cancel (LwSearch * self)
     priv = self->priv;
     thread = priv->thread;
 
+    if (priv->watch_id != 0) g_source_remove (priv->watch_id);
+
+    g_mutex_lock (&priv->mutex);
+    priv->status = LW_SEARCHSTATUS_CANCELING;
+    g_mutex_unlock (&priv->mutex);
+
     if (priv->progress != NULL) lw_progress_cancel (priv->progress);
-    lw_search_set_status (self, LW_SEARCHSTATUS_CANCELING);
 
     if (thread != NULL)
     {
       priv->thread = NULL;
       g_thread_join (thread);
-    }
-
-    // Double check if the cancel request was too late
-    if (priv->status == LW_SEARCHSTATUS_CANCELING)
-    {
-      lw_search_set_status (self, LW_SEARCHSTATUS_FINISHED);
     }
 }
 
@@ -1170,9 +1195,9 @@ lw_search_build_utf8flags (LwSearch * self)
 
 
 static gboolean
-_search_parsed (LwParsed     * parsed,
-                LwParsedLine * line,
-                LwSearch     * search)
+_query_parsed_line (LwParsed     * parsed,
+                     LwParsedLine * line,
+                     LwSearch     * search)
 {
     //Declarations
     LwSearchPrivate * priv = NULL;
@@ -1182,10 +1207,11 @@ _search_parsed (LwParsed     * parsed,
     
     //Initializations
     priv = search->priv;
-    query_tree = lw_search_get_query_tree (search);
+
+    query_tree = priv->query_tree;
     if (query_tree == NULL) goto errored;
 
-    progress = lw_search_get_progress (search);
+    progress = priv->progress;
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
     if (lw_querynode_match_parsedline (query_tree, line, NULL)) {
@@ -1263,7 +1289,7 @@ lw_search_query_parsed (LwSearch * self,
     lw_progress_set_total (progress, num_lines);
     lw_progress_set_current (progress, 0.0);
 
-    lw_parsed_foreach (parsed, (LwParsedForeachFunc) _search_parsed, self);
+    lw_parsed_foreach (parsed, (LwParsedForeachFunc) _query_parsed_line, self);
 
 errored:
 

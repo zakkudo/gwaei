@@ -10,6 +10,7 @@ typedef enum {
     PROP_INDEXED,
     PROP_DICTIONARY_NAME,
     PROP_DICTIONARY_TYPE,
+    PROP_PROGRESS,
     TOTAL_PROPS
 } Props;
 
@@ -20,6 +21,8 @@ struct _LwDictionaryCachePrivate {
   LwUtf8Flag flags;
   LwParsed *parsed;
   LwIndexed *indexed;
+  LwProgress * progress;
+  GMutex mutex;
 };
 
 struct _LwDictionaryCacheClassPrivate {
@@ -43,6 +46,9 @@ static void lw_dictionarycache_set_indexed (LwDictionaryCache *self, LwIndexed *
 
 static gchar* lw_dictionarycache_build_filename (LwDictionaryCache *self, gchar const *TYPE);
 static gchar* lw_dictionarycache_build_path (LwDictionaryCache *self, gchar const *TYPE);
+
+static void lw_dictionarycache_set_progress (LwDictionaryCache * self, LwProgress * progress);
+static void lw_dictionarycache_set_dictionary_type (LwDictionaryCache * self, GType dictionary_type);
 
 G_END_DECLS
 

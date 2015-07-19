@@ -557,7 +557,7 @@ lw_dictionary_get_contents_path (LwDictionary * self)
  * lw_dictionary_build_contents_path_by_type_and_name:
  * @type: A #GType that is a subtype of #LwDictionary
  * @FILENAME: (transfer none): The filename of the dictionary
- * Returns: (transfer full): The path of a theoretical dictioanry with this type and filename.  This string should be freed with g_free() when finished
+ * Returns: (transfer full): The path of a theoretical dictionary with this type and filename.  This string should be freed with g_free() when finished
  */
 gchar *
 lw_dictionary_build_contents_path_by_type_and_name (GType         type,
@@ -829,6 +829,98 @@ _dictionarycache_parse (LwCacheFile                 * cache_file,
 
 
 /**
+ * _insert_new_cache:
+ * Returns: The dictionary cache that was inserted or %NULL if it failed
+ */
+static LwDictionaryCache *
+_insert_new_cache (LwDictionary * self,
+                   LwUtf8Flag     flags,
+                   LwProgress   * progress)
+{
+    //Declarations
+    LwDictionaryPrivate * priv = NULL;
+    LwDictionaryCache * cache = NULL;
+    gchar const * FILENAME = NULL;
+    gsize content_length = 0;
+
+    //Initializations
+    priv = self->priv;
+
+    FILENAME = lw_dictionary_get_contents_filename (self);
+    if (FILENAME == NULL) goto errored;
+
+    cache = lw_dictionarycache_new (FILENAME, G_OBJECT_TYPE (self), flags);
+    if (cache == NULL) goto errored;
+
+    lw_dictionarycachetree_insert (priv->cachetree, cache);
+
+errored:
+
+    return cache;
+}
+
+
+/**
+ * _initialize_cache:
+ * Returns: %TRUE if the initialization was successful
+ */
+static gboolean
+_initialize_cache (LwDictionary      * self,
+                   LwDictionaryCache * cache,
+                   LwProgress        * progress)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
+
+    //Declarations
+    LwDictionaryCacheTree * cachetree = NULL;
+    gchar const * FILENAME = NULL;
+    LwMappedFile * contents_mapped_file = NULL;
+    struct _DictionaryCacheData data = {
+      .dictionary = self,
+      .progress = progress
+    };
+    gchar const * CHECKSUM = NULL;
+    gchar const * CONTENTS = NULL;
+    gsize content_length = 0;
+    gboolean cache_read_was_successful = FALSE;
+
+    contents_mapped_file = lw_dictionary_get_contents_mappedfile (self);
+    if (contents_mapped_file == NULL) goto errored;
+
+    CHECKSUM = lw_dictionary_get_contents_checksum (self);
+    if (CHECKSUM == NULL) goto errored;
+
+    CONTENTS = lw_dictionary_get_contents (self);
+    if (CONTENTS == NULL) goto errored;
+
+    content_length = lw_dictionary_contents_length (self);
+    if (content_length == 0) goto errored;
+
+    //Initializations
+
+    //Read the 
+
+    // First try reading ot see if anything is there
+    cache_read_was_successful = lw_dictionarycache_read (cache, CHECKSUM, progress);
+
+    // If that fails, write the data and then read it
+    if (!cache_read_was_successful)
+    {
+      if (progress != NULL) lw_progress_set_error (progress, NULL);
+      lw_dictionarycache_write (cache, CHECKSUM, CONTENTS, content_length, (LwDictionaryCacheParseFunc) _dictionarycache_parse, &data, progress);
+      LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
+      cache_read_was_successful = lw_dictionarycache_read (cache, CHECKSUM, progress);
+    }
+
+errored:
+
+    return cache_read_was_successful;
+}
+
+
+/**
  * lw_dictionary_ensure_cache_by_utf8flags:
  * @self: A #LwDictionary
  * @flags: The flags of the dictionary cache to search for, otherwise one will be built with these flags
@@ -845,68 +937,66 @@ lw_dictionary_ensure_cache_by_utf8flags (LwDictionary * self,
     LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Declarations
+    LwDictionaryPrivate * priv = NULL;
     LwDictionaryCacheTree * cachetree = NULL;
-    gchar const * FILENAME = NULL;
     LwDictionaryCache * cache = NULL;
-    LwMappedFile * contents_mapped_file = NULL;
-    struct _DictionaryCacheData data = {
-      .dictionary = self,
-      .progress = progress
-    };
-    gchar const * CHECKSUM = NULL;
-    gchar const * CONTENTS = NULL;
-    gsize content_length = 0;
-    gboolean cache_read_was_successful = FALSE;
+    gboolean is_locked = FALSE;
 
-    //Initializations
-    cachetree = lw_dictionary_get_cachetree (self);
-    if (cachetree == NULL) goto errored;
+    priv = self->priv;
+    cachetree = priv->cachetree;
 
-    cache = lw_dictionarycachetree_lookup_by_utf8flags (cachetree, flags);
-    if (cache != NULL) goto errored;
-
-    FILENAME = lw_dictionary_get_contents_filename (self);
-    if (FILENAME == NULL) goto errored;
-
-    contents_mapped_file = lw_dictionary_get_contents_mappedfile (self);
-    if (contents_mapped_file == NULL) goto errored;
-
-    CHECKSUM = lw_dictionary_get_contents_checksum (self);
-    if (CHECKSUM == NULL) goto errored;
-
-    CONTENTS = lw_dictionary_get_contents (self);
-    if (CONTENTS == NULL) goto errored;
-
-    content_length = lw_dictionary_contents_length (self);
-    if (content_length == 0) goto errored;
-
-    cache = lw_dictionarycache_new (FILENAME, G_OBJECT_TYPE (self), flags);
-    if (cache == NULL) goto errored;
-    
-    // First try reading ot see if anything is there
-    cache_read_was_successful = lw_dictionarycache_read (cache, CHECKSUM, progress);
-
-    // If that fails, write the data and then read it
-    if (!cache_read_was_successful)
+    while (cache == NULL)
     {
-      if (progress != NULL) lw_progress_set_error (progress, NULL);
-      lw_dictionarycache_write (cache, CHECKSUM, CONTENTS, content_length, (LwDictionaryCacheParseFunc) _dictionarycache_parse, &data, progress);
-      LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
-      cache_read_was_successful = lw_dictionarycache_read (cache, CHECKSUM, progress);
+      lw_dictionarycachetree_lock (cachetree); is_locked = TRUE;
+      cache = lw_dictionarycachetree_lookup_by_utf8flags (cachetree, flags);
+
+      // Cache isn't loaded.  This method will create it
+      if (cache == NULL)
+      {
+        cache = _insert_new_cache (self, flags, progress);
+        if (cache == NULL) goto errored;
+
+        lw_dictionarycache_lock (cache);
+        lw_dictionarycachetree_unlock (cachetree); is_locked = FALSE;
+
+        //Creation failed
+        if (!_initialize_cache (self, cache, progress))
+        {
+          //Remove the failed cache in a thread-safe way
+          lw_dictionarycachetree_lock (cachetree); is_locked = TRUE;
+          lw_dictionarycache_unlock (cache); //unlock the mutex before the object is freed
+          g_object_unref (cache);
+
+          cache = NULL;
+          lw_dictionarycachetree_unlock (cachetree); is_locked = FALSE;
+          goto errored;
+        }
+      }
+
+      // Cache is loaded, lets use it
+      else if (lw_dictionarycache_trylock (cache))
+      {
+        lw_dictionarycachetree_unlock (cachetree); is_locked = FALSE;
+        lw_dictionarycache_unlock (cache);
+      }
+
+      // A different method is loading the cache so we wait and see what happens on the next loop
+      else
+      {
+        LwProgress * dictionarycache_progress = lw_dictionarycache_get_progress (cache);
+        if (progress != NULL)
+        {
+          lw_progress_propogate (progress, dictionarycache_progress);
+        }
+        cache = NULL;
+        lw_dictionarycachetree_unlock (cachetree); is_locked = FALSE;
+        g_usleep (G_USEC_PER_SEC);
+      }
     }
-
-    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
-    if (!cache_read_was_successful) goto errored;
-
-    lw_dictionarycachetree_insert (cachetree, cache);
 
 errored:
 
-    if (!cache_read_was_successful)
-    {
-      if (cache != NULL) g_object_unref (cache);
-      cache = NULL;
-    }
+    if (is_locked) lw_dictionarycachetree_unlock (cachetree);
 
     return cache;
 }

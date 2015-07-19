@@ -31,16 +31,17 @@ struct _LwSearchPrivate {
   LwQueryNode * query_tree;
   LwSearchStatus status;                  //!< Used to test if a search is in progress.
   GMutex mutex;
-  GThread * thread;
   LwDictionary * dictionary;
-  LwResults * results;
-  GList * results_buffer;
   gsize total_results;
   LwProgress * progress;
-  guint watch_id;
 
   LwSearchFlag flags;
   gint max_results;
+
+  GThread * thread;
+  GList * results_buffer;
+  guint watch_id;
+  LwDictionaryCache * dictionary_cache;
 };
 
 struct _LwSearchClassPrivate {

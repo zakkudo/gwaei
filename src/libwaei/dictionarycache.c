@@ -101,6 +101,32 @@ lw_dictionarycache_init (LwDictionaryCache * self)
 
 
 static void 
+lw_dictionarycache_constructed (GObject *object)
+{
+    //Chain the parent class
+    {
+      G_OBJECT_CLASS (lw_dictionarycache_parent_class)->constructed (object);
+    }
+
+    //Declarations
+    LwDictionaryCache *self = NULL;
+    LwProgress * progress = NULL;
+
+    //Initializations
+    self = LW_DICTIONARYCACHE (object);
+
+    progress = lw_progress_new ();
+    if (progress == NULL) goto errored;
+    lw_dictionarycache_set_progress (self, progress);
+    g_object_unref (progress);
+
+errored:
+
+    return;
+}
+
+
+static void 
 lw_dictionarycache_set_property (GObject      * object,
                                  guint          property_id,
                                  const GValue * value,
@@ -124,6 +150,9 @@ lw_dictionarycache_set_property (GObject      * object,
         break;
       case PROP_DICTIONARY_TYPE:
         lw_dictionarycache_set_dictionary_type (self, g_value_get_gtype (value));
+        break;
+      case PROP_PROGRESS:
+        lw_dictionarycache_set_progress (self, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -162,6 +191,9 @@ lw_dictionarycache_get_property (GObject     * object,
         break;
       case PROP_DICTIONARY_TYPE:
         g_value_set_gtype (value, lw_dictionarycache_get_dictionary_type (self));
+        break;
+      case PROP_PROGRESS:
+        g_value_set_object (value, lw_dictionarycache_get_progress (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -216,6 +248,7 @@ lw_dictionarycache_class_init (LwDictionaryCacheClass * klass)
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
     klass->priv = g_new0 (LwDictionaryCacheClassPrivate, 1);
+    object_class->constructed = lw_dictionarycache_constructed;
     object_class->set_property = lw_dictionarycache_set_property;
     object_class->get_property = lw_dictionarycache_get_property;
     object_class->dispose = lw_dictionarycache_dispose;
@@ -270,6 +303,15 @@ lw_dictionarycache_class_init (LwDictionaryCacheClass * klass)
         G_PARAM_READABLE
     );
     g_object_class_install_property (object_class, PROP_PARSED, klasspriv->pspec[PROP_PARSED]);
+
+    klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
+        "progress",
+        gettext("Progress"),
+        gettext("Tracked progress for read/write operations"),
+        LW_TYPE_PROGRESS, 
+        G_PARAM_READABLE
+    );
+    g_object_class_install_property (object_class, PROP_PROGRESS, klasspriv->pspec[PROP_PROGRESS]);
 }
 
 
@@ -461,12 +503,15 @@ lw_dictionarycache_write (LwDictionaryCache          * self,
     LW_PROGRESS_RETURN_IF_SHOULD_ABORT (progress);
 
     //Declarations
+    LwDictionaryCachePrivate * priv = NULL;
     LwCacheFile *mapped_contents = NULL;
     LwParsed *parsed = NULL;
     LwIndexed *indexed = NULL;
     LwCacheFile *normalized_cachefile = NULL;
     LwCacheFile *parsed_cachefile = NULL;
     LwCacheFile *indexed_cachefile = NULL;
+
+    priv = self->priv;
 
     //Map the dictionary contents to a normalized file
     mapped_contents = _map_contents (self, CHECKSUM, CONTENTS, content_length, progress);
@@ -604,6 +649,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, FALSE);
 
     //Declarations
+    LwDictionaryCachePrivate * priv = NULL;
     LwCacheFile *normalized_cachefile = NULL;
     LwCacheFile *parsed_cachefile = NULL;
     LwCacheFile *indexed_cachefile = NULL;
@@ -612,6 +658,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     gboolean read_successful = FALSE;
 
     //Initializations
+    priv = self->priv;
     lw_dictionarycache_clear (self);
 
     //Load the dictionary file
@@ -655,6 +702,50 @@ errored:
 }
 
 
+static void
+lw_dictionarycache_set_progress (LwDictionaryCache * self,
+                                 LwProgress        * progress)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+
+    //Declarations
+    LwDictionaryCachePrivate * priv = NULL;
+    LwDictionaryCacheClass * klass = NULL;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_DICTIONARYCACHE_GET_CLASS (self);
+    if (priv->progress == progress) goto errored;
+
+    if (progress != NULL) g_object_ref (progress);
+    if (priv->progress != NULL) g_object_unref (priv->progress);
+    priv->progress = progress;
+
+    g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_PROGRESS]);
+
+errored:
+
+    return;
+}
+
+
+LwProgress *
+lw_dictionarycache_get_progress (LwDictionaryCache * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_PROGRESS (self), NULL);
+
+    //Declarations
+    LwDictionaryCachePrivate * priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return priv->progress;
+}
+
+
 GType
 lw_dictionarycache_get_dictionary_type (LwDictionaryCache * self)
 {
@@ -671,7 +762,7 @@ lw_dictionarycache_get_dictionary_type (LwDictionaryCache * self)
 }
 
 
-void
+static void
 lw_dictionarycache_set_dictionary_type (LwDictionaryCache * self,
                                         GType               dictionary_type)
 {
@@ -1163,4 +1254,24 @@ errored:
     if (stream != NULL) fclose(stream);
 
     return path;
+}
+
+
+gboolean
+lw_dictionarycache_trylock (LwDictionaryCache * self)
+{
+    return g_mutex_trylock (&self->priv->mutex);
+}
+
+void
+lw_dictionarycache_lock (LwDictionaryCache * self)
+{
+    g_mutex_lock (&self->priv->mutex);
+}
+
+
+void
+lw_dictionarycache_unlock (LwDictionaryCache * self)
+{
+    g_mutex_unlock (&self->priv->mutex);
 }

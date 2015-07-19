@@ -53,7 +53,12 @@ LwParsed * lw_dictionarycache_get_parsed (LwDictionaryCache * self);
 LwIndexed * lw_dictionarycache_get_indexed (LwDictionaryCache * self);
 
 GType lw_dictionarycache_get_dictionary_type (LwDictionaryCache * self);
-void lw_dictionarycache_set_dictionary_type (LwDictionaryCache * self, GType dictionary_type);
+
+LwProgress * lw_dictionarycache_get_progress (LwDictionaryCache * self);
+
+gboolean lw_dictionarycache_trylock (LwDictionaryCache * self);
+void lw_dictionarycache_lock (LwDictionaryCache * self);
+void lw_dictionarycache_unlock (LwDictionaryCache * self);
 
 G_END_DECLS
 

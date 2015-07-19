@@ -340,3 +340,17 @@ lw_dictionarycachetree_lookup_by_utf8flags (LwDictionaryCacheTree * self,
 
     return cache;
 }
+
+
+void
+lw_dictionarycachetree_lock (LwDictionaryCacheTree * self)
+{
+    g_mutex_lock (&self->mutex);
+}
+
+
+void
+lw_dictionarycachetree_unlock (LwDictionaryCacheTree * self)
+{
+    g_mutex_unlock (&self->mutex);
+}

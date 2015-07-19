@@ -203,6 +203,8 @@ void lw_progress_set_prefered_chunk_size (LwProgress *self, gsize prefered_chunk
 gsize lw_progress_get_chunk_size (LwProgress *self);
 void lw_progress_set_chunk_size (LwProgress *self, gsize chunk_size);
 
+void lw_progress_propogate (LwProgress * self, LwProgress * source);
+
 G_END_DECLS
 
 #endif

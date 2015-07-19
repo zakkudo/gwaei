@@ -59,14 +59,11 @@ dictionary (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     LwSearch * search = NULL;
-    GError * error = NULL;
+    LwResults * results = NULL;
 
     //Initializations
-    search = lw_search_new ("test", fixture->dictionary, 0, &error);
-    results = lw_search_query_results (self);
-
-    g_assert_null (error);
-
+    search = lw_search_new ("test", fixture->dictionary, 0);
+    results = lw_search_query_results (search);
 
     g_object_unref (search);
 }

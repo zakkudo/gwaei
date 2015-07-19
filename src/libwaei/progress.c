@@ -1738,3 +1738,27 @@ errored:
 
     return;
 }
+
+
+/**
+ * lw_progress_propogate:
+ * @self: A #LwProgress
+ * @source: A #LwProgress to copy progress information from
+ *
+ * Copies progress information from another #LwProgress and emits the changes
+ * as if they were it's own.
+ */
+void
+lw_progress_propogate (LwProgress * self, LwProgress * source)
+{
+    //Sanity checks
+    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_if_fail (LW_IS_PROGRESS (source));
+
+    lw_progress_set_total (self, lw_progress_get_total (source));
+    lw_progress_set_current (self, lw_progress_get_current (source));
+    lw_progress_set_error (self, lw_progress_get_error (source));
+    lw_progress_set_primary_message (self, lw_progress_get_primary_message (source));
+    lw_progress_set_secondary_message (self, lw_progress_get_secondary_message (source));
+    lw_progress_set_step_message (self, lw_progress_get_step_message (source));
+}
