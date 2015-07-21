@@ -52,6 +52,7 @@ static LwDictionaryColumnHandling lw_exampledictionary_get_column_handling (LwDi
 static gchar * lw_exampledictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_exampledictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
 static gint * lw_exampledictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
+static GType _columnid_type = 0;
 
 
 static void 
@@ -279,23 +280,22 @@ lw_exampledictionary_get_column_handling (LwDictionary *self,
 GType
 lw_exampledictionary_columnid_get_type ()
 {
-    static GType type = 0;
-
-    if (G_UNLIKELY (type == 0))
-    {
-      GEnumValue values[] = {
-        { LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE, LW_EXAMPLEDICTIONARYCOLUMNNAME_PHRASE, LW_EXAMPLEDICTIONARYCOLUMNNICK_PHRASE },
-        { LW_EXAMPLEDICTIONARYCOLUMNID_MEANING, LW_EXAMPLEDICTIONARYCOLUMNNAME_MEANING, LW_EXAMPLEDICTIONARYCOLUMNNICK_MEANING },
-        { LW_EXAMPLEDICTIONARYCOLUMNID_ID, LW_EXAMPLEDICTIONARYCOLUMNNAME_ID, LW_EXAMPLEDICTIONARYCOLUMNNICK_ID },
-        { 0, NULL, NULL },
-      };
-
-      type = g_enum_register_static ("LwExampleDictionaryColumnId", values);
-    }
-
-    return type;
+    return _columnid_type;
 }
 
+
+static void
+lw_exampledictionary_columnid_register_type (GTypeModule * module)
+{
+    GEnumValue values[] = {
+      { LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE, LW_EXAMPLEDICTIONARYCOLUMNNAME_PHRASE, LW_EXAMPLEDICTIONARYCOLUMNNICK_PHRASE },
+      { LW_EXAMPLEDICTIONARYCOLUMNID_MEANING, LW_EXAMPLEDICTIONARYCOLUMNNAME_MEANING, LW_EXAMPLEDICTIONARYCOLUMNNICK_MEANING },
+      { LW_EXAMPLEDICTIONARYCOLUMNID_ID, LW_EXAMPLEDICTIONARYCOLUMNNAME_ID, LW_EXAMPLEDICTIONARYCOLUMNNICK_ID },
+      { 0, NULL, NULL },
+    };
+
+    _columnid_type = g_enum_register_static ("LwExampleDictionaryColumnId", values);
+}
 
 /**
  * register_dictionary_module_type:
@@ -305,6 +305,7 @@ G_MODULE_EXPORT void
 register_dictionary_module_type (GTypeModule * module)
 {
   lw_exampledictionary_register_type (module);
+  lw_exampledictionary_columnid_register_type (module);
 }
 
 

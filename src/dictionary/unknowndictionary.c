@@ -53,6 +53,7 @@ static LwDictionaryColumnHandling lw_unknowndictionary_get_column_handling (LwDi
 static gchar * lw_unknowndictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_unknowndictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
 static gint * lw_unknowndictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
+static GType _columnid_type = 0;
 
 
 static void 
@@ -182,19 +183,24 @@ lw_unknowndictionary_get_column_handling (LwDictionary *self,
 GType
 lw_unknowndictionary_columnid_get_type ()
 {
-    static GType type = 0;
+    return _columnid_type;
+}
 
-    if (G_UNLIKELY (type == 0))
-    {
-      GEnumValue values[] = {
-        { LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN, LW_UNKNOWNDICTIONARYCOLUMNNAME_UNKNOWN, LW_UNKNOWNDICTIONARYCOLUMNNICK_UNKNOWN },
-        { 0, NULL, NULL },
-      };
 
-      type = g_enum_register_static ("LwUnknownDictionaryColumnId", values);
-    }
 
-    return type;
+/**
+ * lw_unknowndictionary_columnid_get_type:
+ * @Returns: The GType of the column id enumeration
+ */
+static void
+lw_unknowndictionary_columnid_register_type (GTypeModule * module)
+{
+    GEnumValue values[] = {
+      { LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN, LW_UNKNOWNDICTIONARYCOLUMNNAME_UNKNOWN, LW_UNKNOWNDICTIONARYCOLUMNNICK_UNKNOWN },
+      { 0, NULL, NULL },
+    };
+
+    _columnid_type = g_type_module_register_enum (module, "LwUnknownDictionaryColumnId", values);
 }
 
 
@@ -202,6 +208,7 @@ G_MODULE_EXPORT void
 register_dictionary_module_type (GTypeModule * module)
 {
   lw_unknowndictionary_register_type (module);
+  lw_unknowndictionary_columnid_register_type (module);
 }
 
 

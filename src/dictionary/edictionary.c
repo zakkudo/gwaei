@@ -52,6 +52,7 @@ static LwDictionaryColumnHandling lw_edictionary_get_column_handling (LwDictiona
 static gchar * lw_edictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_edictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
 static gint * lw_edictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
+static GType _columnid_type = 0;
 
 
 static void 
@@ -190,23 +191,23 @@ lw_edictionary_get_column_handling (LwDictionary *self,
 GType
 lw_edictionary_columnid_get_type ()
 {
-    static GType type = 0;
+    return _columnid_type;
+}
 
-    if (G_UNLIKELY (type == 0))
-    {
-      GEnumValue values[] = {
-        { LW_EDICTIONARYCOLUMNID_WORD, LW_EDICTIONARYCOLUMNNAME_WORD, LW_EDICTIONARYCOLUMNNICK_WORD },
-        { LW_EDICTIONARYCOLUMNID_READING, LW_EDICTIONARYCOLUMNNAME_READING, LW_EDICTIONARYCOLUMNNICK_READING },
-        { LW_EDICTIONARYCOLUMNID_DEFINITION, LW_EDICTIONARYCOLUMNNAME_DEFINITION, LW_EDICTIONARYCOLUMNNICK_DEFINITION },
-        { LW_EDICTIONARYCOLUMNID_CLASSIFICATION, LW_EDICTIONARYCOLUMNNAME_CLASSIFICATION, LW_EDICTIONARYCOLUMNNICK_CLASSIFICATION },
-        { LW_EDICTIONARYCOLUMNID_POPULAR, LW_EDICTIONARYCOLUMNNAME_POPULAR, LW_EDICTIONARYCOLUMNNICK_POPULAR },
-        { 0, NULL, NULL },
-      };
 
-      type = g_enum_register_static ("LwEDictionaryColumnId", values);
-    }
+static void
+lw_edictionary_columnid_register_type (GTypeModule * module)
+{
+    static GEnumValue values[] = {
+      { LW_EDICTIONARYCOLUMNID_WORD, LW_EDICTIONARYCOLUMNNAME_WORD, LW_EDICTIONARYCOLUMNNICK_WORD },
+      { LW_EDICTIONARYCOLUMNID_READING, LW_EDICTIONARYCOLUMNNAME_READING, LW_EDICTIONARYCOLUMNNICK_READING },
+      { LW_EDICTIONARYCOLUMNID_DEFINITION, LW_EDICTIONARYCOLUMNNAME_DEFINITION, LW_EDICTIONARYCOLUMNNICK_DEFINITION },
+      { LW_EDICTIONARYCOLUMNID_CLASSIFICATION, LW_EDICTIONARYCOLUMNNAME_CLASSIFICATION, LW_EDICTIONARYCOLUMNNICK_CLASSIFICATION },
+      { LW_EDICTIONARYCOLUMNID_POPULAR, LW_EDICTIONARYCOLUMNNAME_POPULAR, LW_EDICTIONARYCOLUMNNICK_POPULAR },
+      { 0, NULL, NULL },
+    };
 
-    return type;
+    _columnid_type = g_type_module_register_enum (module, "LwEDictitionaryColumnId", values);
 }
 
 
@@ -214,6 +215,7 @@ G_MODULE_EXPORT void
 register_dictionary_module_type (GTypeModule * module)
 {
   lw_edictionary_register_type (module);
+  lw_edictionary_columnid_register_type (module);
 }
 
 

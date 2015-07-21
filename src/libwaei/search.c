@@ -983,6 +983,7 @@ _calculate_columns_by_name (LwQueryNode  * self,
 
     //Initializations
     type = lw_dictionary_columnid_get_type (dictionary);
+    BREAK HERE
     klass = G_FLAGS_CLASS (G_OBJECT_GET_CLASS (type));
     value = g_flags_get_value_by_name (klass, self->key);
     if (value == NULL) goto errored;

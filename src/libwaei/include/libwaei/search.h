@@ -80,12 +80,12 @@ typedef struct _LwSearchClassPrivate LwSearchClassPrivate;
 
 
 struct _LwSearch {
-  GObject object;
+  LwResults object;
   LwSearchPrivate *priv;
 };
 
 struct _LwSearchClass {
-  GObjectClass parent_class;
+  LwResultsClass parent_class;
   LwSearchClassPrivate *priv;
 };
 

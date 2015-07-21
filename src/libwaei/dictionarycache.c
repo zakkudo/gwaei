@@ -707,7 +707,7 @@ lw_dictionarycache_set_progress (LwDictionaryCache * self,
                                  LwProgress        * progress)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
 
     //Declarations
     LwDictionaryCachePrivate * priv = NULL;

@@ -51,6 +51,7 @@ static LwDictionaryColumnHandling lw_radicalsdictionary_get_column_handling (LwD
 static gchar * lw_radicalsdictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_radicalsdictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
 static gint * lw_radicalsdictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
+static GType _columnid_type = 0;
 
 G_DEFINE_DYNAMIC_TYPE (LwRadicalsDictionary, lw_radicalsdictionary, LW_TYPE_DICTIONARY)
 
@@ -184,20 +185,24 @@ lw_radicalsdictionary_get_column_handling (LwDictionary *self,
 GType
 lw_radicalsdictionary_columnid_get_type ()
 {
-    static GType type = 0;
+    return _columnid_type;
+}
 
-    if (G_UNLIKELY (type == 0))
-    {
-      GEnumValue values[] = {
-        { LW_RADICALSDICTIONARYCOLUMNID_KANJI, LW_RADICALSDICTIONARYCOLUMNNAME_KANJI, LW_RADICALSDICTIONARYCOLUMNNICK_KANJI },
-        { LW_RADICALSDICTIONARYCOLUMNID_RADICALS, LW_RADICALSDICTIONARYCOLUMNNAME_RADICALS, LW_RADICALSDICTIONARYCOLUMNNICK_RADICALS },
-        { 0, NULL, NULL },
-      };
 
-      type = g_enum_register_static ("LwRadicalsDictionaryColumnId", values);
-    }
+/**
+ * lw_radicalsdictionary_columnid_get_type:
+ * @Returns: The GType of the column id enumeration
+ */
+static void
+lw_radicalsdictionary_columnid_register_type (GTypeModule * module)
+{
+    GEnumValue values[] = {
+      { LW_RADICALSDICTIONARYCOLUMNID_KANJI, LW_RADICALSDICTIONARYCOLUMNNAME_KANJI, LW_RADICALSDICTIONARYCOLUMNNICK_KANJI },
+      { LW_RADICALSDICTIONARYCOLUMNID_RADICALS, LW_RADICALSDICTIONARYCOLUMNNAME_RADICALS, LW_RADICALSDICTIONARYCOLUMNNICK_RADICALS },
+      { 0, NULL, NULL },
+    };
 
-    return type;
+    _columnid_type = g_type_module_register_enum (module, "LwRadicalsDictionaryColumnId", values);
 }
 
 
@@ -205,6 +210,7 @@ G_MODULE_EXPORT void
 register_dictionary_module_type (GTypeModule * module)
 {
   lw_radicalsdictionary_register_type (module);
+  lw_radicalsdictionary_columnid_register_type (module);
 }
 
 
