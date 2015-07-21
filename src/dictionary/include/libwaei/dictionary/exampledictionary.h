@@ -55,8 +55,8 @@ struct _LwExampleDictionaryClass {
 //Methods
 GType lw_exampledictionary_get_type (void);
 
-GType lw_exampledictionary_columnid_get_type (void);
-#define LW_TYPE_EXAMPLEDICTIONARYCOLUMNID (lw_exampledictionarycolumnid_get_type ())
+GType lw_exampledictionary_get_columnid_type (void);
+#define LW_TYPE_EXAMPLEDICTIONARYCOLUMNID (lw_exampledictionary_get_columnid_type ())
 
 G_END_DECLS
 

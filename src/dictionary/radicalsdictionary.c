@@ -117,7 +117,7 @@ lw_radicalsdictionary_class_init (LwRadicalsDictionaryClass *klass)
     dictionary_class->columnize_line = lw_radicalsdictionary_columnize_line;
     dictionary_class->load_columns = lw_radicalsdictionary_load_columns;
     dictionary_class->calculate_applicable_columns_for_text = lw_radicalsdictionary_calculate_applicable_columns_for_text;
-    dictionary_class->columnid_get_type = lw_radicalsdictionary_columnid_get_type;
+    dictionary_class->get_columnid_type = lw_radicalsdictionary_get_columnid_type;
 }
 
 
@@ -179,18 +179,18 @@ lw_radicalsdictionary_get_column_handling (LwDictionary *self,
 
 
 /**
- * lw_radicalsdictionary_columnid_get_type:
+ * lw_radicalsdictionary_get_columnid_type:
  * @Returns: The GType of the column id enumeration
  */
 GType
-lw_radicalsdictionary_columnid_get_type ()
+lw_radicalsdictionary_get_columnid_type ()
 {
     return _columnid_type;
 }
 
 
 /**
- * lw_radicalsdictionary_columnid_get_type:
+ * lw_radicalsdictionary_get_columnid_type:
  * @Returns: The GType of the column id enumeration
  */
 static void

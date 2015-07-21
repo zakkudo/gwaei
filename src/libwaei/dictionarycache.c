@@ -218,6 +218,8 @@ lw_dictionarycache_finalize (GObject * object)
     if (priv->parsed) g_object_unref (priv->parsed);
     if (priv->indexed) g_object_unref (priv->indexed);
 
+    lw_dictionarycache_set_progress (self, NULL);
+
     memset(priv, 0, sizeof(LwDictionaryCachePrivate));
 
     G_OBJECT_CLASS (lw_dictionarycache_parent_class)->finalize (object);

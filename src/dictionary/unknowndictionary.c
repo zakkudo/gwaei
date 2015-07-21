@@ -117,7 +117,7 @@ lw_unknowndictionary_class_init (LwUnknownDictionaryClass *klass)
     dictionary_class->columnize_line = lw_unknowndictionary_columnize_line;
     dictionary_class->load_columns = lw_unknowndictionary_load_columns;
     dictionary_class->calculate_applicable_columns_for_text = lw_unknowndictionary_calculate_applicable_columns_for_text;
-    dictionary_class->columnid_get_type = lw_unknowndictionary_columnid_get_type;
+    dictionary_class->get_columnid_type = lw_unknowndictionary_get_columnid_type;
 }
 
 
@@ -177,11 +177,11 @@ lw_unknowndictionary_get_column_handling (LwDictionary *self,
 
 
 /**
- * lw_unknowndictionary_columnid_get_type:
+ * lw_unknowndictionary_get_columnid_type:
  * @Returns: The GType of the column id enumeration
  */
 GType
-lw_unknowndictionary_columnid_get_type ()
+lw_unknowndictionary_get_columnid_type ()
 {
     return _columnid_type;
 }
@@ -189,7 +189,7 @@ lw_unknowndictionary_columnid_get_type ()
 
 
 /**
- * lw_unknowndictionary_columnid_get_type:
+ * lw_unknowndictionary_get_columnid_type:
  * @Returns: The GType of the column id enumeration
  */
 static void

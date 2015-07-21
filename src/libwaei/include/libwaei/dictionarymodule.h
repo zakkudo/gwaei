@@ -45,6 +45,8 @@ gchar const * lw_dictionarymodule_get_path (LwDictionaryModule * self);
 gchar const * lw_dictionarymodule_get_name (LwDictionaryModule * self);
 gchar ** lw_dictionarymodule_get_dictionarylib_searchpath (gchar const * SEARCHPATH_OVERRIDE);
 
+gboolean lw_dictionarymodule_symbol (LwDictionaryModule * self, gchar const * SYMBOL_NAME, gpointer * symbol);
+
 G_END_DECLS
 
 #endif

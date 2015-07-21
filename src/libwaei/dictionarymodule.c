@@ -511,6 +511,33 @@ lw_dictionarymodule_get_path (LwDictionaryModule * self)
 }
 
 
+/**
+ * lw_dictionarymodule_symbol:
+ * @self: A #LwDictionaryModule
+ * @symbol_name: (transfer none): The name of the symbol to lookup
+ * @symbol: A pointer to set the symbol
+ * Returns: %TRUE if the symbol was fetched
+ *
+ * Gets a symbol from the dictionary module
+ */
+gboolean
+lw_dictionarymodule_symbol (LwDictionaryModule * self,
+                            gchar const        * SYMBOL_NAME,
+                            gpointer           * symbol)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARYMODULE (self), FALSE);
+
+    //Declarations
+    LwDictionaryModulePrivate * priv = NULL;
+
+    //Initializations
+    priv = self->priv;
+
+    return g_module_symbol (priv->module, SYMBOL_NAME, symbol);
+}
+
+
 static gboolean 
 _is_valid_modulename (gchar const * MODULENAME)
 {

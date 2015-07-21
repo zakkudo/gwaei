@@ -49,7 +49,7 @@
  *     dictionary_class->columnize_line = lw_edictionary_columnize_line;
  *     dictionary_class->load_columns = lw_edictionary_load_columns;
  *     dictionary_class->calculate_applicable_columns_for_text = lw_edictionary_calculate_applicable_columns_for_text;
- *     dictionary_class->columnid_get_type = lw_edictionary_columnid_get_type;
+ *     dictionary_class->get_columnid_type = lw_edictionary_get_columnid_type;
  * }
  * ]|
  */
@@ -1521,13 +1521,13 @@ errored:
 
 
 /**
- * lw_dictionary_columnid_get_type:
+ * lw_dictionary_get_columnid_type:
  * @self: A #LwDictionary
  *
  * Returns: The columnid type from the implementor of this class.
  */
 GType
-lw_dictionary_columnid_get_type (LwDictionary * self)
+lw_dictionary_get_columnid_type (LwDictionary * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
@@ -1538,7 +1538,7 @@ lw_dictionary_columnid_get_type (LwDictionary * self)
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
-    type = klass->columnid_get_type ();
+    type = klass->get_columnid_type ();
 
 errored:
 

@@ -76,8 +76,8 @@ struct _LwKanjiDictionaryClass {
 //Methods
 GType lw_kanjidictionary_get_type (void);
 
-GType lw_kanjidictionary_columnid_get_type (void);
-#define LW_TYPE_KANJIDICTIONARYCOLUMNID (lw_kanjidictionarycolumnid_get_type ())
+GType lw_kanjidictionary_get_columnid_type (void);
+#define LW_TYPE_KANJIDICTIONARYCOLUMNID (lw_kanjidictionary_get_columnid_type ())
 
 
 G_END_DECLS

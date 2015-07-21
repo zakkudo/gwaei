@@ -47,8 +47,8 @@ struct _LwRadicalsDictionaryClass {
 //Methods
 GType lw_radicalsdictionary_get_type (void);
 
-GType lw_radicalsdictionary_columnid_get_type (void);
-#define LW_TYPE_RADICALSDICTIONARYCOLUMNID (lw_radicalsdictionarycolumnid_get_type ())
+GType lw_radicalsdictionary_get_columnid_type (void);
+#define LW_TYPE_RADICALSDICTIONARYCOLUMNID (lw_radicalsdictionary_get_columnid_type ())
 
 G_END_DECLS
 

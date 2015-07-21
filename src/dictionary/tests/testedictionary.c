@@ -208,6 +208,21 @@ get_column_handling_matches_known_values (Fixture * fixture, gconstpointer data)
 
 
 void
+columnid_get_type (Fixture * fixture, gconstpointer data)
+{
+    GType type = lw_dictionary_get_columnid_type (fixture->dictionary);
+    GType (* get_columnid_type) ();
+    g_assert_true (lw_dictionarymodule_symbol (LW_DICTIONARYMODULE (module), "lw_edictionary_get_columnid_type", (gpointer*) &get_columnid_type));
+    g_assert_cmpint (type, ==, get_columnid_type());
+    g_assert_true (g_type_is_a (type, G_TYPE_ENUM));
+    GEnumClass * klass = G_ENUM_CLASS (g_type_class_ref (type));
+    g_assert_cmpuint (klass->n_values, ==, TOTAL_LW_EDICTIONARYCOLUMNIDS);
+    g_type_class_unref (klass);
+
+}
+
+
+void
 calculate_applicable_columns_for_text_when_english (Fixture * fixture, gconstpointer data)
 {
   gint * columns = NULL;
@@ -400,6 +415,8 @@ main (gint argc, gchar *argv[])
     g_test_add ("/get_column_language/matches_known_values", Fixture, NULL, setup, get_column_language_matches_known_values, teardown);
 
     g_test_add ("/get_column_handling/matches_known_values", Fixture, NULL, setup, get_column_handling_matches_known_values, teardown);
+
+    g_test_add ("/columnid_get_type", Fixture, NULL, setup, columnid_get_type, teardown);
 
     g_test_add ("/calculate_applicable_columns_for_text/when_english", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_english, teardown);
     g_test_add ("/calculate_applicable_columns_for_text/when_kanji", Fixture, NULL, setup, calculate_applicable_columns_for_text_when_kanji, teardown);

@@ -41,8 +41,8 @@ typedef enum {
   TOTAL_LW_EDICTIONARYCOLUMNIDS
 } LwEdictionaryColumnId;
 
-GType lw_edictionary_columnid_get_type (void);
-#define LW_TYPE_EDICTIONARYCOLUMNID (lw_edictionarycolumnid_get_type ())
+GType lw_edictionary_get_columnid_type (void);
+#define LW_TYPE_EDICTIONARYCOLUMNID (lw_edictionary_get_columnid_type ())
 
 
 #define LW_TYPE_EDICTIONARY              (lw_edictionary_get_type())

@@ -44,8 +44,8 @@ struct _LwUnknownDictionaryClass {
 //Methods
 GType lw_unknowndictionary_get_type (void);
 
-GType lw_unknowndictionary_columnid_get_type (void);
-#define LW_TYPE_UNKNOWNDICTIONARYCOLUMNID (lw_unknowndictionarycolumnid_get_type ())
+GType lw_unknowndictionary_get_columnid_type (void);
+#define LW_TYPE_UNKNOWNDICTIONARYCOLUMNID (lw_unknowndictionary_get_columnid_type ())
 
 G_END_DECLS
 

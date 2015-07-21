@@ -116,7 +116,7 @@ lw_kanjidictionary_class_init (LwKanjiDictionaryClass *klass)
     dictionary_class->columnize_line = lw_kanjidictionary_columnize_line;
     dictionary_class->load_columns = lw_kanjidictionary_load_columns;
     dictionary_class->calculate_applicable_columns_for_text = lw_kanjidictionary_calculate_applicable_columns_for_text;
-    dictionary_class->columnid_get_type = lw_kanjidictionary_columnid_get_type;
+    dictionary_class->get_columnid_type = lw_kanjidictionary_get_columnid_type;
 }
 
 
@@ -192,18 +192,18 @@ lw_kanjidictionary_get_column_handling (LwDictionary *self,
 
 
 /**
- * lw_exampledictionary_columnid_get_type:
+ * lw_exampledictionary_get_columnid_type:
  * @Returns: The GType of the column id enumeration
  */
 GType
-lw_kanjidictionary_columnid_get_type ()
+lw_kanjidictionary_get_columnid_type ()
 {
     return _columnid_type;
 }
 
 
 /**
- * lw_kanjidictionary_columnid_get_type:
+ * lw_kanjidictionary_get_columnid_type:
  * @Returns: The GType of the column id enumeration
  */
 static void
