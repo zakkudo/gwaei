@@ -196,7 +196,7 @@ lw_radicalsdictionary_get_columnid_type ()
 static void
 lw_radicalsdictionary_columnid_register_type (GTypeModule * module)
 {
-    GEnumValue values[] = {
+    GEnumValue static values[] = {
       { LW_RADICALSDICTIONARYCOLUMNID_KANJI, LW_RADICALSDICTIONARYCOLUMNNAME_KANJI, LW_RADICALSDICTIONARYCOLUMNNICK_KANJI },
       { LW_RADICALSDICTIONARYCOLUMNID_RADICALS, LW_RADICALSDICTIONARYCOLUMNNAME_RADICALS, LW_RADICALSDICTIONARYCOLUMNNICK_RADICALS },
       { 0, NULL, NULL },

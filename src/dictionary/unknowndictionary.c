@@ -195,7 +195,7 @@ lw_unknowndictionary_get_columnid_type ()
 static void
 lw_unknowndictionary_columnid_register_type (GTypeModule * module)
 {
-    GEnumValue values[] = {
+    GEnumValue static values[] = {
       { LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN, LW_UNKNOWNDICTIONARYCOLUMNNAME_UNKNOWN, LW_UNKNOWNDICTIONARYCOLUMNNICK_UNKNOWN },
       { 0, NULL, NULL },
     };

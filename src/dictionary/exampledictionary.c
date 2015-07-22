@@ -287,14 +287,15 @@ lw_exampledictionary_get_columnid_type ()
 static void
 lw_exampledictionary_columnid_register_type (GTypeModule * module)
 {
-    GEnumValue values[] = {
+    GEnumValue static values[] = {
       { LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE, LW_EXAMPLEDICTIONARYCOLUMNNAME_PHRASE, LW_EXAMPLEDICTIONARYCOLUMNNICK_PHRASE },
+      { LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE_WITH_READINGS, LW_EXAMPLEDICTIONARYCOLUMNNAME_PHRASE_WITH_READINGS, LW_EXAMPLEDICTIONARYCOLUMNNICK_PHRASE_WITH_READINGS },
       { LW_EXAMPLEDICTIONARYCOLUMNID_MEANING, LW_EXAMPLEDICTIONARYCOLUMNNAME_MEANING, LW_EXAMPLEDICTIONARYCOLUMNNICK_MEANING },
       { LW_EXAMPLEDICTIONARYCOLUMNID_ID, LW_EXAMPLEDICTIONARYCOLUMNNAME_ID, LW_EXAMPLEDICTIONARYCOLUMNNICK_ID },
       { 0, NULL, NULL },
     };
 
-    _columnid_type = g_enum_register_static ("LwExampleDictionaryColumnId", values);
+    _columnid_type = g_type_module_register_enum (module, "LwExampleDictionaryColumnId", values);
 }
 
 /**

@@ -218,7 +218,6 @@ columnid_get_type (Fixture * fixture, gconstpointer data)
     GEnumClass * klass = G_ENUM_CLASS (g_type_class_ref (type));
     g_assert_cmpuint (klass->n_values, ==, TOTAL_LW_EDICTIONARYCOLUMNIDS);
     g_type_class_unref (klass);
-
 }
 
 
