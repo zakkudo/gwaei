@@ -939,26 +939,26 @@ lw_search_stream_results_thread (LwSearch * self)
 
 errored:
 
+    g_mutex_lock (&priv->mutex);
+
     if (lw_progress_errored (progress))
     {
       g_list_free (priv->results_buffer);
-      g_mutex_lock (&priv->mutex);
+      priv->results_buffer = NULL;
       priv->status = LW_SEARCHSTATUS_ERRORED;
-      g_mutex_unlock (&priv->mutex);
     }
-    else if (LW_SEARCHSTATUS_CANCELING)
+    else if (priv->status == LW_SEARCHSTATUS_CANCELING)
     {
       g_list_free (priv->results_buffer);
-      g_mutex_lock (&priv->mutex);
+      priv->results_buffer = NULL;
       priv->status = LW_SEARCHSTATUS_CANCELLED;
-      g_mutex_unlock (&priv->mutex);
     }
     else
     {
-      g_mutex_lock (&priv->mutex);
       priv->status = LW_SEARCHSTATUS_FINISHED;
-      g_mutex_unlock (&priv->mutex);
     }
+
+    g_mutex_unlock (&priv->mutex);
 
     priv->thread = NULL;
 
@@ -1077,9 +1077,9 @@ lw_search_query_results (LwSearch * self)
     priv->status = LW_SEARCHSTATUS_SEARCHING;
     g_mutex_unlock (&priv->mutex);
 
-    priv->watch_id = g_timeout_add (100, (GSourceFunc) lw_search_watch_timeout, self);
-
     lw_search_stream_results_thread (self);
+    lw_search_watch_timeout (self);
+
 
 errored:
 
@@ -1206,8 +1206,8 @@ lw_search_build_utf8flags (LwSearch * self)
 
 static gboolean
 _query_parsed_line (LwParsed     * parsed,
-                     LwParsedLine * line,
-                     LwSearch     * search)
+                    LwParsedLine * line,
+                    LwSearch     * search)
 {
     //Declarations
     LwSearchPrivate * priv = NULL;

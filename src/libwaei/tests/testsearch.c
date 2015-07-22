@@ -62,7 +62,7 @@ dictionary (Fixture *fixture, gconstpointer data)
     LwResults * results = NULL;
 
     //Initializations
-    search = lw_search_new ("test", fixture->dictionary, 0);
+    search = lw_search_new ("decimal", fixture->dictionary, 0);
     results = lw_search_query_results (search);
 
     g_object_unref (search);
