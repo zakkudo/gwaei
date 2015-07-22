@@ -227,6 +227,7 @@ lw_search_finalize (GObject * object)
     lw_search_set_dictionary (self, NULL);
     lw_search_set_query (self, NULL);
     lw_search_set_query_tree (self, NULL);
+    lw_search_set_progress (self, NULL);
 
     g_list_free (priv->results_buffer);
     if (priv->dictionary_cache) g_object_unref (priv->dictionary_cache);
@@ -554,7 +555,7 @@ lw_search_set_dictionary (LwSearch     * self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
-    g_return_if_fail (dictionary != NULL && LW_IS_DICTIONARY (dictionary));
+    g_return_if_fail (dictionary == NULL || LW_IS_DICTIONARY (dictionary));
 
     //Declarations
     LwSearchPrivate * priv = NULL;
@@ -973,24 +974,32 @@ _calculate_columns_by_name (LwQueryNode  * self,
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
     g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
+    if (self->key == NULL) return NULL;
 
     //Declarations
-    GFlagsValue * value = NULL;
+    GEnumValue * value = NULL;
     GType type = G_TYPE_NONE;
-    GFlagsClass * klass = NULL;
+    GEnumClass * klass = NULL;
     gint column = -1;
     gint * columns = NULL;
 
     //Initializations
     type = lw_dictionary_get_columnid_type (dictionary);
-    klass = G_FLAGS_CLASS (G_OBJECT_GET_CLASS (type));
-    value = g_flags_get_value_by_name (klass, self->key);
+    if (type == G_TYPE_INVALID || type == G_TYPE_NONE) goto errored;
+
+    klass = G_ENUM_CLASS (g_type_class_ref (type));
+    if (klass == NULL) goto errored;
+
+    value = g_enum_get_value_by_name (klass, self->key);
     if (value == NULL) goto errored;
+
     column = value->value;
     columns = g_new0 (gint, 2);
     if (columns == NULL) goto errored;
     columns[0] = column;
     columns[1] = -1;
+
+    g_type_class_unref (klass);
 
 errored:
 

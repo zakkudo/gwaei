@@ -859,6 +859,7 @@ lw_querynode_free (LwQueryNode *self)
 
     g_free (self->data);
     g_free (self->key);
+    g_free (self->columns);
     if (self->regex != NULL) g_regex_unref (self->regex);
     g_list_free_full (self->children, (GDestroyNotify) lw_querynode_free);
     
