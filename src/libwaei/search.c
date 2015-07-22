@@ -290,6 +290,7 @@ lw_search_constructed (GObject *object)
     LW_PROGRESS_TAKE_ERROR (progress, error);
 
     if (lw_querynode_walk (root, (LwQueryNodeWalkFunc) _apply_search_columns_to_query, self)) goto errored;
+    lw_search_set_query_tree (self, root);
     
 errored:
 
@@ -495,8 +496,8 @@ lw_search_set_query_tree (LwSearch    * self,
     klass = LW_SEARCH_GET_CLASS (self);
     if (priv->query_tree == query_tree) goto errored;
 
-    lw_querynode_ref (query_tree);
-    lw_querynode_unref (priv->query_tree);
+    if (query_tree != NULL) lw_querynode_ref (query_tree);
+    if (priv->query_tree != NULL) lw_querynode_unref (priv->query_tree);
     priv->query_tree = query_tree;
 
     g_object_notify_by_pspec (G_OBJECT (self), klass->priv->pspec[PROP_QUERY_TREE]);
@@ -606,7 +607,7 @@ lw_search_set_progress (LwSearch   * self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_SEARCH (self));
-    g_return_if_fail (progress != NULL && LW_IS_PROGRESS (progress));
+    g_return_if_fail (progress == NULL || LW_IS_PROGRESS (progress));
 
     //Declarations
     LwSearchPrivate *priv = NULL;

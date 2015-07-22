@@ -38,7 +38,7 @@ void setup (Fixture *fixture, gconstpointer data)
     fixture->steps = g_array_sized_new (FALSE, TRUE, sizeof(gint), 20);
 
     GType type = g_type_from_name ("LwEDictionary");
-    fixture->dictionary = lw_dictionary_new (type, TESTDICTIONARYDATADIR "edictionary.data");
+    fixture->dictionary = lw_dictionary_new (type, TESTDICTIONARYDATADIR G_DIR_SEPARATOR_S "edictionary.data");
 }
 
 void teardown (Fixture *fixture, gconstpointer data)
