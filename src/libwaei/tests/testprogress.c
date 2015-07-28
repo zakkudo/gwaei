@@ -816,6 +816,61 @@ set_chunk_when_prefered_chunk_is_unset (Fixture       * fixture,
 }
 
 
+void
+propogate_with_no_errors (Fixture      * fixture,
+                          gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+    LwProgress * other = lw_progress_new ();
+
+    lw_progress_set_total (progress, 10);
+    lw_progress_set_current (progress, 1);
+    lw_progress_set_primary_message (progress, "test primary message");
+    lw_progress_set_secondary_message (progress, "test secondary message");
+    lw_progress_set_step_message (progress, "test step message");
+
+    lw_progress_propogate (progress, other);
+
+    g_assert_cmpint (lw_progress_get_total (other), ==, 10);
+    g_assert_cmpint (lw_progress_get_current (other), ==, 1);
+    g_assert_no_error (lw_progress_get_error (other));
+    g_assert_cmpstr (lw_progress_get_primary_message (other), ==, "test primary message");
+    g_assert_cmpstr (lw_progress_get_secondary_message (other), ==, "test secondary message");
+    g_assert_cmpstr (lw_progress_get_step_message (other), ==, "test step message");
+}
+
+
+void
+propogate_with_error (Fixture      * fixture,
+                      gconstpointer   data)
+{
+    //Arrange
+    LwProgress * progress = fixture->progress;
+    LwProgress * other = lw_progress_new ();
+    GError * error = g_error_new (G_FILE_ERROR, 0, "test error message");
+
+    lw_progress_set_total (progress, 10);
+    lw_progress_set_current (progress, 1);
+    lw_progress_set_error (progress, error);
+    lw_progress_set_primary_message (progress, "test primary message");
+    lw_progress_set_secondary_message (progress, "test secondary message");
+    lw_progress_set_step_message (progress, "test step message");
+
+    lw_progress_propogate (progress, other);
+
+    g_assert_cmpint (lw_progress_get_total (other), ==, 10);
+    g_assert_cmpint (lw_progress_get_current (other), ==, 1);
+    g_assert_error (lw_progress_get_error (other), G_FILE_ERROR, 0);
+    g_assert_cmpstr (lw_progress_get_primary_message (other), ==, "test primary message");
+    g_assert_cmpstr (lw_progress_get_secondary_message (other), ==, "test secondary message");
+    g_assert_cmpstr (lw_progress_get_step_message (other), ==, "test step message");
+
+    g_object_unref (other);
+    g_error_free (error);
+}
+
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -868,6 +923,9 @@ main (gint argc, gchar *argv[])
 
     g_test_add ("/set_chunk_size/when_prefered_chunk_is_set", Fixture, NULL, setup, set_chunk_when_prefered_chunk_is_set, teardown);
     g_test_add ("/set_chunk_size/when_prefered_chunk_is_unset", Fixture, NULL, setup, set_chunk_when_prefered_chunk_is_unset, teardown);
+
+    g_test_add ("/propogate/with_no_errors", Fixture, NULL, setup, propogate_with_no_errors, teardown);
+    g_test_add ("/propogate/with_error", Fixture, NULL, setup, propogate_with_error, teardown);
 
     return g_test_run();
 }
