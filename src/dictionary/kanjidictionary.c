@@ -47,7 +47,7 @@
 G_DEFINE_DYNAMIC_TYPE (LwKanjiDictionary, lw_kanjidictionary, LW_TYPE_DICTIONARY)
 
 static gint lw_kanjidictionary_get_total_columns (LwDictionary *self);
-static gchar const * lw_kanjidictionary_get_column_language (LwDictionary *self, gint column_num);
+static GQuark lw_kanjidictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_kanjidictionary_get_column_handling (LwDictionary *self, gint column_num);
 static gchar * lw_kanjidictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **columns, gsize *num_columns);
 static void lw_kanjidictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
@@ -131,7 +131,7 @@ lw_kanjidictionary_get_total_columns (LwDictionary *self)
 
 
 
-static gchar const *
+static GQuark
 lw_kanjidictionary_get_column_language (LwDictionary *self,
                                     gint          column_num)
 {
@@ -141,20 +141,20 @@ lw_kanjidictionary_get_column_language (LwDictionary *self,
     g_return_val_if_fail (column_num < TOTAL_LW_KANJIDICTIONARYCOLUMNIDS, 0);
 
     static gboolean initialized = FALSE;
-    static gchar const * column_languages[TOTAL_LW_KANJIDICTIONARYCOLUMNIDS] = {0};
+    static GQuark column_languages[TOTAL_LW_KANJIDICTIONARYCOLUMNIDS] = {0};
 
     if (G_UNLIKELY (initialized == FALSE))
     {
       initialized = TRUE;
-      column_languages[LW_KANJIDICTIONARYCOLUMNID_KANJI] = "ja";
-      column_languages[LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL] = "symbol";
-      column_languages[LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY] = "number";
-      column_languages[LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT] = "number";
-      column_languages[LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL] = "number";
-      column_languages[LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL] = "number";
-      column_languages[LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS] = "ja";
-      column_languages[LW_KANJIDICTIONARYCOLUMNID_ON_READINGS] = "ja";
-      column_languages[LW_KANJIDICTIONARYCOLUMNID_MEANINGS] = "en";
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_KANJI] = g_quark_from_string ("ja");
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL] = g_quark_from_string ("symbol");
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY] = g_quark_from_string ("number");
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT] = g_quark_from_string ("number");
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL] = g_quark_from_string ("number");
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL] = g_quark_from_string ("number");
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS] = g_quark_from_string ("ja");
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_ON_READINGS] = g_quark_from_string ("ja");
+      column_languages[LW_KANJIDICTIONARYCOLUMNID_MEANINGS] = g_quark_from_string ("en");
     }
 
     return column_languages[column_num];

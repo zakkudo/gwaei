@@ -48,7 +48,7 @@
 G_DEFINE_DYNAMIC_TYPE (LwUnknownDictionary, lw_unknowndictionary, LW_TYPE_DICTIONARY)
 
 static gint lw_unknowndictionary_get_total_columns (LwDictionary *self);
-static gchar const * lw_unknowndictionary_get_column_language (LwDictionary *self, gint column_num);
+static GQuark lw_unknowndictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_unknowndictionary_get_column_handling (LwDictionary *self, gint column_num);
 static gchar * lw_unknowndictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_unknowndictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
@@ -132,7 +132,7 @@ lw_unknowndictionary_get_total_columns (LwDictionary *self)
 
 
 
-static gchar const *
+static GQuark
 lw_unknowndictionary_get_column_language (LwDictionary *self,
                                           gint          column_num)
 {
@@ -142,12 +142,12 @@ lw_unknowndictionary_get_column_language (LwDictionary *self,
     g_return_val_if_fail (column_num < TOTAL_LW_UNKNOWNDICTIONARYCOLUMNIDS, 0);
 
     static gboolean initialized = FALSE;
-    static gchar const * column_languages[TOTAL_LW_UNKNOWNDICTIONARYCOLUMNIDS] = {0};
+    static GQuark column_languages[TOTAL_LW_UNKNOWNDICTIONARYCOLUMNIDS] = {0};
 
     if (G_UNLIKELY (initialized == FALSE))
     {
       initialized = TRUE;
-      column_languages[LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN] = "unknown";
+      column_languages[LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN] = g_quark_from_string ("unknown");
     }
 
     return column_languages[column_num];

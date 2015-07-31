@@ -48,7 +48,7 @@ struct _LwDictionaryClass {
   //Virtual methods
   gsize (* count_lines) (gchar * buffer, gsize buffer_length, gsize * max_line_length, LwProgress * progress);
   gint (* get_total_columns) (LwDictionary * self);
-  gchar const * (* get_column_language) (LwDictionary * self, gint column_num);
+  GQuark (* get_column_language) (LwDictionary * self, gint column_num);
   LwDictionaryColumnHandling (* get_column_handling) (LwDictionary * self, gint column_num);
   gchar* (* columnize_line) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
   void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
@@ -88,7 +88,7 @@ gchar const * lw_dictionary_get_contents_checksum (LwDictionary * self);
 gchar const * lw_dictionary_get_contents (LwDictionary * self);
 
 gint lw_dictionary_total_columns (LwDictionary * self);
-gchar const * lw_dictionary_get_column_language (LwDictionary * self, gint column_num);
+GQuark lw_dictionary_get_column_language (LwDictionary * self, gint column_num);
 LwDictionaryColumnHandling lw_dictionary_get_column_handling (LwDictionary * self, gint column_num);
 
 gchar const* lw_dictionary_get_id (LwDictionary * self);

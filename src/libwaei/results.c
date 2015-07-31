@@ -380,34 +380,61 @@ lw_results_get_sequence (LwResults * self)
 }
 
 
+static LwResultsIter *
+lw_results_append_result (LwResults * self,
+                          LwResult  * result)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_RESULTS (self), NULL);
+    g_return_val_if_fail (result != NULL, NULL);
+    g_return_val_if_fail (result->index == 0, NULL);
+
+    //Declarations
+    LwResultsPrivate * priv = NULL;
+    LwResultsClass * klass = NULL;
+    LwResultsIter * iter = NULL;
+    gint position = 0;
+
+    //Initializations
+    priv = self->priv;
+    klass = LW_RESULTS_GET_CLASS (self);
+    iter = g_sequence_append (priv->sequence, result);
+    position = g_sequence_iter_get_position (iter);
+    result->index = position;
+
+    g_signal_emit (G_OBJECT (self), klass->priv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, position);
+    g_signal_emit (G_OBJECT (self), klass->priv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, position);
+
+    return iter;
+}
+
+
 /**
- * lw_results_append_line:
+ * lw_results_append_parsedline:
  * @self: A #LwResults
  * @line: (transfer none): A #LwParsedLine to append
  * Returns: (transfer none): An iterator representing where the line was inserted
  */
 LwResultsIter *
-lw_results_append_line (LwResults    * self,
-                        LwParsedLine * line)
+lw_results_append_parsedline (LwResults    * self,
+                              LwParsedLine * line)
 {
-  //Sanity checks
-  g_return_val_if_fail (LW_IS_RESULTS (self), NULL);
-  g_return_val_if_fail (line != NULL, NULL);
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_RESULTS (self), NULL);
+    g_return_val_if_fail (line != NULL, NULL);
 
-  //Declarations
-  LwResultsPrivate * priv = NULL;
-  LwResultsClass * klass = NULL;
-  LwResultsIter * iter = NULL;
-  gint position = 0;
+    //Declarations
+    LwResult * result = NULL;
+    LwResultsIter * iter = NULL;
 
-  //Initializations
-  priv = self->priv;
-  klass = LW_RESULTS_GET_CLASS (self);
-  iter = g_sequence_append (priv->sequence, line);
-  position = g_sequence_iter_get_position (iter);
+    //Initializations
+    result = lw_result_new (line);
+    if (result == NULL) goto errored;
+    iter = lw_results_append_result (self, result);
+    if (iter == NULL) goto errored;
 
-  g_signal_emit (G_OBJECT (self), klass->priv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, position);
+errored:
 
-  return iter;
+    return iter;
 }
 

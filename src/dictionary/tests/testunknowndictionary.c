@@ -192,7 +192,7 @@ get_total_columns (Fixture * fixture, gconstpointer data)
 void
 get_column_language_matches_known_values (Fixture * fixture, gconstpointer data)
 {
-    g_assert_cmpstr ("unknown", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN));
+    g_assert_cmpint (g_quark_from_string ("unknown"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_UNKNOWNDICTIONARYCOLUMNID_UNKNOWN));
 }
 
 

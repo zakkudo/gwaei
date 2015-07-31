@@ -192,15 +192,15 @@ get_total_columns (Fixture * fixture, gconstpointer data)
 void
 get_column_language_matches_known_values (Fixture * fixture, gconstpointer data)
 {
-    g_assert_cmpstr ("ja", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_KANJI));
-    g_assert_cmpstr ("symbol", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL));
-    g_assert_cmpstr ("number", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY));
-    g_assert_cmpstr ("number", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT));
-    g_assert_cmpstr ("number", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL));
-    g_assert_cmpstr ("number", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL));
-    g_assert_cmpstr ("ja", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS));
-    g_assert_cmpstr ("ja", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_ON_READINGS));
-    g_assert_cmpstr ("en", ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_MEANINGS));
+    g_assert_cmpint (g_quark_from_string ("ja"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_KANJI));
+    g_assert_cmpint (g_quark_from_string ("symbol"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL));
+    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY));
+    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT));
+    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL));
+    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL));
+    g_assert_cmpint (g_quark_from_string ("ja"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS));
+    g_assert_cmpint (g_quark_from_string ("ja"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_ON_READINGS));
+    g_assert_cmpint (g_quark_from_string ("en"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_MEANINGS));
 }
 
 

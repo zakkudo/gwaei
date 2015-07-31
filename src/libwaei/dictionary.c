@@ -359,9 +359,9 @@ lw_dictionary_total_columns (LwDictionary * self)
  * lw_dictionary_get_column_language:
  * @self: A #LwDictionary
  * @column_num: The column to query it's language
- * Returns: (transfer none): The language of the column as a string.  This string is owned by the dictionary, so it should not be modified or freed.
+ * Returns: (transfer none): The language of the column as a #GQuark.  This #GQuark is owned by the dictionary, so it should not be modified or freed.
  */
-gchar const *
+GQuark
 lw_dictionary_get_column_language (LwDictionary * self,
                                    gint           column_num)
 {
@@ -372,7 +372,7 @@ lw_dictionary_get_column_language (LwDictionary * self,
     //Declarations
     LwDictionaryClass *klass = NULL;
     gint total_columns = 0;
-    gchar const *language = NULL;
+    GQuark language = NULL;
 
     //Initializations
     klass = LW_DICTIONARY_GET_CLASS (self);
@@ -1445,7 +1445,7 @@ lw_dictionary_parse (LwDictionary * self,
         lw_parsedline_init_full (line, (GDestroyNotify) g_free);
         n = lw_dictionary_columnize_line (self, c, tokens, &num_tokens);
         lw_dictionary_load_columns (self, c, tokens, num_tokens, line);
-        
+
         bytes_read = n - c;
         chunk += bytes_read;
         current += bytes_read;

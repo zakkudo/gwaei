@@ -47,7 +47,7 @@
 G_DEFINE_DYNAMIC_TYPE (LwExampleDictionary, lw_exampledictionary, LW_TYPE_DICTIONARY)
 
 static gint lw_exampledictionary_get_total_columns (LwDictionary *self);
-static gchar const * lw_exampledictionary_get_column_language (LwDictionary *self, gint column_num);
+static GQuark lw_exampledictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_exampledictionary_get_column_handling (LwDictionary *self, gint column_num);
 static gchar * lw_exampledictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_exampledictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
@@ -225,9 +225,9 @@ lw_exampledictionary_get_total_columns (LwDictionary *self)
 
 
 
-static gchar const *
+static GQuark
 lw_exampledictionary_get_column_language (LwDictionary *self,
-                                    gint          column_num)
+                                          gint          column_num)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), 0);
@@ -235,14 +235,14 @@ lw_exampledictionary_get_column_language (LwDictionary *self,
     g_return_val_if_fail (column_num < TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS, 0);
 
     static gboolean initialized = FALSE;
-    static gchar const * column_languages[TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS] = {0};
+    static GQuark column_languages[TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS] = {0};
 
     if (G_UNLIKELY (initialized == FALSE))
     {
       initialized = TRUE;
-      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE] = "ja";
-      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = "en";
-      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_ID] = "number";
+      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_PHRASE] = g_quark_from_string ("ja");
+      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_MEANING] = g_quark_from_string ("en");
+      column_languages[LW_EXAMPLEDICTIONARYCOLUMNID_ID] = g_quark_from_string ("number");
     }
 
     return column_languages[column_num];

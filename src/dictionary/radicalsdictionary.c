@@ -46,7 +46,7 @@
 
 
 static gint lw_radicalsdictionary_get_total_columns (LwDictionary *self);
-static gchar const * lw_radicalsdictionary_get_column_language (LwDictionary *self, gint column_num);
+static GQuark lw_radicalsdictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_radicalsdictionary_get_column_handling (LwDictionary *self, gint column_num);
 static gchar * lw_radicalsdictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_radicalsdictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
@@ -132,7 +132,7 @@ lw_radicalsdictionary_get_total_columns (LwDictionary *self)
 
 
 
-static gchar const *
+static GQuark
 lw_radicalsdictionary_get_column_language (LwDictionary *self,
                                     gint          column_num)
 {
@@ -142,13 +142,13 @@ lw_radicalsdictionary_get_column_language (LwDictionary *self,
     g_return_val_if_fail (column_num < TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS, 0);
 
     static gboolean initialized = FALSE;
-    static gchar const * column_languages[TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS] = {0};
+    static GQuark column_languages[TOTAL_LW_RADICALSDICTIONARYCOLUMNIDS] = {0};
 
     if (G_UNLIKELY (initialized == FALSE))
     {
       initialized = TRUE;
-      column_languages[LW_RADICALSDICTIONARYCOLUMNID_KANJI] = "ja";
-      column_languages[LW_RADICALSDICTIONARYCOLUMNID_RADICALS] = "ja";
+      column_languages[LW_RADICALSDICTIONARYCOLUMNID_KANJI] = g_quark_from_string ("ja");
+      column_languages[LW_RADICALSDICTIONARYCOLUMNID_RADICALS] = g_quark_from_string ("ja");
     }
 
     return column_languages[column_num];

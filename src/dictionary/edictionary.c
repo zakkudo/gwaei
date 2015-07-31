@@ -47,7 +47,7 @@
 G_DEFINE_DYNAMIC_TYPE (LwEDictionary, lw_edictionary, LW_TYPE_DICTIONARY)
 
 static gint lw_edictionary_get_total_columns (LwDictionary *self);
-static gchar const * lw_edictionary_get_column_language (LwDictionary *self, gint column_num);
+static GQuark lw_edictionary_get_column_language (LwDictionary *self, gint column_num);
 static LwDictionaryColumnHandling lw_edictionary_get_column_handling (LwDictionary *self, gint column_num);
 static gchar * lw_edictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_edictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
@@ -134,7 +134,7 @@ lw_edictionary_get_total_columns (LwDictionary *self)
 
 
 
-static gchar const *
+static GQuark
 lw_edictionary_get_column_language (LwDictionary *self,
                                     gint          column_num)
 {
@@ -144,14 +144,14 @@ lw_edictionary_get_column_language (LwDictionary *self,
     g_return_val_if_fail (column_num < TOTAL_LW_EDICTIONARYCOLUMNIDS, 0);
 
     static gboolean initialized = FALSE;
-    static gchar const * column_languages[TOTAL_LW_EDICTIONARYCOLUMNIDS] = {0};
+    static GQuark column_languages[TOTAL_LW_EDICTIONARYCOLUMNIDS] = {0};
 
     if (G_UNLIKELY (initialized == FALSE))
     {
       initialized = TRUE;
-      column_languages[LW_EDICTIONARYCOLUMNID_WORD] = "ja";
-      column_languages[LW_EDICTIONARYCOLUMNID_READING] = "ja";
-      column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = "en";
+      column_languages[LW_EDICTIONARYCOLUMNID_WORD] = g_quark_from_string ("ja");
+      column_languages[LW_EDICTIONARYCOLUMNID_READING] = g_quark_from_string ("ja");
+      column_languages[LW_EDICTIONARYCOLUMNID_DEFINITION] = g_quark_from_string ("en");
     }
 
     return column_languages[column_num];

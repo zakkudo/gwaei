@@ -895,7 +895,7 @@ lw_search_watch_timeout (LwSearch * self)
         while (link != NULL)
         {
           LwParsedLine * line = LW_PARSEDLINE (link->data);
-          if (line != NULL) lw_results_append_line (results, line);
+          if (line != NULL) lw_results_append_parsedline (results, line);
           link = link->next;
         }
       }

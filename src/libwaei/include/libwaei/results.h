@@ -5,6 +5,7 @@
 #include "dictionary.h"
 #include "utf8.h"
 #include "querynode.h"
+#include "result.h"
 
 G_BEGIN_DECLS
 
@@ -48,7 +49,7 @@ GType lw_results_get_type (void) G_GNUC_CONST;
 LwDictionaryCache * lw_results_get_dictionarycache (LwResults * self);
 GSequence * lw_results_get_sequence (LwResults * self);
 
-LwResultsIter * lw_results_append_line (LwResults * self, LwParsedLine * line);
+LwResultsIter * lw_results_append_parsedline (LwResults * self, LwParsedLine * line);
 
 G_END_DECLS
 

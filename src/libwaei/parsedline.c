@@ -222,10 +222,10 @@ lw_parsedline_get_serialized_length (LwParsedLine * self)
 
 
 static gboolean
-_serialize (LwParsedLine           * self,
-            gint                     column,
-            gchar                 ** strv,
-            struct _SerializeData *  data)
+_serialize_strv (LwParsedLine           * self,
+                 gint                     column,
+                 gchar                 ** strv,
+                 struct _SerializeData *  data)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, TRUE);
@@ -269,7 +269,7 @@ errored:
 
     return has_error;
 }
-                                            
+
 
 /**
  * lw_parsedline_serialize:
@@ -324,7 +324,7 @@ lw_parsedline_serialize (LwParsedLine  * self,
     if (data.buffer != NULL) memcpy(data.write_pointer, &num_tokentypes, sizeof(gint));
     data.write_pointer += sizeof(gint);
 
-    lw_parsedline_foreach (self, (LwParsedLineForeachFunc) _serialize, &data);
+    lw_parsedline_foreach (self, (LwParsedLineForeachFunc) _serialize_strv, &data);
     if (data.error != NULL && *data.error != NULL) goto errored;
 
 errored:
@@ -404,6 +404,7 @@ lw_parsedline_deserialize_into (LwParsedLine  * self,
     data.read_pointer += sizeof(gint);
     if (num_types < 1) goto errored;
 
+    //deserialize strv
     {
       //[num_tokentypes (gchar)]  [tokentypeid (strv)] [offsetbuffer (LwOffsetBuffer, lwoffset[])]... ]
       gint columnid = 0;

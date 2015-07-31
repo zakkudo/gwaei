@@ -31,9 +31,9 @@ new (Fixture *fixture, gconstpointer data)
 
 
 void
-append_line (Fixture *fixture, gconstpointer data)
+append_parsedline (Fixture *fixture, gconstpointer data)
 {
-    lw_results_append_line (fixture->results, &fixture->line);
+    lw_results_append_parsedline (fixture->results, &fixture->line);
     g_assert (fixture->dictionary_cache == lw_results_get_dictionarycache (fixture->results));
     g_assert_cmpint (1, ==, g_sequence_get_length (lw_results_get_sequence (fixture->results)));
 }
@@ -48,7 +48,7 @@ main (gint argc, gchar *argv[])
     g_test_init (&argc, &argv, NULL);
 
     g_test_add ("/new", Fixture, NULL, setup, new, teardown);
-    g_test_add ("/append_line", Fixture, NULL, setup, append_line, teardown);
+    g_test_add ("/append_parsedline", Fixture, NULL, setup, append_parsedline, teardown);
 
     return g_test_run ();
 }
