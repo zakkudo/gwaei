@@ -1502,7 +1502,7 @@ match_parsedline_matches_first_column (Fixture       * fixture,
     //Act
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("国語", &operation, &error);
-    root->columns = columns;
+    root->columns = g_memdup (columns, sizeof(gint) * 2);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
@@ -1571,7 +1571,7 @@ match_parsedline_matches_nothing (Fixture       * fixture,
     //Act
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("Non Matching Query", &operation, &error);
-    root->columns = columns;
+    root->columns = g_memdup (columns, sizeof(gint) * 2);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
@@ -1639,7 +1639,7 @@ match_parsedline_matches_last_in_third_column (Fixture       * fixture,
     //Act
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("national", &operation, &error);
-    root->columns = columns;
+    root->columns = g_memdup (columns, sizeof(gint) * 2);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
@@ -1717,7 +1717,7 @@ match_parsedline_matches_one_of_multiple_columns (Fixture       * fixture,
     //Act
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("national", &operation, &error);
-    root->columns = columns;
+    root->columns = g_memdup (columns, sizeof(gint) * 4);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
@@ -1802,7 +1802,7 @@ match_parsedline_matches_second_in_strv (Fixture       * fixture,
     //Act
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("Japanese", &operation, &error);
-    root->columns = columns;
+    root->columns = g_memdup (columns, sizeof(gint) * 2);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
@@ -1874,8 +1874,8 @@ match_parsedline_matches_or_where_one_matches (Fixture       * fixture,
     //Act
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("English||Japanese", &operation, &error);
-    ((LwQueryNode*)root->children->data)->columns = columns;
-    ((LwQueryNode*)root->children->next->data)->columns = columns;
+    ((LwQueryNode*)root->children->data)->columns = g_memdup (columns, sizeof(gint) * 4);
+    ((LwQueryNode*)root->children->next->data)->columns = g_memdup(columns, sizeof(gint) * 4);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
@@ -1955,8 +1955,8 @@ match_parsedline_or_where_neither_matches (Fixture       * fixture,
     //Act
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("English||Frensh", &operation, &error);
-    ((LwQueryNode*)root->children->data)->columns = columns;
-    ((LwQueryNode*)root->children->next->data)->columns = columns;
+    ((LwQueryNode*)root->children->data)->columns = g_memdup (columns, sizeof(gint) * 4);
+    ((LwQueryNode*)root->children->next->data)->columns = g_memdup (columns, sizeof(gint) * 4);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
@@ -2037,8 +2037,8 @@ match_parsedline_and_where_both_match (Fixture       * fixture,
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("Japanese&&国語", &operation, &error);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
-    ((LwQueryNode*)root->children->data)->columns = columns;
-    ((LwQueryNode*)root->children->next->data)->columns = columns;
+    ((LwQueryNode*)root->children->data)->columns = g_memdup (columns, sizeof(gint) * 4);
+    ((LwQueryNode*)root->children->next->data)->columns = g_memdup (columns, sizeof(gint) * 4);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
     //Assert
@@ -2118,8 +2118,8 @@ match_parsedline_and_where_one_matches (Fixture       * fixture,
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("Japanese&&English", &operation, &error);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
-    ((LwQueryNode*)root->children->data)->columns = columns;
-    ((LwQueryNode*)root->children->next->data)->columns = columns;
+    ((LwQueryNode*)root->children->data)->columns = g_memdup (columns, sizeof(gint) * 4);
+    ((LwQueryNode*)root->children->next->data)->columns = g_memdup (columns, sizeof(gint) * 4);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
     //Assert
@@ -2199,9 +2199,9 @@ match_parsedline_and_or_where_last_matches (Fixture       * fixture,
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("French&&English||Japanese", &operation, &error);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
-    ((LwQueryNode*)root->children->data)->columns = columns;
-    ((LwQueryNode*)root->children->next->data)->columns = columns;
-    ((LwQueryNode*)root->children->next->next->data)->columns = columns;
+    ((LwQueryNode*)root->children->data)->columns = g_memdup (columns, sizeof(gint) * 4);
+    ((LwQueryNode*)root->children->next->data)->columns = g_memdup (columns, sizeof(gint) * 4);
+    ((LwQueryNode*)root->children->next->next->data)->columns = g_memdup (columns, sizeof(gint) * 4);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
     //Assert
@@ -2273,9 +2273,9 @@ match_parsedline_and_or_where_last_doesnt_match (Fixture       * fixture,
     match_info = lw_querynodematchinfo_new ();
     root = lw_querynode_new_tree_from_string ("Japanese&&English||French", &operation, &error);
     lw_querynode_compile (root, LW_UTF8FLAG_NONE, &error);
-    ((LwQueryNode*)root->children->data)->columns = columns;
-    ((LwQueryNode*)root->children->next->data)->columns = columns;
-    ((LwQueryNode*)root->children->next->next->data)->columns = columns;
+    ((LwQueryNode*)root->children->data)->columns = g_memdup (columns, sizeof(gint) * 4);
+    ((LwQueryNode*)root->children->next->data)->columns = g_memdup (columns, sizeof(gint) * 4);
+    ((LwQueryNode*)root->children->next->next->data)->columns = g_memdup (columns, sizeof(gint) * 4);
     matches = lw_querynode_match_parsedline (root, parsed_line, match_info);
 
     //Assert

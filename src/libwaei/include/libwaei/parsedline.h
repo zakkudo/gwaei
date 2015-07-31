@@ -28,7 +28,6 @@ typedef enum {
 struct _LwParsedLine {
   /*< private >*/
   GTree *tree;
-  GTree *numbers;
 };
 
 typedef struct _LwParsedLine LwParsedLine;
