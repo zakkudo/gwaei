@@ -106,6 +106,7 @@ lw_result_compare_column_func (LwResult    * a,
       number = g_quark_from_static_string ("number");
     }
 
+    lw_utf8_cmpnumber ();
     /*
     if (language == number)
     {
@@ -123,8 +124,6 @@ lw_result_compare_column_func (LwResult    * a,
       }
     }
     */
-
-
 
 errored:
 

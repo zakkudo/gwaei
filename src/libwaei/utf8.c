@@ -984,3 +984,46 @@ lw_utf8_contains_number (gchar const * TEXT)
 
     return found;
 }
+
+
+gint
+lw_utf8_cmpnumber (gchar const * a, gchar const * b)
+{
+    if (a == b) return 0;
+    if (a == NULL && b != NULL) return 1;
+    if (a != NULL && b == NULL) return -1;
+
+    gint comparison = 0;
+    gchar * a_endptr = NULL;
+    gchar * b_endptr = NULL;
+    gint64 a_number = 0;
+    gint64 b_number = 0;
+
+    while (comparison == 0 && *a != '\0' && *b != '\0')
+    {
+      if (g_ascii_isdigit (*a) && g_ascii_isdigit (*b))
+      {
+        a_number = g_ascii_strtoll (a, &a_endptr, 10);
+        b_number = g_ascii_strtoll (b, &b_endptr, 10);
+        if (a_endptr == a || b_endptr == b) goto errored;
+        comparison = a_number - b_number;
+        a = a_endptr;
+        b = b_endptr;
+      }
+      else
+      {
+        comparison = *a - *b;
+        a = g_utf8_next_char (a);
+        b = g_utf8_next_char (b);
+      }
+    }
+
+    if (comparison == 0 && (*a == '\0' || *b == '\0'))
+    {
+      comparison = *a - *b;
+    }
+
+errored:
+
+    return comparison;
+}

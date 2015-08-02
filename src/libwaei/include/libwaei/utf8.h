@@ -91,6 +91,8 @@ gboolean lw_utf8_contains_furigana (gchar const * TEXT);
 gboolean lw_utf8_contains_romaji (gchar const * TEXT);
 gboolean lw_utf8_contains_number (gchar const * TEXT);
 
+gint lw_utf8_cmpnumber (gchar const * a, gchar const * b);
+
 G_END_DECLS
 
 #endif
