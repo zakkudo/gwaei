@@ -1446,101 +1446,101 @@ normalize_chunked_when_cancelled (Fixture *fixture, gconstpointer data)
 void
 cmpnumber_when_a_is_less_than_b (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("1", "2"), <, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("1", "2"), <, 0);
 }
 
 
 void
 cmpnumber_when_b_is_less_than_a (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("2", "1"), >, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("2", "1"), >, 0);
 }
 
 void
 cmpnumber_when_a_is_equal_to_b (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("1", "1"), ==, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("1", "1"), ==, 0);
 }
 
 
 void
 cmpnumber_when_a_is_null (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber (NULL, "1"), >, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 (NULL, "1"), >, 0);
 }
 
 void
 cmpnumber_when_b_is_null (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("1", NULL), <, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("1", NULL), <, 0);
 }
 
 
 void
 cmpnumber_when_both_are_null (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber (NULL, NULL), ==, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 (NULL, NULL), ==, 0);
 }
 
 
 void
 cmpnumber_when_a_has_more_digits (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("10", "2"), >, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("10", "2"), >, 0);
 }
 
 
 void
 cmpnumber_when_a_is_less_than_b_and_separated_by_dash (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("10-9", "10-10"), <, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("10-9", "10-10"), <, 0);
 }
 
 
 void
 cmpnumber_when_b_is_less_than_a_and_separated_by_dash (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("10-10", "10-9"), >, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("10-10", "10-9"), >, 0);
 }
 
 
 void
 cmpnumber_when_a_is_less_than_b_and_separated_by_dash2 (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("10-10", "11-9"), <, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("10-10", "11-9"), <, 0);
 }
 
 
 void
 cmpnumber_when_b_is_less_than_a_and_separated_by_dash2 (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("11-9", "10-10"), >, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("11-9", "10-10"), >, 0);
 }
 
 void
 cmpnumber_when_has_letter (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("10A10", "10B9"), <, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("10A10", "10B9"), <, 0);
 }
 
 
 void
 cmpnumber_when_only_letters (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("A", "B"), <, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("A", "B"), <, 0);
 }
 
 void
 cmpnumber_when_a_has_more_letters_than_b (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("AB", "B"), <, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("AB", "B"), <, 0);
 }
 
 
 void
 cmpnumber_when_a_has_more_letters_than_b2 (Fixture *fixture, gconstpointer data)
 {
-    g_assert_cmpint (lw_utf8_cmpnumber ("BB", "B"), >, 0);
+    g_assert_cmpint (lw_utf8_cmpnumber0 ("BB", "B"), >, 0);
 }
 
 
@@ -1633,21 +1633,21 @@ main (gint argc, gchar *argv[])
     g_test_add ("/normalize_chunked/when_chunk_handler_sets_error", Fixture, NULL, setup, normalize_chunked_when_chunk_handler_sets_error, teardown);
     g_test_add ("/normalize_chunked/when_cancelled", Fixture, NULL, setup, normalize_chunked_when_cancelled, teardown);
 
-    g_test_add ("/cmpnumber/when_a_is_less_than_b", Fixture, NULL, setup, cmpnumber_when_a_is_less_than_b, teardown);
-    g_test_add ("/cmpnumber/when_b_is_less_than_a", Fixture, NULL, setup, cmpnumber_when_b_is_less_than_a, teardown);
-    g_test_add ("/cmpnumber/when_a_is_equal_to_b", Fixture, NULL, setup, cmpnumber_when_a_is_equal_to_b, teardown);
-    g_test_add ("/cmpnumber/when_a_is_null", Fixture, NULL, setup, cmpnumber_when_a_is_null, teardown);
-    g_test_add ("/cmpnumber/when_b_is_null", Fixture, NULL, setup, cmpnumber_when_b_is_null, teardown);
-    g_test_add ("/cmpnumber/when_both_are_null", Fixture, NULL, setup, cmpnumber_when_both_are_null, teardown);
-    g_test_add ("/cmpnumber/when_a_has_more_digits", Fixture, NULL, setup, cmpnumber_when_a_has_more_digits, teardown);
-    g_test_add ("/cmpnumber/when_a_is_less_than_b_and_separated_by_dash", Fixture, NULL, setup, cmpnumber_when_a_is_less_than_b_and_separated_by_dash, teardown);
-    g_test_add ("/cmpnumber/when_a_is_less_than_b_and_separated_by_dash2", Fixture, NULL, setup, cmpnumber_when_a_is_less_than_b_and_separated_by_dash2, teardown);
-    g_test_add ("/cmpnumber/when_b_is_less_than_a_and_separated_by_dash", Fixture, NULL, setup, cmpnumber_when_b_is_less_than_a_and_separated_by_dash, teardown);
-    g_test_add ("/cmpnumber/when_b_is_less_than_a_and_separated_by_dash2", Fixture, NULL, setup, cmpnumber_when_b_is_less_than_a_and_separated_by_dash2, teardown);
-    g_test_add ("/cmpnumber/when_has_letter", Fixture, NULL, setup, cmpnumber_when_has_letter, teardown);
-    g_test_add ("/cmpnumber/when_only_letters", Fixture, NULL, setup, cmpnumber_when_only_letters, teardown);
-    g_test_add ("/cmpnumber/when_a_has_more_letters_than_b", Fixture, NULL, setup, cmpnumber_when_a_has_more_letters_than_b, teardown);
-    g_test_add ("/cmpnumber/when_a_has_more_letters_than_b2", Fixture, NULL, setup, cmpnumber_when_a_has_more_letters_than_b2, teardown);
+    g_test_add ("/cmpnumber0/when_a_is_less_than_b", Fixture, NULL, setup, cmpnumber_when_a_is_less_than_b, teardown);
+    g_test_add ("/cmpnumber0/when_b_is_less_than_a", Fixture, NULL, setup, cmpnumber_when_b_is_less_than_a, teardown);
+    g_test_add ("/cmpnumber0/when_a_is_equal_to_b", Fixture, NULL, setup, cmpnumber_when_a_is_equal_to_b, teardown);
+    g_test_add ("/cmpnumber0/when_a_is_null", Fixture, NULL, setup, cmpnumber_when_a_is_null, teardown);
+    g_test_add ("/cmpnumber0/when_b_is_null", Fixture, NULL, setup, cmpnumber_when_b_is_null, teardown);
+    g_test_add ("/cmpnumber0/when_both_are_null", Fixture, NULL, setup, cmpnumber_when_both_are_null, teardown);
+    g_test_add ("/cmpnumber0/when_a_has_more_digits", Fixture, NULL, setup, cmpnumber_when_a_has_more_digits, teardown);
+    g_test_add ("/cmpnumber0/when_a_is_less_than_b_and_separated_by_dash", Fixture, NULL, setup, cmpnumber_when_a_is_less_than_b_and_separated_by_dash, teardown);
+    g_test_add ("/cmpnumber0/when_a_is_less_than_b_and_separated_by_dash2", Fixture, NULL, setup, cmpnumber_when_a_is_less_than_b_and_separated_by_dash2, teardown);
+    g_test_add ("/cmpnumber0/when_b_is_less_than_a_and_separated_by_dash", Fixture, NULL, setup, cmpnumber_when_b_is_less_than_a_and_separated_by_dash, teardown);
+    g_test_add ("/cmpnumber0/when_b_is_less_than_a_and_separated_by_dash2", Fixture, NULL, setup, cmpnumber_when_b_is_less_than_a_and_separated_by_dash2, teardown);
+    g_test_add ("/cmpnumber0/when_has_letter", Fixture, NULL, setup, cmpnumber_when_has_letter, teardown);
+    g_test_add ("/cmpnumber0/when_only_letters", Fixture, NULL, setup, cmpnumber_when_only_letters, teardown);
+    g_test_add ("/cmpnumber0/when_a_has_more_letters_than_b", Fixture, NULL, setup, cmpnumber_when_a_has_more_letters_than_b, teardown);
+    g_test_add ("/cmpnumber0/when_a_has_more_letters_than_b2", Fixture, NULL, setup, cmpnumber_when_a_has_more_letters_than_b2, teardown);
 
 
 

@@ -987,7 +987,7 @@ lw_utf8_contains_number (gchar const * TEXT)
 
 
 gint
-lw_utf8_cmpnumber (gchar const * a, gchar const * b)
+lw_utf8_cmpnumber0 (gchar const * a, gchar const * b)
 {
     if (a == b) return 0;
     if (a == NULL && b != NULL) return 1;

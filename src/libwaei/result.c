@@ -111,7 +111,7 @@ lw_result_compare_column_func (LwResult    * a,
     {
       for (i = 0; comparison == 0; i++)
       {
-        comparison = lw_utf8_cmpnumber (strva[i], strvb[i]);
+        comparison = lw_utf8_cmpnumber0 (strva[i], strvb[i]);
         if (strva[i] == NULL || strvb[i] == NULL) break;
       }
     }
