@@ -297,6 +297,9 @@ errored:
     if (root != NULL) lw_querynode_unref (root);
     root = NULL;
 
+    if (progress != NULL) g_object_unref (progress);
+    progress = NULL;
+
     return;
 }
 

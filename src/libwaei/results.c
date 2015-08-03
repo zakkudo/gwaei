@@ -76,7 +76,7 @@ lw_results_init (LwResults * self)
 
     priv = self->priv;
 
-    lw_results_set_sequence (self, g_sequence_new (NULL));
+    lw_results_set_sequence (self, g_sequence_new ((GDestroyNotify) lw_result_free));
 }
 
 
