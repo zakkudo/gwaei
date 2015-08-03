@@ -66,7 +66,6 @@ dictionary (Fixture *fixture, gconstpointer data)
     results = lw_search_query_results (search);
 
     g_object_unref (search);
-    g_object_unref (results);
 }
 
 
