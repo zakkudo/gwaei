@@ -38,6 +38,7 @@
 #include <glib.h>
 
 #include <libwaei/gettext.h>
+#include <libwaei/utf8.h>
 #include <libwaei/result.h>
 
 
@@ -92,7 +93,7 @@ lw_result_compare_column_func (LwResult    * a,
     gchar const ** strva = NULL;
     gchar const ** strvb = NULL;
     gint i = 0;
-    gint compare = 0;
+    gint comparison = 0;
     static GQuark number = 0;
 
     //Initializations
@@ -106,27 +107,25 @@ lw_result_compare_column_func (LwResult    * a,
       number = g_quark_from_static_string ("number");
     }
 
-    lw_utf8_cmpnumber ();
-    /*
     if (language == number)
     {
-      convert string to number
-      if (g_ascii_ispunct (*c)){}
-      if (
-      number = g_ascii_strtoll (string, &endptr, 10);
-      this should be done when the result is initialized
+      for (i = 0; comparison == 0; i++)
+      {
+        comparison = lw_utf8_cmpnumber (strva[i], strvb[i]);
+        if (strva[i] == NULL || strvb[i] == NULL) break;
+      }
     }
     else
     {
-      while (strva[i] != NULL && strvb[i] != NULL && compare == 0)
+      for (i = 0; comparison == 0; i++)
       {
-        compare = g_strcmp0 (strva[i], strvb[i]);
+        comparison = g_strcmp0 (strva[i], strvb[i]);
+        if (strva[i] == NULL || strvb[i] == NULL) break;
       }
     }
-    */
 
 errored:
 
-    return compare;
+    return comparison;
 }
 
