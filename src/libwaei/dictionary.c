@@ -338,18 +338,16 @@ GType lw_dictionarycolumnhandling_get_type ()
  * Returns: The total number of columns as a %gint
  */
 gint
-lw_dictionary_total_columns (LwDictionary * self)
+lw_dictionary_total_columns (LwDictionaryClass * klass)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), 0);
 
     //Declarations
-    LwDictionaryClass *klass = NULL;
     gint total_columns = 0;
 
     //Initializations
-    klass = LW_DICTIONARY_GET_CLASS (self);
-    total_columns = klass->get_total_columns (self);
+    total_columns = klass->get_total_columns ();
   
     return total_columns;
 }
@@ -362,23 +360,21 @@ lw_dictionary_total_columns (LwDictionary * self)
  * Returns: (transfer none): The language of the column as a #GQuark.  This #GQuark is owned by the dictionary, so it should not be modified or freed.
  */
 GQuark
-lw_dictionary_get_column_language (LwDictionary * self,
-                                   gint           column_num)
+lw_dictionary_get_column_language (LwDictionaryClass * klass,
+                                   gint                column_num)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), NULL);
     g_return_val_if_fail (column_num > -1, NULL);
 
     //Declarations
-    LwDictionaryClass *klass = NULL;
     gint total_columns = 0;
     GQuark language = NULL;
 
     //Initializations
-    klass = LW_DICTIONARY_GET_CLASS (self);
-    total_columns = lw_dictionary_total_columns (self);
+    total_columns = lw_dictionary_total_columns (klass);
     if (total_columns < 1 || column_num >= total_columns) goto errored;
-    language = klass->get_column_language (self, column_num);
+    language = klass->get_column_language (column_num);
 
 errored:
 
@@ -393,23 +389,21 @@ errored:
  * Returns: A %LwDictionaryColumnHandling denoting the type of processing that should be handled on this column
  */
 LwDictionaryColumnHandling
-lw_dictionary_get_column_handling (LwDictionary * self,
-                                   gint           column_num)
+lw_dictionary_get_column_handling (LwDictionaryClass * klass,
+                                   gint                column_num)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), LW_DICTIONARYCOLUMNHANDLING_UNUSED);
+    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), LW_DICTIONARYCOLUMNHANDLING_UNUSED);
     g_return_val_if_fail (column_num > -1, LW_DICTIONARYCOLUMNHANDLING_UNUSED);
 
     //Declarations
-    LwDictionaryClass *klass = NULL;
     gint total_columns = 0;
     gint handling = LW_DICTIONARYCOLUMNHANDLING_UNUSED;
 
     //Initializations
-    klass = LW_DICTIONARY_GET_CLASS (self);
-    total_columns = lw_dictionary_total_columns (self);
+    total_columns = lw_dictionary_total_columns (klass);
     if (total_columns < 1 || column_num >= total_columns) goto errored;
-    handling = klass->get_column_handling (self, column_num);
+    handling = klass->get_column_handling (column_num);
 
 errored:
 
@@ -1499,20 +1493,18 @@ errored:
  * Returns: (transfer full): An array of column ids that shold be freed with g_free()
  */
 gint *
-lw_dictionary_calculate_applicable_columns_for_text (LwDictionary * self,
-                                                     gchar const  * TEXT)
+lw_dictionary_calculate_applicable_columns_for_text (LwDictionaryClass * klass,
+                                                     gchar const       * TEXT)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), NULL);
     if (TEXT == NULL || *TEXT == '\0') return NULL;
 
     //Declarations
-    LwDictionaryClass *klass = NULL;
     gint * columns = NULL;
 
     //Initializations
-    klass = LW_DICTIONARY_GET_CLASS (self);
-    columns = klass->calculate_applicable_columns_for_text (self, TEXT);
+    columns = klass->calculate_applicable_columns_for_text (TEXT);
 
 errored:
 
@@ -1527,17 +1519,15 @@ errored:
  * Returns: The columnid type from the implementor of this class.
  */
 GType
-lw_dictionary_get_columnid_type (LwDictionary * self)
+lw_dictionary_get_columnid_type (LwDictionaryClass * klass)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), NULL);
 
     //Declarations
     GType type = G_TYPE_NONE;
-    LwDictionaryClass *klass = NULL;
 
     //Initializations
-    klass = LW_DICTIONARY_GET_CLASS (self);
     type = klass->get_columnid_type ();
 
 errored:

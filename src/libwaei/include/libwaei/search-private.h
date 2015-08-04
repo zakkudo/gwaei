@@ -32,7 +32,6 @@ struct _LwSearchPrivate {
   LwSearchStatus status;                  //!< Used to test if a search is in progress.
   GMutex mutex;
   LwDictionary * dictionary;
-  gsize total_results;
   LwProgress * progress;
 
   LwSearchFlag flags;

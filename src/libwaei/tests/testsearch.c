@@ -55,15 +55,24 @@ void teardown (Fixture *fixture, gconstpointer data)
 
 
 void
-dictionary (Fixture *fixture, gconstpointer data)
+query_results (Fixture *fixture, gconstpointer data)
 {
     //Declarations
     LwSearch * search = NULL;
+    GSequence * sequence = NULL;
     LwResults * results = NULL;
+    GSequenceIter * iter = NULL;
+    LwResult * result = NULL;
 
     //Initializations
     search = lw_search_new ("decimal", fixture->dictionary, 0);
     results = lw_search_query_results (search);
+    sequence = lw_results_get_sequence (results);
+    g_assert_cmpint (g_sequence_get_length (sequence), ==, 1);
+
+    iter = g_sequence_get_begin_iter (sequence);
+    result = g_sequence_get (iter);
+    //g_assert_
 
     g_object_unref (search);
 }
@@ -77,7 +86,7 @@ main (gint argc, gchar *argv[])
 {
     g_test_init (&argc, &argv, NULL);
 
-    g_test_add ("/dictionary", Fixture, NULL, setup, dictionary, teardown);
+    g_test_add ("/query_results", Fixture, NULL, setup, query_results, teardown);
 
     return g_test_run ();
 }

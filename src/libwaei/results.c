@@ -380,7 +380,7 @@ lw_results_get_sequence (LwResults * self)
 }
 
 
-static LwResultsIter *
+LwResultsIter *
 lw_results_append_result (LwResults * self,
                           LwResult  * result)
 {
@@ -409,32 +409,100 @@ lw_results_append_result (LwResults * self,
 }
 
 
-/**
- * lw_results_append_parsedline:
- * @self: A #LwResults
- * @line: (transfer none): A #LwParsedLine to append
- * Returns: (transfer none): An iterator representing where the line was inserted
- */
-LwResultsIter *
-lw_results_append_parsedline (LwResults    * self,
-                              LwParsedLine * line)
+gint
+lw_results_compare_by_score_func (LwResults * self,
+                                  LwResult  * a,
+                                  LwResult  * b)
+{
+    return a->score - b->score;
+}
+
+
+gint
+lw_results_compare_by_index_func (LwResults * self,
+                                  LwResult  * a,
+                                  LwResult  * b)
+{
+    return a->index - b->index;
+}
+
+
+gint
+lw_results_compare_by_columnid_func (LwResults * self,
+                                     LwResult  * a,
+                                     LwResult  * b,
+                                     gint        columnid)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_RESULTS (self), NULL);
-    g_return_val_if_fail (line != NULL, NULL);
+    g_return_val_if_fail (LW_IS_RESULTS (self), 0);
 
     //Declarations
-    LwResult * result = NULL;
-    LwResultsIter * iter = NULL;
+    LwResultsPrivate * priv = NULL;
+    gchar const ** strva = NULL;
+    gchar const ** strvb = NULL;
+    gint i = 0;
+    gint comparison = 0;
+    static GQuark number = 0;
+    GQuark language = 0;
+    LwParsed * parsed = NULL;
+    LwDictionaryClass * dictionary_class = NULL;
+    GType dictionary_type = G_TYPE_INVALID;
+    LwDictionaryCache * dictionary_cache = NULL;
+    LwParsedLine * pa = NULL, * pb = NULL;
 
     //Initializations
-    result = lw_result_new (line);
-    if (result == NULL) goto errored;
-    iter = lw_results_append_result (self, result);
-    if (iter == NULL) goto errored;
+    priv = self->priv;
+    dictionary_type = lw_dictionarycache_get_dictionary_type (dictionary_cache);
+    if (dictionary_type == G_TYPE_INVALID || dictionary_type == G_TYPE_NONE) goto errored;
+    dictionary_class = g_type_class_ref (dictionary_type);
+    if (dictionary_class == NULL) goto errored;
+    dictionary_cache = priv->dictionary_cache;
+    language = lw_dictionary_get_column_language (dictionary_class, columnid);
+    if (language == 0) goto errored;
+    parsed = lw_dictionarycache_get_parsed (dictionary_cache);
+    if (parsed == NULL) goto errored;
+
+    {
+      pa = lw_parsed_get_line (parsed, a->index);
+      if (pa == NULL) goto errored;
+      strva = lw_parsedline_get_strv (pa, columnid);
+      if (strva == NULL) goto errored;
+    }
+
+    {
+      pb = lw_parsed_get_line (parsed, b->index);
+      if (pb == NULL) goto errored;
+      strvb = lw_parsedline_get_strv (pb, columnid);
+      if (strvb == NULL) goto errored;
+    }
+    
+    if (G_UNLIKELY (number == 0))
+    {
+      number = g_quark_from_static_string ("number");
+    }
+
+    if (language == number)
+    {
+      for (i = 0; comparison == 0; i++)
+      {
+        comparison = lw_utf8_cmpnumber0 (strva[i], strvb[i]);
+        if (strva[i] == NULL || strvb[i] == NULL) break;
+      }
+    }
+    else
+    {
+      for (i = 0; comparison == 0; i++)
+      {
+        comparison = g_strcmp0 (strva[i], strvb[i]);
+        if (strva[i] == NULL || strvb[i] == NULL) break;
+      }
+    }
 
 errored:
 
-    return iter;
+    if (dictionary_class) g_type_class_unref (dictionary_class);
+    dictionary_class = NULL;
+
+    return comparison;
 }
 

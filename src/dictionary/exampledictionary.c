@@ -46,12 +46,12 @@
 
 G_DEFINE_DYNAMIC_TYPE (LwExampleDictionary, lw_exampledictionary, LW_TYPE_DICTIONARY)
 
-static gint lw_exampledictionary_get_total_columns (LwDictionary *self);
-static GQuark lw_exampledictionary_get_column_language (LwDictionary *self, gint column_num);
-static LwDictionaryColumnHandling lw_exampledictionary_get_column_handling (LwDictionary *self, gint column_num);
+static gint lw_exampledictionary_get_total_columns ();
+static GQuark lw_exampledictionary_get_column_language (gint column_num);
+static LwDictionaryColumnHandling lw_exampledictionary_get_column_handling (gint column_num);
 static gchar * lw_exampledictionary_columnize_line (LwDictionary *self, gchar *buffer, gchar **tokens, gsize *num_tokens);
 static void lw_exampledictionary_load_columns (LwDictionary *self, gchar *buffer, gchar **tokens, gint num_tokens, LwParsedLine *line);
-static gint * lw_exampledictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
+static gint * lw_exampledictionary_calculate_applicable_columns_for_text (gchar const * TEXT);
 static GType _columnid_type = 0;
 
 
@@ -215,22 +215,17 @@ lw_exampledictionary_class_init (LwExampleDictionaryClass *klass)
 
 
 static gint
-lw_exampledictionary_get_total_columns (LwDictionary *self)
+lw_exampledictionary_get_total_columns ()
 {
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), 0);
-
     return TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS;
 }
 
 
 
 static GQuark
-lw_exampledictionary_get_column_language (LwDictionary *self,
-                                          gint          column_num)
+lw_exampledictionary_get_column_language (gint column_num)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), 0);
     g_return_val_if_fail (column_num > -1, 0);
     g_return_val_if_fail (column_num < TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS, 0);
 
@@ -250,11 +245,9 @@ lw_exampledictionary_get_column_language (LwDictionary *self,
 
 
 static LwDictionaryColumnHandling
-lw_exampledictionary_get_column_handling (LwDictionary *self,
-                                           gint          column_num)
+lw_exampledictionary_get_column_handling (gint column_num)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), 0);
     g_return_val_if_fail (column_num > -1, 0);
     g_return_val_if_fail (column_num < TOTAL_LW_EXAMPLEDICTIONARYCOLUMNIDS, 0);
 
@@ -526,16 +519,12 @@ errored:
 
 
 static gint *
-lw_exampledictionary_calculate_applicable_columns_for_text (LwDictionary * dictionary,
-                                                            gchar const  * TEXT)
+lw_exampledictionary_calculate_applicable_columns_for_text (gchar const * TEXT)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (dictionary), NULL);
     if (TEXT == NULL || *TEXT == '\0') return NULL;
 
     //Declarations
-    LwExampleDictionary * self = NULL;
-    LwDictionaryClass *klass = NULL;
     gint max_columns = 0;
     gint * columns = NULL;
     gint num_columns = 0;
@@ -545,8 +534,7 @@ lw_exampledictionary_calculate_applicable_columns_for_text (LwDictionary * dicti
     gboolean contains_number = FALSE;
 
     //Initializations
-    self = LW_EXAMPLEDICTIONARY (dictionary);
-    max_columns = lw_exampledictionary_get_total_columns (dictionary);
+    max_columns = lw_exampledictionary_get_total_columns ();
     columns = g_new0 (gint, max_columns + 1);
     contains_kanji = lw_utf8_contains_kanji (TEXT);
     contains_furigana = lw_utf8_contains_furigana (TEXT);

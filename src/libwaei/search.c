@@ -229,7 +229,7 @@ lw_search_finalize (GObject * object)
     lw_search_set_query_tree (self, NULL);
     lw_search_set_progress (self, NULL);
 
-    g_list_free (priv->results_buffer);
+    g_list_free_full (priv->results_buffer, (GDestroyNotify) lw_result_free);
     if (priv->dictionary_cache) g_object_unref (priv->dictionary_cache);
 
     G_OBJECT_CLASS (lw_search_parent_class)->finalize (object);
@@ -897,8 +897,8 @@ lw_search_watch_timeout (LwSearch * self)
         LwResults * results = LW_RESULTS (self);
         while (link != NULL)
         {
-          LwParsedLine * line = LW_PARSEDLINE (link->data);
-          if (line != NULL) lw_results_append_parsedline (results, line);
+          LwResult * result = LW_RESULT (link->data);
+          if (result != NULL) lw_results_append_result (results, result);
           link = link->next;
         }
       }
@@ -972,12 +972,12 @@ errored:
 
 
 static gint *
-_calculate_columns_by_name (LwQueryNode  * self,
-                            LwDictionary * dictionary)
+_calculate_columns_by_name (LwQueryNode       * self,
+                            LwDictionaryClass * dictionary_class)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (LW_IS_DICTIONARY (dictionary), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (dictionary_class), NULL);
     if (self->key == NULL) return NULL;
 
     //Declarations
@@ -988,7 +988,7 @@ _calculate_columns_by_name (LwQueryNode  * self,
     gint * columns = NULL;
 
     //Initializations
-    type = lw_dictionary_get_columnid_type (dictionary);
+    type = lw_dictionary_get_columnid_type (dictionary_class);
     if (type == G_TYPE_INVALID || type == G_TYPE_NONE) goto errored;
 
     klass = G_ENUM_CLASS (g_type_class_ref (type));
@@ -1023,16 +1023,19 @@ _apply_search_columns_to_query (LwQueryNode  * self,
     gint * columns = NULL;
     gchar const * QUERY = NULL;
     LwDictionary * dictionary = NULL;
+    LwDictionaryClass * dictionary_class = NULL;
 
     //Initializations
     QUERY = lw_search_get_query (search);
     if (QUERY == NULL) goto errored;
     dictionary = lw_search_get_dictionary (search);
     if (dictionary == NULL) goto errored;
-    columns = _calculate_columns_by_name (self, dictionary);
+    dictionary_class = LW_DICTIONARY_GET_CLASS (dictionary);
+    if (dictionary_class == NULL) goto errored;
+    columns = _calculate_columns_by_name (self, dictionary_class);
     if (columns == NULL)
     {
-      columns = lw_dictionary_calculate_applicable_columns_for_text (dictionary, QUERY);
+      columns = lw_dictionary_calculate_applicable_columns_for_text (dictionary_class, QUERY);
     }
     if (columns == NULL) goto errored;
 
@@ -1217,6 +1220,8 @@ _query_parsed_line (LwParsed     * parsed,
     LwQueryNode * query_tree = NULL;
     LwProgress * progress = NULL;
     gdouble current = 0.0;
+    LwParsedLine * lines = NULL;
+    gint index = 0;
     
     //Initializations
     priv = search->priv;
@@ -1229,8 +1234,13 @@ _query_parsed_line (LwParsed     * parsed,
 
     if (lw_querynode_match_parsedline (query_tree, line, NULL)) {
       g_mutex_lock (&priv->mutex);
-      priv->results_buffer = g_list_prepend (priv->results_buffer, line);
-      priv->total_results++;
+      lines = lw_parsed_get_lines (parsed, NULL);
+      index = line - lines;
+      LwResult * result = lw_result_new (index);
+      if (result != NULL)
+      {
+        priv->results_buffer = g_list_prepend (priv->results_buffer, line);
+      }
       g_mutex_unlock (&priv->mutex);
     }
 

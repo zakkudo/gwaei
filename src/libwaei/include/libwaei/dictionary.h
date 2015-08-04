@@ -47,12 +47,12 @@ struct _LwDictionaryClass {
 
   //Virtual methods
   gsize (* count_lines) (gchar * buffer, gsize buffer_length, gsize * max_line_length, LwProgress * progress);
-  gint (* get_total_columns) (LwDictionary * self);
-  GQuark (* get_column_language) (LwDictionary * self, gint column_num);
-  LwDictionaryColumnHandling (* get_column_handling) (LwDictionary * self, gint column_num);
+  gint (* get_total_columns) ();
+  GQuark (* get_column_language) (gint column_num);
+  LwDictionaryColumnHandling (* get_column_handling) (gint column_num);
   gchar* (* columnize_line) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
   void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
-  gint* (* calculate_applicable_columns_for_text) (LwDictionary * self, char const * TEXT);
+  gint* (* calculate_applicable_columns_for_text) (char const * TEXT);
   GType (* get_columnid_type) ();
 };
 
@@ -87,9 +87,9 @@ size_t lw_dictionary_contents_length (LwDictionary * self);
 gchar const * lw_dictionary_get_contents_checksum (LwDictionary * self);
 gchar const * lw_dictionary_get_contents (LwDictionary * self);
 
-gint lw_dictionary_total_columns (LwDictionary * self);
-GQuark lw_dictionary_get_column_language (LwDictionary * self, gint column_num);
-LwDictionaryColumnHandling lw_dictionary_get_column_handling (LwDictionary * self, gint column_num);
+gint lw_dictionary_total_columns (LwDictionaryClass * klass);
+GQuark lw_dictionary_get_column_language (LwDictionaryClass * klass, gint column_num);
+LwDictionaryColumnHandling lw_dictionary_get_column_handling (LwDictionaryClass * klass, gint column_num);
 
 gchar const* lw_dictionary_get_id (LwDictionary * self);
 
@@ -99,8 +99,8 @@ gchar const * lw_dictionary_get_install_directory ();
 gchar * lw_dictionary_build_contents_path_by_type_and_name (GType type, gchar const * FILENAME);
 
 
-gint * lw_dictionary_calculate_applicable_columns_for_text (LwDictionary * self, gchar const * TEXT);
-GType lw_dictionary_get_columnid_type (LwDictionary * self);
+gint * lw_dictionary_calculate_applicable_columns_for_text (LwDictionaryClass * klass, gchar const * TEXT);
+GType lw_dictionary_get_columnid_type (LwDictionaryClass * klass);
 
 LwDictionaryCache * lw_dictionary_ensure_cache_by_utf8flags (LwDictionary * self, LwUtf8Flag flags, LwProgress * progress);
 

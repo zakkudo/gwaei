@@ -44,11 +44,8 @@
 
 
 LwResult *
-lw_result_new (LwParsedLine * line)
+lw_result_new (gint index)
 {
-    //Sanity checks
-    g_return_val_if_fail (line != NULL, NULL);
-
     //Declarations
     LwResult * self = NULL;
 
@@ -56,7 +53,7 @@ lw_result_new (LwParsedLine * line)
     self = g_new0 (LwResult, 1);
     if (self == NULL) goto errored;
 
-    self->line = line;
+    self->index = index;
 
 errored:
 
@@ -73,59 +70,3 @@ lw_result_free (LwResult * self)
 
     g_free (self);
 }
-
-
-gint
-lw_result_compare_score_func (LwResult * a,
-                              LwResult * b)
-{
-    return a->score - b->score;
-}
-
-
-gint
-lw_result_compare_column_func (LwResult    * a,
-                               LwResult    * b,
-                               gint          columnid,
-                               GQuark        language)
-{
-    //Declarations
-    gchar const ** strva = NULL;
-    gchar const ** strvb = NULL;
-    gint i = 0;
-    gint comparison = 0;
-    static GQuark number = 0;
-
-    //Initializations
-    strva = lw_parsedline_get_strv (a->line, columnid);
-    if (strva == NULL) goto errored;
-    strvb = lw_parsedline_get_strv (b->line, columnid);
-    if (strvb == NULL) goto errored;
-    
-    if (G_UNLIKELY (number == 0))
-    {
-      number = g_quark_from_static_string ("number");
-    }
-
-    if (language == number)
-    {
-      for (i = 0; comparison == 0; i++)
-      {
-        comparison = lw_utf8_cmpnumber0 (strva[i], strvb[i]);
-        if (strva[i] == NULL || strvb[i] == NULL) break;
-      }
-    }
-    else
-    {
-      for (i = 0; comparison == 0; i++)
-      {
-        comparison = g_strcmp0 (strva[i], strvb[i]);
-        if (strva[i] == NULL || strvb[i] == NULL) break;
-      }
-    }
-
-errored:
-
-    return comparison;
-}
-

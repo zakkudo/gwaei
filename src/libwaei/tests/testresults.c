@@ -33,7 +33,7 @@ new (Fixture *fixture, gconstpointer data)
 void
 append_parsedline (Fixture *fixture, gconstpointer data)
 {
-    lw_results_append_parsedline (fixture->results, &fixture->line);
+    lw_results_append_result (fixture->results, lw_result_new (1));
     g_assert (fixture->dictionary_cache == lw_results_get_dictionarycache (fixture->results));
     g_assert_cmpint (1, ==, g_sequence_get_length (lw_results_get_sequence (fixture->results)));
 }

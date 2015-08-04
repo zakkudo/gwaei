@@ -10,6 +10,7 @@ static GTypeModule * module = NULL;
 
 struct _Fixture {
   LwDictionary * dictionary;
+  LwDictionaryClass * dictionary_class;
   gchar const * FILENAME;
   gchar * cachetmpl;
   gchar * cachedir;
@@ -37,6 +38,7 @@ void setup (Fixture *fixture, gconstpointer data)
   GType type = g_type_from_name ("LwKanjiDictionary");
   fixture->FILENAME = TESTDATADIR "kanjidictionary.data";
   fixture->dictionary = lw_dictionary_new (type, fixture->FILENAME);
+  fixture->dictionary_class = LW_DICTIONARY_GET_CLASS (fixture->dictionary);
 }
 
 
@@ -185,44 +187,44 @@ set_contents_filename_to_something_else (Fixture * fixture, gconstpointer data)
 void
 get_total_columns (Fixture * fixture, gconstpointer data)
 {
-  g_assert_cmpint (TOTAL_LW_KANJIDICTIONARYCOLUMNIDS, ==, lw_dictionary_total_columns (fixture->dictionary));
+  g_assert_cmpint (TOTAL_LW_KANJIDICTIONARYCOLUMNIDS, ==, lw_dictionary_total_columns (fixture->dictionary_class));
 }
 
 
 void
 get_column_language_matches_known_values (Fixture * fixture, gconstpointer data)
 {
-    g_assert_cmpint (g_quark_from_string ("ja"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_KANJI));
-    g_assert_cmpint (g_quark_from_string ("symbol"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL));
-    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY));
-    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT));
-    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL));
-    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL));
-    g_assert_cmpint (g_quark_from_string ("ja"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS));
-    g_assert_cmpint (g_quark_from_string ("ja"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_ON_READINGS));
-    g_assert_cmpint (g_quark_from_string ("en"), ==, lw_dictionary_get_column_language (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_MEANINGS));
+    g_assert_cmpint (g_quark_from_string ("ja"), ==, lw_dictionary_get_column_language (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_KANJI));
+    g_assert_cmpint (g_quark_from_string ("symbol"), ==, lw_dictionary_get_column_language (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL));
+    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY));
+    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT));
+    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL));
+    g_assert_cmpint (g_quark_from_string ("number"), ==, lw_dictionary_get_column_language (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL));
+    g_assert_cmpint (g_quark_from_string ("ja"), ==, lw_dictionary_get_column_language (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS));
+    g_assert_cmpint (g_quark_from_string ("ja"), ==, lw_dictionary_get_column_language (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_ON_READINGS));
+    g_assert_cmpint (g_quark_from_string ("en"), ==, lw_dictionary_get_column_language (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_MEANINGS));
 }
 
 
 void
 get_column_handling_matches_known_values (Fixture * fixture, gconstpointer data)
 {
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_KANJI));
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL));
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY));
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT));
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL));
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL));
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS));
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_ON_READINGS));
-    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary, LW_KANJIDICTIONARYCOLUMNID_MEANINGS));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_KANJI));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_UNICODE_SYMBOL));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_GRADE_LEVEL));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_JLPT_LEVEL));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_ON_READINGS));
+    g_assert_cmpint (LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, ==, lw_dictionary_get_column_handling (fixture->dictionary_class, LW_KANJIDICTIONARYCOLUMNID_MEANINGS));
 }
 
 
 void
 columnid_get_type (Fixture * fixture, gconstpointer data)
 {
-    GType type = lw_dictionary_get_columnid_type (fixture->dictionary);
+    GType type = lw_dictionary_get_columnid_type (fixture->dictionary_class);
     GType (* get_columnid_type) ();
     g_assert_true (lw_dictionarymodule_symbol (LW_DICTIONARYMODULE (module), "lw_kanjidictionary_get_columnid_type", (gpointer*) &get_columnid_type));
     g_assert_cmpint (type, ==, get_columnid_type());
@@ -238,7 +240,7 @@ calculate_applicable_columns_for_text_when_english (Fixture * fixture, gconstpoi
 {
   gint * columns = NULL;
 
-  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "English");
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary_class, "English");
 
   g_assert_cmpint (LW_KANJIDICTIONARYCOLUMNID_MEANINGS, ==, columns[0]);
   g_assert_cmpint (-1, ==, columns[1]);
@@ -252,7 +254,7 @@ calculate_applicable_columns_for_text_when_kanji (Fixture * fixture, gconstpoint
 {
   gint * columns = NULL;
 
-  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "日本語");
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary_class, "日本語");
 
   g_assert_cmpint (LW_KANJIDICTIONARYCOLUMNID_KANJI, ==, columns[0]);
   g_assert_cmpint (-1, ==, columns[1]);
@@ -266,7 +268,7 @@ calculate_applicable_columns_for_text_when_hiragana (Fixture * fixture, gconstpo
 {
   gint * columns = NULL;
 
-  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "にほんご");
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary_class, "にほんご");
 
   g_assert_cmpint (LW_KANJIDICTIONARYCOLUMNID_ON_READINGS, ==, columns[0]);
   g_assert_cmpint (LW_KANJIDICTIONARYCOLUMNID_KUN_READINGS, ==, columns[1]);
@@ -281,7 +283,7 @@ calculate_applicable_columns_for_text_when_kanjihiragana (Fixture * fixture, gco
 {
   gint * columns = NULL;
 
-  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "生きます");
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary_class, "生きます");
 
   g_assert_cmpint (-1, ==, columns[0]);
 
@@ -294,7 +296,7 @@ calculate_applicable_columns_for_text_when_mix (Fixture * fixture, gconstpointer
 {
   gint * columns = NULL;
 
-  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "日本語にほんごJapanese");
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary_class, "日本語にほんごJapanese");
 
   g_assert_cmpint (-1, ==, columns[0]);
 
@@ -307,7 +309,7 @@ calculate_applicable_columns_for_text_when_number (Fixture * fixture, gconstpoin
 {
   gint * columns = NULL;
 
-  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "1");
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary_class, "1");
 
   g_assert_cmpint (LW_KANJIDICTIONARYCOLUMNID_USAGE_FREQUENCY, ==, columns[0]);
   g_assert_cmpint (LW_KANJIDICTIONARYCOLUMNID_STROKE_COUNT, ==, columns[1]);
@@ -324,7 +326,7 @@ calculate_applicable_columns_for_text_when_blank (Fixture * fixture, gconstpoint
 {
   gint * columns = NULL;
 
-  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary, "");
+  columns = lw_dictionary_calculate_applicable_columns_for_text (fixture->dictionary_class, "");
 
   g_assert_null (columns);
 
