@@ -230,7 +230,10 @@ lw_search_finalize (GObject * object)
     lw_search_set_progress (self, NULL);
 
     g_list_free_full (priv->results_buffer, (GDestroyNotify) lw_result_free);
+
     if (priv->dictionary_cache) g_object_unref (priv->dictionary_cache);
+
+    memset(priv, 0, sizeof(LwSearchPrivate));
 
     G_OBJECT_CLASS (lw_search_parent_class)->finalize (object);
 }
@@ -1239,7 +1242,7 @@ _query_parsed_line (LwParsed     * parsed,
       LwResult * result = lw_result_new (index);
       if (result != NULL)
       {
-        priv->results_buffer = g_list_prepend (priv->results_buffer, line);
+        priv->results_buffer = g_list_prepend (priv->results_buffer, result);
       }
       g_mutex_unlock (&priv->mutex);
     }

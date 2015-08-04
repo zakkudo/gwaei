@@ -387,7 +387,6 @@ lw_results_append_result (LwResults * self,
     //Sanity checks
     g_return_val_if_fail (LW_IS_RESULTS (self), NULL);
     g_return_val_if_fail (result != NULL, NULL);
-    g_return_val_if_fail (result->index == 0, NULL);
 
     //Declarations
     LwResultsPrivate * priv = NULL;
