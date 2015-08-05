@@ -41,6 +41,15 @@ struct _LwResultsClass {
 };
 
 
+struct LwResultsCompareByColumnIdFuncData {
+  gint columnid;
+  GQuark language;
+  GQuark number;
+  LwParsed * parsed;
+};
+typedef struct _LwResultsCompareByColumnIdFuncData LwResultsCompareByColumnidFuncData;
+
+
 //Methods
 LwResults * lw_results_new (LwDictionaryCache * dictionary_cache);
 
@@ -50,6 +59,13 @@ LwDictionaryCache * lw_results_get_dictionarycache (LwResults * self);
 GSequence * lw_results_get_sequence (LwResults * self);
 
 LwResultsIter * lw_results_append_result (LwResults * self, LwResult * result);
+
+gint lw_results_compare_score_func (LwResult * a, LwResult * b);
+void lw_results_sort_by_score (LwResults * self);
+gint lw_results_compare_index_func (LwResult * a, LwResult * b);
+void lw_results_sort_by_index (LwResults * self);
+gint lw_results_compare_columnid_func (LwResult * a, LwResult * b, struct LwResultsCompareByColumnIdFuncData * data);
+void lw_results_sort_by_columnid (LwResults * self, gint columnid);
 
 G_END_DECLS
 

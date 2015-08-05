@@ -380,6 +380,12 @@ lw_results_get_sequence (LwResults * self)
 }
 
 
+/**
+ * lw_results_append_result:
+ * @self: A #LwResults
+ * @result: A #LwResult to append to the list
+ * Returns: An iterator pointing to where the result was inserted
+ */
 LwResultsIter *
 lw_results_append_result (LwResults * self,
                           LwResult  * result)
@@ -407,80 +413,121 @@ lw_results_append_result (LwResults * self,
     return iter;
 }
 
-
+/**
+ * lw_results_compare_score_func:
+ * @a: The first result being compared
+ * @b: The second result being compared
+ * @Returns: less than 0 if a is less than b, 0 if a equals b, greater than 0 if a is greater than b
+ *
+ * A compare method made to be directly compatible with g_sequence_sort() or
+ * wrapped in a thin wrapper for #GtkTreeIterCompareFunc to implement #GtkTreeSortable.
+ */
 gint
-lw_results_compare_by_score_func (LwResults * self,
-                                  LwResult  * a,
-                                  LwResult  * b)
+lw_results_compare_score_func (LwResult * a,
+                               LwResult * b)
 {
     return a->score - b->score;
 }
+                        
 
-
-gint
-lw_results_compare_by_index_func (LwResults * self,
-                                  LwResult  * a,
-                                  LwResult  * b)
+/**
+ * lw_results_sort_by_score:
+ * @self: A #LwResults
+ *
+ * Sorts a results list by the match score, raising a reordered signal when finished.
+ */
+void
+lw_results_sort_by_score (LwResults * self)
 {
-    return a->index - b->index;
+    //Declarations
+    LwResultsPrivate * priv = NULL;
+    GSequence * sequence = NULL;
+
+    //Initializations
+    priv = self->priv;
+    sequence = priv->sequence;
+
+    g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_score_func, NULL);
 }
 
 
+/**
+ * lw_results_compare_index_func:
+ * @a: The first result being compared
+ * @b: The second result being compared
+ * @Returns: less than 0 if a is less than b, 0 if a equals b, greater than 0 if a is greater than b
+ *
+ * A compare method made to be directly compatible with g_sequence_sort() or
+ * wrapped in a thin wrapper for #GtkTreeIterCompareFunc to implement #GtkTreeSortable.
+ */
 gint
-lw_results_compare_by_columnid_func (LwResults * self,
-                                     LwResult  * a,
-                                     LwResult  * b,
-                                     gint        columnid)
+lw_results_compare_index_func (LwResult * a,
+                               LwResult * b)
 {
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_RESULTS (self), 0);
+    return a->index - b->index;
+}
+                        
 
+/**
+ * lw_results_sort_by_score:
+ * @self: A #LwResults
+ *
+ * Sorts a results list by the match score, raising a reordered signal when finished.
+ */
+void
+lw_results_sort_by_index (LwResults * self)
+{
     //Declarations
     LwResultsPrivate * priv = NULL;
+    GSequence * sequence = NULL;
+
+    //Initializations
+    priv = self->priv;
+    sequence = priv->sequence;
+
+    g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_index_func, NULL);
+}
+
+
+/**
+ * lw_results_compare_index_func:
+ * @a: The first result being compared
+ * @b: The second result being compared
+ * @data: Sort data
+ * @Returns: less than 0 if a is less than b, 0 if a equals b, greater than 0 if a is greater than b
+ *
+ * A compare method made to be directly compatible with g_sequence_sort() or
+ * wrapped in a thin wrapper for #GtkTreeIterCompareFunc to implement #GtkTreeSortable.
+ */
+gint
+lw_results_compare_columnid_func (LwResult                                  * a,
+                                  LwResult                                  * b,
+                                  struct LwResultsCompareByColumnIdFuncData * data)
+{
+    //Declarations
     gchar const ** strva = NULL;
     gchar const ** strvb = NULL;
     gint i = 0;
     gint comparison = 0;
-    static GQuark number = 0;
-    GQuark language = 0;
-    LwParsed * parsed = NULL;
-    LwDictionaryClass * dictionary_class = NULL;
-    GType dictionary_type = G_TYPE_INVALID;
-    LwDictionaryCache * dictionary_cache = NULL;
     LwParsedLine * pa = NULL, * pb = NULL;
 
     //Initializations
-    priv = self->priv;
-    dictionary_type = lw_dictionarycache_get_dictionary_type (dictionary_cache);
-    if (dictionary_type == G_TYPE_INVALID || dictionary_type == G_TYPE_NONE) goto errored;
-    dictionary_class = g_type_class_ref (dictionary_type);
-    if (dictionary_class == NULL) goto errored;
-    dictionary_cache = priv->dictionary_cache;
-    language = lw_dictionary_get_column_language (dictionary_class, columnid);
-    if (language == 0) goto errored;
-    parsed = lw_dictionarycache_get_parsed (dictionary_cache);
-    if (parsed == NULL) goto errored;
 
     {
-      pa = lw_parsed_get_line (parsed, a->index);
+      pa = lw_parsed_get_line (data->parsed, a->index);
       if (pa == NULL) goto errored;
-      strva = lw_parsedline_get_strv (pa, columnid);
+      strva = lw_parsedline_get_strv (pa, data->columnid);
       if (strva == NULL) goto errored;
     }
 
     {
-      pb = lw_parsed_get_line (parsed, b->index);
+      pb = lw_parsed_get_line (data->parsed, b->index);
       if (pb == NULL) goto errored;
-      strvb = lw_parsedline_get_strv (pb, columnid);
+      strvb = lw_parsedline_get_strv (pb, data->columnid);
       if (strvb == NULL) goto errored;
     }
     
-    if (G_UNLIKELY (number == 0))
-    {
-      number = g_quark_from_static_string ("number");
-    }
-
-    if (language == number)
+    if (data->language == data->number)
     {
       for (i = 0; comparison == 0; i++)
       {
@@ -499,9 +546,56 @@ lw_results_compare_by_columnid_func (LwResults * self,
 
 errored:
 
-    if (dictionary_class) g_type_class_unref (dictionary_class);
-    dictionary_class = NULL;
-
     return comparison;
 }
 
+
+/**
+ * lw_results_sort_by_columnid:
+ * @self: A #LwResults
+ * @columnid: The dictionary column to sort by
+ *
+ * Sorts a results list by the match score, raising a reordered signal when finished.
+ */
+void
+lw_results_sort_by_columnid (LwResults * self,
+                             gint        columnid)
+{
+    //Declarations
+    LwResultsPrivate * priv = NULL;
+    GSequence * sequence = NULL;
+    struct LwResultsCompareByColumnIdFuncData data = {0};
+    GQuark language = 0;
+    LwParsed * parsed = NULL;
+    LwDictionaryClass * dictionary_class = NULL;
+    GType dictionary_type = G_TYPE_INVALID;
+    LwDictionaryCache * dictionary_cache = NULL;
+
+    //Initializations
+    priv = self->priv;
+    sequence = priv->sequence;
+    dictionary_cache = priv->dictionary_cache;
+
+    dictionary_type = lw_dictionarycache_get_dictionary_type (dictionary_cache);
+    if (dictionary_type == G_TYPE_INVALID || dictionary_type == G_TYPE_NONE) goto errored;
+    dictionary_class = g_type_class_ref (dictionary_type);
+    if (dictionary_class == NULL) goto errored;
+    language = lw_dictionary_get_column_language (dictionary_class, columnid);
+    if (language == 0) goto errored;
+    parsed = lw_dictionarycache_get_parsed (dictionary_cache);
+    if (parsed == NULL) goto errored;
+
+    data.columnid = columnid;
+    data.language = language;
+    data.parsed = parsed;
+    data.number = g_quark_from_static_string ("number");
+
+    g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_columnid_func, &data);
+
+errored:
+
+    if (dictionary_class != NULL) g_type_class_unref (dictionary_class);
+    dictionary_class = NULL;
+
+    return;
+}
