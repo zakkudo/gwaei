@@ -673,3 +673,13 @@ errored:
 
     return;
 }
+
+
+gint
+lw_results_length (LwResults * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_RESULTS (self), 0);
+
+    return self->priv->length;
+}

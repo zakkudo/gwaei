@@ -6,19 +6,26 @@
 #include "testdictionary.h"
 
 
-struct _Fixture {LwResults * results; LwDictionaryCache * dictionary_cache; LwParsedLine line;};
+struct _Fixture {
+  LwResults * results;
+  LwDictionaryCache * dictionary_cache;
+  LwParsedLine line;
+  GList * rows_reordered;
+};
 typedef struct _Fixture Fixture;
 
 void setup (Fixture *fixture, gconstpointer data)
 {
     fixture->dictionary_cache = lw_dictionarycache_new ("test", LW_TYPE_TESTDICTIONARY, 0);
     fixture->results = lw_results_new (fixture->dictionary_cache);
+    fixture->rows_reordered;
 }
 
 void teardown (Fixture *fixture, gconstpointer data)
 {
     g_object_unref (fixture->results);
     g_object_unref (fixture->dictionary_cache);
+    g_list_free_full (fixture->rows_reordered, (GDestroyNotify) g_free);
 }
 
 
@@ -45,11 +52,25 @@ append_result (Fixture *fixture, gconstpointer data)
 }
 
 
+static void
+_rows_reordered (LwResults * results,
+                 gint      * new_order,
+                 Fixture   * fixture)
+{
+  gint length = lw_results_length (results);
+  new_order = g_memdup (new_order, sizeof(gint) * length);
+  fixture->rows_reordered = g_list_prepend (fixture->rows_reordered, new_order);
+}
+
+
 void
 sort_by_score (Fixture * fixture, gconstpointer data)
 {
     //Arrange
     LwResult * result = NULL;
+    gint i;
+    gint expected_new_order[] = {1, 3, 0, 2};
+    g_signal_connect (G_OBJECT (fixture->results), "internal-rows-reordered", G_CALLBACK (_rows_reordered), fixture);
 
     result = lw_result_new (1);
     result->score = 10;
@@ -70,32 +91,40 @@ sort_by_score (Fixture * fixture, gconstpointer data)
     //Act
     lw_results_sort_by_score (fixture->results);
 
-    //Asset
-    GSequence * sequence = lw_results_get_sequence (fixture->results);
-    g_assert_cmpint (g_sequence_get_length (sequence), ==, 4);
-    GSequenceIter * iter = g_sequence_get_begin_iter (sequence);
-    result = g_sequence_get (iter);
-    g_assert_cmpint (result->index, ==, 0);
-    g_assert_cmpint (result->line_number, ==, 2);
-    g_assert_cmpint (result->score, ==, 5);
-    
-    iter = g_sequence_iter_next (iter);
-    result = g_sequence_get (iter);
-    g_assert_cmpint (result->index, ==, 1);
-    g_assert_cmpint (result->line_number, ==, 5);
-    g_assert_cmpint (result->score, ==, 7);
+    //Assert
+    for (i = 0; i < G_N_ELEMENTS (expected_new_order); i++)
+    {
+        gint * new_order = (gint*) fixture->rows_reordered->data;
+        g_assert_cmpint (expected_new_order[i], ==, new_order[i]);
+    }
 
-    iter = g_sequence_iter_next (iter);
-    result = g_sequence_get (iter);
-    g_assert_cmpint (result->index, ==, 2);
-    g_assert_cmpint (result->line_number, ==, 1);
-    g_assert_cmpint (result->score, ==, 10);
+    {
+      GSequence * sequence = lw_results_get_sequence (fixture->results);
+      g_assert_cmpint (g_sequence_get_length (sequence), ==, 4);
+      GSequenceIter * iter = g_sequence_get_begin_iter (sequence);
+      result = g_sequence_get (iter);
+      g_assert_cmpint (result->index, ==, 0);
+      g_assert_cmpint (result->line_number, ==, 2);
+      g_assert_cmpint (result->score, ==, 5);
+      
+      iter = g_sequence_iter_next (iter);
+      result = g_sequence_get (iter);
+      g_assert_cmpint (result->index, ==, 1);
+      g_assert_cmpint (result->line_number, ==, 5);
+      g_assert_cmpint (result->score, ==, 7);
 
-    iter = g_sequence_iter_next (iter);
-    result = g_sequence_get (iter);
-    g_assert_cmpint (result->index, ==, 3);
-    g_assert_cmpint (result->line_number, ==, 3);
-    g_assert_cmpint (result->score, ==, 20);
+      iter = g_sequence_iter_next (iter);
+      result = g_sequence_get (iter);
+      g_assert_cmpint (result->index, ==, 2);
+      g_assert_cmpint (result->line_number, ==, 1);
+      g_assert_cmpint (result->score, ==, 10);
+
+      iter = g_sequence_iter_next (iter);
+      result = g_sequence_get (iter);
+      g_assert_cmpint (result->index, ==, 3);
+      g_assert_cmpint (result->line_number, ==, 3);
+      g_assert_cmpint (result->score, ==, 20);
+    }
 }
 
 

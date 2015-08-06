@@ -67,6 +67,8 @@ void lw_results_sort_by_index (LwResults * self);
 gint lw_results_compare_columnid_func (LwResult * a, LwResult * b, struct LwResultsCompareByColumnIdFuncData * data);
 void lw_results_sort_by_columnid (LwResults * self, gint columnid);
 
+gint lw_results_length (LwResults * self);
+
 G_END_DECLS
 
 #endif
