@@ -44,7 +44,7 @@
 
 
 LwResult *
-lw_result_new (gint index)
+lw_result_new (gint line_number)
 {
     //Declarations
     LwResult * self = NULL;
@@ -53,7 +53,7 @@ lw_result_new (gint index)
     self = g_new0 (LwResult, 1);
     if (self == NULL) goto errored;
 
-    self->index = index;
+    self->line_number = line_number;
 
 errored:
 

@@ -29,6 +29,7 @@ typedef enum {
 struct _LwResultsPrivate {
   GSequence * sequence;
   LwDictionaryCache * dictionary_cache;
+  gint length;
 };
 
 struct _LwResultsClassPrivate {
@@ -41,6 +42,8 @@ struct _LwResultsClassPrivate {
 
 static void lw_results_set_dictionarycache (LwResults * self, LwDictionaryCache * dictionary_cache);
 static void lw_results_set_sequence (LwResults * self, GSequence * sequence);
+
+static gint * lw_results_normalize_indices (LwResults * self);
 
 G_END_DECLS
 

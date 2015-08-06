@@ -82,9 +82,9 @@ lw_results_init (LwResults * self)
 
 static void 
 lw_results_set_property (GObject      * object,
-                        guint          property_id,
-                        const GValue * value,
-                        GParamSpec   * pspec)
+                         guint          property_id,
+                         const GValue * value,
+                         GParamSpec   * pspec)
 {
     //Declarations
     LwResults *self = NULL;
@@ -111,9 +111,9 @@ lw_results_set_property (GObject      * object,
 
 static void 
 lw_results_get_property (GObject    * object,
-                        guint        property_id,
-                        GValue     * value,
-                        GParamSpec * pspec)
+                         guint        property_id,
+                         GValue     * value,
+                         GParamSpec * pspec)
 {
     //Declarations
     LwResults *self = NULL;
@@ -398,17 +398,16 @@ lw_results_append_result (LwResults * self,
     LwResultsPrivate * priv = NULL;
     LwResultsClass * klass = NULL;
     LwResultsIter * iter = NULL;
-    gint position = 0;
 
     //Initializations
     priv = self->priv;
     klass = LW_RESULTS_GET_CLASS (self);
     iter = g_sequence_append (priv->sequence, result);
-    position = g_sequence_iter_get_position (iter);
-    result->index = position;
+    result->index = priv->length;
+    priv->length += 1;
 
-    g_signal_emit (G_OBJECT (self), klass->priv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, position);
-    g_signal_emit (G_OBJECT (self), klass->priv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, position);
+    g_signal_emit (G_OBJECT (self), klass->priv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, result->index);
+    g_signal_emit (G_OBJECT (self), klass->priv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, result->index);
 
     return iter;
 }
@@ -442,12 +441,23 @@ lw_results_sort_by_score (LwResults * self)
     //Declarations
     LwResultsPrivate * priv = NULL;
     GSequence * sequence = NULL;
+    LwResultsClass * klass = NULL;
+    gint * new_order = NULL;
 
     //Initializations
     priv = self->priv;
     sequence = priv->sequence;
+    klass = LW_RESULTS_GET_CLASS (self);
 
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_score_func, NULL);
+
+    new_order = lw_results_normalize_indices (self);
+    g_signal_emit (G_OBJECT (self), klass->priv->signalid[CLASS_SIGNALID_ROWS_REORDERED], 0, new_order);
+
+errored:
+
+    g_free (new_order);
+    new_order = NULL;
 }
 
 
@@ -480,12 +490,23 @@ lw_results_sort_by_index (LwResults * self)
     //Declarations
     LwResultsPrivate * priv = NULL;
     GSequence * sequence = NULL;
+    LwResultsClass * klass = NULL;
+    gint * new_order = NULL;
 
     //Initializations
     priv = self->priv;
     sequence = priv->sequence;
+    klass = LW_RESULTS_GET_CLASS (self);
 
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_index_func, NULL);
+    new_order = lw_results_normalize_indices (self);
+
+    g_signal_emit (G_OBJECT (self), klass->priv->signalid[CLASS_SIGNALID_ROWS_REORDERED], 0, new_order);
+
+errored:
+
+    g_free (new_order);
+    new_order = NULL;
 }
 
 
@@ -550,6 +571,50 @@ errored:
 }
 
 
+static gint *
+lw_results_normalize_indices (LwResults * self)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_RESULTS (self), NULL);
+
+    //Declarations
+    LwResultsPrivate * priv = NULL;
+    gint * new_order = NULL;
+    gint * new_order_out = NULL;
+    GSequence * sequence = NULL;
+    GSequenceIter * iter = NULL;
+    LwResult * result = NULL;
+    gint i = 0;
+
+    //Initializations
+    priv = self->priv;
+    new_order = g_new0 (gint, priv->length);
+    if (new_order == NULL) goto errored;
+    sequence = priv->sequence;
+    if (sequence == NULL) goto errored;
+    iter = g_sequence_get_begin_iter (sequence);
+    if (iter == NULL) goto errored;
+
+    while (!g_sequence_iter_is_end (iter))
+    {
+      result = g_sequence_get (iter);
+      new_order[i] = result->index;
+      result->index = i;
+      i += 1;
+      iter = g_sequence_iter_next (iter);
+    }
+
+    new_order_out = new_order;
+    new_order = NULL;
+
+errored:
+
+    g_free (new_order);
+    new_order = NULL;
+
+    return new_order_out;
+}
+
 /**
  * lw_results_sort_by_columnid:
  * @self: A #LwResults
@@ -570,11 +635,14 @@ lw_results_sort_by_columnid (LwResults * self,
     LwDictionaryClass * dictionary_class = NULL;
     GType dictionary_type = G_TYPE_INVALID;
     LwDictionaryCache * dictionary_cache = NULL;
+    LwResultsClass * klass = NULL;
+    gint * new_order = NULL;
 
     //Initializations
     priv = self->priv;
     sequence = priv->sequence;
     dictionary_cache = priv->dictionary_cache;
+    klass = LW_RESULTS_GET_CLASS (self);
 
     dictionary_type = lw_dictionarycache_get_dictionary_type (dictionary_cache);
     if (dictionary_type == G_TYPE_INVALID || dictionary_type == G_TYPE_NONE) goto errored;
@@ -592,10 +660,16 @@ lw_results_sort_by_columnid (LwResults * self,
 
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_columnid_func, &data);
 
+    new_order = lw_results_normalize_indices (self);
+    g_signal_emit (G_OBJECT (self), klass->priv->signalid[CLASS_SIGNALID_ROWS_REORDERED], 0, new_order);
+
 errored:
 
     if (dictionary_class != NULL) g_type_class_unref (dictionary_class);
     dictionary_class = NULL;
+
+    g_free (new_order);
+    new_order = NULL;
 
     return;
 }
