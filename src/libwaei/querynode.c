@@ -1414,7 +1414,7 @@ _value_matches_column (LwQueryNode          * self,
       if (column_match_info == NULL)
       {
         column_match_info = lw_querynodecolumnmatchinfo_new (column, strv);
-        lw_querynodematchinfo_set_column (match_info_out, column, column_match_info);
+        lw_querynodematchinfo_set_column (match_info_out, column_match_info);
         lw_querynodecolumnmatchinfo_unref (column_match_info);
       }
     }

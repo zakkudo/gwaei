@@ -25,13 +25,15 @@ void setup (Fixture *fixture, gconstpointer data)
     WORD[0] = CONTENTS;
     WORD[1] = NULL;
     fixture->word = lw_querynodecolumnmatchinfo_new (1, WORD);
-    lw_querynodematchinfo_set_column (fixture->match_info, 1, fixture->word);
+
+    printf("SETUP\n");
+    lw_querynodematchinfo_set_column (fixture->match_info, fixture->word);
     lw_querynodecolumnmatchinfo_unref (fixture->word);
 
     READINGS[0] = CONTENTS + strlen("語彙 ");
     READINGS[1] = NULL;
     fixture->readings = lw_querynodecolumnmatchinfo_new (2, READINGS);
-    lw_querynodematchinfo_set_column (fixture->match_info, 1, fixture->readings);
+    lw_querynodematchinfo_set_column (fixture->match_info, fixture->readings);
     lw_querynodecolumnmatchinfo_unref (fixture->readings);
 
     DEFINITIONS[0] = CONTENTS + strlen("語彙 ごい ");
@@ -39,7 +41,7 @@ void setup (Fixture *fixture, gconstpointer data)
     DEFINITIONS[2] = CONTENTS + strlen("語彙 ごい word vocabulary ");
     DEFINITIONS[3] = NULL;
     fixture->definitions = lw_querynodecolumnmatchinfo_new (3, DEFINITIONS);
-    lw_querynodematchinfo_set_column (fixture->match_info, 1, fixture->definitions);
+    lw_querynodematchinfo_set_column (fixture->match_info, fixture->definitions);
     lw_querynodecolumnmatchinfo_unref (fixture->definitions);
 }
 
@@ -66,33 +68,8 @@ get_column_that_is_set (Fixture       * fixture,
 {
     LwQueryNodeColumnMatchInfo * column = NULL;
     column = lw_querynodematchinfo_get_column (fixture->match_info, 1);
+    printf("get_column %d %d\n", column, fixture->word);
     g_assert(column == fixture->word);
-}
-
-
-void
-set_column_with_null_to_remove (Fixture       * fixture,
-                                gconstpointer   data)
-{
-    LwQueryNodeColumnMatchInfo * column = NULL;
-
-    lw_querynodematchinfo_set_column (fixture->match_info, 1, NULL);
-
-    column = lw_querynodematchinfo_get_column (fixture->match_info, 1);
-
-    g_assert_null (column);
-}
-
-void
-set_column_with_null_that_has_nothing (Fixture       * fixture,
-                                       gconstpointer   data)
-{
-    LwQueryNodeColumnMatchInfo * column = NULL;
-
-    lw_querynodematchinfo_set_column (fixture->match_info, 10, NULL);
-    column = lw_querynodematchinfo_get_column (fixture->match_info, 10);
-
-    g_assert_null (column);
 }
 
 
@@ -101,7 +78,7 @@ set_column_twice (Fixture       * fixture,
                   gconstpointer   data)
 {
     gint column = lw_querynodecolumnmatchinfo_get_column (fixture->word);
-    lw_querynodematchinfo_set_column (fixture->match_info, column, fixture->word);
+    lw_querynodematchinfo_set_column (fixture->match_info, fixture->word);
     g_assert (lw_querynodematchinfo_get_column (fixture->match_info, column) == fixture->word);
 }
 
@@ -114,8 +91,6 @@ main (gint argc, gchar *argv[])
     g_test_add ("/get_column/that_is_set", Fixture, NULL, setup, get_column_that_is_set, teardown);
     g_test_add ("/get_column/that_is_unset", Fixture, NULL, setup, get_column_that_is_unset, teardown);
 
-    g_test_add ("/set_column/with_null_to_remove", Fixture, NULL, setup, set_column_with_null_to_remove, teardown);
-    g_test_add ("/set_column/with_null_that_has_nothing", Fixture, NULL, setup, set_column_with_null_that_has_nothing, teardown);
     g_test_add ("/set_column/twice", Fixture, NULL, setup, set_column_twice, teardown);
 
     return g_test_run();

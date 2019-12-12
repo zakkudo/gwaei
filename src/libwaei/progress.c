@@ -805,7 +805,7 @@ lw_progress_set_total (LwProgress *self,
                        gdouble     total_progress)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_PROGRESS (self), NULL);
+    g_return_if_fail (LW_IS_PROGRESS (self));
 
     //Declarations
     LwProgressPrivate *priv = NULL;
@@ -874,7 +874,7 @@ gdouble
 lw_progress_get_fraction (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_val_if_fail (LW_IS_PROGRESS (self), 0.0);
 
     //Declarations
     LwProgressPrivate *priv = NULL;
@@ -965,7 +965,7 @@ gboolean
 lw_progress_completed (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_val_if_fail (LW_IS_PROGRESS (self), FALSE);
 
     //Declarations
     LwProgressPrivate *priv = NULL;
@@ -1067,7 +1067,7 @@ GError*
 lw_progress_get_error (LwProgress  *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_val_if_fail (LW_IS_PROGRESS (self), NULL);
 
     //Declarations
     LwProgressPrivate *priv = NULL;
@@ -1127,7 +1127,7 @@ gboolean
 lw_progress_is_cancelled (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_val_if_fail (LW_IS_PROGRESS (self), FALSE);
 
     //Declarations
     LwProgressPrivate *priv = NULL;
@@ -1192,7 +1192,7 @@ gboolean
 lw_progress_should_abort (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_val_if_fail (LW_IS_PROGRESS (self), FALSE);
 
     //Declarations
     LwProgressPrivate *priv = NULL;
@@ -1317,7 +1317,7 @@ gchar const*
 lw_progress_get_primary_message (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_val_if_fail (LW_IS_PROGRESS (self), NULL);
 
     //Declarations
     LwProgressPrivate *priv = NULL;
@@ -1453,7 +1453,7 @@ gchar const*
 lw_progress_get_secondary_message (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_val_if_fail (LW_IS_PROGRESS (self), NULL);
 
     //Declarations
     LwProgressPrivate *priv = NULL;
@@ -1591,7 +1591,7 @@ gchar const*
 lw_progress_get_step_message (LwProgress *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PROGRESS (self));
+    g_return_val_if_fail (LW_IS_PROGRESS (self), NULL);
 
     //Declarations
     LwProgressPrivate *priv = NULL;
@@ -1646,7 +1646,7 @@ lw_progress_set_prefered_chunk_size (LwProgress *self,
                                      gsize       prefered_chunk_size)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, 0);
+    g_return_if_fail (self != NULL);
     
     //Declarations
     LwProgressPrivate *priv = NULL;
@@ -1716,7 +1716,7 @@ lw_progress_set_chunk_size (LwProgress *self,
                             gsize       chunk_size)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, 0);
+    g_return_if_fail (self != NULL);
     
     //Declarations
     LwProgressPrivate *priv = NULL;

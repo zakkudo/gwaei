@@ -109,7 +109,7 @@ lw_serializable_serialize (LwSerializable * self,
                            LwProgress     * progress)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_SERIALIZABLE (self));
+    g_return_val_if_fail (LW_IS_SERIALIZABLE (self), 0);
     LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
 
     //Declarations
@@ -185,7 +185,7 @@ lw_serializable_deserialize_into (LwSerializable * self,
                                   LwProgress     * progress)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_SERIALIZABLE (self));
+    g_return_val_if_fail (LW_IS_SERIALIZABLE (self), 0);
     LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
 
     //Declarations

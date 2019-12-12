@@ -504,8 +504,8 @@ lw_parsedline_foreach (LwParsedLine            * self,
                        gpointer                  data)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
-    g_return_val_if_fail (func != NULL, NULL);
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (func != NULL);
 
     struct _ForeachData foreach_data = {
       .func = func,

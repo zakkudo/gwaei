@@ -625,7 +625,7 @@ LwCacheFile*
 lw_parsed_get_cachefile (LwParsed * self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_PARSED (self), TRUE);
+    g_return_val_if_fail (LW_IS_PARSED (self), NULL);
 
     //Declarations
     LwParsedPrivate *priv = NULL;

@@ -210,8 +210,6 @@ main (gint argc, gchar *argv[])
 
     g_test_add ("/is_writable", Fixture, NULL, setup, is_writable, teardown);
 
-    g_test_add ("/is_writable", Fixture, NULL, setup, is_writable, teardown);
-
     g_test_add ("/set_path/to_invalid_file", Fixture, NULL, setup, set_path_to_invalid_file, teardown);
     g_test_add ("/set_path/to_other_file", Fixture, NULL, setup, set_path_to_other_file, teardown);
 
