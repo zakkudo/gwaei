@@ -158,8 +158,6 @@ lw_querynodematchinfo_get_column (LwQueryNodeMatchInfo * self,
 {
     g_return_val_if_fail (self != NULL, NULL);
 
-    printf("TEST get_column\n");
-
     return g_tree_lookup (self->tree, GINT_TO_POINTER (column));
 }
 
@@ -177,6 +175,8 @@ lw_querynodematchinfo_set_column (LwQueryNodeMatchInfo       * self,
     //Initializations
     g_return_if_fail (self != NULL);
     g_return_if_fail (column_match_info != NULL);
+
+    lw_querynodecolumnmatchinfo_ref (column_match_info);
 
     g_tree_insert (self->tree, GINT_TO_POINTER (column_match_info->column), column_match_info);
 }

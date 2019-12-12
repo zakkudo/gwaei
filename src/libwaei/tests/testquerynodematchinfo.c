@@ -26,7 +26,6 @@ void setup (Fixture *fixture, gconstpointer data)
     WORD[1] = NULL;
     fixture->word = lw_querynodecolumnmatchinfo_new (1, WORD);
 
-    printf("SETUP\n");
     lw_querynodematchinfo_set_column (fixture->match_info, fixture->word);
     lw_querynodecolumnmatchinfo_unref (fixture->word);
 
@@ -68,7 +67,6 @@ get_column_that_is_set (Fixture       * fixture,
 {
     LwQueryNodeColumnMatchInfo * column = NULL;
     column = lw_querynodematchinfo_get_column (fixture->match_info, 1);
-    printf("get_column %d %d\n", column, fixture->word);
     g_assert(column == fixture->word);
 }
 
