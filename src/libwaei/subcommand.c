@@ -229,7 +229,7 @@ lw_subcommand_set_option_entries (LwSubCommand       * self,
                                   GOptionEntry const * option_entries)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_SUBCOMMAND (self), NULL);
+    g_return_if_fail (LW_IS_SUBCOMMAND (self));
 
     //Declarations
     LwSubCommandPrivate *priv = NULL;
@@ -283,7 +283,7 @@ lw_subcommand_set_name (LwSubCommand * self,
                         gchar const  * NAME)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_SUBCOMMAND (self), NULL);
+    g_return_if_fail (LW_IS_SUBCOMMAND (self));
 
     //Declarations
     LwSubCommandPrivate *priv = NULL;

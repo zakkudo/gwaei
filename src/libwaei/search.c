@@ -474,7 +474,7 @@ const gchar *
 lw_search_get_query (LwSearch * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_SEARCH (self));
+    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
 
     //Declarations
     LwSearchPrivate *priv = NULL;
@@ -523,7 +523,7 @@ LwQueryNode *
 lw_search_get_query_tree (LwSearch * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_SEARCH (self));
+    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
 
     //Declarations
     LwSearchPrivate * priv = NULL;
@@ -544,7 +544,7 @@ LwDictionary*
 lw_search_get_dictionary (LwSearch *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_SEARCH (self));
+    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
 
     //Declarations
     LwSearchPrivate *priv = NULL;
@@ -595,7 +595,7 @@ LwProgress*
 lw_search_get_progress (LwSearch * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_SEARCH (self));
+    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
 
     //Declarations
     LwSearchPrivate *priv = NULL;
@@ -668,7 +668,7 @@ gint
 lw_search_get_max_results (LwSearch * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_SEARCH (self));
+    g_return_val_if_fail (LW_IS_SEARCH (self), 0);
 
     //Declarations
     LwSearchPrivate *priv = NULL;
@@ -740,7 +740,7 @@ LwSearchStatus
 lw_search_get_status (LwSearch * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_SEARCH (self));
+    g_return_val_if_fail (LW_IS_SEARCH (self), LW_SEARCHSTATUS_UNSTARTED);
 
     //Declarations
     LwSearchPrivate *priv = NULL;
@@ -805,7 +805,7 @@ lw_search_set_flags (LwSearch     * self,
                      LwSearchFlag   flags)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_SEARCH (self), 0);
+    g_return_if_fail (LW_IS_SEARCH (self));
 
     //Declarations
     LwSearchPrivate *priv = NULL;
@@ -1069,7 +1069,7 @@ LwResults *
 lw_search_query_results (LwSearch * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_SEARCH (self));
+    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
 
     //Declarations
     LwSearchPrivate *priv = NULL;
@@ -1112,7 +1112,7 @@ lw_search_query_results_async (LwSearch *  self,
                                GError   ** error)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_SEARCH (self));
+    g_return_val_if_fail (LW_IS_SEARCH (self), NULL);
 
     //Declarations
     LwSearchPrivate *priv = NULL;

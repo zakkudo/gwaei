@@ -285,7 +285,7 @@ leafiterator_init (LeafIterator         * self,
                    GError               ** error)
 {
     //Sanity checks
-    g_return_val_if_fail (self != NULL, NULL);
+    g_return_if_fail (self != NULL);
     if (error != NULL && *error != NULL) return;
 
     self->c = parenthesis_node->OPEN;
@@ -680,7 +680,7 @@ _tokenize_leaf (LwParenthesisNode    *  parenthesis_node,
                 GError               ** error)
 {
     //Sanity checks
-    g_return_if_fail (parenthesis_node != NULL);
+    g_return_val_if_fail (parenthesis_node != NULL, NULL);
     if (error != NULL && *error != NULL) return NULL;
 
     // Declarations
@@ -962,7 +962,7 @@ lw_querynode_walk (LwQueryNode         * self,
                    gpointer              data)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_val_if_fail (self != NULL, FALSE);
 
     //Declarations
     gboolean should_stop = FALSE;
@@ -1304,7 +1304,7 @@ gint
 lw_querynode_nnodes (LwQueryNode * self)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_val_if_fail (self != NULL, 0);
 
     //Declarations
     gint nnodes = 1;

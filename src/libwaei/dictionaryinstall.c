@@ -501,8 +501,8 @@ lw_dictionaryinstall_set_gtype (LwDictionaryInstall *self,
                                 GType                gtype)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
-    g_return_val_if_fail (g_type_is_a (gtype, LW_TYPE_DICTIONARY), NULL);
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+    g_return_if_fail (g_type_is_a (gtype, LW_TYPE_DICTIONARY));
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
@@ -534,7 +534,7 @@ GType
 lw_dictionaryinstall_get_gtype (LwDictionaryInstall *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), G_TYPE_INVALID);
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
@@ -583,7 +583,7 @@ const gchar*
 lw_dictionaryinstall_get_download_key (LwDictionaryInstall *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
@@ -661,7 +661,7 @@ const gchar*
 lw_dictionaryinstall_get_download_uri (LwDictionaryInstall *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
@@ -677,7 +677,7 @@ const gchar*
 lw_dictionaryinstall_get_install_path (LwDictionaryInstall *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
@@ -785,7 +785,7 @@ LwPreferences*
 lw_dictionaryinstall_get_preferences (LwDictionaryInstall *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
@@ -853,7 +853,7 @@ LwProgress*
 lw_dictionaryinstall_get_progress (LwDictionaryInstall *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
@@ -876,7 +876,7 @@ GList*
 lw_dictionaryinstall_get_dependancies (LwDictionaryInstall *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
@@ -990,7 +990,7 @@ lw_dictionaryinstall_set_id (LwDictionaryInstall *self,
                              const gchar         *ID)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;
@@ -1018,7 +1018,7 @@ void
 lw_dictionaryinstall_sync_id (LwDictionaryInstall *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALL (self), NULL);
+    g_return_if_fail (LW_IS_DICTIONARYINSTALL (self));
 
     //Declarations
     LwDictionaryInstallPrivate *priv = NULL;

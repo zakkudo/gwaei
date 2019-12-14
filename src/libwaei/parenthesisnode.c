@@ -267,7 +267,7 @@ _parse_string (gchar const *  TEXT,
                GError      ** error)
 {
     //Sanity checks
-    g_return_if_fail (TEXT != NULL);
+    g_return_val_if_fail (TEXT != NULL, NULL);
     if (error != NULL && *error != NULL) return NULL;
 
     //Declarations

@@ -119,8 +119,8 @@ lw_indexed_serialize (LwIndexed   *self,
                        LwProgress *progress)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (preallocated_buffer != NULL);
+    g_return_val_if_fail (self != NULL, 0);
+    g_return_val_if_fail (preallocated_buffer != NULL, 0);
 
     return 0;
 }

@@ -6,14 +6,12 @@ G_BEGIN_DECLS
 typedef enum {
   PROP_0,
   PROP_PREFERENCES,
-  PROP_MORPHOLOGYENGINE,
   TOTAL_PROPS
 } Props;
 
 struct _Data {
   LwDictionaryList *dictionarylist;
   LwDictionaryInstallList *dictionaryinstalllist;
-  LwMorphologyEngine *morphologyengine;
   LwPreferences *preferences;
 };
 

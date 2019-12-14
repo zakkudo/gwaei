@@ -300,7 +300,7 @@ LwPreferences*
 lw_dictionaryinstalllist_get_preferences (LwDictionaryInstallList *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
 
     //Declarations
     LwDictionaryInstallListPrivate *priv = NULL;
@@ -321,7 +321,7 @@ void
 lw_dictionaryinstalllist_invalidate_length (LwDictionaryInstallList *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), 0);
+    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
 
     //Declarations
     LwDictionaryInstallListPrivate *priv = NULL;
@@ -488,7 +488,7 @@ _insert (LwDictionaryInstallList *self,
          GList                   *dictionaryinstalls)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), -1);
     if (dictionaryinstalls == NULL) return 0;
 
     //Declarations
@@ -642,7 +642,7 @@ lw_dictionaryinstalllist_insert (LwDictionaryInstallList *self,
                                  GList                   *dictionaryinstalls)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
     if (dictionaryinstalls == NULL) return NULL;
 
     //Declarations
@@ -750,7 +750,7 @@ _remove (LwDictionaryInstallList *self,
          gint         *indices)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
     if (indices == NULL) return NULL;
 
     //Declarations
@@ -839,7 +839,7 @@ lw_dictionaryinstalllist_remove (LwDictionaryInstallList *self,
                                  gint                    *indices)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
 
     //Declarations
     GList *removed = NULL;
@@ -1015,7 +1015,7 @@ lw_dictionaryinstalllist_get_indices (LwDictionaryInstallList *self,
                                       GList                   *dictionaryinstalls)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
     if (dictionaryinstalls == NULL) return NULL;
 
     //Declarations
@@ -1052,7 +1052,7 @@ GList*
 lw_dictionaryinstalllist_dictionaryinstalls (LwDictionaryInstallList *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
 
     //Declarations
     LwDictionaryInstallListPrivate *priv = NULL;
@@ -1073,7 +1073,7 @@ lw_dictionaryinstalllist_fuzzy_find (LwDictionaryInstallList *self,
                                      const gchar             *DESCRIPTION)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
 
     //Declarations
     LwDictionaryInstallListPrivate *priv = NULL;

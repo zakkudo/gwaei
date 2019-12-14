@@ -242,7 +242,7 @@ gboolean
 lw_dictionaryinstallstate_is_temporary (LwDictionaryInstallState *self)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_val_if_fail (self != NULL, FALSE);
 
     return self->is_temporary;
 }

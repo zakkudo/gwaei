@@ -341,7 +341,7 @@ _merge_base_and_validate (gchar       ** strv,
     //Sanity checks
     g_return_val_if_fail (strv != NULL, FALSE);
     g_return_val_if_fail (length > 0, FALSE);
-    g_return_val_if_fail (content != NULL, NULL);
+    g_return_val_if_fail (content != NULL, FALSE);
 
     //Declarations
     gint i = 0;

@@ -324,7 +324,7 @@ lw_exampledictionary_columnize_line (LwDictionary  * self,
                                      gsize         * num_tokens)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_EXAMPLEDICTIONARY (self));
+    g_return_val_if_fail (LW_IS_EXAMPLEDICTIONARY (self), NULL);
     g_return_val_if_fail (buffer != NULL, NULL);
     g_return_val_if_fail (tokens != NULL, NULL);
 

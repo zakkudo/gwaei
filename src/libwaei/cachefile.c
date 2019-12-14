@@ -435,8 +435,8 @@ lw_cachefile_read (LwCacheFile * self,
                    const gchar * EXPECTED_CHECKSUM,
                    LwProgress  * progress)
 {
-    g_return_val_if_fail (LW_IS_CACHEFILE (self), NULL);
-    g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, NULL);
+    g_return_val_if_fail (LW_IS_CACHEFILE (self), 0);
+    g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, 0);
     LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, 0);
 
     //Declarations

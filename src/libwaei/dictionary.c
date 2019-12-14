@@ -364,8 +364,8 @@ lw_dictionary_get_column_language (LwDictionaryClass * klass,
                                    gint                column_num)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), NULL);
-    g_return_val_if_fail (column_num > -1, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), 0);
+    g_return_val_if_fail (column_num > -1, 0);
 
     //Declarations
     gint total_columns = 0;
@@ -612,7 +612,7 @@ lw_dictionary_set_contents_path (LwDictionary * self,
                                  gchar const  * PATH)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    g_return_if_fail (LW_IS_DICTIONARY (self));
 
     //Declarations
     LwDictionaryPrivate *priv = NULL;
@@ -864,8 +864,8 @@ _initialize_cache (LwDictionary      * self,
                    LwProgress        * progress)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
-    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), FALSE);
+    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, FALSE);
 
     //Declarations
     LwDictionaryCacheTree * cachetree = NULL;
@@ -1022,7 +1022,7 @@ lw_dictionary_set_id (LwDictionary * self,
                       gchar const  * ID)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    g_return_if_fail (LW_IS_DICTIONARY (self));
 
     //Declarations
     LwDictionaryPrivate * priv = NULL;
@@ -1049,7 +1049,7 @@ static void
 lw_dictionary_sync_id (LwDictionary * self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    g_return_if_fail (LW_IS_DICTIONARY (self));
 
     //Declarations
     gchar const * DIRECTORYNAME = NULL;
@@ -1155,7 +1155,7 @@ static void
 lw_dictionary_sync_contents (LwDictionary * self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
+    g_return_if_fail (LW_IS_DICTIONARY (self));
 
     //Declarations
     LwDictionaryPrivate *priv = NULL;
@@ -1522,7 +1522,7 @@ GType
 lw_dictionary_get_columnid_type (LwDictionaryClass * klass)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), G_TYPE_INVALID);
 
     //Declarations
     GType type = G_TYPE_NONE;

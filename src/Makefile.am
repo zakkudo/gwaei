@@ -3,9 +3,9 @@
 SUBDIRS = libwaei libwaei/tests dictionary dictionary/tests schemas 
 #SUBDIRS += libwaei/tests
 
-#if !OS_MINGW
-#SUBDIRS += waei
-#endif
+if !OS_MINGW
+SUBDIRS += waei
+endif
 
 #if WITH_GNOME
 #SUBDIRS += libgwaei gwaei kpengine desktop images

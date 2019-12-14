@@ -577,9 +577,9 @@ lw_preferences_get_string_by_schema (LwPreferences *preferences,
                                      const gchar    *KEY)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PREFERENCES(preferences));
-    g_return_if_fail (SCHEMA != NULL);
-    g_return_if_fail (KEY != NULL);
+    g_return_val_if_fail (LW_IS_PREFERENCES(preferences), NULL);
+    g_return_val_if_fail (SCHEMA != NULL, NULL);
+    g_return_val_if_fail (KEY != NULL, NULL);
 
     //Declarations
     GSettings* settings = NULL;
@@ -684,9 +684,9 @@ lw_preferences_get_strv_by_schema (LwPreferences *preferences,
                                    const gchar    *KEY)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PREFERENCES(preferences));
-    g_return_if_fail (SCHEMA != NULL);
-    g_return_if_fail (KEY != NULL);
+    g_return_val_if_fail (LW_IS_PREFERENCES(preferences), NULL);
+    g_return_val_if_fail (SCHEMA != NULL, NULL);
+    g_return_val_if_fail (KEY != NULL, NULL);
 
     //Declarations
     GSettings* settings = NULL;

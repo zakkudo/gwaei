@@ -190,7 +190,7 @@ GObject*
 lw_dependancy_get_satisfaction (LwDependancy *self)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_val_if_fail (self != NULL, NULL);
 
     return self->object;
 }

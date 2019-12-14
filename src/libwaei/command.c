@@ -574,7 +574,7 @@ void
 lw_command_run (LwCommand * self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+    g_return_if_fail (LW_IS_COMMAND (self));
 
     //Declarations
     LwCommandPrivate *priv = NULL;
@@ -637,7 +637,7 @@ lw_command_set_parameter_string (LwCommand   * self,
                                  gchar const * parameter_string)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+    g_return_if_fail (LW_IS_COMMAND (self));
 
     //Declarations
     LwCommandPrivate *priv = NULL;
@@ -679,7 +679,7 @@ lw_command_set_description (LwCommand   * self,
                             gchar const * DESCRIPTION)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+    g_return_if_fail (LW_IS_COMMAND (self));
 
     //Declarations
     LwCommandPrivate *priv = NULL;
@@ -721,7 +721,7 @@ lw_command_set_summary (LwCommand   * self,
                         gchar const * SUMMARY)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_COMMAND (self), NULL);
+    g_return_if_fail (LW_IS_COMMAND (self));
 
     //Declarations
     LwCommandPrivate *priv = NULL;

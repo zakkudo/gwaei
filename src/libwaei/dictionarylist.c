@@ -279,7 +279,7 @@ LwPreferences*
 lw_dictionarylist_get_preferences (LwDictionaryList *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -323,7 +323,7 @@ void
 lw_dictionarylist_invalidate_length (LwDictionaryList *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), 0);
+    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
 
     //Declarations
     LwDictionaryListPrivate *priv = NULL;
@@ -475,7 +475,7 @@ _insert (LwDictionaryList *self,
          GList            *dictionaries)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), -1);
     if (dictionaries == NULL) return 0;
 
     //Declarations
@@ -629,7 +629,7 @@ lw_dictionarylist_insert (LwDictionaryList *self,
                           GList            *dictionaries)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
     if (dictionaries == NULL) return NULL;
 
     //Declarations
@@ -737,7 +737,7 @@ _remove (LwDictionaryList *self,
          gint             *indices)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
     if (indices == NULL) return NULL;
 
     //Declarations
@@ -826,7 +826,7 @@ lw_dictionarylist_remove (LwDictionaryList *self,
                           gint             *indices)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
 
     //Declarations
     GList *removed = NULL;
@@ -1409,7 +1409,7 @@ lw_dictionarylist_get_indices (LwDictionaryList *self,
                                GList            *dictionaries)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYLIST (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
     if (dictionaries == NULL) return NULL;
 
     //Declarations

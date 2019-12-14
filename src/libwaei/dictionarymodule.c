@@ -352,7 +352,7 @@ static gboolean
 lw_dictionarymodule_load (GTypeModule *module)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYMODULE (module), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYMODULE (module), FALSE);
 
     //Declarations
     LwDictionaryModule *self = NULL;
@@ -395,7 +395,7 @@ gchar const *
 lw_dictionarymodule_get_name (LwDictionaryModule * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYMODULE (self));
+    g_return_val_if_fail (LW_IS_DICTIONARYMODULE (self), NULL);
 
     //Declarations
     LwDictionaryModulePrivate * priv = NULL;

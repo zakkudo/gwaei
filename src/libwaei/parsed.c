@@ -401,7 +401,7 @@ lw_parsed_serialize (LwSerializable * serializable,
                      LwProgress     * progress)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_PARSED (serializable));
+    g_return_val_if_fail (LW_IS_PARSED (serializable), 0);
 
     //Declarations
     LwParsed * self = LW_PARSED (serializable);

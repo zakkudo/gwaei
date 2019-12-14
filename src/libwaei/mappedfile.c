@@ -246,7 +246,7 @@ static GMappedFile *
 _get_mapped_file (LwMappedFile * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    g_return_val_if_fail (LW_IS_MAPPEDFILE (self), NULL);
     
     //Declarations
     LwMappedFilePrivate *priv = NULL;
@@ -315,7 +315,7 @@ gsize
 lw_mappedfile_length (LwMappedFile * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    g_return_val_if_fail (LW_IS_MAPPEDFILE (self), 0);
     
     //Declarations
     LwMappedFilePrivate *priv = NULL;
@@ -343,7 +343,7 @@ gchar *
 lw_mappedfile_get_contents (LwMappedFile *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    g_return_val_if_fail (LW_IS_MAPPEDFILE (self), NULL);
     
     //Declarations
     LwMappedFilePrivate *priv = NULL;
@@ -406,7 +406,7 @@ gchar const *
 lw_mappedfile_get_path (LwMappedFile * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    g_return_val_if_fail (LW_IS_MAPPEDFILE (self), NULL);
     
     //Declarations
     LwMappedFilePrivate *priv = NULL;
@@ -460,7 +460,7 @@ gboolean
 lw_mappedfile_get_delete_on_free (LwMappedFile *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    g_return_val_if_fail (LW_IS_MAPPEDFILE (self), FALSE);
     
     //Declarations
     LwMappedFilePrivate *priv = NULL;
@@ -518,7 +518,7 @@ gboolean
 lw_mappedfile_is_writable (LwMappedFile *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_MAPPEDFILE (self));
+    g_return_val_if_fail (LW_IS_MAPPEDFILE (self), FALSE);
     
     //Declarations
     LwMappedFilePrivate *priv = NULL;

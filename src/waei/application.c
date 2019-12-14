@@ -113,9 +113,6 @@ w_application_set_property (GObject      *object,
 
     switch (property_id)
     {
-      case PROP_MORPHOLOGYENGINE:
-        w_application_set_morphologyengine (self, g_value_get_object (value));
-        break;
       case PROP_PREFERENCES:
         w_application_set_preferences (self, g_value_get_object (value));
         break;
@@ -142,9 +139,6 @@ w_application_get_property (GObject    *object,
 
     switch (property_id)
     {
-      case PROP_MORPHOLOGYENGINE:
-        g_value_set_object (value, w_application_get_morphologyengine (self));
-        break;
       case PROP_PREFERENCES:
         g_value_set_object (value, w_application_get_preferences (self));
         break;
@@ -291,15 +285,6 @@ w_application_class_init (WApplicationClass *klass)
         G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_PREFERENCES, klasspriv->pspec[PROP_PREFERENCES]);
-
-    klasspriv->pspec[PROP_MORPHOLOGYENGINE] = g_param_spec_object (
-        "morphology-engine",
-        "FIlename construct prop",
-        "Set the filename",
-        LW_TYPE_MORPHOLOGYENGINE,
-        G_PARAM_CONSTRUCT | G_PARAM_READWRITE
-    );
-    g_object_class_install_property (object_class, PROP_MORPHOLOGYENGINE, klasspriv->pspec[PROP_MORPHOLOGYENGINE]);
 }
 
 
@@ -338,66 +323,6 @@ w_application_get_program_name (WApplication *self)
 }
 
 
-void
-w_application_set_morphologyengine (WApplication       *self,
-                                    LwMorphologyEngine *morphologyengine)
-{
-  printf("BREAK w_application_set_morphologyengine %d\n", morphologyengine);
-    //Sanity checks
-    g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
-
-    //Declaration
-    WApplicationPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    if (morphologyengine != NULL)
-    {
-      g_object_ref (morphologyengine);
-    }
-
-    if (priv->data.morphologyengine != NULL)
-    {
-      g_object_remove_weak_pointer (
-        G_OBJECT (priv->data.morphologyengine),
-        (gpointer*) &priv->data.morphologyengine
-      );
-    }
-
-    priv->data.morphologyengine = morphologyengine;
-
-    if (priv->data.morphologyengine != NULL)
-    {
-      g_object_add_weak_pointer (
-        G_OBJECT (priv->data.morphologyengine),
-        (gpointer*) &priv->data.morphologyengine
-      );
-    }
-}
-
-
-LwMorphologyEngine*
-w_application_get_morphologyengine (WApplication *self)
-{
-    //Sanity checks
-    g_return_val_if_fail (W_IS_APPLICATION (self), NULL);
-
-    //Declaration
-    WApplicationPrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
-
-    if (priv->data.morphologyengine == NULL)
-    {
-      w_application_set_morphologyengine (self, lw_morphologyengine_new ("en_US"));
-    }
-
-    return priv->data.morphologyengine;
-}
-
-
 LwDictionaryList* 
 w_application_get_dictionarylist (WApplication *self)
 {
@@ -408,18 +333,16 @@ printf("BREAK w_application_get_dictionarylist\n");
 
     //Declarations
     WApplicationPrivate *priv = NULL;
-    LwMorphologyEngine *morphologyengine = NULL;
     LwPreferences *preferences = NULL;
 
     //Initializations
     priv = self->priv;
-    morphologyengine = w_application_get_morphologyengine (self);
     preferences = w_application_get_preferences (self);
 
     if (priv->data.dictionarylist == NULL)
     {
       priv->data.dictionarylist = lw_dictionarylist_new (preferences);
-      lw_dictionarylist_load_installed (priv->data.dictionarylist, morphologyengine);
+      lw_dictionarylist_load_installed (priv->data.dictionarylist);
       lw_dictionarylist_load_order (priv->data.dictionarylist);
     }
 

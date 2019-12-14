@@ -368,7 +368,7 @@ GSequence *
 lw_results_get_sequence (LwResults * self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_RESULTS (self));
+    g_return_val_if_fail (LW_IS_RESULTS (self), NULL);
 
     //Declarations
     LwResultsPrivate * priv = NULL;

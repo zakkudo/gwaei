@@ -646,8 +646,8 @@ lw_dictionarycache_read (LwDictionaryCache * self,
                          LwProgress        * progress)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
-    g_return_if_fail (EXPECTED_CHECKSUM != NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), FALSE);
+    g_return_val_if_fail (EXPECTED_CHECKSUM != NULL, FALSE);
     LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, FALSE);
 
     //Declarations
@@ -1223,9 +1223,9 @@ lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
                                                     LwProgress        * progress)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYCACHE (self));
-    g_return_if_fail (CHECKSUM != NULL);
-    g_return_if_fail (CONTENTS != NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARYCACHE (self), NULL);
+    g_return_val_if_fail (CHECKSUM != NULL, NULL);
+    g_return_val_if_fail (CONTENTS != NULL, NULL);
     LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
 
     //Declarations

@@ -558,7 +558,7 @@ static gboolean
 lw_vocabulary_delete_file (LwVocabulary *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_VOCABULARY (self));
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), FALSE);
 
     //Declarations
     const gchar *FILENAME = NULL;
@@ -740,7 +740,7 @@ void
 lw_vocabulary_invalidate_length (LwVocabulary *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_VOCABULARY (self), 0);
+    g_return_if_fail (LW_IS_VOCABULARY (self));
 
     //Declarations
     LwVocabularyPrivate *priv = NULL;
@@ -838,7 +838,7 @@ _insert (LwVocabulary *self,
          GList        *wordlist)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_VOCABULARY (self));
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), 0);
     if (wordlist == NULL) return 0;
 
     //Declarations
@@ -990,7 +990,7 @@ lw_vocabulary_insert (LwVocabulary *self,
                       GList        *words)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_VOCABULARY (self));
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
     if (words == NULL) return NULL;
 
     //Declarations
@@ -1100,7 +1100,7 @@ _remove (LwVocabulary *self,
          gint         *indices)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_VOCABULARY (self));
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
     if (indices == NULL) return NULL;
 
     //Declarations
@@ -1190,7 +1190,7 @@ lw_vocabulary_remove (LwVocabulary *self,
                       gint         *indices)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_VOCABULARY (self));
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
 
     //Declarations
     GList *removed = NULL;
@@ -1279,7 +1279,7 @@ static gint
 _initialize_new_filename_suffix_number (const gchar *PATTERN)
 {
     //Sanity checks
-    g_return_if_fail (PATTERN != NULL);
+    g_return_val_if_fail (PATTERN != NULL, -1);
 
     //Declarations
     gchar **filenames = NULL;
@@ -1590,7 +1590,7 @@ lw_vocabulary_load_from_string (LwVocabulary       *self,
                                 gboolean            take_filename_from_text)
 {
     //Sanity checks
-    g_return_if_fail (LW_VOCABULARY (self));
+    g_return_val_if_fail (LW_VOCABULARY (self), NULL);
     if (TEXT == NULL) return NULL;
 
     //Declarations
@@ -1842,7 +1842,7 @@ lw_vocabulary_get_indices (LwVocabulary *self,
                            GList        *words)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_VOCABULARY (self));
+    g_return_val_if_fail (LW_IS_VOCABULARY (self), NULL);
     if (words == NULL) return NULL;
 
     //Declarations

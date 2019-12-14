@@ -331,7 +331,7 @@ lw_dictionarycachetree_lookup_by_utf8flags (LwDictionaryCacheTree * self,
                                             LwUtf8Flag              flags)
 {
     //Sanity checks
-    g_return_if_fail (self != NULL);
+    g_return_val_if_fail (self != NULL, NULL);
 
     LwDictionaryCache * cache = NULL;
 

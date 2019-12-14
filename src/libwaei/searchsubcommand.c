@@ -172,7 +172,7 @@ lw_searchsubcommand_parse_query_from_arguments (LwSearchSubCommand *   self,
                                                 gint                 * argc)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_SEARCHSUBCOMMAND (self), NULL);
+    g_return_if_fail (LW_IS_SEARCHSUBCOMMAND (self));
     if (*argc < 2) return;
 
     //Declarations
@@ -204,7 +204,7 @@ lw_searchsubcommand_run (LwSubCommand   * subcommand,
                          gint           * argc)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_SEARCHSUBCOMMAND (subcommand), NULL);
+    g_return_if_fail (LW_IS_SEARCHSUBCOMMAND (subcommand));
 
     //Declarations
     LwSearchSubCommand *self = NULL;

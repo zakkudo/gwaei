@@ -1,6 +1,8 @@
 #ifndef W_APPLICATION_INCLUDED
 #define W_APPLICATION_INCLUDED
 
+#include <libwaei/application.h>
+
 G_BEGIN_DECLS
 
 //Boilerplate
@@ -39,9 +41,6 @@ LwDictionaryInstall* w_application_fuzzy_find_dictionaryinstall (WApplication *s
 
 LwDictionaryList* w_application_get_dictionarylist (WApplication* application);
 LwDictionaryInstallList* w_application_get_dictionaryinstalllist (WApplication* application);
-
-LwMorphologyEngine* w_application_get_morphologyengine (WApplication *application);
-void w_application_set_morphologyengine (WApplication *application, LwMorphologyEngine *morphologyengine);
 
 LwPreferences* w_application_get_preferences (WApplication *application);
 void w_application_set_preferences (WApplication *application, LwPreferences *preferences);

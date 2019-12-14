@@ -717,7 +717,7 @@ errored:
 GList*
 _find_dictionaryinstalls (WCommand *self)
 {
-    g_return_val_if_fail (W_IS_COMMAND (self), -1);
+    g_return_val_if_fail (W_IS_COMMAND (self), NULL);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1154,7 +1154,7 @@ gboolean
 w_command_get_quiet_switch (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1198,7 +1198,7 @@ gboolean
 w_command_get_exact_switch (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1242,7 +1242,7 @@ gboolean
 w_command_get_list_switch (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1286,7 +1286,7 @@ gboolean
 w_command_get_version_switch (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1330,7 +1330,7 @@ gboolean
 w_command_get_color_switch (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1375,7 +1375,7 @@ gboolean
 w_command_get_force_index_rebuild_switch (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1419,7 +1419,7 @@ gboolean
 w_command_get_start_server_switch (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1464,7 +1464,7 @@ const gchar*
 w_command_get_dictionary_switch_text (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), NULL);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1509,7 +1509,7 @@ const gchar*
 w_command_get_dictionary_install_switch_text (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), NULL);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1572,7 +1572,7 @@ const gchar*
 w_command_get_dictionary_uninstall_switch_text (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), NULL);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1635,7 +1635,7 @@ const gchar*
 w_command_get_query_switch_text (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), NULL);
 
     //Declarations
     WCommandPrivate *priv = NULL;
@@ -1651,7 +1651,7 @@ gboolean
 w_command_has_query_request (WCommand *self)
 {
     //Sanity checks
-    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_val_if_fail (W_IS_COMMAND (self), FALSE);
 
     //Declarations
     const gchar *QUERY_SWITCH_TEXT = NULL;
