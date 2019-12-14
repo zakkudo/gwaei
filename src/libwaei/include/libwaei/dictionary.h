@@ -75,9 +75,6 @@ GType lw_dictionary_get_type (void) G_GNUC_CONST;
 void lw_dictionary_set_name (LwDictionary * self, gchar const * NAME);
 gchar const * lw_dictionary_get_name (LwDictionary * self);
 
-LwProgress* lw_dictionary_get_progress (LwDictionary * self);
-void lw_dictionary_set_progress (LwDictionary * self, LwProgress * progress);
-
 gchar const * lw_dictionary_get_contents_path (LwDictionary * self);
 void lw_dictionary_set_contents_filename (LwDictionary * self, gchar const * FILENAME);
 gchar const * lw_dictionary_get_contents_filename (LwDictionary * self);

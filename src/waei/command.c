@@ -36,15 +36,14 @@
 #include <string.h>
 
 #include <glib.h>
+#include <glib/gprintf.h>
 
 #include <waei/gettext.h>
 #include <waei/waei.h>
 
 #include <waei/command-private.h>
 
-
 G_DEFINE_TYPE (WCommand, w_command, LW_TYPE_COMMAND)
-
 
 //!
 //! @brief creates a new instance of the gwaei applicaiton
@@ -62,7 +61,6 @@ w_command_new (WApplication            *application,
     gchar const * parameter_string = "";
     gchar const * description = "";
     gchar const * summary = "";
-    const GOptionEntry *option_entries = "";
 
     //Initializations
     self = g_object_new (
@@ -72,7 +70,6 @@ w_command_new (WApplication            *application,
         "parameter-string", parameter_string,
         "description", description,
         "summary", summary,
-        "option-entries", option_entries,
         NULL
     );
 
@@ -92,7 +89,48 @@ w_command_init (WCommand *self)
     //Initializations
     priv = self->priv;
 
-    priv->data.loop = g_main_loop_new (NULL, FALSE);
+    priv->loop = g_main_loop_new (NULL, FALSE);
+
+    //TODO
+    /*
+    lw_command_add_subcommand (self, lw_searchsubcommand_new ());
+    lw_command_add_subcommand (self, lw_installsubcommand_new ());
+    lw_command_add_subcommand (self, lw_uninstallsubcommand_new ());
+    */
+}
+
+static void 
+w_command_constructed (GObject *object)
+{
+    //Chain the parent class
+    {
+      G_OBJECT_CLASS (w_command_parent_class)->constructed (object);
+    }
+
+    //Declarations
+    WCommand *self = NULL;
+    WCommandPrivate *priv = NULL;
+
+    //Initializations
+    self = W_COMMAND (object);
+    priv = self->priv;
+
+    GOptionEntry entries[] = 
+    {
+        { "exact", 'e', 0, G_OPTION_ARG_NONE, &priv->argument.exact_switch, "Do not display less relevant results", NULL },
+        { "quiet", 'q', 0, G_OPTION_ARG_NONE, &priv->argument.quiet_switch, "Display less information", NULL },
+        { "color", 'c', 0, G_OPTION_ARG_NONE, &priv->argument.color_switch, "Display results with color", NULL },
+        { "dictionary", 'd', 0, G_OPTION_ARG_STRING, &priv->argument.dictionary_switch_text, "Search using a chosen dictionary", NULL },
+        { "list", 'l', 0, G_OPTION_ARG_NONE, &priv->argument.list_switch, "Show available dictionaries for searches", NULL },
+        { "install", 'i', 0, G_OPTION_ARG_STRING, &priv->argument.dictionary_install_switch_text, "Install dictionary", NULL },
+        { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &priv->argument.dictionary_uninstall_switch_text, "Uninstall dictionary", NULL },
+        { "rebuild-index", 0, 0, G_OPTION_ARG_NONE, &priv->argument.force_index_rebuild_switch, "Rebuild dictionary indexes", NULL },
+        { "version", 'v', 0, G_OPTION_ARG_NONE, &priv->argument.version_switch, "Check the waei version information", NULL },
+        { "start-server", 0, 0, G_OPTION_ARG_NONE, &priv->argument.start_server_switch, "Star the waei server", NULL },
+        { NULL }
+    };
+
+    lw_command_set_option_entries (LW_COMMAND (self), entries);
 }
 
 
@@ -244,7 +282,9 @@ w_command_class_init (WCommandClass *klass)
 
     object_class = G_OBJECT_CLASS (klass);
     klass->priv = g_new0 (WCommandClassPrivate, 1);
+    klass->run = (LwCommandRunFunc) w_command_run;
 
+    object_class->constructed = w_command_constructed;
     object_class->set_property = w_command_set_property;
     object_class->get_property = w_command_get_property;
     object_class->dispose = w_command_dispose;
@@ -454,6 +494,7 @@ errored:
 gint
 w_command_run (WCommand *self)
 {
+    printf("COMMAND RUN\n");
     //Sanity checks
     g_return_val_if_fail (W_IS_COMMAND (self), -1);
 
@@ -497,12 +538,14 @@ w_command_run (WCommand *self)
     //User didn't specify enough information for an action
     else 
     {
-      gchar *text = g_option_context_get_help (priv->data.context, FALSE, NULL);
+        /*TODO
+      gchar *text = g_option_context_get_help (priv->context, FALSE, NULL);
       if (text != NULL)
       {
-        w_command_print (self, "%s\n", text);
+        lw_command_print (LW_COMMAND (self), "%s\n", text);
         g_free (text); text = NULL;
       }
+      */
     }
 
 errored:
@@ -534,26 +577,30 @@ w_command_uninstall_dictionary (WCommand *self)
 
     //Initializations
     priv = self->priv;
-    application = priv->data.application;
+    application = W_APPLICATION (lw_command_get_application (LW_COMMAND (self)));
     if (application == NULL) goto errored;
     DICTIONARY_UNINSTALL_SWITCH_TEXT = w_command_get_dictionary_uninstall_switch_text (self);
     dictionary = w_application_fuzzy_find_dictionary (application, DICTIONARY_UNINSTALL_SWITCH_TEXT);
 
     if (dictionary != NULL)
     {
+        /*
       LwProgress *progress = lw_dictionary_get_progress (dictionary);
       w_command_watch_progress (self, progress);
+      */
       lw_dictionary_uninstall (dictionary);
+      /*
       w_command_unwatch_current_progress (self);
 
       if (lw_progress_errored (progress))
       {
         resolution = 1;
       }
+      */
     }
     else
     {
-      w_command_print (self, "\n\"%s\" Dictionary was not found!\n\n", DICTIONARY_UNINSTALL_SWITCH_TEXT);
+      lw_command_print (LW_COMMAND (self), "\n\"%s\" Dictionary was not found!\n\n", DICTIONARY_UNINSTALL_SWITCH_TEXT);
       w_command_print_available_dictionaries (self);
     }
 
@@ -575,42 +622,42 @@ w_command_unwatch_current_progress (WCommand *self)
     //Initializations
     priv = self->priv;
 
-    if (priv->data.progress == NULL) goto errored;
+    if (priv->progress == NULL) goto errored;
 
-    if (priv->data.signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED] != 0)
+    if (priv->signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED] != 0)
     {
       g_signal_handler_disconnect (
-        priv->data.progress,
-        priv->data.signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED]
+        priv->progress,
+        priv->signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED]
       );
-      priv->data.signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED] = 0;
+      priv->signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED] = 0;
     }
 
-    if (priv->data.signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED] != 0)
+    if (priv->signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED] != 0)
     {
       g_signal_handler_disconnect (
-        priv->data.progress,
-        priv->data.signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED]
+        priv->progress,
+        priv->signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED]
       );
-      priv->data.signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED] = 0;
+      priv->signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED] = 0;
     }
 
-    if (priv->data.signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED] != 0)
+    if (priv->signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED] != 0)
     {
       g_signal_handler_disconnect (
-        priv->data.progress,
-        priv->data.signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED]
+        priv->progress,
+        priv->signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED]
       );
-      priv->data.signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED] = 0;
+      priv->signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED] = 0;
     }
 
-    if (priv->data.signalid[SIGNALID_PROGRESS_FRACTION_CHANGED] != 0)
+    if (priv->signalid[SIGNALID_PROGRESS_FRACTION_CHANGED] != 0)
     {
       g_signal_handler_disconnect (
-        priv->data.progress,
-        priv->data.signalid[SIGNALID_PROGRESS_FRACTION_CHANGED]
+        priv->progress,
+        priv->signalid[SIGNALID_PROGRESS_FRACTION_CHANGED]
       );
-      priv->data.signalid[SIGNALID_PROGRESS_FRACTION_CHANGED] = 0;
+      priv->signalid[SIGNALID_PROGRESS_FRACTION_CHANGED] = 0;
     }
 
 errored:
@@ -640,43 +687,43 @@ w_command_watch_progress (WCommand   *self,
 
     w_command_unwatch_current_progress (self);
 
-    if (priv->data.progress != NULL)
+    if (priv->progress != NULL)
     {
-      g_object_unref (priv->data.progress);
+      g_object_unref (priv->progress);
       g_object_remove_weak_pointer (
-        G_OBJECT (priv->data.progress), 
-        (gpointer*) &priv->data.progress
+        G_OBJECT (priv->progress), 
+        (gpointer*) &priv->progress
       );
     }
 
-    priv->data.progress = progress;
+    priv->progress = progress;
     g_object_add_weak_pointer (
-      G_OBJECT (priv->data.progress), 
-      (gpointer*) &priv->data.progress
+      G_OBJECT (priv->progress), 
+      (gpointer*) &priv->progress
     );
 
-    priv->data.signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED] = g_signal_connect_swapped (
+    priv->signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED] = g_signal_connect_swapped (
       G_OBJECT (progress),
       "notify::primary-message",
       G_CALLBACK (w_command_progress_primary_message_changed_cb),
       self
     );
 
-    priv->data.signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED] = g_signal_connect_swapped (
+    priv->signalid[SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED] = g_signal_connect_swapped (
       G_OBJECT (progress),
       "notify::secondary-message",
       G_CALLBACK (w_command_progress_secondary_message_changed_cb),
       self
     );
 
-    priv->data.signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED] = g_signal_connect_swapped (
+    priv->signalid[SIGNALID_PROGRESS_COMPLETED_CHANGED] = g_signal_connect_swapped (
       G_OBJECT (progress),
       "notify::completed",
       G_CALLBACK (w_command_progress_completed_changed_cb),
       self
     );
 
-    priv->data.signalid[SIGNALID_PROGRESS_FRACTION_CHANGED] = g_signal_connect_swapped (
+    priv->signalid[SIGNALID_PROGRESS_FRACTION_CHANGED] = g_signal_connect_swapped (
       G_OBJECT (progress),
       "notify::progress-fraction",
       G_CALLBACK (w_command_progress_fraction_changed_cb),
@@ -727,7 +774,7 @@ _find_dictionaryinstalls (WCommand *self)
 
     //Initializations
     priv = self->priv;
-    application = priv->data.application;
+    application = W_APPLICATION (lw_command_get_application (LW_COMMAND (self)));
     if (application == NULL) goto errored;
     install_switch_text = w_command_get_dictionary_install_switch_text (self);
     if (install_switch_text == NULL) goto errored;
@@ -762,7 +809,7 @@ w_command_install_dictionary (WCommand *self)
 
     //Initializations
     priv = self->priv;
-    application = priv->data.application;
+    application = W_APPLICATION (lw_command_get_application (LW_COMMAND (self)));
     if (application == NULL) goto errored;
     progress = lw_progress_new ();
     if (progress == NULL) goto errored;
@@ -775,17 +822,17 @@ w_command_install_dictionary (WCommand *self)
 
       if (lw_progress_errored (progress)) 
       {
-        w_command_printerr (self, "\n%s\n", gettext("Installation failed!"));
+        lw_command_printerr (LW_COMMAND (self), "\n%s\n", gettext("Installation failed!"));
       }
       else
       {
-        w_command_printerr (self, "%s\n", gettext("Installation complete."));
+        lw_command_printerr (LW_COMMAND (self), "%s\n", gettext("Installation complete."));
       }
     }
     else
     {
       const gchar *install_switch_text = w_command_get_dictionary_install_switch_text (self);
-      w_command_print (self, "\n%s \"was not\" found!\n\n", install_switch_text);
+      lw_command_print (LW_COMMAND (self), "\n%s \"was not\" found!\n\n", install_switch_text);
       w_command_print_installable_dictionaries (self);
     }
 
@@ -833,15 +880,15 @@ w_command_about (WCommand *self)
     //Initializations
     priv = self->priv;
 
-    w_command_print (self, "waei version %s", VERSION);
+    lw_command_print (LW_COMMAND (self), "waei version %s", VERSION);
 
-    w_command_print (self, "\n\n");
+    lw_command_print (LW_COMMAND (self), "\n\n");
 
-    w_command_print (self, "Check for the latest updates at <http://gwaei.sourceforge.net/>\n");
-    w_command_print (self, "Code Copyright (C) 2009-2013 Zachary Dovel\n\n");
+    lw_command_print (LW_COMMAND (self), "Check for the latest updates at <http://gwaei.sourceforge.net/>\n");
+    lw_command_print (LW_COMMAND (self), "Code Copyright (C) 2009-2013 Zachary Dovel\n\n");
 
-    w_command_print (self, "License:\n");
-    w_command_print (self, "Copyright (C) 2008 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\n");
+    lw_command_print (LW_COMMAND (self), "License:\n");
+    lw_command_print (LW_COMMAND (self), "Copyright (C) 2008 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\n");
 
 errored:
 
@@ -866,17 +913,17 @@ w_command_print_installable_dictionaries (WCommand *self)
 
     //Initializations
     priv = self->priv;
-    application = priv->data.application;
+    application = W_APPLICATION (lw_command_get_application (LW_COMMAND (self)));
     if (application == NULL) goto errored;
     dictionaryinstalllist = w_application_get_dictionaryinstalllist (application);
     if (dictionaryinstalllist == NULL) goto errored;
     dictionaryinstalls = lw_dictionaryinstalllist_dictionaryinstalls (dictionaryinstalllist);
 
-    w_command_print (self, gettext("Installable dictionaries are:\n"));
+    lw_command_print (LW_COMMAND (self), gettext("Installable dictionaries are:\n"));
 
     if (dictionaryinstalls == NULL)
     {
-      w_command_print (self, "  %s\n", gettext("none"));
+      lw_command_print (LW_COMMAND (self), "  %s\n", gettext("none"));
     }
     else {
       GList *link = NULL;
@@ -888,9 +935,9 @@ w_command_print_installable_dictionaries (WCommand *self)
           const gchar *NAME = lw_dictionaryinstall_get_name (dictionaryinstall);
           gint j = 0;
 
-          w_command_print (self, "  %s", FILENAME);
-          for (j = strlen(FILENAME); j < 20; j++) w_command_print (self, " ");
-          w_command_print (self, "(AKA: %s Dictionary)\n", NAME);
+          lw_command_print (LW_COMMAND (self), "  %s", FILENAME);
+          for (j = strlen(FILENAME); j < 20; j++) lw_command_print (LW_COMMAND (self), " ");
+          lw_command_print (LW_COMMAND (self), "(AKA: %s Dictionary)\n", NAME);
         }
       }
     }
@@ -918,17 +965,17 @@ w_command_print_available_dictionaries (WCommand *self)
 
     //Initializations
     priv = self->priv;
-    application = priv->data.application;
+    application = W_APPLICATION(lw_command_get_application(LW_COMMAND(self)));
     if (application == NULL) goto errored;
     dictionary_list = w_application_get_dictionarylist (application);
     if (dictionary_list == NULL) goto errored;
     dictionaries = lw_dictionarylist_dictionaries (dictionary_list);
 
-    w_command_print (self, gettext("Available dictionaries are:\n"));
+    lw_command_print (LW_COMMAND (self), gettext("Available dictionaries are:\n"));
 
     if (dictionaries == NULL)
     {
-      w_command_print (self, "  %s\n", gettext("none"));
+      lw_command_print (LW_COMMAND (self), "  %s\n", gettext("none"));
     }
     else {
       GList *link = NULL;
@@ -936,11 +983,11 @@ w_command_print_available_dictionaries (WCommand *self)
         LwDictionary *dictionary = LW_DICTIONARY (link->data);
         if (dictionary != NULL)
         {
-          const gchar *FILENAME = lw_dictionary_get_filename (dictionary);
+          const gchar *FILENAME = lw_dictionary_get_contents_filename (dictionary);
           gint j = 0;
-          w_command_print (self, "  %s", FILENAME);
-          for (j = strlen(FILENAME); j < 20; j++) w_command_print (self, " ");
-          w_command_print (self, "(AKA: %s Dictionary)\n", lw_dictionary_get_name (dictionary));
+          lw_command_print (LW_COMMAND (self), "  %s", FILENAME);
+          for (j = strlen(FILENAME); j < 20; j++) lw_command_print (LW_COMMAND (self), " ");
+          lw_command_print (LW_COMMAND (self), "(AKA: %s Dictionary)\n", lw_dictionary_get_name (dictionary));
         }
       }
     }
@@ -1003,7 +1050,7 @@ w_command_search (WCommand *self)
     LwSearchFlag flags = 0;
 
     //Initializations
-    application = w_command_get_application (self);
+    application = W_APPLICATION (lw_command_get_application (LW_COMMAND (self)));
     if (application == NULL) goto errored;
     preferences = w_application_get_preferences (application);
     if (preferences == NULL) goto errored;
@@ -1040,7 +1087,7 @@ w_command_search (WCommand *self)
     loop = g_main_loop_new (NULL, FALSE); 
 
     //Print the results
-    lw_search_start_async (search);
+    lw_search_query_results_async (search, NULL);
 
     g_main_loop_run (loop);
 

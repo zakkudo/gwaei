@@ -8,7 +8,7 @@ dictionarylibdir = @dictionarylibdir@
 DEFINITIONS =-DDATADIR2=\"$(datadir)\" -DGWAEI_LOCALEDIR=\"$(GWAEI_LOCALEDIR)\" -DPKGLIBDIR=\"$(pkglibdir)\" -DDICTIONARYLIBDIR=\"$(dictionarylibdir)\"
 
 pkglib_LTLIBRARIES =libwaei.la
-libwaei_la_SOURCES =libwaei.c command.c subcommand.c searchsubcommand.c installsubcommand.c uninstallsubcommand.c
+libwaei_la_SOURCES =libwaei.c command.c
 libwaei_la_SOURCES +=application.c
 libwaei_la_SOURCES +=serializable.c
 libwaei_la_SOURCES +=parenthesisnode.c querynode.c querynodematchmarker.c querynodematchinfo.c querynodecolumnmatchinfo.c

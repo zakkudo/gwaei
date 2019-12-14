@@ -449,7 +449,7 @@ lw_vocabulary_set_changed (LwVocabulary *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_VOCABULARY_CLASS (self);
+    klass = LW_VOCABULARY_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (changed_ != priv->data.changed);
 
@@ -490,7 +490,7 @@ lw_vocabulary_set_loaded (LwVocabulary *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_VOCABULARY_CLASS (self);
+    klass = LW_VOCABULARY_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (loaded != priv->data.loaded);
 
@@ -658,7 +658,7 @@ lw_vocabulary_set_filename (LwVocabulary *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_VOCABULARY_CLASS (self);
+    klass = LW_VOCABULARY_GET_CLASS (self);
     klasspriv = klass->priv;
     file_exists = lw_vocabulary_has_file (self);
 
@@ -917,7 +917,7 @@ _insert_propogate_changes (LwVocabulary *self,
 
     //Initializations
     priv = self->priv;
-    klass = LW_VOCABULARY_CLASS (self);
+    klass = LW_VOCABULARY_GET_CLASS (self);
     klasspriv = klass->priv;
     length = lw_vocabulary_length (self);
 
@@ -1158,7 +1158,7 @@ _remove_propogate_changes (LwVocabulary *self,
     gint length = 0;
 
     //Initializations
-    klass = LW_VOCABULARY_CLASS (self);
+    klass = LW_VOCABULARY_GET_CLASS (self);
     klasspriv = klass->priv;
     length = lw_vocabulary_length (self);
 

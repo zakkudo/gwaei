@@ -2,6 +2,7 @@
 #define W_CONSOLE_INCLUDED
 
 #include <libwaei/command.h>
+#include <waei/application.h>
 
 G_BEGIN_DECLS
 

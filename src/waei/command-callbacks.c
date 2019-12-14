@@ -92,15 +92,7 @@ w_command_progress_primary_message_changed_cb (WCommand   *self,
     g_return_if_fail (W_IS_COMMAND (self));
     g_return_if_fail (LW_IS_PROGRESS (progress));
 
-    //Declarations
-    WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
-
-    //Initializations
-    priv = self->priv;
-    command_line = priv->data.command_line;
-
-    g_application_command_line_print (command_line, "%s\n", lw_progress_get_primary_message (progress));
+    lw_command_print (LW_COMMAND (self), "%s\n", lw_progress_get_primary_message (progress));
 }
 
 
@@ -113,11 +105,7 @@ w_command_progress_secondary_message_changed_cb (WCommand   *self,
     g_return_if_fail (W_IS_COMMAND (self));
     g_return_if_fail (LW_IS_PROGRESS (progress));
 
-    //Declarations
-    WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
-
-    //g_application_command_line_print (command_line, "BREAK w_command_progress_secondary_message_changed_cb: %s\n", lw_progress_get_secondary_message (progress));
+    //lw_command_print (LW_COMMAND (self), "BREAK w_command_progress_secondary_message_changed_cb: %s\n", lw_progress_get_secondary_message (progress));
 }
 
 
@@ -130,15 +118,7 @@ w_command_progress_completed_changed_cb (WCommand   *self,
     g_return_if_fail (W_IS_COMMAND (self));
     g_return_if_fail (LW_IS_PROGRESS (progress));
 
-    //Declarations
-    WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
-
-    //Initializations
-    priv = self->priv;
-    command_line = priv->data.command_line;
-
-    g_application_command_line_print (command_line, "BREAK w_command_progress_completed_changed_cb: %d\n", lw_progress_completed (progress));
+    lw_command_print (LW_COMMAND (self), "BREAK w_command_progress_completed_changed_cb: %d\n", lw_progress_completed (progress));
 }
 
 
@@ -151,23 +131,15 @@ w_command_progress_fraction_changed_cb (WCommand   *self,
     g_return_if_fail (W_IS_COMMAND (self));
     g_return_if_fail (LW_IS_PROGRESS (progress));
 
-    //Declarations
-    WCommandPrivate *priv = NULL;
-    GApplicationCommandLine *command_line = NULL;
-
-    //Initializations
-    priv = self->priv;
-    command_line = priv->data.command_line;
-
     gint percent = (gint)(lw_progress_get_fraction (progress) * 100.0);
 
     if (percent >= 0)
     {
-      g_application_command_line_print (command_line, "\r  %s [%d%%]", lw_progress_get_secondary_message (progress), percent);
+      lw_command_print (LW_COMMAND (self), "\r  %s [%d%%]", lw_progress_get_secondary_message (progress), percent);
 
       if (percent == 100)
       {
-        g_application_command_line_print (command_line, "\n");
+        lw_command_print (LW_COMMAND (self), "\n");
       }
     }
 }

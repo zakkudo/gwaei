@@ -92,8 +92,6 @@ w_application_constructed (GObject *object)
     //Initializations
     self = W_APPLICATION (object);
     priv = self->priv;
-
-    lw_regex_initialize ();
 }
 
 
@@ -179,8 +177,6 @@ w_application_finalize (GObject *object)
 
     w_application_set_preferences (self, NULL);
 
-    lw_regex_free ();
-
     G_OBJECT_CLASS (w_application_parent_class)->finalize (object);
 }
 
@@ -191,8 +187,6 @@ w_application_command_line (GApplication            *application,
 {
     //Sanity checks
     g_return_val_if_fail (G_IS_APPLICATION (application), 1);
-
-    printf("BREAK global w_application_command_line\n");
 
     //Declarations
     WApplication *self = NULL;
@@ -210,9 +204,8 @@ w_application_command_line (GApplication            *application,
 
     if (g_application_command_line_get_is_remote (command_line))
     {
-      printf("BREAK is remote\n");
       WCommand *command = w_command_new (self, command_line);
-      resolution = w_command_run (command);
+      resolution = w_command_run (command, &argv, &argc);
       g_object_unref (command); command = NULL;
     }
     else
@@ -241,7 +234,6 @@ w_application_local_command_line (GApplication              *application,
                                   gchar                   ***arguments,
                                   int                       *exit_status)
 {
-  printf("BREAK local_command_line\n");
     return FALSE;
 }
 
@@ -411,7 +403,7 @@ w_application_set_preferences (WApplication *self,
 
     //Initializations
     priv = self->priv;
-    klass = W_APPLICATION_CLASS (self);
+    klass = W_APPLICATION_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (preferences != priv->data.preferences);
 

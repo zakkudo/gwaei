@@ -3,8 +3,6 @@
 
 #include <gio/gio.h>
 
-#include "subcommand.h"
-
 G_BEGIN_DECLS
 
 //Boilerplate
@@ -12,6 +10,8 @@ typedef struct _LwCommand LwCommand;
 typedef struct _LwCommandClass LwCommandClass;
 typedef struct _LwCommandPrivate LwCommandPrivate;
 typedef struct _LwCommandClassPrivate LwCommandClassPrivate;
+
+typedef int(*LwCommandRunFunc) (LwCommand * self, gchar *subcommand_name, gpointer data);
 
 #define LW_TYPE_COMMAND              (lw_command_get_type())
 #define LW_COMMAND(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_COMMAND, LwCommand))
@@ -29,8 +29,8 @@ struct _LwCommandClass {
   GObjectClass parent_class;
   LwCommandClassPrivate *priv;
 
-  //Signal ids
-  void (*run) (LwCommand * self, gchar *subcommand_name, gpointer data);
+  //Virtual methods
+  LwCommandRunFunc run;
 };
 
 //Methods
@@ -57,8 +57,11 @@ gchar const * lw_command_get_description (LwCommand * self);
 void lw_command_set_summary (LwCommand * self, gchar const * summary);
 gchar const * lw_command_get_summary (LwCommand * self);
 
-void lw_command_add_subcommand (LwCommand * self, LwSubCommand * subcommand);
-LwSubCommand* lw_command_lookup_subcommand (LwCommand * self, gchar const * SUBCOMMAND_NAME);
+void lw_command_add_subcommand (LwCommand * self, LwCommand * subcommand);
+LwCommand* lw_command_lookup_subcommand (LwCommand * self, gchar const * SUBCOMMAND_NAME);
+
+GOptionEntry const * lw_command_get_option_entries (LwCommand *self);
+void lw_command_set_option_entries (LwCommand * self, GOptionEntry const * option_entries);
 
 void lw_command_run (LwCommand * self);
 

@@ -1,18 +1,17 @@
 #ifndef LW_COMMAND_PRIVATE_INCLUDED
 #define LW_COMMAND_PRIVATE_INCLUDED
 
-#include "subcommand.h"
-
 G_BEGIN_DECLS
 
 typedef enum {
   PROP_0,
+  PROP_NAME,
   PROP_APPLICATION,
   PROP_APPLICATION_COMMAND_LINE,
   PROP_PARAMETER_STRING,
   PROP_DESCRIPTION,
   PROP_SUMMARY,
-  PROP_OPTION_GROUP,
+  PROP_OPTION_ENTRIES,
   TOTAL_PROPS
 } Prop;
 
@@ -31,14 +30,16 @@ struct _LwCommandPrivate {
   GApplication *application;
   GApplicationCommandLine *command_line;
   gchar *parameter_string;
+  GOptionEntry * option_entries;
   guint signalid[TOTAL_SIGNALIDS];
 
+  gchar * name;
   gchar * description;
   gchar * summary;
 
   gchar * command_name;
   GTree * subcommands;
-  LwSubCommand * default_subcommand;
+  LwCommand * default_subcommand;
 };
 
 struct _LwCommandClassPrivate {
@@ -51,6 +52,9 @@ struct _LwCommandClassPrivate {
 //Properties
 static void lw_command_set_application (LwCommand *self, GApplication *application);
 static void lw_command_set_command_line (LwCommand *self, GApplicationCommandLine *command_line);
+
+static void lw_command_set_name (LwCommand * self, gchar const  * NAME);
+gchar const * lw_command_get_name (LwCommand * self);
 
 G_END_DECLS
 
