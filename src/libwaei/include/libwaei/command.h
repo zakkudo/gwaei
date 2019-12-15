@@ -63,6 +63,6 @@ LwCommand* lw_command_lookup_subcommand (LwCommand * self, gchar const * SUBCOMM
 GOptionEntry const * lw_command_get_option_entries (LwCommand *self);
 void lw_command_set_option_entries (LwCommand * self, GOptionEntry const * option_entries);
 
-void lw_command_run (LwCommand * self);
+void lw_command_run (LwCommand * self, gchar *** argv, gint * argc);
 
 #endif

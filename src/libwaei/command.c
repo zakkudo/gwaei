@@ -41,8 +41,56 @@
 #include <libwaei/gettext.h>
 #include <libwaei/command.h>
 
-#include <libwaei/command-private.h>
 #include <libwaei/utf8.h>
+
+typedef enum {
+  PROP_0,
+  PROP_NAME,
+  PROP_APPLICATION,
+  PROP_APPLICATION_COMMAND_LINE,
+  PROP_PARAMETER_STRING,
+  PROP_DESCRIPTION,
+  PROP_SUMMARY,
+  PROP_OPTION_ENTRIES,
+  TOTAL_PROPS
+} Prop;
+
+typedef enum {
+  TOTAL_SIGNALIDS
+} SignalId;
+
+typedef enum {
+  CLASS_SIGNALID_RUN,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+
+struct _LwCommandPrivate {
+  gint argc;
+  gchar * * argv;
+  GApplication *application;
+  GApplicationCommandLine *command_line;
+  gchar *parameter_string;
+  GOptionEntry * option_entries;
+  guint signalid[TOTAL_SIGNALIDS];
+
+  gchar * name;
+  gchar * description;
+  gchar * summary;
+
+  GTree * subcommands;
+  LwCommand * default_subcommand;
+};
+
+struct _LwCommandClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+};
+
+static void lw_command_set_application (LwCommand *self, GApplication *application);
+static void lw_command_set_command_line (LwCommand *self, GApplicationCommandLine *command_line);
+
+static void lw_command_set_name (LwCommand * self, gchar const  * NAME);
+gchar const * lw_command_get_name (LwCommand * self);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (LwCommand, lw_command, G_TYPE_OBJECT)
 
@@ -56,7 +104,7 @@ lw_command_init (LwCommand *self)
     LwCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     priv->subcommands = g_tree_new_full ((GCompareDataFunc) g_strcmp0, NULL, NULL, g_object_unref);
 }
@@ -74,7 +122,7 @@ lw_command_set_property (GObject      *object,
 
     //Initializations
     self = LW_COMMAND (object);
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     switch (property_id)
     {
@@ -118,7 +166,7 @@ lw_command_get_property (GObject    *object,
 
     //Initializations
     self = LW_COMMAND (object);
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     switch (property_id)
     {
@@ -141,7 +189,7 @@ lw_command_get_property (GObject    *object,
         g_value_set_string (value, lw_command_get_name (self));
         break;
       case PROP_OPTION_ENTRIES:
-        g_value_set_pointer (value, lw_command_get_option_entries (self));
+        g_value_set_pointer (value, (gpointer) lw_command_get_option_entries (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -172,7 +220,7 @@ lw_command_finalize (GObject *object)
 
     //Initializations
     self = LW_COMMAND (object);
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     lw_command_set_application (self, NULL);
     lw_command_set_command_line (self, NULL);
@@ -182,9 +230,6 @@ lw_command_finalize (GObject *object)
 
     g_tree_unref (priv->subcommands);
     priv->subcommands = NULL;
-
-    g_free (priv->command_name);
-    priv->command_name = NULL;
 
     G_OBJECT_CLASS (lw_command_parent_class)->finalize (object);
 }
@@ -202,7 +247,7 @@ lw_command_constructed (GObject *object)
     LwCommandPrivate *priv = NULL;
 
     self = LW_COMMAND (object);
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 }
 
 
@@ -346,7 +391,7 @@ lw_command_set_application (LwCommand    *self,
     LwCommandClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     klass = LW_COMMAND_GET_CLASS (self);
     if (application == priv->application) goto errored;
 
@@ -392,7 +437,7 @@ lw_command_get_application (LwCommand *self)
     LwCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     return priv->application;
 }
@@ -411,7 +456,7 @@ lw_command_set_command_line (LwCommand               *self,
     LwCommandClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     klass = LW_COMMAND_GET_CLASS (self);
     if (command_line == priv->command_line) goto errored;
 
@@ -457,7 +502,7 @@ lw_command_get_command_line (LwCommand *self)
     LwCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     return priv->command_line;
 }
@@ -475,7 +520,7 @@ lw_command_context_new (LwCommand * self)
     GOptionContext *context = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     if (!priv->command_line)
     {
@@ -511,7 +556,7 @@ lw_command_parse_command_name (LwCommand   * self,
     gchar *command_name = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     command_name = *argv[1];
     argv[1] = NULL;
 
@@ -521,15 +566,9 @@ lw_command_parse_command_name (LwCommand   * self,
       *argc -= 1;
     }
 
-    priv->command_name = command_name;
-    command_name = NULL;
-
 errored:
 
-    g_free (command_name);
-    command_name = NULL;
-
-    return priv->command_name;
+    return command_name;
 }
 
 
@@ -552,7 +591,7 @@ lw_command_parse_optional_subcommand (LwCommand        * self,
     GOptionGroup * option_group = NULL;
 
     //Initialization
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     COMMAND_NAME = lw_command_parse_command_name (self, argv, argc);
     if (COMMAND_NAME == NULL) goto errored;
     subcommand = lw_command_lookup_subcommand (self, COMMAND_NAME);
@@ -589,7 +628,7 @@ lw_command_parse_default_subcommand (LwCommand        * self,
     LwCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     if (priv->default_subcommand != NULL)
     {
@@ -616,7 +655,7 @@ lw_command_get_option_entries (LwCommand *self)
     LwCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     return priv->option_entries;
 }
@@ -636,7 +675,7 @@ lw_command_set_option_entries (LwCommand       * self,
     GOptionEntry* copy = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     if (priv->option_entries == option_entries) goto errored;
     klass = LW_COMMAND_GET_CLASS (self);
 
@@ -696,25 +735,28 @@ lw_command_parse_subcommand (LwCommand        * self,
 
 
 void
-lw_command_run (LwCommand * self, gchar ** argv, gint * argc)
+lw_command_run (LwCommand *   self,
+                gchar     *** argv, 
+                gint      *   argc)
 {
     printf("lw_command_run\n");
     //Sanity checks
     g_return_if_fail (LW_IS_COMMAND (self));
 
     //Declarations
-    LwCommandPrivate *priv = NULL;
-    LwCommandClass *klass = NULL;
+    LwCommandPrivate * priv = NULL;
+    LwCommandClass * klass = NULL;
     GError *error = NULL;
-    GOptionContext *option_context = NULL;
+    GOptionContext * option_context = NULL;
     LwCommand *subcommand = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     klass = LW_COMMAND_GET_CLASS (self);
     if (argv == NULL) goto errored;  
     option_context = lw_command_context_new (self);
     if (option_context == NULL) goto errored;
+    /*
     subcommand = lw_command_parse_subcommand (self, option_context, &argv, &argc);
     g_option_context_parse (option_context, &argc, &argv, &error);
 
@@ -744,6 +786,7 @@ lw_command_run (LwCommand * self, gchar ** argv, gint * argc)
     priv->argc = argc;
 
     option_context = NULL;
+    */
 
 errored:
 
@@ -773,7 +816,7 @@ lw_command_set_parameter_string (LwCommand   * self,
     LwCommandClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     klass = LW_COMMAND_GET_CLASS (self);
     if (g_strcmp0(priv->parameter_string, parameter_string) == 0) goto errored;
 
@@ -797,7 +840,7 @@ lw_command_get_parameter_string (LwCommand * self)
     LwCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     return priv->parameter_string;
 }
@@ -815,7 +858,7 @@ lw_command_set_description (LwCommand   * self,
     LwCommandClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     klass = LW_COMMAND_GET_CLASS (self);
     if (g_strcmp0(priv->description, DESCRIPTION) == 0) goto errored;
 
@@ -839,7 +882,7 @@ lw_command_get_description (LwCommand * self)
     LwCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     return priv->description;
 }
@@ -857,7 +900,7 @@ lw_command_set_summary (LwCommand   * self,
     LwCommandClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     klass = LW_COMMAND_GET_CLASS (self);
     if (g_strcmp0(priv->summary, SUMMARY) == 0) goto errored;
 
@@ -881,7 +924,7 @@ lw_command_get_summary (LwCommand * self)
     LwCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     return priv->summary;
 }
@@ -897,7 +940,7 @@ lw_command_get_name (LwCommand * self)
     LwCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
 
     return priv->name;
 }
@@ -915,7 +958,7 @@ lw_command_set_name (LwCommand * self,
     LwCommandClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     klass = LW_COMMAND_GET_CLASS (self);
     
     if (g_strcmp0 (priv->name, NAME) == 0) goto errored;
@@ -969,7 +1012,7 @@ lw_command_print (LwCommand *self,
     gchar *message = NULL;
     va_list ap;
 
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     command_line = priv->command_line;
     if (command_line == NULL) goto errored;
     va_start (ap, format);
@@ -1000,7 +1043,7 @@ lw_command_printerr (LwCommand *self,
     va_list ap;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     command_line = priv->command_line;
     if (command_line == NULL) goto errored;
     va_start (ap, format);
@@ -1028,7 +1071,7 @@ lw_command_add_subcommand (LwCommand    * self,
     gchar const *SUBCOMMAND_NAME = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     SUBCOMMAND_NAME = lw_command_get_name (subcommand);
     if (SUBCOMMAND_NAME == NULL) goto errored;
     if (g_tree_lookup (priv->subcommands, SUBCOMMAND_NAME) != NULL) goto errored;
@@ -1037,7 +1080,7 @@ lw_command_add_subcommand (LwCommand    * self,
 
 errored:
 
-    return ;
+    return;
 }
 
 
@@ -1054,7 +1097,7 @@ lw_command_lookup_subcommand (LwCommand   * self,
     LwCommand *subcommand = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_command_get_instance_private (self);
     subcommand = LW_COMMAND (g_tree_lookup(priv->subcommands, SUBCOMMAND_NAME));
 
 errored:
