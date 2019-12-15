@@ -44,12 +44,12 @@
 #include <libwaei/command-private.h>
 #include <libwaei/utf8.h>
 
-G_DEFINE_ABSTRACT_TYPE (LwCommand, lw_command, G_TYPE_OBJECT)
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (LwCommand, lw_command, G_TYPE_OBJECT)
 
 static void 
 lw_command_init (LwCommand *self)
 {
-    self->priv = LW_COMMAND_GET_PRIVATE (self);
+    self->priv = lw_command_get_instance_private (self);
     memset(self->priv, 0, sizeof(LwCommandPrivate));
 
     //Declarations
@@ -219,8 +219,6 @@ lw_command_class_init (LwCommandClass *klass)
     object_class->dispose = lw_command_dispose;
     object_class->finalize = lw_command_finalize;
     object_class->constructed = lw_command_constructed;
-
-    g_type_class_add_private (object_class, sizeof (LwCommandPrivate));
 
     //Signals
 
