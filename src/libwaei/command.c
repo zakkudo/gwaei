@@ -572,6 +572,7 @@ errored:
 }
 
 
+/*
 static LwCommand*
 lw_command_parse_optional_subcommand (LwCommand        * self,
                                       GOptionContext   * option_context,
@@ -644,6 +645,7 @@ errored:
 
     return priv->default_subcommand;
 }
+*/
 
 GOptionEntry const *
 lw_command_get_option_entries (LwCommand *self)
@@ -700,6 +702,7 @@ errored:
 }
 
 
+/*
 static LwCommand*
 lw_command_parse_subcommand (LwCommand        * self,
                              GOptionContext   * option_context,
@@ -732,9 +735,10 @@ lw_command_parse_subcommand (LwCommand        * self,
 
     return subcommand; 
 }
+*/
 
 
-void
+int
 lw_command_run (LwCommand *   self,
                 gchar     *** argv, 
                 gint      *   argc)
@@ -800,7 +804,6 @@ errored:
       error = NULL;
     }
 
-    g_strfreev (argv); argv = NULL;
 }
 
 

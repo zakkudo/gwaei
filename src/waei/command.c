@@ -41,9 +41,64 @@
 #include <waei/gettext.h>
 #include <waei/waei.h>
 
-#include <waei/command-private.h>
+typedef enum {
+  PROP_0,
+  PROP_PROGRESS,
+  PROP_DICTIONARY_SWITCH_TEXT,
+  PROP_DICTIONARY_INSTALL_SWITCH_TEXT,
+  PROP_DICTIONARY_UNINSTALL_SWITCH_TEXT,
+  PROP_QUERY_SWITCH_TEXT,
+  PROP_QUIET_SWITCH,
+  PROP_EXACT_SWITCH,
+  PROP_LIST_SWITCH,
+  PROP_VERSION_SWITCH,
+  PROP_COLOR_SWITCH,
+  PROP_FORCE_INDEX_REBUILD_SWITCH,
+  PROP_START_SERVER_SWITCH,
+  TOTAL_PROPS
+} Props;
 
-G_DEFINE_TYPE (WCommand, w_command, LW_TYPE_COMMAND)
+typedef enum {
+  SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED,
+  SIGNALID_PROGRESS_SECONDARY_MESSAGE_CHANGED,
+  SIGNALID_PROGRESS_COMPLETED_CHANGED,
+  SIGNALID_PROGRESS_FRACTION_CHANGED,
+  TOTAL_SIGNALIDS
+} SignalId;
+
+struct _Argument {
+  gboolean quiet_switch;
+  gboolean exact_switch;
+  gboolean list_switch;
+  gboolean version_switch;
+  gboolean color_switch;
+  gboolean force_index_rebuild_switch;
+  gboolean start_server_switch;
+
+  gchar* dictionary_switch_text;
+  gchar* dictionary_install_switch_text;
+  gchar* dictionary_uninstall_switch_text;
+  gchar* query_switch_text;
+};
+
+struct _WCommandPrivate {
+  LwDictionary *dictionary;
+  GMainLoop *loop;
+  LwProgress *progress;
+  guint signalid[TOTAL_SIGNALIDS];
+  struct _Argument argument;
+};
+
+struct _WCommandClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+
+//Methods
+
+void w_command_watch_progress (WCommand *self, LwProgress *progress);
+void w_command_unwatch_current_progress (WCommand *self);
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (WCommand, w_command, LW_TYPE_COMMAND)
 
 //!
 //! @brief creates a new instance of the gwaei applicaiton
@@ -80,14 +135,11 @@ w_command_new (WApplication            *application,
 static void 
 w_command_init (WCommand *self)
 {
-    self->priv = W_COMMAND_GET_PRIVATE (self);
-    memset(self->priv, 0, sizeof(WCommandPrivate));
-
     //Declarations
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     priv->loop = g_main_loop_new (NULL, FALSE);
 
@@ -113,7 +165,7 @@ w_command_constructed (GObject *object)
 
     //Initializations
     self = W_COMMAND (object);
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     GOptionEntry entries[] = 
     {
@@ -146,7 +198,7 @@ w_command_set_property (GObject      *object,
 
     //Initializations
     self = W_COMMAND (object);
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     switch (property_id)
     {
@@ -202,7 +254,7 @@ w_command_get_property (GObject    *object,
 
     //Initializations
     self = W_COMMAND (object);
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     switch (property_id)
     {
@@ -269,7 +321,7 @@ w_command_finalize (GObject *object)
 
     //Initializations
     self = W_COMMAND (object);
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     G_OBJECT_CLASS (w_command_parent_class)->finalize (object);
 }
@@ -411,7 +463,7 @@ w_command_parse_args (WCommand  *self)
     gchar *dictionary_uninstall_switch_text = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     command_line = priv->data.command_line;
     if (command_line == NULL) goto errored;
     argv = g_application_command_line_get_arguments (command_line, &argc);
@@ -492,7 +544,9 @@ errored:
 
 
 gint
-w_command_run (WCommand *self)
+w_command_run (WCommand  *   self,
+               gchar     *** argv,
+               gint          argc)
 {
     printf("COMMAND RUN\n");
     //Sanity checks
@@ -503,7 +557,7 @@ w_command_run (WCommand *self)
     gint resolution = -1;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     //User wants to see what dictionaries are available
     if (w_command_get_list_switch (self))
@@ -576,7 +630,7 @@ w_command_uninstall_dictionary (WCommand *self)
     const gchar *DICTIONARY_UNINSTALL_SWITCH_TEXT = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     application = W_APPLICATION (lw_command_get_application (LW_COMMAND (self)));
     if (application == NULL) goto errored;
     DICTIONARY_UNINSTALL_SWITCH_TEXT = w_command_get_dictionary_uninstall_switch_text (self);
@@ -620,7 +674,7 @@ w_command_unwatch_current_progress (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     if (priv->progress == NULL) goto errored;
 
@@ -678,7 +732,7 @@ w_command_watch_progress (WCommand   *self,
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     if (progress != NULL)
     {
@@ -773,7 +827,7 @@ _find_dictionaryinstalls (WCommand *self)
     const gchar *install_switch_text = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     application = W_APPLICATION (lw_command_get_application (LW_COMMAND (self)));
     if (application == NULL) goto errored;
     install_switch_text = w_command_get_dictionary_install_switch_text (self);
@@ -808,7 +862,7 @@ w_command_install_dictionary (WCommand *self)
     GList *dictionaryinstalls = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     application = W_APPLICATION (lw_command_get_application (LW_COMMAND (self)));
     if (application == NULL) goto errored;
     progress = lw_progress_new ();
@@ -878,7 +932,7 @@ w_command_about (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     lw_command_print (LW_COMMAND (self), "waei version %s", VERSION);
 
@@ -912,7 +966,7 @@ w_command_print_installable_dictionaries (WCommand *self)
     GList *dictionaryinstalls = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     application = W_APPLICATION (lw_command_get_application (LW_COMMAND (self)));
     if (application == NULL) goto errored;
     dictionaryinstalllist = w_application_get_dictionaryinstalllist (application);
@@ -964,7 +1018,7 @@ w_command_print_available_dictionaries (WCommand *self)
     GList *dictionaries = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     application = W_APPLICATION(lw_command_get_application(LW_COMMAND(self)));
     if (application == NULL) goto errored;
     dictionary_list = w_application_get_dictionarylist (application);
@@ -1122,7 +1176,7 @@ w_application_set_dictionary (WApplication *self,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     changed = (priv->data.dictionary != dictionary);
 
     if (dictionary != NULL)
@@ -1163,7 +1217,7 @@ w_application_get_dictionary (WApplication *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->data.dictionary;
 }
@@ -1182,7 +1236,7 @@ w_command_set_quiet_switch (WCommand *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (priv->argument.quiet_switch == quiet_switch) goto errored;
@@ -1207,7 +1261,7 @@ w_command_get_quiet_switch (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.quiet_switch;
 }
@@ -1226,7 +1280,7 @@ w_command_set_exact_switch (WCommand *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (priv->argument.exact_switch == exact_switch) goto errored;
@@ -1251,7 +1305,7 @@ w_command_get_exact_switch (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.exact_switch;
 }
@@ -1270,7 +1324,7 @@ w_command_set_list_switch (WCommand *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (priv->argument.list_switch == list_switch) goto errored;
@@ -1295,7 +1349,7 @@ w_command_get_list_switch (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.list_switch;
 }
@@ -1314,7 +1368,7 @@ w_command_set_version_switch (WCommand *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (priv->argument.version_switch == version_switch) goto errored;
@@ -1339,7 +1393,7 @@ w_command_get_version_switch (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.version_switch;
 }
@@ -1358,7 +1412,7 @@ w_command_set_color_switch (WCommand *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (priv->argument.color_switch == color_switch) goto errored;
@@ -1383,7 +1437,7 @@ w_command_get_color_switch (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.color_switch;
 }
@@ -1403,7 +1457,7 @@ w_command_set_force_index_rebuild_switch (WCommand *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (priv->argument.force_index_rebuild_switch == force_index_rebuild_switch) goto errored;
@@ -1428,7 +1482,7 @@ w_command_get_force_index_rebuild_switch (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.force_index_rebuild_switch;
 }
@@ -1447,7 +1501,7 @@ w_command_set_start_server_switch (WCommand *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (priv->argument.start_server_switch == start_server_switch) goto errored;
@@ -1472,7 +1526,7 @@ w_command_get_start_server_switch (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.start_server_switch;
 }
@@ -1491,7 +1545,7 @@ w_command_set_dictionary_switch_text (WCommand    *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (g_strcmp0 (dictionary_switch_text, priv->argument.dictionary_switch_text) == 0) goto errored;
@@ -1517,7 +1571,7 @@ w_command_get_dictionary_switch_text (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.dictionary_switch_text;
 }
@@ -1536,7 +1590,7 @@ w_command_set_dictionary_install_switch_text (WCommand    *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (g_strcmp0 (dictionary_install_switch_text, priv->argument.dictionary_install_switch_text) == 0) goto errored;
@@ -1562,7 +1616,7 @@ w_command_get_dictionary_install_switch_text (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.dictionary_install_switch_text;
 }
@@ -1599,7 +1653,7 @@ w_command_set_dictionary_uninstall_switch_text (WCommand    *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (g_strcmp0 (dictionary_uninstall_switch_text, priv->argument.dictionary_uninstall_switch_text) == 0) goto errored;
@@ -1625,7 +1679,7 @@ w_command_get_dictionary_uninstall_switch_text (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.dictionary_uninstall_switch_text;
 }
@@ -1662,7 +1716,7 @@ w_command_set_query_switch_text (WCommand    *self,
     WCommandClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
     klass = W_COMMAND_CLASS (self);
     klasspriv = klass->priv;
     if (g_strcmp0 (query_switch_text, priv->argument.query_switch_text) == 0) goto errored;
@@ -1688,7 +1742,7 @@ w_command_get_query_switch_text (WCommand *self)
     WCommandPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_command_get_instance_private (self);
 
     return priv->argument.query_switch_text;
 }

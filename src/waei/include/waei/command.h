@@ -21,7 +21,6 @@ typedef struct _WCommandClassPrivate WCommandClassPrivate;
 
 struct _WCommand {
   LwCommand object;
-  WCommandPrivate *priv;
 };
 
 struct _WCommandClass {
@@ -34,7 +33,7 @@ struct _WCommandClass {
 WCommand* w_command_new (WApplication *application, GApplicationCommandLine *command_line);
 GType w_command_get_type (void) G_GNUC_CONST;
 
-gint w_command_run (WCommand *self);
+gint w_command_run (WCommand *self, gchar *** argv, gint * argc);
 
 void w_command_about (WCommand *self);
 void w_command_list (WCommand *self);
