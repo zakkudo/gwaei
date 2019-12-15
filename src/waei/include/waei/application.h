@@ -20,7 +20,6 @@ typedef struct _WApplicationClassPrivate WApplicationClassPrivate;
 
 struct _WApplication {
   LwApplication application;
-  WApplicationPrivate *priv;
 };
 
 struct _WApplicationClass {

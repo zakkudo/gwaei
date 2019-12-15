@@ -41,6 +41,55 @@
 #include <waei/gettext.h>
 #include <waei/waei.h>
 
+static gint w_command_run (WCommand *self, gchar *** argv, gint * argc);
+
+void w_command_about (WCommand *self);
+void w_command_list (WCommand *self);
+void w_command_print_installable_dictionaries (WCommand *self);
+void w_command_print_available_dictionaries (WCommand *self);
+gint w_command_search (WCommand *self);
+gint w_command_install_dictionary (WCommand *self);
+gint w_command_uninstall_dictionary (WCommand *self);
+
+//Properties
+
+void w_command_set_dictionary_install_switch_text (WCommand *self, const gchar *dictionary_install_switch_text);
+const gchar* w_command_get_dictionary_install_switch_text (WCommand *self);
+gboolean w_command_has_dictionary_install_request (WCommand *self);
+
+void w_command_set_dictionary_uninstall_switch_text (WCommand *self, const gchar *dictionary_uninstall_switch_text);
+const gchar* w_command_get_dictionary_uninstall_switch_text (WCommand *self);
+gboolean w_command_has_dictionary_uninstall_request (WCommand *self);
+
+void w_command_set_dictionary_switch_text (WCommand *self, const gchar *dictionary_switch_text);
+const gchar* w_command_get_dictionary_switch_text (WCommand *self);
+
+void w_command_set_query_switch_text (WCommand *self, const gchar *query_switch_text);
+const gchar* w_command_get_query_switch_text (WCommand *self);
+gboolean w_command_has_query_request (WCommand *self);
+
+void w_command_set_quiet_switch (WCommand *self, gboolean quiet_switch);
+gboolean w_command_get_quiet_switch (WCommand *self);
+
+void w_command_set_exact_switch (WCommand *self, gboolean exact_switch);
+gboolean w_command_get_exact_switch (WCommand *self);
+
+void w_command_set_list_switch (WCommand *self, gboolean list_switch);
+gboolean w_command_get_list_switch (WCommand *self);
+
+void w_command_set_version_switch (WCommand *self, gboolean version_switch);
+gboolean w_command_get_version_switch (WCommand *self);
+
+void w_command_set_color_switch (WCommand *self, gboolean color_switch);
+gboolean w_command_get_color_switch (WCommand *self);
+
+void w_command_set_force_index_rebuild_switch (WCommand *self, gboolean force_index_rebuild_switch);
+gboolean w_command_get_force_index_rebuild_switch (WCommand *self);
+
+void w_command_set_start_server_switch (WCommand *self, gboolean start_server_switch);
+gboolean w_command_get_start_server_switch (WCommand *self);
+
+
 typedef enum {
   PROP_0,
   PROP_PROGRESS,
@@ -331,18 +380,18 @@ static void
 w_command_class_init (WCommandClass *klass)
 {
     GObjectClass *object_class = NULL;
+    LwCommandClass * command_class = NULL;
 
     object_class = G_OBJECT_CLASS (klass);
+    command_class = LW_COMMAND_CLASS (klass);
     klass->priv = g_new0 (WCommandClassPrivate, 1);
-    klass->run = (LwCommandRunFunc) w_command_run;
+    command_class->run = (LwCommandRunFunc) w_command_run;
 
     object_class->constructed = w_command_constructed;
     object_class->set_property = w_command_set_property;
     object_class->get_property = w_command_get_property;
     object_class->dispose = w_command_dispose;
     object_class->finalize = w_command_finalize;
-
-    g_type_class_add_private (object_class, sizeof (WCommandPrivate));
 
     WCommandClassPrivate *klasspriv = klass->priv;
 
@@ -543,10 +592,10 @@ errored:
 */
 
 
-gint
+static gint
 w_command_run (WCommand  *   self,
                gchar     *** argv,
-               gint          argc)
+               gint      *   argc)
 {
     printf("COMMAND RUN\n");
     //Sanity checks
@@ -756,6 +805,7 @@ w_command_watch_progress (WCommand   *self,
       (gpointer*) &priv->progress
     );
 
+    /*
     priv->signalid[SIGNALID_PROGRESS_PRIMARY_MESSAGE_CHANGED] = g_signal_connect_swapped (
       G_OBJECT (progress),
       "notify::primary-message",
@@ -783,6 +833,7 @@ w_command_watch_progress (WCommand   *self,
       G_CALLBACK (w_command_progress_fraction_changed_cb),
       self
     );
+    */
 }
 
 
@@ -1765,4 +1816,482 @@ w_command_has_query_request (WCommand *self)
     return has_request;
 }
 
+
+gboolean 
+w_command_append_result_timeout (gpointer data)
+{
+  //Sanity checks
+  g_return_val_if_fail (data != NULL, FALSE);
+/*TODO
+  //Declarations
+  LwSearchIterator *iterator = NULL;
+  LwSearch *search = NULL;
+  LwSearchStatus status = 0;
+  WSearchData *sdata = NULL;
+  gboolean keep_appending = TRUE;
+
+  //Initializations
+  iterator = LW_SEARCHITERATOR (data);
+  search = iterator->search;
+  status = lw_search_get_status (search);
+  sdata = W_SEARCHDATA (lw_search_get_data (search));
+
+  if (lw_searchiterator_finished (iterator))
+  {
+    if (lw_searchiterator_empty (iterator))
+    {
+      w_command_no_result (sdata->application, iterator);
+    }
+    g_main_loop_quit (sdata->loop);
+    keep_appending = FALSE;
+  }
+  else
+  {
+    while (lw_searchiterator_next (iterator))
+    {
+      w_command_append_result (sdata->application, iterator);
+    }
+    keep_appending = TRUE;
+  }
+
+  return keep_appending;
+  */
+  return FALSE;
+}
+
+
+void
+w_command_progress_primary_message_changed_cb (WCommand   *self,
+                                               GParamSpec *pspec,
+                                               LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+
+    lw_command_print (LW_COMMAND (self), "%s\n", lw_progress_get_primary_message (progress));
+}
+
+
+void
+w_command_progress_secondary_message_changed_cb (WCommand   *self,
+                                                 GParamSpec *pspec,
+                                                 LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+
+    //lw_command_print (LW_COMMAND (self), "BREAK w_command_progress_secondary_message_changed_cb: %s\n", lw_progress_get_secondary_message (progress));
+}
+
+
+void
+w_command_progress_completed_changed_cb (WCommand   *self,
+                                         GParamSpec *pspec,
+                                         LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+
+    lw_command_print (LW_COMMAND (self), "BREAK w_command_progress_completed_changed_cb: %d\n", lw_progress_completed (progress));
+}
+
+
+void
+w_command_progress_fraction_changed_cb (WCommand   *self,
+                                        GParamSpec *pspec,
+                                        LwProgress *progress)
+{
+    //Sanity checks
+    g_return_if_fail (W_IS_COMMAND (self));
+    g_return_if_fail (LW_IS_PROGRESS (progress));
+
+    gint percent = (gint)(lw_progress_get_fraction (progress) * 100.0);
+
+    if (percent >= 0)
+    {
+      lw_command_print (LW_COMMAND (self), "\r  %s [%d%%]", lw_progress_get_secondary_message (progress), percent);
+
+      if (percent == 100)
+      {
+        lw_command_print (LW_COMMAND (self), "\n");
+      }
+    }
+}
+
+
+
+/*
+static void w_console_append_edict_result (WApplication*, LwSearchIterator*);
+static void w_console_append_kanjidict_result (WApplication*, LwSearchIterator*);
+static void w_console_append_examplesdict_result (WApplication*, LwSearchIterator*);
+static void w_console_append_unknowndict_result (WApplication*, LwSearchIterator*);
+
+
+static gchar*
+w_add_match_highlights (LwSearchIterator *iterator, 
+                        const gchar            *TEXT, 
+                        const gchar            *ORIGINAL_COLOR)
+{
+    //Sanity checks
+    g_return_val_if_fail (TEXT != NULL, NULL);
+    g_return_val_if_fail (iterator != NULL, NULL);
+
+    //Declarations
+    LwSearch *search = iterator->search;
+    gchar *pattern = NULL;
+    GRegex *regex = NULL;
+    gchar *output = NULL;
+    gchar *replacement = NULL;
+
+    //Initializations
+    pattern = g_strconcat ("(", search->query, ")", NULL); if (pattern == NULL) goto errored;
+    replacement = g_strconcat ("[1;91m\\0[0m", ORIGINAL_COLOR, NULL); if (replacement == NULL) goto errored;
+    regex = g_regex_new (pattern, 0, 0, NULL); if (regex == NULL) goto errored;
+    output = g_regex_replace (regex, TEXT, -1, 0, replacement, 0, NULL); if (output == NULL) goto errored;
+    
+errored:
+
+    if (pattern != NULL) g_free (pattern); pattern = NULL;
+    if (replacement != NULL) g_free (replacement); replacement = NULL;
+    if (regex != NULL) g_regex_unref (regex); regex = NULL;
+    if (output == NULL) output = g_strdup (TEXT);
+
+    return output;
+}
+
+
+static void
+w_printf_highlighted (LwSearchIterator *iterator, 
+                       const gchar            *FORMATTED, 
+                       const gchar            *CONTENT, 
+                       const gchar            *ORIGINAL_COLOR)
+{
+    //Declarations
+    gchar *highlighted_content = NULL;
+
+    //Initializations
+    highlighted_content = w_add_match_highlights (iterator, CONTENT, ORIGINAL_COLOR); 
+    if (highlighted_content == NULL) goto errored;
+
+    printf(FORMATTED, highlighted_content);
+
+errored:
+
+    g_free (highlighted_content); highlighted_content = NULL;
+}
+
+
+void 
+w_console_append_result (WApplication           *application, 
+                         LwSearchIterator *iterator)
+{
+    //Sanity checks
+    g_return_if_fail (application != NULL);
+    g_return_if_fail (iterator != NULL);
+    g_return_if_fail (iterator->search->dictionary != NULL);
+
+    //Declarations
+    LwDictionary *dictionary;
+    GType type;
+
+    //Initializations
+    dictionary = iterator->search->dictionary;
+    type = G_OBJECT_TYPE (dictionary);
+
+    if (g_type_is_a (type, LW_TYPE_EDICTIONARY))
+      w_console_append_edict_result (application, iterator);
+    else if (g_type_is_a (type, LW_TYPE_KANJIDICTIONARY))
+      w_console_append_kanjidict_result (application, iterator);
+    else if (g_type_is_a (type, LW_TYPE_EXAMPLEDICTIONARY))
+      w_console_append_examplesdict_result (application, iterator);
+    else if (g_type_is_a (type, LW_TYPE_UNKNOWNDICTIONARY))
+      w_console_append_unknowndict_result (application, iterator);
+    else
+      g_warning ("%s\n", gettext("This is an unknown dictionary type!"));
+}
+
+
+//!
+//! @brief Not yet written
+//!
+static void 
+w_console_append_edict_result (WApplication           *application, 
+                               LwSearchIterator *iterator)
+{
+    //Sanity checks
+    g_return_if_fail (application != NULL);
+    if (iterator == NULL) return;
+
+    //Definitions
+    LwSearch *search;
+    LwResult *result;
+    gboolean color_switch;
+    gint cont;
+
+    //Initializations
+    result = lw_searchiterator_get_result (iterator); if (result == NULL) return;
+    search = iterator->search;
+    color_switch = w_application_get_color_switch (application);
+    cont = 0;
+
+    //Kanji
+    if (result->kanji_start)
+    {
+      if (color_switch)
+      {
+        gchar *highlighted = w_add_match_highlights (iterator, result->kanji_start, "[32m");
+        printf("[32m%s", highlighted);
+        g_free (highlighted); highlighted = NULL;
+      }
+      else
+        printf("%s", result->kanji_start);
+    }
+    //Furigana
+    if (result->furigana_start)
+    {
+      if (color_switch)
+      {
+        gchar *highlighted = w_add_match_highlights (iterator, result->furigana_start, "[32m");
+        printf(" [%s]", highlighted);
+        g_free (highlighted); highlighted = NULL;
+      }
+      else
+      {
+        printf(" [%s]", result->furigana_start);
+      }
+    }
+
+    //Other info
+    if (result->classification_start)
+    {
+      if (color_switch)
+        printf(" [0m %s", result->classification_start);
+      else
+        printf(" %s", result->classification_start);
+    }
+
+    //Important Flag
+    if (result->important)
+    {
+      if (color_switch)
+        printf(" [0m %s", "P");
+      else
+        printf(" %s", "P");
+    }
+
+    printf("\n");
+    while (cont < result->def_total)
+    {
+      if (color_switch)
+      {
+        gchar *highlighted = w_add_match_highlights (iterator, result->def_start[cont], "[0m");
+        printf("[0m      [35m%s [0m%s\n", result->number[cont], highlighted);
+        g_free (highlighted); highlighted = NULL;
+      }
+      else
+        printf("      %s %s\n", result->number[cont], result->def_start[cont]);
+      cont++;
+    }
+    printf("\n");
+
+    //Cleanup
+    lw_result_free (result);
+}
+
+
+//!
+//! @brief Not yet written
+//!
+static void 
+w_console_append_kanjidict_result (WApplication           *application, 
+                                   LwSearchIterator *iterator)
+{
+    //Sanity checks
+    g_return_if_fail (application != NULL);
+    if (iterator == NULL) return;
+
+    //Definitions
+    LwSearch *search = NULL;
+    LwResult *result = NULL;
+    gboolean color_switch = FALSE;
+    gboolean line_started = FALSE;
+
+    //Initializations
+    result = lw_searchiterator_get_result (iterator); if (result == NULL) return;
+    search = iterator->search;
+    color_switch = w_application_get_color_switch (application);
+    line_started = FALSE;
+
+    //Kanji
+    if (color_switch)
+      lw_printf_highlighted (iterator, "[32;1m%s[0m\n", result->kanji, "[32m");
+    else
+      printf("%s\n", result->kanji);
+
+    if (result->radicals)
+    {
+      gchar *highlighted = w_add_match_highlights (iterator, result->radicals, "[0m");
+      printf("%s%s\n", gettext("Radicals:"), highlighted);
+      g_free (highlighted); highlighted = NULL;
+    }
+
+    if (result->strokes)
+    {
+      line_started = TRUE;
+      printf("%s%s", gettext("Stroke:"), result->strokes);
+    }
+
+    if (result->frequency)
+    {
+      if (line_started)
+        printf(" ");
+      line_started = TRUE;
+      printf("%s%s", gettext("Freq:"), result->frequency);
+    }
+
+    if (result->grade)
+    {
+      if (line_started)
+        printf(" ");
+      line_started = TRUE;
+      printf("%s%s", gettext("Grade:"), result->grade);
+    }
+
+    if (result->jlpt)
+    {
+      if (line_started)
+        printf(" ");
+      line_started = TRUE;
+      printf("%s%s", gettext("JLPT:"), result->jlpt);
+    }
+
+    if (line_started)
+      printf("\n");
+
+    if (result->readings[0])
+      printf("%s%s\n", gettext("Readings:"), result->readings[0]);
+    if (result->readings[1])
+      printf("%s%s\n", gettext("Name:"), result->readings[1]);
+    if (result->readings[2])
+      printf("%s%s\n", gettext("Radical Name:"), result->readings[2]);
+
+    if (result->meanings)
+      printf("%s%s\n", gettext("Meanings:"), result->meanings);
+    printf("\n");
+
+    //Cleanup
+    lw_result_free (result);
+}
+
+
+//!
+//! @brief Not yet written
+//!
+static void 
+w_console_append_examplesdict_result (WApplication           *application, 
+                                      LwSearchIterator *iterator)
+{
+    //Sanity checks
+    g_return_if_fail (application != NULL);
+    if (iterator == NULL) return;
+
+    //Definitions
+    LwSearch *search;
+    LwResult *result;
+    gboolean color_switch;
+
+    //Initializations
+    result = lw_searchiterator_get_result (iterator); if (result == NULL) return;
+    search = iterator->search;
+    color_switch = w_application_get_color_switch (application);
+
+    if (result->def_start[0] != NULL)
+    {
+      if (color_switch)
+        printf ("[32;1m%s[0m", gettext("E:\t"));
+      else
+        printf ("%s", gettext("E:\t"));
+      printf ("%s", result->def_start[0]);
+    }
+
+    if (result->kanji_start != NULL)
+    {
+      if (color_switch)
+        printf ("[32;1m%s[0m", gettext("\nJ:\t"));
+      else
+        printf ("%s", gettext("\nJ:\t"));
+      printf ("%s", result->kanji_start);
+    }
+
+    if (result->furigana_start != NULL)
+    {
+      if (color_switch)
+        printf("[32;1m%s[0m", gettext("\nD:\t"));
+      else
+        printf("%s", gettext("\nD:\t"));
+      printf("%s", result->furigana_start);
+    }
+
+    printf("\n\n");
+
+    //Cleanup
+    lw_result_free (result);
+}
+
+
+//!
+//! @brief Not yet written
+//!
+static void 
+w_console_append_unknowndict_result (WApplication           *application, 
+                                     LwSearchIterator *iterator)
+{
+    //Sanity checks
+    g_return_if_fail (application != NULL);
+    if (iterator == NULL) return;
+
+    //Definitions
+    LwResult *result;
+
+    //Initializations
+    result = lw_searchiterator_get_result (iterator); if (result == NULL) return;
+
+    printf("%s\n", result->text);
+
+    //Cleanup
+    lw_result_free (result);
+}
+
+
+//!
+//! @brief Print the "no result" message where necessary.
+//!
+void 
+w_console_no_result (WApplication           *application, 
+                     LwSearchIterator *iterator)
+{
+    //Sanity checks
+    if (application == NULL || iterator == NULL) return;
+
+    //Declarations
+    LwSearch *search = iterator->search; if (search == NULL || search->status != LW_SEARCHSTATUS_IDLE || search->progress->current_progress == 0.0) return; 
+    LwDictionary *dictionary = search->dictionary; if (dictionary == NULL) return;
+    gboolean color_switch = FALSE;
+    gboolean quiet_switch = FALSE;
+
+    //Initializations
+    color_switch = w_application_get_color_switch (application);
+    quiet_switch = w_application_get_quiet_switch (application);
+
+    if (quiet_switch) return;
+
+    if (color_switch)
+      printf("%s\n\n", gettext("No results found!"));
+    else
+      printf("%s\n\n", gettext("No results found!"));
+}
+*/
 

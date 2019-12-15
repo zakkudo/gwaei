@@ -39,9 +39,28 @@
 
 #include <waei/gettext.h>
 #include <waei/waei.h>
-#include <waei/application-private.h>
 
-G_DEFINE_TYPE (WApplication, w_application, LW_TYPE_APPLICATION)
+typedef enum {
+  PROP_0,
+  PROP_PREFERENCES,
+  TOTAL_PROPS
+} Props;
+
+struct _Data {
+  LwDictionaryList *dictionarylist;
+  LwDictionaryInstallList *dictionaryinstalllist;
+  LwPreferences *preferences;
+};
+
+struct _WApplicationPrivate {
+  struct _Data data;
+};
+
+struct _WApplicationClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+
+G_DEFINE_TYPE_WITH_PRIVATE (WApplication, w_application, LW_TYPE_APPLICATION)
 
 //!
 //! @brief creates a new instance of the gwaei applicaiton
@@ -72,8 +91,6 @@ w_application_new (GApplicationFlags flags)
 static void 
 w_application_init (WApplication *self)
 {
-    self->priv = W_APPLICATION_GET_PRIVATE (self);
-    memset(self->priv, 0, sizeof(WApplicationPrivate));
 }
 
 
@@ -91,7 +108,7 @@ w_application_constructed (GObject *object)
 
     //Initializations
     self = W_APPLICATION (object);
-    priv = self->priv;
+    priv = w_application_get_instance_private (self);
 }
 
 
@@ -107,7 +124,7 @@ w_application_set_property (GObject      *object,
 
     //Initializations
     self = W_APPLICATION (object);
-    priv = self->priv;
+    priv = w_application_get_instance_private (self);
 
     switch (property_id)
     {
@@ -133,7 +150,7 @@ w_application_get_property (GObject    *object,
 
     //Initializations
     self = W_APPLICATION (object);
-    priv = self->priv;
+    priv = w_application_get_instance_private (self);
 
     switch (property_id)
     {
@@ -170,7 +187,7 @@ w_application_finalize (GObject *object)
 
     //Initializations
     self = W_APPLICATION (object);
-    priv = self->priv;
+    priv = w_application_get_instance_private (self);
 
     if (priv->data.dictionarylist != NULL) g_object_unref (priv->data.dictionarylist); priv->data.dictionarylist = NULL;
     if (priv->data.dictionaryinstalllist != NULL) g_object_unref (priv->data.dictionaryinstalllist); priv->data.dictionaryinstalllist = NULL;
@@ -197,7 +214,7 @@ w_application_command_line (GApplication            *application,
 
     //Initializations
     self = W_APPLICATION (application);
-    priv = self->priv;
+    priv = w_application_get_instance_private (self);
     argv = g_application_command_line_get_arguments (command_line, &argc);
 
     g_application_hold (application);
@@ -205,7 +222,7 @@ w_application_command_line (GApplication            *application,
     if (g_application_command_line_get_is_remote (command_line))
     {
       WCommand *command = w_command_new (self, command_line);
-      resolution = w_command_run (command, &argv, &argc);
+      resolution = lw_command_run (LW_COMMAND (command), &argv, &argc);
       g_object_unref (command); command = NULL;
     }
     else
@@ -264,8 +281,6 @@ w_application_class_init (WApplicationClass *klass)
     application_class->activate = w_application_activate;
     object_class->dispose = w_application_dispose;
     object_class->finalize = w_application_finalize;
-
-    g_type_class_add_private (object_class, sizeof (WApplicationPrivate));
 
     WApplicationClassPrivate *klasspriv = klass->priv;
 
@@ -328,7 +343,7 @@ printf("BREAK w_application_get_dictionarylist\n");
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_application_get_instance_private (self);
     preferences = w_application_get_preferences (self);
 
     if (priv->data.dictionarylist == NULL)
@@ -353,7 +368,7 @@ w_application_get_dictionaryinstalllist (WApplication *self)
     LwPreferences *preferences = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_application_get_instance_private (self);
     preferences = w_application_get_preferences (self);
 
     if (priv->data.dictionaryinstalllist == NULL)
@@ -376,7 +391,7 @@ w_application_get_preferences (WApplication *self)
     WApplicationPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = w_application_get_instance_private (self);
 
     if (priv->data.preferences == NULL)
     {
@@ -402,7 +417,7 @@ w_application_set_preferences (WApplication *self,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = w_application_get_instance_private (self);
     klass = W_APPLICATION_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (preferences != priv->data.preferences);

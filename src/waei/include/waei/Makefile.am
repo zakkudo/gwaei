@@ -1,1 +1,1 @@
-noinst_HEADERS = waei.h command.h command-callbacks.h command-output.h application.h application-private.h search-data.h gettext.h
+noinst_HEADERS = waei.h command.h application.h search-data.h gettext.h
