@@ -56,8 +56,6 @@ struct _LwDictionaryInstallListClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 };
 
-#define LW_DICTIONARYINSTALLLIST_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYINSTALLLIST, LwDictionaryInstallListPrivate));
-
 void lw_dictionaryinstalllist_menumodel_insert (LwDictionaryInstallList *dictioanry_list, LwDictionary *dictionary, gint index_);
 void lw_dictionaryinstalllist_menumodel_append (LwDictionaryInstallList *dictionary_list, LwDictionary *dictionary);
 void lw_dictionaryinstalllist_sync_menumodel (LwDictionaryInstallList *dictionary_list);

@@ -42,18 +42,15 @@
 
 #include <libwaei/application-private.h>
 
-G_DEFINE_ABSTRACT_TYPE (LwApplication, lw_application, G_TYPE_APPLICATION)
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (LwApplication, lw_application, G_TYPE_APPLICATION)
 
 
 static void 
 lw_application_init (LwApplication *self)
 {
-    self->priv = LW_APPLICATION_GET_PRIVATE (self);
-    memset(self->priv, 0, sizeof(LwApplicationPrivate));
-
     LwApplicationPrivate *priv = NULL;
 
-    priv = self->priv;
+    priv = lw_application_get_instance_private (self);
 
     priv->dictionarymodules = g_tree_new_full ((GCompareDataFunc) g_strcmp0, NULL, NULL, (GDestroyNotify) g_object_unref);
 
@@ -75,7 +72,7 @@ lw_application_constructed (GObject *object)
 
     //Initializations
     self = LW_APPLICATION (object);
-    priv = self->priv;
+    priv = lw_application_get_instance_private (self);
 }
 
 
@@ -91,7 +88,7 @@ lw_application_set_property (GObject      *object,
 
     //Initializations
     self = LW_APPLICATION (object);
-    priv = self->priv;
+    priv = lw_application_get_instance_private (self);
 
     switch (property_id)
     {
@@ -114,7 +111,7 @@ lw_application_get_property (GObject    *object,
 
     //Initializations
     self = LW_APPLICATION (object);
-    priv = self->priv;
+    priv = lw_application_get_instance_private (self);
 
     switch (property_id)
     {
@@ -148,7 +145,7 @@ lw_application_finalize (GObject *object)
 
     //Initializations
     self = LW_APPLICATION (object);
-    priv = self->priv;
+    priv = lw_application_get_instance_private (self);
 
     g_tree_unref (priv->dictionarymodules);
     priv->dictionarymodules = NULL;
@@ -174,8 +171,6 @@ lw_application_class_init (LwApplicationClass *klass)
     object_class->get_property = lw_application_get_property;
     object_class->dispose = lw_application_dispose;
     object_class->finalize = lw_application_finalize;
-
-    g_type_class_add_private (object_class, sizeof (LwApplicationPrivate));
 }
 
 
@@ -191,7 +186,7 @@ lw_application_add_dictionarymodule (LwApplication     * self,
     gchar const * NAME = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_application_get_instance_private (self);
     NAME = lw_dictionarymodule_get_name (dictionarymodule);
     if (NAME == NULL) goto errored;
     if (g_tree_lookup (priv->dictionarymodules, NAME) != NULL) goto errored;

@@ -64,8 +64,6 @@ struct _LwProgressClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 };
 
-#define LW_PROGRESS_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_PROGRESS, LwProgressPrivate));
-
 G_END_DECLS
 
 #endif

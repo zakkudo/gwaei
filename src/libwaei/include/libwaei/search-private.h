@@ -48,8 +48,6 @@ struct _LwSearchClassPrivate {
 };
 
 
-#define LW_SEARCH_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SEARCH, LwSearchPrivate));
-
 static void lw_search_set_results (LwSearch * self, LwResults * results);
 static gboolean _apply_search_columns_to_query (LwQueryNode * self, LwSearch * search);
 static void lw_search_search_parsed (LwSearch * self, LwParsed * parsed);

@@ -39,7 +39,7 @@
 #define SINGLE_COPY_PATTERN "%s Copy"
 #define PLURAL_COPY_PATTERN "%s Copy %d"
 
-G_DEFINE_TYPE (LwVocabulary, lw_vocabulary, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (LwVocabulary, lw_vocabulary, G_TYPE_OBJECT)
 
 gchar**
 lw_vocabulary_get_filenames ()
@@ -123,7 +123,7 @@ lw_vocabulary_set_property (GObject      *object,
 
     //Initializations
     self = LW_VOCABULARY (object);
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
 
     switch (property_id)
     {
@@ -155,7 +155,7 @@ lw_vocabulary_get_property (GObject    *object,
 
     //Initializations
     self = LW_VOCABULARY (object);
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
 
     switch (property_id)
     {
@@ -184,7 +184,7 @@ lw_vocabulary_finalize (GObject *object)
 
     //Initalizations
     self = LW_VOCABULARY (object);
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
 
     if (priv->config.filename != NULL) g_free (priv->config.filename); priv->config.filename = NULL;
 
@@ -224,8 +224,6 @@ lw_vocabulary_class_init (LwVocabularyClass *klass)
     object_class->get_property = lw_vocabulary_get_property;
     object_class->dispose = lw_vocabulary_dispose;
     object_class->finalize = lw_vocabulary_finalize;
-
-    g_type_class_add_private (object_class, sizeof (LwVocabularyPrivate));
 
     LwVocabularyClassPrivate *klasspriv = klass->priv;
 
@@ -325,7 +323,7 @@ lw_vocabulary_clear (LwVocabulary *self)
     gint length = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     length = lw_vocabulary_length (self);
 
     removed = lw_vocabulary_remove (self, NULL);
@@ -351,7 +349,7 @@ lw_vocabulary_load_from_file (LwVocabulary *self)
     gsize length = 0;
 /*TODO
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     FILENAME = lw_vocabulary_get_filename (self);
     if (FILENAME == NULL) goto errored;
     uri = lw_util_build_filename (LW_PATH_VOCABULARY, FILENAME);
@@ -379,7 +377,7 @@ lw_vocabulary_load (LwVocabulary *self)
     if (lw_vocabulary_is_loaded (self)) return;
 
     //Declarations
-    LwVocabularyPrivate *priv = self->priv;
+    LwVocabularyPrivate *priv = lw_vocabulary_get_instance_private (self);
 
     lw_vocabulary_load_from_file (self);
 
@@ -401,7 +399,7 @@ lw_vocabulary_save (LwVocabulary       *self)
     gchar *text = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     FILENAME = lw_vocabulary_get_filename (self);
     if (FILENAME == NULL) goto errored;
     uri = lw_vocabulary_build_uri (FILENAME);
@@ -448,7 +446,7 @@ lw_vocabulary_set_changed (LwVocabulary *self,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     klass = LW_VOCABULARY_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (changed_ != priv->data.changed);
@@ -469,7 +467,7 @@ lw_vocabulary_has_changes (LwVocabulary *self)
     LwVocabularyPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
 
     return priv->data.changed;
 }
@@ -489,7 +487,7 @@ lw_vocabulary_set_loaded (LwVocabulary *self,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     klass = LW_VOCABULARY_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (loaded != priv->data.loaded);
@@ -524,7 +522,7 @@ lw_vocabulary_is_loaded (LwVocabulary *self)
     LwVocabularyPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
 
     return priv->data.loaded;
 }
@@ -657,7 +655,7 @@ lw_vocabulary_set_filename (LwVocabulary *self,
     gboolean file_exists = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     klass = LW_VOCABULARY_GET_CLASS (self);
     klasspriv = klass->priv;
     file_exists = lw_vocabulary_has_file (self);
@@ -709,7 +707,7 @@ lw_vocabulary_get_filename (LwVocabulary *self)
     gchar *filename = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
 
     return priv->config.filename;
 }
@@ -725,7 +723,7 @@ lw_vocabulary_length (LwVocabulary *self)
     LwVocabularyPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
 
     if (priv->data.length < 0)
     {
@@ -747,7 +745,7 @@ lw_vocabulary_invalidate_length (LwVocabulary *self)
     gint length = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
 
     priv->data.length = -1;
 }
@@ -765,7 +763,7 @@ _add_to_index (LwVocabulary *self,
     LwVocabularyPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
    
     //CURRENTLY UNUSED
 
@@ -787,7 +785,7 @@ _remove_from_index (LwVocabulary *self,
     LwVocabularyPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
 
     //CURRENTLY UNUSED
 
@@ -810,7 +808,7 @@ _rebuild_array (LwVocabulary *self)
     gint length = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     length = lw_vocabulary_length (self);
 
     g_free (priv->data.array); priv->data.array = NULL;
@@ -848,7 +846,7 @@ _insert (LwVocabulary *self,
     gboolean append = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     length = lw_vocabulary_length (self);
     append = (*position < 0 || *position >= length || length == 0);
     number_inserted = g_list_length (wordlist);
@@ -916,7 +914,7 @@ _insert_propogate_changes (LwVocabulary *self,
     gint i = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     klass = LW_VOCABULARY_GET_CLASS (self);
     klasspriv = klass->priv;
     length = lw_vocabulary_length (self);
@@ -1109,7 +1107,7 @@ _remove (LwVocabulary *self,
     GList *list = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     length = lw_vocabulary_length (self);
     if (length == 0) goto errored;
 
@@ -1570,7 +1568,7 @@ lw_vocabulary_nth (LwVocabulary *self,
     GList *link = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     length = lw_vocabulary_length (self);
     if (index >= length) goto errored;
 
@@ -1603,7 +1601,7 @@ lw_vocabulary_load_from_string (LwVocabulary       *self,
     gint *indices = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     if (*TEXT == '#')
       end = strchr(TEXT + 1, '#');
     else
@@ -1709,7 +1707,7 @@ lw_vocabulary_to_string (LwVocabulary *self)
     gchar *text = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     length = lw_vocabulary_length (self);
     line = g_new0 (gchar*, length + 2);
 
@@ -1888,7 +1886,7 @@ lw_vocabulary_sort (LwVocabulary     *self,
     gint *new_order = NULL;
     
     //Initializations
-    priv = self->priv;
+    priv = lw_vocabulary_get_instance_private (self);
     length = lw_vocabulary_length (self);
     new_order = g_new0 (gint, length + 1);
     if (new_order == NULL) goto errored;

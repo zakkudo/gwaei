@@ -19,8 +19,6 @@ struct _LwUninstallSubCommandClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
 };
 
-#define LW_UNINSTALLSUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_UNINSTALLSUBCOMMAND, LwUninstallSubCommandPrivate));
-
 //Properties
 
 //Methods

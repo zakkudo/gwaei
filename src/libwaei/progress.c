@@ -79,7 +79,7 @@
 
 #include <libwaei/progress-private.h>
 
-G_DEFINE_TYPE (LwProgress, lw_progress, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (LwProgress, lw_progress, G_TYPE_OBJECT)
 
 
 static void lw_progress_set_cancellable (LwProgress * self, GCancellable * cancellable);
@@ -119,7 +119,7 @@ lw_progress_init (LwProgress *self)
     LwProgressPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     priv->current_progress = 0.0;
     priv->total_progress = 0.0;
@@ -146,7 +146,7 @@ lw_progress_set_property (GObject        *object,
 
     //Initializations
     self = LW_PROGRESS (object);
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     switch (property_id)
     {
@@ -199,7 +199,7 @@ lw_progress_get_property (GObject    *object,
 
     //Initializations
     self = LW_PROGRESS (object);
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     switch (property_id)
     {
@@ -258,7 +258,7 @@ lw_progress_finalize (GObject *object)
 
     //Initalizations
     self = LW_PROGRESS (object);
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     if (priv->primary_message != NULL) g_free (priv->primary_message);
     if (priv->secondary_message != NULL) g_free (priv->secondary_message); 
@@ -300,8 +300,6 @@ lw_progress_class_init (LwProgressClass *klass)
     object_class->get_property = lw_progress_get_property;
     object_class->dispose = lw_progress_dispose;
     object_class->finalize = lw_progress_finalize;
-
-    g_type_class_add_private (object_class, sizeof (LwProgressPrivate));
 
     LwProgressClassPrivate *klasspriv = klass->priv;
 
@@ -531,7 +529,7 @@ lw_progress_set_cancellable (LwProgress   *self,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (cancellable != priv->cancellable);
@@ -578,7 +576,7 @@ lw_progress_get_cancellable (LwProgress *self)
     LwProgressPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     return priv->cancellable;
 }
@@ -601,7 +599,7 @@ lw_progress_sync_ratio_delta (LwProgress *self)
     gboolean reached = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
@@ -646,7 +644,7 @@ lw_progress_set_required_ratio_delta (LwProgress *self,
     LwProgressClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
@@ -681,7 +679,7 @@ lw_progress_get_current (LwProgress *self)
     gdouble current_progress = 0.0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     g_mutex_lock (&priv->mutex);
 
@@ -720,7 +718,7 @@ lw_progress_set_current (LwProgress *self,
     gboolean is_locked = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
@@ -780,7 +778,7 @@ lw_progress_get_total (LwProgress *self)
     gdouble total_progress = 0.0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     g_mutex_lock (&priv->mutex);
 
@@ -816,7 +814,7 @@ lw_progress_set_total (LwProgress *self,
     gdouble epsilon = 0.0000001;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
@@ -881,7 +879,7 @@ lw_progress_get_fraction (LwProgress *self)
     gdouble fraction = 0.0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     g_mutex_lock (&priv->mutex);
 
@@ -930,7 +928,7 @@ lw_progress_set_completed (LwProgress *self,
     gboolean is_locked = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
@@ -972,7 +970,7 @@ lw_progress_completed (LwProgress *self)
     gboolean completed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     g_mutex_lock (&priv->mutex);
 
@@ -1006,7 +1004,7 @@ lw_progress_set_error (LwProgress *self,
     GError *error = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     if (_error != NULL && error != _error)
     {
       error = g_error_copy (_error);
@@ -1040,7 +1038,7 @@ lw_progress_take_error (LwProgress * self,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (error != priv->error);
@@ -1073,7 +1071,7 @@ lw_progress_get_error (LwProgress  *self)
     LwProgressPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     return priv->error;
 }
@@ -1101,7 +1099,7 @@ lw_progress_errored (LwProgress *self)
     gboolean errored = FALSE;
 
     //Initialization
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     g_mutex_lock (&priv->mutex);
 
@@ -1134,7 +1132,7 @@ lw_progress_is_cancelled (LwProgress *self)
     gboolean is_cancelled = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     g_mutex_lock (&priv->mutex);
 
@@ -1163,7 +1161,7 @@ lw_progress_cancel (LwProgress *self)
     LwProgressPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     g_mutex_lock (&priv->mutex);
 
@@ -1198,7 +1196,7 @@ lw_progress_should_abort (LwProgress *self)
     LwProgressPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     return (lw_progress_is_cancelled (self) || lw_progress_errored (self));
 }
@@ -1229,7 +1227,7 @@ lw_progress_set_primary_message (LwProgress *self,
     gboolean is_locked = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
@@ -1270,7 +1268,7 @@ lw_progress_set_primary_message_vprintf (LwProgress  *self,
     gchar *message = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     message = g_strdup_vprintf (FORMAT, va); 
     if (message == NULL) goto errored;
 
@@ -1324,7 +1322,7 @@ lw_progress_get_primary_message (LwProgress *self)
     gchar *primary_message = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     g_mutex_lock (&priv->mutex);
 
@@ -1362,7 +1360,7 @@ lw_progress_set_secondary_message (LwProgress  *self,
     gboolean is_locked = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
@@ -1406,7 +1404,7 @@ lw_progress_set_secondary_message_vprintf (LwProgress  *self,
     gchar *message = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     message = g_strdup_vprintf (FORMAT, va); 
     if (message == NULL) goto errored;
 
@@ -1460,7 +1458,7 @@ lw_progress_get_secondary_message (LwProgress *self)
     gchar *secondary_message = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     g_mutex_lock (&self->priv->mutex);
 
@@ -1498,7 +1496,7 @@ lw_progress_set_step_message (LwProgress  *self,
     gboolean is_locked = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
@@ -1544,7 +1542,7 @@ lw_progress_set_step_message_vprintf (LwProgress  *self,
     gchar *message = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     message = g_strdup_vprintf (FORMAT, va);
     if (message == NULL) goto errored;
 
@@ -1598,7 +1596,7 @@ lw_progress_get_step_message (LwProgress *self)
     gchar *step_message = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     g_mutex_lock (&self->priv->mutex);
 
@@ -1627,7 +1625,7 @@ lw_progress_get_prefered_chunk_size (LwProgress *self)
     LwProgressPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
 
     return priv->prefered_chunk_size;
 }
@@ -1654,7 +1652,7 @@ lw_progress_set_prefered_chunk_size (LwProgress *self,
     LwProgressClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 
@@ -1687,7 +1685,7 @@ lw_progress_get_chunk_size (LwProgress *self)
     gsize chunk_size = 0.0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     if (priv->prefered_chunk_size != 0.0)
     {
       chunk_size = priv->prefered_chunk_size;
@@ -1724,7 +1722,7 @@ lw_progress_set_chunk_size (LwProgress *self,
     LwProgressClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_progress_get_instance_private (self);
     klass = LW_PROGRESS_GET_CLASS (self);
     klasspriv = klass->priv;
 

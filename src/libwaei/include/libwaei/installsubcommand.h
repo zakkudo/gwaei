@@ -20,7 +20,6 @@ typedef struct _LwInstallSubCommandClassPrivate LwInstallSubCommandClassPrivate;
 
 struct _LwInstallSubCommand {
   LwSubCommand object;
-  LwInstallSubCommandPrivate *priv;
 };
 
 struct _LwInstallSubCommandClass {

@@ -97,9 +97,6 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (LwCommand, lw_command, G_TYPE_OBJECT)
 static void 
 lw_command_init (LwCommand *self)
 {
-    self->priv = lw_command_get_instance_private (self);
-    memset(self->priv, 0, sizeof(LwCommandPrivate));
-
     //Declarations
     LwCommandPrivate *priv = NULL;
 

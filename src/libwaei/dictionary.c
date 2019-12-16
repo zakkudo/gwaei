@@ -68,11 +68,68 @@
 #include <libwaei/gettext.h>
 #include <libwaei/io.h>
 #include <libwaei/dictionary.h>
+#include <libwaei/dictionarycachetree.h>
 
-#include <libwaei/dictionary-private.h>
+
+typedef enum
+{
+  PROP_0,
+  PROP_NAME,
+  PROP_PROGRESS,
+  PROP_ID,
+  PROP_CONTENTS_PATH,
+  PROP_CONTENTS_FILENAME,
+  PROP_CONTENTS_CHECKSUM,
+  PROP_CONTENTS,
+  PROP_CONTENT_LENGTH,
+  TOTAL_PROPS
+} LwDictionaryProps;
+
+typedef enum {
+  CLASS_SIGNALID_UNUSED,
+  TOTAL_CLASS_SIGNALIDS
+} ClassSignalId;
+
+typedef struct {
+  gchar * name;
+  gchar * id;
+  GMutex mutex;
+  LwProgress * progress;
+
+  LwDictionaryCacheTree * cachetree;
+
+  gchar * contents_path;
+  gchar * contents_filename;
+  LwMappedFile * contents_mappedfile;
+  gchar * contents_checksum;
+} LwDictionaryPrivate;
+
+struct _LwDictionaryClassPrivate {
+  guint signalid[TOTAL_CLASS_SIGNALIDS];
+  GParamSpec *pspec[TOTAL_PROPS];
+
+  gchar *install_path;
+};
+
+//Properties
+
+static LwMappedFile* lw_dictionary_get_contents_mappedfile (LwDictionary * self);
+static void lw_dictionary_set_contents_mappedfile (LwDictionary * self, LwMappedFile * mapped_file);
+
+static void lw_dictionary_sync_contents (LwDictionary * self);
+
+static void lw_dictionary_sync_contents_path (LwDictionary * self);
+static gchar * lw_dictionary_build_contents_path (LwDictionary * self, gchar const * FILENAME);
+
+static void lw_dictionary_sync_id (LwDictionary * self);
+
+static LwParsed* lw_dictionary_parse (LwDictionary * self, LwCacheFile * cache_file, LwProgress * progress);
+
+static LwDictionaryCacheTree * lw_dictionary_get_cachetree (LwDictionary * self);
+static void lw_dictionary_set_cachetree (LwDictionary * self, LwDictionaryCacheTree * tree);
 
 
-G_DEFINE_TYPE_EXTENDED (LwDictionary, lw_dictionary, G_TYPE_OBJECT, G_TYPE_FLAG_ABSTRACT, {})
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (LwDictionary, lw_dictionary, G_TYPE_OBJECT)
 
 
 
@@ -93,10 +150,13 @@ lw_dictionary_new (GType         type,
 static void 
 lw_dictionary_init (LwDictionary * self)
 {
-    self->priv = LW_DICTIONARY_GET_PRIVATE (self);
-    memset(self->priv, 0, sizeof(LwDictionaryPrivate));
+    //Declarations
+    LwDictionaryPrivate *priv = NULL;
 
-    g_mutex_init (&self->priv->mutex);
+    //Initalizations
+    priv = lw_dictionary_get_instance_private (self);
+
+    g_mutex_init (&priv->mutex);
 }
 
 
@@ -109,7 +169,7 @@ lw_dictionary_finalize (GObject *object)
 
     //Initalizations
     self = LW_DICTIONARY (object);
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     g_free (priv->id);
     g_free (priv->name);
@@ -118,12 +178,10 @@ lw_dictionary_finalize (GObject *object)
     g_free (priv->contents_path);
     g_free (priv->contents_checksum);
 
-    g_mutex_clear (&self->priv->mutex);
+    g_mutex_clear (&priv->mutex);
 
     if (priv->contents_mappedfile) g_object_unref (priv->contents_mappedfile);
     lw_dictionary_set_cachetree (self, NULL);
-
-    memset(self->priv, 0, sizeof(LwDictionaryPrivate));
 
     G_OBJECT_CLASS (lw_dictionary_parent_class)->finalize (object);
 }
@@ -141,7 +199,7 @@ lw_dictionary_set_property (GObject      * object,
 
     //Initializations
     self = LW_DICTIONARY (object);
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     switch (property_id)
     {
@@ -167,7 +225,7 @@ lw_dictionary_get_property (GObject      *object,
 
     //Initializations
     self = LW_DICTIONARY (object);
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     switch (property_id)
     {
@@ -237,8 +295,6 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
     object_class->get_property = lw_dictionary_get_property;
     object_class->finalize = lw_dictionary_finalize;
     object_class->constructed = lw_dictionary_constructed;
-
-    g_type_class_add_private (object_class, sizeof (LwDictionaryPrivate));
 
     klass->priv->pspec[PROP_ID] = g_param_spec_string (
       "id",
@@ -431,7 +487,7 @@ lw_dictionary_uninstall (LwDictionary * self)
     gchar const *name = lw_dictionary_get_name (self);
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
     progress = priv->progress;
     PATH = lw_dictionary_get_contents_path (self);
     if (PATH == NULL) goto errored;
@@ -541,7 +597,7 @@ lw_dictionary_get_contents_path (LwDictionary * self)
     LwDictionaryPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     return priv->contents_path;
 }
@@ -619,7 +675,7 @@ lw_dictionary_set_contents_path (LwDictionary * self,
     LwDictionaryClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
     klass = LW_DICTIONARY_GET_CLASS (self);
     if (g_strcmp0 (PATH, priv->contents_path) == 0) goto errored;
 
@@ -653,7 +709,7 @@ lw_dictionary_set_name (LwDictionary * self,
     LwDictionaryClass * klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
     klass = LW_DICTIONARY_GET_CLASS (self);
     if (g_strcmp0 (priv->name, NAME) == 0) goto errored;
 
@@ -683,7 +739,7 @@ lw_dictionary_get_name (LwDictionary * self)
     LwDictionaryPrivate *priv;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     return priv->name;
 }
@@ -704,7 +760,7 @@ lw_dictionary_get_contents_filename (LwDictionary * self)
     LwDictionaryPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     return priv->contents_filename;
 }
@@ -751,7 +807,7 @@ lw_dictionary_set_contents_filename (LwDictionary * self,
     gboolean filename_changed = FALSE;
     
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
     klass = LW_DICTIONARY_GET_CLASS (self);
     if (g_strcmp0 (FILENAME, priv->contents_filename) == 0) goto errored;
 
@@ -838,7 +894,7 @@ _insert_new_cache (LwDictionary * self,
     gsize content_length = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     FILENAME = lw_dictionary_get_contents_filename (self);
     if (FILENAME == NULL) goto errored;
@@ -936,7 +992,7 @@ lw_dictionary_ensure_cache_by_utf8flags (LwDictionary * self,
     LwDictionaryCache * cache = NULL;
     gboolean is_locked = FALSE;
 
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
     cachetree = priv->cachetree;
 
     while (cache == NULL)
@@ -1011,7 +1067,7 @@ lw_dictionary_get_id (LwDictionary * self)
     LwDictionaryPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     return priv->id;
 }
@@ -1029,7 +1085,7 @@ lw_dictionary_set_id (LwDictionary * self,
     LwDictionaryClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
     klass = LW_DICTIONARY_GET_CLASS (self);
 
     if (g_strcmp0 (ID, priv->id) == 0) goto errored;
@@ -1114,7 +1170,7 @@ lw_dictionary_set_contents_mappedfile (LwDictionary * self,
     LwDictionaryClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
     klass = LW_DICTIONARY_GET_CLASS (self);
 
     if (contents_mappedfile != NULL)
@@ -1145,7 +1201,7 @@ lw_dictionary_get_contents_mappedfile (LwDictionary * self)
     LwDictionaryPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     return priv->contents_mappedfile;
 }
@@ -1164,7 +1220,7 @@ lw_dictionary_sync_contents (LwDictionary * self)
     gsize length = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     if (priv->contents_path != NULL)
     {
@@ -1262,7 +1318,7 @@ lw_dictionary_get_contents_checksum (LwDictionary * self)
     LwDictionaryPrivate * priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     return priv->contents_checksum;
 }
@@ -1280,7 +1336,7 @@ lw_dictionary_set_cachetree (LwDictionary          * self,
     LwDictionaryClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
     if (priv->cachetree == tree) goto errored;
     klass = LW_DICTIONARY_GET_CLASS (self);
 
@@ -1317,7 +1373,7 @@ lw_dictionary_get_cachetree (LwDictionary * self)
     LwDictionaryPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionary_get_instance_private (self);
 
     return priv->cachetree;
 }

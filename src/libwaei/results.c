@@ -42,7 +42,7 @@
 #include <libwaei/results-private.h>
 
 
-G_DEFINE_TYPE (LwResults, lw_results, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (LwResults, lw_results, G_TYPE_OBJECT)
 
 
 /**
@@ -74,7 +74,7 @@ lw_results_init (LwResults * self)
 
     LwResultsPrivate *priv = NULL;
 
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
 
     lw_results_set_sequence (self, g_sequence_new ((GDestroyNotify) lw_result_free));
 }
@@ -92,7 +92,7 @@ lw_results_set_property (GObject      * object,
 
     //Initializations
     self = LW_RESULTS (object);
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
 
     switch (property_id)
     {
@@ -121,7 +121,7 @@ lw_results_get_property (GObject    * object,
 
     //Initializations
     self = LW_RESULTS (object);
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
 
     switch (property_id)
     {
@@ -147,7 +147,7 @@ lw_results_finalize (GObject * object)
 
     //Initalizations
     self = LW_RESULTS (object);
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
 
     lw_results_set_sequence (self, NULL);
     lw_results_set_dictionarycache (self, NULL);
@@ -184,8 +184,6 @@ lw_results_class_init (LwResultsClass * klass)
     object_class->get_property = lw_results_get_property;
     object_class->dispose = lw_results_dispose;
     object_class->finalize = lw_results_finalize;
-
-    g_type_class_add_private (object_class, sizeof (LwResultsPrivate));
 
     LwResultsClassPrivate *klasspriv = klass->priv;
 
@@ -298,7 +296,7 @@ lw_results_set_dictionarycache (LwResults         * self,
     LwResultsPrivate * priv = NULL;
     LwResultsClass * klass = NULL;
 
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
     klass = LW_RESULTS_GET_CLASS (self);
     if (priv->dictionary_cache == dictionary_cache) goto errored;
 
@@ -326,7 +324,7 @@ lw_results_get_dictionarycache (LwResults * self)
 
     LwResultsPrivate * priv = NULL;
 
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
 
     return priv->dictionary_cache;
 }
@@ -344,7 +342,7 @@ lw_results_set_sequence (LwResults * self,
     LwResultsClass * klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
     klass = LW_RESULTS_GET_CLASS (self);
     if (priv->sequence == sequence) goto errored;
 
@@ -374,7 +372,7 @@ lw_results_get_sequence (LwResults * self)
     LwResultsPrivate * priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
 
     return priv->sequence;
 }
@@ -400,7 +398,7 @@ lw_results_append_result (LwResults * self,
     LwResultsIter * iter = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
     klass = LW_RESULTS_GET_CLASS (self);
     iter = g_sequence_append (priv->sequence, result);
     result->index = priv->length;
@@ -445,7 +443,7 @@ lw_results_sort_by_score (LwResults * self)
     gint * new_order = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
     sequence = priv->sequence;
     klass = LW_RESULTS_GET_CLASS (self);
 
@@ -494,7 +492,7 @@ lw_results_sort_by_index (LwResults * self)
     gint * new_order = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
     sequence = priv->sequence;
     klass = LW_RESULTS_GET_CLASS (self);
 
@@ -587,7 +585,7 @@ lw_results_normalize_indices (LwResults * self)
     gint i = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
     new_order = g_new0 (gint, priv->length);
     if (new_order == NULL) goto errored;
     sequence = priv->sequence;
@@ -639,7 +637,7 @@ lw_results_sort_by_columnid (LwResults * self,
     gint * new_order = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_results_get_instance_private (self);
     sequence = priv->sequence;
     dictionary_cache = priv->dictionary_cache;
     klass = LW_RESULTS_GET_CLASS (self);

@@ -38,7 +38,7 @@
 
 static LwPreferences *_preferences = NULL;
 
-G_DEFINE_TYPE (LwPreferences, lw_preferences, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (LwPreferences, lw_preferences, G_TYPE_OBJECT)
 
 
 //!
@@ -179,8 +179,6 @@ lw_preferences_class_init (LwPreferencesClass *klass)
     object_class->finalize = lw_preferences_finalize;
 
     preferences_class = LW_PREFERENCES_CLASS (klass);
-
-    g_type_class_add_private (object_class, sizeof (LwPreferencesPrivate));
 
     pspec = g_param_spec_object (
       "backend",

@@ -40,17 +40,15 @@
 #include <libwaei/io.h>
 #include <libwaei/serializable.h>
 
-#include <libwaei/serializable-private.h>
+typedef struct {
+  LwCacheFile * cache_file;
+} LwSerializablePrivate;
 
-
-G_DEFINE_ABSTRACT_TYPE (LwSerializable, lw_serializable, G_TYPE_OBJECT);
-
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (LwSerializable, lw_serializable, G_TYPE_OBJECT);
 
 static void 
 lw_serializable_init (LwSerializable * self)
 {
-    self->priv = LW_SERIALIZABLE_GET_PRIVATE (self);
-    memset(self->priv, 0, sizeof(LwSerializablePrivate));
 }
 
 
@@ -63,15 +61,13 @@ lw_serializable_finalize (GObject * object)
 
     //Initalizations
     self = LW_SERIALIZABLE (object);
-    priv = self->priv;
+    priv = lw_serializable_get_instance_private (self);
 
     if (priv->cache_file != NULL)
     {
       g_object_unref (priv->cache_file);
       priv->cache_file = NULL;
     }
-
-    memset(self->priv, 0, sizeof(LwSerializablePrivate));
 
     G_OBJECT_CLASS (lw_serializable_parent_class)->finalize (object);
 }
@@ -86,8 +82,6 @@ lw_serializable_class_init (LwSerializableClass * klass)
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
     object_class->finalize = lw_serializable_finalize;
-
-    g_type_class_add_private (object_class, sizeof (LwSerializablePrivate));
 }
 
 
@@ -117,7 +111,7 @@ lw_serializable_serialize (LwSerializable * self,
     LwSerializableClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_serializable_get_instance_private (self);
     klass = LW_SERIALIZABLE_GET_CLASS (self);
 
     return klass->serialize (self, preallocated_buffer, progress);
@@ -125,7 +119,7 @@ lw_serializable_serialize (LwSerializable * self,
 
 
 gsize
-lw_serializable_serialize_to_cachefile (LwSerializable * self,
+lw_serializable_serialize_to_cache_file (LwSerializable * self,
                                         gchar const    * CHECKSUM,
                                         LwCacheFile    * cache_file,
                                         LwProgress     * progress)
@@ -147,7 +141,7 @@ lw_serializable_serialize_to_cachefile (LwSerializable * self,
     gsize bytes_written = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_serializable_get_instance_private (self);
 
     length = lw_serializable_get_serialized_length (self, progress);
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
@@ -163,7 +157,7 @@ lw_serializable_serialize_to_cachefile (LwSerializable * self,
     lw_serializable_serialize (self, contents, progress);
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
-    bytes_written = lw_cachefile_write (cache_file, CHECKSUM, contents, length, progress);
+    bytes_written = lw_cache_file_write (cache_file, CHECKSUM, contents, length, progress);
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
 errored:
@@ -195,7 +189,7 @@ lw_serializable_deserialize_into (LwSerializable * self,
     gboolean has_error = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_serializable_get_instance_private (self);
     klass = LW_SERIALIZABLE_GET_CLASS (self);
 
     bytes_read = klass->deserialize_into (self, serialized_data, serialized_length, progress);
@@ -203,7 +197,7 @@ lw_serializable_deserialize_into (LwSerializable * self,
 
 errored:
 
-    if (priv->cache_file != NULL && lw_cachefile_get_contents (priv->cache_file) != serialized_data)
+    if (priv->cache_file != NULL && lw_cache_file_get_contents (priv->cache_file) != serialized_data)
     {
       g_object_unref (priv->cache_file);
       priv->cache_file = NULL;
@@ -215,7 +209,7 @@ errored:
 
 
 gsize
-lw_serializable_deserialize_from_cachefile_into (LwSerializable * self,
+lw_serializable_deserialize_from_cache_file_into (LwSerializable * self,
                                                  gchar const    * EXPECTED_CHECKSUM,
                                                  LwCacheFile    * cache_file,
                                                  LwProgress     * progress)
@@ -234,13 +228,13 @@ lw_serializable_deserialize_from_cachefile_into (LwSerializable * self,
     gboolean has_error = FALSE;
 
     //Initializations
-    priv = self->priv;
-    bytes_read = lw_cachefile_read (cache_file, EXPECTED_CHECKSUM, progress);
+    priv = lw_serializable_get_instance_private (self);
+    bytes_read = lw_cache_file_read (cache_file, EXPECTED_CHECKSUM, progress);
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
     if (bytes_read == 0) goto errored;
-    contents = lw_cachefile_get_contents (cache_file);
+    contents = lw_cache_file_get_contents (cache_file);
     if (contents == NULL) goto errored;
-    length = lw_cachefile_length (cache_file);
+    length = lw_cache_file_length (cache_file);
     if (length == 0) goto errored;
 
     if (cache_file != NULL)

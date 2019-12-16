@@ -1,7 +1,6 @@
 #ifndef LW_DICTIONARY_INCLUDED
 #define LW_DICTIONARY_INCLUDED
 
-#include "row.h"
 #include "dictionarycache.h"
 #include "progress.h"
 #include "utf8.h"
@@ -12,17 +11,8 @@
 G_BEGIN_DECLS
 
 //Boilerplate
-typedef struct _LwDictionary LwDictionary;
-typedef struct _LwDictionaryClass LwDictionaryClass;
-typedef struct _LwDictionaryPrivate LwDictionaryPrivate;
 typedef struct _LwDictionaryClassPrivate LwDictionaryClassPrivate;
 
-#define LW_TYPE_DICTIONARY              (lw_dictionary_get_type())
-#define LW_DICTIONARY(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARY, LwDictionary))
-#define LW_DICTIONARY_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_DICTIONARY, LwDictionaryClass))
-#define LW_IS_DICTIONARY(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_DICTIONARY))
-#define LW_IS_DICTIONARY_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARY))
-#define LW_DICTIONARY_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARY, LwDictionaryClass))
 #define LW_DICTIONARY_CHECKSUM G_CHECKSUM_SHA512 
 
 typedef enum {
@@ -35,11 +25,8 @@ typedef enum {
 GType lw_dictionarycolumnhandling_get_type (void);
 #define LW_TYPE_DICTIONARYCOLUMNHANDLING (lw_dictionarycolumnhandling_get_type ())
 
-struct _LwDictionary {
-  GObject object;
-  LwDictionaryPrivate *priv;
-  Row row; 
-};
+#define LW_TYPE_DICTIONARY lw_dictionary_get_type ()
+G_DECLARE_DERIVABLE_TYPE (LwDictionary, lw_dictionary, LW, DICTIONARY, GObject)
 
 struct _LwDictionaryClass {
   GObjectClass parent_class;
@@ -56,7 +43,6 @@ struct _LwDictionaryClass {
   GType (* get_columnid_type) ();
 };
 
-
 #define LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED "Unused"
 #define LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH "Index and Search"
 #define LW_DICTIONARYCOLUMNHANDLINGNAME_FILTER_ONLY "Filter Only"
@@ -68,7 +54,6 @@ struct _LwDictionaryClass {
 
 //Methods
 LwDictionary * lw_dictionary_new (GType type, gchar const * FILENAME);
-GType lw_dictionary_get_type (void) G_GNUC_CONST;
 
 //Properties
 

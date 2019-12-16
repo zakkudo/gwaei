@@ -31,8 +31,6 @@ struct _LwDictionaryModuleClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
 };
 
-#define LW_DICTIONARYMODULE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYMODULE, LwDictionaryModulePrivate));
-
 //Properties
 
 static gboolean lw_dictionarymodule_load (GTypeModule *module);

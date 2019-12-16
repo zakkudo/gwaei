@@ -18,9 +18,6 @@ struct _LwApplicationClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
 };
 
-#define LW_APPLICATION_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_APPLICATION, LwApplicationPrivate))
-
-
 //Methods
 
 static void lw_application_add_dictionarymodule (LwApplication * self, LwDictionaryModule * dictionarymodule);

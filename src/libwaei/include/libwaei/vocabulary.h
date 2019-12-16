@@ -1,7 +1,6 @@
 #ifndef LW_VOCABULARY_INCLUDED
 #define LW_VOCABULARY_INCLUDED
 
-#include "row.h"
 #include "word.h"
 
 G_BEGIN_DECLS
@@ -35,8 +34,6 @@ typedef struct _LwVocabularyClassPrivate LwVocabularyClassPrivate;
 
 struct _LwVocabulary {
   GObject object;
-  Row row; 
-  LwVocabularyPrivate *priv;
 };
 
 struct _LwVocabularyClass {

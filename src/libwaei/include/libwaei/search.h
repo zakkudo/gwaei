@@ -81,7 +81,6 @@ typedef struct _LwSearchClassPrivate LwSearchClassPrivate;
 
 struct _LwSearch {
   LwResults object;
-  LwSearchPrivate *priv;
 };
 
 struct _LwSearchClass {

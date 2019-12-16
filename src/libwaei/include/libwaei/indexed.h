@@ -20,7 +20,6 @@ typedef struct _LwIndexedPrivate LwIndexedPrivate;
 
 struct _LwIndexed {
   LwSerializable object;
-  LwIndexedPrivate *priv;
 };
 
 struct _LwIndexedClass {

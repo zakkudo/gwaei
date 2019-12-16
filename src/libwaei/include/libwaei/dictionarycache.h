@@ -30,7 +30,6 @@ typedef LwParsed*(*LwDictionaryCacheParseFunc)(LwCacheFile * cache_file, gpointe
 
 struct _LwDictionaryCache {
     GObject object;
-    LwDictionaryCachePrivate * priv;
 };
 
 struct _LwDictionaryCacheClass {

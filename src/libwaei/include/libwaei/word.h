@@ -1,8 +1,6 @@
 #ifndef LW_WORD_INCLUDED
 #define LW_WORD_INCLUDED
 
-#include "row.h"
-
 G_BEGIN_DECLS
 
 #define LW_WORDFIELDNAME_KANJI "Kanji"
@@ -33,7 +31,6 @@ GType lw_wordfield_get_type (void);
 #define LW_TYPE_WORDFIELD (lw_wordfield_get_type ())
 
 struct _LwWord {
-  Row row;
   gchar *score;
   gchar *days;
   gint correct_guesses;

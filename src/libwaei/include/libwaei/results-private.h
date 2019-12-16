@@ -38,8 +38,6 @@ struct _LwResultsClassPrivate {
 };
 
 
-#define LW_RESULTS_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_RESULTS, LwResultsPrivate));
-
 static void lw_results_set_dictionarycache (LwResults * self, LwDictionaryCache * dictionary_cache);
 static void lw_results_set_sequence (LwResults * self, GSequence * sequence);
 

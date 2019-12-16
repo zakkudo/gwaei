@@ -26,8 +26,6 @@ struct _LwSearchSubCommandClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
 };
 
-#define LW_SEARCHSUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_SEARCHSUBCOMMAND, LwSearchSubCommandPrivate));
-
 //Properties
 
 //Methods

@@ -24,7 +24,6 @@ typedef struct _LwDictionaryListClassPrivate LwDictionaryListClassPrivate;
 
 struct _LwDictionaryList {
   GObject object;
-  LwDictionaryListPrivate *priv;
 };
 
 struct _LwDictionaryListClass {

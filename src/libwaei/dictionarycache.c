@@ -50,7 +50,7 @@
 
 #include <libwaei/dictionarycache-private.h>
 
-G_DEFINE_TYPE (LwDictionaryCache, lw_dictionarycache, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (LwDictionaryCache, lw_dictionarycache, G_TYPE_OBJECT)
 
 
 GQuark
@@ -89,14 +89,6 @@ lw_dictionarycache_new (gchar const * DICTIONARY_NAME,
 static void 
 lw_dictionarycache_init (LwDictionaryCache * self)
 {
-    self->priv = LW_DICTIONARYCACHE_GET_PRIVATE (self);
-    memset(self->priv, 0, sizeof(LwDictionaryCachePrivate));
-
-    //Declarations
-    LwDictionaryCachePrivate *priv = NULL;
-
-    //Initializations
-    priv = self->priv;
 }
 
 
@@ -138,7 +130,7 @@ lw_dictionarycache_set_property (GObject      * object,
 
     //Initializations
     self = LW_DICTIONARYCACHE (object);
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     switch (property_id)
     {
@@ -173,7 +165,7 @@ lw_dictionarycache_get_property (GObject     * object,
 
     //Initializations
     self = LW_DICTIONARYCACHE (object);
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     switch (property_id)
     {
@@ -211,7 +203,7 @@ lw_dictionarycache_finalize (GObject * object)
 
     //Initalizations
     self = LW_DICTIONARYCACHE (object);
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     g_free (priv->dictionary_name);
 
@@ -255,8 +247,6 @@ lw_dictionarycache_class_init (LwDictionaryCacheClass * klass)
     object_class->get_property = lw_dictionarycache_get_property;
     object_class->dispose = lw_dictionarycache_dispose;
     object_class->finalize = lw_dictionarycache_finalize;
-
-    g_type_class_add_private (object_class, sizeof (LwDictionaryCachePrivate));
 
     LwDictionaryCacheClassPrivate *klasspriv = klass->priv;
 
@@ -327,7 +317,7 @@ lw_dictionarycache_clear (LwDictionaryCache * self)
     LwDictionaryCachePrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     lw_dictionarycache_set_parsed (self, NULL);
     lw_dictionarycache_set_indexed (self, NULL);
@@ -513,7 +503,7 @@ lw_dictionarycache_write (LwDictionaryCache          * self,
     LwCacheFile *parsed_cachefile = NULL;
     LwCacheFile *indexed_cachefile = NULL;
 
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     //Map the dictionary contents to a normalized file
     mapped_contents = _map_contents (self, CHECKSUM, CONTENTS, content_length, progress);
@@ -660,7 +650,7 @@ lw_dictionarycache_read (LwDictionaryCache * self,
     gboolean read_successful = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
     lw_dictionarycache_clear (self);
 
     //Load the dictionary file
@@ -716,7 +706,7 @@ lw_dictionarycache_set_progress (LwDictionaryCache * self,
     LwDictionaryCacheClass * klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
     klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     if (priv->progress == progress) goto errored;
 
@@ -742,7 +732,7 @@ lw_dictionarycache_get_progress (LwDictionaryCache * self)
     LwDictionaryCachePrivate * priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     return priv->progress;
 }
@@ -758,7 +748,7 @@ lw_dictionarycache_get_dictionary_type (LwDictionaryCache * self)
     LwDictionaryCachePrivate * priv = NULL;
 
     //Initializatons
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     return priv->dictionary_type;
 }
@@ -778,7 +768,7 @@ lw_dictionarycache_set_dictionary_type (LwDictionaryCache * self,
     LwDictionaryCacheClass * klass = NULL;
 
     //Initializatons
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
     klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     if (dictionary_type == priv->dictionary_type) goto errored;
 
@@ -805,7 +795,7 @@ lw_dictionarycache_set_flags (LwDictionaryCache * self,
     LwDictionaryCacheClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
     klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     klasspriv = klass->priv;
     flags = lw_utf8flag_clean (flags);
@@ -835,7 +825,7 @@ lw_dictionarycache_get_flags (LwDictionaryCache * self)
     LwDictionaryCachePrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     priv->flags;
 }
@@ -854,7 +844,7 @@ lw_dictionarycache_set_dictionary_name (LwDictionaryCache * self,
     LwDictionaryCacheClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
     klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     klasspriv = klass->priv;
     if (g_strcmp0 (DICTIONARY_NAME, priv->dictionary_name) == 0) goto errored;
@@ -885,7 +875,7 @@ lw_dictionarycache_get_dictionary_name (LwDictionaryCache * self)
     LwDictionaryCachePrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     return priv->dictionary_name;
 }
@@ -907,7 +897,7 @@ lw_dictionarycache_build_filename (LwDictionaryCache * self,
     gint i = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
     flags_class = g_type_class_ref (LW_TYPE_UTF8FLAG);
     if (flags_class == NULL) goto errored;
     DICTIONARY_NAME = priv->dictionary_name;
@@ -1021,7 +1011,7 @@ lw_dictionarycache_set_parsed (LwDictionaryCache * self,
     LwDictionaryCacheClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
     klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     klasspriv = klass->priv;
     if (parsed == priv->parsed) goto errored;
@@ -1062,7 +1052,7 @@ lw_dictionarycache_get_parsed (LwDictionaryCache * self)
     LwDictionaryCachePrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     return priv->parsed;
 }
@@ -1081,7 +1071,7 @@ lw_dictionarycache_set_indexed (LwDictionaryCache * self,
     LwDictionaryCacheClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
     klass = LW_DICTIONARYCACHE_GET_CLASS (self);
     klasspriv = klass->priv;
     if (indexed == priv->indexed) goto errored;
@@ -1122,7 +1112,7 @@ lw_dictionarycache_get_indexed (LwDictionaryCache * self)
     LwDictionaryCachePrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
 
     return priv->indexed;
 }
@@ -1237,7 +1227,7 @@ lw_dictionarycache_write_normalized_temporary_file (LwDictionaryCache * self,
     gboolean has_error = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarycache_get_instance_private (self);
     flags = priv->flags;
 
     //Create the temporary file
@@ -1262,18 +1252,30 @@ errored:
 gboolean
 lw_dictionarycache_trylock (LwDictionaryCache * self)
 {
-    return g_mutex_trylock (&self->priv->mutex);
+    LwDictionaryCachePrivate * priv = NULL;
+
+    priv = lw_dictionarycache_get_instance_private (self);
+
+    return g_mutex_trylock (&priv->mutex);
 }
 
 void
 lw_dictionarycache_lock (LwDictionaryCache * self)
 {
-    g_mutex_lock (&self->priv->mutex);
+    LwDictionaryCachePrivate * priv = NULL;
+
+    priv = lw_dictionarycache_get_instance_private (self);
+
+    g_mutex_lock (&priv->mutex);
 }
 
 
 void
 lw_dictionarycache_unlock (LwDictionaryCache * self)
 {
-    g_mutex_unlock (&self->priv->mutex);
+    LwDictionaryCachePrivate * priv = NULL;
+
+    priv = lw_dictionarycache_get_instance_private (self);
+
+    g_mutex_unlock (&priv->mutex);
 }

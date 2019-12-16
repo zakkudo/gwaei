@@ -14,8 +14,6 @@ struct _LwPreferencesPrivate {
   GSettingsBackend *backend;
 };
 
-#define LW_PREFERENCES_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_PREFERENCES, LwPreferencesPrivate));
-
 G_END_DECLS
 
 #endif

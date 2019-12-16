@@ -61,7 +61,7 @@
 
 #include <libwaei/dictionarymodule-private.h>
 
-G_DEFINE_TYPE (LwDictionaryModule, lw_dictionarymodule, G_TYPE_TYPE_MODULE)
+G_DEFINE_TYPE_WITH_PRIVATE (LwDictionaryModule, lw_dictionarymodule, G_TYPE_TYPE_MODULE)
 
 
 /**
@@ -94,12 +94,9 @@ lw_dictionarymodule_new (gchar const * PATH)
 static void
 lw_dictionarymodule_init (LwDictionaryModule * self)
 {
-    self->priv = LW_DICTIONARYMODULE_GET_PRIVATE (self);
-    memset(self->priv, 0, sizeof(LwDictionaryModulePrivate));
-
     LwDictionaryModulePrivate *priv = NULL;
 
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
 }
 
 
@@ -115,7 +112,7 @@ lw_dictionarymodule_set_property (GObject      * object,
 
     //Initializations
     self = LW_DICTIONARYMODULE (object);
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
 
     switch (property_id)
     {
@@ -141,7 +138,7 @@ lw_dictionarymodule_get_property (GObject    * object,
 
     //Initializations
     self = LW_DICTIONARYMODULE (object);
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
 
     switch (property_id)
     {
@@ -167,7 +164,7 @@ lw_dictionarymodule_finalize (GObject * object)
 
     //Initalizations
     self = LW_DICTIONARYMODULE (object);
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
 
 
     G_OBJECT_CLASS (lw_dictionarymodule_parent_class)->finalize (object);
@@ -205,8 +202,6 @@ lw_dictionarymodule_class_init (LwDictionaryModuleClass * klass)
     module_class = G_TYPE_MODULE_CLASS (klass);
     module_class->load = lw_dictionarymodule_load;
     module_class->unload = lw_dictionarymodule_unload;
-
-    g_type_class_add_private (object_class, sizeof (LwDictionaryModulePrivate));
 
     klass->priv->pspec[PROP_NAME] = g_param_spec_string (
         "name",
@@ -274,14 +269,14 @@ lw_dictionarymodule_open (LwDictionaryModule *self)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYMODULE (self));
-    if (self->priv->path == NULL) return;
 
     //Declarations
     LwDictionaryModulePrivate *priv = NULL;
     GModule * module = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
+    if (priv->path == NULL) return;
     module = g_module_open (priv->path, G_MODULE_BIND_LAZY);
     if (module == NULL)
     {
@@ -308,7 +303,7 @@ lw_dictionarymodule_close (LwDictionaryModule *self)
     LwDictionaryModulePrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
 
     if (priv->module != NULL)
     {
@@ -330,7 +325,7 @@ lw_dictionarymodule_register_type (LwDictionaryModule *self)
     gboolean success = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
     if (priv->name == NULL) goto errored;
     if (priv->module == NULL) goto errored;
     if (!g_module_symbol (priv->module, "register_dictionary_module_type", (gpointer*)(&register_type)))
@@ -401,7 +396,7 @@ lw_dictionarymodule_get_name (LwDictionaryModule * self)
     LwDictionaryModulePrivate * priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
 
     return priv->name;
 }
@@ -420,7 +415,7 @@ lw_dictionarymodule_sync_name (LwDictionaryModule * self)
     gchar * name = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
     klass = LW_DICTIONARYMODULE_GET_CLASS (self);
     modulename = g_path_get_basename (priv->path);
     if (modulename == NULL) goto errored;
@@ -464,7 +459,6 @@ lw_dictionarymodule_set_path (LwDictionaryModule * self,
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARYMODULE (self));
-    if (self->priv->path != NULL) return;
     
     //Declarations
     LwDictionaryModulePrivate * priv = NULL;
@@ -472,7 +466,8 @@ lw_dictionarymodule_set_path (LwDictionaryModule * self,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
+    if (priv->path != NULL) return;
     klass = LW_DICTIONARYMODULE_GET_CLASS (self);
     
     if (g_strcmp0 (priv->path, PATH) == 0) goto errored;
@@ -505,7 +500,7 @@ lw_dictionarymodule_get_path (LwDictionaryModule * self)
     LwDictionaryModulePrivate * priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
 
     return priv->path;
 }
@@ -532,7 +527,7 @@ lw_dictionarymodule_symbol (LwDictionaryModule * self,
     LwDictionaryModulePrivate * priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarymodule_get_instance_private (self);
 
     return g_module_symbol (priv->module, SYMBOL_NAME, symbol);
 }

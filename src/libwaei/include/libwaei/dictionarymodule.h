@@ -20,7 +20,6 @@ typedef struct _LwDictionaryModuleClassPrivate LwDictionaryModuleClassPrivate;
 
 struct _LwDictionaryModule {
   GTypeModule object;
-  LwDictionaryModulePrivate *priv;
 };
 
 struct _LwDictionaryModuleClass {

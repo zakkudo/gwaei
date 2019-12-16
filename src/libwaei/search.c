@@ -49,7 +49,7 @@
 #include <libwaei/search-private.h>
 
 
-G_DEFINE_TYPE (LwSearch, lw_search, LW_TYPE_RESULTS)
+G_DEFINE_TYPE_WITH_PRIVATE (LwSearch, lw_search, LW_TYPE_RESULTS)
 
 
 /**
@@ -117,7 +117,7 @@ lw_search_init (LwSearch * self)
 
     LwSearchPrivate *priv = NULL;
 
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     g_mutex_init (&priv->mutex);
     priv->status = LW_SEARCHSTATUS_UNSTARTED;
@@ -137,7 +137,7 @@ lw_search_set_property (GObject      * object,
 
     //Initializations
     self = LW_SEARCH (object);
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     switch (property_id)
     {
@@ -181,7 +181,7 @@ lw_search_get_property (GObject    * object,
 
     //Initializations
     self = LW_SEARCH (object);
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     switch (property_id)
     {
@@ -222,7 +222,7 @@ lw_search_finalize (GObject * object)
 
     //Initalizations
     self = LW_SEARCH (object);
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     lw_search_set_dictionary (self, NULL);
     lw_search_set_query (self, NULL);
@@ -248,7 +248,7 @@ lw_search_dispose (GObject *object)
 
     //Initializations
     self = LW_SEARCH (object);
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     lw_search_cancel (self);
 
@@ -277,7 +277,7 @@ lw_search_constructed (GObject *object)
 
     //Initializations
     self = LW_SEARCH (object);
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     progress = lw_progress_new ();
     if (progress == NULL) goto errored;
     QUERY = lw_search_get_query (self);
@@ -321,8 +321,6 @@ lw_search_class_init (LwSearchClass * klass)
     object_class->get_property = lw_search_get_property;
     object_class->dispose = lw_search_dispose;
     object_class->finalize = lw_search_finalize;
-
-    g_type_class_add_private (object_class, sizeof (LwSearchPrivate));
 
     LwSearchClassPrivate *klasspriv = klass->priv;
 
@@ -444,7 +442,7 @@ lw_search_set_query (LwSearch    * self,
     gchar * query = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     klass = LW_SEARCH_GET_CLASS (self);
     if (g_strcmp0 (QUERY, priv->query) == 0) goto errored;
     query = g_strdup (QUERY);
@@ -480,7 +478,7 @@ lw_search_get_query (LwSearch * self)
     LwSearchPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     return priv->query;
 }
@@ -498,7 +496,7 @@ lw_search_set_query_tree (LwSearch    * self,
     LwSearchClass * klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     klass = LW_SEARCH_GET_CLASS (self);
     if (priv->query_tree == query_tree) goto errored;
 
@@ -529,7 +527,7 @@ lw_search_get_query_tree (LwSearch * self)
     LwSearchPrivate * priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     return priv->query_tree;
 }
@@ -550,7 +548,7 @@ lw_search_get_dictionary (LwSearch *self)
     LwSearchPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     return priv->dictionary;
 }
@@ -569,7 +567,7 @@ lw_search_set_dictionary (LwSearch     * self,
     LwSearchClass * klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     klass = LW_SEARCH_GET_CLASS (self);
     if (priv->dictionary == dictionary) goto errored;
 
@@ -601,7 +599,7 @@ lw_search_get_progress (LwSearch * self)
     LwSearchPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     return priv->progress;
 }
@@ -620,7 +618,7 @@ lw_search_set_progress (LwSearch   * self,
     LwSearchClass * klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     klass = LW_SEARCH_GET_CLASS (self);
     if (priv->progress == progress) goto errored;
 
@@ -651,7 +649,7 @@ lw_search_set_max_results (LwSearch * self,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     klass = LW_SEARCH_GET_CLASS (self);
     klasspriv = klass->priv;
     changed = (priv->max_results != max_results);
@@ -674,7 +672,7 @@ lw_search_get_max_results (LwSearch * self)
     LwSearchPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     return priv->max_results;
 }
@@ -695,7 +693,7 @@ lw_search_set_status (LwSearch       * self,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     changed =  (priv->status != status);
 
     priv->status = status;
@@ -747,7 +745,7 @@ lw_search_get_status (LwSearch * self)
     LwSearchStatus status = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     status = priv->status;
 
     return status;
@@ -794,7 +792,7 @@ lw_search_get_flags (LwSearch * self)
     LwSearchPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     return priv->flags;
 }
@@ -814,7 +812,7 @@ lw_search_set_flags (LwSearch     * self,
     gboolean changed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     klass = LW_SEARCH_GET_CLASS (self);
     klasspriv = klass->priv;
     if (priv->flags == flags) goto errored;
@@ -888,7 +886,7 @@ lw_search_watch_timeout (LwSearch * self)
     gboolean is_completed = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     progress = priv->progress;
     is_completed = lw_progress_completed (progress);
 
@@ -930,7 +928,7 @@ lw_search_stream_results_thread (LwSearch * self)
     LwDictionaryCache * cache = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     progress = priv->progress;
     dictionary = priv->dictionary;
     flags = priv->flags;
@@ -1075,7 +1073,7 @@ lw_search_query_results (LwSearch * self)
     LwSearchPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     g_mutex_lock (&priv->mutex);
     if (priv->status != LW_SEARCHSTATUS_UNSTARTED)
@@ -1118,7 +1116,7 @@ lw_search_query_results_async (LwSearch *  self,
     LwSearchPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
 
     g_mutex_lock (&priv->mutex);
     if (priv->status != LW_SEARCHSTATUS_UNSTARTED)
@@ -1166,7 +1164,7 @@ lw_search_cancel (LwSearch * self)
     LwSearchPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     thread = priv->thread;
 
     if (priv->watch_id != 0) g_source_remove (priv->watch_id);
@@ -1201,7 +1199,7 @@ lw_search_build_utf8flags (LwSearch * self)
     LwUtf8Flag flags = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_search_get_instance_private (self);
     flags = LW_UTF8FLAG_PRINTABLE | LW_UTF8FLAG_COMPARABLE;
 
     if (priv->flags & LW_SEARCHFLAG_FURIGANA_INSENSITIVE)

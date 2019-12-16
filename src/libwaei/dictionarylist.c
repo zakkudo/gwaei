@@ -39,7 +39,7 @@
 
 #include <libwaei/dictionarylist-private.h>
 
-G_DEFINE_TYPE (LwDictionaryList, lw_dictionarylist, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (LwDictionaryList, lw_dictionarylist, G_TYPE_OBJECT)
 
 
 //!
@@ -68,7 +68,7 @@ lw_dictionarylist_init (LwDictionaryList *self)
 
     LwDictionaryListPrivate *priv = NULL;
 
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
 
     priv->data.index.typename = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
     priv->data.index.filename = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
@@ -90,7 +90,7 @@ lw_dictionarylist_set_property (GObject      *object,
 
     //Initializations
     self = LW_DICTIONARYLIST (object);
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
 
     switch (property_id)
     {
@@ -116,7 +116,7 @@ lw_dictionarylist_get_property (GObject      *object,
 
     //Initializations
     self = LW_DICTIONARYLIST (object);
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
 
     switch (property_id)
     {
@@ -139,7 +139,7 @@ lw_dictionarylist_finalize (GObject *object)
 
     //Initalizations
     self = LW_DICTIONARYLIST (object);
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
 
     lw_dictionarylist_set_menumodel (self, NULL);
 
@@ -177,8 +177,6 @@ lw_dictionarylist_class_init (LwDictionaryListClass *klass)
     object_class->get_property = lw_dictionarylist_get_property;
     object_class->dispose = lw_dictionarylist_dispose;
     object_class->finalize = lw_dictionarylist_finalize;
-
-    g_type_class_add_private (object_class, sizeof (LwDictionaryListPrivate));
 
     LwDictionaryListClassPrivate *klasspriv = klass->priv;
 
@@ -250,7 +248,7 @@ lw_dictionarylist_set_preferences (LwDictionaryList *self,
     LwDictionaryListClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     klass = LW_DICTIONARYLIST_CLASS (self);
     klasspriv = klass->priv;
 
@@ -285,7 +283,7 @@ lw_dictionarylist_get_preferences (LwDictionaryList *self)
     LwDictionaryListPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
 
     if (priv->config.preferences == NULL)
     {
@@ -308,7 +306,7 @@ lw_dictionarylist_clear (LwDictionaryList *self)
     gint length = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     length = lw_dictionarylist_length (self);
 
     removed = lw_dictionarylist_remove (self, NULL);
@@ -330,7 +328,7 @@ lw_dictionarylist_invalidate_length (LwDictionaryList *self)
     gint length = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
 
     priv->data.length = -1;
 }
@@ -352,7 +350,7 @@ printf("BREAK1 _add_to_index\n");
     gchar *filename = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     id = g_utf8_casefold (lw_dictionary_get_id (dictionary), -1);
     typename = g_utf8_casefold (G_OBJECT_TYPE_NAME (dictionary), -1);
     filename = g_utf8_casefold (lw_dictionary_get_contents_filename (dictionary), -1);
@@ -404,7 +402,7 @@ _remove_from_index (LwDictionaryList *self,
     gchar *filename = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     id = g_utf8_casefold (lw_dictionary_get_id (dictionary), -1);
     typename = g_utf8_casefold (G_OBJECT_TYPE_NAME (dictionary), -1);
     filename = g_utf8_casefold (lw_dictionary_get_contents_filename (dictionary), -1);
@@ -447,7 +445,7 @@ _rebuild_array (LwDictionaryList *self)
     gint length = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     length = lw_dictionarylist_length (self);
 
     g_free (priv->data.array); priv->data.array = NULL;
@@ -485,7 +483,7 @@ _insert (LwDictionaryList *self,
     gboolean append = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     length = lw_dictionarylist_length (self);
     append = (*position < 0 || *position >= length || length == 0);
     number_inserted = g_list_length (dictionaries);
@@ -555,7 +553,7 @@ _insert_propogate_changes (LwDictionaryList *self,
     gint i = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     klass = LW_DICTIONARYLIST_CLASS (self);
     klasspriv = klass->priv;
     length = lw_dictionarylist_length (self);
@@ -746,7 +744,7 @@ _remove (LwDictionaryList *self,
     GList *list = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     length = lw_dictionarylist_length (self);
     if (length == 0) goto errored;
 
@@ -869,7 +867,7 @@ lw_dictionarylist_nth (LwDictionaryList *self,
     gint length = 0;
 
     //Initializiations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     length = lw_dictionarylist_length (self);
     if (index >= length) goto errored;
 
@@ -895,7 +893,7 @@ lw_dictionarylist_length (LwDictionaryList *self)
     LwDictionaryListPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
 
     if (priv->data.length < 0)
     {
@@ -985,7 +983,7 @@ lw_dictionarylist_find (LwDictionaryList* self,
     LwDictionary *dictionary = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     id = g_strdup_printf ("%s/%s", g_type_name (TYPE), FILENAME);
     if (id == NULL) goto errored;
     normalized = g_utf8_casefold (id, -1);
@@ -1015,7 +1013,7 @@ printf("BREAK1 lw_dictionarylist_fuzzy_find\n");
     LwDictionary *dictionary = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     dictionary = NULL;
 
     //Try getting the first dictionary if none is specified
@@ -1065,7 +1063,7 @@ lw_dictionarylist_find_by_filename (LwDictionaryList *self,
     LwDictionary *dictionary = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     filename = g_utf8_casefold (FILENAME, -1);
     dictionary = g_hash_table_lookup (priv->data.index.filename, filename);
 printf("BREAK lw_dictionarylist_find_by_filename %s %d %d\n", filename, dictionary, g_hash_table_size (priv->data.index.filename));
@@ -1102,7 +1100,7 @@ lw_dictionarylist_find_by_id (LwDictionaryList *self,
     LwDictionary *dictionary = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     id = g_utf8_casefold (g_strdup (ID), -1);
 printf("BREAK lw_dictionarylist_find_by_id %s\n", id);
     dictionary = g_hash_table_lookup (priv->data.index.id, id);
@@ -1129,7 +1127,7 @@ lw_dictionarylist_dictionary_exists (LwDictionaryList *self,
     GList *link = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     exists = FALSE;
     link = priv->data.list;
 
@@ -1159,7 +1157,7 @@ lw_dictionarylist_save_order (LwDictionaryList *self)
     gchar **atoms = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     preferences = lw_dictionarylist_get_preferences (self);
 
     atoms = g_new0 (gchar*, lw_dictionarylist_length (self) + 1);
@@ -1207,7 +1205,7 @@ lw_dictionarylist_build_order_map (LwDictionaryList *self)
     GHashTable *hashtable = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     hashtable = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
     if (hashtable == NULL) goto errored;
 
@@ -1254,7 +1252,7 @@ lw_dictionarylist_convert_order_map_to_array (LwDictionaryList *self,
     gint missing_index = 0;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     if (priv == NULL) goto errored;
     link = priv->data.list;
     if (link == NULL) goto errored;
@@ -1380,7 +1378,7 @@ lw_dictionarylist_load_order (LwDictionaryList *self)
     GHashTable *order_map = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
 
     if (priv->data.list == NULL) goto errored;
 
@@ -1408,6 +1406,7 @@ gint*
 lw_dictionarylist_get_indices (LwDictionaryList *self,
                                GList            *dictionaries)
 {
+    /*
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARYLIST (self), NULL);
     if (dictionaries == NULL) return NULL;
@@ -1439,6 +1438,8 @@ lw_dictionarylist_get_indices (LwDictionaryList *self,
 errored:
 
     return indices;
+    */
+    return NULL;
 }
 
 
@@ -1452,7 +1453,7 @@ lw_dictionarylist_dictionaries (LwDictionaryList *self)
     GList *dictionaries = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     dictionaries = g_list_copy (priv->data.list);
 
     g_list_foreach (dictionaries, (GFunc) g_object_ref, NULL);
@@ -1473,7 +1474,7 @@ lw_dictionarylist_sort_with_data (LwDictionaryList *self,
     LwDictionaryListPrivate *priv;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
 
     priv->data.list = g_list_sort_with_data (priv->data.list, compare_func, user_data);
 }
@@ -1558,7 +1559,7 @@ lw_dictionarylist_sync_menumodel (LwDictionaryList *self)
     GMenu *menu = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     menu_model = lw_dictionarylist_get_menumodel (self);
     menu = G_MENU (menu_model);
 
@@ -1594,7 +1595,7 @@ lw_dictionarylist_set_menumodel (LwDictionaryList *self,
     LwDictionaryListPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
 
     if (menu_model != NULL)
     {
@@ -1627,7 +1628,7 @@ lw_dictionarylist_get_menumodel (LwDictionaryList *self)
     LwDictionaryListPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_dictionarylist_get_instance_private (self);
     if (priv == NULL) goto errored;
 
     if (priv->data.menu_model == NULL)

@@ -146,7 +146,6 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
 
 struct _LwProgress {
   GObject object;
-  LwProgressPrivate *priv;
 };
 
 struct _LwProgressClass {

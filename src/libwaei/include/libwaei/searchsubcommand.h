@@ -20,7 +20,6 @@ typedef struct _LwSearchSubCommandClassPrivate LwSearchSubCommandClassPrivate;
 
 struct _LwSearchSubCommand {
   LwSubCommand object;
-  LwSearchSubCommandPrivate *priv;
 };
 
 struct _LwSearchSubCommandClass {

@@ -22,7 +22,6 @@ typedef int(*LwCommandRunFunc) (LwCommand * self, gchar *subcommand_name, gpoint
 
 struct _LwCommand {
   GObject object;
-  LwCommandPrivate *priv;
 };
 
 struct _LwCommandClass {

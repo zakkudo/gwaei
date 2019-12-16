@@ -19,8 +19,6 @@ struct _LwInstallSubCommandClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
 };
 
-#define LW_INSTALLSUBCOMMAND_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_INSTALLSUBCOMMAND, LwInstallSubCommandPrivate));
-
 //Properties
 
 //Methods

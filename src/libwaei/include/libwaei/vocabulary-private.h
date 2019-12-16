@@ -46,8 +46,6 @@ struct _LwVocabularyClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 };
 
-#define LW_VOCABULARY_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_VOCABULARY, LwVocabularyPrivate));
-
 G_END_DECLS
 
 #endif

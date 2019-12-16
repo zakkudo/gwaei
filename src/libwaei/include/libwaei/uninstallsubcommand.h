@@ -20,7 +20,6 @@ typedef struct _LwUninstallSubCommandClassPrivate LwUninstallSubCommandClassPriv
 
 struct _LwUninstallSubCommand {
   LwSubCommand object;
-  LwUninstallSubCommandPrivate *priv;
 };
 
 struct _LwUninstallSubCommandClass {

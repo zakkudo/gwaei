@@ -29,8 +29,6 @@ struct _LwDictionaryCacheClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
 };
 
-#define LW_DICTIONARYCACHE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYCACHE, LwDictionaryCachePrivate));
-
 //Methods
 
 static void lw_dictionarycache_set_flags (LwDictionaryCache *self, LwUtf8Flag flags);

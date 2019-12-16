@@ -58,8 +58,6 @@ struct _LwDictionaryInstallClassPrivate {
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 };
 
-#define LW_DICTIONARYINSTALL_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_DICTIONARYINSTALL, LwDictionaryInstallPrivate));
-
 const gchar* lw_dictionaryinstall_get_name (LwDictionaryInstall *self);
 void lw_dictionaryinstall_set_name (LwDictionaryInstall *self, const gchar *NAME);
 

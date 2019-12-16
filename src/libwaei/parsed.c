@@ -44,7 +44,7 @@
 
 #include <libwaei/parsed-private.h>
 
-G_DEFINE_TYPE (LwParsed, lw_parsed, LW_TYPE_SERIALIZABLE)
+G_DEFINE_TYPE_WITH_PRIVATE (LwParsed, lw_parsed, LW_TYPE_SERIALIZABLE)
 
 
 struct _SerializeData {
@@ -111,7 +111,7 @@ lw_parsed_finalize (GObject *object)
 
     //Initializations
     self = LW_PARSED (object);
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
 
     lw_parsed_set_lines (self, NULL, 0);
     lw_parsed_set_cachefile (self, NULL);
@@ -132,7 +132,7 @@ lw_parsed_set_property (GObject      * object,
 
     //Initializations
     self = LW_PARSED (object);
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
 
     switch (property_id)
     {
@@ -158,7 +158,7 @@ lw_parsed_get_property (GObject      * object,
 
     //Initializations
     self = LW_PARSED (object);
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
 
     switch (property_id)
     {
@@ -199,8 +199,6 @@ lw_parsed_class_init (LwParsedClass * klass)
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_CACHEFILE, klass->priv->pspec[PROP_CACHEFILE]);
-
-    g_type_class_add_private (object_class, sizeof (LwParsedPrivate));
 }
 
 
@@ -225,7 +223,7 @@ lw_parsed_foreach (LwParsed            * self,
     gboolean has_error = FALSE;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
 
     while (i < priv->num_lines && !has_error)
     {
@@ -255,7 +253,7 @@ lw_parsed_get_line (LwParsed * self,
     LwParsedLine *line = NULL;
 
     //Inititalizations
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
     if (line_number < 0 || line_number >= priv->num_lines) goto errored;
     line = priv->lines + line_number;
 
@@ -283,7 +281,7 @@ lw_parsed_set_lines (LwParsed         * self,
     LwParsedPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
 
     if (lines == priv->lines) goto errored;
 
@@ -323,7 +321,7 @@ lw_parsed_get_lines (LwParsed * self,
     LwParsedPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
 
     if (num_lines_out != NULL) *num_lines_out = priv->num_lines;
 
@@ -346,7 +344,7 @@ lw_parsed_num_lines (LwParsed * self)
     LwParsedPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
 
     return priv->num_lines;
 }
@@ -370,7 +368,7 @@ _serialize (LwParsed              * self,
     gchar * write_pointer = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
     if (data->buffer != NULL)
     {
       contents = lw_cachefile_get_contents (priv->cache_file);
@@ -418,7 +416,7 @@ lw_parsed_serialize (LwSerializable * serializable,
       data.chunk_size = lw_progress_get_chunk_size (progress);
     }
 
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
 
     //Copy the number of LwParsedLines
     if (data.buffer != NULL) memcpy(data.write_pointer, &priv->num_lines, sizeof(gsize));
@@ -468,7 +466,7 @@ _deserialize (LwParsed                * self,
     gchar const *read_pointer = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
     contents = lw_cachefile_get_contents (priv->cache_file);
     read_pointer = data->read_pointer;
     bytes_read = lw_parsedline_deserialize_into (parsed_line, read_pointer, contents, &data->error);
@@ -529,7 +527,7 @@ lw_parsed_deserialize_into (LwSerializable * serializable,
     }
 
     //Initializations
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
 
     if (priv->lines != NULL || priv->num_lines > 0) goto errored;
 
@@ -592,7 +590,7 @@ lw_parsed_set_cachefile (LwParsed    * self,
     LwParsedClass *klass = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
     klass = LW_PARSED_GET_CLASS (self);
     if (cache_file == priv->cache_file) goto errored;
 
@@ -631,7 +629,7 @@ lw_parsed_get_cachefile (LwParsed * self)
     LwParsedPrivate *priv = NULL;
 
     //Initializations
-    priv = self->priv;
+    priv = lw_parsed_get_instance_private (self);
 
     return priv->cache_file;
 }

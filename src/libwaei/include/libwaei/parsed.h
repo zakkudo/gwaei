@@ -25,7 +25,6 @@ typedef struct _LwParsedClassPrivate LwParsedClassPrivate;
 
 struct _LwParsed {
   LwSerializable object;
-  LwParsedPrivate *priv;
 };
 
 struct _LwParsedClass {

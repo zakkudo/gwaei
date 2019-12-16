@@ -20,7 +20,6 @@ typedef struct _LwApplicationClassPrivate LwApplicationClassPrivate;
 
 struct _LwApplication {
   GApplication application;
-  LwApplicationPrivate *priv;
 };
 
 struct _LwApplicationClass {

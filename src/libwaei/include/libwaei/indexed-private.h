@@ -18,8 +18,6 @@ struct _LwIndexedPrivate {
   LwParsed *parsed;
 };
 
-#define LW_INDEXED_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), LW_TYPE_INDEXED, LwIndexedPrivate));
-
 G_END_DECLS
 
 #endif

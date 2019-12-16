@@ -41,8 +41,6 @@
 #include <libwaei/gettext.h>
 #include <libwaei/libwaei.h>
 
-#include <libwaei/dictionary-private.h>
-
 //!
 //! @brief A callback that updates the LwInstallDictionary source uri when the pref changes
 //! @param setting A GSetting object

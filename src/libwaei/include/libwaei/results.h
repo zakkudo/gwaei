@@ -26,7 +26,6 @@ typedef GSequenceIter LwResultsIter;
 
 struct _LwResults {
   GObject object;
-  LwResultsPrivate *priv;
 };
 
 struct _LwResultsClass {
