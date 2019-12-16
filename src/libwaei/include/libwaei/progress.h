@@ -1,23 +1,13 @@
 #ifndef LW_PROGRESS_INCLUDED
 #define LW_PROGRESS_INCLUDED
 
-#include <gio/gio.h>
+#include <glib-object.h>
 
 G_BEGIN_DECLS
 
 //Boilerplate
-typedef struct _LwProgress LwProgress;
-typedef struct _LwProgressClass LwProgressClass;
-typedef struct _LwProgressPrivate LwProgressPrivate;
-typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
-
-#define LW_TYPE_PROGRESS              (lw_progress_get_type())
-#define LW_PROGRESS(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_PROGRESS, LwProgress))
-#define LW_PROGRESS_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_PROGRESS, LwProgressClass))
-#define LW_IS_PROGRESS(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_PROGRESS))
-#define LW_IS_PROGRESS_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_PROGRESS))
-#define LW_PROGRESS_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_PROGRESS, LwProgressClass))
-
+#define LW_TYPE_PROGRESS lw_progress_get_type ()
+G_DECLARE_FINAL_TYPE (LwProgress, lw_progress, LW, PROGRESS, GObject)
 
 /**
  * LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT:
@@ -143,19 +133,6 @@ typedef struct _LwProgressClassPrivate LwProgressClassPrivate;
         chunk = 0;\
       }\
     }
-
-struct _LwProgress {
-  GObject object;
-};
-
-struct _LwProgressClass {
-  GObjectClass parent_class;
-  LwProgressClassPrivate *priv;
-
-  //Signals
-  void (*changed) (LwProgress* progress, gpointer data);
-};
-
 
 //Methods
 LwProgress* lw_progress_new (void);
