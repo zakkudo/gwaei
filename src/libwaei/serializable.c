@@ -29,12 +29,7 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-
-#include <glib.h>
 #include <glib/gstdio.h>
-#include <glib-object.h>
 
 #include <libwaei/gettext.h>
 #include <libwaei/io.h>

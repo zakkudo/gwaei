@@ -3,7 +3,7 @@
 
 #include "serializable.h"
 #include "parsedline.h"
-#include "cachefile.h"
+#include "cache-file.h"
 
 G_BEGIN_DECLS
 

@@ -30,14 +30,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <locale.h>
-
-#include <glib.h>
-#include <glib/gstdio.h>
-#include <gio/gio.h>
 #include <curl/curl.h>
 #include <zlib.h>
 #ifdef G_OS_UNIX
@@ -48,7 +40,7 @@
 #endif
 
 #include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
+#include <libwaei/io.h>
 
 
 /**

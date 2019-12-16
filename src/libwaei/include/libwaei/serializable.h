@@ -1,6 +1,7 @@
 #ifndef LW_SERIALIZABLE_INCLUDED
 #define LW_SERIALIZABLE_INCLUDED
 
+#include <glib-object.h>
 #include "progress.h"
 #include "cache-file.h"
 

@@ -1,10 +1,6 @@
 #ifndef LW_IO_INCLUDED
 #define LW_IO_INCLUDED
 
-#include <stdio.h>
-
-#include <glib.h>
-#include <gio/gio.h>
 #include <libwaei/progress.h>
 
 G_BEGIN_DECLS

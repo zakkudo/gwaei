@@ -1,6 +1,8 @@
 #ifndef LW_MAPPED_FILE_INCLUDED
 #define LW_MAPPED_FILE_INCLUDED
 
+#include <glib-object.h>
+
 G_BEGIN_DECLS
 
 //Boilerplate

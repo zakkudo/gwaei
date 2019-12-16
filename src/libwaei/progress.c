@@ -66,14 +66,7 @@
 #include "config.h"
 #endif
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <math.h>
-
-#include <glib.h>
-#include <glib-object.h>
-#include <glib/gstdio.h>
 #include <gio/gio.h>
 
 #include <libwaei/gettext.h>

@@ -1,6 +1,7 @@
 #ifndef LW_CACHE_FILE_INCLUDED
 #define LW_CACHE_FILE_INCLUDED
 
+#include <glib-object.h>
 #include "mapped-file.h"
 #include "progress.h"
 

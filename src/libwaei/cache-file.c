@@ -41,11 +41,6 @@
 #include "config.h"
 #endif
 
-#include <locale.h>
-#include <stdlib.h>
-
-#include <glib.h>
-#include <glib-object.h>
 #include <glib/gstdio.h>
 
 #include <libwaei/gettext.h>
