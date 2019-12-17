@@ -32,7 +32,6 @@
 
 #include <gio/gio.h>
 
-#include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
 #include <libwaei/preferences-private.h>
 

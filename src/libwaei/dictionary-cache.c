@@ -75,7 +75,6 @@ typedef struct {
   gchar *dictionary_name;
   LwUtf8Flag flags;
   LwParsed *parsed;
-  LwIndexed *indexed;
   LwProgress * progress;
   GMutex mutex;
 } LwDictionaryCachePrivate;
@@ -95,7 +94,6 @@ static void lw_dictionary_cache_clear (LwDictionaryCache *self);
 static void lw_dictionary_cache_set_dictionary_name (LwDictionaryCache *self, gchar const *DICTIONARY_NAME);
 
 static void lw_dictionary_cache_set_parsed (LwDictionaryCache *self, LwParsed *parsed);
-static void lw_dictionary_cache_set_indexed (LwDictionaryCache *self, LwIndexed *indexed);
 
 static gchar* lw_dictionary_cache_build_filename (LwDictionaryCache *self, gchar const *TYPE);
 static gchar* lw_dictionary_cache_build_path (LwDictionaryCache *self, gchar const *TYPE);
@@ -231,9 +229,6 @@ lw_dictionary_cache_get_property (GObject     * object,
       case PROP_PARSED:
         g_value_set_object (value, lw_dictionary_cache_get_parsed (self));
         break;
-      case PROP_INDEXED:
-        g_value_set_object (value, lw_dictionary_cache_get_indexed (self));
-        break;
       case PROP_DICTIONARY_TYPE:
         g_value_set_gtype (value, lw_dictionary_cache_get_dictionary_type (self));
         break;
@@ -261,7 +256,6 @@ lw_dictionary_cache_finalize (GObject * object)
     g_free (priv->dictionary_name);
 
     if (priv->parsed) g_object_unref (priv->parsed);
-    if (priv->indexed) g_object_unref (priv->indexed);
 
     lw_dictionary_cache_set_progress (self, NULL);
 
@@ -330,15 +324,6 @@ lw_dictionary_cache_class_init (LwDictionaryCacheClass * klass)
     );
     g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
 
-    klasspriv->pspec[PROP_INDEXED] = g_param_spec_object (
-        "indexed",
-        gettext("Indexed"),
-        gettext("Indexed information for the dictionary"),
-        LW_TYPE_INDEXED, 
-        G_PARAM_READABLE
-    );
-    g_object_class_install_property (object_class, PROP_INDEXED, klasspriv->pspec[PROP_INDEXED]);
-
     klasspriv->pspec[PROP_PARSED] = g_param_spec_object (
         "parsed",
         gettext("Parsed"),
@@ -372,7 +357,6 @@ lw_dictionary_cache_clear (LwDictionaryCache * self)
     priv = lw_dictionary_cache_get_instance_private (self);
 
     lw_dictionary_cache_set_parsed (self, NULL);
-    lw_dictionary_cache_set_indexed (self, NULL);
 }
 
 
@@ -499,28 +483,6 @@ _parse (LwDictionaryCache          * self,
 }
 
 
-static LwIndexed *
-_index (LwDictionaryCache * self,
-        LwParsed          * parsed,
-        LwProgress        * progress)
-{
-    //Sanity checks
-    g_return_val_if_fail (parsed != NULL, NULL);
-    LW_PROGRESS_RETURN_VAL_IF_SHOULD_ABORT (progress, NULL);
-    return NULL;
-
-    //Declarations
-    LwIndexed *indexed = NULL;
-
-    //Initializations
-    indexed = lw_indexed_new (parsed);
-
-    //index things here! TODO
-
-    return indexed;
-}
-
-
 /**
  * lw_dictionary_cache_write:
  * @self: A #LwDictionaryCache
@@ -550,10 +512,8 @@ lw_dictionary_cache_write (LwDictionaryCache          * self,
     LwDictionaryCachePrivate * priv = NULL;
     LwCacheFile *mapped_contents = NULL;
     LwParsed *parsed = NULL;
-    LwIndexed *indexed = NULL;
     LwCacheFile *normalized_cache_file = NULL;
     LwCacheFile *parsed_cache_file = NULL;
-    LwCacheFile *indexed_cache_file = NULL;
 
     priv = lw_dictionary_cache_get_instance_private (self);
 
@@ -565,9 +525,6 @@ lw_dictionary_cache_write (LwDictionaryCache          * self,
     parsed = _parse (self, mapped_contents, parse, data);
     if (parsed == NULL) goto errored;
 
-    //Create an index from the parsed data
-    indexed = _index (self, parsed, progress);
-
     //Write the files perminently if we made it this far
     normalized_cache_file = _write_mapped (self, "normalized", CHECKSUM, mapped_contents, progress);
     if (normalized_cache_file == NULL) goto errored;
@@ -578,19 +535,7 @@ lw_dictionary_cache_write (LwDictionaryCache          * self,
       if (parsed_cache_file == NULL) goto errored;
     }
 
-    if (indexed != NULL)
-    {
-      indexed_cache_file = _write_serializable (self, "indexed", CHECKSUM, LW_SERIALIZABLE (indexed), progress);
-      if (indexed_cache_file == NULL) goto errored;
-    }
-
 errored:
-
-    if (indexed != NULL)
-    {
-      g_object_unref (indexed);
-      indexed = NULL;
-    }
 
     if (parsed != NULL)
     {
@@ -622,18 +567,6 @@ errored:
     {
       g_object_unref (parsed_cache_file);
       parsed_cache_file = NULL;
-    }
-
-    if (indexed != NULL)
-    {
-      g_object_unref (indexed);
-      indexed = NULL;
-    }
-
-    if (indexed_cache_file != NULL)
-    {
-      g_object_unref (indexed_cache_file);
-      indexed_cache_file = NULL;
     }
 }
 
@@ -696,9 +629,7 @@ lw_dictionary_cache_read (LwDictionaryCache * self,
     LwDictionaryCachePrivate * priv = NULL;
     LwCacheFile *normalized_cache_file = NULL;
     LwCacheFile *parsed_cache_file = NULL;
-    LwCacheFile *indexed_cache_file = NULL;
     LwParsed *parsed = NULL;
-    LwIndexed *indexed = NULL;
     gboolean read_successful = FALSE;
 
     //Initializations
@@ -717,30 +648,17 @@ lw_dictionary_cache_read (LwDictionaryCache * self,
     lw_serializable_deserialize_from_cache_file_into (LW_SERIALIZABLE (parsed), EXPECTED_CHECKSUM, parsed_cache_file, progress);
     LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
 
-    //Load the indexed information
-/*
-    indexed_cache_file = _read_cache_file (self, "indexed", EXPECTED_CHECKSUM, progress);
-    if (indexed_cache_file == NULL) goto errored;
-    indexed = lw_indexed_new (parsed); 
-    if (indexed == NULL) goto errored;
-    lw_serializable_deserialize_from_cache_file_into (LW_SERIALIZABLE (indexed), EXPECTED_CHECKSUM, indexed_cache_file, progress);
-    LW_PROGRESS_GOTO_ERRORED_IF_SHOULD_ABORT (progress);
-*/
-
     //Finalize
     lw_dictionary_cache_set_parsed (self, parsed);
-    lw_dictionary_cache_set_indexed (self, indexed);
 
     read_successful = TRUE;
 
 errored:
 
     if (parsed != NULL) g_object_unref (parsed);
-    if (indexed != NULL) g_object_unref (indexed);
 
     if (normalized_cache_file != NULL) g_object_unref (normalized_cache_file);
     if (parsed_cache_file != NULL) g_object_unref (parsed_cache_file);
-    if (indexed_cache_file != NULL) g_object_unref (indexed_cache_file);
 
     return read_successful;
 }
@@ -1101,64 +1019,6 @@ lw_dictionary_cache_get_parsed (LwDictionaryCache * self)
     priv = lw_dictionary_cache_get_instance_private (self);
 
     return priv->parsed;
-}
-
-
-static void
-lw_dictionary_cache_set_indexed (LwDictionaryCache * self,
-                                LwIndexed         * indexed)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARY_CACHE (self));
-
-    //Declarations
-    LwDictionaryCachePrivate *priv = NULL;
-    LwDictionaryCacheClassPrivate *klasspriv = NULL;
-
-    //Initializations
-    priv = lw_dictionary_cache_get_instance_private (self);
-    klasspriv = lw_dictionary_cache_class_get_private ();
-    if (indexed == priv->indexed) goto errored;
-
-    if (indexed != NULL)
-    {
-      g_object_ref (indexed);
-    }
-
-    if (priv->indexed != NULL)
-    {
-      g_object_unref (priv->indexed);
-      priv->indexed = NULL;
-    }
-
-    priv->indexed = indexed;
-  
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_INDEXED]);
-
-errored:
-
-    return;
-}
-
-
-/**
- * lw_dictionary_cache_get_indexed:
- * @self: A #LwDictionaryCache
- * Returns: (transfer none): The indexed information for the dictionary
- */
-LwIndexed *
-lw_dictionary_cache_get_indexed (LwDictionaryCache * self)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY_CACHE (self), NULL);
-
-    //Declarations
-    LwDictionaryCachePrivate *priv = NULL;
-
-    //Initializations
-    priv = lw_dictionary_cache_get_instance_private (self);
-
-    return priv->indexed;
 }
 
 

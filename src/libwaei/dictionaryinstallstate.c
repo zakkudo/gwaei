@@ -38,7 +38,6 @@
 #include <glib/gstdio.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
 
 
 struct _LwDictionaryInstallState {

@@ -35,7 +35,6 @@
 #include <glib/gstdio.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
 
 #include <libwaei/dictionaryinstalllist-private.h>
 

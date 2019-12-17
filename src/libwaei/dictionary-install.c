@@ -40,7 +40,6 @@
 #include <glib/gstdio.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
 
 #include <libwaei/dictionary_install-private.h>
 

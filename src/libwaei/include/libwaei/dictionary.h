@@ -6,7 +6,6 @@
 #include "progress.h"
 #include "utf8.h"
 #include "parsed.h"
-#include "indexed.h"
 #include "progress.h"
 
 G_BEGIN_DECLS
@@ -85,7 +84,5 @@ GType lw_dictionary_get_columnid_type (LwDictionaryClass * klass);
 LwDictionaryCache * lw_dictionary_ensure_cache_by_utf8flags (LwDictionary * self, LwUtf8Flag flags, LwProgress * progress);
 
 G_END_DECLS
-
-#include <libwaei/dictionary-callbacks.h>
 
 #endif

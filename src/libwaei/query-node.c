@@ -189,7 +189,7 @@ errored:
 /**
  * lw_query_node_new_tree_from_string:
  * @TEXT: The text to generate the #LwQueryNode tree from
- * @operation_out: Returns any hanging operations that should be passed to the next sibling.  This should generally be set to %LW_QUERYNODE_OPERATION_NONE by outside consumers of this api.
+ * @operation_out: Returns any hanging operations that should be passed to the next sibling.  This should generally be set to %LW_QUERY_NODE_OPERATION_NONE by outside consumers of this api.
  * @error: Pointer to a #GError or %NONE
  *
  * Generates a #LwQueryNode tree from a string.  This method is recursive, thus requiring a pointer to a #LwQueryNodeOperation for context.  This method uses #LwParenthesisNode as an intermediary compilation, so if there are any parentheiss errors, they will return through #GError with that domain.
@@ -207,7 +207,7 @@ lw_query_node_new_tree_from_string (gchar const          *  TEXT,
 
     //Declarations
     LwParenthesisNode *parenthesis_node = NULL;
-    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwQueryNodeOperation operation = LW_QUERY_NODE_OPERATION_NONE;
     LwQueryNode *query_node = NULL;
 
     if (operation_out != NULL)
@@ -291,7 +291,7 @@ leafiterator_init (LeafIterator         * self,
     self->c = parenthesis_node->OPEN;
     self->OPEN = parenthesis_node->OPEN;
     self->CLOSE = parenthesis_node->CLOSE;
-    self->operation = LW_QUERYNODE_OPERATION_NONE;
+    self->operation = LW_QUERY_NODE_OPERATION_NONE;
 
     self->c = self->OPEN = _read_regex_parenthesis (parenthesis_node->OPEN, &self->PARENTHESIS);
 
@@ -404,7 +404,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
 
             if (BEFORE_LAST_WHITESPACE != NULL && self->OPEN <= BEFORE_LAST_WHITESPACE)
             {
-              query_node = lw_query_node_new (self->PARENTHESIS, self->OPEN, g_utf8_next_char (BEFORE_LAST_WHITESPACE), LW_QUERYNODE_OPERATION_NONE);
+              query_node = lw_query_node_new (self->PARENTHESIS, self->OPEN, g_utf8_next_char (BEFORE_LAST_WHITESPACE), LW_QUERY_NODE_OPERATION_NONE);
               if (query_node == NULL) goto errored;
               children = g_list_prepend (children, query_node);
               query_node = NULL;
@@ -424,13 +424,13 @@ _tokenize_explicit_columns (LeafIterator          * self,
           {
             g_set_error (
               error,
-              LW_QUERYNODE_ERROR,
-              LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE,
+              LW_QUERY_NODE_ERROR,
+              LW_QUERY_NODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERY_NODE,
               "key with no value for token %s", key_buffer
             );
             goto errored;
           }
-          LwQueryNodeOperation operation = (children == NULL) ? LW_QUERYNODE_OPERATION_NONE : LW_QUERYNODE_OPERATION_AND;
+          LwQueryNodeOperation operation = (children == NULL) ? LW_QUERY_NODE_OPERATION_NONE : LW_QUERY_NODE_OPERATION_AND;
           query_node = lw_query_node_new_keyed (key_buffer, value_buffer, operation);
           if (query_node == NULL) goto errored;
           children = g_list_prepend (children, query_node);
@@ -465,14 +465,14 @@ _tokenize_explicit_columns (LeafIterator          * self,
         {
           g_set_error (
             error,
-            LW_QUERYNODE_ERROR,
-            LW_QUERYNODE_ERROR_MISSING_KEY_AND_VALUE_FOR_KEYED_QUERYNODE,
+            LW_QUERY_NODE_ERROR,
+            LW_QUERY_NODE_ERROR_MISSING_KEY_AND_VALUE_FOR_KEYED_QUERY_NODE,
             "key:value"
           );
           goto errored;
         }
 
-        query_node = lw_query_node_new_keyed (key_buffer, value_buffer, LW_QUERYNODE_OPERATION_AND);
+        query_node = lw_query_node_new_keyed (key_buffer, value_buffer, LW_QUERY_NODE_OPERATION_AND);
         if (query_node == NULL) goto errored;
         children = g_list_prepend (children, query_node);
 
@@ -485,7 +485,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
     //If there were no keyed query nodes, just use the whole substring for a query node
     else
     {
-      query_node = lw_query_node_new (self->PARENTHESIS, self->OPEN, CLOSE, LW_QUERYNODE_OPERATION_NONE);
+      query_node = lw_query_node_new (self->PARENTHESIS, self->OPEN, CLOSE, LW_QUERY_NODE_OPERATION_NONE);
       if (query_node == NULL) goto errored;
       children = g_list_prepend (children, query_node);
       query_node = NULL;
@@ -569,8 +569,8 @@ leafiterator_new_connector_node (LeafIterator          * self,
     {
       g_set_error (
         error,
-        LW_QUERYNODE_ERROR,
-        LW_QUERYNODE_HANGING_START_LOGICAL_CONNECTOR,
+        LW_QUERY_NODE_ERROR,
+        LW_QUERY_NODE_HANGING_START_LOGICAL_CONNECTOR,
         "is missing left side of query before logical connector"
       );
       goto errored;
@@ -608,7 +608,7 @@ leafiterator_new_final_node (LeafIterator          * self,
       children = _tokenize_explicit_columns (self, error);
       if (error != NULL && *error != NULL) goto errored;
       query_node = _parent_possible_children (&children, self->operation);
-      self->operation = LW_QUERYNODE_OPERATION_NONE;
+      self->operation = LW_QUERY_NODE_OPERATION_NONE;
     }
 
     self->c = NULL;
@@ -637,12 +637,12 @@ leafiterator_read (LeafIterator  * self,
       isescaped = (lw_utf8_isescaped (self->OPEN, self->c));
       if (!isescaped && strncmp(self->c, "&&", strlen("&&")) == 0)
       {
-        query_node = leafiterator_new_connector_node (self, "&&", LW_QUERYNODE_OPERATION_AND, error);
+        query_node = leafiterator_new_connector_node (self, "&&", LW_QUERY_NODE_OPERATION_AND, error);
         if (error != NULL && *error != NULL) goto errored;
       }
       else if (!isescaped && strncmp(self->c, "||", strlen("||")) == 0)
       {
-        query_node = leafiterator_new_connector_node (self, "&&", LW_QUERYNODE_OPERATION_OR, error);
+        query_node = leafiterator_new_connector_node (self, "&&", LW_QUERY_NODE_OPERATION_OR, error);
         if (error != NULL && *error != NULL) goto errored;
       }
       else
@@ -656,12 +656,12 @@ leafiterator_read (LeafIterator  * self,
       query_node = leafiterator_new_final_node (self, error);
       if (error != NULL && *error != NULL) goto errored;
 
-      if (self->PARENTHESIS && self->operation != LW_QUERYNODE_OPERATION_NONE)
+      if (self->PARENTHESIS && self->operation != LW_QUERY_NODE_OPERATION_NONE)
       {
         g_set_error (
           error,
-          LW_QUERYNODE_ERROR,
-          LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR,
+          LW_QUERY_NODE_ERROR,
+          LW_QUERY_NODE_HANGING_END_LOGICAL_CONNECTOR,
           "is missing left side of query before logical connector"
         );
         goto errored;
@@ -727,8 +727,8 @@ _parse_leaf_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
     //Declarations
     GList * children = NULL;
     LwQueryNode * query_node = NULL;
-    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
-    LwQueryNodeOperation inner_operation = LW_QUERYNODE_OPERATION_NONE;
+    LwQueryNodeOperation operation = LW_QUERY_NODE_OPERATION_NONE;
+    LwQueryNodeOperation inner_operation = LW_QUERY_NODE_OPERATION_NONE;
 
     if (operation_out != NULL)
     {
@@ -769,7 +769,7 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
     GList * children = NULL;
     GList * link = NULL;
     LwQueryNode * query_node = NULL;
-    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE;
+    LwQueryNodeOperation operation = LW_QUERY_NODE_OPERATION_NONE;
 
     //Initializations
     if (operation_out != NULL)
@@ -786,12 +786,12 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
       }
     }
 
-    if (operation_out != NULL && *operation_out != LW_QUERYNODE_OPERATION_NONE)
+    if (operation_out != NULL && *operation_out != LW_QUERY_NODE_OPERATION_NONE)
     {
       g_set_error (
         error,
-        LW_QUERYNODE_ERROR,
-        LW_QUERYNODE_HANGING_END_LOGICAL_CONNECTOR,
+        LW_QUERY_NODE_ERROR,
+        LW_QUERY_NODE_HANGING_END_LOGICAL_CONNECTOR,
         "is missing right side of query after logical connector"
       );
       goto errored;
@@ -813,7 +813,7 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
       {
         query_node = lw_query_node_new (NULL, NULL, NULL, *operation_out);
         if (query_node == NULL) goto errored;
-        *operation_out = LW_QUERYNODE_OPERATION_NONE;
+        *operation_out = LW_QUERY_NODE_OPERATION_NONE;
 
         query_node->children = g_list_reverse (children);
         children = NULL;
@@ -999,25 +999,25 @@ _query_node_apply_implied_logical_junctions (LwQueryNode * self)
 
     for (link = self->children; link != NULL; link = link->next)
     {
-      query_node = LW_QUERYNODE (link->data);
-      next_query_node = (link->next) ? LW_QUERYNODE (link->next->data) : NULL;
+      query_node = LW_QUERY_NODE (link->data);
+      next_query_node = (link->next) ? LW_QUERY_NODE (link->next->data) : NULL;
       has_junction = _query_node_apply_implied_logical_junctions (query_node);
       if (has_junction)
       {
-        if (query_node != NULL && query_node->operation == LW_QUERYNODE_OPERATION_NONE && (previous_query_node != NULL && !LW_QUERYNODE_IS_DANGLING_KEY (previous_query_node)))
+        if (query_node != NULL && query_node->operation == LW_QUERY_NODE_OPERATION_NONE && (previous_query_node != NULL && !LW_QUERY_NODE_IS_DANGLING_KEY (previous_query_node)))
         {
-          query_node->operation = LW_QUERYNODE_OPERATION_AND;
+          query_node->operation = LW_QUERY_NODE_OPERATION_AND;
         }
-        if (next_query_node != NULL && next_query_node->operation == LW_QUERYNODE_OPERATION_NONE)
+        if (next_query_node != NULL && next_query_node->operation == LW_QUERY_NODE_OPERATION_NONE)
         {
-          next_query_node->operation = LW_QUERYNODE_OPERATION_AND;
+          next_query_node->operation = LW_QUERY_NODE_OPERATION_AND;
         }
         has_junction_out = TRUE;
       }
       previous_query_node = query_node;
     }
 
-    return has_junction_out || self->operation != LW_QUERYNODE_OPERATION_NONE;
+    return has_junction_out || self->operation != LW_QUERY_NODE_OPERATION_NONE;
 }
 
 
@@ -1043,20 +1043,20 @@ _reduce_previous_none_operations (GList *  children,
     LwQueryNode * previous_query_node = NULL;
 
     //Initializations
-    query_node = LW_QUERYNODE (link->data);
-    if (query_node == NULL || query_node->operation != LW_QUERYNODE_OPERATION_NONE) goto errored;
+    query_node = LW_QUERY_NODE (link->data);
+    if (query_node == NULL || query_node->operation != LW_QUERY_NODE_OPERATION_NONE) goto errored;
     new_data = g_strjoinv (NULL, tokens);
     if (new_data == NULL) goto errored;
     previous_link = link->prev;
-    previous_query_node = (previous_link != NULL) ? LW_QUERYNODE (previous_link->data) : NULL;
+    previous_query_node = (previous_link != NULL) ? LW_QUERY_NODE (previous_link->data) : NULL;
 
-    while (previous_query_node != NULL && previous_query_node->operation == LW_QUERYNODE_OPERATION_NONE && previous_query_node->key == NULL && previous_query_node->children == NULL)
+    while (previous_query_node != NULL && previous_query_node->operation == LW_QUERY_NODE_OPERATION_NONE && previous_query_node->key == NULL && previous_query_node->children == NULL)
     {
       lw_query_node_unref (previous_query_node);
       children = g_list_delete_link (children, previous_link);
       
       previous_link = link->prev;
-      previous_query_node = (previous_link != NULL) ? LW_QUERYNODE (previous_link->data) : NULL;
+      previous_query_node = (previous_link != NULL) ? LW_QUERY_NODE (previous_link->data) : NULL;
     }
 
     g_free (query_node->data);
@@ -1084,7 +1084,7 @@ _query_node_reparent_possible_children (LwQueryNode * self)
     if (self->children != NULL && self->children->next == NULL)
     {
       // Prune the link
-      query_node = LW_QUERYNODE (self->children->data);
+      query_node = LW_QUERY_NODE (self->children->data);
       if ((self->key == NULL || query_node->key == NULL) && self->data == NULL)
       {
         self->children = g_list_delete_link (self->children, self->children);
@@ -1134,7 +1134,7 @@ _query_node_reduce_keyed_missing_values (LwQueryNode *  self,
 
     while (link != NULL)
     {
-      query_node = LW_QUERYNODE (link->data);
+      query_node = LW_QUERY_NODE (link->data);
       _query_node_reduce_keyed_missing_values (query_node, error);
       if (error != NULL && *error != NULL) goto errored;
 
@@ -1145,8 +1145,8 @@ _query_node_reduce_keyed_missing_values (LwQueryNode *  self,
         {
           link = link->next;
           next = (link->next != NULL) ? link->next : NULL;
-          query_node = LW_QUERYNODE (link->data);
-          if (query_node->operation == LW_QUERYNODE_OPERATION_NONE)
+          query_node = LW_QUERY_NODE (link->data);
+          if (query_node->operation == LW_QUERY_NODE_OPERATION_NONE)
           {
             self->children = g_list_remove_link (self->children, link);
             keyed_query_node->children = link;
@@ -1156,8 +1156,8 @@ _query_node_reduce_keyed_missing_values (LwQueryNode *  self,
           {
             g_set_error (
               error,
-              LW_QUERYNODE_ERROR,
-              LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE,
+              LW_QUERY_NODE_ERROR,
+              LW_QUERY_NODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERY_NODE,
               "key with no value for token %s", keyed_query_node->key 
             );
             goto errored;
@@ -1167,8 +1167,8 @@ _query_node_reduce_keyed_missing_values (LwQueryNode *  self,
         {
           g_set_error (
             error,
-            LW_QUERYNODE_ERROR,
-            LW_QUERYNODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERYNODE,
+            LW_QUERY_NODE_ERROR,
+            LW_QUERY_NODE_ERROR_MISSING_VALUE_FOR_KEYED_QUERY_NODE,
             "key with no value for token %s", keyed_query_node->key
           );
           goto errored;
@@ -1209,16 +1209,16 @@ _query_node_reduce (LwQueryNode * self)
 
     for (link = self->children; link != NULL; link = link->next)
     {
-      query_node = LW_QUERYNODE (link->data);
+      query_node = LW_QUERY_NODE (link->data);
       _query_node_reduce (query_node);
-      if (query_node->operation == LW_QUERYNODE_OPERATION_NONE && query_node->key == NULL && query_node->children == NULL)
+      if (query_node->operation == LW_QUERY_NODE_OPERATION_NONE && query_node->key == NULL && query_node->children == NULL)
       {
         if (query_node->data != NULL)
         {
           tokens[num_tokens++] = query_node->data;
         }
       }
-      else if (query_node->operation != LW_QUERYNODE_OPERATION_NONE || query_node->key != NULL || query_node->children != NULL)
+      else if (query_node->operation != LW_QUERY_NODE_OPERATION_NONE || query_node->key != NULL || query_node->children != NULL)
       {
         self->children = _reduce_previous_none_operations (self->children, link->prev, tokens, &num_tokens);
       }
@@ -1269,7 +1269,7 @@ _query_node_compile (LwQueryNode * self,
 
     for (link = self->children; link != NULL; link = link->next)
     {
-      query_node = LW_QUERYNODE (link->data);
+      query_node = LW_QUERY_NODE (link->data);
       _query_node_compile (query_node, KEY, flags, error);
       if (error != NULL && *error != NULL) goto errored;
     }
@@ -1313,7 +1313,7 @@ lw_query_node_nnodes (LwQueryNode * self)
 
     for (link = self->children; link != NULL; link = link->next)
     {
-      query_node = LW_QUERYNODE (link->data);
+      query_node = LW_QUERY_NODE (link->data);
       nnodes += lw_query_node_nnodes (query_node);
     }
 
@@ -1351,7 +1351,7 @@ lw_query_node_compile (LwQueryNode *  self,
 static gboolean
 _children_match_parsed_line (LwQueryNode           * self,
                             LwParsedLine          * parsed_line,
-                            LwQueryNodeMatchInfo  * match_info_out)
+                            LwMatchInfo  * match_info_out)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
@@ -1366,17 +1366,17 @@ _children_match_parsed_line (LwQueryNode           * self,
     
     for (link = self->children; link != NULL; link = link->next)
     {
-      query_node = LW_QUERYNODE (link->data);
+      query_node = LW_QUERY_NODE (link->data);
       matches = lw_query_node_match_parsed_line (query_node, parsed_line, match_info_out);
 
       if (previous_query_node != NULL)
       {
         switch (query_node->operation)
         {
-          case LW_QUERYNODE_OPERATION_OR:
+          case LW_QUERY_NODE_OPERATION_OR:
               matches = (previous_matches || matches);
             break;
-          case LW_QUERYNODE_OPERATION_AND:
+          case LW_QUERY_NODE_OPERATION_AND:
               matches = (previous_matches && matches);
           default:
             break;
@@ -1397,7 +1397,7 @@ static gboolean
 _value_matches_column (LwQueryNode          * self,
                        LwParsedLine         * parsed_line,
                        gint                   column,
-                       LwQueryNodeMatchInfo * match_info_out)
+                       LwMatchInfo * match_info_out)
 {
     //Declarations
     gint j = 0;
@@ -1458,7 +1458,7 @@ errored:
 static gboolean
 _value_matches_parsed_line (LwQueryNode           * self,
                            LwParsedLine          * parsed_line,
-                           LwQueryNodeMatchInfo  * match_info_out)
+                           LwMatchInfo  * match_info_out)
 {
     //Declarations
     gboolean matches = FALSE;
@@ -1481,14 +1481,14 @@ errored:
  * lw_query_node_match_parsed_line:
  * @self: A #LwQueryNode
  * @parsed_line: A @parsed_line to search
- * @match_info_out: A #LwQueryNodeMatchInfo to record match information or %NULL to ignore it
+ * @match_info_out: A #LwMatchInfo to record match information or %NULL to ignore it
  *
  * Returns: %TRUE if @self matches against the @parsed_line
  */
 gboolean
 lw_query_node_match_parsed_line (LwQueryNode           * self,
                                LwParsedLine          * parsed_line,
-                               LwQueryNodeMatchInfo  * match_info_out)
+                               LwMatchInfo  * match_info_out)
 {
     //Declarations
     GList * link = NULL;

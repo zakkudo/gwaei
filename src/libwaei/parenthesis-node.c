@@ -46,8 +46,10 @@
 
 #include <glib.h>
 
-#include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
+#include <libwaei/parenthesis-node.h>
+#include <libwaei/query-node.h>
+#include <libwaei/utf8.h>
 
 
 static GList * _parse_string (gchar const * TEXT, GError ** error);
@@ -143,10 +145,10 @@ lw_parenthesis_node_new_tree_from_string (gchar const *  TEXT,
 
 errored:
 
-  g_list_free_full (children, (GDestroyNotify) lw_querynode_unref);
+  g_list_free_full (children, (GDestroyNotify) lw_query_node_unref);
   children = NULL;
 
-  g_list_free_full (explicit_children, (GDestroyNotify) lw_querynode_unref);
+  g_list_free_full (explicit_children, (GDestroyNotify) lw_query_node_unref);
   explicit_children = NULL;
 
   return self;

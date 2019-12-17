@@ -34,7 +34,6 @@
 #include <glib.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/libwaei.h>
 
 
 struct _LwDependancy {

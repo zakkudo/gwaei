@@ -40,7 +40,6 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <libwaei/libwaei.h>
 #include <libwaei/gettext.h>
 
 
