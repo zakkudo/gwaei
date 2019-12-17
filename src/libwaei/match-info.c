@@ -47,7 +47,7 @@
 
 #include <glib.h>
 
-#include <libwaei/querynode.h>
+#include <libwaei/query-node.h>
 #include <libwaei/gettext.h>
 
 
@@ -61,10 +61,10 @@ _compare (gconstpointer * a,
 }
 
 static void
-_unref_column (LwQueryNodeColumnMatchInfo * self)
+_unref_column (LwColumnMatchInfo * self)
 {
     if (self == NULL) return;
-    lw_querynodecolumnmatchinfo_unref (self);
+    lw_column_match_info_unref (self);
 }
 
 /**
@@ -150,9 +150,9 @@ lw_match_info_unref (LwMatchInfo * self)
  * lw_match_info_get_column:
  * @self: A #LwMatchInfo
  * @column: The column you want to fetch
- * Returns: A #LwQueryNodeColumnMatchInfo or %NULL if it wasn't previously set
+ * Returns: A #LwColumnMatchInfo or %NULL if it wasn't previously set
  */
-LwQueryNodeColumnMatchInfo *
+LwColumnMatchInfo *
 lw_match_info_get_column (LwMatchInfo * self,
                                   gint                   column)
 {
@@ -165,18 +165,18 @@ lw_match_info_get_column (LwMatchInfo * self,
 /**
  * lw_match_info_set_column:
  * @self: A #LwMatchInfo
- * @column_match_info: The #LwQueryNodeColumnMatchInfo to set or %NULL to unset it
+ * @column_match_info: The #LwColumnMatchInfo to set or %NULL to unset it
  */
 void
 lw_match_info_set_column (LwMatchInfo       * self,
-                                  LwQueryNodeColumnMatchInfo * column_match_info)
+                                  LwColumnMatchInfo * column_match_info)
 {
 
     //Initializations
     g_return_if_fail (self != NULL);
     g_return_if_fail (column_match_info != NULL);
 
-    lw_querynodecolumnmatchinfo_ref (column_match_info);
+    lw_column_match_info_ref (column_match_info);
 
     g_tree_insert (self->tree, GINT_TO_POINTER (column_match_info->column), column_match_info);
 }

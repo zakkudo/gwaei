@@ -5,18 +5,18 @@ G_BEGIN_DECLS
 
 /**
  * LwMatchMarkerType:
- * @LW_MATCH_MARKERTYPE_OPEN: The first character matching in a selection
- * @LW_MATCH_MARKERTYPE_CLOSE: The last character matching in a selection
+ * @LW_MATCH_MARKER_TYPE_OPEN: The first character matching in a selection
+ * @LW_MATCH_MARKER_TYPE_CLOSE: The last character matching in a selection
  */
 typedef enum {
-  LW_MATCH_MARKERTYPE_OPEN,
-  LW_MATCH_MARKERTYPE_CLOSE
+  LW_MATCH_MARKER_TYPE_OPEN,
+  LW_MATCH_MARKER_TYPE_CLOSE
 } LwMatchMarkerType;
 
 /**
  * LwMatchMarker:
  * @TOKEN: The full string that this marker references
- * @POSITION: The character position of this marker.  If the marker is of type #LW_MATCH_MARKERTYPE_OPEN it will be the same as @open. If the marker is of type #LW_MATCH_MARKERTYPE_CLOSE, it will be the same as @close.
+ * @POSITION: The character position of this marker.  If the marker is of type #LW_MATCH_MARKER_TYPE_OPEN it will be the same as @open. If the marker is of type #LW_MATCH_MARKER_TYPE_CLOSE, it will be the same as @close.
  * @OPEN: The character marking the start of this selection
  * @CLOSE: The character marking the end of this selection
  * @type: Denotes if this object marks the start or end of a selection. @position will reflect the type.

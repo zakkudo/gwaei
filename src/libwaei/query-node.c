@@ -40,19 +40,19 @@
 
 #include <glib.h>
 
-#include <libwaei/parenthesisnode.h>
-#include <libwaei/query_node.h>
-#include <libwaei/query_nodematchinfo.h>
+#include <libwaei/parenthesis-node.h>
+#include <libwaei/query-node.h>
+#include <libwaei/match-info.h>
 #include <libwaei/gettext.h>
 
 
-static LwQueryNode * _parse_leaf_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
-static LwQueryNode * _parse_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
+static LwQueryNode * _parse_leaf_parenthesis_node (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
+static LwQueryNode * _parse_parenthesis_node (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
 
 GQuark
 lw_query_node_error_quark ()
 {
-    return g_quark_from_static_string ("lw-query_node-error");
+    return g_quark_from_static_string ("lw-query-node-error");
 }
 
 
@@ -146,7 +146,7 @@ errored:
 
 
 static LwQueryNode *
-lw_query_node_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis_node,
+lw_query_node_new_tree_from_parenthesis_node (LwParenthesisNode     * parenthesis_node,
                                             LwQueryNodeOperation  * operation_out,
                                             GError               ** error)
 {
@@ -165,12 +165,12 @@ lw_query_node_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis
 
     if (is_leaf)
     {
-      query_node = _parse_leaf_parenthesisnode (parenthesis_node, operation_out, error);
+      query_node = _parse_leaf_parenthesis_node (parenthesis_node, operation_out, error);
       if (error != NULL && *error != NULL) goto errored;
     }
     else
     {
-      query_node = _parse_parenthesisnode (parenthesis_node, operation_out, error);
+      query_node = _parse_parenthesis_node (parenthesis_node, operation_out, error);
       if (error != NULL && *error != NULL) goto errored;
     }
 
@@ -216,9 +216,9 @@ lw_query_node_new_tree_from_string (gchar const          *  TEXT,
     }
 
     //Initializations
-    parenthesis_node = lw_parenthesisnode_new_tree_from_string (TEXT, error);
+    parenthesis_node = lw_parenthesis_node_new_tree_from_string (TEXT, error);
     if (parenthesis_node == NULL || (error != NULL && *error != NULL)) goto errored;
-    query_node = lw_query_node_new_tree_from_parenthesisnode (parenthesis_node, &operation, error);
+    query_node = lw_query_node_new_tree_from_parenthesis_node (parenthesis_node, &operation, error);
     if (error != NULL && *error != NULL) goto errored;
 
     if (operation_out != NULL)
@@ -228,7 +228,7 @@ lw_query_node_new_tree_from_string (gchar const          *  TEXT,
 
 errored:
 
-    if (parenthesis_node != NULL) lw_parenthesisnode_unref (parenthesis_node);
+    if (parenthesis_node != NULL) lw_parenthesis_node_unref (parenthesis_node);
     parenthesis_node = NULL;
 
     return query_node;
@@ -455,7 +455,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
     if (DELIMITER != NULL)
     {
       DELIMITER = g_utf8_next_char (DELIMITER);
-      if (DELIMITER != '\0')
+      if (*DELIMITER != '\0')
       {
         gint len = self->CLOSE - DELIMITER + 1;
         strncpy(value_buffer, DELIMITER, len);
@@ -716,7 +716,7 @@ errored:
 
 
 static LwQueryNode *
-_parse_leaf_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
+_parse_leaf_parenthesis_node (LwParenthesisNode    *  parenthesis_node,
                              LwQueryNodeOperation *  operation_out,
                              GError               ** error)
 {
@@ -757,7 +757,7 @@ errored:
 
 
 static LwQueryNode *
-_parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
+_parse_parenthesis_node (LwParenthesisNode    *  parenthesis_node,
                         LwQueryNodeOperation *  operation_out,
                         GError               ** error)
 {
@@ -779,7 +779,7 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
 
     for (link = parenthesis_node->children; link != NULL; link = link->next)
     {
-      LwQueryNode * child = lw_query_node_new_tree_from_parenthesisnode (LW_PARENTHESISNODE (link->data), &operation, error);
+      LwQueryNode * child = lw_query_node_new_tree_from_parenthesis_node (LW_PARENTHESIS_NODE (link->data), &operation, error);
       if (child != NULL)
       {
         children = g_list_prepend (children, child);
@@ -1404,18 +1404,18 @@ _value_matches_column (LwQueryNode          * self,
     gchar const ** strv = NULL;
     GMatchInfo * match_info = NULL;
     gboolean matches = FALSE;
-    LwQueryNodeColumnMatchInfo * column_match_info = NULL;
+    LwColumnMatchInfo * column_match_info = NULL;
 
     //Initializations
     strv = lw_parsed_line_get_strv (parsed_line, column);
     if (match_info_out != NULL)
     {
-      column_match_info = lw_query_nodematchinfo_get_column (match_info_out, column);
+      column_match_info = lw_match_info_get_column (match_info_out, column);
       if (column_match_info == NULL)
       {
-        column_match_info = lw_query_nodecolumnmatchinfo_new (column, strv);
-        lw_query_nodematchinfo_set_column (match_info_out, column_match_info);
-        lw_query_nodecolumnmatchinfo_unref (column_match_info);
+        column_match_info = lw_column_match_info_new (column, strv);
+        lw_match_info_set_column (match_info_out, column_match_info);
+        lw_column_match_info_unref (column_match_info);
       }
     }
 
@@ -1430,7 +1430,7 @@ _value_matches_column (LwQueryNode          * self,
           {
             while (g_match_info_matches (match_info))
             {
-              lw_query_nodecolumnmatchinfo_add (column_match_info, match_info);
+              lw_column_match_info_add (column_match_info, match_info);
               g_match_info_next (match_info, NULL);
             }
             g_match_info_unref (match_info);
@@ -1449,7 +1449,7 @@ _value_matches_column (LwQueryNode          * self,
 
 errored:
 
-    if (column_match_info != NULL) lw_query_nodecolumnmatchinfo_unref (column_match_info);
+    if (column_match_info != NULL) lw_column_match_info_unref (column_match_info);
 
     return matches;
 }

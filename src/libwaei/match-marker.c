@@ -40,7 +40,7 @@
 
 #include <glib.h>
 
-#include <libwaei/match_marker.h>
+#include <libwaei/match-marker.h>
 #include <libwaei/gettext.h>
 
 
@@ -68,8 +68,8 @@ lw_match_marker_new (LwMatchMarkerType   type,
     gchar const * TOKEN = NULL;
     gchar const * OPEN = NULL;
     gchar const * CLOSE = NULL;
-    gint start_pos = NULL;
-    gint end_pos = NULL;
+    gint start_pos = 0;
+    gint end_pos = 0;
 
     //Initializations
     TOKEN = g_match_info_get_string (match_info);
@@ -90,10 +90,10 @@ lw_match_marker_new (LwMatchMarkerType   type,
 
     switch (type)
     {
-      case LW_QUERYNODEMATCHMARKERTYPE_OPEN:
+      case LW_MATCH_MARKER_TYPE_OPEN:
         self->POSITION = OPEN;
         break;
-      case LW_QUERYNODEMATCHMARKERTYPE_CLOSE:
+      case LW_MATCH_MARKER_TYPE_CLOSE:
         self->POSITION = CLOSE;
         break;
       default:

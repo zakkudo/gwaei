@@ -33,8 +33,8 @@ LwMatchInfo * lw_match_info_new (void);
 void lw_match_info_unref (LwMatchInfo * self);
 LwMatchInfo * lw_match_info_ref (LwMatchInfo * self);
 
-void lw_match_info_set_column (LwMatchInfo * self, LwQueryNodeColumnMatchInfo * column_match_info);
-LwQueryNodeColumnMatchInfo * lw_match_info_get_column (LwMatchInfo * self, gint column);
+void lw_match_info_set_column (LwMatchInfo * self, LwColumnMatchInfo * column_match_info);
+LwColumnMatchInfo * lw_match_info_get_column (LwMatchInfo * self, gint column);
 
 G_END_DECLS
 

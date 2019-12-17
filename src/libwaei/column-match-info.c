@@ -40,8 +40,8 @@
 
 #include <glib.h>
 
-#include <libwaei/parenthesisnode.h>
-#include <libwaei/querynode.h>
+#include <libwaei/parenthesis-node.h>
+#include <libwaei/query-node.h>
 #include <libwaei/gettext.h>
 
 
@@ -74,7 +74,7 @@ errored:
 /**
  * lw_column_match_info_add:
  * @self: A #LwColumnMatchInfo
- * @match_info: (transfer none): A #GMatchInfo used for creating the internal #LwQueryNodeMatchMarkers
+ * @match_info: (transfer none): A #GMatchInfo used for creating the internal #LwMatchMarkers
  */
 void
 lw_column_match_info_add (LwColumnMatchInfo * self,
@@ -86,15 +86,15 @@ lw_column_match_info_add (LwColumnMatchInfo * self,
     if (g_match_info_get_match_count (match_info) == 0) return;
 
     //Declarations
-    LwQueryNodeMatchMarker * open_marker = NULL;
-    LwQueryNodeMatchMarker * close_marker = NULL;
+    LwMatchMarker * open_marker = NULL;
+    LwMatchMarker * close_marker = NULL;
 
     open_marker = NULL;
     close_marker = NULL;
 
-    open_marker = lw_querynodematchmarker_new (LW_QUERYNODEMATCHMARKERTYPE_OPEN, match_info);
+    open_marker = lw_match_marker_new (LW_MATCH_MARKER_TYPE_OPEN, match_info);
     if (open_marker == NULL) goto errored;
-    close_marker = lw_querynodematchmarker_new (LW_QUERYNODEMATCHMARKERTYPE_CLOSE, match_info);
+    close_marker = lw_match_marker_new (LW_MATCH_MARKER_TYPE_CLOSE, match_info);
     if (close_marker == NULL) goto errored;
 
     self->markers = g_list_prepend (self->markers, open_marker);
@@ -105,9 +105,9 @@ lw_column_match_info_add (LwColumnMatchInfo * self,
 
 errored:
 
-    if (open_marker != NULL) lw_querynodematchmarker_unref (open_marker);
+    if (open_marker != NULL) lw_match_marker_unref (open_marker);
     open_marker = NULL;
-    if (close_marker != NULL) lw_querynodematchmarker_unref (close_marker);
+    if (close_marker != NULL) lw_match_marker_unref (close_marker);
     close_marker = NULL;
 }
 
@@ -134,7 +134,7 @@ lw_column_match_info_free (LwColumnMatchInfo *self)
 {
     if (self == NULL) return;
 
-    g_list_free_full (self->markers, (GDestroyNotify) lw_querynodematchmarker_unref);
+    g_list_free_full (self->markers, (GDestroyNotify) lw_match_marker_unref);
     
     memset(self, 0, sizeof(LwColumnMatchInfo));
 
@@ -161,8 +161,8 @@ lw_column_match_info_unref (LwColumnMatchInfo *self)
 
 
 static gint
-_sort_markers (LwQueryNodeMatchMarker * marker1,
-               LwQueryNodeMatchMarker * marker2)
+_sort_markers (LwMatchMarker * marker1,
+               LwMatchMarker * marker2)
 {
     if (marker1->POSITION < marker2->POSITION)
     {
@@ -219,17 +219,17 @@ _read_marked_section (LwColumnMatchInfo      * self,
     g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
-    LwQueryNodeMatchMarker * marker = NULL;
+    LwMatchMarker * marker = NULL;
     gchar const * START = NULL;
     gchar const * END = NULL;
     gboolean match_changed = FALSE;
     gint match_level = 0;
     gchar const * POSITION = NULL;
-    LwQueryNodeMatchMarkerType type = 0;
+    LwMatchMarkerType type = 0;
     gint i = 0;
 
     //Initializations
-    marker = LW_QUERYNODEMATCHMARKER (iter->marker->data);
+    marker = LW_MATCH_MARKER (iter->marker->data);
     match_level = iter->match_level;
     i = iter->i;
 
@@ -237,24 +237,24 @@ _read_marked_section (LwColumnMatchInfo      * self,
 
     if (iter->END == NULL)
     {
-      START = lw_querynodematchmarker_get_string (marker); 
+      START = lw_match_marker_get_string (marker); 
     }
     else
     {
       START = iter->END;
     }
 
-    while (iter->marker != NULL && lw_querynodematchmarker_get_string (marker) == self->strv[i] && !match_changed)
+    while (iter->marker != NULL && lw_match_marker_get_string (marker) == self->strv[i] && !match_changed)
     {
-      POSITION = lw_querynodematchmarker_get_position (marker, &type);
+      POSITION = lw_match_marker_get_position (marker, &type);
       switch (type)
       {
-        case LW_QUERYNODEMATCHMARKERTYPE_OPEN:
+        case LW_MATCH_MARKER_TYPE_OPEN:
           if (POSITION > START || POSITION == self->strv[i])  match_level++;
           if (POSITION == START) iter->match_level = match_level;
           match_changed = (iter->match_level == 0 && match_level > 0 && POSITION > START);
           break;
-        case LW_QUERYNODEMATCHMARKERTYPE_CLOSE:
+        case LW_MATCH_MARKER_TYPE_CLOSE:
           if (POSITION > START || POSITION == self->strv[i])  match_level--;
           if (POSITION == START) iter->match_level = match_level;
           g_assert (match_level >= 0);
@@ -268,7 +268,7 @@ _read_marked_section (LwColumnMatchInfo      * self,
       if (!match_changed)
       {
         iter->marker = iter->marker->next;
-        marker = (iter->marker != NULL) ? LW_QUERYNODEMATCHMARKER (iter->marker->data): NULL;
+        marker = (iter->marker != NULL) ? LW_MATCH_MARKER (iter->marker->data): NULL;
       }
       else
       {
@@ -276,7 +276,7 @@ _read_marked_section (LwColumnMatchInfo      * self,
       }
     }
 
-    if (iter->marker == NULL || POSITION == NULL || lw_querynodematchmarker_get_string (marker) != self->strv[i] || *POSITION == '\0')
+    if (iter->marker == NULL || POSITION == NULL || lw_match_marker_get_string (marker) != self->strv[i] || *POSITION == '\0')
     {
       END = START + strlen(START);
       iter->END = NULL;
@@ -354,7 +354,7 @@ lw_column_match_info_read (LwColumnMatchInfo      * self,
     gint match_level = 0;
     gchar const * START = NULL;
     gchar const * END = NULL;
-    LwQueryNodeMatchMarker * marker = NULL;
+    LwMatchMarker * marker = NULL;
     gboolean is_not_end = FALSE;
 
     //Initializations
@@ -364,7 +364,7 @@ lw_column_match_info_read (LwColumnMatchInfo      * self,
       self->markers = g_list_sort (self->markers, (GCompareFunc) _sort_markers);
       iter->marker = self->markers;
     }
-    marker = (iter->marker != NULL) ? LW_QUERYNODEMATCHMARKER (iter->marker->data) : NULL;
+    marker = (iter->marker != NULL) ? LW_MATCH_MARKER (iter->marker->data) : NULL;
     
     if (marker == NULL || self->strv[iter->i] != marker->TOKEN)
     {
