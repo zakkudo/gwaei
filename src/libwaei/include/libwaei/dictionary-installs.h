@@ -1,5 +1,5 @@
-#ifndef LW_DICTIONARYINSTALLLIST_INCLUDED
-#define LW_DICTIONARYINSTALLLIST_INCLUDED
+#ifndef LW_DICTIONARY_INSTALLS_INCLUDED
+#define LW_DICTIONARY_INSTALLS_INCLUDED
 
 #include <libwaei/dictionary.h>
 
@@ -16,57 +16,57 @@ G_BEGIN_DECLS
 #define LW_KEY_ORDER               "order"
 
 //Boilerplate
-typedef struct _LwDictionaryInstallList LwDictionaryInstallList;
-typedef struct _LwDictionaryInstallListClass LwDictionaryInstallListClass;
-typedef struct _LwDictionaryInstallListPrivate LwDictionaryInstallListPrivate;
-typedef struct _LwDictionaryInstallListClassPrivate LwDictionaryInstallListClassPrivate;
+typedef struct _LwDictionaryInstalls LwDictionaryInstalls;
+typedef struct _LwDictionaryInstallsClass LwDictionaryInstallsClass;
+typedef struct _LwDictionaryInstallsPrivate LwDictionaryInstallsPrivate;
+typedef struct _LwDictionaryInstallsClassPrivate LwDictionaryInstallsClassPrivate;
 
-#define LW_TYPE_DICTIONARYINSTALLLIST              (lw_dictionaryinstalllist_get_type())
-#define LW_DICTIONARYINSTALLLIST(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARYINSTALLLIST, LwDictionaryInstallList))
-#define LW_DICTIONARYINSTALLLIST_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_DICTIONARYINSTALLLIST, LwDictionaryInstallListClass))
-#define LW_IS_DICTIONARYINSTALLLIST(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_DICTIONARYINSTALLLIST))
-#define LW_IS_DICTIONARYINSTALLLIST_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARYINSTALLLIST))
-#define LW_DICTIONARYINSTALLLIST_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARYINSTALLLIST, LwDictionaryInstallListClass))
+#define LW_TYPE_DICTIONARY_INSTALLS              (lw_dictionary_installs_get_type())
+#define LW_DICTIONARY_INSTALLS(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), LW_TYPE_DICTIONARY_INSTALLS, LwDictionaryInstalls))
+#define LW_DICTIONARY_INSTALLS_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), LW_TYPE_DICTIONARY_INSTALLS, LwDictionaryInstallsClass))
+#define LW_IS_DICTIONARY_INSTALLS(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), LW_TYPE_DICTIONARY_INSTALLS))
+#define LW_IS_DICTIONARY_INSTALLS_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), LW_TYPE_DICTIONARY_INSTALLS))
+#define LW_DICTIONARY_INSTALLS_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), LW_TYPE_DICTIONARY_INSTALLS, LwDictionaryInstallsClass))
 
 
-struct _LwDictionaryInstallList {
+struct _LwDictionaryInstalls {
   GObject object;
 };
 
-struct _LwDictionaryInstallListClass {
+struct _LwDictionaryInstallsClass {
   GObjectClass parent_class;
-  LwDictionaryInstallListClassPrivate *priv;
+  LwDictionaryInstallsClassPrivate *priv;
 
   //Signals
-  void (*row_changed) (LwDictionaryInstallList* dictionaryinstalllist, gint position, gpointer data);
-  void (*row_inserted) (LwDictionaryInstallList* dictionaryinstalllist, gint position, gpointer data);
-  void (*row_deleted) (LwDictionaryInstallList* dictionaryinstalllist, gint position, gpointer data);
-  void (*rows_reordered) (LwDictionaryInstallList* dictionaryinstalllist, gint *order, gpointer data);
+  void (*row_changed) (LwDictionaryInstalls* dictionary_installs, gint position, gpointer data);
+  void (*row_inserted) (LwDictionaryInstalls* dictionary_installs, gint position, gpointer data);
+  void (*row_deleted) (LwDictionaryInstalls* dictionary_installs, gint position, gpointer data);
+  void (*rows_reordered) (LwDictionaryInstalls* dictionary_installs, gint *order, gpointer data);
 };
 
 
 //Methods
-LwDictionaryInstallList* lw_dictionaryinstalllist_new (LwPreferences *preferences);
-GType lw_dictionaryinstalllist_get_type (void) G_GNUC_CONST;
+LwDictionaryInstalls* lw_dictionary_installs_new (LwPreferences *preferences);
+GType lw_dictionary_installs_get_type (void) G_GNUC_CONST;
 
 
-gint lw_dictionaryinstalllist_length (LwDictionaryInstallList *self);
-LwDictionaryInstall* lw_dictionaryinstalllist_nth (LwDictionaryInstallList *self, gint position);
+gint lw_dictionary_installs_length (LwDictionaryInstalls *self);
+LwDictionaryInstall* lw_dictionary_installs_nth (LwDictionaryInstalls *self, gint position);
 
-gint* lw_dictionaryinstalllist_get_indices (LwDictionaryInstallList *self, GList *dictionaryinstalls);
+gint* lw_dictionary_installs_get_indices (LwDictionaryInstalls *self, GList *dictionaryinstalls);
 
 
-gint* lw_dictionaryinstalllist_insert (LwDictionaryInstallList *self, gint position, GList *dictionaryinstalllist);
-GList* lw_dictionaryinstalllist_remove (LwDictionaryInstallList *self, gint *indices);
-void lw_dictionaryinstalllist_clear (LwDictionaryInstallList *self);
+gint* lw_dictionary_installs_insert (LwDictionaryInstalls *self, gint position, GList *dictionary_installs);
+GList* lw_dictionary_installs_remove (LwDictionaryInstalls *self, gint *indices);
+void lw_dictionary_installs_clear (LwDictionaryInstalls *self);
 
-GList* lw_dictionaryinstalllist_dictionaryinstalls (LwDictionaryInstallList *self);
+GList* lw_dictionary_installs_dictionaryinstalls (LwDictionaryInstalls *self);
 
-void lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self);
+void lw_dictionary_installs_load_default (LwDictionaryInstalls *self);
 
-LwDictionaryInstall* lw_dictionaryinstalllist_fuzzy_find (LwDictionaryInstallList *self, const gchar *DESCRIPTION);
+LwDictionaryInstall* lw_dictionary_installs_fuzzy_find (LwDictionaryInstalls *self, const gchar *DESCRIPTION);
 
-GList* lw_dictionaryinstalllist_build_transaction (LwDictionaryInstallList *self, GList *dictionaryinstalls);
+GList* lw_dictionary_installs_build_transaction (LwDictionaryInstalls *self, GList *dictionaryinstalls);
 
 G_END_DECLS
 
