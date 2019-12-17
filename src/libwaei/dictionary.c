@@ -71,7 +71,9 @@
 #include <libwaei/dictionary-cache-tree.h>
 #include <libwaei/iterable.h>
 
-#define lw_dictionary_class_get_private() G_TYPE_CLASS_GET_PRIVATE(g_type_class_peek(LW_TYPE_DICTIONARY), LW_TYPE_DICTIONARY, LwDictionaryClassPrivate)
+#define lw_dictionary_get_class(self) G_TYPE_INSTANCE_GET_CLASS(self, LW_TYPE_DICTIONARY, LwDictionaryClass)
+#define lw_dictionary_get_class_private(self) G_TYPE_CLASS_GET_PRIVATE(lw_dictionary_get_class(self), LW_TYPE_DICTIONARY, LwDictionaryClassPrivate)
+#define lw_dictionary_class_get_private(klass) G_TYPE_CLASS_GET_PRIVATE(klass, LW_TYPE_DICTIONARY, LwDictionaryClassPrivate)
 
 typedef enum
 {
@@ -130,23 +132,6 @@ static void lw_dictionary_set_cache_tree (LwDictionary * self, LwDictionaryCache
 static void _iterable_interface_init (LwIterable * iface);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (LwDictionary, lw_dictionary, LW_TYPE_ITERABLE, G_ADD_PRIVATE(LwDictionary) g_type_add_class_private(LW_TYPE_DICTIONARY, sizeof(LwDictionaryClassPrivate)))
-
-
-static void
-_iterable_interface_init (LwIterableInteface * iface)
-{
-  iface->get_begin_iter = _get_begin_iter;
-  iface->get_end_iter = _get_end_iter;
-  iface->get_n_columns = _get_n_columns;
-  iface->get_column_type = _get_column_type;
-  iface->get_iter_at_position = _get_iter_at_position;
-  iface->get_length = _get_length;
-
-  iface->iter_get_position = _iter_get_position;
-  iface->iter_get_value = _iter_get_value;
-  iface->iter_next = _iter_next;
-  iface->iter_previous = _iter_previous;
-}
 
 
 /**
@@ -300,16 +285,32 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
+    LwIterableClass * iterable_class = NULL;
     LwDictionaryClassPrivate * klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
-    klasspriv = lw_dictionary_class_get_private ();
+    iterable_class = LW_ITERABLE_CLASS (klass);
+    klasspriv = lw_dictionary_class_get_private (klass);
 
     object_class->set_property = lw_dictionary_set_property;
     object_class->get_property = lw_dictionary_get_property;
     object_class->finalize = lw_dictionary_finalize;
     object_class->constructed = lw_dictionary_constructed;
+
+    /*TODO
+    iterable_klass->get_begin_iter = _get_begin_iter;
+    iterable_klass->get_end_iter = _get_end_iter;
+    iterable_klass->get_n_columns = _get_n_columns;
+    iterable_klass->get_column_type = _get_column_type;
+    iterable_klass->get_iter_at_position = _get_iter_at_position;
+    iterable_klass->get_length = _get_length;
+
+    iface->iter_get_position = _iter_get_position;
+    iface->iter_get_value = _iter_get_value;
+    iface->iter_next = _iter_next;
+    iface->iter_previous = _iter_previous;
+    */
 
     klasspriv->pspec[PROP_ID] = g_param_spec_string (
       "id",
@@ -691,7 +692,7 @@ lw_dictionary_set_contents_path (LwDictionary * self,
 
     //Initializations
     priv = lw_dictionary_get_instance_private (self);
-    klasspriv = lw_dictionary_class_get_private ();
+    klasspriv = lw_dictionary_get_class_private (self);
     if (g_strcmp0 (PATH, priv->contents_path) == 0) goto errored;
 
     g_free(priv->contents_path);
@@ -722,10 +723,12 @@ lw_dictionary_set_name (LwDictionary * self,
     //Declarations
     LwDictionaryPrivate * priv = NULL;
     LwDictionaryClass * klass = NULL;
+    LwDictionaryClassPrivate * klasspriv = NULL;
 
     //Initializations
     priv = lw_dictionary_get_instance_private (self);
     klass = LW_DICTIONARY_GET_CLASS (self);
+    klasspriv = lw_dictionary_get_class_private (self);
     if (g_strcmp0 (priv->name, NAME) == 0) goto errored;
 
     g_free (priv->name);
@@ -816,6 +819,7 @@ lw_dictionary_set_contents_filename (LwDictionary * self,
     //Declarations
     LwDictionaryPrivate * priv = NULL;
     LwDictionaryClass * klass = NULL;
+    LwDictionaryClassPrivate * klasspriv = NULL;
     gchar * path = NULL;
     gchar * filename = NULL;
     gboolean path_changed = FALSE;
@@ -824,6 +828,7 @@ lw_dictionary_set_contents_filename (LwDictionary * self,
     //Initializations
     priv = lw_dictionary_get_instance_private (self);
     klass = LW_DICTIONARY_GET_CLASS (self);
+    klasspriv = lw_dictionary_get_class_private (self);
     if (g_strcmp0 (FILENAME, priv->contents_filename) == 0) goto errored;
 
     if (_is_anchored_path (FILENAME))
@@ -1101,7 +1106,7 @@ lw_dictionary_set_id (LwDictionary * self,
 
     //Initializations
     priv = lw_dictionary_get_instance_private (self);
-    klasspriv = lw_dictionary_class_get_private ();
+    klasspriv = lw_dictionary_get_class_private (self);
 
     if (g_strcmp0 (ID, priv->id) == 0) goto errored;
 
@@ -1182,11 +1187,11 @@ lw_dictionary_set_contents_mapped_file (LwDictionary * self,
 
     //Declarations
     LwDictionaryPrivate *priv = NULL;
-    LwDictionaryClass *klass = NULL;
+    LwDictionaryClassPrivate *klasspriv = NULL;
 
     //Initializations
     priv = lw_dictionary_get_instance_private (self);
-    klasspriv = lw_dictionary_class_get_private ();
+    klasspriv = lw_dictionary_get_class_private (self);
 
     if (contents_mapped_file != NULL)
     {
@@ -1402,10 +1407,12 @@ lw_dictionary_columnize_line (LwDictionary * self,
     g_return_val_if_fail (LW_IS_DICTIONARY (self), NULL);
 
     //Declarations
+    LwDictionaryClass * klass = NULL;
     LwDictionaryClassPrivate *klasspriv = NULL;
 
     //Initializations
-    klasspriv = lw_dictionary_class_get_private ();
+    klass = LW_DICTIONARY_GET_CLASS (self);
+    klasspriv = lw_dictionary_get_class_private (self);
     g_return_val_if_fail (klass->columnize_line != NULL, NULL);
 
     return klass->columnize_line (self, buffer, tokens, num_tokens);

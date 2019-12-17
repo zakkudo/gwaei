@@ -69,7 +69,7 @@ lw_dictionary_cache_tree_remove_internal (LwDictionaryCacheTree * self,
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
-    g_return_if_fail (LW_IS_DICTIONARYCACHE (cache));
+    g_return_if_fail (LW_IS_DICTIONARY_CACHE (cache));
 
     //Declarations
     LwDictionaryCacheTreeCleanupData * data = NULL;
@@ -257,7 +257,7 @@ lw_dictionary_cache_tree_insert (LwDictionaryCacheTree * self,
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
-    g_return_if_fail (LW_IS_DICTIONARYCACHE (cache));
+    g_return_if_fail (LW_IS_DICTIONARY_CACHE (cache));
 
     //Declarations
     LwDictionaryCacheTreeCleanupData * data;
@@ -265,7 +265,7 @@ lw_dictionary_cache_tree_insert (LwDictionaryCacheTree * self,
     //Initializations
     data = g_new0 (LwDictionaryCacheTreeCleanupData, 1);
     data->tree = self;
-    data->key = lw_dictionarycache_get_flags (cache);
+    data->key = lw_dictionary_cache_get_flags (cache);
 
     //Make sure any existing cache with the same key is removed
     lw_dictionary_cache_tree_remove_by_utf8flags (self, data->key);
