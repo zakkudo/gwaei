@@ -12,23 +12,16 @@
 
 #include <libwaei/iterable.h>
 
-G_DEFINE_INTERFACE (LwIterable, lw_iterable, G_TYPE_OBJECT)
+G_DEFINE_ABSTRACT_TYPE (LwIterable, lw_iterable, G_TYPE_OBJECT)
 
-static void
-lw_iterable_default_init (LwIterableInterface *iface)
+static void 
+lw_iterable_init (LwIterable *self)
 {
-    /*
-    iface->get_begin_iter(LwIterable *iterable, LwIter * iter);
-    iface->get_end_iter(LwIterable *iterable, LwIter * iter);
-    iface->get_n_columns (LwIterable *iterable);
-    iface->get_column_type (LwIterable *iterable, gint column);
-    iface->get_iter_at_pos (LwIterable *iterable, LwIter *iter, gint position);
-    iface->iter_get_position (LwIterable *iterable, LwIter  *iter);
-    iface->get_value (LwIter *iter, gint column, GValue *value);
-    iface->iter_next (LwIter *iter);
-    iface->iter_previous (LwIterable *iterable, LwIter  *iter);
-    iface->get_length (LwIterable *iterable);
-    */
+}
+
+    static void
+lw_iterable_class_init (LwIterableClass * klass)
+{
 }
 
 void 
@@ -40,12 +33,12 @@ lw_iterable_get_begin_iter (LwIterable * self,
     g_return_if_fail (iter != NULL);
 
     // Declarations
-    LwIterableInterface * iface = NULL;
+    LwIterableClass * klass = NULL;
 
     // Initializations
-    iface = LW_ITERABLE_GET_IFACE (self);
+    klass = LW_ITERABLE_GET_CLASS (self);
 
-    iface->get_begin_iter (self, iter);
+    klass->get_begin_iter (self, iter);
 }
 
 void 
@@ -57,12 +50,12 @@ lw_iterable_get_end_iter (LwIterable * self,
     g_return_if_fail (iter != NULL);
 
     // Declarations
-    LwIterableInterface * iface = NULL;
+    LwIterableClass * klass = NULL;
 
     // Initializations
-    iface = LW_ITERABLE_GET_IFACE (self);
+    klass = LW_ITERABLE_GET_CLASS (self);
 
-    iface->get_end_iter (self, iter);
+    klass->get_end_iter (self, iter);
 }
 
 gint
@@ -72,12 +65,12 @@ lw_iterable_get_n_columns (LwIterable *self)
     g_return_val_if_fail (LW_IS_ITERABLE (self), 0);
 
     // Declarations
-    LwIterableInterface * iface = NULL;
+    LwIterableClass * klass = NULL;
 
     // Initializations
-    iface = LW_ITERABLE_GET_IFACE (self);
+    klass = LW_ITERABLE_GET_CLASS (self);
 
-    return iface->get_n_columns (self);
+    return klass->get_n_columns (self);
 }
 
 GType 
@@ -88,12 +81,12 @@ lw_iterable_get_column_type (LwIterable * self,
     g_return_val_if_fail (LW_IS_ITERABLE (self), G_TYPE_INVALID);
 
     // Declarations
-    LwIterableInterface * iface = NULL;
+    LwIterableClass * klass = NULL;
 
     // Initializations
-    iface = LW_ITERABLE_GET_IFACE (self);
+    klass = LW_ITERABLE_GET_CLASS (self);
 
-    return iface->get_column_type (self, column);
+    return klass->get_column_type (self, column);
 }
 
 gboolean 
@@ -106,12 +99,12 @@ lw_iterable_get_iter_at_position (LwIterable * self,
     g_return_val_if_fail (iter != NULL, FALSE);
 
     // Declarations
-    LwIterableInterface * iface = NULL;
+    LwIterableClass * klass = NULL;
 
     // Initializations
-    iface = LW_ITERABLE_GET_IFACE(self);
+    klass = LW_ITERABLE_GET_CLASS(self);
 
-    return iface->get_iter_at_position (self, iter, position);
+    return klass->get_iter_at_position (self, iter, position);
 }
 
 
@@ -122,12 +115,12 @@ lw_iterable_get_length (LwIterable *self)
     g_return_val_if_fail (LW_IS_ITERABLE (self), 0);
 
     // Declarations
-    LwIterableInterface * iface = NULL;
+    LwIterableClass * klass = NULL;
 
     // Initializations
-    iface = LW_ITERABLE_GET_IFACE(self);
+    klass = LW_ITERABLE_GET_CLASS(self);
 
-    return iface->get_length (self);
+    return klass->get_length (self);
 }
 
 gint
@@ -138,13 +131,13 @@ lw_iter_get_position (LwIter * self)
 
     // Declarations
     LwIterable * iterable = NULL;
-    LwIterableInterface * iface = NULL;
+    LwIterableClass * klass = NULL;
 
     // Initializations
     iterable = LW_ITERABLE (self->iterable);
-    iface = LW_ITERABLE_GET_IFACE (iterable);
+    klass = LW_ITERABLE_GET_CLASS (iterable);
 
-    return iface->iter_get_position (self);
+    return klass->iter_get_position (self);
 }
 
 void 
@@ -158,13 +151,13 @@ lw_iter_get_value (LwIter * self,
 
     // Declarations
     LwIterable * iterable = NULL;
-    LwIterableInterface * iface = NULL;
+    LwIterableClass * klass = NULL;
 
     // Initializations
     iterable = LW_ITERABLE (self->iterable);
-    iface = LW_ITERABLE_GET_IFACE (iterable);
+    klass = LW_ITERABLE_GET_CLASS (iterable);
 
-    iface->iter_get_value (self, column, value);
+    klass->iter_get_value (self, column, value);
 }
 
 gboolean 
@@ -175,13 +168,13 @@ lw_iter_next (LwIter * self)
 
     // Declarations
     LwIterable * iterable = NULL;
-    LwIterableInterface * iface = NULL;
+    LwIterableClass * klass = NULL;
 
     // Initializations
     iterable = LW_ITERABLE (self->iterable);
-    iface = LW_ITERABLE_GET_IFACE (iterable);
+    klass = LW_ITERABLE_GET_CLASS (iterable);
 
-    return iface->iter_next (self);
+    return klass->iter_next (self);
 }
 
 gboolean 
@@ -192,12 +185,12 @@ lw_iter_previous (LwIter * self)
 
     // Declarations
     LwIterable * iterable = NULL;
-    LwIterableInterface * iface = NULL;
+    LwIterableClass * klass = NULL;
 
     // Initializations
     iterable = LW_ITERABLE (self->iterable);
-    iface = LW_ITERABLE_GET_IFACE (iterable);
+    klass = LW_ITERABLE_GET_CLASS (iterable);
 
-    return iface->iter_previous (self);
+    return klass->iter_previous (self);
 }
 

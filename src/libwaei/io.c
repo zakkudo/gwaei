@@ -30,6 +30,7 @@
 #include "config.h"
 #endif
 
+#include <glib/gstdio.h>
 #include <curl/curl.h>
 #include <zlib.h>
 #ifdef G_OS_UNIX
@@ -321,7 +322,7 @@ lw_io_copy_with_encoding (const gchar *SOURCE_PATH,
       gchar const *C = CONTENTS;
       gsize bytes_written = 0;
       gsize offset = 0;
-      gsize buffer_size = NULL;
+      gsize buffer_size = 0;
       while (C != NULL && C - CONTENTS < length)
       {
         buffer_size = chunk_size;

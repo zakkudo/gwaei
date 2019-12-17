@@ -32,6 +32,8 @@
 #include "config.h"
 #endif
 
+#include <glib/gstdio.h>
+
 #include <libwaei/gettext.h>
 #include <libwaei/mapped-file.h>
 
@@ -67,13 +69,13 @@ typedef struct {
 
 G_DEFINE_TYPE_WITH_CODE (LwMappedFile, lw_mapped_file, G_TYPE_OBJECT, G_ADD_PRIVATE(LwMappedFile) g_type_add_class_private(LW_TYPE_MAPPED_FILE, sizeof(LwMappedFileClassPrivate)) )
 
-    /**
-     * lw_mapped_file_new:
-     * @PATH: (transfer none) (type filename): The path to write the mapped file to or load from
-     * Returns: A new #LWMappedFile that can be freed with g_object_unref()
-     */
-    LwMappedFile*
-                 lw_mapped_file_new (gchar const * PATH)
+/**
+* lw_mapped_file_new:
+* @PATH: (transfer none) (type filename): The path to write the mapped file to or load from
+* Returns: A new #LWMappedFile that can be freed with g_object_unref()
+*/
+LwMappedFile*
+lw_mapped_file_new (gchar const * PATH)
 {
     //Declarations
     LwMappedFile *self = NULL;

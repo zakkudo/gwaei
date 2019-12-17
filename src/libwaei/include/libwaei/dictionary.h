@@ -1,7 +1,8 @@
 #ifndef LW_DICTIONARY_INCLUDED
 #define LW_DICTIONARY_INCLUDED
 
-#include "dictionarycache.h"
+#include <gio/gio.h>
+#include "dictionary-cache.h"
 #include "progress.h"
 #include "utf8.h"
 #include "parsed.h"
@@ -9,11 +10,6 @@
 #include "progress.h"
 
 G_BEGIN_DECLS
-
-//Boilerplate
-typedef struct _LwDictionaryClassPrivate LwDictionaryClassPrivate;
-
-#define LW_DICTIONARY_CHECKSUM G_CHECKSUM_SHA512 
 
 typedef enum {
   LW_DICTIONARYCOLUMNHANDLING_UNUSED, //!< An unused field
@@ -25,23 +21,25 @@ typedef enum {
 GType lw_dictionarycolumnhandling_get_type (void);
 #define LW_TYPE_DICTIONARYCOLUMNHANDLING (lw_dictionarycolumnhandling_get_type ())
 
+//Boilerplate
 #define LW_TYPE_DICTIONARY lw_dictionary_get_type ()
 G_DECLARE_DERIVABLE_TYPE (LwDictionary, lw_dictionary, LW, DICTIONARY, GObject)
 
 struct _LwDictionaryClass {
-  GObjectClass parent_class;
-  LwDictionaryClassPrivate *priv;
+    GObjectClass parent_class;
 
-  //Virtual methods
-  gsize (* count_lines) (gchar * buffer, gsize buffer_length, gsize * max_line_length, LwProgress * progress);
-  gint (* get_total_columns) ();
-  GQuark (* get_column_language) (gint column_num);
-  LwDictionaryColumnHandling (* get_column_handling) (gint column_num);
-  gchar* (* columnize_line) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
-  void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
-  gint* (* calculate_applicable_columns_for_text) (char const * TEXT);
-  GType (* get_columnid_type) ();
+    //Virtual methods
+    gsize (* count_lines) (gchar * buffer, gsize buffer_length, gsize * max_line_length, LwProgress * progress);
+    gint (* get_total_columns) ();
+    GQuark (* get_column_language) (gint column_num);
+    LwDictionaryColumnHandling (* get_column_handling) (gint column_num);
+    gchar* (* columnize_line) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
+    void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
+    gint* (* calculate_applicable_columns_for_text) (char const * TEXT);
+    GType (* get_columnid_type) ();
 };
+
+#define LW_DICTIONARY_CHECKSUM G_CHECKSUM_SHA512 
 
 #define LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED "Unused"
 #define LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH "Index and Search"

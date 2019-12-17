@@ -21,10 +21,10 @@ struct _LwSerializableClass {
 gsize lw_serializable_get_serialized_length (LwSerializable *self, LwProgress *progress);
 
 gsize lw_serializable_serialize (LwSerializable *self, gchar *preallocated_buffer, LwProgress *progress);
-gsize lw_serializable_serialize_to_cachefile (LwSerializable *self, gchar const *CHECKSUM, LwCacheFile *cachefile, LwProgress *progress);
+gsize lw_serializable_serialize_to_cache_file (LwSerializable *self, gchar const *CHECKSUM, LwCacheFile *cache_file, LwProgress *progress);
 
 gsize lw_serializable_deserialize_into (LwSerializable *self, gchar const *serialized_data, gsize serialized_length, LwProgress *progress);
-gsize lw_serializable_deserialize_from_cachefile_into (LwSerializable *self, gchar const *EXPECTED_CHECKSUM, LwCacheFile *cachefile, LwProgress *progress);
+gsize lw_serializable_deserialize_from_cache_file_into (LwSerializable *self, gchar const *EXPECTED_CHECKSUM, LwCacheFile *cache_file, LwProgress *progress);
 
 
 G_END_DECLS

@@ -6,21 +6,18 @@
 G_BEGIN_DECLS
 
 //Boilerplate
-typedef struct _LwIterableInterface LwIterableInterface;
-typedef struct _LwIter LwIter;
+#define LW_TYPE_ITERABLE lw_iterable_get_type()
+G_DECLARE_DERIVABLE_TYPE (LwIterable, lw_iterable, LW, ITERABLE, GObject)
 
-#define LW_TYPE_ITERABLE              (lw_iterable_get_type())
-G_DECLARE_INTERFACE (LwIterable, lw_iterable, LW, ITERABLE, GObject)
-
-struct _LwIter {
+typedef struct {
     LwIterable * iterable;
     gpointer user_data1;
     gpointer user_data2;
     gpointer user_data3;
-};
+} LwIter;
 
-struct _LwIterableInterface {
-  GTypeInterface parent_iface;
+struct _LwIterableClass {
+  GObjectClass parent_class;
 
   /* Signals */
   void (* row_changed)           (LwIterable *iterable, gint index, LwIter * iter);

@@ -1,7 +1,7 @@
 #ifndef LW_RESULT_INCLUDED
 #define LW_RESULT_INCLUDED
 
-#include "parsedline.h"
+#include "parsed-line.h"
 
 G_BEGIN_DECLS
 

@@ -21,14 +21,14 @@
 
 
 /**
- * SECTION:dictionarycachetree
+ * SECTION:dictionary_cache_tree
  * @short_description: A queryable cache of #LwDictionaryCaches indexed by their #LwUtf8Flag normalization flags
  * @title: LwDictionaryCacheTree
  * 
  * Stores normalized cache data indexed by the #LwUtf8Flag of the #LwDictionaryCache.  The tree holds a weak
  * reference to the cache, automatically removing the cache from itself if the #LwDictionaryCache is destroyed.
  * When you want to guarantee the #LwDictionaryCache stays valid for as long as you need it, you need make sure to
- * g_object_ref() the cache returned by lw_dictionarycachetree_lookup().
+ * g_object_ref() the cache returned by lw_dictionary_cache_tree_lookup().
  */
 
 #ifdef HAVE_CONFIG_H
@@ -42,8 +42,8 @@
 
 #include <libwaei/gettext.h>
 
-#include <libwaei/dictionarycache.h>
-#include <libwaei/dictionarycachetree.h>
+#include <libwaei/dictionary-cache.h>
+#include <libwaei/dictionary-cache-tree.h>
 
 
 struct _LwDictionaryCacheTreeCleanupData {
@@ -63,7 +63,7 @@ _direct_compare_function (gconstpointer a,
 
 
 static void
-lw_dictionarycachetree_remove_internal (LwDictionaryCacheTree * self,
+lw_dictionary_cache_tree_remove_internal (LwDictionaryCacheTree * self,
                                         LwDictionaryCache     * cache,
                                         gboolean                weak_unref)
 {
@@ -93,7 +93,7 @@ errored:
 
 
 static void
-lw_dictionarycachetree_remove_by_utf8flags_internal (LwDictionaryCacheTree * self,
+lw_dictionary_cache_tree_remove_by_utf8flags_internal (LwDictionaryCacheTree * self,
                                                      LwUtf8Flag              flags,
                                                      gboolean                weak_unref)
 {
@@ -104,10 +104,10 @@ lw_dictionarycachetree_remove_by_utf8flags_internal (LwDictionaryCacheTree * sel
     LwDictionaryCache * cache = NULL;
 
     //Initializations
-    cache = lw_dictionarycachetree_lookup_by_utf8flags (self, flags);
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (self, flags);
     if (cache == NULL) goto errored;
   
-    lw_dictionarycachetree_remove_internal (self, cache, weak_unref);
+    lw_dictionary_cache_tree_remove_internal (self, cache, weak_unref);
 
 errored:
 
@@ -122,16 +122,16 @@ _cleanup_cache (LwDictionaryCacheTreeCleanupData * data,
     //Sanity checks
     g_return_if_fail (data != NULL);
 
-    lw_dictionarycachetree_remove_by_utf8flags_internal (data->tree, data->key, FALSE);
+    lw_dictionary_cache_tree_remove_by_utf8flags_internal (data->tree, data->key, FALSE);
 }
 
 
 /**
- * lw_dictionarycachetree_new:
- * Returns: (transfer full): A new #LwDictionarCacheTree that should be freed with lw_dictionarycachetree_unref()
+ * lw_dictionary_cache_tree_new:
+ * Returns: (transfer full): A new #LwDictionarCacheTree that should be freed with lw_dictionary_cache_tree_unref()
  */
 LwDictionaryCacheTree *
-lw_dictionarycachetree_new ()
+lw_dictionary_cache_tree_new ()
 {
     //Declarations
     LwDictionaryCacheTree * self = NULL;
@@ -163,11 +163,11 @@ errored:
 
 
 /**
- * lw_dictionarycachetree_get_type:
+ * lw_dictionary_cache_tree_get_type:
  * Returns: the boxed type of the #LwDictionaryCacheTree
  */
 GType
-lw_dictionarycachetree_get_type ()
+lw_dictionary_cache_tree_get_type ()
 {
     static GType type = 0;
 
@@ -175,8 +175,8 @@ lw_dictionarycachetree_get_type ()
     {
       type = g_boxed_type_register_static (
         "LwDictionaryCacheTree",
-        (GBoxedCopyFunc) lw_dictionarycachetree_ref,
-        (GBoxedFreeFunc) lw_dictionarycachetree_unref
+        (GBoxedCopyFunc) lw_dictionary_cache_tree_ref,
+        (GBoxedFreeFunc) lw_dictionary_cache_tree_unref
       );
     }
 
@@ -193,7 +193,7 @@ _orphan (LwDictionaryCache                * cache,
 }
 
 static void
-lw_dictionarycachetree_free (LwDictionaryCacheTree * self)
+lw_dictionary_cache_tree_free (LwDictionaryCacheTree * self)
 {
     //Sanity checks
     if (self == NULL) return;
@@ -210,14 +210,14 @@ lw_dictionarycachetree_free (LwDictionaryCacheTree * self)
 
 
 /**
- * lw_dictionarycachetree_ref:
+ * lw_dictionary_cache_tree_ref:
  * 
  * Increases the reference count on an object.
  *
  * Returns: The #LwDictionaryCacheTree with its ref count incremented
  */
 LwDictionaryCacheTree *
-lw_dictionarycachetree_ref (LwDictionaryCacheTree * self)
+lw_dictionary_cache_tree_ref (LwDictionaryCacheTree * self)
 {
     g_return_val_if_fail (self != NULL, NULL);
 
@@ -228,31 +228,31 @@ lw_dictionarycachetree_ref (LwDictionaryCacheTree * self)
 
 
 /**
- * lw_dictionarycachetree_unref:
+ * lw_dictionary_cache_tree_unref:
  * @self: A #LwDictionaryCacheTree
  *
  * Reduces the ref count on the object and frees it once it reaches 0
  */
 void
-lw_dictionarycachetree_unref (LwDictionaryCacheTree * self)
+lw_dictionary_cache_tree_unref (LwDictionaryCacheTree * self)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
 
     if (g_atomic_int_dec_and_test (&self->refs))
     {
-      lw_dictionarycachetree_free (self);
+      lw_dictionary_cache_tree_free (self);
     }
 }
 
 
 /**
- * lw_dictionarycachetree_insert:
+ * lw_dictionary_cache_tree_insert:
  * @self: A #LwDictionaryCacheTree
  * @cache: (transfer none): A #LwDictionaryCache to store in the tree
  */
 void
-lw_dictionarycachetree_insert (LwDictionaryCacheTree * self,
+lw_dictionary_cache_tree_insert (LwDictionaryCacheTree * self,
                                LwDictionaryCache     * cache)
 {
     //Sanity checks
@@ -268,7 +268,7 @@ lw_dictionarycachetree_insert (LwDictionaryCacheTree * self,
     data->key = lw_dictionarycache_get_flags (cache);
 
     //Make sure any existing cache with the same key is removed
-    lw_dictionarycachetree_remove_by_utf8flags (self, data->key);
+    lw_dictionary_cache_tree_remove_by_utf8flags (self, data->key);
 
     //Insert the new cache
     g_tree_insert (self->data, GINT_TO_POINTER (data->key), cache);
@@ -278,28 +278,28 @@ lw_dictionarycachetree_insert (LwDictionaryCacheTree * self,
 
 
 /**
- * lw_dictionarycachetree_remove:
+ * lw_dictionary_cache_tree_remove:
  * @self: A #LwDictionaryCacheTree
  * @cache: (transfer none): The #LwDictionaryCache to remove if it exists.  Otherwise, this method is a no-op.
  */
 void
-lw_dictionarycachetree_remove (LwDictionaryCacheTree * self,
+lw_dictionary_cache_tree_remove (LwDictionaryCacheTree * self,
                                LwDictionaryCache     * cache)
 {
-    lw_dictionarycachetree_remove_internal (self, cache, TRUE);
+    lw_dictionary_cache_tree_remove_internal (self, cache, TRUE);
 }
 
 
 /**
- * lw_dictionarycachetree_remove_by_utf8flags:
+ * lw_dictionary_cache_tree_remove_by_utf8flags:
  * @self: A LwDictionaryCacheTree
  * @flags: The #LwUtf8Flags to lookup the #LwDictionaryCache by
  *
- * A convenience method for lw_dictionarycachetree_remove(), performing the
- * lw_dictionarycachetree_lookup_by_utf8flags() lookup for you.
+ * A convenience method for lw_dictionary_cache_tree_remove(), performing the
+ * lw_dictionary_cache_tree_lookup_by_utf8flags() lookup for you.
  */
 void
-lw_dictionarycachetree_remove_by_utf8flags (LwDictionaryCacheTree * self,
+lw_dictionary_cache_tree_remove_by_utf8flags (LwDictionaryCacheTree * self,
                                             LwUtf8Flag              flags)
 {
     //Sanity checks
@@ -309,10 +309,10 @@ lw_dictionarycachetree_remove_by_utf8flags (LwDictionaryCacheTree * self,
     LwDictionaryCache * cache = NULL;
 
     //Initializations
-    cache = lw_dictionarycachetree_lookup_by_utf8flags (self, flags);
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (self, flags);
     if (cache == NULL) goto errored;
   
-    lw_dictionarycachetree_remove_internal (self, cache, TRUE);
+    lw_dictionary_cache_tree_remove_internal (self, cache, TRUE);
 
 errored:
 
@@ -321,13 +321,13 @@ errored:
 
 
 /**
- * lw_dictionarycachetree_lookup_by_utf8flags:
+ * lw_dictionary_cache_tree_lookup_by_utf8flags:
  * @self: A #LwDictionaryCacheTree
  * @flags: The #LwUtf8Flags flags to lookup the #LwDictionaryCache by
  * Returns: A #LwDictionaryCache or %NULL if nothing was found
  */
 LwDictionaryCache *
-lw_dictionarycachetree_lookup_by_utf8flags (LwDictionaryCacheTree * self,
+lw_dictionary_cache_tree_lookup_by_utf8flags (LwDictionaryCacheTree * self,
                                             LwUtf8Flag              flags)
 {
     //Sanity checks
@@ -343,14 +343,14 @@ lw_dictionarycachetree_lookup_by_utf8flags (LwDictionaryCacheTree * self,
 
 
 void
-lw_dictionarycachetree_lock (LwDictionaryCacheTree * self)
+lw_dictionary_cache_tree_lock (LwDictionaryCacheTree * self)
 {
     g_mutex_lock (&self->mutex);
 }
 
 
 void
-lw_dictionarycachetree_unlock (LwDictionaryCacheTree * self)
+lw_dictionary_cache_tree_unlock (LwDictionaryCacheTree * self)
 {
     g_mutex_unlock (&self->mutex);
 }

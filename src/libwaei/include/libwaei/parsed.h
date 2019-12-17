@@ -2,7 +2,7 @@
 #define LW_PARSED_INCLUDED 
 
 #include "serializable.h"
-#include "parsedline.h"
+#include "parsed-line.h"
 #include "cache-file.h"
 
 G_BEGIN_DECLS

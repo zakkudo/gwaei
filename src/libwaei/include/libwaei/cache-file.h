@@ -11,10 +11,6 @@ G_BEGIN_DECLS
 #define LW_TYPE_CACHE_FILE lw_cache_file_get_type ()
 G_DECLARE_FINAL_TYPE (LwCacheFile, lw_cache_file, LW, CACHE_FILE, LwMappedFile)
 
-struct _LwCacheFileClass {
-  LwMappedFileClass parent_class;
-};
-
 #define LW_CACHE_FILE_ERROR lw_cache_file_error_quark ()
 
 typedef enum {

@@ -2,6 +2,7 @@
 #define LW_IO_INCLUDED
 
 #include <libwaei/progress.h>
+#include <stdio.h>
 
 G_BEGIN_DECLS
 

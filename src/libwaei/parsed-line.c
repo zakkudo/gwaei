@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 /**
- * SECTION:parsedline
+ * SECTION:parsed_line
  * @short_description: A simple object to hold a definition line in a parsed form
  * @title: LwParsedLine
  *
@@ -36,12 +36,12 @@
  * Usage example:
  * |[<!-- langauge="C" -->
  * LwParsedLine parsed_line = {0};
- * lw_parsedline_init_full (&amp;parsed_line, (GDestroyNotify) g_strfreev);
+ * lw_parsed_line_init_full (&amp;parsed_line, (GDestroyNotify) g_strfreev);
  *
- * lw_parsedline_set_strv (&amp;parsed_line, 0, g_strsplit (":", "one:two"));
- * printf("%s\n", lw_parsedline_get_strv (&amp;parsed_line, 0)[0]);
+ * lw_parsed_line_set_strv (&amp;parsed_line, 0, g_strsplit (":", "one:two"));
+ * printf("%s\n", lw_parsed_line_get_strv (&amp;parsed_line, 0)[0]);
  *
- * lw_parsedline_clear (&amp;parsed_line);
+ * lw_parsed_line_clear (&amp;parsed_line);
  * ]|
  */
 
@@ -56,13 +56,13 @@
 #include <glib.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/parsedline.h>
+#include <libwaei/parsed-line.h>
 
 
 GQuark
-lw_parsedline_error_quark ()
+lw_parsed_line_error_quark ()
 {
-    return g_quark_from_static_string ("lw-parsedline-error");
+    return g_quark_from_static_string ("lw-parsed_line-error");
 }
 
 
@@ -91,51 +91,51 @@ _compare (gconstpointer a,
 
 
 /**
- * lw_parsedline_init:
+ * lw_parsed_line_init:
  * @self: A #LwParsedLine
  *
  * Initializes an #LwParsedLine so that you can start adding strvs to it. 
- * Call lw_parsedline_clear() when done to free the memory.
+ * Call lw_parsed_line_clear() when done to free the memory.
  *
  */
 void
-lw_parsedline_init (LwParsedLine *self)
+lw_parsed_line_init (LwParsedLine *self)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
 
-    lw_parsedline_clear (self);
+    lw_parsed_line_clear (self);
     self->tree = g_tree_new_full (_compare, NULL, NULL, NULL);
 }
 
 
 /**
- * lw_parsedline_init_full:
+ * lw_parsed_line_init_full:
  * @self: A #LwParsedLine
- * @destroy_notify_func: A callback to free memory set with lw_parsedline_set_strv() when lw_parsedline_clear() is called
+ * @destroy_notify_func: A callback to free memory set with lw_parsed_line_set_strv() when lw_parsed_line_clear() is called
  *
- * A version of lw_parsedline_init() that allows you to pass a destroy_notify_func to cleanup the strvs.
+ * A version of lw_parsed_line_init() that allows you to pass a destroy_notify_func to cleanup the strvs.
  */
 void
-lw_parsedline_init_full (LwParsedLine   * self,
+lw_parsed_line_init_full (LwParsedLine   * self,
                          GDestroyNotify   destroy_notify_func)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
 
-    lw_parsedline_clear (self);
+    lw_parsed_line_clear (self);
     self->tree = g_tree_new_full (_compare, NULL, NULL, destroy_notify_func);
 }
 
 
 /**
- * lw_parsedline_clear:
+ * lw_parsed_line_clear:
  * @self: A #LwParsedLine
  *
  * Clears internal memory of the #LwParsedLine, calling the @destroy_notify_func from lw_parsedliine_init_full on each strv if it was set.
  */
 void
-lw_parsedline_clear (LwParsedLine * self)
+lw_parsed_line_clear (LwParsedLine * self)
 {
     //Sanity checks
     if (self == NULL) return;
@@ -153,13 +153,13 @@ lw_parsedline_clear (LwParsedLine * self)
 
 
 /**
- * lw_parsedline_set_strv:
+ * lw_parsed_line_set_strv:
  * @self: A #LwParsedLine
  * @id: A column id to store the strv.  It will replace the current strv at that column if it was previously set.
  * @strv: A %NULL terminated array of strings to set to the column id.  It is stored directly and not copied.
  */
 void
-lw_parsedline_set_strv (LwParsedLine  *  self,
+lw_parsed_line_set_strv (LwParsedLine  *  self,
                          gint            id,
                          gchar        ** strv)
 {
@@ -179,14 +179,14 @@ lw_parsedline_set_strv (LwParsedLine  *  self,
 
 
 /**
- * lw_parsedline_get_strv:
+ * lw_parsed_line_get_strv:
  * @self: A #LwParsedLine
  * @id: The id to fetch the strv from
  *
  * Returns: The strv stored at @id or %NULL if it doesn't exist
  */
 gchar const * *
-lw_parsedline_get_strv (LwParsedLine * self,
+lw_parsed_line_get_strv (LwParsedLine * self,
                         gint           id)
 {
     //Sanity checks
@@ -202,7 +202,7 @@ lw_parsedline_get_strv (LwParsedLine * self,
 
 
 /**
- * lw_parsedline_get_serialized_length:
+ * lw_parsed_line_get_serialized_length:
  * @self: A #LwParsedLine
  *
  * Calculates the the space required to serialize  this #LwParsedLine by
@@ -211,13 +211,13 @@ lw_parsedline_get_strv (LwParsedLine * self,
  * Returns: The calculated length of the data it it is serialized.
  */
 gsize
-lw_parsedline_get_serialized_length (LwParsedLine * self)
+lw_parsed_line_get_serialized_length (LwParsedLine * self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
 
     //Declarations
-    return lw_parsedline_serialize (self, NULL, NULL, NULL);
+    return lw_parsed_line_serialize (self, NULL, NULL, NULL);
 }
 
 
@@ -272,10 +272,10 @@ errored:
 
 
 /**
- * lw_parsedline_serialize:
+ * lw_parsed_line_serialize:
  * @self: A #LwParsedLine
  * @contents_reference_pointer: The raw data that the strvs reference and will use at their address base
- * @preallocated_buffer: Location to write the serialized data to. It must be at least the size as calculated by lw_parsedline_get_serialized_length()
+ * @preallocated_buffer: Location to write the serialized data to. It must be at least the size as calculated by lw_parsed_line_get_serialized_length()
  * @error: An #GError to record errors or %NULL
  * 
  * Serializes a #LwParsedLine such that it may be written to a file and read
@@ -288,7 +288,7 @@ errored:
  * Returns: The bytes written to the @preallocated_buffer
  */
 gsize
-lw_parsedline_serialize (LwParsedLine  * self,
+lw_parsed_line_serialize (LwParsedLine  * self,
                          gchar const   * contents_reference_pointer,
                          gchar         * preallocated_buffer,
                          GError       ** error)
@@ -324,7 +324,7 @@ lw_parsedline_serialize (LwParsedLine  * self,
     if (data.buffer != NULL) memcpy(data.write_pointer, &num_tokentypes, sizeof(gint));
     data.write_pointer += sizeof(gint);
 
-    lw_parsedline_foreach (self, (LwParsedLineForeachFunc) _serialize_strv, &data);
+    lw_parsed_line_foreach (self, (LwParsedLineForeachFunc) _serialize_strv, &data);
     if (data.error != NULL && *data.error != NULL) goto errored;
 
 errored:
@@ -360,7 +360,7 @@ _merge_base_and_validate (gchar       ** strv,
 
 
 /**
- * lw_parsedline_deserialize_into:
+ * lw_parsed_line_deserialize_into:
  * @self: A #LwParsedLine that should be initialized to {0}
  * @serialized_data: The data to build the #LwParsedLine from
  * @contents_reference_point: File used as the base offset to restore the strvs
@@ -378,7 +378,7 @@ _merge_base_and_validate (gchar       ** strv,
  * Returns: The bytes read from @serialized_data to build the #LwParsedLine
  */
 gsize
-lw_parsedline_deserialize_into (LwParsedLine  * self,
+lw_parsed_line_deserialize_into (LwParsedLine  * self,
                                 gchar const   * serialized_data,
                                 gchar const   * contents_reference_point,
                                 GError       ** error)
@@ -389,7 +389,7 @@ lw_parsedline_deserialize_into (LwParsedLine  * self,
     g_return_val_if_fail (contents_reference_point != NULL, 0);
     if (error != NULL && *error != NULL) return 0;
 
-    lw_parsedline_init (self);
+    lw_parsed_line_init (self);
 
     //Declarations
     struct _DeserializeData data = {
@@ -424,8 +424,8 @@ lw_parsedline_deserialize_into (LwParsedLine  * self,
         {
           g_set_error (
             error,
-            LW_PARSEDLINE_ERROR,
-            LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR,
+            LW_PARSED_LINE_ERROR,
+            LW_PARSED_LINE_ERRORCODE_DESERIALIZATION_ERROR,
             "Data is already deserialized."
           );
           goto errored;
@@ -436,8 +436,8 @@ lw_parsedline_deserialize_into (LwParsedLine  * self,
         {
           g_set_error (
             error,
-            LW_PARSEDLINE_ERROR,
-            LW_PARSEDLINE_ERRORCODE_DESERIALIZATION_ERROR,
+            LW_PARSED_LINE_ERROR,
+            LW_PARSED_LINE_ERRORCODE_DESERIALIZATION_ERROR,
             "The Contents or the serialized Data is invalid."
           );
           goto errored;
@@ -491,7 +491,7 @@ _foreach (gpointer key,
 
 
 /**
- * lw_parsedline_foreach:
+ * lw_parsed_line_foreach:
  * @self: A #LwParsedLine
  * @func: A function to call on each column id
  * @data: Data to be passed to @func
@@ -499,7 +499,7 @@ _foreach (gpointer key,
  * A foreach helper to run a method against each column id stored in #LwParsedLine.
  */
 void
-lw_parsedline_foreach (LwParsedLine            * self,
+lw_parsed_line_foreach (LwParsedLine            * self,
                        LwParsedLineForeachFunc   func,
                        gpointer                  data)
 {
@@ -518,13 +518,13 @@ lw_parsedline_foreach (LwParsedLine            * self,
 
 
 /**
- * lw_parsedline_num_columns:
+ * lw_parsed_line_num_columns:
  * @self: A #LwParsedLine
  *
  * Returns: The number of columns that are set
  */
 gint
-lw_parsedline_num_columns (LwParsedLine * self)
+lw_parsed_line_num_columns (LwParsedLine * self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
@@ -535,14 +535,14 @@ lw_parsedline_num_columns (LwParsedLine * self)
 
 
 /**
- * lw_parsedline_assert_equals:
+ * lw_parsed_line_assert_equals:
  * @self: A #LwParsedLine
  * @other: Another #LwParsedLine
  *
  * A method used to facilitate unit testing
  */
 void
-lw_parsedline_assert_equals (LwParsedLine * self,
+lw_parsed_line_assert_equals (LwParsedLine * self,
                              LwParsedLine * other)
 {
     //Declarations
@@ -557,8 +557,8 @@ lw_parsedline_assert_equals (LwParsedLine * self,
     table = g_hash_table_new (g_direct_hash, g_direct_equal);
     if (table == NULL) goto errored;
 
-    lw_parsedline_foreach (self, (LwParsedLineForeachFunc) _add_key, table);
-    lw_parsedline_foreach (other, (LwParsedLineForeachFunc) _add_key, table);
+    lw_parsed_line_foreach (self, (LwParsedLineForeachFunc) _add_key, table);
+    lw_parsed_line_foreach (other, (LwParsedLineForeachFunc) _add_key, table);
 
     g_hash_table_iter_init (&iter, table);
     while (g_hash_table_iter_next (&iter, &key, NULL))
