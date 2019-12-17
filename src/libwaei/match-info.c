@@ -20,9 +20,9 @@
 *******************************************************************************/
 
 /**
- * SECTION:querynodematchinfo
+ * SECTION:match_info
  * @short_description: A way to inspect deeper information on matches
- * @title: LwQueryNodeMatchInfo
+ * @title: LwMatchInfo
  *
  * Provides a way to more deeply inspect matches from #LwQueryNode when you
  * run lw_querynode_match_parsedline().  One of the primary purposes of this
@@ -68,21 +68,21 @@ _unref_column (LwQueryNodeColumnMatchInfo * self)
 }
 
 /**
- * lw_querynodematchinfo_new:
+ * lw_match_info_new:
  *
- * Returns: A new #LwQueryNodeMatchInfo that can be freed with lw_querynodematchinfo_unref()
+ * Returns: A new #LwMatchInfo that can be freed with lw_match_info_unref()
  */
-LwQueryNodeMatchInfo *
-lw_querynodematchinfo_new ()
+LwMatchInfo *
+lw_match_info_new ()
 {
     //Declarations
-    LwQueryNodeMatchInfo * self = NULL;
+    LwMatchInfo * self = NULL;
     GTree * tree = NULL;
 
     //Initializations
     tree = g_tree_new_full ((GCompareDataFunc) _compare, NULL, NULL, (GDestroyNotify) _unref_column);
     if (tree == NULL) goto errored;
-    self = g_new0 (LwQueryNodeMatchInfo, 1);
+    self = g_new0 (LwMatchInfo, 1);
     if (self == NULL) goto errored;
     self->refs = 1;
 
@@ -99,26 +99,26 @@ errored:
 
 
 static void
-lw_querynodematchinfo_free (LwQueryNodeMatchInfo * self)
+lw_match_info_free (LwMatchInfo * self)
 {
     if (self == NULL) return;
 
     if (self->tree != NULL) g_tree_unref (self->tree);
 
-    memset(self, 0, sizeof(LwQueryNodeMatchInfo));
+    memset(self, 0, sizeof(LwMatchInfo));
 
     g_free (self);
 }
 
 
 /**
- * lw_querynodematchinfo_ref:
- * @self: A #LwQueryNodeMatchInfo
+ * lw_match_info_ref:
+ * @self: A #LwMatchInfo
  *
- * Returns: The #LwQueryNodeMatchInfo with its reference count incremented
+ * Returns: The #LwMatchInfo with its reference count incremented
  */
-LwQueryNodeMatchInfo*
-lw_querynodematchinfo_ref (LwQueryNodeMatchInfo * self)
+LwMatchInfo*
+lw_match_info_ref (LwMatchInfo * self)
 {
     g_return_val_if_fail (self != NULL, NULL);
 
@@ -129,31 +129,31 @@ lw_querynodematchinfo_ref (LwQueryNodeMatchInfo * self)
 
 
 /**
- * lw_querynodematchinfo_unref:
- * @self: A #LwQueryNodeMatchInfo
+ * lw_match_info_unref:
+ * @self: A #LwMatchInfo
  *
- * Decreses the reference count on the #LwQueryNodeMatchInfo, freeing it once it reaches 0
+ * Decreses the reference count on the #LwMatchInfo, freeing it once it reaches 0
  */
 void
-lw_querynodematchinfo_unref (LwQueryNodeMatchInfo * self)
+lw_match_info_unref (LwMatchInfo * self)
 {
     g_return_if_fail (self != NULL);
 
     if (g_atomic_int_dec_and_test (&self->refs))
     {
-      lw_querynodematchinfo_free (self);
+      lw_match_info_free (self);
     }
 }
 
 
 /**
- * lw_querynodematchinfo_get_column:
- * @self: A #LwQueryNodeMatchInfo
+ * lw_match_info_get_column:
+ * @self: A #LwMatchInfo
  * @column: The column you want to fetch
  * Returns: A #LwQueryNodeColumnMatchInfo or %NULL if it wasn't previously set
  */
 LwQueryNodeColumnMatchInfo *
-lw_querynodematchinfo_get_column (LwQueryNodeMatchInfo * self,
+lw_match_info_get_column (LwMatchInfo * self,
                                   gint                   column)
 {
     g_return_val_if_fail (self != NULL, NULL);
@@ -163,12 +163,12 @@ lw_querynodematchinfo_get_column (LwQueryNodeMatchInfo * self,
 
 
 /**
- * lw_querynodematchinfo_set_column:
- * @self: A #LwQueryNodeMatchInfo
+ * lw_match_info_set_column:
+ * @self: A #LwMatchInfo
  * @column_match_info: The #LwQueryNodeColumnMatchInfo to set or %NULL to unset it
  */
 void
-lw_querynodematchinfo_set_column (LwQueryNodeMatchInfo       * self,
+lw_match_info_set_column (LwMatchInfo       * self,
                                   LwQueryNodeColumnMatchInfo * column_match_info)
 {
 

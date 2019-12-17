@@ -50,7 +50,7 @@ struct _LwFilePath {
 
 
 LwFilePath*
-lw_filepath_new (const gchar *PATH)
+lw_file_path_new (const gchar *PATH)
 {
     //Sanity checks
     g_return_val_if_fail (PATH != NULL, NULL);
@@ -74,7 +74,7 @@ errored:
 
 
 void
-lw_filepath_free (LwFilePath *self)
+lw_file_path_free (LwFilePath *self)
 {
     //Sanity checks
     if (self == NULL) return;
@@ -90,7 +90,7 @@ lw_filepath_free (LwFilePath *self)
 
 
 const gchar*
-lw_filepath_get_path (LwFilePath *self)
+lw_file_path_get_path (LwFilePath *self)
 {
     g_return_val_if_fail (self != NULL, NULL);
 
@@ -99,7 +99,7 @@ lw_filepath_get_path (LwFilePath *self)
 
 
 const gchar*
-lw_filepath_get_basename (LwFilePath *self)
+lw_file_path_get_basename (LwFilePath *self)
 {
     g_return_val_if_fail (self != NULL, NULL);
 
@@ -108,7 +108,7 @@ lw_filepath_get_basename (LwFilePath *self)
 
 
 const gchar*
-lw_filepath_get_suffixless (LwFilePath *self)
+lw_file_path_get_suffixless (LwFilePath *self)
 {
     g_return_val_if_fail (self != NULL, NULL);
 
@@ -117,7 +117,7 @@ lw_filepath_get_suffixless (LwFilePath *self)
 
 
 const gchar*
-lw_filepath_get_suffix (LwFilePath *self)
+lw_file_path_get_suffix (LwFilePath *self)
 {
     g_return_val_if_fail (self != NULL, NULL);
 

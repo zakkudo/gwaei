@@ -38,6 +38,17 @@
 
 static LwPreferences *_preferences = NULL;
 
+typedef enum
+{
+  PROP_0,
+  PROP_BACKEND,
+} Props;
+
+struct _LwPreferencesPrivate {
+  GHashTable *settings;
+  GSettingsBackend *backend;
+};
+
 G_DEFINE_TYPE_WITH_PRIVATE (LwPreferences, lw_preferences, G_TYPE_OBJECT)
 
 

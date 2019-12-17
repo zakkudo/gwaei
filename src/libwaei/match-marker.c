@@ -20,9 +20,9 @@
 *******************************************************************************/
 
 /**
- * SECTION:querynodematchmarker
+ * SECTION:match_marker
  * @short_description: Mark the start and end of #GMatchInfo matches
- * @title: LwQueryNodeMatchMarker
+ * @title: LwMatchMarker
  *
  * Designed to assist in finding match start and stop endpoints so appropriate result highlighting
  * can be easily shown when printing query results.
@@ -40,31 +40,31 @@
 
 #include <glib.h>
 
-#include <libwaei/querynodematchmarker.h>
+#include <libwaei/match_marker.h>
 #include <libwaei/gettext.h>
 
 
 /**
- * lw_querynodematchmarker_new:
+ * lw_match_marker_new:
  * @type: The type of marker, denoting the start or end of a match
  * @match_info: (transfer none): The #GMatchInfo used to calculate the pointers for the start and end of the match.  The object is only used for calculating values during construction, so it can be freed after calling this method.
  *
  * Designed to assist in finding match start and stop endpoints so appropriate match highlighting
  * can be shown in the view for query results. The #GRegex that #GMatchInfo is stored on the new
- * LwQueryNodeMatchMarker with it's ref count incremented such that the caller freeing the
+ * LwMatchMarker with it's ref count incremented such that the caller freeing the
  * #GMatchInfo will not free the #GRegex.
  *
- * Returns: (transfer full): A new #LwQueryNodeMatchMarker that can be freed with lw_querynodematchmarker_unref()
+ * Returns: (transfer full): A new #LwMatchMarker that can be freed with lw_match_marker_unref()
  */
-LwQueryNodeMatchMarker *
-lw_querynodematchmarker_new (LwQueryNodeMatchMarkerType   type,
+LwMatchMarker *
+lw_match_marker_new (LwMatchMarkerType   type,
                              GMatchInfo                 * match_info)
 {
     //Sanity checks
     g_return_val_if_fail (match_info != NULL, NULL);
 
     //Declarations
-    LwQueryNodeMatchMarker * self = NULL;
+    LwMatchMarker * self = NULL;
     gchar const * TOKEN = NULL;
     gchar const * OPEN = NULL;
     gchar const * CLOSE = NULL;
@@ -78,7 +78,7 @@ lw_querynodematchmarker_new (LwQueryNodeMatchMarkerType   type,
     OPEN = TOKEN + start_pos;
     CLOSE = TOKEN + end_pos;
     
-    self = g_new0 (LwQueryNodeMatchMarker, 1);
+    self = g_new0 (LwMatchMarker, 1);
     if (self == NULL) goto errored;
 
     self->TOKEN = TOKEN;
@@ -107,43 +107,43 @@ errored:
 }
 
 static void
-lw_querynodematchmarker_free (LwQueryNodeMatchMarker * self)
+lw_match_marker_free (LwMatchMarker * self)
 {
     if (self == NULL) return;
 
     if (self->regex != NULL) g_regex_unref (self->regex);
-    memset(self, 0, sizeof(LwQueryNodeMatchMarker));
+    memset(self, 0, sizeof(LwMatchMarker));
     g_free (self);
 }
 
 
 /**
- * lw_querynodematchmarker_unref:
- * @self: A #LwQueryNodeMatchMarker
+ * lw_match_marker_unref:
+ * @self: A #LwMatchMarker
  *
  * Reduces the ref count on the object and frees it once it reaches 0
  */
 void
-lw_querynodematchmarker_unref (LwQueryNodeMatchMarker * self)
+lw_match_marker_unref (LwMatchMarker * self)
 {
     g_return_if_fail (self != NULL);
 
     if (g_atomic_int_dec_and_test (&self->refs))
     {
-      lw_querynodematchmarker_free (self);
+      lw_match_marker_free (self);
     }
 }
 
 
 /**
- * lw_querynodematchmarker_ref:
+ * lw_match_marker_ref:
  * 
  * Increases the reference count on an object.
  *
- * Returns: The #LwQueryNodeMatchMarker with its ref count incremented
+ * Returns: The #LwMatchMarker with its ref count incremented
  */
-LwQueryNodeMatchMarker *
-lw_querynodematchmarker_ref (LwQueryNodeMatchMarker * self)
+LwMatchMarker *
+lw_match_marker_ref (LwMatchMarker * self)
 {
     g_return_val_if_fail (self != NULL, NULL);
 
@@ -154,21 +154,21 @@ lw_querynodematchmarker_ref (LwQueryNodeMatchMarker * self)
 
 
 /**
- * lw_querynodematchmarker_get_position:
- * @self: A #LwQueryNodeMatchMarker
- * @type: (out) (allow-none): A location to write the #LwQueryNodeMatchMarkerType or #NULL
+ * lw_match_marker_get_position:
+ * @self: A #LwMatchMarker
+ * @type: (out) (allow-none): A location to write the #LwMatchMarkerType or #NULL
  *
- * Gets the string pointed to by #LwQueryNodeMatchMarker, which will always be an offset of the
- * string returned by lw_querynodematchmarker_get_string(). When #LwQueryNodeMatchMarkerType
+ * Gets the string pointed to by #LwMatchMarker, which will always be an offset of the
+ * string returned by lw_match_marker_get_string(). When #LwMatchMarkerType
  * is written, it will tell you if this marker denotes the start or end of a match.  All of
  * this together allows you to do pointer arithmetic to print substrings without having to
  * make copies of the original.
  *
- * Returns: (transfer none): The substring pointed to by the marker.  It is owned by #LwQueryNodeMatchMarker and should not be freed or modified.
+ * Returns: (transfer none): The substring pointed to by the marker.  It is owned by #LwMatchMarker and should not be freed or modified.
  */
 gchar const *
-lw_querynodematchmarker_get_position (LwQueryNodeMatchMarker     * self,
-                                      LwQueryNodeMatchMarkerType * type)
+lw_match_marker_get_position (LwMatchMarker     * self,
+                                      LwMatchMarkerType * type)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
@@ -183,12 +183,12 @@ lw_querynodematchmarker_get_position (LwQueryNodeMatchMarker     * self,
 
 
 /**
- * lw_querynodematchmarker_get_regex:
- * @self: A #LwQueryNodeMatchMarker
+ * lw_match_marker_get_regex:
+ * @self: A #LwMatchMarker
  * Returns: (transfer none) The #GRegex used to create this marker. The returned #GRegex should not be unrefed or freed.
  */
 GRegex *
-lw_querynodematchmarker_get_regex (LwQueryNodeMatchMarker * self)
+lw_match_marker_get_regex (LwMatchMarker * self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
@@ -198,12 +198,12 @@ lw_querynodematchmarker_get_regex (LwQueryNodeMatchMarker * self)
 
 
 /**
- * lw_querynodematchmarker_get_string:
- * @self: A #LwQueryNodeMatchMarker
- * Returns: (transfer none): The substring that this marker references. This string is owned internally by the #LwQueryNodeMatchMarker and should not be freed or modified.  lw_querynodematchmarker_get_position() will reference an offset of this same string in memory.
+ * lw_match_marker_get_string:
+ * @self: A #LwMatchMarker
+ * Returns: (transfer none): The substring that this marker references. This string is owned internally by the #LwMatchMarker and should not be freed or modified.  lw_match_marker_get_position() will reference an offset of this same string in memory.
  */
 gchar const *
-lw_querynodematchmarker_get_string (LwQueryNodeMatchMarker * self)
+lw_match_marker_get_string (LwMatchMarker * self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);

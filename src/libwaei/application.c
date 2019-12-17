@@ -42,6 +42,24 @@
 
 #include <libwaei/application-private.h>
 
+typedef enum {
+  PROP_0,
+  TOTAL_PROPS
+} Props;
+
+struct _LwApplicationPrivate {
+  GTree *dictionarymodules;
+};
+
+struct _LwApplicationClassPrivate {
+  GParamSpec *pspec[TOTAL_PROPS];
+};
+
+//Methods
+
+static void lw_application_add_dictionarymodule (LwApplication * self, LwDictionaryModule * dictionarymodule);
+static void lw_application_load_dictionarymodules (LwApplication * self);
+
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (LwApplication, lw_application, G_TYPE_APPLICATION)
 
 

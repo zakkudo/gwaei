@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 /**
- * SECTION:querynode
+ * SECTION:query_node
  * @short_description: A query tree structure for searches
  * @title: LwQueryNode
  *
@@ -41,8 +41,8 @@
 #include <glib.h>
 
 #include <libwaei/parenthesisnode.h>
-#include <libwaei/querynode.h>
-#include <libwaei/querynodematchinfo.h>
+#include <libwaei/query_node.h>
+#include <libwaei/query_nodematchinfo.h>
 #include <libwaei/gettext.h>
 
 
@@ -50,14 +50,14 @@ static LwQueryNode * _parse_leaf_parenthesisnode (LwParenthesisNode * parenthesi
 static LwQueryNode * _parse_parenthesisnode (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
 
 GQuark
-lw_querynode_error_quark ()
+lw_query_node_error_quark ()
 {
-    return g_quark_from_static_string ("lw-querynode-error");
+    return g_quark_from_static_string ("lw-query_node-error");
 }
 
 
 static LwQueryNode *
-lw_querynode_new (gchar const          * PARENTHESIS,
+lw_query_node_new (gchar const          * PARENTHESIS,
                   gchar const          * OPEN,
                   gchar const          * CLOSE,
                   LwQueryNodeOperation   operation)
@@ -98,7 +98,7 @@ errored:
 
 
 static LwQueryNode *
-lw_querynode_new_keyed (gchar const          * KEY,
+lw_query_node_new_keyed (gchar const          * KEY,
                         gchar const          * VALUE,
                         LwQueryNodeOperation   operation)
 {
@@ -146,7 +146,7 @@ errored:
 
 
 static LwQueryNode *
-lw_querynode_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis_node,
+lw_query_node_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis_node,
                                             LwQueryNodeOperation  * operation_out,
                                             GError               ** error)
 {
@@ -179,7 +179,7 @@ lw_querynode_new_tree_from_parenthesisnode (LwParenthesisNode     * parenthesis_
 
 errored:
 
-    if (query_node != NULL) lw_querynode_unref (query_node);
+    if (query_node != NULL) lw_query_node_unref (query_node);
     query_node = NULL;
 
     return query_node_out;
@@ -187,17 +187,17 @@ errored:
 
 
 /**
- * lw_querynode_new_tree_from_string:
+ * lw_query_node_new_tree_from_string:
  * @TEXT: The text to generate the #LwQueryNode tree from
  * @operation_out: Returns any hanging operations that should be passed to the next sibling.  This should generally be set to %LW_QUERYNODE_OPERATION_NONE by outside consumers of this api.
  * @error: Pointer to a #GError or %NONE
  *
  * Generates a #LwQueryNode tree from a string.  This method is recursive, thus requiring a pointer to a #LwQueryNodeOperation for context.  This method uses #LwParenthesisNode as an intermediary compilation, so if there are any parentheiss errors, they will return through #GError with that domain.
  *
- * Returns: A new #LwQueryNode tree that can be freed with lw_querynode_unref()
+ * Returns: A new #LwQueryNode tree that can be freed with lw_query_node_unref()
  */
 LwQueryNode *
-lw_querynode_new_tree_from_string (gchar const          *  TEXT,
+lw_query_node_new_tree_from_string (gchar const          *  TEXT,
                                    LwQueryNodeOperation *  operation_out,
                                    GError               ** error)
 {
@@ -218,7 +218,7 @@ lw_querynode_new_tree_from_string (gchar const          *  TEXT,
     //Initializations
     parenthesis_node = lw_parenthesisnode_new_tree_from_string (TEXT, error);
     if (parenthesis_node == NULL || (error != NULL && *error != NULL)) goto errored;
-    query_node = lw_querynode_new_tree_from_parenthesisnode (parenthesis_node, &operation, error);
+    query_node = lw_query_node_new_tree_from_parenthesisnode (parenthesis_node, &operation, error);
     if (error != NULL && *error != NULL) goto errored;
 
     if (operation_out != NULL)
@@ -404,7 +404,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
 
             if (BEFORE_LAST_WHITESPACE != NULL && self->OPEN <= BEFORE_LAST_WHITESPACE)
             {
-              query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, g_utf8_next_char (BEFORE_LAST_WHITESPACE), LW_QUERYNODE_OPERATION_NONE);
+              query_node = lw_query_node_new (self->PARENTHESIS, self->OPEN, g_utf8_next_char (BEFORE_LAST_WHITESPACE), LW_QUERYNODE_OPERATION_NONE);
               if (query_node == NULL) goto errored;
               children = g_list_prepend (children, query_node);
               query_node = NULL;
@@ -431,7 +431,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
             goto errored;
           }
           LwQueryNodeOperation operation = (children == NULL) ? LW_QUERYNODE_OPERATION_NONE : LW_QUERYNODE_OPERATION_AND;
-          query_node = lw_querynode_new_keyed (key_buffer, value_buffer, operation);
+          query_node = lw_query_node_new_keyed (key_buffer, value_buffer, operation);
           if (query_node == NULL) goto errored;
           children = g_list_prepend (children, query_node);
           *key_buffer = '\0';
@@ -451,7 +451,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
       C = g_utf8_next_char (C);
     }
 
-    //Close off the final keyed querynode if it was started
+    //Close off the final keyed query_node if it was started
     if (DELIMITER != NULL)
     {
       DELIMITER = g_utf8_next_char (DELIMITER);
@@ -472,7 +472,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
           goto errored;
         }
 
-        query_node = lw_querynode_new_keyed (key_buffer, value_buffer, LW_QUERYNODE_OPERATION_AND);
+        query_node = lw_query_node_new_keyed (key_buffer, value_buffer, LW_QUERYNODE_OPERATION_AND);
         if (query_node == NULL) goto errored;
         children = g_list_prepend (children, query_node);
 
@@ -485,7 +485,7 @@ _tokenize_explicit_columns (LeafIterator          * self,
     //If there were no keyed query nodes, just use the whole substring for a query node
     else
     {
-      query_node = lw_querynode_new (self->PARENTHESIS, self->OPEN, CLOSE, LW_QUERYNODE_OPERATION_NONE);
+      query_node = lw_query_node_new (self->PARENTHESIS, self->OPEN, CLOSE, LW_QUERYNODE_OPERATION_NONE);
       if (query_node == NULL) goto errored;
       children = g_list_prepend (children, query_node);
       query_node = NULL;
@@ -496,9 +496,9 @@ _tokenize_explicit_columns (LeafIterator          * self,
 
 errored:
 
-    g_list_free_full (children, (GDestroyNotify) lw_querynode_unref); children = NULL;
+    g_list_free_full (children, (GDestroyNotify) lw_query_node_unref); children = NULL;
 
-    if (query_node != NULL) lw_querynode_unref (query_node);
+    if (query_node != NULL) lw_query_node_unref (query_node);
     query_node = NULL;
 
     g_free (key_buffer); key_buffer = NULL;
@@ -526,7 +526,7 @@ _parent_possible_children (GList                ** children_out,
     //Has multiple children, so create a parent node
     if (children->next != NULL)
     {
-      query_node = lw_querynode_new (NULL, NULL, NULL, operation);
+      query_node = lw_query_node_new (NULL, NULL, NULL, operation);
       if (query_node == NULL) goto errored;
       query_node->children = children;
       children = NULL;
@@ -584,7 +584,7 @@ leafiterator_new_connector_node (LeafIterator          * self,
 
 errored:
 
-    if (query_node != NULL) lw_querynode_unref (query_node);
+    if (query_node != NULL) lw_query_node_unref (query_node);
     query_node = NULL;
 
     return query_node_out;
@@ -708,7 +708,7 @@ _tokenize_leaf (LwParenthesisNode    *  parenthesis_node,
 errored:
 
     leafiterator_clear (&iter, operation_out, error);
-    g_list_free_full (children, (GDestroyNotify) lw_querynode_unref);
+    g_list_free_full (children, (GDestroyNotify) lw_query_node_unref);
     children = NULL;
 
     return children_out;
@@ -749,7 +749,7 @@ _parse_leaf_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
 
 errored:
 
-    g_list_free_full (children, (GDestroyNotify) lw_querynode_unref);
+    g_list_free_full (children, (GDestroyNotify) lw_query_node_unref);
     children = NULL;
 
     return query_node;
@@ -779,7 +779,7 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
 
     for (link = parenthesis_node->children; link != NULL; link = link->next)
     {
-      LwQueryNode * child = lw_querynode_new_tree_from_parenthesisnode (LW_PARENTHESISNODE (link->data), &operation, error);
+      LwQueryNode * child = lw_query_node_new_tree_from_parenthesisnode (LW_PARENTHESISNODE (link->data), &operation, error);
       if (child != NULL)
       {
         children = g_list_prepend (children, child);
@@ -811,7 +811,7 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
       //Create a parent node to hold the children
       else
       {
-        query_node = lw_querynode_new (NULL, NULL, NULL, *operation_out);
+        query_node = lw_query_node_new (NULL, NULL, NULL, *operation_out);
         if (query_node == NULL) goto errored;
         *operation_out = LW_QUERYNODE_OPERATION_NONE;
 
@@ -828,7 +828,7 @@ _parse_parenthesisnode (LwParenthesisNode    *  parenthesis_node,
 
 errored:
 
-    g_list_free_full (children, (GDestroyNotify) lw_querynode_unref);
+    g_list_free_full (children, (GDestroyNotify) lw_query_node_unref);
     children = NULL;
 
     return query_node;
@@ -836,13 +836,13 @@ errored:
 
 
 /**
- * lw_querynode_ref:
+ * lw_query_node_ref:
  * @self: A #LwQueryNode
  * 
  * Returns: Increases the reference count of the #LwQueryNode and returns it
  */
 LwQueryNode*
-lw_querynode_ref (LwQueryNode * self)
+lw_query_node_ref (LwQueryNode * self)
 {
     g_return_val_if_fail (self != NULL, NULL);
 
@@ -853,7 +853,7 @@ lw_querynode_ref (LwQueryNode * self)
 
 
 static void
-lw_querynode_free (LwQueryNode *self)
+lw_query_node_free (LwQueryNode *self)
 {
     if (self == NULL) return;
 
@@ -861,7 +861,7 @@ lw_querynode_free (LwQueryNode *self)
     g_free (self->key);
     g_free (self->columns);
     if (self->regex != NULL) g_regex_unref (self->regex);
-    g_list_free_full (self->children, (GDestroyNotify) lw_querynode_free);
+    g_list_free_full (self->children, (GDestroyNotify) lw_query_node_free);
     
     memset(self, 0, sizeof(LwQueryNode));
 
@@ -870,25 +870,25 @@ lw_querynode_free (LwQueryNode *self)
 
 
 /**
- * lw_querynode_unref:
+ * lw_query_node_unref:
  * @self: A #LwQueryNode
  * 
  * Decreases the references on the #LwQueryNode and frees it if it reaches 0
  */
 void
-lw_querynode_unref (LwQueryNode *self)
+lw_query_node_unref (LwQueryNode *self)
 {
     g_return_if_fail (self != NULL);
 
     if (g_atomic_int_dec_and_test (&self->refs))
     {
-      lw_querynode_free (self);
+      lw_query_node_free (self);
     }
 }
 
 
 GType
-lw_querynode_get_type ()
+lw_query_node_get_type ()
 {
     static GType type = 0;
 
@@ -896,8 +896,8 @@ lw_querynode_get_type ()
     {
       type = g_boxed_type_register_static (
         "LwQueryNode",
-        (GBoxedCopyFunc) lw_querynode_ref,
-        (GBoxedFreeFunc) lw_querynode_unref
+        (GBoxedCopyFunc) lw_query_node_ref,
+        (GBoxedFreeFunc) lw_query_node_unref
       );
     }
 
@@ -906,14 +906,14 @@ lw_querynode_get_type ()
 
 
 /**
- * lw_querynode_assert_equals:
+ * lw_query_node_assert_equals:
  * @self: A #LwQueryNode
  * @other: Another #LwQueryNode
  *
  * Returns: %TRUE if the internal fields and children match
  */
 void
-lw_querynode_assert_equals (LwQueryNode *self,
+lw_query_node_assert_equals (LwQueryNode *self,
                             LwQueryNode *other)
 {
     g_assert_nonnull (self);
@@ -939,7 +939,7 @@ lw_querynode_assert_equals (LwQueryNode *self,
 
       while (self_link != NULL && other_link != NULL)
       {
-        lw_querynode_assert_equals (self_link->data, other_link->data);
+        lw_query_node_assert_equals (self_link->data, other_link->data);
 
         self_link = self_link->next;
         other_link = other_link->next;
@@ -949,7 +949,7 @@ lw_querynode_assert_equals (LwQueryNode *self,
 
 
 /**
- * lw_querynode_walk:
+ * lw_query_node_walk:
  * @self: A #LwQueryNode
  * @func: A method to run on each #LwQueryNode
  * @data: A #gpointer to pass to each @func
@@ -957,7 +957,7 @@ lw_querynode_assert_equals (LwQueryNode *self,
  * Returns: %TRUE if the walk was cancelled early
  */
 gboolean
-lw_querynode_walk (LwQueryNode         * self,
+lw_query_node_walk (LwQueryNode         * self,
                    LwQueryNodeWalkFunc   func,
                    gpointer              data)
 {
@@ -973,7 +973,7 @@ lw_querynode_walk (LwQueryNode         * self,
 
     for (link = self->children; link != NULL; link = link->next)
     {
-      should_stop = lw_querynode_walk (link->data, func, data);
+      should_stop = lw_query_node_walk (link->data, func, data);
       if (should_stop) goto errored;
     }
 
@@ -984,7 +984,7 @@ errored:
 
 
 static gboolean
-_querynode_apply_implied_logical_junctions (LwQueryNode * self)
+_query_node_apply_implied_logical_junctions (LwQueryNode * self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
@@ -1001,7 +1001,7 @@ _querynode_apply_implied_logical_junctions (LwQueryNode * self)
     {
       query_node = LW_QUERYNODE (link->data);
       next_query_node = (link->next) ? LW_QUERYNODE (link->next->data) : NULL;
-      has_junction = _querynode_apply_implied_logical_junctions (query_node);
+      has_junction = _query_node_apply_implied_logical_junctions (query_node);
       if (has_junction)
       {
         if (query_node != NULL && query_node->operation == LW_QUERYNODE_OPERATION_NONE && (previous_query_node != NULL && !LW_QUERYNODE_IS_DANGLING_KEY (previous_query_node)))
@@ -1052,7 +1052,7 @@ _reduce_previous_none_operations (GList *  children,
 
     while (previous_query_node != NULL && previous_query_node->operation == LW_QUERYNODE_OPERATION_NONE && previous_query_node->key == NULL && previous_query_node->children == NULL)
     {
-      lw_querynode_unref (previous_query_node);
+      lw_query_node_unref (previous_query_node);
       children = g_list_delete_link (children, previous_link);
       
       previous_link = link->prev;
@@ -1075,7 +1075,7 @@ errored:
 
 
 static void
-_querynode_reparent_possible_children (LwQueryNode * self)
+_query_node_reparent_possible_children (LwQueryNode * self)
 {
     //Declarations
     LwQueryNode * query_node = NULL;
@@ -1103,7 +1103,7 @@ _querynode_reparent_possible_children (LwQueryNode * self)
         self->regex = query_node->regex;
         query_node->regex = NULL;
 
-        g_list_free_full (self->children, (GDestroyNotify) lw_querynode_unref);
+        g_list_free_full (self->children, (GDestroyNotify) lw_query_node_unref);
         self->children = query_node->children;
         query_node->children = NULL;
 
@@ -1116,7 +1116,7 @@ _querynode_reparent_possible_children (LwQueryNode * self)
 
 
 static void
-_querynode_reduce_keyed_missing_values (LwQueryNode *  self,
+_query_node_reduce_keyed_missing_values (LwQueryNode *  self,
                                         GError      ** error)
 {
     //Sanity checks
@@ -1135,7 +1135,7 @@ _querynode_reduce_keyed_missing_values (LwQueryNode *  self,
     while (link != NULL)
     {
       query_node = LW_QUERYNODE (link->data);
-      _querynode_reduce_keyed_missing_values (query_node, error);
+      _query_node_reduce_keyed_missing_values (query_node, error);
       if (error != NULL && *error != NULL) goto errored;
 
       if (query_node->key != NULL && query_node->data == NULL && query_node->children == NULL)
@@ -1180,7 +1180,7 @@ _querynode_reduce_keyed_missing_values (LwQueryNode *  self,
       }
     }
 
-    _querynode_reparent_possible_children (self);
+    _query_node_reparent_possible_children (self);
 
 errored:
 
@@ -1189,7 +1189,7 @@ errored:
 
 
 static void
-_querynode_reduce (LwQueryNode * self)
+_query_node_reduce (LwQueryNode * self)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
@@ -1210,7 +1210,7 @@ _querynode_reduce (LwQueryNode * self)
     for (link = self->children; link != NULL; link = link->next)
     {
       query_node = LW_QUERYNODE (link->data);
-      _querynode_reduce (query_node);
+      _query_node_reduce (query_node);
       if (query_node->operation == LW_QUERYNODE_OPERATION_NONE && query_node->key == NULL && query_node->children == NULL)
       {
         if (query_node->data != NULL)
@@ -1225,7 +1225,7 @@ _querynode_reduce (LwQueryNode * self)
     }
     self->children = _reduce_previous_none_operations (self->children, g_list_last (self->children), tokens, &num_tokens);
     
-    _querynode_reparent_possible_children (self);
+    _query_node_reparent_possible_children (self);
 
 errored:
 
@@ -1234,7 +1234,7 @@ errored:
 
 
 static void
-_querynode_compile (LwQueryNode * self,
+_query_node_compile (LwQueryNode * self,
                     gchar const * KEY,
                     LwUtf8Flag    flags,
                     GError      ** error)
@@ -1270,7 +1270,7 @@ _querynode_compile (LwQueryNode * self,
     for (link = self->children; link != NULL; link = link->next)
     {
       query_node = LW_QUERYNODE (link->data);
-      _querynode_compile (query_node, KEY, flags, error);
+      _query_node_compile (query_node, KEY, flags, error);
       if (error != NULL && *error != NULL) goto errored;
     }
 
@@ -1295,13 +1295,13 @@ errored:
 
 
 /**
- * lw_querynode_nnodes:
+ * lw_query_node_nnodes:
  * @self: A #LwQueryNode
  *
  * Returns: the total number of nodes
  */
 gint
-lw_querynode_nnodes (LwQueryNode * self)
+lw_query_node_nnodes (LwQueryNode * self)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, 0);
@@ -1314,7 +1314,7 @@ lw_querynode_nnodes (LwQueryNode * self)
     for (link = self->children; link != NULL; link = link->next)
     {
       query_node = LW_QUERYNODE (link->data);
-      nnodes += lw_querynode_nnodes (query_node);
+      nnodes += lw_query_node_nnodes (query_node);
     }
 
     return nnodes;
@@ -1322,7 +1322,7 @@ lw_querynode_nnodes (LwQueryNode * self)
 
 
 /**
- * lw_querynode_compile:
+ * lw_query_node_compile:
  * @self: A #LwQueryNode
  * @flags: The flags for the prefered normalization of the query data
  * @error: An #GError to track errors or %NULL to ignore them
@@ -1330,26 +1330,26 @@ lw_querynode_nnodes (LwQueryNode * self)
  * Compiles the #LwQueryNode into a more compact form that is more ideal
  * for comparisons.  Once compiled, the #LwQueryNode structure will not be in
  * the same form as the original query and all regexes will be filled.
- * You should run this before any uses of lw_querynode_match_parsedline().
+ * You should run this before any uses of lw_query_node_match_parsed_line().
  */
 void
-lw_querynode_compile (LwQueryNode *  self,
+lw_query_node_compile (LwQueryNode *  self,
                       LwUtf8Flag     flags,
                       GError      ** error)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
 
-    _querynode_apply_implied_logical_junctions (self);
-    _querynode_reduce (self);
-    _querynode_reduce_keyed_missing_values (self, error);
-    _querynode_reduce (self);
-    _querynode_compile (self, NULL, flags, error);
+    _query_node_apply_implied_logical_junctions (self);
+    _query_node_reduce (self);
+    _query_node_reduce_keyed_missing_values (self, error);
+    _query_node_reduce (self);
+    _query_node_compile (self, NULL, flags, error);
 }
 
 
 static gboolean
-_children_match_parsedline (LwQueryNode           * self,
+_children_match_parsed_line (LwQueryNode           * self,
                             LwParsedLine          * parsed_line,
                             LwQueryNodeMatchInfo  * match_info_out)
 {
@@ -1367,7 +1367,7 @@ _children_match_parsedline (LwQueryNode           * self,
     for (link = self->children; link != NULL; link = link->next)
     {
       query_node = LW_QUERYNODE (link->data);
-      matches = lw_querynode_match_parsedline (query_node, parsed_line, match_info_out);
+      matches = lw_query_node_match_parsed_line (query_node, parsed_line, match_info_out);
 
       if (previous_query_node != NULL)
       {
@@ -1407,15 +1407,15 @@ _value_matches_column (LwQueryNode          * self,
     LwQueryNodeColumnMatchInfo * column_match_info = NULL;
 
     //Initializations
-    strv = lw_parsedline_get_strv (parsed_line, column);
+    strv = lw_parsed_line_get_strv (parsed_line, column);
     if (match_info_out != NULL)
     {
-      column_match_info = lw_querynodematchinfo_get_column (match_info_out, column);
+      column_match_info = lw_query_nodematchinfo_get_column (match_info_out, column);
       if (column_match_info == NULL)
       {
-        column_match_info = lw_querynodecolumnmatchinfo_new (column, strv);
-        lw_querynodematchinfo_set_column (match_info_out, column_match_info);
-        lw_querynodecolumnmatchinfo_unref (column_match_info);
+        column_match_info = lw_query_nodecolumnmatchinfo_new (column, strv);
+        lw_query_nodematchinfo_set_column (match_info_out, column_match_info);
+        lw_query_nodecolumnmatchinfo_unref (column_match_info);
       }
     }
 
@@ -1430,7 +1430,7 @@ _value_matches_column (LwQueryNode          * self,
           {
             while (g_match_info_matches (match_info))
             {
-              lw_querynodecolumnmatchinfo_add (column_match_info, match_info);
+              lw_query_nodecolumnmatchinfo_add (column_match_info, match_info);
               g_match_info_next (match_info, NULL);
             }
             g_match_info_unref (match_info);
@@ -1449,14 +1449,14 @@ _value_matches_column (LwQueryNode          * self,
 
 errored:
 
-    if (column_match_info != NULL) lw_querynodecolumnmatchinfo_unref (column_match_info);
+    if (column_match_info != NULL) lw_query_nodecolumnmatchinfo_unref (column_match_info);
 
     return matches;
 }
 
 
 static gboolean
-_value_matches_parsedline (LwQueryNode           * self,
+_value_matches_parsed_line (LwQueryNode           * self,
                            LwParsedLine          * parsed_line,
                            LwQueryNodeMatchInfo  * match_info_out)
 {
@@ -1478,7 +1478,7 @@ errored:
 
 
 /**
- * lw_querynode_match_parsedline:
+ * lw_query_node_match_parsed_line:
  * @self: A #LwQueryNode
  * @parsed_line: A @parsed_line to search
  * @match_info_out: A #LwQueryNodeMatchInfo to record match information or %NULL to ignore it
@@ -1486,7 +1486,7 @@ errored:
  * Returns: %TRUE if @self matches against the @parsed_line
  */
 gboolean
-lw_querynode_match_parsedline (LwQueryNode           * self,
+lw_query_node_match_parsed_line (LwQueryNode           * self,
                                LwParsedLine          * parsed_line,
                                LwQueryNodeMatchInfo  * match_info_out)
 {
@@ -1496,11 +1496,11 @@ lw_querynode_match_parsedline (LwQueryNode           * self,
 
     if (self->children != NULL && self->data == NULL)
     {
-      matches = _children_match_parsedline (self, parsed_line, match_info_out);
+      matches = _children_match_parsed_line (self, parsed_line, match_info_out);
     }
     else if (self->data != NULL && self->children == NULL)
     {
-      matches = _value_matches_parsedline (self, parsed_line, match_info_out);
+      matches = _value_matches_parsed_line (self, parsed_line, match_info_out);
     }
     else
     {

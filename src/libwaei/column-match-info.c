@@ -20,12 +20,12 @@
 *******************************************************************************/
 
 /**
- * SECTION:querynodecolumnmatchinfo
+ * SECTION:column_match_info
  * @short_description: Match information for a specific dictionary column
- * @title: LwQueryNodeColumnMatchInfo
+ * @title: LwColumnMatchInfo
  *
  * Used to store matches for a specific dictionary column, making it easy to iterate 
- * it and print highlighted results. See lw_querynodecolumnmatchinfo_read().
+ * it and print highlighted results. See lw_column_match_info_read().
  */
 
 #ifdef HAVE_CONFIG_H
@@ -46,19 +46,19 @@
 
 
 /**
- * lw_querynodecolumnmatchinfo_new:
+ * lw_column_match_info_new:
  * @column: Dictionary column that this match info tracks
  * @strv: (transfer none): The strings that this match info will reference
- * Returns: (transfer full): A new #LwQueryNodeColumnMatchInfo that can be freed with lw_querynodecolumnmatchinfo_unref()
+ * Returns: (transfer full): A new #LwColumnMatchInfo that can be freed with lw_column_match_info_unref()
  */
-LwQueryNodeColumnMatchInfo *
-lw_querynodecolumnmatchinfo_new (gint column, gchar const ** strv)
+LwColumnMatchInfo *
+lw_column_match_info_new (gint column, gchar const ** strv)
 {
     //Declarations
-    LwQueryNodeColumnMatchInfo * self = NULL;
+    LwColumnMatchInfo * self = NULL;
 
     //Initializations
-    self = g_new0 (LwQueryNodeColumnMatchInfo, 1);
+    self = g_new0 (LwColumnMatchInfo, 1);
     if (self == NULL) goto errored;
 
     self->column = column;
@@ -72,12 +72,12 @@ errored:
 
 
 /**
- * lw_querynodecolumnmatchinfo_add:
- * @self: A #LwQueryNodeColumnMatchInfo
+ * lw_column_match_info_add:
+ * @self: A #LwColumnMatchInfo
  * @match_info: (transfer none): A #GMatchInfo used for creating the internal #LwQueryNodeMatchMarkers
  */
 void
-lw_querynodecolumnmatchinfo_add (LwQueryNodeColumnMatchInfo * self,
+lw_column_match_info_add (LwColumnMatchInfo * self,
                                  GMatchInfo                 * match_info)
 {
     //Sanity checks
@@ -113,13 +113,13 @@ errored:
 
 
 /**
- * lw_querynodecolumnmatchinfo_ref:
- * @self: A #LwQueryNodeColumnMatchInfo
+ * lw_column_match_info_ref:
+ * @self: A #LwColumnMatchInfo
  * 
- * Returns: Increases the reference count of the #LwQueryNodeColumnMatchInfo and returns it
+ * Returns: Increases the reference count of the #LwColumnMatchInfo and returns it
  */
-LwQueryNodeColumnMatchInfo*
-lw_querynodecolumnmatchinfo_ref (LwQueryNodeColumnMatchInfo * self)
+LwColumnMatchInfo*
+lw_column_match_info_ref (LwColumnMatchInfo * self)
 {
     g_return_val_if_fail (self != NULL, NULL);
 
@@ -130,32 +130,32 @@ lw_querynodecolumnmatchinfo_ref (LwQueryNodeColumnMatchInfo * self)
 
 
 static void
-lw_querynodecolumnmatchinfo_free (LwQueryNodeColumnMatchInfo *self)
+lw_column_match_info_free (LwColumnMatchInfo *self)
 {
     if (self == NULL) return;
 
     g_list_free_full (self->markers, (GDestroyNotify) lw_querynodematchmarker_unref);
     
-    memset(self, 0, sizeof(LwQueryNodeColumnMatchInfo));
+    memset(self, 0, sizeof(LwColumnMatchInfo));
 
     g_free (self); self = NULL;
 }
 
 
 /**
- * lw_querynodecolumnmatchinfo_unref:
- * @self: A #LwQueryNodeColumnMatchInfo
+ * lw_column_match_info_unref:
+ * @self: A #LwColumnMatchInfo
  * 
- * Decreases the references on the #LwQueryNodeColumnMatchInfo and frees it if it reaches 0
+ * Decreases the references on the #LwColumnMatchInfo and frees it if it reaches 0
  */
 void
-lw_querynodecolumnmatchinfo_unref (LwQueryNodeColumnMatchInfo *self)
+lw_column_match_info_unref (LwColumnMatchInfo *self)
 {
     g_return_if_fail (self != NULL);
 
     if (g_atomic_int_dec_and_test (&self->refs))
     {
-      lw_querynodecolumnmatchinfo_free (self);
+      lw_column_match_info_free (self);
     }
 }
 
@@ -181,8 +181,8 @@ _sort_markers (LwQueryNodeMatchMarker * marker1,
 
 
 static gboolean
-_read_unmarked_section (LwQueryNodeColumnMatchInfo     *  self,
-                        LwQueryNodeColumnMatchInfoIter *  iter,
+_read_unmarked_section (LwColumnMatchInfo     *  self,
+                        LwColumnMatchInfoIter *  iter,
                         gint                           *  i_out,
                         gchar const                    ** START_OUT,
                         gchar const                    ** END_OUT,
@@ -207,8 +207,8 @@ _read_unmarked_section (LwQueryNodeColumnMatchInfo     *  self,
 
 
 static gboolean
-_read_marked_section (LwQueryNodeColumnMatchInfo      * self,
-                      LwQueryNodeColumnMatchInfoIter  * iter,
+_read_marked_section (LwColumnMatchInfo      * self,
+                      LwColumnMatchInfoIter  * iter,
                       gint                            * i_out,
                       gchar const                    ** START_OUT,
                       gchar const                    ** END_OUT,
@@ -298,9 +298,9 @@ _read_marked_section (LwQueryNodeColumnMatchInfo      * self,
 
 
 /**
- * lw_querynodecolumnmatchinfo_read:
+ * lw_column_match_info_read:
  * @self: a #LwQueryNodeMatchInfo
- * @iter: A #LwQueryNodeColumnMatchInfoIter initialized to {0}
+ * @iter: A #LwColumnMatchInfoIter initialized to {0}
  * @i_out: (out): An index to set or %NULL
  * @START_OUT: (out) (transfer none): A #gchar pointer to write the token start or %NULL.  This string should not be freed or modified.
  * @END_OUT: (out) (transfer none): A #gchar pointer to write the token END or %NULL. This string should not be freed or modified.
@@ -311,13 +311,13 @@ _read_marked_section (LwQueryNodeColumnMatchInfo      * self,
  * 
  * Example:
  * |[<!-- language="C" -->
- * LwQueryNodeColumnMatchInfoIter iter = {0};
+ * LwColumnMatchInfoIter iter = {0};
  * gchar const * start = NULL;
  * gchar const * end = NULL;
  * gboolean is_match = FALSE;
  * gint previous_i = -1, i = 0;
  * 
- * while (lw_querynodecolumnmatchinfo_read (column_match_info, &iter, &i, &start, &end, &is_match))
+ * while (lw_column_match_info_read (column_match_info, &iter, &i, &start, &end, &is_match))
  * {
  *     if (previous_i != i)
  *     {
@@ -338,8 +338,8 @@ _read_marked_section (LwQueryNodeColumnMatchInfo      * self,
  * Returns:  %TRUE until there are no more tokens to iterate
  */
 gboolean
-lw_querynodecolumnmatchinfo_read (LwQueryNodeColumnMatchInfo      * self,
-                                  LwQueryNodeColumnMatchInfoIter  * iter,
+lw_column_match_info_read (LwColumnMatchInfo      * self,
+                                  LwColumnMatchInfoIter  * iter,
                                   gint                            * i_out,
                                   gchar const                    ** START_OUT,
                                   gchar const                    ** END_OUT,
@@ -379,7 +379,7 @@ lw_querynodecolumnmatchinfo_read (LwQueryNodeColumnMatchInfo      * self,
 }
 
 gint
-lw_querynodecolumnmatchinfo_get_column (LwQueryNodeColumnMatchInfo * self)
+lw_column_match_info_get_column (LwColumnMatchInfo * self)
 {
     g_return_val_if_fail (self != NULL, -1);
     

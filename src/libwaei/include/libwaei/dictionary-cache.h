@@ -3,7 +3,6 @@
 
 #include "utf8.h"
 #include "parsed.h"
-#include "indexed.h"
 #include "progress.h"
 
 G_BEGIN_DECLS
@@ -31,7 +30,6 @@ gboolean lw_dictionary_cache_read (LwDictionaryCache * self, gchar const * EXPEC
 LwUtf8Flag lw_dictionary_cache_get_flags (LwDictionaryCache * self);
 gchar const * lw_dictionary_cache_get_dictionary_name (LwDictionaryCache * self);
 LwParsed * lw_dictionary_cache_get_parsed (LwDictionaryCache * self);
-LwIndexed * lw_dictionary_cache_get_indexed (LwDictionaryCache * self);
 
 GType lw_dictionary_cache_get_dictionary_type (LwDictionaryCache * self);
 
