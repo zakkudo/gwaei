@@ -90,22 +90,21 @@ static void lw_results_set_sequence (LwResults * self, GSequence * sequence);
 static GSequence * lw_results_get_sequence (LwResults * self);
 
 
-static gboolean lw_results_iter_is_valid (LwResultsIter * self);
-static void lw_results_get_begin_iter (LwResults * self, LwResultsIter * iter);
-static void lw_results_get_end_iter (LwResults * self, LwResultsIter * iter);
+static gboolean lw_results_iter_is_valid (LwIter * self);
+static void lw_results_get_begin_iter (LwResults * self, LwIter * iter);
+static void lw_results_get_end_iter (LwResults * self, LwIter * iter);
 static gint lw_results_get_n_columns (LwResults * self);
 static GType lw_results_get_column_type (LwResults * self, gint column);
-static gboolean lw_results_get_iter_at_position (LwResults * self, LwResultsIter * iter, gint position);
+static gboolean lw_results_get_iter_at_position (LwResults * self, LwIter * iter, gint position);
 static gint lw_results_get_length (LwResults * self);
-static gint lw_results_iter_get_position (LwResultsIter * self);
-static void lw_results_iter_get_value (LwResultsIter * self, gint column, GValue * value);
-static gboolean lw_results_iter_next (LwResultsIter * self);
-static gboolean lw_results_iter_previous (LwResultsIter * self);
+static gint lw_results_iter_get_position (LwIter * self);
+static void lw_results_iter_get_value (LwIter * self, gint column, GValue * value);
+static gboolean lw_results_iter_next (LwIter * self);
+static gboolean lw_results_iter_previous (LwIter * self);
 
 static void lw_results_sort (LwResults * self, gint column, LwSortDirection direction);
 
 G_DEFINE_TYPE_WITH_CODE (LwResults, lw_results, LW_TYPE_EDITABLE_LIST, G_ADD_PRIVATE(LwResults) g_type_add_class_private(LW_TYPE_RESULTS, sizeof(LwResultsClassPrivate)) )
-
 
 /**
  * lw_results_new:
@@ -706,196 +705,5 @@ errored:
     return;
 }
 
-
-static gboolean
-lw_results_iter_is_valid (LwResultsIter * self) {
-    // Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-
-    // Declarations
-    LwResultsPrivate * priv = NULL;
-    GSequence * sequence = NULL;
-    GSequenceIter * sequence_self = NULL;
-
-    if (!LW_IS_RESULTS (self)) {
-        return FALSE;
-    }
-
-    // Initializations
-    priv = lw_results_get_instance_private (self->results);
-    sequence = priv->sequence;
-
-//g_sequence_self_is_end ()
-//g_sequence_self_is_begin ()
-
-    return sequence == g_sequence_iter_get_sequence (self->sequence_iter);
-}
-
-
-static void
-lw_results_get_begin_iter (LwResults * self,
-                           LwResultsIter    * iter)
-{
-    // Sanity checks
-    g_return_if_fail (LW_IS_RESULTS (self));
-    g_return_if_fail (iter != NULL);
-
-    // Declarations
-    const LwResultsPrivate * priv = NULL;
-    GSequence * sequence = NULL;
-    GSequenceIter * sequence_iter = NULL;
-
-    // Initializations
-    priv = lw_results_get_instance_private (self);
-    sequence = priv->sequence;
-    sequence_iter =  g_sequence_get_begin_iter (sequence);
-
-    memset(iter, 0, sizeof(LwIter));
-    iter->results = self;
-    iter->sequence_iter = sequence_iter;
-}
-
-static void
-lw_results_get_end_iter (LwResults     * self,
-                         LwResultsIter * iter)
-{
-    // Sanity checks
-    g_return_if_fail (LW_IS_RESULTS (self));
-    g_return_if_fail (iter != NULL);
-
-    // Declarations
-    const LwResultsPrivate * priv = NULL;
-    GSequence * sequence = NULL;
-    GSequenceIter * sequence_iter = NULL;
-
-    // Initializations
-    priv = lw_results_get_instance_private (self);
-    sequence = priv->sequence;
-    sequence_iter = g_sequence_get_end_iter (sequence);
-
-    memset(iter, 0, sizeof(LwResultsIter));
-    iter->results = self;
-    iter->sequence_iter = sequence_iter;
-}
-
-static gint
-lw_results_get_n_columns (LwResults * self)
-{
-    // Sanity checks
-    g_return_val_if_fail (LW_IS_RESULTS (self), 0);
-
-    // Declarations
-    const LwResultsPrivate * priv = NULL;
-    LwDictionaryCache * dictionary_cache = NULL;
-    LwDictionary * dictionary = NULL;
-
-    // Initializations
-    priv = lw_results_get_instance_private (self);
-    dictionary_cache = priv->dictionary_cache;
-    dictionary = priv->dictionary;
-
-    return lw_list_get_n_columns (LW_LIST (dictionary));
-}
-
-static GType
-lw_results_get_column_type (LwResults * self,
-                            gint        column)
-{
-    // Sanity checks
-    g_return_val_if_fail (LW_IS_RESULTS (self), G_TYPE_INVALID);
-    g_return_val_if_fail (column > -1, G_TYPE_INVALID);
-
-    // Declarations
-    const LwResultsPrivate * priv = NULL;
-    LwDictionaryCache * dictionary_cache = NULL;
-    LwDictionary * dictionary = NULL;
-
-    // Initializations
-    priv = lw_results_get_instance_private (self);
-    dictionary_cache = priv->dictionary_cache;
-    dictionary = priv->dictionary;
-
-    return lw_list_get_column_type (LW_LIST (dictionary), column);
-}
-
-static gboolean
-lw_results_get_iter_at_position (LwResults     * self,
-                                 LwResultsIter * iter,
-                                 gint            position)
-{
-    // Sanity checks
-    g_return_val_if_fail (LW_IS_RESULTS (self), FALSE);
-    g_return_val_if_fail (iter != NULL, FALSE);
-    g_return_val_if_fail (position > -1, FALSE);
-
-    // Declarations
-    const LwResultsPrivate * priv = NULL;
-    GSequence * sequence = NULL;
-    GSequenceIter * sequence_iter = NULL;
-
-    // Initializations
-    priv = lw_results_get_instance_private (self);
-    sequence = priv->sequence;
-    sequence_iter =  g_sequence_get_iter_at_pos (sequence, position);
-
-    memset(iter, 0, sizeof(LwResultsIter));
-    iter->results = self;
-    iter->sequence_iter = sequence_iter;
-}
-
-static gint
-lw_results_get_length (LwResults * self)
-{
-    // Sanity checks
-    g_return_val_if_fail (LW_IS_RESULTS (self), 0);
-
-    // Declarations
-    const LwResultsPrivate * priv = NULL;
-    GSequence * sequence = NULL;
-
-    // Initializations
-    priv = lw_results_get_instance_private (self);
-    sequence = priv->sequence;
-
-    return g_sequence_get_length (sequence);
-}
-
-static gint
-lw_results_iter_get_position (LwResultsIter * self)
-{
-    // Sanity checks
-    g_return_val_if_fail (self != NULL, -1);
-
-    return g_sequence_iter_get_position (self->sequence_iter);
-}
-
-static void
-lw_results_iter_get_value (LwResultsIter * self, gint column, GValue * value)
-{
-    // Sanity checks
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (column < 0);
-    g_return_if_fail (value != NULL);
-
-    g_value_init (value, G_TYPE_POINTER);
-    g_value_set_pointer (value, g_sequence_get (self->sequence_iter));
-}
-
-static gboolean
-lw_results_iter_next (LwResultsIter * self)
-{
-    // Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-
-    return !g_sequence_iter_is_end (self->sequence_iter);
-}
-
-static gboolean
-lw_results_iter_previous (LwResultsIter * self)
-{
-    // Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-
-    return !g_sequence_iter_is_begin (self->sequence_iter);
-}
+LW_LIST_DEFINE_SEQUENCE_BACKED_METHODS (lw_results, LwResults, LW_IS_RESULTS)
 

@@ -138,7 +138,7 @@ lw_iter_get_position (LwIter * self)
     LwListClass * klass = NULL;
 
     // Initializations
-    list = LW_LIST (self->list);
+    list = LW_LIST (self->iterable);
     klass = LW_LIST_GET_CLASS (list);
 
     return klass->iter_get_position (self);
@@ -158,7 +158,7 @@ lw_iter_get_value (LwIter * self,
     LwListClass * klass = NULL;
 
     // Initializations
-    list = LW_LIST (self->list);
+    list = LW_LIST (self->iterable);
     klass = LW_LIST_GET_CLASS (list);
 
     klass->iter_get_value (self, column, value);
@@ -175,7 +175,7 @@ lw_iter_next (LwIter * self)
     LwListClass * klass = NULL;
 
     // Initializations
-    list = LW_LIST (self->list);
+    list = LW_LIST (self->iterable);
     klass = LW_LIST_GET_CLASS (list);
 
     return klass->iter_next (self);
@@ -192,7 +192,7 @@ lw_iter_previous (LwIter * self)
     LwListClass * klass = NULL;
 
     // Initializations
-    list = LW_LIST (self->list);
+    list = LW_LIST (self->iterable);
     klass = LW_LIST_GET_CLASS (list);
 
     return klass->iter_previous (self);
