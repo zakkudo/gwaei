@@ -88,7 +88,7 @@ struct _LwDictionaryListPrivate {
 struct _LwDictionaryListClassPrivate {
 
 
-G_DEFINE_TYPE_WITH_PRIVATE (LwDictionaries, lw_dictionaries, LW_TYPE_ITERABLE)
+G_DEFINE_TYPE_WITH_PRIVATE (LwDictionaries, lw_dictionaries, LW_TYPE_ITERABLE, g_type_add_class_private(LW_TYPE_CACHE_FILE, sizeof(LwCacheFileClassPrivate)))
 
 
 //!

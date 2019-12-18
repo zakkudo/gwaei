@@ -20,7 +20,6 @@ typedef enum {
 
 //Methods
 LwCacheFile * lw_cache_file_new (gchar const * PATH);
-GType lw_cache_file_get_type (void) G_GNUC_CONST;
 gsize lw_cache_file_write (LwCacheFile *self, const gchar *CHECKSUM, const gchar *CONTENTS, gssize content_length, LwProgress  *progress);
 gsize lw_cache_file_write_cache_file (LwCacheFile  * self, const gchar * CHECKSUM, LwCacheFile * cache_file, LwProgress * progress);
 gsize lw_cache_file_read (LwCacheFile *self, const gchar *EXPECTED_CHECKSUM, LwProgress *progress);

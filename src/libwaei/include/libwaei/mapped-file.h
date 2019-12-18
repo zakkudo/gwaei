@@ -15,7 +15,6 @@ struct _LwMappedFileClass {
 
 //Methods
 LwMappedFile* lw_mapped_file_new (gchar const * PATH);
-GType lw_mapped_file_get_type (void) G_GNUC_CONST;
 
 //Properties
 gsize lw_mapped_file_length (LwMappedFile * self);

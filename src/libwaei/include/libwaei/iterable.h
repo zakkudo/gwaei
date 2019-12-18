@@ -52,8 +52,6 @@ struct _LwIterableClass {
 };
 
 //Methods
-GType lw_iterable_get_type (void) G_GNUC_CONST;
-
 void lw_iterable_get_begin_iter(LwIterable *self, LwIter * iter);
 void lw_iterable_get_end_iter(LwIterable *self, LwIter * iter);
 gint lw_iterable_get_n_columns (LwIterable *self);
@@ -65,6 +63,11 @@ gint lw_iter_get_position (LwIter  *self);
 void lw_iter_get_value (LwIter *self, gint column, GValue *value);
 gboolean lw_iter_next (LwIter *self);
 gboolean lw_iter_previous (LwIter  *self);
+
+void lw_iterable_emit_row_inserted (LwIterable * iterable, gint index);
+void lw_iterable_emit_row_changed (LwIterable * iterable, gint index);
+void lw_iterable_emit_rows_reordered (LwIterable * self, gint * new_order);
+void lw_iterable_emit_row_deleted (LwIterable * self, gint index);
 
 G_END_DECLS
 

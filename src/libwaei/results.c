@@ -435,8 +435,8 @@ lw_results_append (LwResults * self,
     result->index = priv->length;
     priv->length += 1;
 
-    g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED], 0, result->index);
-    g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED], 0, result->index);
+    lw_iterable_emit_row_inserted (self, result->index);
+    lw_iterable_emit_row_changed (self, result->index);
 
     return iter;
 }
@@ -481,7 +481,7 @@ lw_results_sort_by_score (LwResults * self)
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_score_func, NULL);
 
     new_order = lw_results_normalize_indices (self);
-    g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED], 0, new_order);
+    lw_iterable_emit_rows_reordered (self, new_order);
 
 errored:
 
@@ -530,7 +530,7 @@ lw_results_sort_by_index (LwResults * self)
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_index_func, NULL);
     new_order = lw_results_normalize_indices (self);
 
-    g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED], 0, new_order);
+    lw_iterable_emit_rows_reordered (self, new_order);
 
 errored:
 
@@ -689,7 +689,7 @@ lw_results_sort (LwResults * self, gint column, LwSortDirection direction)
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_column_func, &data);
 
     new_order = lw_results_normalize_indices (self);
-    g_signal_emit (G_OBJECT (self), klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED], 0, new_order);
+    lw_iterable_emit_rows_reordered (self, new_order);
 
 errored:
 

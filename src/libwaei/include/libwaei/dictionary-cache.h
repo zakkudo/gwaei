@@ -21,7 +21,6 @@ typedef LwParsed*(*LwDictionaryCacheParseFunc)(LwCacheFile * cache_file, gpointe
 
 //Methods
 LwDictionaryCache * lw_dictionary_cache_new (gchar const * DICTIONARY_NAME, GType dictionary_type, LwUtf8Flag flags);
-GType lw_dictionary_cache_get_type (void) G_GNUC_CONST;
 
 void lw_dictionary_cache_write (LwDictionaryCache * self, gchar const * CHECKSUM, gchar const * CONTENTS, gsize content_length, LwDictionaryCacheParseFunc parse, gpointer data, LwProgress * progress);
 gboolean lw_dictionary_cache_read (LwDictionaryCache * self, gchar const * EXPECTED_CHECKSUM, LwProgress * progress);
