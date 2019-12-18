@@ -7,25 +7,34 @@
 #include "utf8.h"
 #include "parsed.h"
 #include "progress.h"
+#include "list.h"
 
 G_BEGIN_DECLS
 
 typedef enum {
-  LW_DICTIONARYCOLUMNHANDLING_UNUSED, //!< An unused field
-  LW_DICTIONARYCOLUMNHANDLING_SEARCH_ONLY, //!< Column is not indexed, but it is still searched
-  LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, //!< Key is indexed and is included by default for all searches
-  LW_DICTIONARYCOLUMNHANDLING_FILTER_ONLY, //!< Key is indexed, but is only included when queried explicitly
-  TOTAL_DICTIONARYCOLUMNHANDLING
+  LW_DICTIONARY_COLUMN_HANDLING_UNUSED, //!< An unused field
+  LW_DICTIONARY_COLUMN_HANDLING_SEARCH_ONLY, //!< Column is not indexed, but it is still searched
+  LW_DICTIONARY_COLUMN_HANDLING_INDEX_AND_SEARCH, //!< Key is indexed and is included by default for all searches
+  LW_DICTIONARY_COLUMN_HANDLING_FILTER_ONLY, //!< Key is indexed, but is only included when queried explicitly
+  TOTAL_DICTIONARY_COLUMN_HANDLING
 } LwDictionaryColumnHandling;
-GType lw_dictionarycolumnhandling_get_type (void);
-#define LW_TYPE_DICTIONARYCOLUMNHANDLING (lw_dictionarycolumnhandling_get_type ())
+GType lw_dictionary_column_handling_get_type (void);
+#define LW_TYPE_DICTIONARY_COLUMN_HANDLING (lw_dictionary_column_handling_get_type ())
+
+#define LW_DICTIONARY_COLUMN_HANDLING_NAME_UNUSED "Unused"
+#define LW_DICTIONARY_COLUMN_HANDLING_NAME_INDEX_AND_SEARCH "Index and Search"
+#define LW_DICTIONARY_COLUMN_HANDLING_NAME_FILTER_ONLY "Filter Only"
+
+#define LW_DICTIONARY_COLUMN_HANDLING_NICK_UNUSED "unused"
+#define LW_DICTIONARY_COLUMN_HANDLING_NICK_INDEX_AND_SEARCH "index-and-search"
+#define LW_DICTIONARY_COLUMN_HANDLING_NICK_FILTER_ONLY "filter-only"
 
 //Boilerplate
 #define LW_TYPE_DICTIONARY lw_dictionary_get_type ()
-G_DECLARE_DERIVABLE_TYPE (LwDictionary, lw_dictionary, LW, DICTIONARY, GObject)
+G_DECLARE_DERIVABLE_TYPE (LwDictionary, lw_dictionary, LW, DICTIONARY, LwList)
 
 struct _LwDictionaryClass {
-    GObjectClass parent_class;
+    LwList parent_class;
 
     //Virtual methods
     gsize (* count_lines) (gchar * buffer, gsize buffer_length, gsize * max_line_length, LwProgress * progress);
@@ -39,15 +48,6 @@ struct _LwDictionaryClass {
 };
 
 #define LW_DICTIONARY_CHECKSUM G_CHECKSUM_SHA512 
-
-#define LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED "Unused"
-#define LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH "Index and Search"
-#define LW_DICTIONARYCOLUMNHANDLINGNAME_FILTER_ONLY "Filter Only"
-
-#define LW_DICTIONARYCOLUMNHANDLINGNICK_UNUSED "unused"
-#define LW_DICTIONARYCOLUMNHANDLINGNICK_INDEX_AND_SEARCH "index-and-search"
-#define LW_DICTIONARYCOLUMNHANDLINGNICK_FILTER_ONLY "filter-only"
-
 
 //Methods
 LwDictionary * lw_dictionary_new (GType type, gchar const * FILENAME);

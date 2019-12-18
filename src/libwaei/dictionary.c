@@ -69,7 +69,6 @@
 #include <libwaei/io.h>
 #include <libwaei/dictionary.h>
 #include <libwaei/dictionary-cache-tree.h>
-#include <libwaei/iterable.h>
 
 #define lw_dictionary_get_class(self) G_TYPE_INSTANCE_GET_CLASS(self, LW_TYPE_DICTIONARY, LwDictionaryClass)
 #define lw_dictionary_get_class_private(self) G_TYPE_CLASS_GET_PRIVATE(lw_dictionary_get_class(self), LW_TYPE_DICTIONARY, LwDictionaryClassPrivate)
@@ -129,9 +128,9 @@ static LwParsed* lw_dictionary_parse (LwDictionary * self, LwCacheFile * cache_f
 
 static LwDictionaryCacheTree * lw_dictionary_get_cache_tree (LwDictionary * self);
 static void lw_dictionary_set_cache_tree (LwDictionary * self, LwDictionaryCacheTree * tree);
-static void _iterable_interface_init (LwIterable * iface);
+static void _iterable_interface_init (LwList * iface);
 
-G_DEFINE_ABSTRACT_TYPE_WITH_CODE (LwDictionary, lw_dictionary, LW_TYPE_ITERABLE, G_ADD_PRIVATE(LwDictionary) g_type_add_class_private(LW_TYPE_DICTIONARY, sizeof(LwDictionaryClassPrivate)))
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (LwDictionary, lw_dictionary, LW_TYPE_LIST, G_ADD_PRIVATE(LwDictionary) g_type_add_class_private(LW_TYPE_DICTIONARY, sizeof(LwDictionaryClassPrivate)))
 
 
 /**
@@ -285,12 +284,12 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
-    LwIterableClass * iterable_class = NULL;
+    LwListClass * iterable_class = NULL;
     LwDictionaryClassPrivate * klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
-    iterable_class = LW_ITERABLE_CLASS (klass);
+    iterable_class = LW_LIST_CLASS (klass);
     klasspriv = lw_dictionary_class_get_private (klass);
 
     object_class->set_property = lw_dictionary_set_property;
@@ -391,9 +390,9 @@ GType lw_dictionarycolumnhandling_get_type ()
     if (G_UNLIKELY (type == 0))
     {
       GEnumValue values[] = {
-        { LW_DICTIONARYCOLUMNHANDLING_UNUSED, LW_DICTIONARYCOLUMNHANDLINGNAME_UNUSED, LW_DICTIONARYCOLUMNHANDLINGNICK_UNUSED },
-        { LW_DICTIONARYCOLUMNHANDLING_INDEX_AND_SEARCH, LW_DICTIONARYCOLUMNHANDLINGNAME_INDEX_AND_SEARCH, LW_DICTIONARYCOLUMNHANDLINGNICK_INDEX_AND_SEARCH },
-        { LW_DICTIONARYCOLUMNHANDLING_FILTER_ONLY, LW_DICTIONARYCOLUMNHANDLINGNAME_FILTER_ONLY, LW_DICTIONARYCOLUMNHANDLINGNICK_FILTER_ONLY },
+        { LW_DICTIONARY_COLUMN_HANDLING_UNUSED, LW_DICTIONARY_COLUMN_HANDLING_NAME_UNUSED, LW_DICTIONARY_COLUMN_HANDLING_NICK_UNUSED },
+        { LW_DICTIONARY_COLUMN_HANDLING_INDEX_AND_SEARCH, LW_DICTIONARY_COLUMN_HANDLING_NAME_INDEX_AND_SEARCH, LW_DICTIONARY_COLUMN_HANDLING_NICK_INDEX_AND_SEARCH },
+        { LW_DICTIONARY_COLUMN_HANDLING_FILTER_ONLY, LW_DICTIONARY_COLUMN_HANDLING_NAME_FILTER_ONLY, LW_DICTIONARY_COLUMN_HANDLING_NICK_FILTER_ONLY },
         { 0, NULL, NULL },
       };
 
@@ -465,12 +464,12 @@ lw_dictionary_get_column_handling (LwDictionaryClass * klass,
                                    gint                column_num)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), LW_DICTIONARYCOLUMNHANDLING_UNUSED);
-    g_return_val_if_fail (column_num > -1, LW_DICTIONARYCOLUMNHANDLING_UNUSED);
+    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), LW_DICTIONARY_COLUMN_HANDLING_UNUSED);
+    g_return_val_if_fail (column_num > -1, LW_DICTIONARY_COLUMN_HANDLING_UNUSED);
 
     //Declarations
     gint total_columns = 0;
-    gint handling = LW_DICTIONARYCOLUMNHANDLING_UNUSED;
+    gint handling = LW_DICTIONARY_COLUMN_HANDLING_UNUSED;
 
     //Initializations
     total_columns = lw_dictionary_total_columns (klass);

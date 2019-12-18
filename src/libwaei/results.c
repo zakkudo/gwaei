@@ -52,8 +52,16 @@ typedef enum {
 } Props;
 
 struct _LwResults {
-    LwSortable parent;
+    LwEditableList parent;
 };
+
+
+typedef struct {
+  gint column;
+  GQuark language;
+  GQuark number;
+  LwParsed * parsed;
+} CompareByColumnIdFuncData;
 
 typedef struct {
     LwResults * results;
@@ -96,7 +104,7 @@ static gboolean lw_results_iter_previous (LwResultsIter * self);
 
 static void lw_results_sort (LwResults * self, gint column, LwSortDirection direction);
 
-G_DEFINE_TYPE_WITH_CODE (LwResults, lw_results, LW_TYPE_SORTABLE, G_ADD_PRIVATE(LwResults) g_type_add_class_private(LW_TYPE_RESULTS, sizeof(LwResultsClassPrivate)) )
+G_DEFINE_TYPE_WITH_CODE (LwResults, lw_results, LW_TYPE_EDITABLE_LIST, G_ADD_PRIVATE(LwResults) g_type_add_class_private(LW_TYPE_RESULTS, sizeof(LwResultsClassPrivate)) )
 
 
 /**
@@ -216,32 +224,32 @@ lw_results_class_init (LwResultsClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
-    LwIterableClass * iterable_class = NULL;
-    LwSortableClass * sortable_class = NULL;
+    LwListClass * list_class = NULL;
+    LwEditableListClass * editable_list_class = NULL;
     LwResultsClassPrivate * klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
-    iterable_class = LW_ITERABLE_CLASS (klass);
+    list_class = LW_LIST_CLASS (klass);
     klasspriv = lw_results_class_get_private (klass);
 
     object_class->set_property = lw_results_set_property;
     object_class->get_property = lw_results_get_property;
     object_class->finalize = lw_results_finalize;
 
-    iterable_class->get_begin_iter = (LwIterableGetBeginIterFunc) lw_results_get_begin_iter;
-    iterable_class->get_end_iter = (LwIterableGetEndIterFunc) lw_results_get_end_iter;
-    iterable_class->get_n_columns = (LwIterableGetNColumnsFunc) lw_results_get_n_columns;
-    iterable_class->get_column_type = (LwIterableGetColumnTypeFunc) lw_results_get_column_type;
-    iterable_class->get_iter_at_position = (LwIterableGetIterAtPositionFunc) lw_results_get_iter_at_position;
-    iterable_class->get_length = (LwIterableGetLengthFunc) lw_results_get_length;
+    list_class->get_begin_iter = (LwListGetBeginIterFunc) lw_results_get_begin_iter;
+    list_class->get_end_iter = (LwListGetEndIterFunc) lw_results_get_end_iter;
+    list_class->get_n_columns = (LwListGetNColumnsFunc) lw_results_get_n_columns;
+    list_class->get_column_type = (LwListGetColumnTypeFunc) lw_results_get_column_type;
+    list_class->get_iter_at_position = (LwListGetIterAtPositionFunc) lw_results_get_iter_at_position;
+    list_class->get_length = (LwListGetLengthFunc) lw_results_get_length;
 
-    iterable_class->iter_get_position = (LwIterableIterGetPositionFunc) lw_results_iter_get_position;
-    iterable_class->iter_get_value = (LwIterableIterGetValueFunc) lw_results_iter_get_value;
-    iterable_class->iter_next = (LwIterableIterNextFunc) lw_results_iter_next;
-    iterable_class->iter_previous = (LwIterableIterPreviousFunc) lw_results_iter_previous;
+    list_class->iter_get_position = (LwListIterGetPositionFunc) lw_results_iter_get_position;
+    list_class->iter_get_value = (LwListIterGetValueFunc) lw_results_iter_get_value;
+    list_class->iter_next = (LwListIterNextFunc) lw_results_iter_next;
+    list_class->iter_previous = (LwListIterPreviousFunc) lw_results_iter_previous;
 
-    sortable_class->sort = (LwSortableSortFunc) lw_results_sort;
+    editable_list_class->sort = (LwEditableListSortFunc) lw_results_sort;
 
     /**
      * LwResults:dictionary:
@@ -252,7 +260,7 @@ lw_results_class_init (LwResultsClass * klass)
         gettext("Dictionary"),
         gettext("The dictionary which the results reference"),
         LW_TYPE_DICTIONARY,
-        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITE
+        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE
     );
     g_object_class_install_property (object_class, PROP_DICTIONARY, klasspriv->pspec[PROP_DICTIONARY]);
 
@@ -265,7 +273,7 @@ lw_results_class_init (LwResultsClass * klass)
         gettext("Dictionary Cache"),
         gettext("The dictionary which the results reference"),
         LW_TYPE_DICTIONARY_CACHE,
-        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITE
+        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE
     );
     g_object_class_install_property (object_class, PROP_DICTIONARY_CACHE, klasspriv->pspec[PROP_DICTIONARY_CACHE]);
 }
@@ -415,30 +423,26 @@ lw_results_get_sequence (LwResults * self)
  * @result: A #LwResult to append to the list
  * Returns: An iterator pointing to where the result was inserted
  */
-LwResultsIter *
+void
 lw_results_append (LwResults * self,
                    LwResult  * result)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_RESULTS (self), NULL);
-    g_return_val_if_fail (result != NULL, NULL);
+    g_return_if_fail (LW_IS_RESULTS (self));
+    g_return_if_fail (result != NULL);
 
     //Declarations
     LwResultsPrivate * priv = NULL;
     LwResultsClassPrivate * klasspriv = NULL;
-    LwResultsIter * iter = NULL;
+    GSequenceIter * iter = NULL;
 
     //Initializations
     priv = lw_results_get_instance_private (self);
     klasspriv = lw_results_get_class_private (self);
     iter = g_sequence_append (priv->sequence, result);
-    result->index = priv->length;
-    priv->length += 1;
 
-    lw_iterable_emit_row_inserted (self, result->index);
-    lw_iterable_emit_row_changed (self, result->index);
-
-    return iter;
+    lw_editable_list_emit_row_inserted (LW_EDITABLE_LIST (self), result->index);
+    lw_editable_list_emit_row_changed (LW_EDITABLE_LIST (self), result->index);
 }
 
 /**
@@ -448,7 +452,7 @@ lw_results_append (LwResults * self,
  * @Returns: less than 0 if a is less than b, 0 if a equals b, greater than 0 if a is greater than b
  *
  * A compare method made to be directly compatible with g_sequence_sort() or
- * wrapped in a thin wrapper for #GtkTreeIterCompareFunc to implement #GtkTreeSortable.
+ * wrapped in a thin wrapper for #GtkTreeIterCompareFunc to implement #GtkTreeEditableList.
  */
 static gint
 lw_results_compare_score_func (LwResult * a,
@@ -481,7 +485,7 @@ lw_results_sort_by_score (LwResults * self)
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_score_func, NULL);
 
     new_order = lw_results_normalize_indices (self);
-    lw_iterable_emit_rows_reordered (self, new_order);
+    lw_editable_list_emit_rows_reordered (LW_EDITABLE_LIST (self), new_order);
 
 errored:
 
@@ -497,7 +501,7 @@ errored:
  * @Returns: less than 0 if a is less than b, 0 if a equals b, greater than 0 if a is greater than b
  *
  * A compare method made to be directly compatible with g_sequence_sort() or
- * wrapped in a thin wrapper for #GtkTreeIterCompareFunc to implement #GtkTreeSortable.
+ * wrapped in a thin wrapper for #GtkTreeIterCompareFunc to implement #GtkTreeEditableList.
  */
 static gint
 lw_results_compare_index_func (LwResult * a,
@@ -530,7 +534,7 @@ lw_results_sort_by_index (LwResults * self)
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_index_func, NULL);
     new_order = lw_results_normalize_indices (self);
 
-    lw_iterable_emit_rows_reordered (self, new_order);
+    lw_editable_list_emit_rows_reordered (LW_EDITABLE_LIST (self), new_order);
 
 errored:
 
@@ -547,12 +551,12 @@ errored:
  * @Returns: less than 0 if a is less than b, 0 if a equals b, greater than 0 if a is greater than b
  *
  * A compare method made to be directly compatible with g_sequence_sort() or
- * wrapped in a thin wrapper for #GtkTreeIterCompareFunc to implement #GtkTreeSortable.
+ * wrapped in a thin wrapper for #GtkTreeIterCompareFunc to implement #GtkTreeEditableList.
  */
 static gint
 lw_results_compare_column_func (LwResult                                  * a,
                                   LwResult                                  * b,
-                                  struct LwResultsCompareByColumnIdFuncData * data)
+                                  CompareByColumnIdFuncData * data)
 {
     //Declarations
     gchar const ** strva = NULL;
@@ -657,7 +661,7 @@ lw_results_sort (LwResults * self, gint column, LwSortDirection direction)
     //Declarations
     LwResultsPrivate * priv = NULL;
     GSequence * sequence = NULL;
-    struct LwResultsCompareByColumnIdFuncData data = {0};
+    CompareByColumnIdFuncData data = {0};
     GQuark language = 0;
     LwParsed * parsed = NULL;
     LwDictionaryClass * dictionary_class = NULL;
@@ -689,7 +693,7 @@ lw_results_sort (LwResults * self, gint column, LwSortDirection direction)
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_column_func, &data);
 
     new_order = lw_results_normalize_indices (self);
-    lw_iterable_emit_rows_reordered (self, new_order);
+    lw_editable_list_emit_rows_reordered (LW_EDITABLE_LIST (self), new_order);
 
 errored:
 
@@ -790,7 +794,7 @@ lw_results_get_n_columns (LwResults * self)
     dictionary_cache = priv->dictionary_cache;
     dictionary = priv->dictionary;
 
-    return lw_iterable_get_n_columns (LW_ITERABLE (dictionary));
+    return lw_list_get_n_columns (LW_LIST (dictionary));
 }
 
 static GType
@@ -811,7 +815,7 @@ lw_results_get_column_type (LwResults * self,
     dictionary_cache = priv->dictionary_cache;
     dictionary = priv->dictionary;
 
-    return lw_iterable_get_column_type (LW_ITERABLE (dictionary), column);
+    return lw_list_get_column_type (LW_LIST (dictionary), column);
 }
 
 static gboolean
