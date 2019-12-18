@@ -16,28 +16,39 @@ typedef struct {
     gpointer user_data3;
 } LwIter;
 
+typedef void (*LwIterableGetBeginIterFunc) (LwIterable *self, LwIter * iter);
+typedef void (*LwIterableGetEndIterFunc)(LwIterable *self, LwIter * iter);
+typedef gint (*LwIterableGetNColumnsFunc ) (LwIterable *self);
+typedef GType (*LwIterableGetColumnTypeFunc) (LwIterable *self, gint column);
+typedef gboolean (*LwIterableGetIterAtPositionFunc) (LwIterable *self, LwIter *iter, gint position);
+typedef gint (*LwIterableGetLengthFunc) (LwIterable *self);
+
+typedef gint (*LwIterableIterGetPositionFunc) (LwIter  *self);
+typedef void (*LwIterableIterGetValueFunc) (LwIter *self, gint column, GValue *value);
+typedef gboolean (*LwIterableIterNextFunc) (LwIter *self);
+typedef gboolean (*LwIterableIterPreviousFunc) (LwIter  *self);
+
 struct _LwIterableClass {
   GObjectClass parent_class;
 
   /* Signals */
   void (* row_changed)           (LwIterable *iterable, gint index, LwIter * iter);
   void (* row_inserted)          (LwIterable *iterable, gint index, LwIter * iter);
-  void (* row_has_child_toggled) (LwIterable *iterable, gint index, LwIter * iter);
   void (* row_deleted)           (LwIterable *iterable, gint index);
   void (* rows_reordered)        (LwIterable *iterable, gint index, LwIter * iter, gint * new_order);
 
   /* Virtual methods */
-  void (*get_begin_iter) (LwIterable *self, LwIter * iter);
-  void (*get_end_iter)(LwIterable *self, LwIter * iter);
-  gint (*get_n_columns) (LwIterable *self);
-  GType (*get_column_type) (LwIterable *self, gint column);
-  gboolean (*get_iter_at_position) (LwIterable *self, LwIter *iter, gint position);
-  gint (*get_length) (LwIterable *self);
+  LwIterableGetBeginIterFunc get_begin_iter;
+  LwIterableGetEndIterFunc get_end_iter;
+  LwIterableGetNColumnsFunc get_n_columns;
+  LwIterableGetColumnTypeFunc get_column_type;
+  LwIterableGetIterAtPositionFunc get_iter_at_position;
+  LwIterableGetLengthFunc get_length;
 
-  gint (*iter_get_position) (LwIter  *self);
-  void (*iter_get_value) (LwIter *self, gint column, GValue *value);
-  gboolean (*iter_next) (LwIter *self);
-  gboolean (*iter_previous) (LwIter  *self);
+  LwIterableIterGetPositionFunc iter_get_position;
+  LwIterableIterGetValueFunc iter_get_value;
+  LwIterableIterNextFunc iter_next;
+  LwIterableIterPreviousFunc iter_previous;
 };
 
 //Methods

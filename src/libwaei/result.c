@@ -38,9 +38,7 @@
 #include <glib.h>
 
 #include <libwaei/gettext.h>
-#include <libwaei/utf8.h>
 #include <libwaei/result.h>
-
 
 
 LwResult *

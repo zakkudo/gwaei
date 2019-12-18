@@ -25,7 +25,7 @@
  * @title: LwMatchInfo
  *
  * Provides a way to more deeply inspect matches from #LwQueryNode when you
- * run lw_querynode_match_parsedline().  One of the primary purposes of this
+ * run lw_querynode_match_parsed_line().  One of the primary purposes of this
  * library is to allow easy highlighting of substrings of the match.
  */
 

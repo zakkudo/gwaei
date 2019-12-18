@@ -1,8 +1,6 @@
 #ifndef LW_RESULT_INCLUDED
 #define LW_RESULT_INCLUDED
 
-#include "parsed-line.h"
-
 G_BEGIN_DECLS
 
 struct _LwResult {

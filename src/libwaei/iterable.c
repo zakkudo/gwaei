@@ -22,6 +22,78 @@ lw_iterable_init (LwIterable *self)
     static void
 lw_iterable_class_init (LwIterableClass * klass)
 {
+
+   // /**
+   //  * LwResults::internal-row-changed:
+   //  * @self: A #LwResults
+   //  * @position: The index of the row that changed
+   //  *
+   //  * A signal handler for #GtkTreeModel compatibility
+   //  */
+   // klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
+   //     "internal-row-changed",
+   //     G_OBJECT_CLASS_TYPE (object_class),
+   //     G_SIGNAL_RUN_FIRST,
+   //     G_STRUCT_OFFSET (LwResultsClass, row_changed),
+   //     NULL, NULL,
+   //     g_cclosure_marshal_VOID__INT,
+   //     G_TYPE_NONE, 1,
+   //     G_TYPE_INT
+   // );
+
+   // /**
+   //  * LwResults::internal-row-inserted:
+   //  * @self: A #LwResults
+   //  * @position: The index of the row that changed
+   //  *
+   //  * A signal handler for #GtkTreeModel compatibility
+   //  */
+   // klasspriv->signalid[CLASS_SIGNALID_ROW_INSERTED] = g_signal_new (
+   //     "internal-row-inserted",
+   //     G_OBJECT_CLASS_TYPE (object_class),
+   //     G_SIGNAL_RUN_FIRST,
+   //     G_STRUCT_OFFSET (LwResultsClass, row_inserted),
+   //     NULL, NULL,
+   //     g_cclosure_marshal_VOID__INT,
+   //     G_TYPE_NONE, 1,
+   //     G_TYPE_INT
+   // );
+
+   // /**
+   //  * LwResults::internal-row-deleted:
+   //  * @self: A #LwResults
+   //  * @position: The index of the row that changed
+   //  *
+   //  * A signal handler for #GtkTreeModel compatibility
+   //  */
+   // klasspriv->signalid[CLASS_SIGNALID_ROW_DELETED] = g_signal_new (
+   //     "internal-row-deleted",
+   //     G_OBJECT_CLASS_TYPE (object_class),
+   //     G_SIGNAL_RUN_FIRST,
+   //     G_STRUCT_OFFSET (LwResultsClass, row_deleted),
+   //     NULL, NULL,
+   //     g_cclosure_marshal_VOID__INT,
+   //     G_TYPE_NONE, 1,
+   //     G_TYPE_INT
+   // );
+
+   // /**
+   //  * LwResults::internal-rows-reordered:
+   //  * @self: A #LwResults
+   //  * @position: The index of the row that changed
+   //  *
+   //  * A signal handler for #GtkTreeModel compatibility
+   //  */
+   // klasspriv->signalid[CLASS_SIGNALID_ROWS_REORDERED] = g_signal_new (
+   //     "internal-rows-reordered",
+   //     G_OBJECT_CLASS_TYPE (object_class),
+   //     G_SIGNAL_RUN_FIRST,
+   //     G_STRUCT_OFFSET (LwResultsClass, rows_reordered),
+   //     NULL, NULL,
+   //     g_cclosure_marshal_VOID__POINTER,
+   //     G_TYPE_NONE, 1,
+   //     G_TYPE_POINTER
+   // );
 }
 
 void 
