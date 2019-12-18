@@ -2,19 +2,13 @@
 #define LW_LIST_INCLUDED
 
 #include <glib-object.h>
+#include "iter.h"
 
 G_BEGIN_DECLS
 
 //Boilerplate
 #define LW_TYPE_LIST lw_list_get_type()
 G_DECLARE_DERIVABLE_TYPE (LwList, lw_list, LW, LIST, GObject)
-
-typedef struct {
-    LwList * list;
-    gpointer user_data1;
-    gpointer user_data2;
-    gpointer user_data3;
-} LwIter;
 
 typedef void (*LwListGetBeginIterFunc) (LwList *self, LwIter * iter);
 typedef void (*LwListGetEndIterFunc)(LwList *self, LwIter * iter);
