@@ -5,7 +5,6 @@ G_BEGIN_DECLS
 
 struct _LwResult {
   gint score;
-  gint index;
   gint line_number;
 };
 

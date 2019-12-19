@@ -7,7 +7,6 @@ typedef struct {
     gpointer iterable;
     gpointer user_data1;
     gpointer user_data2;
-    gpointer user_data3;
 } LwIter;
 
 G_END_DECLS

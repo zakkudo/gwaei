@@ -37,6 +37,8 @@
 
 #include <glib.h>
 
+#include "sequence-list.h"
+
 #include <libwaei/gettext.h>
 #include <libwaei/results.h>
 
@@ -105,6 +107,8 @@ static gboolean lw_results_iter_previous (LwIter * self);
 static void lw_results_sort (LwResults * self, gint column, LwSortDirection direction);
 
 G_DEFINE_TYPE_WITH_CODE (LwResults, lw_results, LW_TYPE_EDITABLE_LIST, G_ADD_PRIVATE(LwResults) g_type_add_class_private(LW_TYPE_RESULTS, sizeof(LwResultsClassPrivate)) )
+
+LW_LIST_DEFINE_SEQUENCE_BACKED_METHODS (lw_results, LwResults, LW_IS_RESULTS)
 
 /**
  * lw_results_new:
@@ -434,14 +438,16 @@ lw_results_append (LwResults * self,
     LwResultsPrivate * priv = NULL;
     LwResultsClassPrivate * klasspriv = NULL;
     GSequenceIter * iter = NULL;
+    gint position = -1;
 
     //Initializations
     priv = lw_results_get_instance_private (self);
     klasspriv = lw_results_get_class_private (self);
     iter = g_sequence_append (priv->sequence, result);
+    position = g_sequence_iter_get_position (iter);
 
-    lw_editable_list_emit_row_inserted (LW_EDITABLE_LIST (self), result->index);
-    lw_editable_list_emit_row_changed (LW_EDITABLE_LIST (self), result->index);
+    lw_editable_list_emit_row_inserted (LW_EDITABLE_LIST (self), position);
+    lw_editable_list_emit_row_changed (LW_EDITABLE_LIST (self), position);
 }
 
 /**
@@ -483,7 +489,6 @@ lw_results_sort_by_score (LwResults * self)
 
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_score_func, NULL);
 
-    new_order = lw_results_normalize_indices (self);
     lw_editable_list_emit_rows_reordered (LW_EDITABLE_LIST (self), new_order);
 
 errored:
@@ -531,7 +536,6 @@ lw_results_sort_by_index (LwResults * self)
     klasspriv = lw_results_get_class_private (self);
 
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_index_func, NULL);
-    new_order = lw_results_normalize_indices (self);
 
     lw_editable_list_emit_rows_reordered (LW_EDITABLE_LIST (self), new_order);
 
@@ -603,50 +607,6 @@ errored:
 }
 
 
-static gint *
-lw_results_normalize_indices (LwResults * self)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_RESULTS (self), NULL);
-
-    //Declarations
-    LwResultsPrivate * priv = NULL;
-    gint * new_order = NULL;
-    gint * new_order_out = NULL;
-    GSequence * sequence = NULL;
-    GSequenceIter * iter = NULL;
-    LwResult * result = NULL;
-    gint i = 0;
-
-    //Initializations
-    priv = lw_results_get_instance_private (self);
-    new_order = g_new0 (gint, priv->length);
-    if (new_order == NULL) goto errored;
-    sequence = priv->sequence;
-    if (sequence == NULL) goto errored;
-    iter = g_sequence_get_begin_iter (sequence);
-    if (iter == NULL) goto errored;
-
-    while (!g_sequence_iter_is_end (iter))
-    {
-      result = g_sequence_get (iter);
-      new_order[i] = result->index;
-      result->index = i;
-      i += 1;
-      iter = g_sequence_iter_next (iter);
-    }
-
-    new_order_out = new_order;
-    new_order = NULL;
-
-errored:
-
-    g_free (new_order);
-    new_order = NULL;
-
-    return new_order_out;
-}
-
 /**
  * lw_results_sort_by_column:
  * @self: A #LwResults
@@ -683,15 +643,18 @@ lw_results_sort (LwResults * self, gint column, LwSortDirection direction)
     if (language == 0) goto errored;
     parsed = lw_dictionary_cache_get_parsed (dictionary_cache);
     if (parsed == NULL) goto errored;
+    GHashTable * previous_order_table = NULL;
+    gint * new_order = NULL;
 
     data.column = column;
     data.language = language;
     data.parsed = parsed;
     data.number = g_quark_from_static_string ("number");
 
+    previous_order_table = lw_sequence_previous_order_table_new (sequence);
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_column_func, &data);
+    new_order = lw_sequence_map_new_order (GSequence  * sequence,  GHashTable * previous_order_table);
 
-    new_order = lw_results_normalize_indices (self);
     lw_editable_list_emit_rows_reordered (LW_EDITABLE_LIST (self), new_order);
 
 errored:
@@ -702,8 +665,8 @@ errored:
     g_free (new_order);
     new_order = NULL;
 
+    g_hash_table_unref (previous_order_table);
+    previous_order_table = NULL;
+
     return;
 }
-
-LW_LIST_DEFINE_SEQUENCE_BACKED_METHODS (lw_results, LwResults, LW_IS_RESULTS)
-
