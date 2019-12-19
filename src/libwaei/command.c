@@ -38,10 +38,10 @@
 
 #include <glib.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/command.h>
+#include "gettext.h"
+#include "command.h"
 
-#include <libwaei/utf8.h>
+#include "utf8.h"
 
 typedef enum {
   PROP_0,

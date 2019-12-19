@@ -1,4 +1,4 @@
-#include <libwaei/sort-direction.h>
+#include "sort-direction.h"
 
 /**
  * lw_sort_direction_get_type:

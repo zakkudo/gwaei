@@ -69,9 +69,9 @@
 #include <math.h>
 #include <gio/gio.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/progress.h>
-#include <libwaei/io.h>
+#include "gettext.h"
+#include "progress.h"
+#include "io.h"
 
 #define lw_progress_class_get_private() G_TYPE_CLASS_GET_PRIVATE(g_type_class_peek(LW_TYPE_PROGRESS), LW_TYPE_PROGRESS, LwProgressClassPrivate)
 

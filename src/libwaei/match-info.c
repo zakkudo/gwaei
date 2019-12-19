@@ -47,8 +47,8 @@
 
 #include <glib.h>
 
-#include <libwaei/query-node.h>
-#include <libwaei/gettext.h>
+#include "query-node.h"
+#include "gettext.h"
 
 
 
@@ -154,7 +154,7 @@ lw_match_info_unref (LwMatchInfo * self)
  */
 LwColumnMatchInfo *
 lw_match_info_get_column (LwMatchInfo * self,
-                                  gint                   column)
+                          gint          column)
 {
     g_return_val_if_fail (self != NULL, NULL);
 

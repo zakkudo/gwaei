@@ -65,10 +65,10 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/io.h>
-#include <libwaei/dictionary.h>
-#include <libwaei/dictionary-cache-tree.h>
+#include "gettext.h"
+#include "io.h"
+#include "dictionary.h"
+#include "dictionary-cache-tree.h"
 
 #define lw_dictionary_get_class(self) G_TYPE_INSTANCE_GET_CLASS(self, LW_TYPE_DICTIONARY, LwDictionaryClass)
 #define lw_dictionary_get_class_private(self) G_TYPE_CLASS_GET_PRIVATE(lw_dictionary_get_class(self), LW_TYPE_DICTIONARY, LwDictionaryClassPrivate)

@@ -37,10 +37,10 @@
 
 #include <glib.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/application.h>
+#include "gettext.h"
+#include "application.h"
 
-#include <libwaei/application-private.h>
+#include "application-private.h"
 
 typedef enum {
   PROP_0,

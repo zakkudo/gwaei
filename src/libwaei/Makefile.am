@@ -1,6 +1,4 @@
 
-SUBDIRS = include/libwaei
-
 LIBRARY_VERSION = 2:0:0
 ACLOCAL_AMFLAGS = -I m4
 datadir = @datadir@
@@ -26,7 +24,7 @@ libwaei_la_SOURCES +=parenthesis-node.c query-node.c match-marker.c match-info.c
 #libwaei_la_SOURCES +=vocabulary.c word.c 
 #libwaei_la_SOURCES +=range.c cachefile.c mappedfile.c io.c search.c preferences.c progress.c 
 libwaei_la_LDFLAGS =-version-info $(LIBRARY_VERSION)  $(LIBWAEI_LIBS) -no-undefined -avoid-version
-libwaei_la_CPPFLAGS =-I$(top_srcdir)/src/libwaei/include $(LIBWAEI_CFLAGS) $(DEFINITIONS) 
+libwaei_la_CPPFLAGS =-I$(top_srcdir)/src/libwaei $(LIBWAEI_CFLAGS) $(DEFINITIONS) 
 libwaei_la_LIBADD =
 
 #if WITH_MECAB

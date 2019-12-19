@@ -43,10 +43,10 @@
 
 #include <glib/gstdio.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/io.h>
-#include <libwaei/utf8.h>
-#include <libwaei/cache-file.h>
+#include "gettext.h"
+#include "io.h"
+#include "utf8.h"
+#include "cache-file.h"
 
 #define lw_cache_file_class_get_private() G_TYPE_CLASS_GET_PRIVATE(g_type_class_peek(LW_TYPE_CACHE_FILE), LW_TYPE_CACHE_FILE, LwCacheFileClassPrivate)
 

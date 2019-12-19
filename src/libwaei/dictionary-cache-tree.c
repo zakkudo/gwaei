@@ -40,10 +40,10 @@
 
 #include <glib.h>
 
-#include <libwaei/gettext.h>
+#include "gettext.h"
 
-#include <libwaei/dictionary-cache.h>
-#include <libwaei/dictionary-cache-tree.h>
+#include "dictionary-cache.h"
+#include "dictionary-cache-tree.h"
 
 
 struct _LwDictionaryCacheTreeCleanupData {

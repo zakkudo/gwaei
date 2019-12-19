@@ -3,7 +3,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <glib/gstdio.h>
-#include <libwaei/cachefile.h>
+#include "cachefile.h"
 
 
 struct _Fixture { gchar * path; gchar * path2; LwProgress * progress; GArray *steps;};

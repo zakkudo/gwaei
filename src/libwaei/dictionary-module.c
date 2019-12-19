@@ -57,10 +57,10 @@
 #include <gio/gio.h>
 #include <gmodule.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/dictionary_module.h>
+#include "gettext.h"
+#include "dictionary_module.h"
 
-#include <libwaei/dictionary_module-private.h>
+#include "dictionary_module-private.h"
 
 
 typedef enum {

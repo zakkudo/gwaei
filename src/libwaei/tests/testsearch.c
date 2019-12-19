@@ -1,8 +1,8 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <libwaei/utf8.h>
-#include <libwaei/search.h>
+#include "utf8.h"
+#include "search.h"
 
 #include "testdictionary.h"
 

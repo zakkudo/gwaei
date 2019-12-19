@@ -2,7 +2,7 @@
 
 
 GHashTable *
-lw_sequence_previous_order_table_new (GSequence * sequence) {
+lw_sequence_list_previous_order_table_new (GSequence * sequence) {
     GHashTable * table = NULL;
     GSequenceIter * iter = NULL;
     gint position = 0;
@@ -20,7 +20,7 @@ lw_sequence_previous_order_table_new (GSequence * sequence) {
 }
 
 gint *
-lw_sequence_map_new_order (GSequence  * sequence, 
+lw_sequence_list_map_new_order (GSequence  * sequence, 
                            GHashTable * previous_order_table)
 {
     gint length = g_sequence_get_length (sequence);

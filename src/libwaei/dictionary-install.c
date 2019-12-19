@@ -39,9 +39,9 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <libwaei/gettext.h>
+#include "gettext.h"
 
-#include <libwaei/dictionary_install-private.h>
+#include "dictionary_install-private.h"
 
 typedef enum {
     PROP_0,

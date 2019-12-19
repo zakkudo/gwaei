@@ -1,8 +1,8 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <libwaei/querynodecolumnmatchinfo.h>
-#include <libwaei/querynodematchmarker.h>
+#include "querynodecolumnmatchinfo.h"
+#include "querynodematchmarker.h"
 
 
 struct _Fixture {LwQueryNodeColumnMatchInfo *column_match_info;};

@@ -39,10 +39,10 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/parsed.h>
+#include "gettext.h"
+#include "parsed.h"
 
-#include <libwaei/parsed-private.h>
+#include "parsed-private.h"
 
 typedef enum
 {

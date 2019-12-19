@@ -3,7 +3,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <glib/gstdio.h>
-#include <libwaei/mappedfile.h>
+#include "mappedfile.h"
 
 
 struct _Fixture { gchar * tmpl; gchar const * TMP_DIR; gchar * path; gchar *tmpl2; gchar *path2;};

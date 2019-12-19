@@ -40,8 +40,8 @@
 
 #include <glib.h>
 
-#include <libwaei/match-marker.h>
-#include <libwaei/gettext.h>
+#include "match-marker.h"
+#include "gettext.h"
 
 
 /**

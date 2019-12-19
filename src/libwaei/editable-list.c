@@ -8,9 +8,9 @@
 
 #include <glib-object.h>
 
-#include <libwaei/gettext.h>
+#include "gettext.h"
 
-#include <libwaei/editable-list.h>
+#include "editable-list.h"
 
 #define lw_editable_list_get_class(self) G_TYPE_INSTANCE_GET_CLASS(self, LW_TYPE_EDITABLE_LIST, LwEditableListClass)
 #define lw_editable_list_get_class_private(self) G_TYPE_CLASS_GET_PRIVATE(lw_editable_list_get_class(self), LW_TYPE_EDITABLE_LIST, LwEditableListClassPrivate)

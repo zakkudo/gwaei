@@ -1,7 +1,7 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <libwaei/dictionary.h>
+#include "dictionary.h"
 
 #include "testdictionary.h"
 

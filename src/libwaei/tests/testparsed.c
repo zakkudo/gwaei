@@ -1,8 +1,8 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <libwaei/parsed.h>
-#include <libwaei/parsedline.h>
+#include "parsed.h"
+#include "parsedline.h"
 
 
 struct _Fixture {

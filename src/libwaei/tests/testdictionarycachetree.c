@@ -3,8 +3,8 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <glib/gstdio.h>
-#include <libwaei/dictionary.h>
-#include <libwaei/dictionarycachetree.h>
+#include "dictionary.h"
+#include "dictionarycachetree.h"
 
 #include "testdictionary.h"
 

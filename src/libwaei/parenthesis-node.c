@@ -46,10 +46,10 @@
 
 #include <glib.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/parenthesis-node.h>
-#include <libwaei/query-node.h>
-#include <libwaei/utf8.h>
+#include "gettext.h"
+#include "parenthesis-node.h"
+#include "query-node.h"
+#include "utf8.h"
 
 
 static GList * _parse_string (gchar const * TEXT, GError ** error);

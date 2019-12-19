@@ -46,11 +46,11 @@
 #include <glib/gstdio.h>
 #include <unistd.h>
 
-#include <libwaei/dictionary.h>
-#include <libwaei/dictionary-cache.h>
-#include <libwaei/serializable.h>
-#include <libwaei/io.h>
-#include <libwaei/gettext.h>
+#include "dictionary.h"
+#include "dictionary-cache.h"
+#include "serializable.h"
+#include "io.h"
+#include "gettext.h"
 
 #define lw_dictionary_cache_class_get_private() G_TYPE_CLASS_GET_PRIVATE(g_type_class_peek(LW_TYPE_DICTIONARY_CACHE), LW_TYPE_DICTIONARY_CACHE, LwDictionaryCacheClassPrivate)
 

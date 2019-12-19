@@ -40,9 +40,9 @@
 
 #include <glib.h>
 
-#include <libwaei/parenthesis-node.h>
-#include <libwaei/query-node.h>
-#include <libwaei/gettext.h>
+#include "parenthesis-node.h"
+#include "query-node.h"
+#include "gettext.h"
 
 
 /**
@@ -78,7 +78,7 @@ errored:
  */
 void
 lw_column_match_info_add (LwColumnMatchInfo * self,
-                                 GMatchInfo                 * match_info)
+                          GMatchInfo                 * match_info)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);
@@ -339,11 +339,11 @@ _read_marked_section (LwColumnMatchInfo      * self,
  */
 gboolean
 lw_column_match_info_read (LwColumnMatchInfo      * self,
-                                  LwColumnMatchInfoIter  * iter,
-                                  gint                            * i_out,
-                                  gchar const                    ** START_OUT,
-                                  gchar const                    ** END_OUT,
-                                  gboolean                        * is_match_out)
+                           LwColumnMatchInfoIter  * iter,
+                           gint                   * i_out,
+                           gchar const           ** START_OUT,
+                           gchar const           ** END_OUT,
+                           gboolean               * is_match_out)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);

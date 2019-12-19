@@ -1,7 +1,7 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <libwaei/utf8.h>
+#include "utf8.h"
 
 
 struct _Fixture { LwProgress * progress; GArray *steps;};

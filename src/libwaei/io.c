@@ -40,8 +40,8 @@
 #include <windows.h>
 #endif
 
-#include <libwaei/gettext.h>
-#include <libwaei/io.h>
+#include "gettext.h"
+#include "io.h"
 
 
 /**

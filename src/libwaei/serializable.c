@@ -31,9 +31,9 @@
 
 #include <glib/gstdio.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/io.h>
-#include <libwaei/serializable.h>
+#include "gettext.h"
+#include "io.h"
+#include "serializable.h"
 
 typedef struct {
   LwCacheFile * cache_file;

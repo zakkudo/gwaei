@@ -34,8 +34,8 @@
 
 #include <glib/gstdio.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/mapped-file.h>
+#include "gettext.h"
+#include "mapped-file.h"
 
 #define lw_mapped_file_class_get_private() G_TYPE_CLASS_GET_PRIVATE(g_type_class_peek(LW_TYPE_MAPPED_FILE), LW_TYPE_MAPPED_FILE, LwMappedFileClassPrivate)
 

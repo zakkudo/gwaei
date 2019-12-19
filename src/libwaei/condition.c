@@ -33,7 +33,7 @@
 
 #include <glib.h>
 
-#include <libwaei/gettext.h>
+#include "gettext.h"
 
 
 struct _LwCondition {

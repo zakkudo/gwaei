@@ -1,7 +1,7 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <libwaei/libwaei.h>
+#include "libwaei.h"
 
 struct _Fixture {
   gchar * path;

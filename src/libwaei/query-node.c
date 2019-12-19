@@ -40,10 +40,10 @@
 
 #include <glib.h>
 
-#include <libwaei/parenthesis-node.h>
-#include <libwaei/query-node.h>
-#include <libwaei/match-info.h>
-#include <libwaei/gettext.h>
+#include "parenthesis-node.h"
+#include "query-node.h"
+#include "match-info.h"
+#include "gettext.h"
 
 
 static LwQueryNode * _parse_leaf_parenthesis_node (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);

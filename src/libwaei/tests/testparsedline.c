@@ -1,7 +1,7 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <libwaei/parsedline.h>
+#include "parsedline.h"
 
 
 struct _Fixture { GList * strvs; LwParsedLine parsed_line; };

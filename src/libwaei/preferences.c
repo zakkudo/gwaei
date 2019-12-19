@@ -32,8 +32,8 @@
 
 #include <gio/gio.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/preferences-private.h>
+#include "gettext.h"
+#include "preferences-private.h"
 
 static LwPreferences *_preferences = NULL;
 

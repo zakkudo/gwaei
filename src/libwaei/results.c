@@ -37,10 +37,10 @@
 
 #include <glib.h>
 
-#include <libwaei/sequence-list.h>
+#include "sequence-list.h"
 
-#include <libwaei/gettext.h>
-#include <libwaei/results.h>
+#include "gettext.h"
+#include "results.h"
 
 #define lw_results_get_class(self) G_TYPE_INSTANCE_GET_CLASS(self, LW_TYPE_RESULTS, LwResultsClass)
 #define lw_results_get_class_private(self) G_TYPE_CLASS_GET_PRIVATE(lw_results_get_class(self), LW_TYPE_RESULTS, LwResultsClassPrivate)

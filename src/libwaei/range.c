@@ -38,8 +38,8 @@
 
 #include <glib.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/range.h>
+#include "gettext.h"
+#include "range.h"
 
 
 LwRange* 

@@ -1,7 +1,7 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <libwaei/querynodematchinfo.h>
+#include "querynodematchinfo.h"
 
 struct _Fixture {
   LwQueryNodeMatchInfo * match_info;

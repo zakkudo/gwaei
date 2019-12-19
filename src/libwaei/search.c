@@ -43,10 +43,10 @@
 
 #include <glib.h>
 
-#include <libwaei/gettext.h>
-#include <libwaei/search.h>
+#include "gettext.h"
+#include "search.h"
 
-#include <libwaei/search-private.h>
+#include "search-private.h"
 
 typedef enum {
     PROP_0,
