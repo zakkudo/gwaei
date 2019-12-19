@@ -1,12 +1,12 @@
 #ifndef LW_SEQUENCE_LIST_INCLUDED
-#define LW__INCLUDED
+#define LW_SEQUENCE_LIST_INCLUDED
 
 G_BEGIN_DECLS
 
-GHashTable * lw_sequence_previous_order_table_new (GSequence * sequence) {
-gint * lw_sequence_map_new_order (GSequence  * sequence,  GHashTable * previous_order_table);
+GHashTable * lw_sequence_list_previous_order_table_new (GSequence * sequence);
+gint * lw_sequence_list_map_new_order (GSequence  * sequence,  GHashTable * previous_order_table);
 
-#define LW_LIST_DEFINE_SEQUENCE_BACKED_METHODS(SCOPE, TYPE, IS_TYPE) static gboolean \
+#define LW_SEQUENCE_LIST_DEFINE_METHODS(SCOPE, TYPE, IS_TYPE) static gboolean \
 SCOPE##_iter_is_valid (LwIter * self) { \
     g_return_val_if_fail (self != NULL, FALSE); \
  \

@@ -37,7 +37,7 @@
 
 #include <glib.h>
 
-#include "sequence-list.h"
+#include <libwaei/sequence-list.h>
 
 #include <libwaei/gettext.h>
 #include <libwaei/results.h>
@@ -107,8 +107,6 @@ static gboolean lw_results_iter_previous (LwIter * self);
 static void lw_results_sort (LwResults * self, gint column, LwSortDirection direction);
 
 G_DEFINE_TYPE_WITH_CODE (LwResults, lw_results, LW_TYPE_EDITABLE_LIST, G_ADD_PRIVATE(LwResults) g_type_add_class_private(LW_TYPE_RESULTS, sizeof(LwResultsClassPrivate)) )
-
-LW_LIST_DEFINE_SEQUENCE_BACKED_METHODS (lw_results, LwResults, LW_IS_RESULTS)
 
 /**
  * lw_results_new:
@@ -511,7 +509,7 @@ static gint
 lw_results_compare_index_func (LwResult * a,
                                LwResult * b)
 {
-    return a->index - b->index;
+    return a->line_number - b->line_number;
 }
                         
 
@@ -571,14 +569,14 @@ lw_results_compare_column_func (LwResult                                  * a,
     //Initializations
 
     {
-      pa = lw_parsed_get_line (data->parsed, a->index);
+      pa = lw_parsed_get_line (data->parsed, a->line_number);
       if (pa == NULL) goto errored;
       strva = lw_parsed_line_get_strv (pa, data->column);
       if (strva == NULL) goto errored;
     }
 
     {
-      pb = lw_parsed_get_line (data->parsed, b->index);
+      pb = lw_parsed_get_line (data->parsed, b->line_number);
       if (pb == NULL) goto errored;
       strvb = lw_parsed_line_get_strv (pb, data->column);
       if (strvb == NULL) goto errored;
@@ -644,16 +642,15 @@ lw_results_sort (LwResults * self, gint column, LwSortDirection direction)
     parsed = lw_dictionary_cache_get_parsed (dictionary_cache);
     if (parsed == NULL) goto errored;
     GHashTable * previous_order_table = NULL;
-    gint * new_order = NULL;
 
     data.column = column;
     data.language = language;
     data.parsed = parsed;
     data.number = g_quark_from_static_string ("number");
 
-    previous_order_table = lw_sequence_previous_order_table_new (sequence);
+    previous_order_table = lw_sequence_list_previous_order_table_new (sequence);
     g_sequence_sort (sequence, (GCompareDataFunc) lw_results_compare_column_func, &data);
-    new_order = lw_sequence_map_new_order (GSequence  * sequence,  GHashTable * previous_order_table);
+    new_order = lw_sequence_list_map_new_order (sequence, previous_order_table);
 
     lw_editable_list_emit_rows_reordered (LW_EDITABLE_LIST (self), new_order);
 
@@ -670,3 +667,7 @@ errored:
 
     return;
 }
+
+
+LW_SEQUENCE_LIST_DEFINE_METHODS (lw_results, LwResults, LW_IS_RESULTS)
+
