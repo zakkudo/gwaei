@@ -112,6 +112,18 @@ typedef struct {
   GParamSpec *pspec[TOTAL_PROPS];
 } LwDictionaryClassPrivate;
 
+
+static void lw_dictionary_get_begin_iter (LwDictionary * self, LwIter * iter);
+static void lw_dictionary_get_end_iter (LwDictionary * self, LwIter * iter);
+static gint lw_dictionary_get_n_columns (LwDictionary *self);
+static GType lw_dictionary_get_column_type (LwDictionary * self, gint column);
+static gboolean lw_dictionary_get_iter_at_position (LwDictionary * self, LwIter * iter, gint position);
+static gint lw_dictionary_get_length (LwDictionary *self);
+static gint lw_dictionary_iter_get_position (LwIter * self);
+static void lw_dictionary_iter_get_value (LwIter * self, gint column, GValue * value);
+static gboolean lw_dictionary_iter_next (LwIter * self);
+static gboolean lw_dictionary_iter_previous (LwIter * self);
+
 //Properties
 
 static LwMappedFile* lw_dictionary_get_contents_mapped_file (LwDictionary * self);
@@ -128,7 +140,7 @@ static LwParsed* lw_dictionary_parse (LwDictionary * self, LwCacheFile * cache_f
 
 static LwDictionaryCacheTree * lw_dictionary_get_cache_tree (LwDictionary * self);
 static void lw_dictionary_set_cache_tree (LwDictionary * self, LwDictionaryCacheTree * tree);
-static void _iterable_interface_init (LwList * iface);
+static void _list_interface_init (LwList * iface);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (LwDictionary, lw_dictionary, LW_TYPE_LIST, G_ADD_PRIVATE(LwDictionary) g_type_add_class_private(LW_TYPE_DICTIONARY, sizeof(LwDictionaryClassPrivate)))
 
@@ -264,52 +276,33 @@ lw_dictionary_class_finalize (LwDictionaryClass *klass)
 
 
 static void
-lw_dictionary_constructed (GObject * object)
-{
-    //Chain the parent class
-    {
-      G_OBJECT_CLASS (lw_dictionary_parent_class)->constructed (object);
-    }
-
-    //Declarations
-    LwDictionary * self = NULL;
-
-    //Initializations
-    self = LW_DICTIONARY (object);
-}
-
-
-static void
 lw_dictionary_class_init (LwDictionaryClass * klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
-    LwListClass * iterable_class = NULL;
+    LwListClass * list_class = NULL;
     LwDictionaryClassPrivate * klasspriv = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
-    iterable_class = LW_LIST_CLASS (klass);
+    list_class = LW_LIST_CLASS (klass);
     klasspriv = lw_dictionary_class_get_private (klass);
 
     object_class->set_property = lw_dictionary_set_property;
     object_class->get_property = lw_dictionary_get_property;
     object_class->finalize = lw_dictionary_finalize;
-    object_class->constructed = lw_dictionary_constructed;
 
-    /*TODO
-    iterable_klass->get_begin_iter = _get_begin_iter;
-    iterable_klass->get_end_iter = _get_end_iter;
-    iterable_klass->get_n_columns = _get_n_columns;
-    iterable_klass->get_column_type = _get_column_type;
-    iterable_klass->get_iter_at_position = _get_iter_at_position;
-    iterable_klass->get_length = _get_length;
+    list_klass->get_begin_iter = lw_dictionary_get_begin_iter;
+    list_klass->get_end_iter = lw_dictionary_get_end_iter;
+    list_klass->get_n_columns = lw_dictionary_get_n_columns;
+    list_klass->get_column_type = lw_dictionary_get_column_type;
+    list_klass->get_iter_at_position = lw_dictionary_get_iter_at_position;
+    list_klass->get_length = lw_dictionary_get_length;
 
-    iface->iter_get_position = _iter_get_position;
-    iface->iter_get_value = _iter_get_value;
-    iface->iter_next = _iter_next;
-    iface->iter_previous = _iter_previous;
-    */
+    iface->iter_get_position = lw_dictionary_iter_get_position;
+    iface->iter_get_value = lw_dictonary_iter_get_value;
+    iface->iter_next = lw_dictionary_iter_next;
+    iface->iter_previous = lw_dictionary_iter_previous;
 
     klasspriv->pspec[PROP_ID] = g_param_spec_string (
       "id",
@@ -378,51 +371,6 @@ lw_dictionary_class_init (LwDictionaryClass * klass)
     g_object_class_install_property (object_class, PROP_CONTENTS_CHECKSUM, klasspriv->pspec[PROP_CONTENTS_CHECKSUM]);
 }
 
-
-/**
- * lw_dictionarycolumnhandling_get_type:
- * Returns: The #GType of the enumeration for column handling
- */
-GType lw_dictionarycolumnhandling_get_type ()
-{
-    static GType type = 0;
-
-    if (G_UNLIKELY (type == 0))
-    {
-      GEnumValue values[] = {
-        { LW_DICTIONARY_COLUMN_HANDLING_UNUSED, LW_DICTIONARY_COLUMN_HANDLING_NAME_UNUSED, LW_DICTIONARY_COLUMN_HANDLING_NICK_UNUSED },
-        { LW_DICTIONARY_COLUMN_HANDLING_INDEX_AND_SEARCH, LW_DICTIONARY_COLUMN_HANDLING_NAME_INDEX_AND_SEARCH, LW_DICTIONARY_COLUMN_HANDLING_NICK_INDEX_AND_SEARCH },
-        { LW_DICTIONARY_COLUMN_HANDLING_FILTER_ONLY, LW_DICTIONARY_COLUMN_HANDLING_NAME_FILTER_ONLY, LW_DICTIONARY_COLUMN_HANDLING_NICK_FILTER_ONLY },
-        { 0, NULL, NULL },
-      };
-
-      type = g_enum_register_static ("LwDictionaryColumnHandling", values);
-    }
-
-    return type;
-}
-
-
-/**
- * lw_dictionary_total_columns:
- * @self: A #LwDictionary
- * Returns: The total number of columns as a %gint
- */
-gint
-lw_dictionary_total_columns (LwDictionaryClass * klass)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), 0);
-
-    //Declarations
-    gint total_columns = 0;
-
-    //Initializations
-    total_columns = klass->get_total_columns ();
-  
-    return total_columns;
-}
-                                 
 
 /**
  * lw_dictionary_get_column_language:
@@ -1587,27 +1535,212 @@ errored:
 }
 
 
-/**
- * lw_dictionary_get_columnid_type:
- * @self: A #LwDictionary
- *
- * Returns: The columnid type from the implementor of this class.
- */
-GType
-lw_dictionary_get_columnid_type (LwDictionaryClass * klass)
+static void 
+lw_dictionary_get_begin_iter (LwDictionary * self,
+                              LwIter       * iter)
 {
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY_CLASS (klass), G_TYPE_INVALID);
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
 
-    //Declarations
-    GType type = G_TYPE_NONE;
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    LwDictionaryPrivate * priv = NULL;
+    LwDictionaryCacheTree * cache_tree = NULL;
+    LwDictionaryCache * cache = NULL;
 
-    //Initializations
-    type = klass->get_columnid_type ();
+    // Initializations
+    klass = LW_LIST_GET_CLASS (self);
+    priv = lw_dictionary_get_instance_private (self);
+    cache_tree = priv->cache_tree;
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
 
-errored:
-
-    return type;
-  
+    return lw_list_get_begin_iter (LW_LIST (cache), iter);
 }
 
+static void 
+lw_dictionary_get_end_iter (LwDictionary * self, 
+                            LwIter     * iter)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    LwDictionaryPrivate * priv = NULL;
+    LwDictionaryCacheTree * cache_tree = NULL;
+    LwDictionaryCache * cache = NULL;
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS(self);
+    priv = lw_dictionary_get_instance_private (self);
+    cache_tree = priv->cache_tree;
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
+
+    return lw_list_get_end_iter (LW_LIST (cache), iter);
+}
+
+static gint
+lw_dictionary_get_n_columns (LwDictionary *self)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    LwDictionaryPrivate * priv = NULL;
+    LwDictionaryCacheTree * cache_tree = NULL;
+    LwDictionaryCache * cache = NULL;
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS(self);
+    priv = lw_dictionary_get_instance_private (self);
+    cache_tree = priv->cache_tree;
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
+
+    return lw_list_get_n_columns (LW_LIST (cache), iter);
+}
+
+static GType 
+lw_dictionary_get_column_type (LwDictionary * self,
+                               gint           column)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    priv = lw_dictionary_get_instance_private (self);
+    cache_tree = priv->cache_tree;
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS(self);
+    priv = lw_dictionary_get_instance_private (self);
+    cache_tree = priv->cache_tree;
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
+
+    return lw_list_get_column_type (LW_LIST (cache), column);
+}
+
+static gboolean 
+lw_dictionary_get_iter_at_position (LwDictionary * self, 
+                                    LwIter       * iter, 
+                                    gint           position)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    priv = lw_dictionary_get_instance_private (self);
+    cache_tree = priv->cache_tree;
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS(self);
+    priv = lw_dictionary_get_instance_private (self);
+    cache_tree = priv->cache_tree;
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
+
+    return lw_list_get_iter_at_position (LW_LIST (cache), column);
+}
+
+
+static gint 
+lw_dictionary_get_length (LwDictionary *self)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    priv = lw_dictionary_get_instance_private (self);
+    cache_tree = priv->cache_tree;
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS(self);
+    priv = lw_dictionary_get_instance_private (self);
+    cache_tree = priv->cache_tree;
+    cache = lw_dictionary_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
+
+    return lw_list_get_length (LW_LIST (cache));
+}
+
+static gint
+lw_dictionary_iter_get_position (LwIter * self)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    LwDictionaryCache * cache = NULL;
+    LwDictionaryCacheClass * dictionary_cache_class = NULL;
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS(self);
+    cache = LW_DICTIONARY_CACHE (self->iterable);
+    dictionary_cache_class = LW_DICTIONARY_CACHE_GET_CLASS (cache);
+
+    return dictionary_cache_class->get_position (iter);
+}
+
+static void 
+lw_dictionary_iter_get_value (LwIter * self, 
+                   gint     column, 
+                   GValue * value)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    LwDictionaryCache * cache = NULL;
+    LwDictionaryCacheClass * dictionary_cache_class = NULL;
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS(self);
+    cache = LW_DICTIONARY_CACHE (self->iterable);
+    dictionary_cache_class = LW_DICTIONARY_CACHE_GET_CLASS (cache);
+
+    return dictionary_cache_class->get_value (iter, column value);
+}
+
+static gboolean 
+lw_dictionary_iter_next (LwIter * self)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    LwDictionaryCache * cache = NULL;
+    LwDictionaryCacheClass * dictionary_cache_class = NULL;
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS(self);
+    cache = LW_DICTIONARY_CACHE (self->iterable);
+    dictionary_cache_class = LW_DICTIONARY_CACHE_GET_CLASS (cache);
+
+    return dictionary_cache_class->next (iter);
+}
+
+static gboolean 
+lw_dictionary_iter_previous (LwIter * self)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    LwDictionaryCache * cache = NULL;
+    LwDictionaryCacheClass * dictionary_cache_class = NULL;
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS(self);
+    cache = LW_DICTIONARY_CACHE (self->iterable);
+    dictionary_cache_class = LW_DICTIONARY_CACHE_GET_CLASS (cache);
+
+    return dictionary_cache_class->previous (iter);
+}

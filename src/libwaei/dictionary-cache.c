@@ -1183,3 +1183,211 @@ lw_dictionary_cache_unlock (LwDictionaryCache * self)
 
     g_mutex_unlock (&priv->mutex);
 }
+
+
+static gboolean
+lw_dictionary_cache_iter_is_valid (LwIter * iter)
+{
+    if (iter == NULL) return FALSE;
+    if (!LW_IS_DICTIONARY_CACHE (iter->iterable)) return FALSE:
+
+    LwDictonary * dictionary = NULL;
+
+    dictionary = LW_DICTIONARY_CACHE (iter->iterable);
+
+    if (position > length - 1) return FALSE:
+    if (position < 0) return FALSE;
+
+    return TRUE;
+}
+
+static void 
+lw_dictionary_cache_get_begin_iter (LwDictionaryCache * self,
+                              LwIter       * iter)
+{
+    // Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARY_CACHE (self));
+    g_return_if_fail (iter != NULL);
+
+    memset(iter, 0, sizeof(LwIter));
+    iter->iterator = self;
+    iter->user_data1 = GINT_TO_POINTER (0);
+}
+
+static void 
+lw_dictionary_cache_get_end_iter (LwDictionaryCache * self, 
+                            LwIter     * iter)
+{
+    // Sanity checks
+    g_return_if_fail (LW_IS_DICTIONARY_CACHE (self));
+    g_return_if_fail (iter != NULL);
+
+    // Declarations
+    gint end_position = -1;
+
+    // Initializations
+    end_position = lw_dictionary_cache_get_length (self);
+
+    memse(iter, 0, sizeof(LwIter));
+    iter->iterator = self;
+    iter->user_data1 = GINT_TO_POINTER (end_position);
+}
+
+static gint
+lw_dictionary_cache_get_n_columns (LwDictionaryCache *self)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY_CACHE (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+
+    // Initializations
+    klass = LW_DICTIONARY_CACHE_GET_CLASS (self);
+
+    return klass->get_n_columns (self);
+
+}
+
+static GType 
+lw_dictionary_cache_get_column_type (LwDictionaryCache * self,
+                               gint           column)
+{
+    //Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY_CACHE_CLASS (klass), G_TYPE_INVALID);
+
+    //Declarations
+    LwDictionaryClass * klass = NULL;
+
+    //Initializations
+    klass = LW_DICTIONARY_CACHE_GET_CLASS (self);
+
+    return klass->get_column_type (self);
+}
+
+static gboolean 
+lw_dictionary_cache_get_iter_at_position (LwDictionaryCache * self, 
+                                    LwIter       * iter, 
+                                    gint           position)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_LIST (self), FALSE);
+    g_return_val_if_fail (iter != NULL, FALSE);
+
+    // Declarations
+    gint length = -1;
+
+    // Initializations
+    length = lw_dictionary_cache_get_length (self);
+
+    if (position > length -1) {
+        position = length - 1;
+    }
+
+    if (position < 0) {
+        position = 0;
+    }
+
+    memset(iter, 0, sizeof(LwIter));
+    iter->iterable = self;
+    iter->user_data1 = GINT_TO_POINTER (position);
+}
+
+
+static gint 
+lw_dictionary_cache_get_length (LwDictionaryCache *self)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_DICTIONARY_CACHE (self), 0);
+
+    // Declarations
+    LwDictionaryClass * klass = NULL;
+    LwDictionaryCache * cache = NULL;
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS(self);
+    cache = lw_dictionary_cache_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
+
+    return lw_list_get_length (LW_LIST (cache));
+}
+
+static gint
+lw_dictionary_cache_iter_get_position (LwIter * self)
+{
+    // Sanity checks
+    g_return_val_if_fail (self != NULL, -1);
+    g_return_if_fail (lw_dictionary_cache_iter_is_valid (iter));
+
+    // Declarations
+    gint position = -1;
+
+    // Initializations
+    position = GPOITNER_TO_INT (self->user_data1);
+
+    return position;
+}
+
+static void 
+lw_dictionary_cache_iter_get_value (LwIter * self, 
+                   gint     column, 
+                   GValue * value)
+{
+    // Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (value != NULL);
+    g_return_if_fail (lw_dictionary_cache_iter_is_valid (iter));
+
+    //TODO???
+}
+
+static gboolean 
+lw_dictionary_cache_iter_next (LwIter * self)
+{
+    // Sanity checks
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_if_fail (lw_dictionary_cache_iter_is_valid (iter));
+
+    // Declarations
+    gint position = -1;
+    gint length = -1;
+    
+    // Initializations
+    position = GPOINTER_TO_INT (self->user_data1);
+    length = lw_dictionary_cache_get_length (self);
+
+    position += 1;
+
+    if (position > length - 1) {
+        position = length - 1;
+    } else if (position < 0) {
+        position = 0;
+    }
+
+    user->user_data1 = GINT_TO_POINTER (position);
+}
+
+static gboolean 
+lw_dictionary_cache_iter_previous (LwIter * self)
+{
+    // Sanity checks
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_if_fail (lw_dictionary_cache_iter_is_valid (iter));
+
+    // Declarations
+    gint position = -1;
+    gint length = -1;
+    
+    // Initializations
+    position = GPOINTER_TO_INT (self->user_data1);
+    length = lw_dictionary_cache_get_length (self);
+
+    position -= 1;
+
+    if (position > length - 1) {
+        position = length - 1;
+    } else if (position < 0) {
+        position = 0;
+    }
+
+    user->user_data1 = GINT_TO_POINTER (position);
+}

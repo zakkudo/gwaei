@@ -11,24 +11,6 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
-  LW_DICTIONARY_COLUMN_HANDLING_UNUSED, //!< An unused field
-  LW_DICTIONARY_COLUMN_HANDLING_SEARCH_ONLY, //!< Column is not indexed, but it is still searched
-  LW_DICTIONARY_COLUMN_HANDLING_INDEX_AND_SEARCH, //!< Key is indexed and is included by default for all searches
-  LW_DICTIONARY_COLUMN_HANDLING_FILTER_ONLY, //!< Key is indexed, but is only included when queried explicitly
-  TOTAL_DICTIONARY_COLUMN_HANDLING
-} LwDictionaryColumnHandling;
-GType lw_dictionary_column_handling_get_type (void);
-#define LW_TYPE_DICTIONARY_COLUMN_HANDLING (lw_dictionary_column_handling_get_type ())
-
-#define LW_DICTIONARY_COLUMN_HANDLING_NAME_UNUSED "Unused"
-#define LW_DICTIONARY_COLUMN_HANDLING_NAME_INDEX_AND_SEARCH "Index and Search"
-#define LW_DICTIONARY_COLUMN_HANDLING_NAME_FILTER_ONLY "Filter Only"
-
-#define LW_DICTIONARY_COLUMN_HANDLING_NICK_UNUSED "unused"
-#define LW_DICTIONARY_COLUMN_HANDLING_NICK_INDEX_AND_SEARCH "index-and-search"
-#define LW_DICTIONARY_COLUMN_HANDLING_NICK_FILTER_ONLY "filter-only"
-
 //Boilerplate
 #define LW_TYPE_DICTIONARY lw_dictionary_get_type ()
 G_DECLARE_DERIVABLE_TYPE (LwDictionary, lw_dictionary, LW, DICTIONARY, LwList)
@@ -38,13 +20,14 @@ struct _LwDictionaryClass {
 
     //Virtual methods
     gsize (* count_lines) (gchar * buffer, gsize buffer_length, gsize * max_line_length, LwProgress * progress);
-    gint (* get_total_columns) ();
     GQuark (* get_column_language) (gint column_num);
     LwDictionaryColumnHandling (* get_column_handling) (gint column_num);
     gchar* (* columnize_line) (LwDictionary * self, gchar * buffer, gchar ** tokens, gsize * num_tokens);
     void (* load_columns) (LwDictionary * self, char * buffer, gchar ** tokens, gint num_tokens, LwParsedLine * line);
     gint* (* calculate_applicable_columns_for_text) (char const * TEXT);
-    GType (* get_columnid_type) ();
+
+    GType (* get_column_type) ();
+    gint (* get_n_columns) ();
 };
 
 #define LW_DICTIONARY_CHECKSUM G_CHECKSUM_SHA512 
