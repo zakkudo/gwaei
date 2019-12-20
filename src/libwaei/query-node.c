@@ -1330,7 +1330,7 @@ lw_query_node_nnodes (LwQueryNode * self)
  * Compiles the #LwQueryNode into a more compact form that is more ideal
  * for comparisons.  Once compiled, the #LwQueryNode structure will not be in
  * the same form as the original query and all regexes will be filled.
- * You should run this before any uses of lw_query_node_match_parsed_line().
+ * You should run this before any uses of lw_query_node_match_iterable().
  */
 void
 lw_query_node_compile (LwQueryNode *  self,
@@ -1349,13 +1349,13 @@ lw_query_node_compile (LwQueryNode *  self,
 
 
 static gboolean
-_children_match_parsed_line (LwQueryNode           * self,
-                            LwParsedLine          * parsed_line,
-                            LwMatchInfo  * match_info_out)
+_children_match_iter (LwQueryNode * self,
+                      LwIter      * iter,
+                      LwMatchInfo * match_info_out)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
-    g_return_val_if_fail (parsed_line != NULL, FALSE);
+    g_return_val_if_fail (iterable != NULL, FALSE);
 
     //Declarations
     LwQueryNode * query_node = NULL;
@@ -1367,7 +1367,7 @@ _children_match_parsed_line (LwQueryNode           * self,
     for (link = self->children; link != NULL; link = link->next)
     {
       query_node = LW_QUERY_NODE (link->data);
-      matches = lw_query_node_match_parsed_line (query_node, parsed_line, match_info_out);
+      matches = lw_query_node_match_iterable (query_node, iterable, match_info_out);
 
       if (previous_query_node != NULL)
       {
@@ -1393,12 +1393,13 @@ errored:
 }
 
 
-static gboolean
-_value_matches_column (LwQueryNode          * self,
-                       LwParsedLine         * parsed_line,
-                       gint                   column,
-                       LwMatchInfo * match_info_out)
+gboolean
+lw_match_info_match_value (LwQueryNode  * self,
+                           GValue       * value
+                           LwMatchInfo  * match_info_out)
 {
+
+    GType type = G_VALUE_TYPE (value);
     //Declarations
     gint j = 0;
     gchar const ** strv = NULL;
@@ -1407,7 +1408,8 @@ _value_matches_column (LwQueryNode          * self,
     LwColumnMatchInfo * column_match_info = NULL;
 
     //Initializations
-    strv = lw_parsed_line_get_strv (parsed_line, column);
+    strv = lw_iterable_get_strv (iterable, column);
+
     if (match_info_out != NULL)
     {
       column_match_info = lw_match_info_get_column (match_info_out, column);
@@ -1456,19 +1458,24 @@ errored:
 
 
 static gboolean
-_value_matches_parsed_line (LwQueryNode           * self,
-                           LwParsedLine          * parsed_line,
-                           LwMatchInfo  * match_info_out)
+_value_match_iter (LwQueryNode * self,
+                   LwIter      * iter,
+                   LwMatchInfo * match_info_out)
 {
     //Declarations
     gboolean matches = FALSE;
+    LwList * list = LW_LIST (iter->iterable);
+    gint n_columns = lw_list_get_n_columns (list);
     gint i = 0;
     gint column = -1;
+    GValue value = {0};
 
-    for (i = 0; self->columns[i] != -1 && !matches; i++)
+    for (i = 0; i < n_column && !matches; i++)
     {
-      column = self->columns[i];
-      matches = _value_matches_column (self, parsed_line, column, match_info_out);
+        type = lw_list_get_column_type(list, i);
+        lw_list_get_value (list, i, &value);
+        column = self->columns[i];
+        matches = lw_match_info_match_value (self, &value, match_info_out);
     }
 
 errored:
@@ -1478,17 +1485,17 @@ errored:
 
 
 /**
- * lw_query_node_match_parsed_line:
+ * lw_query_node_match_iterable:
  * @self: A #LwQueryNode
- * @parsed_line: A @parsed_line to search
+ * @iterable: A @iterable to search
  * @match_info_out: A #LwMatchInfo to record match information or %NULL to ignore it
  *
- * Returns: %TRUE if @self matches against the @parsed_line
+ * Returns: %TRUE if @self matches against the @iterable
  */
 gboolean
-lw_query_node_match_parsed_line (LwQueryNode           * self,
-                               LwParsedLine          * parsed_line,
-                               LwMatchInfo  * match_info_out)
+lw_query_node_match_iter (LwQueryNode * self,
+                          LwIter      * iter,
+                          LwMatchInfo * match_info_out)
 {
     //Declarations
     GList * link = NULL;
@@ -1496,11 +1503,11 @@ lw_query_node_match_parsed_line (LwQueryNode           * self,
 
     if (self->children != NULL && self->data == NULL)
     {
-      matches = _children_match_parsed_line (self, parsed_line, match_info_out);
+      matches = _children_match_iter (self, iterable, match_info_out);
     }
     else if (self->data != NULL && self->children == NULL)
     {
-      matches = _value_matches_parsed_line (self, parsed_line, match_info_out);
+      matches = _value_match_iter (self, iterable, match_info_out);
     }
     else
     {

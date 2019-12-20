@@ -91,22 +91,11 @@ static LwDictionaryCache * lw_results_get_dictionary_cache (LwResults * self);
 static void lw_results_set_sequence (LwResults * self, GSequence * sequence);
 static GSequence * lw_results_get_sequence (LwResults * self);
 
-
-static gboolean lw_results_iter_is_valid (LwIter * self);
-static void lw_results_get_begin_iter (LwResults * self, LwIter * iter);
-static void lw_results_get_end_iter (LwResults * self, LwIter * iter);
-static gint lw_results_get_n_columns (LwResults * self);
-static GType lw_results_get_column_type (LwResults * self, gint column);
-static gboolean lw_results_get_iter_at_position (LwResults * self, LwIter * iter, gint position);
-static gint lw_results_get_length (LwResults * self);
-static gint lw_results_iter_get_position (LwIter * self);
-static void lw_results_iter_get_value (LwIter * self, gint column, GValue * value);
-static gboolean lw_results_iter_next (LwIter * self);
-static gboolean lw_results_iter_previous (LwIter * self);
-
 static void lw_results_sort (LwResults * self, gint column, LwSortDirection direction);
 
 G_DEFINE_TYPE_WITH_CODE (LwResults, lw_results, LW_TYPE_EDITABLE_LIST, G_ADD_PRIVATE(LwResults) g_type_add_class_private(LW_TYPE_RESULTS, sizeof(LwResultsClassPrivate)) )
+
+LW_SEQUENCE_LIST_DEFINE_METHODS (lw_results, LwResults, LW_IS_RESULTS)
 
 /**
  * lw_results_new:
@@ -667,7 +656,4 @@ errored:
 
     return;
 }
-
-
-LW_SEQUENCE_LIST_DEFINE_METHODS (lw_results, LwResults, LW_IS_RESULTS)
 

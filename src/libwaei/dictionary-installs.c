@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 //!
-//! @file dictionaryinstalllist.c
+//! @file dictionary_installs.c
 //!
 
 #ifdef HAVE_CONFIG_H
@@ -36,7 +36,7 @@
 
 #include "gettext.h"
 
-#include "dictionaryinstalllist-private.h"
+#include "dictionary_installs-private.h"
 
 typedef enum {
     PROP_0,
@@ -44,119 +44,81 @@ typedef enum {
     TOTAL_PROPS
 } Props;
 
-
-typedef enum {
-  SIGNALID_CHANGED,
-  SIGNALID_INSERTED,
-  SIGNALID_DELETED,
-  SIGNALID_REORDERED,
-  TOTAL_SIGNALIDS
-} SignalId;
-
-typedef enum {
-  CLASS_SIGNALID_ROW_CHANGED,
-  CLASS_SIGNALID_ROW_INSERTED,
-  CLASS_SIGNALID_ROW_DELETED,
-  CLASS_SIGNALID_ROWS_REORDERED,
-  TOTAL_CLASS_SIGNALIDS
-} ClassSignalId;
-
-struct _Index {
-  GHashTable *typename;
-  GHashTable *filename;
-  GHashTable *id;
-};
-
-struct _Data {
-  struct _Index index;
-  GList *list; //<!-- A Glist of LwWord
-  GList **array;
-  gint length;
-  gboolean changed; //<!-- hint of there are any savable changes
-  gboolean loaded;
-};
-
-
-struct _Config {
+struct _LwDictionaryInstallsPrivate {
   LwPreferences *preferences;
 };
 
-struct _LwDictionaryInstallListPrivate {
-  struct _Data data;
-  struct _Config config;
-};
-
-struct _LwDictionaryInstallListClassPrivate {
+struct _LwDictionaryInstallsClassPrivate {
   GParamSpec *pspec[TOTAL_PROPS];
   guint signalid[TOTAL_CLASS_SIGNALIDS];
 };
 
-void lw_dictionaryinstalllist_menumodel_insert (LwDictionaryInstallList *dictioanry_list, LwDictionary *dictionary, gint index_);
-void lw_dictionaryinstalllist_menumodel_append (LwDictionaryInstallList *dictionary_list, LwDictionary *dictionary);
-void lw_dictionaryinstalllist_sync_menumodel (LwDictionaryInstallList *dictionary_list);
+void lw_dictionary_installs_menumodel_insert (LwDictionaryInstalls *dictioanry_list, LwDictionary *dictionary, gint index_);
+void lw_dictionary_installs_menumodel_append (LwDictionaryInstalls *dictionary_list, LwDictionary *dictionary);
+void lw_dictionary_installs_sync_menumodel (LwDictionaryInstalls *dictionary_list);
 
-void lw_dictionaryinstalllist_set_preferences (LwDictionaryInstallList *dictionary_list, LwPreferences *preferences);
-LwPreferences* lw_dictionaryinstalllist_get_preferences (LwDictionaryInstallList *dictionary_list);
+void lw_dictionary_installs_set_preferences (LwDictionaryInstalls *dictionary_list, LwPreferences *preferences);
+LwPreferences* lw_dictionary_installs_get_preferences (LwDictionaryInstalls *dictionary_list);
 
-void lw_dictionaryinstalllist_set_menumodel (LwDictionaryInstallList *dictionary_list, GMenuModel *menu_model);
+void lw_dictionary_installs_set_menumodel (LwDictionaryInstalls *dictionary_list, GMenuModel *menu_model);
 
-G_DEFINE_TYPE_WITH_PRIVATE (LwDictionaryInstallList, lw_dictionaryinstalllist, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (LwDictionaryInstalls, lw_dictionary_installs, G_TYPE_OBJECT)
 
 
 //!
-//! @brief Creates a new LwDictionaryInstallList object
+//! @brief Creates a new LwDictionaryInstalls object
 //! @param MAX The maximum items you want in the dictionary before old ones are deleted
-//! @return An allocated LwDictionaryInstallList that will be needed to be freed by lw_dictionary_free.
+//! @return An allocated LwDictionaryInstalls that will be needed to be freed by lw_dictionary_free.
 //!
-LwDictionaryInstallList* 
-lw_dictionaryinstalllist_new (LwPreferences *preferences)
+LwDictionaryInstalls* 
+lw_dictionary_installs_new (LwPreferences *preferences)
 {
     //Declarations
-    LwDictionaryInstallList *dictionary = NULL;
+    LwDictionaryInstalls *dictionary = NULL;
 
     //Initializations
-    dictionary = LW_DICTIONARYINSTALLLIST (g_object_new (LW_TYPE_DICTIONARYINSTALLLIST, "preferences", preferences, NULL));
+    dictionary = LW_DICTIONARY_INSTALLS (g_object_new (LW_TYPE_DICTIONARY_INSTALLS, "preferences", preferences, NULL));
 
     return dictionary;
 }
 
 
 static void 
-lw_dictionaryinstalllist_init (LwDictionaryInstallList *self)
+lw_dictionary_installs_init (LwDictionaryInstalls *self)
 {
-    self->priv = LW_DICTIONARYINSTALLLIST_GET_PRIVATE (self);
-    memset(self->priv, 0, sizeof(LwDictionaryInstallListPrivate));
+    self->priv = LW_DICTIONARY_INSTALLS_GET_PRIVATE (self);
+    memset(self->priv, 0, sizeof(LwDictionaryInstallsPrivate));
 
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
 
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
 
     priv->data.index.typename = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
     priv->data.index.filename = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
     priv->data.index.id = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
 
-    lw_dictionaryinstalllist_connect_signals (self);
+    lw_dictionary_installs_connect_signals (self);
 }
 
 
 static void 
-lw_dictionaryinstalllist_set_property (GObject      *object,
+lw_dictionary_installs_set_property (GObject      *object,
                                        guint         property_id,
                                        const GValue *value,
                                        GParamSpec   *pspec)
 {
     //Declarations
-    LwDictionaryInstallList *self = NULL;
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstalls *self = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
 
     //Initializations
-    self = LW_DICTIONARYINSTALLLIST (object);
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    self = LW_DICTIONARY_INSTALLS (object);
+    priv = lw_dictionary_installs_get_instance_private (self);
 
     switch (property_id)
     {
       case PROP_PREFERENCES:
-        lw_dictionaryinstalllist_set_preferences (self, g_value_get_object (value));
+        lw_dictionary_installs_set_preferences (self, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -166,23 +128,23 @@ lw_dictionaryinstalllist_set_property (GObject      *object,
 
 
 static void 
-lw_dictionaryinstalllist_get_property (GObject      *object,
+lw_dictionary_installs_get_property (GObject      *object,
                                        guint         property_id,
                                        GValue       *value,
                                        GParamSpec   *pspec)
 {
     //Declarations
-    LwDictionaryInstallList *self = NULL;
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstalls *self = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
 
     //Initializations
-    self = LW_DICTIONARYINSTALLLIST (object);
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    self = LW_DICTIONARY_INSTALLS (object);
+    priv = lw_dictionary_installs_get_instance_private (self);
 
     switch (property_id)
     {
       case PROP_PREFERENCES:
-        g_value_set_object (value, lw_dictionaryinstalllist_get_preferences (self));
+        g_value_set_object (value, lw_dictionary_installs_get_preferences (self));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -192,58 +154,58 @@ lw_dictionaryinstalllist_get_property (GObject      *object,
 
 
 static void 
-lw_dictionaryinstalllist_finalize (GObject *object)
+lw_dictionary_installs_finalize (GObject *object)
 {
     //Declarations
-    LwDictionaryInstallList *self = NULL;
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstalls *self = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
 
     //Initalizations
-    self = LW_DICTIONARYINSTALLLIST (object);
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    self = LW_DICTIONARY_INSTALLS (object);
+    priv = lw_dictionary_installs_get_instance_private (self);
 
-    G_OBJECT_CLASS (lw_dictionaryinstalllist_parent_class)->finalize (object);
+    G_OBJECT_CLASS (lw_dictionary_installs_parent_class)->finalize (object);
 }
 
 
 static void
-lw_dictionaryinstalllist_dispose (GObject *object)
+lw_dictionary_installs_dispose (GObject *object)
 {
     //Declarations
-    LwDictionaryInstallList *self = NULL;
+    LwDictionaryInstalls *self = NULL;
 
     //Initializations
-    self = LW_DICTIONARYINSTALLLIST (object);
+    self = LW_DICTIONARY_INSTALLS (object);
 
-    lw_dictionaryinstalllist_clear (self);
-    lw_dictionaryinstalllist_disconnect_signals (self);
+    lw_dictionary_installs_clear (self);
+    lw_dictionary_installs_disconnect_signals (self);
 
-    G_OBJECT_CLASS (lw_dictionaryinstalllist_parent_class)->dispose (object);
+    G_OBJECT_CLASS (lw_dictionary_installs_parent_class)->dispose (object);
 }
 
 
 
 static void
-lw_dictionaryinstalllist_class_init (LwDictionaryInstallListClass *klass)
+lw_dictionary_installs_class_init (LwDictionaryInstallsClass *klass)
 {
     //Declarations
     GObjectClass *object_class = NULL;
 
     //Initializations
     object_class = G_OBJECT_CLASS (klass);
-    klass->priv = g_new0 (LwDictionaryInstallListClassPrivate, 1);
-    object_class->set_property = lw_dictionaryinstalllist_set_property;
-    object_class->get_property = lw_dictionaryinstalllist_get_property;
-    object_class->dispose = lw_dictionaryinstalllist_dispose;
-    object_class->finalize = lw_dictionaryinstalllist_finalize;
+    klass->priv = g_new0 (LwDictionaryInstallsClassPrivate, 1);
+    object_class->set_property = lw_dictionary_installs_set_property;
+    object_class->get_property = lw_dictionary_installs_get_property;
+    object_class->dispose = lw_dictionary_installs_dispose;
+    object_class->finalize = lw_dictionary_installs_finalize;
 
-    LwDictionaryInstallListClassPrivate *klasspriv = klass->priv;
+    LwDictionaryInstallsClassPrivate *klasspriv = klass->priv;
 
     klasspriv->signalid[CLASS_SIGNALID_ROW_CHANGED] = g_signal_new (
         "internal-row-changed",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwDictionaryInstallListClass, row_changed),
+        G_STRUCT_OFFSET (LwDictionaryInstallsClass, row_changed),
         NULL, NULL,
         g_cclosure_marshal_VOID__INT,
         G_TYPE_NONE, 1,
@@ -254,7 +216,7 @@ lw_dictionaryinstalllist_class_init (LwDictionaryInstallListClass *klass)
         "internal-row-inserted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwDictionaryInstallListClass, row_inserted),
+        G_STRUCT_OFFSET (LwDictionaryInstallsClass, row_inserted),
         NULL, NULL,
         g_cclosure_marshal_VOID__INT,
         G_TYPE_NONE, 1,
@@ -265,7 +227,7 @@ lw_dictionaryinstalllist_class_init (LwDictionaryInstallListClass *klass)
         "internal-row-deleted",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwDictionaryInstallListClass, row_deleted),
+        G_STRUCT_OFFSET (LwDictionaryInstallsClass, row_deleted),
         NULL, NULL,
         g_cclosure_marshal_VOID__INT,
         G_TYPE_NONE, 1,
@@ -276,7 +238,7 @@ lw_dictionaryinstalllist_class_init (LwDictionaryInstallListClass *klass)
         "internal-rows-reordered",
         G_OBJECT_CLASS_TYPE (object_class),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwDictionaryInstallListClass, rows_reordered),
+        G_STRUCT_OFFSET (LwDictionaryInstallsClass, rows_reordered),
         NULL, NULL,
         g_cclosure_marshal_VOID__POINTER,
         G_TYPE_NONE, 1,
@@ -295,21 +257,21 @@ lw_dictionaryinstalllist_class_init (LwDictionaryInstallListClass *klass)
 
 
 void
-lw_dictionaryinstalllist_clear (LwDictionaryInstallList *self)
+lw_dictionary_installs_clear (LwDictionaryInstalls *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_DICTIONARYINSTALLLIST (self));
+    g_return_if_fail (LW_DICTIONARY_INSTALLS (self));
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
     GList *removed = NULL;
     gint length = 0;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
-    length = lw_dictionaryinstalllist_length (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
+    length = lw_dictionary_installs_length (self);
 
-    removed = lw_dictionaryinstalllist_remove (self, NULL);
+    removed = lw_dictionary_installs_remove (self, NULL);
 
 errored:
 
@@ -318,20 +280,20 @@ errored:
 
 
 void
-lw_dictionaryinstalllist_set_preferences (LwDictionaryInstallList *self,
+lw_dictionary_installs_set_preferences (LwDictionaryInstalls *self,
                                           LwPreferences    *preferences)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_if_fail (LW_IS_DICTIONARY_INSTALLS (self));
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
-    LwDictionaryInstallListClass *klass = NULL;
-    LwDictionaryInstallListClassPrivate *klasspriv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
+    LwDictionaryInstallsClass *klass = NULL;
+    LwDictionaryInstallsClassPrivate *klasspriv = NULL;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
-    klass = LW_DICTIONARYINSTALLLIST_CLASS (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
+    klass = LW_DICTIONARY_INSTALLS_CLASS (self);
     klasspriv = klass->priv;
 
     if (preferences != NULL)
@@ -356,20 +318,20 @@ lw_dictionaryinstalllist_set_preferences (LwDictionaryInstallList *self,
 
 
 LwPreferences*
-lw_dictionaryinstalllist_get_preferences (LwDictionaryInstallList *self)
+lw_dictionary_installs_get_preferences (LwDictionaryInstalls *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_INSTALLS (self), NULL);
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
 
     if (priv->config.preferences == NULL)
     {
-      lw_dictionaryinstalllist_set_preferences (self, lw_preferences_get_default ());
+      lw_dictionary_installs_set_preferences (self, lw_preferences_get_default ());
     }
 
     return priv->config.preferences;
@@ -377,32 +339,32 @@ lw_dictionaryinstalllist_get_preferences (LwDictionaryInstallList *self)
 
 
 void
-lw_dictionaryinstalllist_invalidate_length (LwDictionaryInstallList *self)
+lw_dictionary_installs_invalidate_length (LwDictionaryInstalls *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_if_fail (LW_IS_DICTIONARY_INSTALLS (self));
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
     gint length = 0;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
 
     priv->data.length = -1;
 }
 
 
 static void
-_add_to_index (LwDictionaryInstallList *self,
+_add_to_index (LwDictionaryInstalls *self,
                LwDictionaryInstall     *dictionaryinstall)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_if_fail (LW_IS_DICTIONARY_INSTALLS (self));
     g_return_if_fail (LW_IS_DICTIONARYINSTALL (dictionaryinstall));
     
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
     const gchar *FILENAME = NULL;
     const gchar *TYPENAME = NULL;
     GType type = G_TYPE_INVALID;
@@ -412,7 +374,7 @@ _add_to_index (LwDictionaryInstallList *self,
     gchar *normalized_id = NULL;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
     FILENAME = lw_dictionaryinstall_get_name (dictionaryinstall);
     type = lw_dictionaryinstall_get_gtype (dictionaryinstall);
     TYPENAME = g_type_name (type);
@@ -452,15 +414,15 @@ errored:
 
 
 static void
-_remove_from_index (LwDictionaryInstallList *self,
+_remove_from_index (LwDictionaryInstalls *self,
                     LwDictionaryInstall     *dictionaryinstall)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_if_fail (LW_IS_DICTIONARY_INSTALLS (self));
     g_return_if_fail (LW_IS_DICTIONARYINSTALL (dictionaryinstall));
     
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
     const gchar *FILENAME = NULL;
     const gchar *TYPENAME = NULL;
     GType type = NULL;
@@ -470,7 +432,7 @@ _remove_from_index (LwDictionaryInstallList *self,
     gchar *normalized_id = NULL;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
     FILENAME = lw_dictionaryinstall_get_name (dictionaryinstall);
     type = lw_dictionaryinstall_get_gtype (dictionaryinstall);
     TYPENAME = g_type_name (type);
@@ -507,20 +469,20 @@ errored:
 
 
 static void
-_rebuild_array (LwDictionaryInstallList *self)
+_rebuild_array (LwDictionaryInstalls *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_if_fail (LW_IS_DICTIONARY_INSTALLS (self));
 
-    lw_dictionaryinstalllist_invalidate_length (self);
+    lw_dictionary_installs_invalidate_length (self);
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
     gint length = 0;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
-    length = lw_dictionaryinstalllist_length (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
+    length = lw_dictionary_installs_length (self);
 
     g_free (priv->data.array); priv->data.array = NULL;
     priv->data.array = g_new0 (GList*, length);
@@ -537,34 +499,34 @@ _rebuild_array (LwDictionaryInstallList *self)
       }
     }
 
-    lw_dictionaryinstalllist_invalidate_length (self);
+    lw_dictionary_installs_invalidate_length (self);
 }
 
 
 static gint
-_insert (LwDictionaryInstallList *self,
+_insert (LwDictionaryInstalls *self,
          gint                    *position,
-         GList                   *dictionaryinstalls)
+         GList                   *dictionary_installs)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), -1);
-    if (dictionaryinstalls == NULL) return 0;
+    g_return_val_if_fail (LW_IS_DICTIONARY_INSTALLS (self), -1);
+    if (dictionary_installs == NULL) return 0;
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
     gint number_inserted = 0;
     gint length = 0;
     gboolean append = FALSE;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
-    length = lw_dictionaryinstalllist_length (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
+    length = lw_dictionary_installs_length (self);
     append = (*position < 0 || *position >= length || length == 0);
-    number_inserted = g_list_length (dictionaryinstalls);
+    number_inserted = g_list_length (dictionary_installs);
 
     if (append)
     {
-      GList *copy = g_list_copy (dictionaryinstalls);
+      GList *copy = g_list_copy (dictionary_installs);
       *position = length;
       g_list_foreach (copy, (GFunc) g_object_ref, NULL);
       priv->data.list = g_list_concat (priv->data.list, copy);
@@ -586,7 +548,7 @@ _insert (LwDictionaryInstallList *self,
       GList *insert_link = g_list_nth (priv->data.list, *position);
       if (insert_link == NULL) goto errored;
       GList *link = NULL;
-      for (link = g_list_last (dictionaryinstalls); link != NULL; link = link->prev)
+      for (link = g_list_last (dictionary_installs); link != NULL; link = link->prev)
       {
         LwDictionaryInstall *dictionaryinstall = LW_DICTIONARYINSTALL (link->data);
         if (dictionaryinstall != NULL)
@@ -605,31 +567,31 @@ _insert (LwDictionaryInstallList *self,
 
 errored:
 
-    lw_dictionaryinstalllist_invalidate_length (self);
+    lw_dictionary_installs_invalidate_length (self);
 
     return number_inserted;
 }
 
 
 static void
-_insert_propogate_changes (LwDictionaryInstallList *self,
+_insert_propogate_changes (LwDictionaryInstalls *self,
                                gint      position,
                                gint      number_inserted)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_if_fail (LW_IS_DICTIONARY_INSTALLS (self));
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
-    LwDictionaryInstallListClass *klass = NULL;
-    LwDictionaryInstallListClassPrivate *klasspriv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
+    LwDictionaryInstallsClass *klass = NULL;
+    LwDictionaryInstallsClassPrivate *klasspriv = NULL;
     gint length = 0;
     gint i = 0;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
-    length = lw_dictionaryinstalllist_length (self);
-    klass = LW_DICTIONARYINSTALLLIST_CLASS (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
+    length = lw_dictionary_installs_length (self);
+    klass = LW_DICTIONARY_INSTALLS_CLASS (self);
     klasspriv = klass->priv;
 
     //Rows that were inserted
@@ -647,32 +609,32 @@ _insert_propogate_changes (LwDictionaryInstallList *self,
 
 
 static gint*
-_find_duplicates (LwDictionaryInstallList *self, 
+_find_duplicates (LwDictionaryInstalls *self, 
                   gint                     position, 
-                  GList                   *dictionaryinstalls)
+                  GList                   *dictionary_installs)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
-    if (dictionaryinstalls == NULL) return NULL;
+    g_return_val_if_fail (LW_IS_DICTIONARY_INSTALLS (self), NULL);
+    if (dictionary_installs == NULL) return NULL;
 
     //Declarations
     gint length = -1;
     gint *indices = NULL;
 
     //Initializations
-    length = g_list_length (dictionaryinstalls);
-    if (position < 0) position = lw_dictionaryinstalllist_length (self);
+    length = g_list_length (dictionary_installs);
+    if (position < 0) position = lw_dictionary_installs_length (self);
     indices = g_new0 (gint, length + 1);
     if (indices == NULL) goto errored;
 
     {
       GList *link = NULL;
       gint i = 0;
-      for (link = dictionaryinstalls; link != NULL; link = link->next)
+      for (link = dictionary_installs; link != NULL; link = link->next)
       {
         LwDictionaryInstall *a = LW_DICTIONARYINSTALL (link->data);
         if (a == NULL) continue;
-        LwDictionaryInstall *b = LW_DICTIONARYINSTALL (lw_dictionaryinstalllist_nth (self, a->row.current_index));
+        LwDictionaryInstall *b = LW_DICTIONARYINSTALL (lw_dictionary_installs_nth (self, a->row.current_index));
         if (b == NULL) continue;
 
         if (a == b)
@@ -696,13 +658,13 @@ errored:
 
 
 gint*
-lw_dictionaryinstalllist_insert (LwDictionaryInstallList *self, 
+lw_dictionary_installs_insert (LwDictionaryInstalls *self, 
                                  gint                     position,
-                                 GList                   *dictionaryinstalls)
+                                 GList                   *dictionary_installs)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
-    if (dictionaryinstalls == NULL) return NULL;
+    g_return_val_if_fail (LW_IS_DICTIONARY_INSTALLS (self), NULL);
+    if (dictionary_installs == NULL) return NULL;
 
     //Declarations
     gint number_inserted = 0;
@@ -711,8 +673,8 @@ lw_dictionaryinstalllist_insert (LwDictionaryInstallList *self,
     gboolean changed = FALSE;
 
     //Initializations
-    duplicates = _find_duplicates (self, position, dictionaryinstalls);
-    number_inserted = _insert (self, &position, dictionaryinstalls);
+    duplicates = _find_duplicates (self, position, dictionary_installs);
+    number_inserted = _insert (self, &position, dictionary_installs);
 
     _rebuild_array (self);
     _insert_propogate_changes (self, position, number_inserted);
@@ -721,14 +683,14 @@ lw_dictionaryinstalllist_insert (LwDictionaryInstallList *self,
 
     if (duplicates == NULL) goto errored;
 
-    removed = lw_dictionaryinstalllist_remove (self, duplicates);
+    removed = lw_dictionary_installs_remove (self, duplicates);
 
 errored:
 
     if (duplicates != NULL) g_free (duplicates); duplicates = NULL;
     if (removed != NULL) g_list_free (removed); removed;
 
-    return lw_dictionaryinstalllist_get_indices (self, dictionaryinstalls);
+    return lw_dictionary_installs_get_indices (self, dictionary_installs);
 }
 
 
@@ -746,17 +708,17 @@ _remove_sort (gconstpointer a, gconstpointer b)
 
 
 static gint* 
-_sanitize_indices (LwDictionaryInstallList *self,
+_sanitize_indices (LwDictionaryInstalls *self,
                    gint         *indices)
 {
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_INSTALLS (self), NULL);
 
     //Declarations
     gint size = 0;
     gint length = 0;
 
     //Initializations
-    length = lw_dictionaryinstalllist_length (self);
+    length = lw_dictionary_installs_length (self);
 
     if (indices == NULL) //New
     {
@@ -805,21 +767,21 @@ _sanitize_indices (LwDictionaryInstallList *self,
 
 
 static GList*
-_remove (LwDictionaryInstallList *self,
+_remove (LwDictionaryInstalls *self,
          gint         *indices)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_INSTALLS (self), NULL);
     if (indices == NULL) return NULL;
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
     gint length = 0;
     GList *list = NULL;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
-    length = lw_dictionaryinstalllist_length (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
+    length = lw_dictionary_installs_length (self);
     if (length == 0) goto errored;
 
     {
@@ -846,28 +808,28 @@ _remove (LwDictionaryInstallList *self,
 
 errored:
 
-    lw_dictionaryinstalllist_invalidate_length (self);
+    lw_dictionary_installs_invalidate_length (self);
 
     return list;
 }
 
 
 static void
-_remove_propogate_changes (LwDictionaryInstallList *self,
+_remove_propogate_changes (LwDictionaryInstalls *self,
                            gint             *indices)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_if_fail (LW_IS_DICTIONARY_INSTALLS (self));
     if (indices == NULL) return;
 
     //Declarations
     gint length = 0;
-    LwDictionaryInstallListClass *klass = NULL;
-    LwDictionaryInstallListClassPrivate *klasspriv = NULL;
+    LwDictionaryInstallsClass *klass = NULL;
+    LwDictionaryInstallsClassPrivate *klasspriv = NULL;
 
     //Initializations
-    length = lw_dictionaryinstalllist_length (self);
-    klass = LW_DICTIONARYINSTALLLIST_CLASS (self);
+    length = lw_dictionary_installs_length (self);
+    klass = LW_DICTIONARY_INSTALLS_CLASS (self);
     klasspriv = klass->priv;
 
     //Rows that were removed
@@ -894,11 +856,11 @@ _remove_propogate_changes (LwDictionaryInstallList *self,
 
 
 GList*
-lw_dictionaryinstalllist_remove (LwDictionaryInstallList *self,
+lw_dictionary_installs_remove (LwDictionaryInstalls *self,
                                  gint                    *indices)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_INSTALLS (self), NULL);
 
     //Declarations
     GList *removed = NULL;
@@ -925,24 +887,24 @@ errored:
 //!
 //! @brief Gets the dictionary by load position in the GUI
 //! @param request The GUI load position of the desired dictionary
-//! @return The position in the LwDictionaryInstallList of the LwDictionary
+//! @return The position in the LwDictionaryInstalls of the LwDictionary
 //!
 LwDictionaryInstall* 
-lw_dictionaryinstalllist_nth (LwDictionaryInstallList* self,
+lw_dictionary_installs_nth (LwDictionaryInstalls* self,
                               gint                     index)
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, NULL);
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
     LwDictionaryInstall *dictionaryinstall = NULL;
     GList *link = NULL;
     gint length = 0;
 
     //Initializiations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
-    length = lw_dictionaryinstalllist_length (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
+    length = lw_dictionary_installs_length (self);
     if (index >= length) goto errored;
 
     link = priv->data.array[index];
@@ -958,16 +920,16 @@ errored:
 
 
 gint 
-lw_dictionaryinstalllist_length (LwDictionaryInstallList *self)
+lw_dictionary_installs_length (LwDictionaryInstalls *self)
 {
     //Sanity check
     g_return_val_if_fail (self != NULL, 0);
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
 
     if (priv->data.length < 0)
     {
@@ -979,20 +941,20 @@ lw_dictionaryinstalllist_length (LwDictionaryInstallList *self)
 
 
 void
-lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
+lw_dictionary_installs_load_default (LwDictionaryInstalls *self)
 {
     //Sanity checks
-    g_return_if_fail (LW_IS_DICTIONARYINSTALLLIST (self));
+    g_return_if_fail (LW_IS_DICTIONARY_INSTALLS (self));
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
     LwPreferences *preferences = NULL;
     GList *list = NULL;
 
 /*TODO
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
-    preferences = lw_dictionaryinstalllist_get_preferences (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
+    preferences = lw_dictionary_installs_get_preferences (self);
     if (preferences == NULL) goto errored;
 
     {
@@ -1059,7 +1021,7 @@ lw_dictionaryinstalllist_load_default (LwDictionaryInstallList *self)
 
     list = g_list_reverse (list);
 
-    lw_dictionaryinstalllist_insert (self, -1, list);
+    lw_dictionary_installs_insert (self, -1, list);
 
 errored:
 
@@ -1070,19 +1032,19 @@ errored:
 
 
 gint*
-lw_dictionaryinstalllist_get_indices (LwDictionaryInstallList *self,
-                                      GList                   *dictionaryinstalls)
+lw_dictionary_installs_get_indices (LwDictionaryInstalls *self,
+                                      GList                   *dictionary_installs)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
-    if (dictionaryinstalls == NULL) return NULL;
+    g_return_val_if_fail (LW_IS_DICTIONARY_INSTALLS (self), NULL);
+    if (dictionary_installs == NULL) return NULL;
 
     //Declarations
     gint* indices = NULL;
     gint length = NULL;
 
     //Initializations
-    length = g_list_length (dictionaryinstalls);
+    length = g_list_length (dictionary_installs);
     if (length < 1) goto errored;
     indices = g_new0 (gint, length + 1);
     if (indices == NULL) goto errored;
@@ -1090,7 +1052,7 @@ lw_dictionaryinstalllist_get_indices (LwDictionaryInstallList *self,
     {
       GList *link = NULL;
       gint i = 0;
-      for (link = dictionaryinstalls; link != NULL; link = link->next)
+      for (link = dictionary_installs; link != NULL; link = link->next)
       {
         LwDictionaryInstall *dictionaryinstall = LW_DICTIONARYINSTALL (link->data);
         if (dictionaryinstall != NULL && dictionaryinstall->row.current_index > -1)
@@ -1108,40 +1070,40 @@ errored:
 
 
 GList*
-lw_dictionaryinstalllist_dictionaryinstalls (LwDictionaryInstallList *self)
+lw_dictionary_installs_dictionary_installs (LwDictionaryInstalls *self)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_INSTALLS (self), NULL);
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
-    GList *dictionaryinstalls = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
+    GList *dictionary_installs = NULL;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
 
-    dictionaryinstalls = g_list_copy (priv->data.list);
-    g_list_foreach (dictionaryinstalls, (GFunc) g_object_ref, NULL);
+    dictionary_installs = g_list_copy (priv->data.list);
+    g_list_foreach (dictionary_installs, (GFunc) g_object_ref, NULL);
 
-    return dictionaryinstalls;
+    return dictionary_installs;
 }
 
 
 LwDictionaryInstall*
-lw_dictionaryinstalllist_fuzzy_find (LwDictionaryInstallList *self,
+lw_dictionary_installs_fuzzy_find (LwDictionaryInstalls *self,
                                      const gchar             *DESCRIPTION)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARYINSTALLLIST (self), NULL);
+    g_return_val_if_fail (LW_IS_DICTIONARY_INSTALLS (self), NULL);
 
     //Declarations
-    LwDictionaryInstallListPrivate *priv = NULL;
-    GList *dictionaryinstalls = NULL;
+    LwDictionaryInstallsPrivate *priv = NULL;
+    GList *dictionary_installs = NULL;
     LwDictionaryInstall *dictionaryinstall = NULL;
     gchar *normalized = NULL;
 
     //Initializations
-    priv = lw_dictionaryinstalllist_get_instance_private (self);
+    priv = lw_dictionary_installs_get_instance_private (self);
     normalized = lw_utf8_normalize (DESCRIPTION, -1, LW_UTF8FLAG_ALL);
 
     if (dictionaryinstall == NULL)

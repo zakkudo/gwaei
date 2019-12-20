@@ -50,7 +50,63 @@
 #include "query-node.h"
 #include "gettext.h"
 
+typedef struct LwMatchInfoPrivate {
+  GTree * tree;
+};
 
+G_DEFINE_TYPE_WITH_CODE (LwMatchInfo, lw_match_info, LW_TYPE_LIST, G_ADD_PRIVATE(LwMatchInfo))
+
+static void
+lw_match_info_init (LwMatchInfo * self)
+{
+    LwMatchInfoPrivate *priv = NULL;
+
+    priv = lw_match_info_get_instance_private (self);
+
+    priv->tree = g_tree_new_full ((GCompareDataFunc) _compare, NULL, NULL, (GDestroyNotify) _unref_column);
+}
+
+static void
+lw_match_info_finalize (LwMatchInfo * self)
+{
+    LwMatchInfoPrivate *priv = NULL;
+
+    priv = lw_match_info_get_instance_private (self);
+
+    if (priv->tree != NULL) g_tree_unref (tree);
+    priv->tree = NULL;
+
+}
+
+static void
+lw_match_info_class_init (LwMatchInfoClass * klass)
+{
+    //Declarations
+    GObjectClass *object_class = NULL;
+    LwListClass * list_class = NULL;
+    LwMatchInfoClassPrivate * klasspriv = NULL;
+
+    //Initializations
+    object_class = G_OBJECT_CLASS (klass);
+    list_class = LW_LIST_CLASS (klass);
+    klasspriv = lw_match_info_class_get_private (klass);
+
+    object_class->set_property = lw_match_info_set_property;
+    object_class->get_property = lw_match_info_get_property;
+    object_class->finalize = lw_match_info_finalize;
+
+    list_class->get_begin_iter = (LwListGetBeginIterFunc) lw_match_info_get_begin_iter;
+    list_class->get_end_iter = (LwListGetEndIterFunc) lw_match_info_get_end_iter;
+    list_class->get_n_columns = (LwListGetNColumnsFunc) lw_match_info_get_n_columns;
+    list_class->get_column_type = (LwListGetColumnTypeFunc) lw_match_info_get_column_type;
+    list_class->get_iter_at_position = (LwListGetIterAtPositionFunc) lw_match_info_get_iter_at_position;
+    list_class->get_length = (LwListGetLengthFunc) lw_match_info_get_length;
+
+    list_class->iter_get_position = (LwListIterGetPositionFunc) lw_match_info_iter_get_position;
+    list_class->iter_get_value = (LwListIterGetValueFunc) lw_match_info_iter_get_value;
+    list_class->iter_next = (LwListIterNextFunc) lw_match_info_iter_next;
+    list_class->iter_previous = (LwListIterPreviousFunc) lw_match_info_iter_previous;
+}
 
 static gint
 _compare (gconstpointer * a,
@@ -73,76 +129,18 @@ _unref_column (LwColumnMatchInfo * self)
  * Returns: A new #LwMatchInfo that can be freed with lw_match_info_unref()
  */
 LwMatchInfo *
-lw_match_info_new ()
+lw_match_info_new (LwIterable * iterable)
 {
     //Declarations
     LwMatchInfo * self = NULL;
     GTree * tree = NULL;
 
     //Initializations
-    tree = g_tree_new_full ((GCompareDataFunc) _compare, NULL, NULL, (GDestroyNotify) _unref_column);
-    if (tree == NULL) goto errored;
-    self = g_new0 (LwMatchInfo, 1);
-    if (self == NULL) goto errored;
-    self->refs = 1;
-
-    self->tree = tree;
-    tree = NULL;
+    self = LW_MATCH_INFO (g_object_new (LW_TYPE_MATCH_INFO, "iterable", iterable, NULL));
 
 errored:
 
-    if (tree != NULL) g_tree_unref (tree);
-    tree = NULL;
-
     return self;
-}
-
-
-static void
-lw_match_info_free (LwMatchInfo * self)
-{
-    if (self == NULL) return;
-
-    if (self->tree != NULL) g_tree_unref (self->tree);
-
-    memset(self, 0, sizeof(LwMatchInfo));
-
-    g_free (self);
-}
-
-
-/**
- * lw_match_info_ref:
- * @self: A #LwMatchInfo
- *
- * Returns: The #LwMatchInfo with its reference count incremented
- */
-LwMatchInfo*
-lw_match_info_ref (LwMatchInfo * self)
-{
-    g_return_val_if_fail (self != NULL, NULL);
-
-    g_atomic_int_inc (&self->refs);
-
-    return self;
-}
-
-
-/**
- * lw_match_info_unref:
- * @self: A #LwMatchInfo
- *
- * Decreses the reference count on the #LwMatchInfo, freeing it once it reaches 0
- */
-void
-lw_match_info_unref (LwMatchInfo * self)
-{
-    g_return_if_fail (self != NULL);
-
-    if (g_atomic_int_dec_and_test (&self->refs))
-    {
-      lw_match_info_free (self);
-    }
 }
 
 
@@ -152,7 +150,7 @@ lw_match_info_unref (LwMatchInfo * self)
  * @column: The column you want to fetch
  * Returns: A #LwColumnMatchInfo or %NULL if it wasn't previously set
  */
-LwColumnMatchInfo *
+static LwColumnMatchInfo *
 lw_match_info_get_column (LwMatchInfo * self,
                           gint          column)
 {
@@ -169,7 +167,7 @@ lw_match_info_get_column (LwMatchInfo * self,
  */
 void
 lw_match_info_set_column (LwMatchInfo       * self,
-                                  LwColumnMatchInfo * column_match_info)
+                          LwColumnMatchInfo * column_match_info)
 {
 
     //Initializations
