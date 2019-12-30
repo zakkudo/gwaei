@@ -99,10 +99,10 @@ lw_list_class_init (LwListClass * klass)
     object_class->finalize = lw_list_finalize;
 
     // Declarations
-    LwEditableListClassPrivate * klasspriv = NULL;
+    LwListClassPrivate * klasspriv = NULL;
     
     // Initializations
-    klasspriv = lw_editable_list_class_get_private (klass);
+    klasspriv = lw_list_class_get_private (klass);
 
     /**
      * LwResults::row-changed:
@@ -115,7 +115,7 @@ lw_list_class_init (LwListClass * klass)
         "row-changed",
         G_OBJECT_CLASS_TYPE (klass),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwEditableListClassPrivate, row_changed),
+        G_STRUCT_OFFSET (LwListClassPrivate, row_changed),
         NULL, NULL,
         g_cclosure_marshal_VOID__INT,
         G_TYPE_NONE, 1,
@@ -133,7 +133,7 @@ lw_list_class_init (LwListClass * klass)
         "row-inserted",
         G_OBJECT_CLASS_TYPE (klass),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwEditableListClassPrivate, row_inserted),
+        G_STRUCT_OFFSET (LwListClassPrivate, row_inserted),
         NULL, NULL,
         g_cclosure_marshal_VOID__INT,
         G_TYPE_NONE, 1,
@@ -151,7 +151,7 @@ lw_list_class_init (LwListClass * klass)
         "row-deleted",
         G_OBJECT_CLASS_TYPE (klass),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwEditableListClassPrivate, row_deleted),
+        G_STRUCT_OFFSET (LwListClassPrivate, row_deleted),
         NULL, NULL,
         g_cclosure_marshal_VOID__INT,
         G_TYPE_NONE, 1,
@@ -169,7 +169,7 @@ lw_list_class_init (LwListClass * klass)
         "rows-reordered",
         G_OBJECT_CLASS_TYPE (klass),
         G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwEditableListClassPrivate, rows_reordered),
+        G_STRUCT_OFFSET (LwListClassPrivate, rows_reordered),
         NULL, NULL,
         g_cclosure_marshal_VOID__POINTER,
         G_TYPE_NONE, 1,
