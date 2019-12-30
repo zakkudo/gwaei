@@ -24,8 +24,55 @@ lw_list_init (LwList *self)
 }
 
 static void
+lw_list_finalize (GObject * object)
+{
+    TODO Cleanup memory here
+    gint n_columns = 0;
+    gint column = 0;
+
+    n_columns = lw_list_get_n_columns (self);
+
+    while (column < n_columns)
+    {
+        type = lw_list_get_column_type (self, column);
+        fundamental_type = G_FUNDAMENTAL_TYPE (type);
+
+        if (type == G_TYPE_STRV)
+        {
+            lw_list_get_begin_iter (self, &iter);
+
+            while (!lw_iter_is_end (&iter))
+            {
+                g_free (klass->iter_get (self, column));
+                lw_iter_next (&iter);
+            }
+        } else if (fundamental_type == G_TYPE_OBJECT)
+        {
+            lw_list_get_begin_iter (self, &iter);
+
+            while (!lw_iter_is_end (&iter))
+            {
+                g_object_unref (klass->iter_get (self, column));
+                lw_iter_next (&iter);
+            }
+        }
+
+        column += 1;
+    }
+
+    G_OBJECT_CLASS (lw_dictionary_parent_class)->finalize (object);
+}
+
+static void
 lw_list_class_init (LwListClass * klass)
 {
+    //Declarations
+    GObjectClass *object_class = NULL;
+
+    //Initializations
+    object_class = G_OBJECT_CLASS (klass);
+
+    object_class->finalize = lw_list_finalize;
 }
 
 void 
@@ -369,7 +416,7 @@ lw_list_deserialize (LwList * self,
     gint length = 0;
 
     // Initializations
-    n_columns = lw_list_n_columns (self);
+    n_columns = lw_list_get_n_columns (self);
     length = calculate_length(self, serialized_data);
 
     klass->allocate (self, length);
@@ -389,3 +436,5 @@ lw_list_deserialize (LwList * self,
 
     return offset;
 }
+
+

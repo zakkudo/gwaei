@@ -51,10 +51,12 @@ lw_iter_previous (LwIter * self)
 }
 
 
+
+
 void
 lw_iter_get_value (LwIter * self, 
-                   gint     column,
-                   GValue * value)
+                        gint     column,
+                        GValue * value)
 {
     // Sanity checks
     g_return_if_fail (self != NULL);
@@ -122,6 +124,47 @@ lw_iter_get_value (LwIter * self,
     }
 }
 
+static void
+copy(destination, source, type)
+{
+    switch (type) {
+        case G_TYPE_INT:
+            memcpy(destination, source, sizeof(gint));
+            break;
+        case G_TYPE_UINT:
+            memcpy(destination, source, sizeof(guint));
+            break;
+        case G_TYPE_LONG:
+            memcpy(destination, source, sizeof(glong));
+            break;
+        case G_TYPE_ULONG:
+            memcpy(destination, source, sizeof(gulong));
+            break;
+        case G_TYPE_CHAR:
+            memcpy(destination, source, sizeof(gchar));
+            break;
+        case G_TYPE_UCHAR:
+            memcpy(destination, source, sizeof(guchar));
+            break;
+        case G_TYPE_FLOAT:
+            memcpy(destination, source, sizeof(gfloat));
+            break;
+        case G_TYPE_DOUBLE:
+            memcpy(destination, source, sizeof(gdouble));
+            break;
+        case G_TYPE_STRING:
+            memcpy(destination, source, sizeof(gchar*));
+            break;
+        case G_TYPE_POINTER:
+        case G_TYPE_BOXED:
+        case G_TYPE_OBJECT:
+            memcpy(destination, source, sizeof(gpointer));
+            break;
+        default:
+            g_assert_not_reached ();
+    }
+}
+
 void
 lw_iter_get_valist (LwIter *self,
                      va_list * va)
@@ -142,44 +185,7 @@ lw_iter_get_valist (LwIter *self,
         i += 1;
 
         destination = va_arg (va, gpointer);
-
-        switch (type) {
-            case G_TYPE_INT:
-                memcpy(destination, data, sizeof(gint));
-                break;
-            case G_TYPE_UINT:
-                memcpy(destination, data, sizeof(guint));
-                break;
-            case G_TYPE_LONG:
-                memcpy(destination, data, sizeof(glong));
-                break;
-            case G_TYPE_ULONG:
-                memcpy(destination, data, sizeof(gulong));
-                break;
-            case G_TYPE_CHAR:
-                memcpy(destination, data, sizeof(gchar));
-                break;
-            case G_TYPE_UCHAR:
-                memcpy(destination, data, sizeof(guchar));
-                break;
-            case G_TYPE_FLOAT:
-                memcpy(destination, data, sizeof(gfloat));
-                break;
-            case G_TYPE_DOUBLE:
-                memcpy(destination, data, sizeof(gdouble));
-                break;
-            case G_TYPE_STRING:
-                memcpy(destination, data, sizeof(gchar*));
-                break;
-            case G_TYPE_POINTER:
-            case G_TYPE_BOXED:
-            case G_TYPE_OBJECT:
-                memcpy(destination, data, sizeof(gpointer));
-                break;
-            default:
-                g_assert_not_reached ();
-        }
-
+        copy (destination, data, type);
         i += 1;
     }
 } 
@@ -201,8 +207,8 @@ lw_iter_get (LwIter * self,
 
 void
 lw_iter_set_value (LwIter * self,
-                   gint     column
-                   GValue * value)
+                        gint     column
+                        GValue * value)
 {
     // Sanity checks
     g_return_if_fail (self != NULL);
@@ -222,6 +228,11 @@ lw_iter_set_value (LwIter * self,
     fundamental_type = G_TYPE_FUNDAMENTAL (type);
     gpointer data = g_value_get_pointer (value);
 
+    if (type == G_TYPE_STRV)
+    {
+        g_free (klass->iter_get (self, column));
+    }
+
     if (fundamental_type == G_TYPE_OBJECT)
     {
         g_return_if_fail (G_IS_OBJECT (data));
@@ -238,22 +249,15 @@ lw_iter_set_valist (LwIter *self,
     gint column;
     GValue value = {0};
     GType type = G_TYPE_INVALID;
+    gpointer data = NULL;
 
-    while ((column = va_arg (va, i)) != -1)
+    while ((column = va_arg (va, gint)) != -1)
     {
-        type = lw_list_get_column_type (i);
+        type = G_TYPE_FUNDAMENTAL (lw_list_get_column_type (list));
         i += 1;
 
-        switch (type) {
-            case G_TYPE_INT:
-                g_value_init (&value, G_TYPE_INT);
-                g_value_set(va_arg (va, gint));
-                lw_iter_set_value(iter, column, &value);
-                break;
-        }
-
-
-        lw_iter_set_value();
+        data = va_arg (va, gpointer);
+        copy (destination, data, type);
         i += 1;
     }
 } 

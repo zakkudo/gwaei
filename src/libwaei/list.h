@@ -22,6 +22,9 @@ typedef void (*LwListIterGetValueFunc) (LwIter * self, gint column, GValue * val
 typedef gboolean (*LwListIterNextFunc) (LwIter * self);
 typedef gboolean (*LwListIterPreviousFunc) (LwIter  *self);
 
+typedef gpointer (*LwListIterGetFunc) (LwList * self, gint column);
+typedef void (*LwListIterSetFunc) (LwList * self, gint column, gpointer);
+
 typedef void (*LwListAllocateFunc) (LwList * self);
 
 struct _LwListClass {
@@ -40,15 +43,18 @@ struct _LwListClass {
   LwListIterNextFunc iter_next;
   LwListIterPreviousFunc iter_previous;
 
+  LwListIterGetFunc iter_get;
+  LwListIterSetFunc iter_set;
+
   LwListAllocateFunc allocate;
 };
 
 //Methods
-void lw_list_get_begin_iter(LwList *self, LwIter * iter);
-void lw_list_get_end_iter(LwList *self, LwIter * iter);
+void lw_list_get_begin_iter (LwList *self, LwIter * iter);
+void lw_list_get_end_iter (LwList *self, LwIter * iter);
 gint lw_list_get_n_columns (LwList *self);
 GType lw_list_get_column_type (LwList *self, gint column);
-gboolean lw_list_get_iter_at_pos (LwList *self, LwIter *iter, gint position);
+gboolean lw_list_get_iter_at_position (LwList *self, LwIter *iter, gint position);
 gint lw_list_get_length (LwList *self);
 
 G_END_DECLS
