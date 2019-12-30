@@ -16,6 +16,16 @@
 #define lw_editable_list_get_class_private(self) G_TYPE_CLASS_GET_PRIVATE(lw_editable_list_get_class(self), LW_TYPE_EDITABLE_LIST, LwEditableListClassPrivate)
 #define lw_editable_list_class_get_private(klass) G_TYPE_CLASS_GET_PRIVATE(klass, LW_TYPE_EDITABLE_LIST, LwEditableListClassPrivate)
 
+static void lw_editable_list_get_begin_iter (LwEditableList * self, LwIter * iter);
+static void lw_editable_list_get_end_iter (LwEditableList * self, LwIter * iter);
+static gint lw_editable_list_get_n_columns (LwEditableList * self);
+static GType lw_editable_list_get_column_type (LwEditableList * self, gint column);
+static gboolean lw_editable_list_get_iter_at_position (LwEditableList * self,  LwIter * iter, gint position);
+static gpointer lw_editable_list_iter_get (LwEditableList * self, gint column);
+static void lw_editable_list_iter_set (LwEditableList * self, gint column, gpointer data);
+static gint lw_editable_list_get_length (LwEditableList * self);
+static void lw_editable_list_allocate (LwEditableList * self, gint length);
+
 G_DEFINE_ABSTRACT_TYPE (LwEditableList, lw_editable_list, LW_TYPE_LIST)
 
 static void 
@@ -26,6 +36,22 @@ lw_editable_list_init (LwEditableList *self)
 static void
 lw_editable_list_class_init (LwEditableListClass * klass)
 {
+    LwListClass * list_class = NULL;
+
+    list_class = LW_LIST_CLASS (klass);
+
+    list_klass->get_begin_iter = lw_editable_list_get_begin_iter;
+    list_klass->get_end_iter = lw_editable_list_get_end_iter;
+    list_klass->get_n_columns = lw_editable_list_get_n_columns;
+    list_klass->get_column_type = lw_editable_list_get_column_type;
+    list_klass->get_iter_at_position = lw_editable_list_get_iter_at_position;
+    list_klass->get_length = lw_editable_list_get_length;
+
+    list_class->iter_get = lw_editable_list_iter_get;
+    list_class->iter_set = lw_editable_list_iter_set;
+
+    list_class->allocate = lw_editable_list_allocate;
+    list_class->sort = lw_editable_list_sort;
 }
 
 void 
@@ -53,7 +79,7 @@ static gboolean
 lw_editable_list_iter_is_valid (LwIter * self) { 
     g_return_val_if_fail (self != NULL, FALSE); 
  
-    TYPE##Private * priv = NULL; 
+    LwEditableListPrivate * priv = NULL; 
     GSequence * sequence = NULL; 
  
     if (!LW_IS_EDITABLE_LIST (self)) { 
@@ -68,13 +94,13 @@ lw_editable_list_iter_is_valid (LwIter * self) {
  
  
 static void 
-lw_editable_list_get_begin_iter (TYPE * self, 
+lw_editable_list_get_begin_iter (LwEditableList * self, 
                            LwIter    * iter) 
 { 
     g_return_if_fail (LW_IS_EDITABLE_LIST (self)); 
     g_return_if_fail (iter != NULL); 
  
-    const TYPE##Private * priv = NULL; 
+    const LwEditableListPrivate * priv = NULL; 
     GSequence * sequence = NULL; 
     GSequenceIter * sequence_iter = NULL; 
  
@@ -88,13 +114,13 @@ lw_editable_list_get_begin_iter (TYPE * self,
 } 
  
 static void 
-lw_editable_list_get_end_iter (TYPE     * self, 
+lw_editable_list_get_end_iter (LwEditableList     * self, 
                          LwIter * iter) 
 { 
     g_return_if_fail (LW_IS_EDITABLE_LIST (self)); 
     g_return_if_fail (iter != NULL); 
  
-    const TYPE##Private * priv = NULL; 
+    const LwEditableListPrivate * priv = NULL; 
     GSequence * sequence = NULL; 
     GSequenceIter * sequence_iter = NULL; 
  
@@ -108,11 +134,11 @@ lw_editable_list_get_end_iter (TYPE     * self,
 } 
  
 static gint 
-lw_editable_list_get_n_columns (TYPE * self) 
+lw_editable_list_get_n_columns (LwEditableList * self) 
 { 
     g_return_val_if_fail (LW_IS_EDITABLE_LIST (self), 0); 
  
-    const TYPE##Private * priv = NULL; 
+    const LwEditableListPrivate * priv = NULL; 
     LwDictionaryCache * dictionary_cache = NULL; 
     LwDictionary * dictionary = NULL; 
  
@@ -124,13 +150,13 @@ lw_editable_list_get_n_columns (TYPE * self)
 } 
  
 static GType 
-lw_editable_list_get_column_type (TYPE * self, 
+lw_editable_list_get_column_type (LwEditableList * self, 
                             gint        column) 
 { 
     g_return_val_if_fail (LW_IS_EDITABLE_LIST (self), G_TYPE_INVALID); 
     g_return_val_if_fail (column > -1, G_TYPE_INVALID); 
  
-    const TYPE##Private * priv = NULL; 
+    const LwEditableListPrivate * priv = NULL; 
     LwDictionaryCache * dictionary_cache = NULL; 
     LwDictionary * dictionary = NULL; 
  
@@ -142,7 +168,7 @@ lw_editable_list_get_column_type (TYPE * self,
 } 
  
 static gboolean 
-lw_editable_list_get_iter_at_position (TYPE     * self, 
+lw_editable_list_get_iter_at_position (LwEditableList     * self, 
                                  LwIter * iter, 
                                  gint            position) 
 { 
@@ -150,7 +176,7 @@ lw_editable_list_get_iter_at_position (TYPE     * self,
     g_return_val_if_fail (iter != NULL, FALSE); 
     g_return_val_if_fail (position > -1, FALSE); 
  
-    const TYPE##Private * priv = NULL; 
+    const LwEditableListPrivate * priv = NULL; 
     GSequence * sequence = NULL; 
     GSequenceIter * sequence_iter = NULL; 
  
@@ -164,11 +190,11 @@ lw_editable_list_get_iter_at_position (TYPE     * self,
 } 
  
 static gint 
-lw_editable_list_get_length (TYPE * self) 
+lw_editable_list_get_length (LwEditableList * self) 
 { 
     g_return_val_if_fail (LW_IS_EDITABLE_LIST (self), 0); 
  
-    const TYPE##Private * priv = NULL; 
+    const LwEditableListPrivate * priv = NULL; 
     GSequence * sequence = NULL; 
  
     priv = lw_editable_list_get_instance_private (self); 

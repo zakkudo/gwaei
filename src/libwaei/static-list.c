@@ -16,6 +16,16 @@
 #define lw_static_list_get_class_private(self) G_TYPE_CLASS_GET_PRIVATE(lw_static_list_get_class(self), LW_TYPE_STATIC_LIST, LwStaticListClassPrivate)
 #define lw_static_list_class_get_private(klass) G_TYPE_CLASS_GET_PRIVATE(klass, LW_TYPE_STATIC_LIST, LwStaticListClassPrivate)
 
+static void lw_static_list_get_begin_iter (LwStaticList * self, LwIter * iter);
+static void lw_static_list_get_end_iter (LwStaticList * self, LwIter * iter);
+static gint lw_static_list_get_n_columns (LwStaticList * self);
+static GType lw_static_list_get_column_type (LwStaticList * self, gint column);
+static gboolean lw_static_list_get_iter_at_position (LwStaticList * self,  LwIter * iter, gint position);
+static gpointer lw_static_list_iter_get (LwStaticList * self, gint column);
+static void lw_static_list_iter_set (LwStaticList * self, gint column, gpointer data);
+
+static gint lw_static_list_get_length (LwStaticList * self);
+static void lw_static_list_allocate (LwStaticList * self, gint length);
 
 typedef struct {
     gpointer ** columns;
@@ -42,7 +52,11 @@ lw_static_list_class_init (LwStaticListClass * klass)
     list_klass->get_iter_at_position = lw_static_list_get_iter_at_position;
     list_klass->get_length = lw_static_list_get_length;
 
+    list_class->iter_get = lw_static_list_iter_get;
+    list_class->iter_set = lw_static_list_iter_set;
+
     list_class->allocate = lw_static_list_allocate;
+    list_class->sort = lw_static_list_sort;
 }
 
 static gboolean
