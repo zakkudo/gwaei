@@ -16,29 +16,6 @@
 #define lw_editable_list_get_class_private(self) G_TYPE_CLASS_GET_PRIVATE(lw_editable_list_get_class(self), LW_TYPE_EDITABLE_LIST, LwEditableListClassPrivate)
 #define lw_editable_list_class_get_private(klass) G_TYPE_CLASS_GET_PRIVATE(klass, LW_TYPE_EDITABLE_LIST, LwEditableListClassPrivate)
 
-typedef enum {
-  SIGNALID_ROW_CHANGED,
-  SIGNALID_ROW_INSERTED,
-  SIGNALID_ROW_DELETED,
-  SIGNALID_ROWS_REORDERED,
-  TOTAL_SIGNALIDS
-} SignalId;
-
-typedef void (* LwEditableListRowChangedFunc) (LwList *list, gint index, LwIter * iter);
-typedef void (* LwEditableListRowInsertedFunc) (LwList *list, gint index, LwIter * iter);
-typedef void (* LwEditableListRowDeletedFunc) (LwList *list, gint index);
-typedef void (* LwEditableListRowsReorderedFunc) (LwList *list, gint index, LwIter * iter, gint * new_order);
-
-typedef struct {
-  guint signalid[TOTAL_SIGNALIDS];
-
-  /* Signals */
-  LwEditableListRowChangedFunc row_changed;
-  LwEditableListRowInsertedFunc row_inserted;
-  LwEditableListRowDeletedFunc row_deleted;
-  LwEditableListRowsReorderedFunc rows_reordered;
-} LwEditableListClassPrivate;
-
 G_DEFINE_ABSTRACT_TYPE (LwEditableList, lw_editable_list, LW_TYPE_LIST)
 
 static void 
@@ -49,83 +26,6 @@ lw_editable_list_init (LwEditableList *self)
 static void
 lw_editable_list_class_init (LwEditableListClass * klass)
 {
-    // Declarations
-    LwEditableListClassPrivate * klasspriv = NULL;
-    
-    // Initializations
-    klasspriv = lw_editable_list_class_get_private (klass);
-
-    /**
-     * LwResults::row-changed:
-     * @self: A #LwResults
-     * @position: The index of the row that changed
-     *
-     * A signal handler for #GtkTreeModel compatibility
-     */
-    klasspriv->signalid[SIGNALID_ROW_CHANGED] = g_signal_new (
-        "row-changed",
-        G_OBJECT_CLASS_TYPE (klass),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwEditableListClassPrivate, row_changed),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT
-    );
-
-    /**
-     * LwResults::row-inserted:
-     * @self: A #LwResults
-     * @position: The index of the row that changed
-     *
-     * A signal handler for #GtkTreeModel compatibility
-     */
-    klasspriv->signalid[SIGNALID_ROW_INSERTED] = g_signal_new (
-        "row-inserted",
-        G_OBJECT_CLASS_TYPE (klass),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwEditableListClassPrivate, row_inserted),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT
-    );
-
-    /**
-     * LwResults::row-deleted:
-     * @self: A #LwResults
-     * @position: The index of the row that changed
-     *
-     * A signal handler for #GtkTreeModel compatibility
-     */
-    klasspriv->signalid[SIGNALID_ROW_DELETED] = g_signal_new (
-        "row-deleted",
-        G_OBJECT_CLASS_TYPE (klass),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwEditableListClassPrivate, row_deleted),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT
-    );
-
-    /**
-     * LwResults::rows-reordered:
-     * @self: A #LwResults
-     * @position: The index of the row that changed
-     *
-     * A signal handler for #GtkTreeModel compatibility
-     */
-    klasspriv->signalid[SIGNALID_ROWS_REORDERED] = g_signal_new (
-        "rows-reordered",
-        G_OBJECT_CLASS_TYPE (klass),
-        G_SIGNAL_RUN_FIRST,
-        G_STRUCT_OFFSET (LwEditableListClassPrivate, rows_reordered),
-        NULL, NULL,
-        g_cclosure_marshal_VOID__POINTER,
-        G_TYPE_NONE, 1,
-        G_TYPE_POINTER
-    );
 }
 
 void 
@@ -147,62 +47,167 @@ lw_editable_list_sort (LwEditableList * self, gint column, LwSortDirection direc
 }
 
 
-void
-lw_editable_list_emit_row_inserted (LwEditableList * self, gint index)
-{
-    // Sanity checks
-    g_return_if_fail (LW_IS_EDITABLE_LIST (self));
 
-    // Declarations
-    LwEditableListClassPrivate * klasspriv = NULL;
 
-    // Initializations
-    klasspriv = lw_editable_list_get_class_private (self);
-
-    g_signal_emit (G_OBJECT (self), klasspriv->signalid[SIGNALID_ROW_INSERTED], 0, index);
-}
-
-void
-lw_editable_list_emit_row_changed (LwEditableList * self, gint index)
-{
-    // Sanity checks
-    g_return_if_fail (LW_IS_EDITABLE_LIST (self));
-
-    // Declarations
-    LwEditableListClassPrivate * klasspriv = NULL;
-
-    // Initializations
-    klasspriv = lw_editable_list_get_class_private (self);
-
-    g_signal_emit (G_OBJECT (self), klasspriv->signalid[SIGNALID_ROW_CHANGED], 0, index);
-}
-
-void
-lw_editable_list_emit_rows_reordered (LwEditableList * self, gint * new_order)
-{
-    // Sanity checks
-    g_return_if_fail (LW_IS_EDITABLE_LIST (self));
-
-    // Declarations
-    LwEditableListClassPrivate * klasspriv = NULL;
-
-    // Initializations
-    klasspriv = lw_editable_list_get_class_private (self);
-
-    g_signal_emit (G_OBJECT (self), klasspriv->signalid[SIGNALID_ROWS_REORDERED], 0, new_order);
-}
-
-void
-lw_editable_list_emit_row_deleted (LwEditableList * self, gint index)
-{
-    // Sanity checks
-    g_return_if_fail (LW_IS_EDITABLE_LIST (self));
-
-    // Declarations
-    LwEditableListClassPrivate * klasspriv = NULL;
-
-    // Initializations
-    klasspriv = lw_editable_list_get_class_private (self);
-
-    g_signal_emit (G_OBJECT (self), klasspriv->signalid[SIGNALID_ROW_DELETED], 0, index);
-}
+static gboolean 
+lw_editable_list_iter_is_valid (LwIter * self) { 
+    g_return_val_if_fail (self != NULL, FALSE); 
+ 
+    TYPE##Private * priv = NULL; 
+    GSequence * sequence = NULL; 
+ 
+    if (!LW_IS_EDITABLE_LIST (self)) { 
+        return FALSE; 
+    } 
+ 
+    priv = lw_editable_list_get_instance_private (self->iterable); 
+    sequence = priv->sequence; 
+ 
+    return sequence == g_sequence_iter_get_sequence (self->user_data1); 
+} 
+ 
+ 
+static void 
+lw_editable_list_get_begin_iter (TYPE * self, 
+                           LwIter    * iter) 
+{ 
+    g_return_if_fail (LW_IS_EDITABLE_LIST (self)); 
+    g_return_if_fail (iter != NULL); 
+ 
+    const TYPE##Private * priv = NULL; 
+    GSequence * sequence = NULL; 
+    GSequenceIter * sequence_iter = NULL; 
+ 
+    priv = lw_editable_list_get_instance_private (self); 
+    sequence = priv->sequence; 
+    sequence_iter =  g_sequence_get_begin_iter (sequence); 
+ 
+    memset(iter, 0, sizeof(LwIter)); 
+    iter->iterable = self; 
+    iter->user_data1 = sequence_iter; 
+} 
+ 
+static void 
+lw_editable_list_get_end_iter (TYPE     * self, 
+                         LwIter * iter) 
+{ 
+    g_return_if_fail (LW_IS_EDITABLE_LIST (self)); 
+    g_return_if_fail (iter != NULL); 
+ 
+    const TYPE##Private * priv = NULL; 
+    GSequence * sequence = NULL; 
+    GSequenceIter * sequence_iter = NULL; 
+ 
+    priv = lw_editable_list_get_instance_private (self); 
+    sequence = priv->sequence; 
+    sequence_iter = g_sequence_get_end_iter (sequence); 
+ 
+    memset(iter, 0, sizeof(LwIter)); 
+    iter->iterable = self; 
+    iter->user_data1 = sequence_iter; 
+} 
+ 
+static gint 
+lw_editable_list_get_n_columns (TYPE * self) 
+{ 
+    g_return_val_if_fail (LW_IS_EDITABLE_LIST (self), 0); 
+ 
+    const TYPE##Private * priv = NULL; 
+    LwDictionaryCache * dictionary_cache = NULL; 
+    LwDictionary * dictionary = NULL; 
+ 
+    priv = lw_editable_list_get_instance_private (self); 
+    dictionary_cache = priv->dictionary_cache; 
+    dictionary = priv->dictionary; 
+ 
+    return lw_list_get_n_columns (LW_LIST (dictionary)); 
+} 
+ 
+static GType 
+lw_editable_list_get_column_type (TYPE * self, 
+                            gint        column) 
+{ 
+    g_return_val_if_fail (LW_IS_EDITABLE_LIST (self), G_TYPE_INVALID); 
+    g_return_val_if_fail (column > -1, G_TYPE_INVALID); 
+ 
+    const TYPE##Private * priv = NULL; 
+    LwDictionaryCache * dictionary_cache = NULL; 
+    LwDictionary * dictionary = NULL; 
+ 
+    priv = lw_editable_list_get_instance_private (self); 
+    dictionary_cache = priv->dictionary_cache; 
+    dictionary = priv->dictionary; 
+ 
+    return lw_list_get_column_type (LW_LIST (dictionary), column); 
+} 
+ 
+static gboolean 
+lw_editable_list_get_iter_at_position (TYPE     * self, 
+                                 LwIter * iter, 
+                                 gint            position) 
+{ 
+    g_return_val_if_fail (LW_IS_EDITABLE_LIST (self), FALSE); 
+    g_return_val_if_fail (iter != NULL, FALSE); 
+    g_return_val_if_fail (position > -1, FALSE); 
+ 
+    const TYPE##Private * priv = NULL; 
+    GSequence * sequence = NULL; 
+    GSequenceIter * sequence_iter = NULL; 
+ 
+    priv = lw_editable_list_get_instance_private (self); 
+    sequence = priv->sequence; 
+    sequence_iter =  g_sequence_get_iter_at_pos (sequence, position); 
+ 
+    memset(iter, 0, sizeof(LwIter)); 
+    iter->iterable = self; 
+    iter->user_data1 = sequence_iter; 
+} 
+ 
+static gint 
+lw_editable_list_get_length (TYPE * self) 
+{ 
+    g_return_val_if_fail (LW_IS_EDITABLE_LIST (self), 0); 
+ 
+    const TYPE##Private * priv = NULL; 
+    GSequence * sequence = NULL; 
+ 
+    priv = lw_editable_list_get_instance_private (self); 
+    sequence = priv->sequence; 
+ 
+    return g_sequence_get_length (sequence); 
+} 
+ 
+static gint 
+lw_editable_list_iter_get_position (LwIter * self) 
+{ 
+    g_return_val_if_fail (self != NULL, -1); 
+ 
+    return g_sequence_iter_get_position (self->user_data1); 
+} 
+ 
+static void 
+lw_editable_list_iter_get_value (LwIter * self, gint column, GValue * value) 
+{ 
+    g_return_if_fail (self != NULL); 
+    g_return_if_fail (column < 0); 
+    g_return_if_fail (value != NULL); 
+ 
+    g_value_init (value, G_TYPE_POINTER); 
+    g_value_set_pointer (value, g_sequence_get (self->user_data1)); 
+} 
+ 
+static gboolean 
+lw_editable_list_iter_next (LwIter * self) 
+{ 
+    g_return_val_if_fail (self != NULL, FALSE); 
+ 
+    return !g_sequence_iter_is_end (self->user_data1); 
+} 
+ 
+static gboolean 
+lw_editable_list_iter_previous (LwIter * self) 
+{ 
+    g_return_val_if_fail (self != NULL, FALSE); 
+ 
+    return !g_sequence_iter_is_begin (self->user_data1); 
+} 

@@ -3,6 +3,7 @@
 
 #include <glib-object.h>
 #include "iter.h"
+#include "sort-direction.h"
 
 G_BEGIN_DECLS
 
@@ -26,6 +27,7 @@ typedef gpointer (*LwListIterGetFunc) (LwList * self, gint column);
 typedef void (*LwListIterSetFunc) (LwList * self, gint column, gpointer);
 
 typedef void (*LwListAllocateFunc) (LwList * self);
+typedef void (*LwListSortFunc) (LwList * self, gint column, LwSortDirection direction);
 
 struct _LwListClass {
   GObjectClass parent_class;
@@ -46,6 +48,8 @@ struct _LwListClass {
   LwListIterGetFunc iter_get;
   LwListIterSetFunc iter_set;
 
+  LwListSortFunc sort;
+
   LwListAllocateFunc allocate;
 };
 
@@ -56,6 +60,12 @@ gint lw_list_get_n_columns (LwList *self);
 GType lw_list_get_column_type (LwList *self, gint column);
 gboolean lw_list_get_iter_at_position (LwList *self, LwIter *iter, gint position);
 gint lw_list_get_length (LwList *self);
+void lw_list_sort (LwList *self, gint column, LwSortDirection direction);
+void lw_list_emit_row_inserted (LwList * list, gint index);
+void lw_list_emit_row_changed (LwList * list, gint index);
+void lw_list_emit_rows_reordered (LwList * self, gint * new_order);
+void lw_list_emit_row_deleted (LwList * self, gint index);
+
 
 G_END_DECLS
 
