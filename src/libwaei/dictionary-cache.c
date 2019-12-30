@@ -57,26 +57,22 @@
 typedef enum {
     PROP_0,
     PROP_FLAGS,
-    PROP_PARSED,
-    PROP_INDEXED,
-    PROP_DICTIONARY_NAME,
-    PROP_DICTIONARY_TYPE,
+    PROP_DICTIONARY,
     PROP_PROGRESS,
     TOTAL_PROPS
 } Props;
-
 
 struct _LwDictionaryCache {
     GObject parent;
 };
 
 typedef struct {
-  GType dictionary_type;
-  gchar *dictionary_name;
   LwUtf8Flag flags;
-  LwParsed *parsed;
+  LwParsed * parsed;
   LwProgress * progress;
   GMutex mutex;
+  LwDictionary * dictionary;
+  gchar * name;
 } LwDictionaryCachePrivate;
 
 typedef struct {
@@ -91,7 +87,7 @@ static gchar* lw_dictionary_cache_write_normalized_temporary_file (LwDictionaryC
 
 static void lw_dictionary_cache_clear (LwDictionaryCache *self);
 
-static void lw_dictionary_cache_set_dictionary_name (LwDictionaryCache *self, gchar const *DICTIONARY_NAME);
+static void lw_dictionary_cache_set_name (LwDictionaryCache *self, gchar const *NAME);
 
 static void lw_dictionary_cache_set_parsed (LwDictionaryCache *self, LwParsed *parsed);
 
@@ -99,9 +95,17 @@ static gchar* lw_dictionary_cache_build_filename (LwDictionaryCache *self, gchar
 static gchar* lw_dictionary_cache_build_path (LwDictionaryCache *self, gchar const *TYPE);
 
 static void lw_dictionary_cache_set_progress (LwDictionaryCache * self, LwProgress * progress);
-static void lw_dictionary_cache_set_dictionary_type (LwDictionaryCache * self, GType dictionary_type);
+static void lw_dictionary_cache_set_dictionary (LwDictionaryCache * self, LwDictionary * dictionary);
 
-G_DEFINE_TYPE_WITH_CODE (LwDictionaryCache, lw_dictionary_cache, G_TYPE_OBJECT, G_ADD_PRIVATE(LwDictionaryCache) g_type_add_class_private(LW_TYPE_DICTIONARY_CACHE, sizeof(LwDictionaryCacheClassPrivate)) )
+static gboolean lw_dictionary_cache_iter_is_valid (LwIter * iter);
+static void lw_dictionary_cache_get_begin_iter (LwDictionaryCache * self, LwIter * iter);
+static void lw_dictionary_cache_get_end_iter (LwDictionaryCache * self, LwIter* iter);
+static gint lw_dictionary_cache_get_n_columns (LwDictionaryCache *self);
+static GType lw_dictionary_cache_get_column_type (LwDictionaryCache * self, gint column);
+static gboolean lw_dictionary_cache_get_iter_at_position (LwDictionaryCache * self, LwIter * iter,  gint position);
+static gint lw_dictionary_cache_get_length (LwDictionaryCache * self);
+
+G_DEFINE_TYPE_WITH_CODE (LwDictionaryCache, lw_dictionary_cache, LW_TYPE_LIST, G_ADD_PRIVATE(LwDictionaryCache) g_type_add_class_private(LW_TYPE_DICTIONARY_CACHE, sizeof(LwDictionaryCacheClassPrivate)) )
 
 
 GQuark
@@ -118,17 +122,15 @@ lw_dictionary_cache_error_quark ()
  * Returns: (transfer full): A new #LwDictionaryCache that must be freed with g_object_unref()
  */
 LwDictionaryCache *
-lw_dictionary_cache_new (gchar const * DICTIONARY_NAME,
-                        GType         dictionary_type,
-                        LwUtf8Flag    flags)
+lw_dictionary_cache_new (LwDictionary * dictionary,
+                         LwUtf8Flag     flags)
 {
     //Declarations
     LwDictionaryCache *self = NULL;
 
     //Initializations
     self = LW_DICTIONARY_CACHE (g_object_new (LW_TYPE_DICTIONARY_CACHE,
-      "dictionary-name", DICTIONARY_NAME,
-      "dictionary-type", dictionary_type,
+      "dictionary", dictionary,
       "normalization-flags", flags,
       NULL
     ));
@@ -185,14 +187,11 @@ lw_dictionary_cache_set_property (GObject      * object,
 
     switch (property_id)
     {
-      case PROP_DICTIONARY_NAME:
-        lw_dictionary_cache_set_dictionary_name (self, g_value_get_string (value));
-        break;
       case PROP_FLAGS:
         lw_dictionary_cache_set_flags (self, g_value_get_flags (value));
         break;
-      case PROP_DICTIONARY_TYPE:
-        lw_dictionary_cache_set_dictionary_type (self, g_value_get_gtype (value));
+      case PROP_DICTIONARY:
+        lw_dictionary_cache_set_dictionary (self, g_value_get_object (value));
         break;
       case PROP_PROGRESS:
         lw_dictionary_cache_set_progress (self, g_value_get_object (value));
@@ -220,17 +219,11 @@ lw_dictionary_cache_get_property (GObject     * object,
 
     switch (property_id)
     {
-      case PROP_DICTIONARY_NAME:
-        g_value_set_string (value, lw_dictionary_cache_get_dictionary_name (self));
-        break;
       case PROP_FLAGS:
         g_value_set_flags (value, lw_dictionary_cache_get_flags (self));
         break;
-      case PROP_PARSED:
-        g_value_set_object (value, lw_dictionary_cache_get_parsed (self));
-        break;
-      case PROP_DICTIONARY_TYPE:
-        g_value_set_gtype (value, lw_dictionary_cache_get_dictionary_type (self));
+      case PROP_DICTIONARY:
+        g_value_set_object (value, lw_dictionary_cache_get_dictionary (self));
         break;
       case PROP_PROGRESS:
         g_value_set_object (value, lw_dictionary_cache_get_progress (self));
@@ -253,7 +246,7 @@ lw_dictionary_cache_finalize (GObject * object)
     self = LW_DICTIONARY_CACHE (object);
     priv = lw_dictionary_cache_get_instance_private (self);
 
-    g_free (priv->dictionary_name);
+    g_free (priv->name);
 
     if (priv->parsed) g_object_unref (priv->parsed);
 
@@ -296,23 +289,21 @@ lw_dictionary_cache_class_init (LwDictionaryCacheClass * klass)
     object_class->dispose = lw_dictionary_cache_dispose;
     object_class->finalize = lw_dictionary_cache_finalize;
 
-    klasspriv->pspec[PROP_DICTIONARY_NAME] = g_param_spec_string (
-        "dictionary-name",
-        gettext("Dictionary Name"),
-        gettext("The base name of the data cache.  This is used to build the filename."),
-        NULL,
+    list_klass->get_begin_iter = lw_dictionary_cache_get_begin_iter;
+    list_klass->get_end_iter = lw_dictionary_cache_get_end_iter;
+    list_klass->get_n_columns = lw_dictionary_cache_get_n_columns;
+    list_klass->get_column_type = lw_dictionary_cache_get_column_type;
+    list_klass->get_iter_at_position = lw_dictionary_cache_get_iter_at_position;
+    list_klass->get_length = lw_dictionary_cache_get_length;
+
+    klasspriv->pspec[PROP_DICTIONARY] = g_param_spec_object (
+        "dictionary-type",
+        gettext("Dictionary"),
+        gettext("The dictionary to use for gathering class information."),
+        LW_TYPE_DICTIONARY,
         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
-    g_object_class_install_property (object_class, PROP_DICTIONARY_NAME, klasspriv->pspec[PROP_DICTIONARY_NAME]);
-
-    klasspriv->pspec[PROP_DICTIONARY_TYPE] = g_param_spec_gtype (
-        "dictionary-type",
-        gettext("Dictionary Type"),
-        gettext("The GType of the dictionary that his cache is for"),
-        LW_TYPE_DICTIONARY, 
-        G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY
-    );
-    g_object_class_install_property (object_class, PROP_DICTIONARY_TYPE, klasspriv->pspec[PROP_DICTIONARY_TYPE]);
+    g_object_class_install_property (object_class, PROP_DICTIONARY, klasspriv->pspec[PROP_DICTIONARY]);
 
     klasspriv->pspec[PROP_FLAGS] = g_param_spec_flags (
         "normalization-flags",
@@ -323,15 +314,6 @@ lw_dictionary_cache_class_init (LwDictionaryCacheClass * klass)
         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE
     );
     g_object_class_install_property (object_class, PROP_FLAGS, klasspriv->pspec[PROP_FLAGS]);
-
-    klasspriv->pspec[PROP_PARSED] = g_param_spec_object (
-        "parsed",
-        gettext("Parsed"),
-        gettext("Parsed information for the dictionary"),
-        LW_TYPE_PARSED, 
-        G_PARAM_READABLE
-    );
-    g_object_class_install_property (object_class, PROP_PARSED, klasspriv->pspec[PROP_PARSED]);
 
     klasspriv->pspec[PROP_PROGRESS] = g_param_spec_object (
         "progress",
@@ -708,8 +690,8 @@ lw_dictionary_cache_get_progress (LwDictionaryCache * self)
 }
 
 
-GType
-lw_dictionary_cache_get_dictionary_type (LwDictionaryCache * self)
+LwDictionary *
+lw_dictionary_cache_get_dictionary (LwDictionaryCache * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY_CACHE (self), G_TYPE_INVALID);
@@ -720,13 +702,13 @@ lw_dictionary_cache_get_dictionary_type (LwDictionaryCache * self)
     //Initializatons
     priv = lw_dictionary_cache_get_instance_private (self);
 
-    return priv->dictionary_type;
+    return priv->dictionary;
 }
 
 
 static void
-lw_dictionary_cache_set_dictionary_type (LwDictionaryCache * self,
-                                        GType               dictionary_type)
+lw_dictionary_cache_set_dictionary (LwDictionaryCache * self,
+                                    LwDictionary      * dictionary)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY_CACHE (self));
@@ -736,15 +718,24 @@ lw_dictionary_cache_set_dictionary_type (LwDictionaryCache * self,
     //Declarations
     LwDictionaryCachePrivate * priv = NULL;
     LwDictionaryCacheClassPrivate * klasspriv = NULL;
+    LwDictionaryClass * dictionary_class = NULL;
 
     //Initializatons
     priv = lw_dictionary_cache_get_instance_private (self);
     klasspriv = lw_dictionary_cache_class_get_private ();
-    if (dictionary_type == priv->dictionary_type) goto errored;
+    dictionary_class = g_type_class_ref (dictionary_type);
+    if (dictionary_class == NULL) goto errored;
+    if (dictionary_type === priv->dictionary_type) goto errored;
 
+    if (priv->dictionary_cache != NULL)
+    {
+        g_type_class_unref (priv->dictonary_cache);
+    }
+
+    priv->dictionary_class = dictionary_class;
     priv->dictionary_type = dictionary_type;
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DICTIONARY_TYPE]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DICTIONARY]);
 
 errored:
 
@@ -800,8 +791,8 @@ lw_dictionary_cache_get_flags (LwDictionaryCache * self)
 
 
 static void
-lw_dictionary_cache_set_dictionary_name (LwDictionaryCache * self,
-                                       gchar const        * DICTIONARY_NAME)
+lw_dictionary_cache_set_name (LwDictionaryCache * self,
+                                       gchar const        * NAME)
 {
     //Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY_CACHE (self));
@@ -813,12 +804,12 @@ lw_dictionary_cache_set_dictionary_name (LwDictionaryCache * self,
     //Initializations
     priv = lw_dictionary_cache_get_instance_private (self);
     klasspriv = lw_dictionary_cache_class_get_private ();
-    if (g_strcmp0 (DICTIONARY_NAME, priv->dictionary_name) == 0) goto errored;
+    if (g_strcmp0 (NAME, priv->name) == 0) goto errored;
 
-    g_free (priv->dictionary_name);
-    priv->dictionary_name = g_strdup (DICTIONARY_NAME);
+    g_free (priv->name);
+    priv->name = g_strdup (NAME);
 
-    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_DICTIONARY_NAME]);
+    g_object_notify_by_pspec (G_OBJECT (self), klasspriv->pspec[PROP_NAME]);
 
 errored:
 
@@ -827,12 +818,12 @@ errored:
 
 
 /**
- * lw_dictionary_cache_get_dictionary_name:
+ * lw_dictionary_cache_get_name:
  * @self: A #LwDictionaryCache
  * Returns: (transfer none): The name of the dictionary cache set on consruction. This string is owned by the dictionary cache and so it should not be modified or freed.
  */
 gchar const *
-lw_dictionary_cache_get_dictionary_name (LwDictionaryCache * self)
+lw_dictionary_cache_get_name (LwDictionaryCache * self)
 {
     //Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY_CACHE (self), NULL);
@@ -843,7 +834,7 @@ lw_dictionary_cache_get_dictionary_name (LwDictionaryCache * self)
     //Initializations
     priv = lw_dictionary_cache_get_instance_private (self);
 
-    return priv->dictionary_name;
+    return priv->name;
 }
 
 
@@ -857,7 +848,7 @@ lw_dictionary_cache_build_filename (LwDictionaryCache * self,
     //Declarations    
     LwDictionaryCachePrivate *priv = NULL;
     GFlagsClass *flags_class = NULL;
-    gchar const *DICTIONARY_NAME = NULL;
+    gchar const *NAME = NULL;
     gchar const * * flag_names = NULL;
     gchar *filename = NULL;
     gint i = 0;
@@ -866,12 +857,12 @@ lw_dictionary_cache_build_filename (LwDictionaryCache * self,
     priv = lw_dictionary_cache_get_instance_private (self);
     flags_class = g_type_class_ref (LW_TYPE_UTF8FLAG);
     if (flags_class == NULL) goto errored;
-    DICTIONARY_NAME = priv->dictionary_name;
-    if (DICTIONARY_NAME == NULL) goto errored;
+    NAME = priv->name;
+    if (NAME == NULL) goto errored;
     flag_names = g_new0 (gchar const*, flags_class->n_values + 2);
     if (flag_names == NULL) goto errored;
 
-    flag_names[i++] = DICTIONARY_NAME;
+    flag_names[i++] = NAME;
     if (CACHETYPE != NULL)
     {
       flag_names[i++] = CACHETYPE;
@@ -1035,15 +1026,15 @@ lw_dictionary_cache_create_normalized_temporary_file (LwDictionaryCache  * self,
     gchar *tmpl = NULL;
     gchar const *TMPDIR = NULL;
     gint fd = -1;
-    gchar const * DICTIONARY_NAME = NULL;
+    gchar const * NAME = NULL;
     gchar *filename = NULL;
     gboolean has_error = FALSE;
     gchar const * CONTENT = "uninitialized";
 
     //Initializations
-    DICTIONARY_NAME = lw_dictionary_cache_get_dictionary_name (self);
-    if (DICTIONARY_NAME == NULL) goto errored;
-    tmpl = g_strdup_printf ("%s.normalized.XXXXXX", DICTIONARY_NAME);
+    NAME = lw_dictionary_cache_get_name (self);
+    if (NAME == NULL) goto errored;
+    tmpl = g_strdup_printf ("%s.normalized.XXXXXX", NAME);
     if (tmpl == NULL) goto errored;
     TMPDIR = g_get_tmp_dir ();
     if (TMPDIR == NULL) goto errored;
@@ -1216,59 +1207,66 @@ lw_dictionary_cache_get_begin_iter (LwDictionaryCache * self,
 
 static void 
 lw_dictionary_cache_get_end_iter (LwDictionaryCache * self, 
-                            LwIter     * iter)
+                                  LwIter     * iter)
 {
     // Sanity checks
     g_return_if_fail (LW_IS_DICTIONARY_CACHE (self));
     g_return_if_fail (iter != NULL);
 
     // Declarations
+    LwDictionaryCachePrivate * priv = NULL;
     gint end_position = -1;
 
     // Initializations
-    end_position = lw_dictionary_cache_get_length (self);
+    priv = lw_dictionary_cache_get_instance_private (self);
+    end_postion = lw_dictionary_cache_get_length (self);
 
-    memse(iter, 0, sizeof(LwIter));
+    memset(iter, 0, sizeof(LwIter));
     iter->iterator = self;
     iter->user_data1 = GINT_TO_POINTER (end_position);
 }
 
 static gint
-lw_dictionary_cache_get_n_columns (LwDictionaryCache *self)
+lw_dictionary_cache_get_n_columns (LwDictionaryCache * self)
 {
     // Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY_CACHE (self), 0);
 
     // Declarations
-    LwDictionaryClass * klass = NULL;
+    LwDictionaryCachePrivate * priv = NULL;
+    LwDictionary * dictionary = NULL;
 
     // Initializations
-    klass = LW_DICTIONARY_CACHE_GET_CLASS (self);
+    priv = lw_dictionary_cache_get_instance_private (self);
+    dictionary = priv->dictionary
 
-    return klass->get_n_columns (self);
-
+    return lw_list_get_n_columns (LW_LIST (dictionary));
 }
+
+priv->dictionary
 
 static GType 
 lw_dictionary_cache_get_column_type (LwDictionaryCache * self,
-                               gint           column)
+                                     gint                column)
 {
     //Sanity checks
-    g_return_val_if_fail (LW_IS_DICTIONARY_CACHE_CLASS (klass), G_TYPE_INVALID);
+    g_return_val_if_fail (LW_IS_DICTIONARY_CACHE (klass), G_TYPE_INVALID);
 
-    //Declarations
-    LwDictionaryClass * klass = NULL;
+    // Declarations
+    LwDictionaryCachePrivate * priv = NULL;
+    LwDictionary * dictionary = NULL;
 
-    //Initializations
-    klass = LW_DICTIONARY_CACHE_GET_CLASS (self);
+    // Initializations
+    priv = lw_dictionary_cache_get_instance_private (self);
+    dictionary = priv->dictionary;
 
-    return klass->get_column_type (self);
+    return lw_list_get_column_type (LW_LIST (dictionary), column);
 }
 
 static gboolean 
 lw_dictionary_cache_get_iter_at_position (LwDictionaryCache * self, 
-                                    LwIter       * iter, 
-                                    gint           position)
+                                          LwIter       * iter, 
+                                          gint           position)
 {
     // Sanity checks
     g_return_val_if_fail (LW_IS_LIST (self), FALSE);
@@ -1295,20 +1293,22 @@ lw_dictionary_cache_get_iter_at_position (LwDictionaryCache * self,
 
 
 static gint 
-lw_dictionary_cache_get_length (LwDictionaryCache *self)
+lw_dictionary_cache_get_length (LwDictionaryCache * self)
 {
     // Sanity checks
     g_return_val_if_fail (LW_IS_DICTIONARY_CACHE (self), 0);
 
     // Declarations
+    LwDictionaryPrivate * priv = NULL;
     LwDictionaryClass * klass = NULL;
-    LwDictionaryCache * cache = NULL;
+    LwParsed * parsed = NULL;
 
     // Initializations
+    priv = lw_dictionary_cache_get_instance_private (self);
     klass = LW_LIST_GET_CLASS(self);
-    cache = lw_dictionary_cache_cache_tree_lookup_by_utf8flags (cache_tree, LW_UTF8_FLAGS_NONE);
+    parsed = priv->parsed;
 
-    return lw_list_get_length (LW_LIST (cache));
+    return lw_parsed_num_lines (parsed);
 }
 
 static gint
@@ -1316,28 +1316,36 @@ lw_dictionary_cache_iter_get_position (LwIter * self)
 {
     // Sanity checks
     g_return_val_if_fail (self != NULL, -1);
-    g_return_if_fail (lw_dictionary_cache_iter_is_valid (iter));
+    g_return_val_if_fail (lw_dictionary_cache_iter_is_valid (self), -1);
 
     // Declarations
     gint position = -1;
 
     // Initializations
-    position = GPOITNER_TO_INT (self->user_data1);
+    position = GPOINTER_TO_INT (self->user_data1);
 
     return position;
 }
 
 static void 
 lw_dictionary_cache_iter_get_value (LwIter * self, 
-                   gint     column, 
-                   GValue * value)
+                                    gint     column, 
+                                    GValue * value)
 {
     // Sanity checks
     g_return_if_fail (self != NULL);
     g_return_if_fail (value != NULL);
-    g_return_if_fail (lw_dictionary_cache_iter_is_valid (iter));
+    g_return_if_fail (lw_dictionary_cache_iter_is_valid (self));
 
-    //TODO???
+    // Declarations
+    LwDictionaryCachePrivate * priv = NULL;
+    LwListClass * list_class = NULL;
+
+    // Initializations
+    priv = lw_dictionary_cache_get_instance_private (self);
+    list_class = LW_LIST_CLASS (priv->dictionary_class);
+
+    list_class->iter_get_value (self, column, value);
 }
 
 static gboolean 
@@ -1345,15 +1353,17 @@ lw_dictionary_cache_iter_next (LwIter * self)
 {
     // Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
-    g_return_if_fail (lw_dictionary_cache_iter_is_valid (iter));
+    g_return_val_if_fail (lw_dictionary_cache_iter_is_valid (self), FALSE);
 
     // Declarations
+    LwDictionaryCache * dictionary_cache = NULL;
     gint position = -1;
     gint length = -1;
     
     // Initializations
+    dictionary_cache = LW_DICTIONARY_CACHE (self->iterable);
     position = GPOINTER_TO_INT (self->user_data1);
-    length = lw_dictionary_cache_get_length (self);
+    length = lw_dictionary_cache_get_length (dictionary_cache);
 
     position += 1;
 
@@ -1371,15 +1381,17 @@ lw_dictionary_cache_iter_previous (LwIter * self)
 {
     // Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
-    g_return_if_fail (lw_dictionary_cache_iter_is_valid (iter));
+    g_return_val_if_fail (lw_dictionary_cache_iter_is_valid (self), FALSE);
 
     // Declarations
+    LwDictionaryCache * dictionary_cache = NULL;
     gint position = -1;
     gint length = -1;
     
     // Initializations
+    dictionary_cache = LW_DICTIONARY_CACHE (self->iterable);
     position = GPOINTER_TO_INT (self->user_data1);
-    length = lw_dictionary_cache_get_length (self);
+    length = lw_dictionary_cache_get_length (dictionary_cache);
 
     position -= 1;
 

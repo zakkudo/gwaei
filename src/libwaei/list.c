@@ -127,73 +127,265 @@ lw_list_get_length (LwList *self)
     return klass->get_length (self);
 }
 
-gint
-lw_iter_get_position (LwIter * self)
+
+
+void
+lw_list_normalize (LwList * self, LwUtf8Flag flags)
 {
-    // Sanity checks
-    g_return_val_if_fail (self != NULL, -1);
+    //Create Normalize backing for lists?? 
+        LwParsed * parsed = lw_parsed_new ();
+        TODO
 
-    // Declarations
-    LwList * list = NULL;
-    LwListClass * klass = NULL;
+    while (!lw_list_iter_is_end (&iter))
+    {
+        for (i = 0; i < n_columns; i += 1)
+        {
 
-    // Initializations
-    list = LW_LIST (self->iterable);
-    klass = LW_LIST_GET_CLASS (list);
-
-    return klass->iter_get_position (self);
+        }
+    }
 }
 
-void 
-lw_iter_get_value (LwIter * self, 
-                   gint     column, 
-                   GValue * value)
+
+static void
+serialize_strv (gchar * preallocated_buffer, gint * offset_out, gchar ** strv)
 {
-    // Sanity checks
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (value != NULL);
+    gint length = 0;
 
-    // Declarations
-    LwList * list = NULL;
-    LwListClass * klass = NULL;
+    memcpy(preallocated_buffer, g_strv_length (strv), sizeof(guint));
+    offset += sizeof(guint);
 
-    // Initializations
-    list = LW_LIST (self->iterable);
-    klass = LW_LIST_GET_CLASS (list);
-
-    klass->iter_get_value (self, column, value);
+    while (*strv != NULL)
+    {
+        length = strlen(*strv) + 1;
+        offset += length;
+        memcpy(preallocated_buffer, *strv, length);
+        strv += 1;
+    }
 }
 
-gboolean 
-lw_iter_next (LwIter * self)
+static gchar ** 
+deserialize_strv (gchar * preallocated_buffer, gsize content_length, gint * offset_out)
 {
-    // Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
+    guint length = 0;
+    gchar ** strv = NULL;
+    gint i = 0;
 
-    // Declarations
-    LwList * list = NULL;
-    LwListClass * klass = NULL;
+    memcpy(&length, preallocated_buffer[*offset_out], sizeof(guint));
+    *offset_out += sizeof(guint);
+    strv = g_new0 (gchar**, length + 1);
 
-    // Initializations
-    list = LW_LIST (self->iterable);
-    klass = LW_LIST_GET_CLASS (list);
-
-    return klass->iter_next (self);
+    while (i < length)
+    {
+        strv[i] = preallocated_buffer[offset_out];
+        *offset_out += strlen(strv[i]) + 1;
+        i += 1;
+    }
 }
 
-gboolean 
-lw_iter_previous (LwIter * self)
+static gsize
+lw_list_iter_write_column (LwIter * self, 
+        gchar * preallocated_buffer, 
+        gint * offset_out, 
+        LwIter * iter, 
+        gint  column)
 {
-    // Sanity checks
-    g_return_val_if_fail (self != NULL, FALSE);
-
     // Declarations
-    LwList * list = NULL;
-    LwListClass * klass = NULL;
+    gpointer data = NULL;
+    GType type = G_TYPE_INVALID;
+    GType fundamental_type = G_TYPE_INVALID;
+    gint size = 0;
+    
+    // Initializations
+    data = klass->iter_get (self, column);
+    type = lw_list_get_column_type (self, column);
+
+    if (type != G_TYPE_STRV) {
+        type = G_TYPE_FUNDAMENTAL (type);
+    }
+
+    switch(type) {
+        case G_TYPE_INT:
+            size = sizeof(gint);
+            memcpy(preallocated_buffer, data, size);
+            offset += size;
+            break;
+        case G_TYPE_UINT:
+            size = sizeof(guint);
+            memcpy(preallocated_buffer, data, size);
+            offset += size;
+            break;
+        case G_TYPE_LONG:
+            size = sizeof(glong);
+            memcpy(preallocated_buffer, data, size);
+            offset += size;
+            break;
+        case G_TYPE_ULONG:
+            size = sizeof(gulong);
+            memcpy(preallocated_buffer, data, size);
+            offset += size;
+            break;
+        case G_TYPE_CHAR:
+            size = sizeof(gchar);
+            memcpy(preallocated_buffer, data, size);
+            offset += size;
+        cae G_TYPE_UCHAR:
+            size = sizeof(guchar);
+            memcpy(preallocated_buffer, data, size);
+            offset += size;
+        case G_TYPE_FLOAT:
+            size = sizeof(gfloat);
+            memcpy(preallocated_buffer, data, size);
+            offset += size;
+            break;
+        case G_TYPE_DOUBLE:
+            size = sizeof(gdouble);
+            memcpy(preallocated_buffer, data, size);
+            offset += size;
+            break;
+        case G_TYPE_STRING:
+            size = strlen(data) + 1;
+            memcpy(preallocated_buffer, data, size);
+            offset += size;
+            break;
+        case G_TYPE_STRV:
+            size += serialize_strv (preallocaed_buffer, &offset, data);
+            break;
+        case G_TYPE_BOXED:
+        case G_TYPE_POINTER:
+        case G_TYPE_OBJECT:
+        default:
+            break;
+
+    }
+
+    return size;
+}
+
+// Creates a serialized string of the contents, removing unused bytes
+static gsize
+lw_list_serialize (LwList * self,
+                   gchar        * preallocated_buffer,
+                   LwProgress   * progress)
+{
+    g_return_val_if_fail (LW_IS_LIST (self), 0);
+
+    gsize size = 0;
+    LwIter iter = {0};
+    gint num_columns = 0;
+    gint column = 0;
+    gint offset = 0;
+    GType type = G_TYPE_INVALID;
+
+    num_colums = lw_list_num_columns (self);
+
+    lw_list_get_begin_iter (self, &iter);
+
+    while (!lw_list_iter_is_end (&iter))
+    {
+        while (column < num_columns)
+        {
+            lw_list_iter_write_column (self, preallocated_buffer, &offset, &iter, column);
+
+            column += 1;
+        }
+
+        column = 0;
+        lw_list_iter_next (&iter);
+    }
+
+}
+
+static gboolean
+lw_list_iter_read_column (LwIter * self, 
+                            gchar        * content, 
+                            gsize          length, 
+                            gsize        * offset_out, 
+                            gint           column)
+{
+    g_return_val_if_fail (content != NULL, FALSE);
+    g_return_val_if_fail (offset_out != NULL, FALSE);
+    g_return_val_if_fail (column_out != NULL, FALSE);
+    g_return_val_if_fail (line_number_out != NULL, FALSE);
+
+    GType type = lw_list_get_column_type (self, *column_out);
+
+    switch(type)
+    {
+        case G_TYPE_INT:
+            klass->iter_set (self, column, content[*offset_out]);
+            *offset_out += sizeof(gint);
+            break;
+        case G_TYPE_UINT:
+            klass->iter_set (self, column, content[*offset_out]);
+            *offset_out += sizeof(guint);
+            break;
+        case G_TYPE_LONG:
+            klass->iter_set (self, column, content[*offset_out]);
+            *offset_out += sizeof(glong);
+            break;
+        case G_TYPE_ULONG:
+            klass->iter_set (self, column, content[*offset_out]);
+            *offset_out += sizeof(gulong);
+            break;
+        case G_TYPE_CHAR:
+            klass->iter_set (self, column, content[*offset_out]);
+            *offset_out += sizeof(gchar);
+        cae G_TYPE_UCHAR:
+            klass->iter_set (self, column, content[*offset_out]);
+            *offset_out += sizeof(guchar);
+        case G_TYPE_FLOAT:
+            klass->iter_set (self, column, content[*offset_out]);
+            *offset_out += sizeof(gfloat);
+            break;
+        case G_TYPE_DOUBLE:
+            klass->iter_set (self, column, content[*offset_out]);
+            *offset_out += sizeof(gdouble);
+            break;
+        case G_TYPE_STRING:
+            klass->iter_set (self, column, content[*offset_out]);
+            *offset_out += strlen(content[*offset_out]) + 1;
+            break;
+        case G_TYPE_STRV:
+            klass->iter_set (self, column, deserialize_strv (content, content_length, offset_out));
+            break;
+        case G_TYPE_BOXED:
+        case G_TYPE_POINTER:
+        case G_TYPE_OBJECT:
+        default:
+            break;
+    }
+}
+
+// 
+static gsize 
+lw_list_deserialize (LwList * self,
+                     gchar const  * serialized_data, 
+                     gsize          serialized_length, 
+                     LwProgress   * progress)
+{
+    // Declarations
+    gint n_columns = -1;
+    gint length = 0; 
+    gint length = 0;
 
     // Initializations
-    list = LW_LIST (self->iterable);
-    klass = LW_LIST_GET_CLASS (list);
+    n_columns = lw_list_n_columns (self);
+    length = calculate_length(self, serialized_data);
 
-    return klass->iter_previous (self);
+    klass->allocate (self, length);
+
+    while (!lw_list_iter_is_end (&iter))
+    {
+        column = 0;
+
+        while (column < n_columns)
+        {
+            lw_list_iter_read_column (self, serialized_data, serialized_length, &offset, column, line_number);
+            column += 1;
+        }
+
+        lw_list_iter_next (&iter);
+    }
+
+    return offset;
 }

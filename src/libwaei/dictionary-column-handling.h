@@ -1,4 +1,7 @@
+#ifndef LW_DICTIONARY_COLUMN_HANDLING_INCLUDED
+#define LW_DICTIONARY_COLUMN_HANDLING_INCLUDED
 
+G_BEGIN_DECLS
 
 typedef enum {
   LW_DICTIONARY_COLUMN_HANDLING_UNUSED, //!< An unused field
@@ -17,3 +20,7 @@ GType lw_dictionary_column_handling_get_type (void);
 #define LW_DICTIONARY_COLUMN_HANDLING_NICK_UNUSED "unused"
 #define LW_DICTIONARY_COLUMN_HANDLING_NICK_INDEX_AND_SEARCH "index-and-search"
 #define LW_DICTIONARY_COLUMN_HANDLING_NICK_FILTER_ONLY "filter-only"
+
+G_END_DECLS
+
+#endif

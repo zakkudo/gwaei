@@ -57,20 +57,12 @@ struct _LwResults {
     LwEditableList parent;
 };
 
-
 typedef struct {
   gint column;
   GQuark language;
   GQuark number;
   LwParsed * parsed;
 } CompareByColumnIdFuncData;
-
-typedef struct {
-    LwResults * results;
-    GSequenceIter * sequence_iter;
-    gpointer user_data2;
-    gpointer user_data3;
-} LwResultsIter;
 
 typedef struct {
   GSequence * sequence;

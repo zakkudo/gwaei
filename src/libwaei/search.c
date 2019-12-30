@@ -57,19 +57,10 @@ typedef enum {
     PROP_FLAGS,
     PROP_MAX_RESULTS,
     PROP_PROGRESS,
-    PROP_REGEX,
     TOTAL_PROPS
 } Props;
 
-
-typedef enum {
-  SIGNALID_CHANGED,
-  SIGNALID_INSERTED,
-  SIGNALID_DELETED,
-  SIGNALID_REORDERED,
-  TOTAL_SIGNALIDS
-} SignalId;
-
+MAKE RESULTS PRIVATE, MAKE SEARCH ITERABLE
 
 struct _LwSearchPrivate {
   gchar * query;
@@ -86,6 +77,8 @@ struct _LwSearchPrivate {
   GList * results_buffer;
   guint watch_id;
   LwDictionaryCache * dictionary_cache;
+  LwDictionary * self;
+  LwResults * results;
 };
 
 struct _LwSearchClassPrivate {

@@ -3,6 +3,7 @@
 
 #include <gio/gio.h>
 #include "dictionary-cache.h"
+#include "dictionary-column-handling.h"
 #include "progress.h"
 #include "utf8.h"
 #include "parsed.h"
@@ -43,13 +44,10 @@ gchar const * lw_dictionary_get_name (LwDictionary * self);
 gchar const * lw_dictionary_get_contents_path (LwDictionary * self);
 void lw_dictionary_set_contents_filename (LwDictionary * self, gchar const * FILENAME);
 gchar const * lw_dictionary_get_contents_filename (LwDictionary * self);
-
 size_t lw_dictionary_contents_length (LwDictionary * self);
-
 gchar const * lw_dictionary_get_contents_checksum (LwDictionary * self);
 gchar const * lw_dictionary_get_contents (LwDictionary * self);
 
-gint lw_dictionary_total_columns (LwDictionaryClass * klass);
 GQuark lw_dictionary_get_column_language (LwDictionaryClass * klass, gint column_num);
 LwDictionaryColumnHandling lw_dictionary_get_column_handling (LwDictionaryClass * klass, gint column_num);
 
@@ -64,7 +62,6 @@ gchar * lw_dictionary_build_contents_path_by_type_and_name (GType type, gchar co
 gint * lw_dictionary_calculate_applicable_columns_for_text (LwDictionaryClass * klass, gchar const * TEXT);
 GType lw_dictionary_get_columnid_type (LwDictionaryClass * klass);
 
-LwDictionaryCache * lw_dictionary_ensure_cache_by_utf8flags (LwDictionary * self, LwUtf8Flag flags, LwProgress * progress);
 
 G_END_DECLS
 
