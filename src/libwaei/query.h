@@ -2,11 +2,10 @@
 #define LW_QUERY_NODE_INCLUDED
 
 #include "match-info.h"
-#include "parsed-line.h"
+#include "list.h"
 #include "utf8.h"
 
 G_BEGIN_DECLS
-
 
 /**
  * LwQueryNodeOperation:
@@ -32,7 +31,7 @@ typedef enum _LwQueryNodeOperation {
  * @refs: The number of references on this node.  When the references drop to 0, the node is freed.
  * @regex: A #GRegex that gets filled when lw_query_node_compile() is called
  */
-struct _LwQueryNode {
+typedef struct {
   LwQueryNodeOperation operation;
   gchar * key;
   gchar * data;
@@ -41,8 +40,12 @@ struct _LwQueryNode {
 
   gint * columns;
   GRegex * regex;
-};
-typedef struct _LwQueryNode LwQueryNode;
+} LwQueryNode;
+typedef LwQueryNode LwQuery;
+
+gboolean lw_query_match_iter (LwQueryNode * self, LwIter * iter, LwMatchInfo * match_info_out);
+gboolean lw_query_match_value (LwQueryNode * self, GValue * value, LwMatchInfo * match_info_out);
+LwQuery * lw_query_new (gchar const * TEXT, GError ** error);
 
 typedef gboolean(*LwQueryNodeWalkFunc)(LwQueryNode * self, gpointer data);
 
@@ -70,17 +73,7 @@ typedef enum {
 } LwQueryNodeErrorCode;
 
 
-LwQueryNode * lw_query_node_new_tree_from_string (gchar const * TEXT, LwQueryNodeOperation * operation_out, GError ** error);
-LwQueryNode* lw_query_node_ref (LwQueryNode * self);
-void lw_query_node_unref (LwQueryNode *self);
-void lw_query_node_assert_equals (LwQueryNode * self, LwQueryNode *other);
-gboolean lw_query_node_walk (LwQueryNode * self, LwQueryNodeWalkFunc func, gpointer data);
-gint lw_query_node_nnodes (LwQueryNode * self);
-void lw_query_node_compile (LwQueryNode * self, LwUtf8Flag flags, GError ** error);
-
 GType lw_query_node_get_type (void);
-
-gboolean lw_query_node_match_parsed_line (LwQueryNode * self, LwParsedLine * parsed_line, LwMatchInfo * match_info_out);
 
 G_END_DECLS
 

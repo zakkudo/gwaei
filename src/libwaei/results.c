@@ -80,9 +80,6 @@ static void lw_results_set_dictionary (LwResults * self, LwDictionary * dictiona
 static void lw_results_set_dictionary_cache (LwResults * self, LwDictionaryCache * dictionary_cache);
 static LwDictionaryCache * lw_results_get_dictionary_cache (LwResults * self);
 
-static void lw_results_set_sequence (LwResults * self, GSequence * sequence);
-static GSequence * lw_results_get_sequence (LwResults * self);
-
 static void lw_results_sort (LwResults * self, gint column, LwSortDirection direction);
 
 G_DEFINE_TYPE_WITH_CODE (LwResults, lw_results, LW_TYPE_EDITABLE_LIST, G_ADD_PRIVATE(LwResults) g_type_add_class_private(LW_TYPE_RESULTS, sizeof(LwResultsClassPrivate)) )
@@ -352,50 +349,6 @@ lw_results_get_dictionary_cache (LwResults * self)
     priv = lw_results_get_instance_private (self);
 
     return priv->dictionary_cache;
-}
-
-
-static void
-lw_results_set_sequence (LwResults * self,
-                         GSequence * sequence)
-{
-    //Sanity checks
-    g_return_if_fail (LW_IS_RESULTS (self));
-
-    //Declarations
-    LwResultsPrivate * priv = NULL;
-
-    //Initializations
-    priv = lw_results_get_instance_private (self);
-    if (priv->sequence == sequence) goto errored;
-
-    if (priv->sequence != NULL) g_sequence_free (priv->sequence);
-    priv->sequence = sequence;
-
-errored:
-
-    return;
-}
-
-
-/**
- * lw_results_get_sequence:
- * @self: A #LwResults
- * Returns: (transfer none): The #GSequence internally used to store the results. The sequence is owned by the object and should not be freed or modified.
- */
-static GSequence *
-lw_results_get_sequence (LwResults * self)
-{
-    //Sanity checks
-    g_return_val_if_fail (LW_IS_RESULTS (self), NULL);
-
-    //Declarations
-    LwResultsPrivate * priv = NULL;
-
-    //Initializations
-    priv = lw_results_get_instance_private (self);
-
-    return priv->sequence;
 }
 
 

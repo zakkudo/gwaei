@@ -45,6 +45,13 @@
 #include "match-info.h"
 #include "gettext.h"
 
+static LwQueryNode * lw_query_node_new_tree_from_string (gchar const * TEXT, LwQueryNodeOperation * operation_out, GError ** error);
+static LwQueryNode* lw_query_node_ref (LwQueryNode * self);
+static void lw_query_node_unref (LwQueryNode *self);
+static void lw_query_node_assert_equals (LwQueryNode * self, LwQueryNode *other);
+static gboolean lw_query_node_walk (LwQueryNode * self, LwQueryNodeWalkFunc func, gpointer data);
+static gint lw_query_node_nnodes (LwQueryNode * self);
+static void lw_query_node_compile (LwQueryNode * self, LwUtf8Flag flags, GError ** error);
 
 static LwQueryNode * _parse_leaf_parenthesis_node (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
 static LwQueryNode * _parse_parenthesis_node (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
@@ -183,6 +190,16 @@ errored:
     query_node = NULL;
 
     return query_node_out;
+}
+
+
+LwQuery *
+lw_query_new (gchar const *  TEXT,
+              GError               ** error)
+{
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE
+
+    return lw_query_node_new_tree_from_string (TEXT, &operation, error);
 }
 
 
@@ -1330,7 +1347,7 @@ lw_query_node_nnodes (LwQueryNode * self)
  * Compiles the #LwQueryNode into a more compact form that is more ideal
  * for comparisons.  Once compiled, the #LwQueryNode structure will not be in
  * the same form as the original query and all regexes will be filled.
- * You should run this before any uses of lw_query_node_match_iterable().
+ * You should run this before any uses of lw_query_match_iter().
  */
 void
 lw_query_node_compile (LwQueryNode *  self,
@@ -1355,7 +1372,7 @@ _children_match_iter (LwQueryNode * self,
 {
     //Sanity checks
     g_return_val_if_fail (self != NULL, FALSE);
-    g_return_val_if_fail (iterable != NULL, FALSE);
+    g_return_val_if_fail (iter != NULL, FALSE);
 
     //Declarations
     LwQueryNode * query_node = NULL;
@@ -1367,7 +1384,7 @@ _children_match_iter (LwQueryNode * self,
     for (link = self->children; link != NULL; link = link->next)
     {
       query_node = LW_QUERY_NODE (link->data);
-      matches = lw_query_node_match_iterable (query_node, iterable, match_info_out);
+      matches = lw_query_match_iter (query_node, iter, match_info_out);
 
       if (previous_query_node != NULL)
       {
@@ -1394,9 +1411,9 @@ errored:
 
 
 gboolean
-lw_match_info_match_value (LwQueryNode  * self,
-                           GValue       * value
-                           LwMatchInfo  * match_info_out)
+lw_query_match_value (LwNode  * self,
+                      GValue       * value
+                      LwMatchInfo  * match_info_out)
 {
 
     GType type = G_VALUE_TYPE (value);
@@ -1475,7 +1492,7 @@ _value_match_iter (LwQueryNode * self,
         type = lw_list_get_column_type(list, i);
         lw_list_get_value (list, i, &value);
         column = self->columns[i];
-        matches = lw_match_info_match_value (self, &value, match_info_out);
+        matches = lw_query_match_value (self, &value, match_info_out);
     }
 
 errored:
@@ -1485,7 +1502,7 @@ errored:
 
 
 /**
- * lw_query_node_match_iterable:
+ * lw_query_match_iter:
  * @self: A #LwQueryNode
  * @iterable: A @iterable to search
  * @match_info_out: A #LwMatchInfo to record match information or %NULL to ignore it
@@ -1493,21 +1510,24 @@ errored:
  * Returns: %TRUE if @self matches against the @iterable
  */
 gboolean
-lw_query_node_match_iter (LwQueryNode * self,
-                          LwIter      * iter,
-                          LwMatchInfo * match_info_out)
+lw_query_match_iter (LwQuery     * self,
+                     LwIter      * iter,
+                     LwMatchInfo * match_info_out)
 {
     //Declarations
     GList * link = NULL;
     gboolean matches = FALSE;
 
+    TODO iterate columns here
+    gint * applicable_columns = lw_list_calculate_applicable_columns_for_text (dictionary_class, priv->query);
+
     if (self->children != NULL && self->data == NULL)
     {
-      matches = _children_match_iter (self, iterable, match_info_out);
+      matches = _children_match_iter (self, iter, match_info_out);
     }
     else if (self->data != NULL && self->children == NULL)
     {
-      matches = _value_match_iter (self, iterable, match_info_out);
+      matches = _value_match_iter (self, iter, match_info_out);
     }
     else
     {

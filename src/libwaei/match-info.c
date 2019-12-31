@@ -129,14 +129,14 @@ _unref_column (LwColumnMatchInfo * self)
  * Returns: A new #LwMatchInfo that can be freed with lw_match_info_unref()
  */
 LwMatchInfo *
-lw_match_info_new (LwIterable * iterable)
+lw_match_info_new (LwList * haystack)
 {
     //Declarations
     LwMatchInfo * self = NULL;
     GTree * tree = NULL;
 
     //Initializations
-    self = LW_MATCH_INFO (g_object_new (LW_TYPE_MATCH_INFO, "iterable", iterable, NULL));
+    self = LW_MATCH_INFO (g_object_new (LW_TYPE_MATCH_INFO, "haystack", haystack, NULL));
 
 errored:
 
