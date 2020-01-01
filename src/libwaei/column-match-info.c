@@ -78,7 +78,7 @@ errored:
  */
 void
 lw_column_match_info_add (LwColumnMatchInfo * self,
-                          GMatchInfo                 * match_info)
+                          GMatchInfo        * match_info)
 {
     //Sanity checks
     g_return_if_fail (self != NULL);

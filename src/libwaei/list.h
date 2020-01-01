@@ -35,7 +35,7 @@ struct _LwListClass {
   /* Virtual methods */
   LwListGetBeginIterFunc get_begin_iter;
   LwListGetEndIterFunc get_end_iter;
-  LwListGetNColumnsFunc get_n_columns;
+  LwListGetColumnTypeFunc get_column_value_type;
   LwListGetColumnTypeFunc get_column_type;
   LwListGetIterAtPositionFunc get_iter_at_position;
   LwListGetLengthFunc get_length;
@@ -56,10 +56,15 @@ struct _LwListClass {
 //Methods
 void lw_list_get_begin_iter (LwList *self, LwIter * iter);
 void lw_list_get_end_iter (LwList *self, LwIter * iter);
-gint lw_list_get_n_columns (LwList *self);
-GType lw_list_get_column_type (LwList *self, gint column);
 gboolean lw_list_get_iter_at_position (LwList *self, LwIter *iter, gint position);
+gint lw_list_get_n_columns (LwList *self);
 gint lw_list_get_length (LwList *self);
+
+GType lw_list_get_column_type (LwList *self, gint column);
+GType lw_list_get_column_value_type (LwList *self, gint column);
+gchar const * lw_list_get_column_nick (LwList *self, gint column);
+gchar const * lw_list_get_column_name (LwList *self, gint column);
+
 void lw_list_sort (LwList *self, gint column, LwSortDirection direction);
 void lw_list_emit_row_inserted (LwList * list, gint index);
 void lw_list_emit_row_changed (LwList * list, gint index);

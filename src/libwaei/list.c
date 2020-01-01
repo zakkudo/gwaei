@@ -45,6 +45,11 @@ G_DEFINE_ABSTRACT_TYPE (LwList, lw_list, G_TYPE_OBJECT)
 static void 
 lw_list_init (LwList *self)
 {
+    GType column_type = G_TYPE_INVALID;
+
+    column_type = lw_list_get_column_type (self);
+
+    priv->column_type_class = G_ENUM_CLASS (g_type_class_ref (column_type));
 }
 
 static void
@@ -83,6 +88,9 @@ lw_list_finalize (GObject * object)
 
         column += 1;
     }
+
+    g_type_class_unref (priv->column_type_class);
+    priv->column_type_class = NULL;
 
     G_OBJECT_CLASS (lw_dictionary_parent_class)->finalize (object);
 }
@@ -196,7 +204,7 @@ lw_list_get_begin_iter (LwList * self,
 
 void 
 lw_list_get_end_iter (LwList * self, 
-                          LwIter     * iter)
+                      LwIter     * iter)
 {
     // Sanity checks
     g_return_if_fail (LW_IS_LIST (self));
@@ -242,6 +250,50 @@ lw_list_get_column_type (LwList * self,
     return klass->get_column_type (self, column);
 }
 
+GType 
+lw_list_get_column_value_type (LwList * self,
+                             gint         column)
+{
+    // Sanity checks
+    g_return_val_if_fail (LW_IS_LIST (self), G_TYPE_INVALID);
+
+    // Declarations
+    LwListClass * klass = NULL;
+
+    // Initializations
+    klass = LW_LIST_GET_CLASS (self);
+
+    return klass->get_column_value_type (self, column);
+}
+
+gchar const *
+lw_list_get_column_nick (LwList *self, gint column)
+{
+    GEnumValue * value = g_enum_get_value (priv->column_type_class, column);
+
+    if (value == NULL)
+    {
+        return NULL;
+    }
+
+    return value->nick;
+}
+
+gchar const *
+lw_list_get_column_name (LwList *self, gint column)
+{
+    GEnumValue * value = g_enum_get_value (priv->column_type_class, column);
+
+    if (value == NULL)
+    {
+        return NULL;
+    }
+
+    return value->name;
+}
+
+
+
 gboolean 
 lw_list_get_iter_at_position (LwList * self, 
                                   LwIter     * iter, 
@@ -275,8 +327,6 @@ lw_list_get_length (LwList *self)
 
     return klass->get_length (self);
 }
-
-
 
 void
 lw_list_normalize (LwList * self, LwUtf8Flag flags)
@@ -479,7 +529,7 @@ lw_list_iter_read_column (LwIter * self,
         case G_TYPE_CHAR:
             klass->iter_set (self, column, content[*offset_out]);
             *offset_out += sizeof(gchar);
-        cae G_TYPE_UCHAR:
+        case G_TYPE_UCHAR:
             klass->iter_set (self, column, content[*offset_out]);
             *offset_out += sizeof(guchar);
         case G_TYPE_FLOAT:

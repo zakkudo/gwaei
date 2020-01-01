@@ -40,12 +40,15 @@ typedef struct {
 
   gint * columns;
   GRegex * regex;
+  GValue number;
 } LwQueryNode;
 typedef LwQueryNode LwQuery;
 
+LwQuery * lw_query_new (gchar const * TEXT, GError ** error);
+void lw_query_node_compile (LwQuery * self, LwUtf8Flag flags, GError ** error);
+
 gboolean lw_query_match_iter (LwQueryNode * self, LwIter * iter, LwMatchInfo * match_info_out);
 gboolean lw_query_match_value (LwQueryNode * self, GValue * value, LwMatchInfo * match_info_out);
-LwQuery * lw_query_new (gchar const * TEXT, GError ** error);
 
 typedef gboolean(*LwQueryNodeWalkFunc)(LwQueryNode * self, gpointer data);
 

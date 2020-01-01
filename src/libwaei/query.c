@@ -51,7 +51,6 @@ static void lw_query_node_unref (LwQueryNode *self);
 static void lw_query_node_assert_equals (LwQueryNode * self, LwQueryNode *other);
 static gboolean lw_query_node_walk (LwQueryNode * self, LwQueryNodeWalkFunc func, gpointer data);
 static gint lw_query_node_nnodes (LwQueryNode * self);
-static void lw_query_node_compile (LwQueryNode * self, LwUtf8Flag flags, GError ** error);
 
 static LwQueryNode * _parse_leaf_parenthesis_node (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
 static LwQueryNode * _parse_parenthesis_node (LwParenthesisNode * parenthesis_node, LwQueryNodeOperation * operation_out, GError ** error);
@@ -60,6 +59,224 @@ GQuark
 lw_query_node_error_quark ()
 {
     return g_quark_from_static_string ("lw-query-node-error");
+}
+
+
+
+LwQuery *
+lw_query_new (gchar const *  TEXT,
+              GError               ** error)
+{
+    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE
+
+    return lw_query_node_new_tree_from_string (TEXT, &operation, error);
+}
+
+/**
+ * lw_query_node_compile:
+ * @self: A #LwQueryNode
+ * @flags: The flags for the prefered normalization of the query data
+ * @error: An #GError to track errors or %NULL to ignore them
+ *
+ * Compiles the #LwQueryNode into a more compact form that is more ideal
+ * for comparisons.  Once compiled, the #LwQueryNode structure will not be in
+ * the same form as the original query and all regexes will be filled.
+ * You should run this before any uses of lw_query_match_iter().
+ */
+void
+lw_query_compile (LwQuery      * self,
+                  LwUtf8Flag     flags,
+                  LwList       * haystack,
+                  GError      ** error)
+{
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+
+    _query_node_apply_implied_logical_junctions (self);
+    _query_node_reduce (self);
+    _query_node_reduce_keyed_missing_values (self, error);
+    _query_node_reduce (self);
+    _query_node_compile (self, NULL, flags, haystack, error);
+}
+
+
+
+GType
+lw_query_node_get_type ()
+{
+    static GType type = 0;
+
+    if (type == 0)
+    {
+      type = g_boxed_type_register_static (
+        "LwQueryNode",
+        (GBoxedCopyFunc) lw_query_node_ref,
+        (GBoxedFreeFunc) lw_query_node_unref
+      );
+    }
+
+    return type;
+}
+
+#define DEFINE_NUMBER_MATCH_FUNC(COLUMN_CTYPE, COLUMN_GETTER, NODE_CTYPE, NODE_GTYPE, NODE_GETTER) static gboolean \
+lw_query_node_match_##COLUMN_CTYPE (LwQueryNode * self, GValue * value, LwMatchInfo ** match_info_out) \
+{ \
+    if (!G_VALUE_HOLDS (&self->number, NODE_GTYPE)) return FALSE; \
+    NODE_CTYPE number = NODE_GETTER (&self->number); \
+    if (number != (COLUMN_CTYPE) number) return FALSE; \
+ \
+    if (number == COLUMN_GETTER (value)) \
+    { \
+        lw_match_info_add (*match_info, column, NULL); \
+ \
+        return true; \
+    } \
+ \
+    return false; \
+}
+
+DEFINE_NUMBER_MATCH_FUNC(gint, g_value_get_int, gint64, G_TYPE_INT64, g_value_get_int64)
+DEFINE_NUMBER_MATCH_FUNC(guint, g_value_get_uint, gint64, G_TYPE_INT64, g_value_get_int64)
+DEFINE_NUMBER_MATCH_FUNC(glong, g_value_get_long, gint64, G_TYPE_INT64, g_value_get_int64)
+DEFINE_NUMBER_MATCH_FUNC(gulong, g_value_get_ulong, gint64, G_TYPE_INT64, g_value_get_int64)
+DEFINE_NUMBER_MATCH_FUNC(gchar, g_value_get_char, gint64, G_TYPE_INT64, g_value_get_int64)
+DEFINE_NUMBER_MATCH_FUNC(guchar, g_value_get_uchar, gint64, G_TYPE_INT64, g_value_get_int64)
+DEFINE_NUMBER_MATCH_FUNC(gfloat, g_value_get_float, gdouble, G_TYPE_DOUBLE, g_value_get_double)
+DEFINE_NUMBER_MATCH_FUNC(gdouble, g_value_get_double, gdouble, G_TYPE_DOUBLE, g_value_get_double)
+
+static gboolean
+lw_query_node_match_string (LwQueryNode * self, GValue * value, LwMatchInfo * match_info_out)
+{
+    gchar * str = g_value_get_string (value);
+    if (g_regex_match (self->regex, strv[j], 0, &match_info)) matches = TRUE;
+    if (match_info != NULL)
+    {
+        while (g_match_info_matches (match_info))
+        {
+            lw_match_info_add (match_info_out, match_info);
+            g_match_info_next (match_info, NULL);
+        }
+        g_match_info_unref (match_info);
+        match_info = NULL;
+    }
+
+    return matches
+}
+
+static gboolean
+lw_query_node_match_strv (LwQueryNode * self, GValue * value, LwMatchInfo * match_info_out)
+{
+    gchar && strv = g_value_get_pointer (value);
+    gboolean matches = FALSE;
+
+    if (strv != NULL)
+    {
+      for (j = 0; strv[j] != NULL; j++)
+      {
+          matches = lw_query_node_match_string (self, strv[j], match_info_out);
+          TODO
+      }
+    }
+
+    return matches;
+}
+                     
+
+
+static gboolean
+lw_query_match_iter_column (LwQuery    * self,
+                            LwIter     * iter,
+                            gint         column,
+                            LwMatchInfo * match_info_out)
+{
+
+    GType type = G_VALUE_TYPE (value);
+    //Declarations
+    gint j = 0;
+    gchar const ** strv = NULL;
+    GMatchInfo * match_info = NULL;
+    gboolean matches = FALSE;
+    GType type = G_TYPE_INVALID;
+    LwIter iter = {0};
+
+    //Initializations
+
+    lw_iter_get_value (iter, column, &value);
+
+    type = lw_list_get_column_value_type (LW_LIST (iter->iterable));
+
+    switch (type)
+    {
+        case G_TYPE_INT:
+            matches = lw_query_node_match_int (self, &value, column, match_info_out);
+            break;
+        case G_TYPE_UINT:
+            matches = lw_query_node_match_uint(self, &value, column, match_info_out);
+            break;
+        case G_TYPE_LONG:
+            matches = lw_query_node_match_long (self, &value, column, match_info_out);
+            break;
+        case G_TYPE_ULONG:
+            matches = lw_query_node_match_ulong (self, &value, column, match_info_out);
+            break;
+        case G_TYPE_CHAR:
+            matches = lw_query_node_match_char (self, &value, column, match_info_out);
+            break;
+        case G_TYPE_UCHAR:
+            matches = lw_query_node_match_uchar (self, &value, column, match_info_out);
+            break;
+        case G_TYPE_FLOAT:
+            matches = lw_query_node_match_float (self, &value, column, match_info_out);
+            break;
+        case G_TYPE_DOUBLE:
+            matches = lw_query_node_match_double (self, &value, column, match_info_out);
+            break;
+        case G_TYPE_STRING:
+            matches = lw_query_node_match_string (self, &value, column, match_info_out);
+            break;
+        case G_TYPE_STRV:
+            matches = lw_query_node_match_strv (self, &value, column, match_info_out);
+            break;
+    }
+
+errored:
+
+    return matches;
+}
+
+/**
+ * lw_query_match_iter:
+ * @self: A #LwQueryNode
+ * @iterable: A @iterable to search
+ * @match_info_out: A #LwMatchInfo to record match information or %NULL to ignore it
+ *
+ * Returns: %TRUE if @self matches against the @iterable
+ */
+gboolean
+lw_query_match_iter (LwQuery     * self,
+                     LwIter      * iter,
+                     LwMatchInfo * match_info_out)
+{
+    //Declarations
+    GList * link = NULL;
+    gboolean matches = FALSE;
+
+    if (self->children != NULL && self->data == NULL)
+    {
+      matches = _children_match_iter (self, iter, match_info_out);
+    }
+    else if (self->data != NULL && self->children == NULL)
+    {
+      matches = _value_match_iter (self, iter, match_info_out);
+    }
+    else
+    {
+      g_assert_not_reached ();
+    }
+
+errored:
+
+    return matches;
 }
 
 
@@ -193,16 +410,6 @@ errored:
 }
 
 
-LwQuery *
-lw_query_new (gchar const *  TEXT,
-              GError               ** error)
-{
-    LwQueryNodeOperation operation = LW_QUERYNODE_OPERATION_NONE
-
-    return lw_query_node_new_tree_from_string (TEXT, &operation, error);
-}
-
-
 /**
  * lw_query_node_new_tree_from_string:
  * @TEXT: The text to generate the #LwQueryNode tree from
@@ -213,7 +420,7 @@ lw_query_new (gchar const *  TEXT,
  *
  * Returns: A new #LwQueryNode tree that can be freed with lw_query_node_unref()
  */
-LwQueryNode *
+static LwQueryNode *
 lw_query_node_new_tree_from_string (gchar const          *  TEXT,
                                    LwQueryNodeOperation *  operation_out,
                                    GError               ** error)
@@ -877,6 +1084,7 @@ lw_query_node_free (LwQueryNode *self)
     g_free (self->data);
     g_free (self->key);
     g_free (self->columns);
+    g_value_unset (&self->number);
     if (self->regex != NULL) g_regex_unref (self->regex);
     g_list_free_full (self->children, (GDestroyNotify) lw_query_node_free);
     
@@ -901,24 +1109,6 @@ lw_query_node_unref (LwQueryNode *self)
     {
       lw_query_node_free (self);
     }
-}
-
-
-GType
-lw_query_node_get_type ()
-{
-    static GType type = 0;
-
-    if (type == 0)
-    {
-      type = g_boxed_type_register_static (
-        "LwQueryNode",
-        (GBoxedCopyFunc) lw_query_node_ref,
-        (GBoxedFreeFunc) lw_query_node_unref
-      );
-    }
-
-    return type;
 }
 
 
@@ -1254,6 +1444,7 @@ static void
 _query_node_compile (LwQueryNode * self,
                     gchar const * KEY,
                     LwUtf8Flag    flags,
+                    LwList       * haystack,
                     GError      ** error)
 {
     //Sanity checks
@@ -1265,6 +1456,8 @@ _query_node_compile (LwQueryNode * self,
     LwQueryNode *query_node = NULL;
     gchar * normalized_pattern = NULL;
     GRegex * regex = NULL;
+    gchar * endptr = NULL;
+    GValue * number = NULL;
 
     if (self->key != NULL)
     {
@@ -1274,6 +1467,28 @@ _query_node_compile (LwQueryNode * self,
     {
       self->key = g_strdup (KEY);
     }
+
+    number = self->number;
+
+    if (self->data)
+    {
+        gint64 int64_value = g_ascii_strtoll (self->data, &endptr, 10);
+
+        if (endptr != NULL && *endptr == '\0')
+        {
+            g_value_init (number, G_TYPE_INT64);
+            g_value_set_int64 (number, int64_value;
+                    }
+                    else {
+                    gdouble double_value = g_ascii_strtoll (self->data, &endptr, 10);
+
+                    if (endptr != NULL && *endptr == '\0')
+                    {
+                    g_value_init (number, G_TYPE_DOUBLE);
+                    g_value_set_double (number, double_value);
+                    }
+                    }
+                    }
 
     //Initializations
     if (self->data != NULL)
@@ -1287,9 +1502,11 @@ _query_node_compile (LwQueryNode * self,
     for (link = self->children; link != NULL; link = link->next)
     {
       query_node = LW_QUERY_NODE (link->data);
-      _query_node_compile (query_node, KEY, flags, error);
+      _query_node_compile (query_node, KEY, flags, haystack, error);
       if (error != NULL && *error != NULL) goto errored;
     }
+
+    priv->columns = lw_query_node_calculate_applicable_columns_for_text (self, haystack)
 
     if (self->regex != NULL) goto errored;
     self->regex = regex;
@@ -1310,6 +1527,30 @@ errored:
     normalized_pattern = NULL;
 }
 
+static gint *
+lw_query_node_calculate_applicable_columns_for_text (LwQueryNode * self,
+                                                     LwList      * haystack)
+{
+    gint * columns = NULL;
+
+    if (self->key)
+    {
+        gint column = lw_list_get_column_by_nick (query_node->key);
+
+        if (column > -1)
+        {
+            columns = g_new0 (gint, 2);
+            columns[0] = column;
+        }
+    }
+    else
+    {
+        columns = lw_list_calculate_applicable_columns_for_text (haystack, self->query);
+    }
+
+    return columns;
+}
+
 
 /**
  * lw_query_node_nnodes:
@@ -1317,7 +1558,7 @@ errored:
  *
  * Returns: the total number of nodes
  */
-gint
+static gint
 lw_query_node_nnodes (LwQueryNode * self)
 {
     //Sanity checks
@@ -1335,33 +1576,6 @@ lw_query_node_nnodes (LwQueryNode * self)
     }
 
     return nnodes;
-}
-
-
-/**
- * lw_query_node_compile:
- * @self: A #LwQueryNode
- * @flags: The flags for the prefered normalization of the query data
- * @error: An #GError to track errors or %NULL to ignore them
- *
- * Compiles the #LwQueryNode into a more compact form that is more ideal
- * for comparisons.  Once compiled, the #LwQueryNode structure will not be in
- * the same form as the original query and all regexes will be filled.
- * You should run this before any uses of lw_query_match_iter().
- */
-void
-lw_query_node_compile (LwQueryNode *  self,
-                      LwUtf8Flag     flags,
-                      GError      ** error)
-{
-    //Sanity checks
-    g_return_if_fail (self != NULL);
-
-    _query_node_apply_implied_logical_junctions (self);
-    _query_node_reduce (self);
-    _query_node_reduce_keyed_missing_values (self, error);
-    _query_node_reduce (self);
-    _query_node_compile (self, NULL, flags, error);
 }
 
 
@@ -1410,70 +1624,6 @@ errored:
 }
 
 
-gboolean
-lw_query_match_value (LwNode  * self,
-                      GValue       * value
-                      LwMatchInfo  * match_info_out)
-{
-
-    GType type = G_VALUE_TYPE (value);
-    //Declarations
-    gint j = 0;
-    gchar const ** strv = NULL;
-    GMatchInfo * match_info = NULL;
-    gboolean matches = FALSE;
-    LwColumnMatchInfo * column_match_info = NULL;
-
-    //Initializations
-    strv = lw_iterable_get_strv (iterable, column);
-
-    if (match_info_out != NULL)
-    {
-      column_match_info = lw_match_info_get_column (match_info_out, column);
-      if (column_match_info == NULL)
-      {
-        column_match_info = lw_column_match_info_new (column, strv);
-        lw_match_info_set_column (match_info_out, column_match_info);
-        lw_column_match_info_unref (column_match_info);
-      }
-    }
-
-    if (strv != NULL)
-    {
-      for (j = 0; strv[j] != NULL; j++)
-      {
-        if (match_info_out != NULL)
-        {
-          if (g_regex_match (self->regex, strv[j], 0, &match_info)) matches = TRUE;
-          if (match_info != NULL)
-          {
-            while (g_match_info_matches (match_info))
-            {
-              lw_column_match_info_add (column_match_info, match_info);
-              g_match_info_next (match_info, NULL);
-            }
-            g_match_info_unref (match_info);
-            match_info = NULL;
-          }
-        }
-        else
-        {
-          matches = g_regex_match (self->regex, strv[j], 0, NULL);
-          if (matches) goto errored;
-        }
-      }
-    }
-
-    column_match_info = NULL;
-
-errored:
-
-    if (column_match_info != NULL) lw_column_match_info_unref (column_match_info);
-
-    return matches;
-}
-
-
 static gboolean
 _value_match_iter (LwQueryNode * self,
                    LwIter      * iter,
@@ -1483,55 +1633,17 @@ _value_match_iter (LwQueryNode * self,
     gboolean matches = FALSE;
     LwList * list = LW_LIST (iter->iterable);
     gint n_columns = lw_list_get_n_columns (list);
+    gint * applicable_columns = self->columns;
     gint i = 0;
-    gint column = -1;
-    GValue value = {0};
+    gint * column_iter = -1;
 
-    for (i = 0; i < n_column && !matches; i++)
+    column_iter = applicable_columns;
+
+    while (column_iter != NULL && *column_iter != -1 && !matches)
     {
-        type = lw_list_get_column_type(list, i);
-        lw_list_get_value (list, i, &value);
-        column = self->columns[i];
-        matches = lw_query_match_value (self, &value, match_info_out);
-    }
+        matches = lw_query_match_iter_column (self, iter, column, match_info_out);
 
-errored:
-
-    return matches;
-}
-
-
-/**
- * lw_query_match_iter:
- * @self: A #LwQueryNode
- * @iterable: A @iterable to search
- * @match_info_out: A #LwMatchInfo to record match information or %NULL to ignore it
- *
- * Returns: %TRUE if @self matches against the @iterable
- */
-gboolean
-lw_query_match_iter (LwQuery     * self,
-                     LwIter      * iter,
-                     LwMatchInfo * match_info_out)
-{
-    //Declarations
-    GList * link = NULL;
-    gboolean matches = FALSE;
-
-    TODO iterate columns here
-    gint * applicable_columns = lw_list_calculate_applicable_columns_for_text (dictionary_class, priv->query);
-
-    if (self->children != NULL && self->data == NULL)
-    {
-      matches = _children_match_iter (self, iter, match_info_out);
-    }
-    else if (self->data != NULL && self->children == NULL)
-    {
-      matches = _value_match_iter (self, iter, match_info_out);
-    }
-    else
-    {
-      g_assert_not_reached ();
+        column_iter += 1;
     }
 
 errored:
