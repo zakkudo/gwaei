@@ -46,8 +46,9 @@
 #include <ctype.h>
 
 #include <glib.h>
+#include <glib-object.h>
 
-#include "query-node.h"
+#include "query.h"
 #include "gettext.h"
 
 G_DEFINE_TYPE_WITH_CODE (LwMatchInfo, lw_match_info, LW_TYPE_LIST, G_ADD_PRIVATE(LwMatchInfo))

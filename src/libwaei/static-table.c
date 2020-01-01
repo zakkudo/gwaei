@@ -202,58 +202,6 @@ lw_static_table_iter_get_position (LwIter * self)
     return position;
 }
 
-static void 
-lw_static_table_iter_get_value (LwIter * self, 
-                               gint     column,
-                               GValue * value)
-{
-    // Sanity checks
-    g_return_if_fail (self != NULL);
-    g_return_if_fail (value != NULL);
-    g_return_if_fail (lw_static_table_iter_is_valid (self));
-
-    // Declarations
-    LwStaticTablePrivate * priv = NULL;
-    LwTableClass * table_class = NULL;
-    GType type = G_TYPE_INVALID;
-
-    // Initializations
-    priv = lw_static_table_get_instance_private (self);
-    table_class = LW_TABLE_CLASS (priv->dictionary_class);
-    type = lw_static_table_get_column_type (self, column);
-
-    g_value_init (&value, type);
-
-    G_TYPE_IS_OBJECT
-
-    switch (type)
-    {
-        case G_TYPE_INT:
-            g_value_set_int(value, column[line_number][column])
-        case G_TYPE_UINT:
-            g_value_set_uint(value, column[line_number][column])
-        case G_TYPE_LONG:
-            g_value_set_long(value, column[line_number][column])
-        case G_TYPE_ULONG:
-            g_value_set_ulong(value, column[line_number][column])
-        case G_TYPE_FLOAT:
-            g_value_set_float(value, column[line_number][column])
-        case G_TYPE_DOUBLE:
-            g_value_set_double(value, column[line_number][column])
-        case G_TYPE_STRING:
-            g_value_set_string(value, column[line_number][column])
-        case G_TYPE_STRV:
-            g_value_set_strv(value, column[line_number][column])
-        case G_TYPE_POINTER:
-            g_value_set_pointer(value, column[line_number][column])
-        case G_TYPE_OBJECT:
-            g_value_set_pointer(value, column[line_number][column])
-        case G_TYPE_OBJECT:
-            g_value_set_pointer(value, column[line_number][column])
-    }
-
-}
-
 static gboolean 
 lw_static_table_iter_next (LwIter * self)
 {

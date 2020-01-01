@@ -41,7 +41,7 @@
 #include <glib.h>
 
 #include "parenthesis-node.h"
-#include "query-node.h"
+#include "query.h"
 #include "gettext.h"
 
 

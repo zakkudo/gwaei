@@ -13,7 +13,6 @@ G_DECLARE_DERIVABLE_TYPE (LwTable, lw_table, LW, TABLE, GObject)
 
 typedef gint (*LwTableGetNColumnsFunc ) (LwTable *self);
 typedef GType (*LwTableGetColumnTypeFunc) (LwTable *self, gint column);
-typedef void (*LwTableIterGetValueFunc) (LwIter * self, gint column, GValue * value);
 typedef gpointer (*LwTableIterGetFunc) (LwIter * self, gint column);
 typedef void (*LwTableIterSetFunc) (LwIter * self, gint column, gpointer data);
 typedef void (*LwTableSortFunc) (LwTable * self, gint column, LwSortDirection direction);
@@ -24,9 +23,8 @@ struct _LwTableClass {
   /* Virtual methods */
   LwTableGetColumnTypeFunc get_column_value_type;
   LwTableGetColumnTypeFunc get_column_type;
-  LwTableIterGetValueFunc iter_get_value;
-  LwTableIterGetFunc iter_get;
-  LwTableIterSetFunc iter_set;
+  LwTableIterGetFunc iter_get_column;
+  LwTableIterSetFunc iter_set_column;
 
   LwTableSortFunc sort;
 };

@@ -19,8 +19,8 @@ typedef gint (*LwListGetLengthFunc) (LwList *self);
 typedef gint (*LwListIterGetPositionFunc) (LwIter * self);
 typedef gboolean (*LwListIterNextFunc) (LwIter * self);
 typedef gboolean (*LwListIterPreviousFunc) (LwIter  *self);
-typedef gpointer (*LwListIterGetFunc), (LwIter * self);
-typedef void (*LwListIterSetFunc), (LwIter * self, gointer data);
+typedef gpointer (*LwListIterGetFunc) (LwIter * self);
+typedef void (*LwListIterSetFunc) (LwIter * self, gpointer data);
 
 typedef void (*LwListAllocateFunc) (LwList * self);
 
@@ -39,8 +39,6 @@ struct _LwListClass {
 
   LwListIterGetFunc iter_get;
   LwListIterSetFunc iter_set;
-
-  LwListSortFunc sort;
 
   LwListAllocateFunc allocate;
 };

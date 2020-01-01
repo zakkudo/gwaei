@@ -1,6 +1,7 @@
 #ifndef LW_MATCH_INFO_INCLUDED
 #define LW_MATCH_INFO_INCLUDED
 
+#include "list.h"
 #include "column-match-info.h"
 #include "match-marker.h"
 
