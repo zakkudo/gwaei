@@ -50,7 +50,7 @@
 #include "query-node.h"
 #include "gettext.h"
 
-G_DEFINE_TYPE_WITH_CODE (LwMatchInfo, lw_match_info, LW_TYPE_STATIC_LIST, G_ADD_PRIVATE(LwMatchInfo))
+G_DEFINE_TYPE_WITH_CODE (LwMatchInfo, lw_match_info, LW_TYPE_LIST, G_ADD_PRIVATE(LwMatchInfo))
 
 static void
 lw_match_info_init (LwMatchInfo * self)
@@ -93,15 +93,14 @@ lw_match_info_class_init (LwMatchInfoClass * klass)
 
     list_class->get_begin_iter = (LwListGetBeginIterFunc) lw_match_info_get_begin_iter;
     list_class->get_end_iter = (LwListGetEndIterFunc) lw_match_info_get_end_iter;
-    list_class->get_n_columns = (LwListGetNColumnsFunc) lw_match_info_get_n_columns;
-    list_class->get_column_type = (LwListGetColumnTypeFunc) lw_match_info_get_column_type;
     list_class->get_iter_at_position = (LwListGetIterAtPositionFunc) lw_match_info_get_iter_at_position;
     list_class->get_length = (LwListGetLengthFunc) lw_match_info_get_length;
 
     list_class->iter_get_position = (LwListIterGetPositionFunc) lw_match_info_iter_get_position;
-    list_class->iter_get_value = (LwListIterGetValueFunc) lw_match_info_iter_get_value;
+    list_class->iter_get = (LwListIterGetFunc) lw_match_info_iter_get;
     list_class->iter_next = (LwListIterNextFunc) lw_match_info_iter_next;
     list_class->iter_previous = (LwListIterPreviousFunc) lw_match_info_iter_previous;
+    list_class->allocate = (LwListAllocateFunc) lw_match_info_allocate;
 }
 
 static gint
@@ -168,3 +167,11 @@ lw_match_info_add_match (LwMatchInfo * self, gint column, GMatchInfo * match_inf
 
     lw_column_match_info_add (column_match_info, match_info);
 }
+
+static void
+lw_match_info_allocate (LwMatchInfo * self)
+{
+    priv->length = lw_list_get_n_columns ();
+    priv->columns = g_new0 (LwColumnMatchInfo*, length);
+}
+
