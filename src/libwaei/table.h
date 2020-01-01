@@ -3,6 +3,7 @@
 
 #include <glib-object.h>
 #include "iter.h"
+#include "list.h"
 #include "sort-direction.h"
 
 G_BEGIN_DECLS

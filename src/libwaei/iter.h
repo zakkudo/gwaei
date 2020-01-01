@@ -14,9 +14,10 @@ typedef struct {
 
 // List
 gint lw_iter_get_position (LwIter  *self);
-void lw_iter_get_value (LwIter *self, gint column, GValue *value);
 gboolean lw_iter_next (LwIter *self);
 gboolean lw_iter_previous (LwIter  *self);
+gboolean lw_iter_is_end (LwIter * self);
+gboolean lw_iter_is_begin (LwIter * self);
 
 gpointer lw_iter_get (LwIter * self);
 void lw_iter_set (LwIter * self, gpointer data);

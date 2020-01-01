@@ -21,6 +21,8 @@ typedef gboolean (*LwListIterNextFunc) (LwIter * self);
 typedef gboolean (*LwListIterPreviousFunc) (LwIter  *self);
 typedef gpointer (*LwListIterGetFunc) (LwIter * self);
 typedef void (*LwListIterSetFunc) (LwIter * self, gpointer data);
+typedef gboolean (*LwListIterIsEndFunc) (LwIter * iter);
+typedef gboolean (*LwListIterIsBeginFunc)(LwIter * iter);
 
 typedef void (*LwListAllocateFunc) (LwList * self);
 
@@ -36,7 +38,8 @@ struct _LwListClass {
   LwListIterGetPositionFunc iter_get_position;
   LwListIterNextFunc iter_next;
   LwListIterPreviousFunc iter_previous;
-
+  LwListIterIsEndFunc iter_is_end;
+  LwListIterIsBeginFunc iter_is_begin;
   LwListIterGetFunc iter_get;
   LwListIterSetFunc iter_set;
 

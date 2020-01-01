@@ -2,20 +2,17 @@
 #define LW_MATCH_INFO_INCLUDED
 
 #include "list.h"
-#include "column-match-info.h"
-#include "match-marker.h"
+#include "table.h"
 
 G_BEGIN_DECLS
 
 #define LW_TYPE_MATCH_INFO lw_match_info_get_type ()
 G_DECLARE_FINAL_TYPE (LwMatchInfo, lw_match_info, LW, MATCH_INFO, LwList)
 
-LwMatchInfo * lw_match_info_new (void);
+LwMatchInfo * lw_match_info_new (LwTable * haystack);
 
-void lw_match_info_set_column (LwMatchInfo * self, LwColumnMatchInfo * column_match_info);
-
-gboolean lw_match_info_match_value (LwQueryNode * self, GValue * value LwMatchInfo * match_info_out);
-gboolean lw_match_info_match_iter (LwQueryNode  * self, LwIter * iter, LwMatchInfo * match_info_out);
+void lw_match_info_add (LwMatchInfo * self, gint column, GMatchInfo * match_info);
+LwTable * lw_match_info_get_haystack (LwMatchInfo * self);
 
 G_END_DECLS
 

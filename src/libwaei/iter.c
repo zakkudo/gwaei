@@ -59,6 +59,41 @@ lw_iter_previous (LwIter * self)
     return klass->iter_previous (self);
 }
 
+gboolean 
+lw_iter_is_end (LwIter * self)
+{
+    // Sanity checks
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (LW_IS_LIST (self), FALSE);
+
+    // Declarations
+    LwList * list = NULL;
+    LwListClass * klass = NULL;
+
+    // Initializations
+    list = LW_LIST (self->iterable);
+    klass = LW_LIST_GET_CLASS (list);
+
+    return klass->iter_is_end (self);
+}
+
+gboolean 
+lw_iter_is_begin (LwIter * self)
+{
+    // Sanity checks
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (LW_IS_LIST (self), FALSE);
+
+    // Declarations
+    LwList * list = NULL;
+    LwListClass * klass = NULL;
+
+    // Initializations
+    list = LW_LIST (self->iterable);
+    klass = LW_LIST_GET_CLASS (list);
+
+    return klass->iter_is_begin (self);
+}
 
 gpointer
 lw_iter_get (LwIter * self)
