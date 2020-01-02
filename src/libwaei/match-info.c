@@ -45,6 +45,7 @@
 #include <glib-object.h>
 
 #include "column-match-info.h"
+#include "match-marker.h"
 #include "query.h"
 #include "table.h"
 #include "gettext.h"
@@ -85,7 +86,7 @@ typedef struct {
 } LwMatchInfoClassPrivate;
 
 typedef struct {
-    LwColumnMatchInfo ** columns;
+    gpointer * columns;
     gint length;
     LwTable * haystack;
 } LwMatchInfoPrivate;
@@ -138,21 +139,34 @@ lw_match_info_finalize (GObject * object)
     self = LW_MATCH_INFO (object);
     priv = lw_match_info_get_instance_private (self);
 
-    LwIter iter = {0};
+    gint i = 0;
 
     lw_list_get_begin_iter (LW_LIST (self), &iter);
 
-    while (!lw_iter_is_end (&iter))
+    while (i < priv->length)
     {
-        column_match_info = lw_iter_get (&iter);
+        GType type = lw_table_get_column_value_type (priv->haystack, i);
 
-        if (column_match_info != NULL)
+        if (type == G_TYPE_STRV)
         {
-            g_object_unref (column_match_info);
+            gchar ** strv = lw_table_get_column (priv->haystack, i);
+            for (j = 0; strv[j] != NULL; j += 1)
+            {
+                g_list_free_full (columns[i][j], lw_match_marker_unref);
+            }
+            g_free(columns[i];
+        }
+        else
+        {
+            g_list_free_full (columns[i], lw_match_marker_unref);
         }
 
-        lw_iter_next (&iter);
+
+        i += 1;
     }
+
+    g_free (columns);
+    columns = NULL;
 
 }
 
@@ -251,48 +265,62 @@ lw_match_info_class_init (LwMatchInfoClass * klass)
     g_object_class_install_property (object_class, PROP_HAYSTACK, klasspriv->pspec[PROP_HAYSTACK]);
 }
 
-static LwColumnMatchInfo *
-lw_match_info_ensure_column (LwMatchInfo * self,
-                             gint          column)
-{
-    // Sanity checks
-    g_return_val_if_fail (LW_IS_MATCH_INFO (self), NULL);
-
-    // Declarations
-    LwIter iter = {0};
-    LwColumnMatchInfo * column_match_info = NULL;
-
-    lw_list_get_iter_at_position (LW_LIST (self), &iter, column);
-
-    column_match_info = lw_iter_get (&iter);
-
-    if (column_match_info == NULL)
-    {
-        column_match_info = lw_column_match_info_new (column, strv);
-        lw_iter_set (&iter, column_match_info);
-    }
-
-    return column_match_info;
-}
-
 /**
  * lw_match_info_set_column:
  * @self: A #LwMatchInfo
  * @column_match_info: The #LwColumnMatchInfo to set or %NULL to unset it
  */
 void
-lw_match_info_add (LwMatchInfo * self, gint column, GMatchInfo * match_info)
+lw_match_info_add (LwMatchInfo     * self,
+                   gint         column, 
+                   gint         index, 
+                   GMatchInfo * match_info)
 {
-    //Initializations
-    g_return_if_fail (LW_IS_MATCH_INFO (self));
+    //Sanity checks
+    g_return_if_fail (self != NULL);
+    g_return_if_fail (match_info != NULL);
+    if (g_match_info_get_match_count (match_info) == 0) return;
 
     // Declarations
-    LwColumnMatchInfo * column_match_info = NULL;
+    LwMatchInfoPrivate * priv = NULL;
+    GList ** markers = NULL;
 
     // Initializations
-    column_match_info = lw_match_info_ensure_column (self, column);
+    priv = lw_match_info_get_instance_private (self);
 
-    lw_column_match_info_add (column_match_info, match_info);
+    if (lw_table_get_column_value_type (priv->haystack, column) == G_TYPE_STRV && priv->columns[column] == NULL)
+    {
+        priv->columns[column] = g_new0 (gpointer, g_strv_length (lw_table_get_column (priv->haystack, column)));
+        markers = &priv->columns[column][index];
+    } else
+    {
+        markers = &priv->columns[column];
+    }
+
+    if (match_info != NULL)
+    {
+        //Declarations
+        LwMatchMarker * open_marker = NULL;
+        LwMatchMarker * close_marker = NULL;
+
+        open_marker = lw_match_marker_new (LW_MATCH_MARKER_TYPE_OPEN, match_info);
+        if (open_marker == NULL) goto errored;
+        close_marker = lw_match_marker_new (LW_MATCH_MARKER_TYPE_CLOSE, match_info);
+        if (close_marker == NULL) goto errored;
+
+        *markers = g_list_prepend (*markers, open_marker);
+        *markers = g_list_prepend (*markers, close_marker);
+
+        open_marker = NULL;
+        close_marker = NULL;
+    }
+
+errored:
+
+    if (open_marker != NULL) lw_match_marker_unref (open_marker);
+    open_marker = NULL;
+    if (close_marker != NULL) lw_match_marker_unref (close_marker);
+    close_marker = NULL;
 }
 
 static void
@@ -474,7 +502,8 @@ lw_match_info_iter_previous (LwIter * self)
     self->user_data1 = GINT_TO_POINTER (position);
 }
 
-static gboolean lw_match_info_iter_is_end (LwIter * self){
+static gboolean 
+lw_match_info_iter_is_end (LwIter * self){
     gint position = 0;
     gint length = 0;
 
@@ -484,7 +513,8 @@ static gboolean lw_match_info_iter_is_end (LwIter * self){
     return position > length - 1;
 }
 
-static gboolean lw_match_info_iter_is_begin (LwIter * self)
+static gboolean 
+lw_match_info_iter_is_begin (LwIter * self)
 {
     gint position = 0;
 
@@ -543,8 +573,230 @@ lw_match_info_allocate (LwMatchInfo * self)
         return;
     }
 
-    priv->columns = g_new0 (LwColumnMatchInfo*, length);
+    priv->columns = g_new0 (gpointer*, length);
     priv->length = length;
 }
 
 
+static gint
+_sort_markers (LwMatchMarker * marker1,
+               LwMatchMarker * marker2)
+{
+    if (marker1->POSITION < marker2->POSITION)
+    {
+      return -1;
+    }
+    else if (marker1->POSITION > marker2->POSITION)
+    {
+      return 1;
+    }
+    else
+    {
+      return 0;
+    }
+    
+}
+
+
+static gboolean
+_read_unmarked_section (LwColumnMatchInfo     *  self,
+                        LwColumnMatchInfoIter *  iter,
+                        gint                  *  i_out,
+                        gchar const           ** START_OUT,
+                        gchar const           ** END_OUT,
+                        gboolean              *  is_match_out)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (iter != NULL, FALSE);
+
+    if (i_out != NULL) *i_out = iter->i;
+    if (START_OUT != NULL) *START_OUT = self->strv[iter->i];
+    if (END_OUT != NULL) *END_OUT = *START_OUT + strlen(*START_OUT);
+    if (is_match_out != NULL) *is_match_out = FALSE;
+
+    iter->i++;
+    iter->END = NULL;
+    iter->match_level = 0;
+  
+
+    return (self->strv[iter->i] != NULL);
+}
+
+
+static gboolean
+_read_marked_section (LwColumnMatchInfo      * self,
+                      LwColumnMatchInfoIter  * iter,
+                      gint                            * i_out,
+                      gchar const                    ** START_OUT,
+                      gchar const                    ** END_OUT,
+                      gboolean                        * is_match_out)
+{
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (iter != NULL, FALSE);
+
+    //Declarations
+    LwMatchMarker * marker = NULL;
+    gchar const * START = NULL;
+    gchar const * END = NULL;
+    gboolean match_changed = FALSE;
+    gint match_level = 0;
+    gchar const * POSITION = NULL;
+    LwMatchMarkerType type = 0;
+    gint i = 0;
+
+    //Initializations
+    marker = LW_MATCH_MARKER (iter->marker->data);
+    match_level = iter->match_level;
+    i = iter->i;
+
+    if (is_match_out != NULL) *is_match_out = FALSE;
+
+    if (iter->END == NULL)
+    {
+      START = lw_match_marker_get_string (marker); 
+    }
+    else
+    {
+      START = iter->END;
+    }
+
+    while (iter->marker != NULL && lw_match_marker_get_string (marker) == self->strv[i] && !match_changed)
+    {
+      POSITION = lw_match_marker_get_position (marker, &type);
+      switch (type)
+      {
+        case LW_MATCH_MARKER_TYPE_OPEN:
+          if (POSITION > START || POSITION == self->strv[i])  match_level++;
+          if (POSITION == START) iter->match_level = match_level;
+          match_changed = (iter->match_level == 0 && match_level > 0 && POSITION > START);
+          break;
+        case LW_MATCH_MARKER_TYPE_CLOSE:
+          if (POSITION > START || POSITION == self->strv[i])  match_level--;
+          if (POSITION == START) iter->match_level = match_level;
+          g_assert (match_level >= 0);
+          match_changed = (iter->match_level > 0 && match_level == 0 && POSITION > START);
+          break;
+        default:
+          g_assert_not_reached ();
+          break;
+      }
+
+      if (!match_changed)
+      {
+        iter->marker = iter->marker->next;
+        marker = (iter->marker != NULL) ? LW_MATCH_MARKER (iter->marker->data): NULL;
+      }
+      else
+      {
+        if (is_match_out != NULL) *is_match_out = !match_level;
+      }
+    }
+
+    if (iter->marker == NULL || POSITION == NULL || lw_match_marker_get_string (marker) != self->strv[i] || *POSITION == '\0')
+    {
+      END = START + strlen(START);
+      iter->END = NULL;
+      iter->match_level = 0;
+      iter->i = i + 1;
+    }
+    else
+    {
+      iter->END = END = POSITION;
+      iter->match_level = match_level;
+    }
+
+    if (START_OUT != NULL) *START_OUT = START;
+    if (END_OUT != NULL) *END_OUT = END;
+    if (i_out != NULL) *i_out = i;
+
+    return (self->strv[iter->i] != NULL);
+}
+
+
+/**
+ * lw_column_match_info_read:
+ * @self: a #LwQueryNodeMatchInfo
+ * @iter: A #LwColumnMatchInfoIter initialized to {0}
+ * @i_out: (out): An index to set or %NULL
+ * @START_OUT: (out) (transfer none): A #gchar pointer to write the token start or %NULL.  This string should not be freed or modified.
+ * @END_OUT: (out) (transfer none): A #gchar pointer to write the token END or %NULL. This string should not be freed or modified.
+ * @is_match_out: (out): A pointer to a #gboolean to write if the token denotes a highlighted match section or %NULL
+ *
+ * Reads substrings iteratively from the match information such that you can easily print
+ * them with highlight information.
+ * 
+ * Example:
+ * |[<!-- language="C" -->
+ * LwColumnMatchInfoIter iter = {0};
+ * gchar const * start = NULL;
+ * gchar const * end = NULL;
+ * gboolean is_match = FALSE;
+ * gint previous_i = -1, i = 0;
+ * 
+ * while (lw_column_match_info_read (column_match_info, &iter, &i, &start, &end, &is_match))
+ * {
+ *     if (previous_i != i)
+ *     {
+ *         printf("%d) ", i);
+ *         previous_i = i;
+ *     }
+ *     if (is_match)
+ *     {
+ *         printf("[%.s]", end - start, start)
+ *     }
+ *     else
+ *     {
+ *         printf("%.s", end - start, start)
+ *     }
+ * }
+ * ]|
+ *
+ * Returns:  %TRUE until there are no more tokens to iterate
+ */
+gboolean
+lw_match_info_read (LwMatchInfo * self,
+                    gint column,
+                    gint index,
+                    LwMatchInfoReadIter * self)
+{
+    MAKE THIS WORK
+    SHOULD RESET when self, column, index don't match what is in iter
+    should valiate
+    should only iterate over current string
+
+    //Sanity checks
+    g_return_val_if_fail (self != NULL, FALSE);
+    g_return_val_if_fail (iter != NULL, FALSE);
+    if (self->strv[iter->i] == NULL) return FALSE;
+
+    //Declarations
+    gint match_level = 0;
+    gchar const * START = NULL;
+    gchar const * END = NULL;
+    LwMatchMarker * marker = NULL;
+    gboolean is_not_end = FALSE;
+
+    NEEDS TO CHECK IF THIS IS STRV
+
+    //Initializations
+    match_level = iter->match_level;
+    if (iter->marker == NULL)
+    {
+      self->markers = g_list_sort (self->markers, (GCompareFunc) _sort_markers);
+      iter->marker = self->markers;
+    }
+    marker = (iter->marker != NULL) ? LW_MATCH_MARKER (iter->marker->data) : NULL;
+    
+    if (marker == NULL || self->strv[iter->i] != marker->TOKEN)
+    {
+      is_not_end = _read_unmarked_section (self, iter, i_out, START_OUT, END_OUT, is_match_out);
+    }
+    else
+    {
+      is_not_end = _read_marked_section (self, iter, i_out, START_OUT, END_OUT, is_match_out);
+    }
+
+    return is_not_end;
+}
